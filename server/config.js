@@ -30,7 +30,7 @@ export const config = {
   openrouter: {
     apiKey: required('OPENROUTER_API_KEY'),
     base: 'https://openrouter.ai/api/v1/chat/completions',
-    model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-haiku',
+    model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
   },
 
   // Recommendation tuning (SPEC § 2.2)
@@ -43,14 +43,15 @@ export const config = {
   },
 };
 
-// USD per 1M tokens, blended input+output rough figure, for the cost log
-// (CLAUDE.md § Coding Conventions: cost logging is a hard requirement). If the
-// model isn't listed we log null cost rather than guess wildly.
+// Cost logging is a hard requirement (CLAUDE.md § Coding Conventions). We ask
+// OpenRouter for the exact cost in its response (openrouter.js sends
+// usage.include=true); this table is only the fallback when that field is
+// absent — a blended USD-per-1M-tokens figure. Unknown model → null, not a guess.
 const PRICE_PER_MTOK = {
-  'anthropic/claude-3.5-haiku': 2.4,
-  'anthropic/claude-3.5-sonnet': 9.0,
+  'anthropic/claude-haiku-4.5': 3.0,
+  'anthropic/claude-3-haiku': 0.9,
+  'anthropic/claude-sonnet-4.5': 9.0,
   'openai/gpt-4o-mini': 0.4,
-  'google/gemini-flash-1.5': 0.25,
 };
 
 export function estimateCostUsd(model, tokensUsed) {

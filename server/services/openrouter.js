@@ -30,6 +30,8 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7 })
         model: config.openrouter.model,
         max_tokens: maxTokens,
         temperature,
+        // Ask OpenRouter to return the exact USD cost of this call in usage.cost.
+        usage: { include: true },
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -52,6 +54,9 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7 })
   return {
     text,
     tokensUsed: data?.usage?.total_tokens ?? null,
+    // Exact cost from OpenRouter when present; null → caller falls back to the
+    // per-model estimate table in config.js.
+    costUsd: typeof data?.usage?.cost === 'number' ? Number(data.usage.cost.toFixed(6)) : null,
     model: data?.model || config.openrouter.model,
   };
 }

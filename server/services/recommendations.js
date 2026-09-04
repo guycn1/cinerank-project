@@ -100,7 +100,7 @@ export async function generateRecommendations() {
     suggested_titles: verified.map((v) => v.title),
     model_used: result.model,
     tokens_used: result.tokensUsed,
-    estimated_cost_usd: estimateCostUsd(result.model, result.tokensUsed),
+    estimated_cost_usd: result.costUsd ?? estimateCostUsd(result.model, result.tokensUsed),
   };
   const { error: logError } = await supabase.from('recommendation_logs').insert(logRow);
   if (logError) {
