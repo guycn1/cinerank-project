@@ -1,0 +1,57 @@
+# Decision log — the *why*
+
+Started at project conception, not bolted on afterwards (course Module 8: the
+reasons behind a choice are clearest at the moment it's made, and the agent can't
+recover them later). Newest first.
+
+---
+
+## D-001 · Scope: single-user, no auth — and why that isn't a security hole
+The app is one person's movie list. Module 17's real topics — injection, secrets,
+prompt injection, least privilege — are all demonstrable without multi-user auth.
+Least privilege here = the frontend/back-end use the Supabase **anon key**, which
+is RLS-bounded, never the `service_role` key. Adding accounts would be
+manufacturing a demo the app doesn't need.
+
+## D-002 · The AI is a component, not the product
+Two narrow LLM features (recommendations, taste verdict), each in its own service
+module, each with its own versioned prompt file. Either can be mocked or removed
+without touching movie CRUD. The model never supplies a fact shown to the user:
+recommendations return *titles only*, and TMDB supplies poster/year/overview after
+a cross-check. This is the concrete guard against hallucinated movies.
+
+## D-003 · Cost logging is structural, not decorative
+`recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
+`estimated_cost_usd` per call. `config.estimateCostUsd` uses a small per-model
+price table; unknown models log `null` rather than a wild guess. A log-write
+failure is surfaced as an error, not swallowed — the audit record is the point.
+
+## D-004 · Model choice: cheap by default
+`anthropic/claude-3.5-haiku` via OpenRouter. The tasks are small (pick 3–6 titles;
+write one teasing sentence). Module 9: match the model to the task's difficulty;
+the biggest cost lever is model choice. Overridable via `OPENROUTER_MODEL`.
+
+## D-005 · Prompt-injection posture
+Review text is untrusted user input flowing into both prompts. Mitigations, in
+layers: (1) the text is length-capped and wrapped in explicit BEGIN/END data
+markers; (2) each prompt tells the model the block is data and to ignore embedded
+instructions; (3) recommendation output is constrained to a JSON array and every
+title is TMDB-verified, so a partial injection yields at worst a strange
+suggestion; (4) the verdict is length-capped server-side and rendered as
+`textContent`, so at worst it's an off-tone banner line.
+
+## D-006 · Frontend: vanilla, but not plain
+No framework. The "polished, distinctive" bar (SPEC § 3) is met with deliberate
+choices: poster as the anchor of every card, Fraunces display numerals for rank,
+a marquee-amber accent on near-black, film grain, motion on hover/entry, a
+gradient-sheen verdict banner. AI-suggested cards reuse the card language but
+carry a quiet "AI pick · not yet rated" marker (SPEC § 3.3).
+
+## D-007 · Ranking is derived, never stored
+`GET /api/movies` returns movies ordered by `rating desc nulls last`; the
+frontend numbers them 1..N on render. No stale `rank` column (SPEC § 2.1).
+
+## D-008 · Taste verdict never auto-runs
+The banner shows a threshold message or a "tap for a verdict" prompt on load, and
+only calls OpenRouter on the explicit "New verdict" click — no burning credit on
+an unrequested repeat call every page load (SPEC § 2.3).
