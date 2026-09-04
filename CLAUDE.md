@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (recommend_v3, taste_verdict_v3; review view-more)
+**Last updated:** 2026-09-04 (recommend_v3, taste_verdict_v4; review view-more)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -39,9 +39,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v3` (ONE
-  20–30-word sentence, no clause-chaining), `max_tokens` 100, server-side
-  sentence-aware truncation (350-char ceiling) + markdown strip, explicit-trigger.
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
+  sentences, ~35–60 words, characterise the viewer — not recite ratings),
+  `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
+  markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
   both tables; in-app viewer via footer link.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
@@ -110,7 +111,7 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v3` (one 20–30-word sentence). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v4` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.

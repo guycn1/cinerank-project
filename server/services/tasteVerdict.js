@@ -3,8 +3,8 @@ import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 
-const PROMPT_VERSION = 'taste_verdict_v3';
-const MAX_LEN = 350; // safety ceiling; the prompt asks for one 20–30 word sentence (~200 chars)
+const PROMPT_VERSION = 'taste_verdict_v4';
+const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35–60 words)
 
 // Belt-and-suspenders cleanup of the model's plain-text output:
 //  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
@@ -65,7 +65,7 @@ export async function generateTasteVerdict() {
   let errorText = null;
 
   try {
-    result = await chat({ system, user, maxTokens: 100, temperature: 0.85 });
+    result = await chat({ system, user, maxTokens: 180, temperature: 0.85 });
     // Plain text only — the frontend renders this via textContent, never innerHTML.
     verdict = tidyVerdict(result.text);
   } catch (err) {

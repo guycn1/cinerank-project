@@ -6,6 +6,17 @@ recover them later). Newest first.
 
 ---
 
+## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
+v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare
+ratings-paraphrase ("Matt Murdock's darkness scores higher than Superman's
+earnestness") — a readout, not a verdict, and too terse (user: "shouldn't go this
+far with being short"). v4 gives the room back — 2–3 finished sentences, ~35–60
+words — and redirects the content: characterise the person as a viewer (what they
+chase, what bores them, what kind of moviegoer that makes them), name a film only
+as evidence, never just recite the numbers. `max_tokens` 100 → 180, server
+truncation ceiling 350 → 450. Tone + injection guard unchanged. New prompt file;
+v1–v3 untouched.
+
 ## D-012 · Recommendation reason length → `recommend_v3`
 v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
 Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
