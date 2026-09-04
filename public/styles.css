@@ -375,7 +375,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   flex-direction: column;
   flex: 1; /* fills the card; cards in a row stretch to equal height */
 }
-.rec-card__body h4 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
+.rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
 .rec-card__body .reason {
   color: var(--ink-dim);

@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (taste_verdict_v4; test suite + `/api/health` + docs/PROCESS.md)
+**Last updated:** 2026-09-04 (taste_verdict_v4; tests + `/api/health` + docs/PROCESS.md; accessibility pass)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -52,6 +52,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
+* Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
+  film, not just the verb), live regions on search results / recs hint / verdict
+  text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
+  `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
+  poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
+  heading fixed h4→h3 (correct nesting under the section's h2), decorative
+  spinners `aria-hidden`.
 
 ### Open issues / TODO
 * [x] Migration 001 applied.

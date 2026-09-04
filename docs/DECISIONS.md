@@ -6,6 +6,21 @@ recover them later). Newest first.
 
 ---
 
+## D-016 · Accessibility pass
+Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
+`aria-label`s so a screen reader in a 20-row list hears which film, not just
+"Remove, button" repeated. Added live regions (`role="status" aria-live="polite"`)
+on search results, the recs hint, and the verdict text so async results and
+errors are announced, not just visually swapped. `aria-busy` on the two AI
+trigger buttons while a call is in flight. The review "view more" toggle got
+`aria-expanded`/`aria-controls`. Both `<dialog>`s got `aria-labelledby` (native
+`showModal()`/`.close()` already handles focus trap and return-focus, so no JS
+needed there). Poster `<img alt>` now reads "{title} — poster"; the no-poster
+placeholder is `role="img"` with a labelled fallback instead of decorative-only.
+Fixed a real heading-hierarchy bug: recommendation cards used `<h4>` directly
+under the section's `<h2>` (skipping `<h3>`) — now `<h3>`, matching the ranked
+list's card headings. Decorative spinners are `aria-hidden`. No visual change.
+
 ## D-015 · Test suite, health probe, process doc
 Added `npm test` on Node's built-in runner (no new dependency) covering the pure
 helpers where every truncation bug actually lived — `parseModelJson`,
