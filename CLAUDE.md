@@ -55,6 +55,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * [ ] No automated tests yet; verification is manual + syntax/boot checks.
 * [ ] `/api/recommendations/history` endpoint exists but is superseded by
   `/api/ai-log`; decide whether to remove it.
+* [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
+  (not empty) so the ranked list, both AI features, and the call log all work on
+  first open. Blueprint agreed with user:
+  1. One deliberate taste persona — a specific sensibility (e.g. "bold,
+     stranger-than-fiction swings; bored by safe blockbusters"), not a generic
+     spread, so the verdict + recs land.
+  2. Rating spread: a couple high, one mid, one low "guilty pleasure /
+     disappointment" outlier for contrast.
+  3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
+     demos the "view more" toggle + injection-safe handling.
+  4. Recommendation headroom: likely AI picks not already in the list, real
+     enough to pass TMDB verification cleanly (no silently-dropped cards).
+  5. Dry-run the verdict a few times pre-submission; adjust the seed set if the
+     output is flat.
+  Build it as a small repeatable seed helper (hits the app's own
+  `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
+  re-seed while tuning; final state must be exactly what the normal UI flow
+  produces. Not started — user will kick this off later.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
