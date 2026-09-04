@@ -4,7 +4,7 @@ import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 import { verifyTitle } from './tmdb.js';
 
-const PROMPT_VERSION = 'recommend_v1';
+const PROMPT_VERSION = 'recommend_v2';
 
 class RecommendationError extends Error {
   constructor(message) {

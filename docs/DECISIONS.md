@@ -6,6 +6,14 @@ recover them later). Newest first.
 
 ---
 
+## D-009 · Recommendation reason voice → `recommend_v2`
+The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
+v2 asks for a second-person line tied to the user's own ratings/reviews
+("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
+a new prompt file per CLAUDE.md § Prompt Versioning; `recommend_v1.md` is kept
+untouched and every past `recommendation_logs` row still names the exact prompt
+that produced it. `taste_verdict_v1` is unaffected — versioned independently.
+
 ## D-001 · Scope: single-user, no auth — and why that isn't a security hole
 The app is one person's movie list. Module 17's real topics — injection, secrets,
 prompt injection, least privilege — are all demonstrable without multi-user auth.
