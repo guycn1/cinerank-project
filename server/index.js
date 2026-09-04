@@ -5,6 +5,7 @@ import { config } from './config.js';
 import { moviesRouter } from './routes/movies.js';
 import { recommendationsRouter } from './routes/recommendations.js';
 import { tasteVerdictRouter } from './routes/tasteVerdict.js';
+import { aiLogRouter } from './routes/aiLog.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -26,6 +27,7 @@ app.get('/api/config', (_req, res) => {
 app.use('/api/movies', moviesRouter);
 app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/taste-verdict', tasteVerdictRouter);
+app.use('/api/ai-log', aiLogRouter);
 
 // Central error handler — nothing leaks a stack trace to the client.
 // eslint-disable-next-line no-unused-vars

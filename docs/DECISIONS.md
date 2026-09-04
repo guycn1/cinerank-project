@@ -6,6 +6,34 @@ recover them later). Newest first.
 
 ---
 
+## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
+v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
+model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
+literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
+title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `* _ \``, and
+if still over a 300-char ceiling truncates at the last sentence end (else last
+word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
+file; `taste_verdict_v1.md` untouched.
+
+## D-010 · In-app AI call log + failure logging (migration 001)
+Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
+wide modal viewer reachable from a footer link — so the audit trail can be shown
+in the browser during the demo, not only in the Supabase table editor (SPEC § 7.2
+step 4). Migration 001 adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
+`status`, `error_text` to both tables. The services were restructured so that once
+an AI call is attempted a row is **always** written — a handled model/parse/network
+failure logs `status='failed'` with the message, then re-throws for the calm inline
+UI error. Pre-call guards (not enough rated movies, DB read failure) still throw
+without logging — those aren't AI calls.
+
+## D-009 · Recommendation reason voice → `recommend_v2`
+The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
+v2 asks for a second-person line tied to the user's own ratings/reviews
+("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
+a new prompt file per CLAUDE.md § Prompt Versioning; `recommend_v1.md` is kept
+untouched and every past `recommendation_logs` row still names the exact prompt
+that produced it. `taste_verdict_v1` is unaffected — versioned independently.
+
 ## D-001 · Scope: single-user, no auth — and why that isn't a security hole
 The app is one person's movie list. Module 17's real topics — injection, secrets,
 prompt injection, least privilege — are all demonstrable without multi-user auth.

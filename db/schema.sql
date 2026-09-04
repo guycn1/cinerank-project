@@ -27,12 +27,17 @@ create index if not exists movies_rating_idx on movies (rating desc nulls last);
 create table if not exists recommendation_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
-  prompt_version     text    not null,           -- e.g. "recommend_v1"
+  prompt_version     text    not null,           -- e.g. "recommend_v2"
   input_movie_ids    uuid[]  not null,           -- top-N movies used as taste signal
   raw_model_output   jsonb,                      -- exactly what the model returned
   suggested_titles   text[],                     -- parsed titles, post TMDB validation
   model_used         text,
-  tokens_used        integer,
+  tokens_used        integer,                    -- total; split below
+  prompt_tokens      integer,
+  completion_tokens  integer,
+  duration_ms        integer,
+  status             text    not null default 'success',  -- 'success' | 'failed'
+  error_text         text,                       -- populated when status = 'failed'
   estimated_cost_usd numeric(10,6)               -- hard requirement (CLAUDE.md § Coding Conventions)
 );
 
@@ -47,6 +52,11 @@ create table if not exists taste_verdict_logs (
   verdict_text       text,
   model_used         text,
   tokens_used        integer,
+  prompt_tokens      integer,
+  completion_tokens  integer,
+  duration_ms        integer,
+  status             text    not null default 'success',  -- 'success' | 'failed'
+  error_text         text,
   estimated_cost_usd numeric(10,6)
 );
 

@@ -24,6 +24,12 @@ const el = {
   rateRange: $('#rate-range'),
   rateOutput: $('#rate-output'),
   rateReview: $('#rate-review'),
+  rateCancel: $('#rate-cancel'),
+  openLog: $('#open-log'),
+  logDialog: $('#log-dialog'),
+  logClose: $('#log-close'),
+  logBody: $('#log-body'),
+  logFoot: $('#log-foot'),
   toast: $('#toast'),
 };
 
@@ -217,8 +223,10 @@ async function addMovie(tmdbId, btn) {
       body: JSON.stringify({ tmdb_id: tmdbId }),
     });
     await loadMovies();
-    toast(`Added “${movie.title}” — rate it to rank it.`);
     if (btn) btn.textContent = 'Added ✓';
+    // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
+    const fresh = state.movies.find((m) => m.id === movie.id);
+    if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
     toast(err.message, true); // "Already in your list" surfaces here (SPEC § 3.4)
     if (btn) { btn.disabled = err.message.includes('Already'); btn.textContent = err.message.includes('Already') ? 'In your list' : 'Add'; }
@@ -226,9 +234,12 @@ async function addMovie(tmdbId, btn) {
 }
 
 /* ---------- rate / remove ------------------------------------------- */
-function openRate(movie) {
+function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
-  el.rateTitle.textContent = movie.title;
+  el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
+  // On a fresh add, closing without saving just leaves the movie unrated —
+  // make that an explicit "later" choice, not a dead-end "Cancel".
+  el.rateCancel.textContent = isNew ? 'Skip for now' : 'Cancel';
   el.rateRange.value = movie.rating ?? 7;
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
   el.rateReview.value = movie.review ?? '';
@@ -371,6 +382,105 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdictRefresh.disabled = false;
   }
 });
+
+/* ---------- AI call log ----------------------------------------- */
+const fmtCost = (usd) => (usd == null ? '—' : `${(usd * 100).toFixed(2)}¢`);
+const fmtDur = (ms) =>
+  ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
+const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
+
+function cell(text, className) {
+  const td = document.createElement('td');
+  if (className) td.className = className;
+  td.textContent = text;
+  return td;
+}
+
+async function renderAiLog() {
+  el.logBody.replaceChildren();
+  el.logFoot.replaceChildren();
+  const loading = document.createElement('tr');
+  const ld = document.createElement('td');
+  ld.colSpan = 9;
+  ld.className = 'log-empty';
+  ld.append(Object.assign(document.createElement('span'), { className: 'spinner' }), document.createTextNode(' Loading…'));
+  loading.append(ld);
+  el.logBody.append(loading);
+
+  let data;
+  try {
+    data = await api('/api/ai-log');
+  } catch (err) {
+    el.logBody.replaceChildren();
+    const tr = document.createElement('tr');
+    const td = cell(`Couldn't load the log: ${err.message}`, 'log-empty');
+    td.colSpan = 9;
+    tr.append(td);
+    el.logBody.append(tr);
+    return;
+  }
+
+  el.logBody.replaceChildren();
+  if (!data.rows.length) {
+    const tr = document.createElement('tr');
+    const td = cell('No AI calls logged yet — run a recommendation or a taste verdict.', 'log-empty');
+    td.colSpan = 9;
+    tr.append(td);
+    el.logBody.append(tr);
+    return;
+  }
+
+  for (const r of data.rows) {
+    const tr = document.createElement('tr');
+
+    tr.append(cell(r.feature, 'log-feature'));
+    tr.append(cell(r.prompt_version || '—'));
+    tr.append(cell(r.model_used || '—'));
+
+    const tok = document.createElement('td');
+    tok.className = 'num';
+    tok.textContent = fmtTokens(r.tokens_used);
+    if (r.prompt_tokens != null || r.completion_tokens != null) {
+      const sub = document.createElement('span');
+      sub.className = 'sub';
+      sub.textContent = `${r.prompt_tokens ?? '?'} in / ${r.completion_tokens ?? '?'} out`;
+      tok.append(sub);
+    }
+    tr.append(tok);
+
+    tr.append(cell(fmtCost(r.estimated_cost_usd), 'num'));
+    tr.append(cell(fmtDur(r.duration_ms), 'num'));
+
+    const st = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `log-badge ${r.status === 'failed' ? 'fail' : 'ok'}`;
+    badge.textContent = r.status;
+    st.append(badge);
+    tr.append(st);
+
+    tr.append(cell(r.summary || '—', 'result'));
+    tr.append(cell(new Date(r.created_at).toLocaleString()));
+
+    el.logBody.append(tr);
+  }
+
+  const footRow = document.createElement('tr');
+  const label = cell(`Total · ${data.totals.calls} call(s)`);
+  label.colSpan = 3;
+  footRow.append(label);
+  footRow.append(cell(fmtTokens(data.totals.tokens), 'num'));
+  footRow.append(cell(fmtCost(data.totals.cost), 'num'));
+  const rest = document.createElement('td');
+  rest.colSpan = 4;
+  footRow.append(rest);
+  el.logFoot.append(footRow);
+}
+
+el.openLog.addEventListener('click', () => {
+  el.logDialog.showModal();
+  renderAiLog();
+});
+el.logClose.addEventListener('click', () => el.logDialog.close());
 
 /* ---------- boot ------------------------------------------------- */
 (async function init() {

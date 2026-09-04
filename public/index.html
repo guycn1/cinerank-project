@@ -77,7 +77,8 @@
   <footer class="site-foot">
     <p>
       Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.
-      Every AI call is logged with token count &amp; cost.
+      Every AI call is logged with token count &amp; cost —
+      <button type="button" class="linkish" id="open-log">view the AI call log</button>.
     </p>
   </footer>
 
@@ -90,10 +91,35 @@
       <label for="rate-review">Review <span>(optional)</span></label>
       <textarea id="rate-review" rows="3" maxlength="2000" placeholder="One line on why…"></textarea>
       <menu>
-        <button value="cancel" type="submit" class="ghost">Cancel</button>
+        <button value="cancel" type="submit" class="ghost" id="rate-cancel">Cancel</button>
         <button value="save" type="submit" class="primary" id="rate-save">Save</button>
       </menu>
     </form>
+  </dialog>
+
+  <!-- AI call log -->
+  <dialog id="log-dialog" class="log-dialog">
+    <header>
+      <h3>AI call log</h3>
+      <button type="button" class="ghost" id="log-close">Close</button>
+    </header>
+    <p class="log-sub">
+      Every OpenRouter call CineRank has made — both features, successes and failures.
+      Persisted in <code>recommendation_logs</code> / <code>taste_verdict_logs</code>.
+    </p>
+    <div class="log-scroll">
+      <table class="log-table" id="log-table">
+        <thead>
+          <tr>
+            <th>Feature</th><th>Prompt</th><th>Model</th>
+            <th class="num">Tokens</th><th class="num">Cost</th>
+            <th class="num">Duration</th><th>Status</th><th>Result</th><th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="log-body"></tbody>
+        <tfoot id="log-foot"></tfoot>
+      </table>
+    </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

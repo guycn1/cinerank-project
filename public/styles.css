@@ -332,6 +332,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   overflow: hidden;
   animation: fade-slide 0.5s var(--ease) both;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .rec-card::before {
   content: 'AI pick · not yet rated';
@@ -351,7 +353,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
   background: var(--bg-raised);
 }
-.rec-card__body { padding: 0.8rem 0.9rem 1rem; }
+.rec-card__body {
+  padding: 0.8rem 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* fills the card; cards in a row stretch to equal height */
+}
 .rec-card__body h4 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
 .rec-card__body .reason {
@@ -359,9 +366,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 0.85rem;
   font-style: italic;
   margin: 0.4rem 0 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .rec-card__body button {
   width: 100%;
+  margin-top: auto; /* pin every 'Add to my list' to the card's bottom edge */
   background: var(--amber);
   color: #1a1205;
   border: none;
@@ -424,6 +436,63 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
+
+.linkish {
+  background: none;
+  border: none;
+  color: var(--amber);
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.linkish:hover { color: var(--amber-deep); }
+
+/* AI call log dialog ------------------------------------------------ */
+.log-dialog {
+  border: 1px solid var(--line);
+  background: var(--bg-raised);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: min(1080px, 94vw);
+  max-height: 88vh;
+  box-shadow: var(--shadow);
+}
+.log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
+.log-dialog header { display: flex; align-items: center; justify-content: space-between; }
+.log-dialog h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.4rem; }
+.log-dialog .ghost {
+  background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
+  border-radius: 8px; padding: 0.4rem 0.9rem; font: inherit; cursor: pointer;
+}
+.log-dialog .ghost:hover { border-color: var(--amber); color: var(--amber); }
+.log-sub { color: var(--ink-faint); font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+.log-sub code { color: var(--ink-dim); background: var(--bg-card); padding: 0 0.3em; border-radius: 4px; }
+
+.log-scroll { overflow: auto; max-height: 66vh; border: 1px solid var(--line); border-radius: 10px; }
+.log-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.log-table th, .log-table td {
+  text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.log-table thead th {
+  position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
+  font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.log-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.log-table tbody tr:hover { background: var(--bg-card); }
+.log-table .sub { display: block; color: var(--ink-faint); font-size: 0.75rem; }
+.log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
+.log-table tfoot td {
+  background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
+}
+.log-badge {
+  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+}
+.log-badge.ok { background: rgba(90, 180, 120, 0.15); color: #7fce9b; }
+.log-badge.fail { background: rgba(226, 87, 76, 0.16); color: var(--crimson); }
+.log-feature { font-weight: 600; }
+.log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
 
 .toast {
   position: fixed;
