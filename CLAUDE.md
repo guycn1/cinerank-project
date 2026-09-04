@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (recommend_v3, taste_verdict_v2)
+**Last updated:** 2026-09-04 (recommend_v3, taste_verdict_v2; review view-more)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -33,7 +33,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
-  guard via `unique(tmdb_id)`. Add now auto-opens the rate dialog ("Skip for now").
+  guard via `unique(tmdb_id)`. Add auto-opens the rate dialog ("Skip for now").
+  Long reviews clamp to 2 lines with a "view more…/show less" toggle (shown only
+  when the text actually clips).
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines.

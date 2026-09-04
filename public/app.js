@@ -113,7 +113,16 @@ function renderRanked() {
       const r = document.createElement('p');
       r.className = 'review';
       r.textContent = m.review;
-      body.append(r);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'review-toggle';
+      toggle.hidden = true; // shown after layout only if the text actually clips
+      toggle.textContent = 'view more…';
+      toggle.addEventListener('click', () => {
+        const expanded = r.classList.toggle('expanded');
+        toggle.textContent = expanded ? 'show less' : 'view more…';
+      });
+      body.append(r, toggle);
     }
 
     const score = document.createElement('div');
@@ -141,6 +150,16 @@ function renderRanked() {
 
     li.append(rank, poster, body, score);
     el.rankedList.append(li);
+  });
+
+  // Reveal a "view more" toggle only for reviews whose text is actually clipped.
+  requestAnimationFrame(() => {
+    el.rankedList.querySelectorAll('.review').forEach((p) => {
+      const toggle = p.nextElementSibling;
+      if (toggle?.classList.contains('review-toggle') && p.scrollHeight - p.clientHeight > 4) {
+        toggle.hidden = false;
+      }
+    });
   });
 }
 
