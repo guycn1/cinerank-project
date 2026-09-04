@@ -1,0 +1,16 @@
+# Secrets — never commit (CLAUDE.md § Security & Secrets #1)
+.env
+.env.local
+*.local
+
+# Dependencies
+node_modules/
+
+# Logs / runtime
+npm-debug.log*
+*.log
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

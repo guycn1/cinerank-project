@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CineRank — your personal film ranking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="site-head">
+    <div class="mark">
+      <span class="mark__reel" aria-hidden="true"></span>
+      <h1>Cine<span>Rank</span></h1>
+    </div>
+    <p class="tagline">A personal ranking that learns your taste — and an AI that has to prove its picks are real.</p>
+  </header>
+
+  <main>
+    <!-- Taste Verdict Banner (SPEC § 2.3) — visible early, compact, playful -->
+    <section class="verdict" id="verdict" aria-live="polite">
+      <div class="verdict__inner">
+        <span class="verdict__label">The verdict</span>
+        <p class="verdict__text" id="verdict-text">Reading the room…</p>
+        <button class="verdict__refresh" id="verdict-refresh" type="button" hidden>
+          <span>New verdict</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Add a movie -->
+    <section class="add">
+      <form class="search" id="search-form" autocomplete="off">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search a film to add…"
+          aria-label="Search for a movie by title"
+        />
+        <button type="submit">Search</button>
+      </form>
+      <div class="search-results" id="search-results" hidden></div>
+    </section>
+
+    <!-- The ranked list — primary focus (SPEC § 3.2) -->
+    <section class="ranked">
+      <div class="ranked__head">
+        <h2>Your ranking</h2>
+        <span class="ranked__count" id="ranked-count"></span>
+      </div>
+      <ol class="ranked__list" id="ranked-list"></ol>
+      <p class="ranked__empty" id="ranked-empty" hidden>
+        No movies yet — search for one above to get started.
+      </p>
+    </section>
+
+    <!-- Recommendations — deliberately secondary (SPEC § 3.2) -->
+    <section class="recs">
+      <div class="recs__head">
+        <h2>What to watch next</h2>
+        <button class="recs__trigger" id="recs-trigger" type="button">
+          Get recommendations
+        </button>
+      </div>
+      <p class="recs__hint" id="recs-hint"></p>
+      <div class="recs__grid" id="recs-grid"></div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <p>
+      Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.
+      Every AI call is logged with token count &amp; cost.
+    </p>
+  </footer>
+
+  <!-- Rating dialog -->
+  <dialog id="rate-dialog" class="rate-dialog">
+    <form method="dialog" id="rate-form">
+      <h3 id="rate-title">Rate</h3>
+      <label for="rate-range">Your rating: <output id="rate-output">7.0</output></label>
+      <input type="range" id="rate-range" min="0" max="10" step="0.1" value="7" />
+      <label for="rate-review">Review <span>(optional)</span></label>
+      <textarea id="rate-review" rows="3" maxlength="2000" placeholder="One line on why…"></textarea>
+      <menu>
+        <button value="cancel" type="submit" class="ghost">Cancel</button>
+        <button value="save" type="submit" class="primary" id="rate-save">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
