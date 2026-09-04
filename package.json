@@ -1,0 +1,21 @@
+{
+  "name": "cinerank-project",
+  "version": "1.0.0",
+  "description": "Personal movie-ranking app with a growing taste profile, TMDB-grounded AI recommendations, and a fully audited AI call log.",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "scan-secrets": "node scripts/scan-secrets.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}
