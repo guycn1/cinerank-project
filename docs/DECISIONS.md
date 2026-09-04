@@ -6,6 +6,17 @@ recover them later). Newest first.
 
 ---
 
+## D-010 · In-app AI call log + failure logging (migration 001)
+Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
+wide modal viewer reachable from a footer link — so the audit trail can be shown
+in the browser during the demo, not only in the Supabase table editor (SPEC § 7.2
+step 4). Migration 001 adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
+`status`, `error_text` to both tables. The services were restructured so that once
+an AI call is attempted a row is **always** written — a handled model/parse/network
+failure logs `status='failed'` with the message, then re-throws for the calm inline
+UI error. Pre-call guards (not enough rated movies, DB read failure) still throw
+without logging — those aren't AI calls.
+
 ## D-009 · Recommendation reason voice → `recommend_v2`
 The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
 v2 asks for a second-person line tied to the user's own ratings/reviews

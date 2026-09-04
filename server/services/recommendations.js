@@ -67,40 +67,60 @@ export async function generateRecommendations() {
     TASTE_PROFILE: topN.map(line).join('\n'),
   });
 
-  let result;
+  // From here on an AI call happens, so a row is ALWAYS written — success or a
+  // handled model/parse failure. Failures matter in the audit trail as much as
+  // successes (Module 13: make a failure visible, never a silent result).
+  const startedAt = Date.now();
+  let result = null;
+  let picks = [];
+  const verified = [];
+  let status = 'success';
+  let errorText = null;
+
   try {
     result = await chat({ system, user, maxTokens: 600, temperature: 0.8 });
-  } catch (err) {
-    if (err instanceof OpenRouterError) throw new RecommendationError(err.message);
-    throw err;
-  }
+    picks = parseModelJson(result.text);
 
-  const picks = parseModelJson(result.text);
-
-  // Cross-check every title against TMDB; TMDB supplies all facts (SPEC § 2.2 #4).
-  // Unverifiable or already-owned titles are silently dropped (§ 2.2 #5).
-  const verified = [];
-  for (const pick of picks) {
-    let movie;
-    try {
-      movie = await verifyTitle(pick.title);
-    } catch {
-      movie = null; // TMDB hiccup on one lookup shouldn't kill the whole run
+    // Cross-check every title against TMDB; TMDB supplies all facts (SPEC § 2.2
+    // #4). Unverifiable or already-owned titles are silently dropped (§ 2.2 #5).
+    for (const pick of picks) {
+      let movie;
+      try {
+        movie = await verifyTitle(pick.title);
+      } catch {
+        movie = null; // TMDB hiccup on one lookup shouldn't kill the whole run
+      }
+      if (!movie) continue;
+      if (ownedTmdbIds.has(movie.tmdb_id)) continue;
+      if (verified.some((v) => v.tmdb_id === movie.tmdb_id)) continue;
+      verified.push({ ...movie, reason: pick.reason });
     }
-    if (!movie) continue;
-    if (ownedTmdbIds.has(movie.tmdb_id)) continue;
-    if (verified.some((v) => v.tmdb_id === movie.tmdb_id)) continue;
-    verified.push({ ...movie, reason: pick.reason });
+  } catch (err) {
+    if (err instanceof OpenRouterError || err instanceof RecommendationError) {
+      status = 'failed';
+      errorText = err.message;
+    } else {
+      throw err; // unexpected — don't swallow
+    }
   }
+
+  const estCost = result
+    ? result.costUsd ?? estimateCostUsd(result.model, result.tokensUsed)
+    : null;
 
   const logRow = {
     prompt_version: version,
     input_movie_ids: topN.map((m) => m.id),
-    raw_model_output: { text: result.text, parsed: picks },
+    raw_model_output: result ? { text: result.text, parsed: picks } : null,
     suggested_titles: verified.map((v) => v.title),
-    model_used: result.model,
-    tokens_used: result.tokensUsed,
-    estimated_cost_usd: result.costUsd ?? estimateCostUsd(result.model, result.tokensUsed),
+    model_used: result?.model ?? config.openrouter.model,
+    tokens_used: result?.tokensUsed ?? null,
+    prompt_tokens: result?.promptTokens ?? null,
+    completion_tokens: result?.completionTokens ?? null,
+    duration_ms: result?.durationMs ?? Date.now() - startedAt,
+    status,
+    error_text: errorText,
+    estimated_cost_usd: estCost,
   };
   const { error: logError } = await supabase.from('recommendation_logs').insert(logRow);
   if (logError) {
@@ -108,13 +128,15 @@ export async function generateRecommendations() {
     throw new RecommendationError(`Recommendation log write failed: ${logError.message}`);
   }
 
+  if (status === 'failed') throw new RecommendationError(errorText);
+
   return {
     suggestions: verified,
     meta: {
       promptVersion: version,
       model: result.model,
       tokensUsed: result.tokensUsed,
-      estimatedCostUsd: logRow.estimated_cost_usd,
+      estimatedCostUsd: estCost,
       basedOn: topN.map((m) => m.title),
     },
   };

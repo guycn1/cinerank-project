@@ -14,9 +14,10 @@ class OpenRouterError extends Error {
 export { OpenRouterError };
 
 /**
- * @returns {{ text: string, tokensUsed: number|null, model: string }}
+ * @returns {{ text, tokensUsed, promptTokens, completionTokens, costUsd, model, durationMs }}
  */
 export async function chat({ system, user, maxTokens = 500, temperature = 0.7 }) {
+  const startedAt = Date.now();
   let res;
   try {
     res = await fetch(config.openrouter.base, {
@@ -51,12 +52,16 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7 })
   const text = data?.choices?.[0]?.message?.content?.trim();
   if (!text) throw new OpenRouterError('OpenRouter returned no content');
 
+  const usage = data?.usage || {};
   return {
     text,
-    tokensUsed: data?.usage?.total_tokens ?? null,
+    tokensUsed: usage.total_tokens ?? null,
+    promptTokens: usage.prompt_tokens ?? null,
+    completionTokens: usage.completion_tokens ?? null,
     // Exact cost from OpenRouter when present; null → caller falls back to the
     // per-model estimate table in config.js.
-    costUsd: typeof data?.usage?.cost === 'number' ? Number(data.usage.cost.toFixed(6)) : null,
+    costUsd: typeof usage.cost === 'number' ? Number(usage.cost.toFixed(6)) : null,
     model: data?.model || config.openrouter.model,
+    durationMs: Date.now() - startedAt,
   };
 }

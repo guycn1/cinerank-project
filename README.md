@@ -4,7 +4,8 @@ A personal movie-ranking app where the database and the AI each earn their place
 
 - **The database** tracks a growing *taste profile* (your rated films + reviews) that
   is read back to ground AI recommendations, and it keeps an **audit log of every AI
-  call** — prompt version, model, token count, estimated cost.
+  call** — prompt version, model, token split, duration, success/failure, estimated
+  cost. Viewable in-app via the "AI call log" link in the footer.
 - **The AI** (via OpenRouter) has one narrow job: given your top-rated films, name
   similar ones you haven't added — and it is **never trusted for facts**. Every
   suggested title is cross-checked against TMDB, which supplies the real poster,
@@ -21,6 +22,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
    npm install
    ```
 2. **Supabase** — create a project, then run `db/schema.sql` in its SQL editor.
+   For an existing project, also run any newer files in `db/migrations/` in order.
 3. **Keys** — `cp .env.example .env` and fill in:
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (the anon key only — never `service_role`)
    - `TMDB_API_KEY` (free, instant approval at themoviedb.org)

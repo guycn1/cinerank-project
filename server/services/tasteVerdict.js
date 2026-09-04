@@ -43,28 +43,48 @@ export async function generateTasteVerdict() {
     RATED_MOVIES: rated.map(line).join('\n'),
   });
 
-  let result;
+  // An AI call happens now, so a row is ALWAYS written — success or failure.
+  const startedAt = Date.now();
+  let result = null;
+  let verdict = null;
+  let status = 'success';
+  let errorText = null;
+
   try {
     result = await chat({ system, user, maxTokens: 120, temperature: 0.9 });
+    // Enforce the length cap even if the model ignores it. Plain text only — the
+    // frontend renders this via textContent, never innerHTML.
+    verdict = result.text.replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
   } catch (err) {
-    if (err instanceof OpenRouterError) throw new TasteVerdictError(err.message);
-    throw err;
+    if (err instanceof OpenRouterError) {
+      status = 'failed';
+      errorText = err.message;
+    } else {
+      throw err;
+    }
   }
 
-  // Enforce the length cap even if the model ignores it. Plain text only — the
-  // frontend renders this via textContent, never innerHTML.
-  const verdict = result.text.replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
+  const estCost = result
+    ? result.costUsd ?? estimateCostUsd(result.model, result.tokensUsed)
+    : null;
 
   const logRow = {
     prompt_version: version,
     input_movie_ids: rated.map((m) => m.id),
     verdict_text: verdict,
-    model_used: result.model,
-    tokens_used: result.tokensUsed,
-    estimated_cost_usd: result.costUsd ?? estimateCostUsd(result.model, result.tokensUsed),
+    model_used: result?.model ?? config.openrouter.model,
+    tokens_used: result?.tokensUsed ?? null,
+    prompt_tokens: result?.promptTokens ?? null,
+    completion_tokens: result?.completionTokens ?? null,
+    duration_ms: result?.durationMs ?? Date.now() - startedAt,
+    status,
+    error_text: errorText,
+    estimated_cost_usd: estCost,
   };
   const { error: logError } = await supabase.from('taste_verdict_logs').insert(logRow);
   if (logError) throw new TasteVerdictError(`Taste verdict log write failed: ${logError.message}`);
+
+  if (status === 'failed') throw new TasteVerdictError(errorText);
 
   return {
     verdict,
@@ -72,7 +92,7 @@ export async function generateTasteVerdict() {
       promptVersion: version,
       model: result.model,
       tokensUsed: result.tokensUsed,
-      estimatedCostUsd: logRow.estimated_cost_usd,
+      estimatedCostUsd: estCost,
     },
   };
 }
