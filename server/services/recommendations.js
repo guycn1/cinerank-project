@@ -26,7 +26,7 @@ function line(movie) {
   return review ? `${base}; review: <<${review}>>` : base;
 }
 
-function parseModelJson(text) {
+export function parseModelJson(text) {
   // Structured output only — no regex-parsing of prose (SPEC § 6). We tolerate a
   // markdown code fence but nothing looser than that.
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
@@ -45,7 +45,7 @@ function parseModelJson(text) {
 
 // Belt-and-suspenders: strip markdown, and if the model overshoots the word
 // budget cut at the last sentence end (else last word), never mid-word.
-function tidyReason(raw) {
+export function tidyReason(raw) {
   let r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (r.length <= REASON_MAX) return r;
   const head = r.slice(0, REASON_MAX);

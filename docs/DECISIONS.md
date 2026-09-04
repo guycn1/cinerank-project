@@ -6,6 +6,18 @@ recover them later). Newest first.
 
 ---
 
+## D-015 · Test suite, health probe, process doc
+Added `npm test` on Node's built-in runner (no new dependency) covering the pure
+helpers where every truncation bug actually lived — `parseModelJson`,
+`tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
+real `prompts/` files, so a malformed prompt version fails the suite. Those four
+helpers were made `export`-ed for testability; no behaviour change. `GET
+/api/health` added for a future Node host. `docs/PROCESS.md` collects the
+LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
+chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
+binding agreement it produced) — the course grades process, so it's a
+deliverable, not a note. Route-level and resilience tests remain manual.
+
 ## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
 v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare
 ratings-paraphrase ("Matt Murdock's darkness scores higher than Superman's

@@ -30,7 +30,9 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 4. **Run**
    ```
    npm start        # http://localhost:3000
+   npm test         # pure-helper + prompt-loader tests (Node's built-in runner)
    ```
+   Health probe for a host: `GET /api/health`.
 
 ## Project layout
 
@@ -48,8 +50,31 @@ server/
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js   run before every commit
+test/              pure-helper + prompt-loader tests (npm test)
 docs/DECISIONS.md   why the choices are what they are
+docs/PROCESS.md     how it was built with an LLM in the loop
 ```
+
+## Demo script (for grading)
+
+1. Start from an empty list → add 3–4 real movies via TMDB search, rate them.
+2. Show the ranked list re-sorting live as ratings change; hit **New verdict** for
+   a fresh taste one-liner.
+3. Trigger a recommendation run, narrating: top-N pulled → versioned prompt sent →
+   each returned title cross-checked against TMDB → row written to
+   `recommendation_logs`.
+4. Open the in-app **AI call log** (footer link) — show prompt version, model,
+   token split, duration, status, and per-call cost for both features.
+5. Try a duplicate add and a recommendation run below the 3-rated threshold — show
+   both graceful states.
+6. (Optional) add a movie whose review is an injection attempt ("ignore previous
+   instructions…") and show the verdict staying on-topic.
+
+## Deployment
+
+The Express server (`app.listen`) needs a Node host — **Render, Railway or Fly.io**
+(all have free tiers), not Netlify (static + serverless only). Set the same four
+`.env` vars in the host's dashboard.
 
 ## Security notes (course Module 17)
 
