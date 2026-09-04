@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (taste_verdict_v2)
+**Last updated:** 2026-09-04 (recommend_v3, taste_verdict_v2)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -34,8 +34,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
   guard via `unique(tmdb_id)`. Add now auto-opens the rate dialog ("Skip for now").
-* Recommendations: `POST /api/recommendations`, prompt `recommend_v2` (second-person
-  reason voice), per-title TMDB verification, owned-titles filter.
+* Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
+  reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
+  owned-titles filter. Card `.reason` clamps at 5 lines.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v2` (no markdown
   leakage, finished sentences), server-side sentence-aware truncation + markdown
   strip, explicit-trigger only.
@@ -107,7 +108,7 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v2` (second-person reason voice); taste verdict uses `taste\_verdict\_v2` (no markdown leakage, finished sentences). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v2` (no markdown leakage, finished sentences). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.

@@ -6,6 +6,14 @@ recover them later). Newest first.
 
 ---
 
+## D-012 · Recommendation reason length → `recommend_v3`
+v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
+Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
+clause-splicing dashes/semicolons; `tidyReason()` in the service strips markdown
+and truncates at a sentence/word boundary past a 130-char ceiling; and the card
+`.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
+file; v1/v2 untouched.
+
 ## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
