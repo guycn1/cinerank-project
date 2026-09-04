@@ -6,6 +6,15 @@ recover them later). Newest first.
 
 ---
 
+## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
+v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
+model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
+literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
+title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `* _ \``, and
+if still over a 300-char ceiling truncates at the last sentence end (else last
+word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
+file; `taste_verdict_v1.md` untouched.
+
 ## D-010 · In-app AI call log + failure logging (migration 001)
 Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
 wide modal viewer reachable from a footer link — so the audit trail can be shown

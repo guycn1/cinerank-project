@@ -3,8 +3,22 @@ import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 
-const PROMPT_VERSION = 'taste_verdict_v1';
-const MAX_LEN = 240; // matches the hard cap stated in the prompt (SPEC § 6)
+const PROMPT_VERSION = 'taste_verdict_v2';
+const MAX_LEN = 300; // safety ceiling; the prompt asks for ~260 and a finished sentence
+
+// Belt-and-suspenders cleanup of the model's plain-text output:
+//  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
+//  - if still over the ceiling, cut at the last sentence end, else last word —
+//    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
+function tidyVerdict(raw) {
+  let v = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
+  if (v.length <= MAX_LEN) return v;
+  const head = v.slice(0, MAX_LEN);
+  const lastSentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (lastSentence > 120) return head.slice(0, lastSentence + 1);
+  const lastSpace = head.lastIndexOf(' ');
+  return (lastSpace > 0 ? head.slice(0, lastSpace) : head).replace(/[,;:—-]\s*$/, '') + '…';
+}
 
 class TasteVerdictError extends Error {
   constructor(message) {
@@ -51,10 +65,9 @@ export async function generateTasteVerdict() {
   let errorText = null;
 
   try {
-    result = await chat({ system, user, maxTokens: 120, temperature: 0.9 });
-    // Enforce the length cap even if the model ignores it. Plain text only — the
-    // frontend renders this via textContent, never innerHTML.
-    verdict = result.text.replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
+    result = await chat({ system, user, maxTokens: 160, temperature: 0.9 });
+    // Plain text only — the frontend renders this via textContent, never innerHTML.
+    verdict = tidyVerdict(result.text);
   } catch (err) {
     if (err instanceof OpenRouterError) {
       status = 'failed';
