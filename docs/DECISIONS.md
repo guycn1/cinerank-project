@@ -14,6 +14,14 @@ and truncates at a sentence/word boundary past a 130-char ceiling; and the card
 `.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
 file; v1/v2 untouched.
 
+## D-013 · Taste verdict still too long → `taste_verdict_v3`
+v2's "one or two sentences, ~260 chars" still produced ~330-char run-ons
+(em-dashes splicing three clauses). v3 is blunt: ONE sentence, 20–30 words, no
+dash/semicolon/"yet/while" clause-chaining, "cut detail not the sentence". Also
+`max_tokens` 160 → 100 so a rambler is physically bounded, and the server
+truncation ceiling 300 → 350 (user request) so a marginally-long verdict still
+shows in full. New prompt file; v1/v2 untouched.
+
 ## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
