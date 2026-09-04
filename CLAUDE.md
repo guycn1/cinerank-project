@@ -18,6 +18,63 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 
 \---
 
+## Project Status — Living Log
+
+**Keep this section current every working session.** It is the fast answer to
+"where are we, what's broken, what's next". The detailed *why* behind each choice
+lives in `docs/DECISIONS.md`; this is the *what / now*.
+
+**Last updated:** 2026-09-04
+
+### Build status
+* Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
+* Supabase project is live; `db/schema.sql` applied.
+* **`db/migrations/001_ai_log_details.sql` — NOT yet applied by the user.** Until it
+  is, `GET /api/ai-log` and any new AI call both 500 (missing columns). First step
+  next session: confirm it has been run.
+
+### Implemented
+* Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
+  guard via `unique(tmdb_id)`. Add now auto-opens the rate dialog ("Skip for now").
+* Recommendations: `POST /api/recommendations`, prompt `recommend_v2` (second-person
+  reason voice), per-title TMDB verification, owned-titles filter.
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v1`, plain text,
+  server-side length cap, explicit-trigger only.
+* AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
+  both tables; in-app viewer via footer link.
+* Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
+  anon key only, query-builder only, `textContent` only.
+
+### Open issues / TODO
+* [ ] User must apply migration 001.
+* [ ] User re-adding lost movies (see Incident 1).
+* [ ] Not deployed (Netlify/host) — required for final submission per course.
+* [ ] No automated tests yet; verification is manual + syntax/boot checks.
+* [ ] `/api/recommendations/history` endpoint exists but is superseded by
+  `/api/ai-log`; decide whether to remove it.
+
+### Incident log
+* **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
+  Claude ran "delete all movies" as cleanup; the second run also removed the
+  Marvel/superhero films the user had added (ratings + reviews lost, not
+  recoverable — free tier has no PITR/backups; logs kept only dead movie ids).
+  Also: Claude's `Get-Process node | Stop-Process` killed the user's running dev
+  server. Both are process failures, not code bugs. Mitigations below are now
+  binding.
+
+### Working agreements (binding — added after Incident 1)
+* **Never run destructive operations against the live Supabase data.** No
+  "delete all", no truncate, no bulk delete. If test rows are unavoidable, tag
+  them (e.g. `review = "__CLAUDE_TEST__"`) and delete only rows matching that
+  exact tag and created in the same script — never "all ids".
+* **Never kill node processes broadly.** No `Get-Process node | Stop-Process`, no
+  `pkill node`. Kill only a PID this session started, and run any test server on a
+  non-default port so the user's `npm start` is untouched.
+* Prefer not to touch the user's DB at all for testing; ask them to run a check or
+  use a throwaway when a real round-trip is genuinely needed.
+
+\---
+
 ## Tech Stack
 
 * **Backend:** Node.js + Express
