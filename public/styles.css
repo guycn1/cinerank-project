@@ -332,6 +332,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   overflow: hidden;
   animation: fade-slide 0.5s var(--ease) both;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .rec-card::before {
   content: 'AI pick · not yet rated';
@@ -351,7 +353,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
   background: var(--bg-raised);
 }
-.rec-card__body { padding: 0.8rem 0.9rem 1rem; }
+.rec-card__body {
+  padding: 0.8rem 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* fills the card; cards in a row stretch to equal height */
+}
 .rec-card__body h4 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
 .rec-card__body .reason {
@@ -359,9 +366,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 0.85rem;
   font-style: italic;
   margin: 0.4rem 0 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .rec-card__body button {
   width: 100%;
+  margin-top: auto; /* pin every 'Add to my list' to the card's bottom edge */
   background: var(--amber);
   color: #1a1205;
   border: none;

@@ -24,6 +24,7 @@ const el = {
   rateRange: $('#rate-range'),
   rateOutput: $('#rate-output'),
   rateReview: $('#rate-review'),
+  rateCancel: $('#rate-cancel'),
   toast: $('#toast'),
 };
 
@@ -217,8 +218,10 @@ async function addMovie(tmdbId, btn) {
       body: JSON.stringify({ tmdb_id: tmdbId }),
     });
     await loadMovies();
-    toast(`Added “${movie.title}” — rate it to rank it.`);
     if (btn) btn.textContent = 'Added ✓';
+    // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
+    const fresh = state.movies.find((m) => m.id === movie.id);
+    if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
     toast(err.message, true); // "Already in your list" surfaces here (SPEC § 3.4)
     if (btn) { btn.disabled = err.message.includes('Already'); btn.textContent = err.message.includes('Already') ? 'In your list' : 'Add'; }
@@ -226,9 +229,12 @@ async function addMovie(tmdbId, btn) {
 }
 
 /* ---------- rate / remove ------------------------------------------- */
-function openRate(movie) {
+function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
-  el.rateTitle.textContent = movie.title;
+  el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
+  // On a fresh add, closing without saving just leaves the movie unrated —
+  // make that an explicit "later" choice, not a dead-end "Cancel".
+  el.rateCancel.textContent = isNew ? 'Skip for now' : 'Cancel';
   el.rateRange.value = movie.rating ?? 7;
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
   el.rateReview.value = movie.review ?? '';
