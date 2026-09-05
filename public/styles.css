@@ -642,12 +642,12 @@ body:has(dialog[open]) { overflow: hidden; }
   box-shadow: var(--shadow);
   text-align: left;
   color: var(--ink-dim);
-  font-size: 0.72em;          /* significantly smaller than the table body */
+  font-size: 0.8em;           /* smaller than the table body */
   line-height: 1.5;
   white-space: normal;
   overflow-wrap: break-word;
 }
-.log-reveal ul { padding-left: 1.6rem; list-style: disc; }
+.log-reveal ul { width: 10rem; padding-left: 1.6rem; list-style: disc; }
 .log-reveal li { margin: 0.15rem 0; }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
