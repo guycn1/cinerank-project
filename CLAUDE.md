@@ -90,12 +90,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   Close scroll away (scroll back up / Esc). `.log-dialog` has **no top/bottom
   padding** (`padding: 0 1.5rem`; `header` carries `padding-top`) so the thead
   pins flush at the top.
-  **Total row:** `tfoot td` is `position: sticky; bottom: 0` (mirrors the thead).
-  A non-sticky spacer `<tr class="log-total-tail">` (height 1.5rem) follows it
-  inside the `<tfoot>` — off-screen below the pinned Total while scrolling, then
-  under it at the very end, restoring the normal gap + `.log-scroll` rounded
-  corners. Card mode pins the whole `tr.log-total` instead (per-cell sticky would
-  stack three boxes) and hides the spacer. `.log-dialog[open]` carries
+  **Total row (took several tries — don't "simplify" this):** a sticky `<tfoot>`
+  alone never works, because it's clamped by its own containing block (the table)
+  and can't reach the dialog's bottom edge — table rows always peeked underneath
+  it mid-scroll. The fix is `.log-curtain`: an opaque `--bg-raised` band that is a
+  **direct child of the dialog** (containing block = the dialog, so it's never
+  clamped), `position: sticky; bottom: 0`, `z-index: 2`. The Total row pins at
+  `bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it. The two
+  form one solid block down to the dialog edge, so nothing shows underneath.
+  Scrolled to the end both un-pin and the curtain is just the gap below the
+  table's rounded corners (hence `.log-dialog` has no bottom padding). Card mode
+  pins the whole `tr.log-total` (per-cell sticky would stack three boxes).
+  `.log-dialog[open]` carries
   `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never
   closes. `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
