@@ -119,13 +119,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `taste_verdict_v1`→`TV_v1`, model→slug after the `/`. `abbrCell()` +
     `shortPromptVersion()` in app.js; `.log-table abbr` = dotted underline.
     Feature has exactly two values (verified in `routes/aiLog.js`).
-  - cell padding trimmed `0.6rem 0.8rem` → `0.55rem 0.6rem`; Result column
-    `9.5rem` → `8.5rem`.
-  - **Responsive**: the trimmed table now fits to ~960px; below that `@media`
-    reflows it into one card per call (label/value rows via
-    `td::before { content: attr(data-label) }`; `thead` hidden; abbreviations
-    swapped back to full text via `abbr::after { content: attr(title) }`). No
-    horizontal scroll ≥ ~300px. Reveal panels flow inline in card mode.
+  - cell padding trimmed `0.6rem 0.8rem` → `0.45rem 0.45rem`; Result column
+    `9.5rem` → `8rem`.
+  - **Responsive**: card `@media` breakpoint is **768px** (user's choice).
+    ≥ ~920px the table fits cleanly; **~768–920px the table shows but scrolls
+    horizontally** inside `.log-scroll` — a deliberate trade (full-table look
+    preferred over cards there). < 768px → one card per call (label/value rows
+    via `td::before { content: attr(data-label) }`; `thead` hidden; abbreviations
+    swapped back to full text via `abbr::after { content: attr(title) }`). Reveal
+    panels flow inline in card mode.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
