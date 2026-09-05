@@ -18,7 +18,7 @@
   --amber-deep: #d99b2f;
   --crimson: #e2574c;
   --line: #26262f;
-  --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
+  --line-faint: rgba(255, 255, 255, 0.09); /* short inset column ticks (see .log-table) */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -575,17 +575,22 @@ body:has(dialog[open]) { overflow: hidden; }
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
-/* Column separators — deliberately fainter than the row borders. */
+/* Column separators — a short vertical tick that floats clear of the full-width
+   row borders (drawn as a 1px background sliver, ~60% of the row height), so it
+   reads as clearly subordinate to the row rules rather than a matching grid. */
 .log-table th:not(:last-child),
 .log-table td:not(:last-child) {
-  border-right: 1px solid var(--line-faint);
+  background-image: linear-gradient(var(--line-faint), var(--line-faint));
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 1px 58%;
 }
 .log-table thead th {
-  position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
+  position: sticky; top: 0; background-color: var(--bg-card); color: var(--ink-dim);
   font-weight: 600; font-size: 0.87em; letter-spacing: 0.03em; text-transform: uppercase;
 }
 .log-table .num { font-variant-numeric: tabular-nums; }
-.log-table tbody tr:hover { background: var(--bg-card); }
+.log-table tbody tr:hover { background-color: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 .log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
 
@@ -599,7 +604,7 @@ body:has(dialog[open]) { overflow: hidden; }
   cursor: help;
 }
 .log-table tfoot td {
-  background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
+  background-color: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
