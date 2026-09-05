@@ -566,8 +566,15 @@ body:has(dialog[open]) { overflow: hidden; }
   border-radius: 10px;
 }
 /* Base cell size; the header/sub/badge sizes below are `em` so this one
-   value scales the whole table. ~10% down from 0.86rem — room to spare. */
-.log-table { width: 100%; border-collapse: collapse; font-size: 0.77rem; }
+   value scales the whole table. ~10% down from 0.86rem — room to spare.
+   Default cell text is a step down from --ink so it doesn't glare against the
+   dark dialog; .result / .sub / thead keep their own (dimmer) colours. */
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.77rem;
+  color: #e0dcd3;
+}
 .log-table th, .log-table td {
   text-align: center;
   vertical-align: middle;
