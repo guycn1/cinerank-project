@@ -557,11 +557,10 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  /* No TOP padding (the header carries its own top space) so the sticky thead
-     pins flush. Bottom padding stays: the sticky tfoot pins flush anyway (the
-     scrollport is the padding box), and this keeps the normal gap + `.log-scroll`
-     rounded corners visible once you scroll past the tfoot to the very bottom. */
-  padding: 0 1.5rem 1.5rem;
+  /* No top/bottom padding so the sticky thead / tfoot pin flush to the edges.
+     The header carries its own top space; the `.log-total-tail` spacer row
+     restores the space + rounded corners under the Total row at the very end. */
+  padding: 0 1.5rem;
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
@@ -720,32 +719,21 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-time { font-size: 0.9em; line-height: 1.45; }
 .log-time span { display: block; }
 
+/* Total row pins to the dialog's bottom edge like the thead pins to the top.
+   A non-sticky spacer row (.log-total-tail) sits after it inside the <tfoot>:
+   off-screen while the Total is pinned, then under it at the very end so the
+   normal gap + .log-scroll rounded corners come back. */
 .log-table tfoot td {
+  position: sticky; bottom: 0; z-index: 3;
   background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
-
-/* A copy of the Total row, pinned to the dialog's visible bottom edge. Shown by
-   an IntersectionObserver only while the real <tfoot> is scrolled out of view —
-   so the real one keeps its normal spacing + rounded corners at the very bottom.
-   `position: absolute` (the modal dialog is `position: fixed` → a containing
-   block) so it never scrolls and adds no layout. */
-.log-total-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 4;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.7rem 1.5rem;
-  background: var(--bg-card);
-  border-top: 2px solid var(--line);
-  font-weight: 600;
-  font-size: 0.77rem;
-  color: #e0dcd3;
+.log-table .log-total-tail td {
+  position: static;
+  height: 1.5rem;
+  padding: 0;
+  background: none;
+  border: none;
 }
-.log-total-bar[hidden] { display: none; } /* author `display` would beat UA [hidden] */
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
 }
@@ -757,7 +745,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
-  .log-dialog { padding: 0 0.85rem 1.25rem; }
+  .log-dialog { padding: 0 0.85rem; }
   .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
   .log-result { width: 7rem; max-width: 7rem; }
@@ -830,11 +818,20 @@ body:has(dialog[open]) { overflow: hidden; }
     font-size: 0.9em;
   }
 
-  .log-table tr.log-total { border-color: var(--amber-deep); }
+  /* Cards: pin the whole Total card (per-cell sticky would stack three boxes).
+     No spacer needed here — cards butt the edges anyway. */
+  .log-table tfoot td { position: static; }
+  .log-table tr.log-total {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    border-color: var(--amber-deep);
+    background: var(--bg-card);
+  }
+  .log-table tr.log-total-tail { display: none; }
   .log-total__pad { display: none; }
   .log-total__label { text-align: left; }
   .log-total__label::before { content: none; }
-  .log-total-bar { padding-left: 0.85rem; padding-right: 0.85rem; }
 
   .log-empty { padding: 1.5rem 0; }
   .log-empty::before { content: none; }

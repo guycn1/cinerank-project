@@ -87,18 +87,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
   pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
-  Close scroll away (scroll back up / Esc). `.log-dialog` has **no top padding**
-  (`padding: 0 1.5rem 1.5rem`; `header` carries `padding-top`) so the thead pins
-  flush.
-  **Total row:** the real `<tfoot>` is NOT sticky — a sticky footer can't clear
-  its own containing block, so it never sits truly flush *and* still shows the
-  spacing/corners once you scroll to the end. Instead `#log-total-bar` (a
-  `position: absolute` copy pinned to the dialog's bottom edge) is toggled by an
-  `IntersectionObserver` (`root: .log-dialog`) watching the real `<tfoot>`: shown
-  while the real row is out of view, hidden once it scrolls in (so the real row +
-  its normal spacing/corners show). `.log-dialog[open]` carries `display: flex`;
-  a bare rule overrides the UA `dialog:not([open])` hide → never closes.
-  `body:has(dialog[open]) { overflow: hidden }` freezes the page.
+  Close scroll away (scroll back up / Esc). `.log-dialog` has **no top/bottom
+  padding** (`padding: 0 1.5rem`; `header` carries `padding-top`) so the thead
+  pins flush at the top.
+  **Total row:** `tfoot td` is `position: sticky; bottom: 0` (mirrors the thead).
+  A non-sticky spacer `<tr class="log-total-tail">` (height 1.5rem) follows it
+  inside the `<tfoot>` — off-screen below the pinned Total while scrolling, then
+  under it at the very end, restoring the normal gap + `.log-scroll` rounded
+  corners. Card mode pins the whole `tr.log-total` instead (per-cell sticky would
+  stack three boxes) and hides the spacer. `.log-dialog[open]` carries
+  `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never
+  closes. `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
