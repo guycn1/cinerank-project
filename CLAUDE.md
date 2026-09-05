@@ -128,7 +128,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     swapped back to full text via `abbr::after { content: attr(title) }`). Reveal
     panels flow inline in card mode. A document click listener collapses an open
     reveal panel on any click outside it (clicks on its own text keep it open so
-    it stays selectable).
+    it stays selectable). Reveal panels fade 200ms (`::details-content` +
+    `@starting-style`).
+* Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
+  `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
+  `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO

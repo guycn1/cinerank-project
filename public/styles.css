@@ -486,6 +486,31 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    scrollbar in view is the one inside the dialog's own content. */
 body:has(dialog[open]) { overflow: hidden; }
 
+/* Fade both modal dialogs + their backdrops in/out (200ms). `display` and
+   `overlay` are transitioned discretely so the fade-OUT is visible (the element
+   stays rendered and in the top layer until the fade finishes). */
+.rate-dialog,
+.log-dialog,
+.rate-dialog::backdrop,
+.log-dialog::backdrop {
+  opacity: 0;
+  transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+}
+.rate-dialog[open],
+.log-dialog[open],
+.rate-dialog[open]::backdrop,
+.log-dialog[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .rate-dialog[open],
+  .log-dialog[open],
+  .rate-dialog[open]::backdrop,
+  .log-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
 .rate-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
@@ -650,11 +675,11 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
-/* Fade the panel in/out (~250ms). Uses ::details-content + @starting-style
+/* Fade the panel in/out (200ms). Uses ::details-content + @starting-style
    (broadly supported since 2025); engines without it just snap, no breakage. */
 .log-reveal::details-content {
   opacity: 0;
-  transition: opacity 0.25s ease, content-visibility 0.25s ease allow-discrete;
+  transition: opacity 0.2s ease, content-visibility 0.2s ease allow-discrete;
 }
 .log-reveal[open]::details-content { opacity: 1; }
 @starting-style {
@@ -803,5 +828,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
-  .log-reveal::details-content { transition: none !important; }
+  .log-reveal::details-content,
+  .rate-dialog, .log-dialog,
+  .rate-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
 }
