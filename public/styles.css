@@ -635,7 +635,7 @@ body:has(dialog[open]) { overflow: hidden; }
   width: 16rem;
   max-width: 60vw;
   margin: 0;
-  padding: 0.6rem 0.85rem;
+  padding: 0.4rem 0.6rem;
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -647,8 +647,8 @@ body:has(dialog[open]) { overflow: hidden; }
   white-space: normal;
   overflow-wrap: break-word;
 }
-.log-reveal ul { width: 10rem; padding-left: 1.6rem; list-style: disc; }
-.log-reveal li { margin: 0.15rem 0; }
+.log-reveal ul { width: 10rem; padding-left: 1.2rem; list-style: circle; }
+.log-reveal li { padding: 0; margin: 0; }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
    all-figures text reads chunkier than the lowercase columns at the same size,
