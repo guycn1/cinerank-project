@@ -85,12 +85,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
   `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
   inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
-  to nothing. Now header + blurb + whole table scroll together; `.log-dialog
-  header` is `position: sticky; top: 0; z-index: 6` so Close stays reachable, and
-  `thead th` sticks at `top: var(--log-header-h)` (2.8rem, ~header height) so the
-  column headers stay too. `display: flex` only on `.log-dialog[open]` (a bare
-  rule overrides the UA `dialog:not([open])` hide → never closes).
-  `body:has(dialog[open]) { overflow: hidden }` freezes the page behind any modal.
+  to nothing. Header + blurb + whole table scroll together; **only `thead th`
+  pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
+  Close scroll away (scroll back up / Esc). For the thead to pin *flush* to the
+  top, `.log-dialog` has **no top padding** (`padding: 0 1.5rem 1.5rem`) and the
+  `header` carries `padding-top` instead. `display: flex` only on
+  `.log-dialog[open]` (a bare rule overrides the UA `dialog:not([open])` hide →
+  never closes). `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.

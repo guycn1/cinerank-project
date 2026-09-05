@@ -557,20 +557,20 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 0 1.5rem 1.5rem; /* no top padding — so the sticky thead pins flush to
+                               the top edge; the header carries its own top space */
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
   /* restore the centring the global margin reset removes (see .rate-dialog) */
   margin: auto;
-  /* THE DIALOG is the single scroller: everything (header, blurb, whole table)
-     scrolls together in one outer scrollbar. Earlier this was inverted — the
-     table scrolled inside a flex-sized `.log-scroll` — but on a short viewport
-     that box collapsed to nothing. The dialog header stays reachable by being
-     `position: sticky` (below). `display: flex` only via [open] so the UA
-     `dialog:not([open]) { display: none }` still hides a closed dialog. */
-  --log-header-h: 2.8rem; /* ~sticky-header height; thead sticks here (slightly
-                             under the header so there's overlap, never a gap) */
+  /* THE DIALOG is the single scroller: header, blurb and table scroll together
+     in one outer scrollbar. Earlier this was inverted — the table scrolled
+     inside a flex-sized `.log-scroll` — which collapsed to nothing on a short
+     viewport. Only the table's own `thead` row stays pinned while scrolling
+     (see `.log-table thead th`); the "AI call log" heading and Close scroll away
+     (Close is a scroll-back-up or Esc away). `display: flex` only via [open] so
+     the UA `dialog:not([open]) { display: none }` still hides a closed dialog. */
   flex-direction: column;
   overflow: auto;
 }
@@ -582,11 +582,7 @@ body:has(dialog[open]) { overflow: hidden; }
   align-items: center;
   justify-content: space-between;
   flex: 0 0 auto;
-  position: sticky;
-  top: 0;
-  z-index: 6; /* above the reveal panel (5) so Close is always clickable */
-  background: var(--bg-raised);
-  padding-bottom: 0.6rem;
+  padding-top: 1.5rem; /* the dialog has none; scrolls away with the header */
 }
 .log-dialog h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.4rem; }
 .log-dialog .ghost {
@@ -633,7 +629,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-right: 1px solid var(--line-faint);
 }
 .log-table thead th {
-  position: sticky; top: var(--log-header-h); z-index: 3;
+  position: sticky; top: 0; z-index: 3; /* the only thing pinned while scrolling */
   background: var(--bg-card); color: var(--ink-dim);
   font-weight: 600; font-size: 0.87em; letter-spacing: 0.03em; text-transform: uppercase;
 }
@@ -735,7 +731,8 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
-  .log-dialog { padding: 1.25rem 0.85rem; }
+  .log-dialog { padding: 0 0.85rem 1.25rem; }
+  .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
   .log-result { width: 7rem; max-width: 7rem; }
 }
