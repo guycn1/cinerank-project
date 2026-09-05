@@ -6,6 +6,18 @@ recover them later). Newest first.
 
 ---
 
+## D-017 · Keep `/api/recommendations/history` rather than delete it
+`/api/ai-log` (added in D-010) is a strict superset of `/history` for the
+recommendation side — both tables, failure status, token split, duration,
+totals — and it's the only log endpoint the UI calls. `/history` is unused and
+untested, so code-hygiene says delete it. Decided to **keep** it: it's listed in
+SPEC §4.5 (as optional), removing it is a SPEC-table deviation that buys nothing
+on the impression/creativity axes and only a marginal workflow point, and a
+pre-submission deletion carries dangling-reference risk. Instead: one sentence in
+`docs/PROCESS.md` frames `/api/ai-log` as the primary audit surface and
+`/history` as the narrower per-feature JSON view. Revisit as post-submission
+cleanup.
+
 ## D-016 · Accessibility pass
 Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
 `aria-label`s so a screen reader in a 20-row list hears which film, not just

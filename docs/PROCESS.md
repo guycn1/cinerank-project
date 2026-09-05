@@ -66,6 +66,12 @@ inline message in the UI. The in-app "AI call log" viewer (footer link) shows
 both log tables merged, so the audit trail is demonstrable in the browser, not
 only in the Supabase table editor.
 
+`GET /api/ai-log` is the primary audit surface: both features, successes and
+failures, token split, duration, per-call cost, and totals. `GET
+/api/recommendations/history` (SPEC §4.5) is deliberately kept as the narrower
+per-feature JSON view — recommendation runs only — but nothing in the UI depends
+on it; the merged log is what the app and the demo use.
+
 ## 5. Incident 1 — and the guardrail it produced
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second

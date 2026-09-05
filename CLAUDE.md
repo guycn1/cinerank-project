@@ -72,8 +72,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   latter as screenshots for submission.
 * [ ] Prompt-injection defense: add a demo movie with an injection-attempt review
   and screenshot the verdict/recs staying on-topic (Module 17 evidence).
-* [ ] `/api/recommendations/history` endpoint exists but is superseded by
-  `/api/ai-log`; decide whether to remove it.
+* [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
+  (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
+  narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
 * [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
