@@ -126,7 +126,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     width ≥ ~300px. < 920px → one card per call (label/value rows via
     `td::before { content: attr(data-label) }`; `thead` hidden; abbreviations
     swapped back to full text via `abbr::after { content: attr(title) }`). Reveal
-    panels flow inline in card mode.
+    panels flow inline in card mode. A document click listener collapses an open
+    reveal panel on any click outside it (clicks on its own text keep it open so
+    it stays selectable).
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO

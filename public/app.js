@@ -643,6 +643,16 @@ el.openLog.addEventListener('click', () => {
 });
 el.logClose.addEventListener('click', () => el.logDialog.close());
 
+// A reveal panel stays open until you click outside it — clicking its own text
+// keeps it up (so it can be selected/copied); a click anywhere else collapses it.
+document.addEventListener('click', (e) => {
+  el.logDialog
+    .querySelectorAll('details.log-reveal[open]')
+    .forEach((d) => {
+      if (!d.contains(e.target)) d.open = false;
+    });
+});
+
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
   try {
