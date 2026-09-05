@@ -141,7 +141,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   the panel behind later rows mid-fade (and a `z-index` on `.log-reveal` — a
   table-cell SC — didn't lift past later `<tr>`s at all). `::details-content` now
   only transitions `content-visibility` (`allow-discrete`) to stay rendered
-  through the close.
+  through the close. The panel-opacity duration and the `::details-content`
+  content-visibility duration are on different elements but MUST match (else the
+  panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
+  (200ms) on `.log-reveal`. That's the single knob for the fade speed.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
