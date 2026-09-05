@@ -638,7 +638,12 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-result--error { color: var(--crimson); font-size: 0.9em; }
 
-.log-reveal { position: relative; }
+/* z-index here (not on the panel) so the whole reveal subtree is lifted above
+   later rows by a STABLE stacking context. Putting the lift on the panel meant
+   it only worked at opacity 1 — mid-fade, ::details-content's transient opacity
+   stacking context trapped the panel at the row's level and later rows painted
+   over it (abrupt pop in/out). */
+.log-reveal { position: relative; z-index: 5; }
 .log-reveal summary {
   cursor: pointer;
   color: var(--amber);
