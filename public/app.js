@@ -439,22 +439,40 @@ function cell(text, className, label) {
   return td;
 }
 
-// Model slugs are long ("anthropic/claude-haiku-4.5"). Show just the part after
-// the vendor "/", wrapped in <abbr> so the full string is one hover away and the
-// dotted underline signals it's shortened.
-function modelCell(model) {
+// A cell whose short form is an <abbr> carrying the full text in its title
+// (dotted underline + hover). In the narrow card layout CSS swaps in the full
+// text — there's width for it there.
+function abbrCell(short, full, className, label) {
   const td = document.createElement('td');
-  td.className = 'log-model';
-  if (!model) {
-    td.textContent = '—';
+  if (className) td.className = className;
+  if (label) td.dataset.label = label;
+  if (!full || short === full) {
+    td.textContent = short || '—';
     return td;
   }
-  const slash = model.indexOf('/');
   const abbr = document.createElement('abbr');
-  abbr.textContent = slash === -1 ? model : model.slice(slash + 1);
-  abbr.title = model;
+  abbr.textContent = short;
+  abbr.title = full;
   td.append(abbr);
   return td;
+}
+
+const FEATURE_ABBR = { Recommendation: 'R', 'Taste verdict': 'TV' };
+
+// "recommend_v3" -> "R_v3", "taste_verdict_v1" -> "TV_v1"
+function shortPromptVersion(pv) {
+  const m = /^(.+)_v(\d+)$/.exec(pv || '');
+  if (!m) return pv || '—';
+  const initials = m[1].split('_').map((w) => w[0].toUpperCase()).join('');
+  return `${initials}_v${m[2]}`;
+}
+
+// Model slugs are long ("anthropic/claude-haiku-4.5") — drop the vendor prefix.
+function modelCell(model) {
+  if (!model) return abbrCell('—', null, 'log-model', 'Model');
+  const slash = model.indexOf('/');
+  const short = slash === -1 ? model : model.slice(slash + 1);
+  return abbrCell(short, model, 'log-model', 'Model');
 }
 
 // Timestamp cell: forced European format (dd/mm/yyyy, 24h) regardless of the
@@ -567,12 +585,9 @@ async function renderAiLog() {
   for (const r of data.rows) {
     const tr = document.createElement('tr');
 
-    tr.append(cell(r.feature, 'log-feature', 'Feature'));
-    tr.append(cell(r.prompt_version || '—', null, 'Prompt'));
-
-    const mdl = modelCell(r.model_used);
-    mdl.dataset.label = 'Model';
-    tr.append(mdl);
+    tr.append(abbrCell(FEATURE_ABBR[r.feature] || r.feature, r.feature, 'log-feature', 'Feature'));
+    tr.append(abbrCell(shortPromptVersion(r.prompt_version), r.prompt_version || '—', 'log-prompt', 'Prompt'));
+    tr.append(modelCell(r.model_used));
 
     const tok = document.createElement('td');
     tok.className = 'num';

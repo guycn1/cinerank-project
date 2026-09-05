@@ -114,10 +114,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     other columns. Caveat: a panel opened on the very last visible row can be
     clipped by `.log-scroll`'s overflow (scroll or resize to see it).
     Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
-  - **Responsive**: below 1200px viewport the 9-column table can't fit, so
-    `@media` reflows it into one card per call (label/value rows via
-    `td::before { content: attr(data-label) }`; `thead` hidden). No horizontal
-    scroll ≥ ~300px. Reveal panels flow inline (`position: static`) in card mode.
+  - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
+    Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
+    `taste_verdict_v1`→`TV_v1`, model→slug after the `/`. `abbrCell()` +
+    `shortPromptVersion()` in app.js; `.log-table abbr` = dotted underline.
+    Feature has exactly two values (verified in `routes/aiLog.js`).
+  - cell padding trimmed `0.6rem 0.8rem` → `0.55rem 0.6rem`; Result column
+    `9.5rem` → `8.5rem`.
+  - **Responsive**: the trimmed table now fits to ~960px; below that `@media`
+    reflows it into one card per call (label/value rows via
+    `td::before { content: attr(data-label) }`; `thead` hidden; abbreviations
+    swapped back to full text via `abbr::after { content: attr(title) }`). No
+    horizontal scroll ≥ ~300px. Reveal panels flow inline in card mode.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO

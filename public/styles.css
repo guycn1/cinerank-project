@@ -578,9 +578,16 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table th, .log-table td {
   text-align: center;
   vertical-align: middle;
-  padding: 0.6rem 0.8rem;
+  padding: 0.55rem 0.6rem;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
+}
+/* Abbreviated cells (Feature R/TV, Prompt R_v3, Model …) — the full string is
+   in the <abbr> title; dotted underline + help cursor signals it. */
+.log-table abbr {
+  text-decoration: underline dotted var(--ink-faint);
+  text-underline-offset: 2px;
+  cursor: help;
 }
 /* Column separators — deliberately fainter than the row borders. */
 .log-table th:not(:last-child),
@@ -600,8 +607,8 @@ body:has(dialog[open]) { overflow: hidden; }
    positioned OUT OF FLOW (a small floating panel), so opening a row can never
    widen the column or the table — it just overlays the rows below. */
 .log-result {
-  width: 9.5rem;
-  max-width: 9.5rem;
+  width: 8.5rem;
+  max-width: 8.5rem;
   white-space: normal;
 }
 .log-result--error { color: var(--crimson); font-size: 0.9em; }
@@ -649,12 +656,6 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-time { font-size: 0.9em; line-height: 1.35; }
 .log-time span { display: block; }
 
-/* Model column: vendor prefix trimmed; <abbr> holds the full slug on hover. */
-.log-model abbr {
-  text-decoration: underline dotted var(--ink-faint);
-  text-underline-offset: 2px;
-  cursor: help;
-}
 .log-table tfoot td {
   background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
@@ -666,9 +667,10 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-feature { font-weight: 600; }
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
 
-/* ---- narrow viewports: a 9-column table can't fit below ~1150px, so render
-        each call as a card (label / value rows). No horizontal scroll. ---- */
-@media (max-width: 1200px) {
+/* ---- narrow viewports: below ~960px even the trimmed 9-column table won't
+        fit, so render each call as a card (label / value rows). No horizontal
+        scroll down to ~300px. ---- */
+@media (max-width: 960px) {
   .log-table,
   .log-table tbody,
   .log-table tfoot,
@@ -706,6 +708,14 @@ body:has(dialog[open]) { overflow: hidden; }
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
+
+  /* There's width for the full strings here — swap the abbreviations out. */
+  .log-table td abbr {
+    text-decoration: none;
+    cursor: auto;
+    font-size: 0;
+  }
+  .log-table td abbr::after { content: attr(title); font-size: 0.77rem; }
 
   .log-time { font-size: 1em; line-height: 1.4; }
   .log-time span { display: inline; }
