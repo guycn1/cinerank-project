@@ -45,7 +45,11 @@ a:hover { text-decoration: underline; }
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
   position: fixed;
-  inset: 0;
+  /* Bleed past every edge. The grain animation translates this layer by up to
+     translate(-3%, 2%); at inset:0 that briefly left a ~3% strip at the right
+     (and top) edge uncovered, which flickered as a dark bar. Overhanging the
+     viewport keeps the shift fully covered — the grain + motion are unchanged. */
+  inset: -8%;
   pointer-events: none;
   z-index: 9999;
   opacity: 0.035;
