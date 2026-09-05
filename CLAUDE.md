@@ -88,9 +88,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
   pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
   Close scroll away (scroll back up / Esc). The `tfoot` "Total" row is sticky too
-  (`bottom: 0`) so it stays in view at the bottom. For both to pin *flush* to the
-  edges, `.log-dialog` has **no top/bottom padding** (`padding: 0 1.5rem`) and the
-  `header` carries `padding-top`. In card mode the pin moves to the whole
+  (`bottom: 0`) so it stays in view at the bottom. `.log-dialog` has **no top
+  padding** (`padding: 0 1.5rem 1.5rem`) so the thead pins flush — the `header`
+  carries `padding-top` instead; the bottom padding stays (the sticky scrollport
+  is the padding box, so it doesn't offset the tfoot, and it keeps the normal gap
+  + `.log-scroll` corners visible once you scroll past the Total row). In card
+  mode the pin moves to the whole
   `tr.log-total` (a block there, so `<tr>` sticky works) since per-cell sticky
   would stack three boxes. `display: flex` only on `.log-dialog[open]` (a bare
   rule overrides the UA `dialog:not([open])` hide → never closes).
