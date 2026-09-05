@@ -653,7 +653,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
    all-figures text reads chunkier than the lowercase columns at the same size,
    so nudge it down a hair and tighten the two-line stack. */
-.log-time { font-size: 0.9em; line-height: 1.35; }
+.log-time { font-size: 0.9em; line-height: 1.45; }
 .log-time span { display: block; }
 
 .log-table tfoot td {
@@ -667,11 +667,10 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-feature { font-weight: 600; }
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
 
-/* ---- narrow viewports: below 768px, render each call as a card (label / value
-        rows) — no horizontal scroll down to ~300px. Between ~768px and ~920px the
-        9-column table still shows but scrolls horizontally inside .log-scroll:
-        deliberate — the full-table layout is preferred there over cards. ---- */
-@media (max-width: 768px) {
+/* ---- narrow viewports: below ~920px the trimmed 9-column table no longer fits
+        the dialog, so render each call as a card (label / value rows). No
+        horizontal scroll at any width down to ~300px. ---- */
+@media (max-width: 920px) {
   .log-table,
   .log-table tbody,
   .log-table tfoot,
