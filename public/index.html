@@ -130,6 +130,10 @@
         <tfoot id="log-foot"></tfoot>
       </table>
     </div>
+    <!-- Opaque band pinned to the dialog's bottom edge. It backs the pinned
+         Total row so no table content can show underneath it mid-scroll, and at
+         the end of the scroll it is simply the gap below the table. -->
+    <div class="log-curtain" aria-hidden="true"></div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

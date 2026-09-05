@@ -635,16 +635,6 @@ async function renderAiLog() {
   rest.className = 'log-total__pad';
   footRow.append(rest);
   el.logFoot.append(footRow);
-
-  // A short non-sticky spacer row after the (sticky) Total: while scrolling it's
-  // off-screen below the pinned Total; once you reach the very end it sits under
-  // the Total, restoring the normal gap + .log-scroll rounded corners.
-  const tail = document.createElement('tr');
-  tail.className = 'log-total-tail';
-  const tailCell = document.createElement('td');
-  tailCell.colSpan = 9;
-  tail.append(tailCell);
-  el.logFoot.append(tail);
 }
 
 el.openLog.addEventListener('click', () => {
