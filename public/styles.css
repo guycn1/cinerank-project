@@ -534,11 +534,13 @@ body:has(dialog[open]) { overflow: hidden; }
   /* restore the centring the global margin reset removes (see .rate-dialog) */
   margin: auto;
   /* Column layout so the header + blurb stay put and ONLY .log-scroll scrolls —
-     the dialog itself never shows a second scrollbar. */
-  display: flex;
+     the dialog itself never shows a second scrollbar. `display: flex` is applied
+     only via [open] below, so the UA `dialog:not([open]) { display: none }` still
+     hides the dialog when it's closed. */
   flex-direction: column;
   overflow: hidden;
 }
+.log-dialog[open] { display: flex; }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
 .log-dialog header,
 .log-sub { flex: 0 0 auto; }
