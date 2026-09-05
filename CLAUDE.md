@@ -30,6 +30,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
+* `main` merged at the "functionally complete vs SPEC §2–§6" milestone
+  (2026-09-05); `draft` continues for submission-packaging work.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
