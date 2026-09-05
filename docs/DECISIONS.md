@@ -6,6 +6,60 @@ recover them later). Newest first.
 
 ---
 
+## D-016 · Accessibility pass
+Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
+`aria-label`s so a screen reader in a 20-row list hears which film, not just
+"Remove, button" repeated. Added live regions (`role="status" aria-live="polite"`)
+on search results, the recs hint, and the verdict text so async results and
+errors are announced, not just visually swapped. `aria-busy` on the two AI
+trigger buttons while a call is in flight. The review "view more" toggle got
+`aria-expanded`/`aria-controls`. Both `<dialog>`s got `aria-labelledby` (native
+`showModal()`/`.close()` already handles focus trap and return-focus, so no JS
+needed there). Poster `<img alt>` now reads "{title} — poster"; the no-poster
+placeholder is `role="img"` with a labelled fallback instead of decorative-only.
+Fixed a real heading-hierarchy bug: recommendation cards used `<h4>` directly
+under the section's `<h2>` (skipping `<h3>`) — now `<h3>`, matching the ranked
+list's card headings. Decorative spinners are `aria-hidden`. No visual change.
+
+## D-015 · Test suite, health probe, process doc
+Added `npm test` on Node's built-in runner (no new dependency) covering the pure
+helpers where every truncation bug actually lived — `parseModelJson`,
+`tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
+real `prompts/` files, so a malformed prompt version fails the suite. Those four
+helpers were made `export`-ed for testability; no behaviour change. `GET
+/api/health` added for a future Node host. `docs/PROCESS.md` collects the
+LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
+chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
+binding agreement it produced) — the course grades process, so it's a
+deliverable, not a note. Route-level and resilience tests remain manual.
+
+## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
+v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare
+ratings-paraphrase ("Matt Murdock's darkness scores higher than Superman's
+earnestness") — a readout, not a verdict, and too terse (user: "shouldn't go this
+far with being short"). v4 gives the room back — 2–3 finished sentences, ~35–60
+words — and redirects the content: characterise the person as a viewer (what they
+chase, what bores them, what kind of moviegoer that makes them), name a film only
+as evidence, never just recite the numbers. `max_tokens` 100 → 180, server
+truncation ceiling 350 → 450. Tone + injection guard unchanged. New prompt file;
+v1–v3 untouched.
+
+## D-012 · Recommendation reason length → `recommend_v3`
+v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
+Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
+clause-splicing dashes/semicolons; `tidyReason()` in the service strips markdown
+and truncates at a sentence/word boundary past a 130-char ceiling; and the card
+`.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
+file; v1/v2 untouched.
+
+## D-013 · Taste verdict still too long → `taste_verdict_v3`
+v2's "one or two sentences, ~260 chars" still produced ~330-char run-ons
+(em-dashes splicing three clauses). v3 is blunt: ONE sentence, 20–30 words, no
+dash/semicolon/"yet/while" clause-chaining, "cut detail not the sentence". Also
+`max_tokens` 160 → 100 so a rambler is physically bounded, and the server
+truncation ceiling 300 → 350 (user request) so a marginally-long verdict still
+shows in full. New prompt file; v1/v2 untouched.
+
 ## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered

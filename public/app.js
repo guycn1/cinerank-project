@@ -61,17 +61,26 @@ function toast(message, isError = false) {
   }, 3200);
 }
 
-function posterNode(url, alt) {
+function posterNode(url, title) {
   if (url) {
     const img = document.createElement('img');
     img.src = url;
-    img.alt = alt;
+    img.alt = `${title} — poster`;
     img.loading = 'lazy';
     return img;
   }
   const ph = document.createElement('div');
   ph.className = 'noposter';
+  ph.setAttribute('role', 'img');
+  ph.setAttribute('aria-label', `${title} — no poster available`);
   return ph;
+}
+
+function spinnerNode() {
+  const s = document.createElement('span');
+  s.className = 'spinner';
+  s.setAttribute('aria-hidden', 'true');
+  return s;
 }
 
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
@@ -112,8 +121,21 @@ function renderRanked() {
     } else if (m.review) {
       const r = document.createElement('p');
       r.className = 'review';
+      r.id = `review-${m.id}`;
       r.textContent = m.review;
-      body.append(r);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'review-toggle';
+      toggle.hidden = true; // shown after layout only if the text actually clips
+      toggle.textContent = 'view more…';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-controls', r.id);
+      toggle.addEventListener('click', () => {
+        const expanded = r.classList.toggle('expanded');
+        toggle.textContent = expanded ? 'show less' : 'view more…';
+        toggle.setAttribute('aria-expanded', String(expanded));
+      });
+      body.append(r, toggle);
     }
 
     const score = document.createElement('div');
@@ -130,17 +152,31 @@ function renderRanked() {
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');
+    rateBtn.type = 'button';
     rateBtn.textContent = m.rating == null ? 'Rate' : 'Edit';
+    rateBtn.setAttribute('aria-label', `${m.rating == null ? 'Rate' : 'Edit rating for'} ${m.title}`);
     rateBtn.addEventListener('click', () => openRate(m));
     const delBtn = document.createElement('button');
+    delBtn.type = 'button';
     delBtn.className = 'danger';
     delBtn.textContent = 'Remove';
+    delBtn.setAttribute('aria-label', `Remove ${m.title} from your ranking`);
     delBtn.addEventListener('click', () => removeMovie(m));
     actions.append(rateBtn, delBtn);
     score.append(actions);
 
     li.append(rank, poster, body, score);
     el.rankedList.append(li);
+  });
+
+  // Reveal a "view more" toggle only for reviews whose text is actually clipped.
+  requestAnimationFrame(() => {
+    el.rankedList.querySelectorAll('.review').forEach((p) => {
+      const toggle = p.nextElementSibling;
+      if (toggle?.classList.contains('review-toggle') && p.scrollHeight - p.clientHeight > 4) {
+        toggle.hidden = false;
+      }
+    });
   });
 }
 
@@ -172,9 +208,7 @@ function makeLoading(label) {
   const d = document.createElement('div');
   d.style.padding = '1rem';
   d.style.color = 'var(--ink-dim)';
-  const s = document.createElement('span');
-  s.className = 'spinner';
-  d.append(s, document.createTextNode(' ' + label));
+  d.append(spinnerNode(), document.createTextNode(' ' + label));
   return d;
 }
 function makeError(msg) {
@@ -203,9 +237,11 @@ function renderSearchResults(results) {
     span.textContent = [r.year, r.tmdb_rating ? `TMDB ${r.tmdb_rating}` : null].filter(Boolean).join(' · ');
     meta.append(strong, span);
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'add-btn';
     const owned = state.ownedTmdbIds.has(r.tmdb_id);
     btn.textContent = owned ? 'In your list' : 'Add';
+    btn.setAttribute('aria-label', owned ? `${r.title} is already in your list` : `Add ${r.title} to your list`);
     btn.disabled = owned;
     btn.addEventListener('click', () => addMovie(r.tmdb_id, btn));
     row.append(poster, meta, btn);
@@ -293,8 +329,9 @@ function syncRecommendationsAvailability() {
 
 el.recsTrigger.addEventListener('click', async () => {
   el.recsTrigger.disabled = true;
+  el.recsTrigger.setAttribute('aria-busy', 'true');
   const original = el.recsTrigger.textContent;
-  el.recsTrigger.innerHTML = '<span class="spinner"></span> Thinking…';
+  el.recsTrigger.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
   el.recsHint.classList.remove('err');
   el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
   el.recsGrid.replaceChildren();
@@ -306,6 +343,7 @@ el.recsTrigger.addEventListener('click', async () => {
     el.recsHint.textContent = err.message; // calm inline message (SPEC § 3.4)
   } finally {
     el.recsTrigger.disabled = false;
+    el.recsTrigger.removeAttribute('aria-busy');
     el.recsTrigger.textContent = original;
     syncRecommendationsAvailability();
   }
@@ -325,19 +363,21 @@ function renderRecommendations({ suggestions, meta }) {
     const poster = posterNode(s.poster_url, s.title);
     const body = document.createElement('div');
     body.className = 'rec-card__body';
-    const h4 = document.createElement('h4');
-    h4.append(document.createTextNode(s.title + ' '));
+    const h3 = document.createElement('h3');
+    h3.append(document.createTextNode(s.title + ' '));
     const yr = document.createElement('span');
     yr.className = 'year';
     yr.textContent = s.year ? `(${s.year})` : '';
-    h4.append(yr);
+    h3.append(yr);
     const reason = document.createElement('p');
     reason.className = 'reason';
     reason.textContent = s.reason;
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.textContent = 'Add to my list';
+    btn.setAttribute('aria-label', `Add ${s.title} to my list`);
     btn.addEventListener('click', () => addMovie(s.tmdb_id, btn));
-    body.append(h4, reason, btn);
+    body.append(h3, reason, btn);
     card.append(poster, body);
     el.recsGrid.append(card);
   });
@@ -368,6 +408,7 @@ function syncVerdictAvailability() {
 
 el.verdictRefresh.addEventListener('click', async () => {
   el.verdictRefresh.disabled = true;
+  el.verdictRefresh.setAttribute('aria-busy', 'true');
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
   try {
@@ -380,6 +421,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdictText.textContent = 'Couldn’t come up with a verdict right now.'; // quiet fallback (SPEC § 2.3)
   } finally {
     el.verdictRefresh.disabled = false;
+    el.verdictRefresh.removeAttribute('aria-busy');
   }
 });
 
@@ -403,7 +445,7 @@ async function renderAiLog() {
   const ld = document.createElement('td');
   ld.colSpan = 9;
   ld.className = 'log-empty';
-  ld.append(Object.assign(document.createElement('span'), { className: 'spinner' }), document.createTextNode(' Loading…'));
+  ld.append(spinnerNode(), document.createTextNode(' Loading…'));
   loading.append(ld);
   el.logBody.append(loading);
 

@@ -15,6 +15,11 @@ app.use(express.json());
 // Static frontend (vanilla HTML/CSS/JS — SPEC § 4.1)
 app.use(express.static(join(__dirname, '..', 'public')));
 
+// Liveness probe — most hosts (Render/Railway/Fly) want a cheap endpoint to poll.
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Config exposed to the frontend — public values only, never a secret.
 app.get('/api/config', (_req, res) => {
   res.json({

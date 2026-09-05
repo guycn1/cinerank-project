@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (taste_verdict_v2)
+**Last updated:** 2026-09-04 (taste_verdict_v4; tests + `/api/health` + docs/PROCESS.md; accessibility pass)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -33,24 +33,63 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
-  guard via `unique(tmdb_id)`. Add now auto-opens the rate dialog ("Skip for now").
-* Recommendations: `POST /api/recommendations`, prompt `recommend_v2` (second-person
-  reason voice), per-title TMDB verification, owned-titles filter.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v2` (no markdown
-  leakage, finished sentences), server-side sentence-aware truncation + markdown
-  strip, explicit-trigger only.
+  guard via `unique(tmdb_id)`. Add auto-opens the rate dialog ("Skip for now").
+  Long reviews clamp to 2 lines with a "view more…/show less" toggle (shown only
+  when the text actually clips).
+* Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
+  reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
+  owned-titles filter. Card `.reason` clamps at 5 lines.
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
+  sentences, ~35–60 words, characterise the viewer — not recite ratings),
+  `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
+  markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
   both tables; in-app viewer via footer link.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
+* Tests: `npm test` (Node built-in runner) — `parseModelJson`, `tidyReason`,
+  `tidyVerdict`, `estimateCostUsd`, `loadPrompt` against the real prompt files.
+* `GET /api/health` liveness probe for a future host.
+* `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
+  guardrails, Incident 1) for the course's process grade.
+* Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
+  film, not just the verb), live regions on search results / recs hint / verdict
+  text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
+  `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
+  poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
+  heading fixed h4→h3 (correct nesting under the section's h2), decorative
+  spinners `aria-hidden`.
 
 ### Open issues / TODO
 * [x] Migration 001 applied.
 * [ ] User re-adding lost movies (see Incident 1).
-* [ ] Not deployed (Netlify/host) — required for final submission per course.
-* [ ] No automated tests yet; verification is manual + syntax/boot checks.
+* [ ] Not deployed — **Netlify won't run the Express server** (static + serverless
+  only); target Render / Railway / Fly.io, or refactor routes to functions.
+* [~] Tests: pure helpers + prompt loader covered (`npm test`). Route-level and
+  resilience (TMDB/OpenRouter down) still only verified manually — capture the
+  latter as screenshots for submission.
+* [ ] Prompt-injection defense: add a demo movie with an injection-attempt review
+  and screenshot the verdict/recs staying on-topic (Module 17 evidence).
 * [ ] `/api/recommendations/history` endpoint exists but is superseded by
   `/api/ai-log`; decide whether to remove it.
+* [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
+  (not empty) so the ranked list, both AI features, and the call log all work on
+  first open. Blueprint agreed with user:
+  1. One deliberate taste persona — a specific sensibility (e.g. "bold,
+     stranger-than-fiction swings; bored by safe blockbusters"), not a generic
+     spread, so the verdict + recs land.
+  2. Rating spread: a couple high, one mid, one low "guilty pleasure /
+     disappointment" outlier for contrast.
+  3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
+     demos the "view more" toggle + injection-safe handling.
+  4. Recommendation headroom: likely AI picks not already in the list, real
+     enough to pass TMDB verification cleanly (no silently-dropped cards).
+  5. Dry-run the verdict a few times pre-submission; adjust the seed set if the
+     output is flat.
+  Build it as a small repeatable seed helper (hits the app's own
+  `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
+  re-seed while tuning; final state must be exactly what the normal UI flow
+  produces. Not started — user will kick this off later.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
@@ -107,7 +146,7 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v2` (second-person reason voice); taste verdict uses `taste\_verdict\_v2` (no markdown leakage, finished sentences). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v4` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.

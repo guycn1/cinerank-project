@@ -25,10 +25,10 @@
 
   <main>
     <!-- Taste Verdict Banner (SPEC § 2.3) — visible early, compact, playful -->
-    <section class="verdict" id="verdict" aria-live="polite">
+    <section class="verdict" id="verdict" aria-label="Taste verdict">
       <div class="verdict__inner">
         <span class="verdict__label">The verdict</span>
-        <p class="verdict__text" id="verdict-text">Reading the room…</p>
+        <p class="verdict__text" id="verdict-text" aria-live="polite">Reading the room…</p>
         <button class="verdict__refresh" id="verdict-refresh" type="button" hidden>
           <span>New verdict</span>
         </button>
@@ -36,7 +36,7 @@
     </section>
 
     <!-- Add a movie -->
-    <section class="add">
+    <section class="add" aria-label="Add a movie">
       <form class="search" id="search-form" autocomplete="off">
         <input
           type="search"
@@ -46,7 +46,7 @@
         />
         <button type="submit">Search</button>
       </form>
-      <div class="search-results" id="search-results" hidden></div>
+      <div class="search-results" id="search-results" role="status" aria-live="polite" hidden></div>
     </section>
 
     <!-- The ranked list — primary focus (SPEC § 3.2) -->
@@ -69,7 +69,7 @@
           Get recommendations
         </button>
       </div>
-      <p class="recs__hint" id="recs-hint"></p>
+      <p class="recs__hint" id="recs-hint" role="status" aria-live="polite"></p>
       <div class="recs__grid" id="recs-grid"></div>
     </section>
   </main>
@@ -83,7 +83,7 @@
   </footer>
 
   <!-- Rating dialog -->
-  <dialog id="rate-dialog" class="rate-dialog">
+  <dialog id="rate-dialog" class="rate-dialog" aria-labelledby="rate-title">
     <form method="dialog" id="rate-form">
       <h3 id="rate-title">Rate</h3>
       <label for="rate-range">Your rating: <output id="rate-output">7.0</output></label>
@@ -98,9 +98,9 @@
   </dialog>
 
   <!-- AI call log -->
-  <dialog id="log-dialog" class="log-dialog">
+  <dialog id="log-dialog" class="log-dialog" aria-labelledby="log-title">
     <header>
-      <h3>AI call log</h3>
+      <h3 id="log-title">AI call log</h3>
       <button type="button" class="ghost" id="log-close">Close</button>
     </header>
     <p class="log-sub">

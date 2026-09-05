@@ -4,7 +4,8 @@ import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 import { verifyTitle } from './tmdb.js';
 
-const PROMPT_VERSION = 'recommend_v2';
+const PROMPT_VERSION = 'recommend_v3';
+const REASON_MAX = 130; // safety ceiling; the prompt asks for 8–16 words
 
 class RecommendationError extends Error {
   constructor(message) {
@@ -25,7 +26,7 @@ function line(movie) {
   return review ? `${base}; review: <<${review}>>` : base;
 }
 
-function parseModelJson(text) {
+export function parseModelJson(text) {
   // Structured output only — no regex-parsing of prose (SPEC § 6). We tolerate a
   // markdown code fence but nothing looser than that.
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
@@ -38,8 +39,20 @@ function parseModelJson(text) {
   if (!Array.isArray(arr)) throw new RecommendationError('Model JSON was not an array');
   return arr
     .filter((x) => x && typeof x.title === 'string' && typeof x.reason === 'string')
-    .map((x) => ({ title: x.title.trim(), reason: x.reason.trim() }))
+    .map((x) => ({ title: x.title.trim(), reason: tidyReason(x.reason) }))
     .slice(0, 6);
+}
+
+// Belt-and-suspenders: strip markdown, and if the model overshoots the word
+// budget cut at the last sentence end (else last word), never mid-word.
+export function tidyReason(raw) {
+  let r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
+  if (r.length <= REASON_MAX) return r;
+  const head = r.slice(0, REASON_MAX);
+  const dot = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (dot > 40) return head.slice(0, dot + 1);
+  const space = head.lastIndexOf(' ');
+  return (space > 0 ? head.slice(0, space) : head).replace(/[,;:—-]\s*$/, '') + '…';
 }
 
 /**
