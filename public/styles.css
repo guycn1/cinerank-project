@@ -647,7 +647,7 @@ body:has(dialog[open]) { overflow: hidden; }
   white-space: normal;
   overflow-wrap: break-word;
 }
-.log-reveal ul { width: 10rem; padding-left: 1.2rem; list-style: circle; }
+.log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
