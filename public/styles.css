@@ -650,6 +650,17 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
+/* Fade the panel in/out (~250ms). Uses ::details-content + @starting-style
+   (broadly supported since 2025); engines without it just snap, no breakage. */
+.log-reveal::details-content {
+  opacity: 0;
+  transition: opacity 0.25s ease, content-visibility 0.25s ease allow-discrete;
+}
+.log-reveal[open]::details-content { opacity: 1; }
+@starting-style {
+  .log-reveal[open]::details-content { opacity: 0; }
+}
+
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
    all-figures text reads chunkier than the lowercase columns at the same size,
    so nudge it down a hair and tighten the two-line stack. */
@@ -792,4 +803,5 @@ body:has(dialog[open]) { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
+  .log-reveal::details-content { transition: none !important; }
 }
