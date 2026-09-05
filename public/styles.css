@@ -703,10 +703,18 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-feature { font-weight: 600; }
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
 
-/* ---- narrow viewports: below ~920px the trimmed 9-column table no longer fits
+/* ---- mid range: claw back horizontal space (cell + dialog padding, Result
+        width) so the full table survives further down before cards kick in. ---- */
+@media (max-width: 1040px) {
+  .log-dialog { padding: 1.25rem 0.85rem; }
+  .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
+  .log-result { width: 7rem; max-width: 7rem; }
+}
+
+/* ---- narrow viewports: below ~840px the trimmed 9-column table no longer fits
         the dialog, so render each call as a card (label / value rows). No
         horizontal scroll at any width down to ~300px. ---- */
-@media (max-width: 920px) {
+@media (max-width: 840px) {
   .log-table,
   .log-table tbody,
   .log-table tfoot,
