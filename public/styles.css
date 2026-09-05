@@ -486,15 +486,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    scrollbar in view is the one inside the dialog's own content. */
 body:has(dialog[open]) { overflow: hidden; }
 
-/* Fade both modal dialogs + their backdrops in/out (200ms). `display` and
-   `overlay` are transitioned discretely so the fade-OUT is visible (the element
-   stays rendered and in the top layer until the fade finishes). */
+/* Fade both modal dialogs + their backdrops in/out. `display` and `overlay` are
+   transitioned discretely so the fade-OUT is visible (the element stays rendered
+   and in the top layer until the fade finishes). */
 .rate-dialog,
 .log-dialog,
 .rate-dialog::backdrop,
 .log-dialog::backdrop {
+  --dialog-fade: 250ms;
   opacity: 0;
-  transition: opacity 0.2s ease, display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+  transition:
+    opacity var(--dialog-fade) ease,
+    display var(--dialog-fade) allow-discrete,
+    overlay var(--dialog-fade) allow-discrete;
 }
 .rate-dialog[open],
 .log-dialog[open],
@@ -640,7 +644,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 .log-reveal {
   position: relative;
-  --reveal-fade: 200ms; /* single knob — drives both the opacity fade and how
+  --reveal-fade: 250ms; /* single knob — drives both the opacity fade and how
                            long ::details-content stays rendered on close */
 }
 .log-reveal summary {
