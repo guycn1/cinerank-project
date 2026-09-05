@@ -711,10 +711,10 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-result { width: 7rem; max-width: 7rem; }
 }
 
-/* ---- narrow viewports: below ~840px the trimmed 9-column table no longer fits
+/* ---- narrow viewports: below ~850px the trimmed 9-column table no longer fits
         the dialog, so render each call as a card (label / value rows). No
         horizontal scroll at any width down to ~300px. ---- */
-@media (max-width: 840px) {
+@media (max-width: 850px) {
   .log-table,
   .log-table tbody,
   .log-table tfoot,

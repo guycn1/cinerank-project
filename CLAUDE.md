@@ -121,10 +121,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     Feature has exactly two values (verified in `routes/aiLog.js`).
   - cell padding trimmed `0.6rem 0.8rem` → `0.45rem 0.45rem`; Result column
     `9.5rem` → `8rem`.
-  - **Responsive**: full table down to **~840px** (card `@media` breakpoint),
+  - **Responsive**: full table down to **~850px** (card `@media` breakpoint),
     helped by a mid-range `@media (max-width: 1040px)` that tightens cell padding
     `0.45→0.28rem`, dialog padding `1.5→0.85rem`, and the Result column
-    `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. < 840px → one card
+    `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. < 850px → one card
     per call (label/value rows via `td::before { content: attr(data-label) }`;
     `thead` hidden; abbreviations swapped back to full text via
     `abbr::after { content: attr(title) }`). Reveal panels flow inline in card mode. A document click listener collapses an open
