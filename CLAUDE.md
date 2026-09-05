@@ -78,8 +78,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   so it should read as a real action. `.linkish` removed (was its only use).
 * Fixed a pre-existing glitch: the `.grain` film-grain overlay (`inset: 0`) is
   translated up to 3% by its animation, which briefly exposed a flickering dark
-  strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport;
-  the grain texture + motion are otherwise unchanged.
+  strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
+* Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
+  animation 0.6s → 0.5s. Still subtle.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
