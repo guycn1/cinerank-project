@@ -456,6 +456,29 @@ function modelCell(model) {
   return td;
 }
 
+// Timestamp cell: forced European format (dd/mm/yyyy, 24h) regardless of the
+// browser locale, with the date and clock on separate lines to keep the column
+// narrow.
+function timeCell(iso) {
+  const td = document.createElement('td');
+  td.className = 'log-time';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    td.textContent = '—';
+    return td;
+  }
+  const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const time = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+  const dateLine = document.createElement('span');
+  dateLine.textContent = `${date},`;
+  const timeLine = document.createElement('span');
+  timeLine.textContent = time;
+  td.append(dateLine, timeLine);
+  return td;
+}
+
 async function renderAiLog() {
   el.logBody.replaceChildren();
   el.logFoot.replaceChildren();
@@ -519,7 +542,7 @@ async function renderAiLog() {
     tr.append(st);
 
     tr.append(cell(r.summary || '—', 'result'));
-    tr.append(cell(new Date(r.created_at).toLocaleString()));
+    tr.append(timeCell(r.created_at));
 
     el.logBody.append(tr);
   }

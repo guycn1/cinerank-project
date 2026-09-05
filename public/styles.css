@@ -581,6 +581,9 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.75rem; }
 .log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
 
+/* Time column: date on line 1, clock on line 2 — keeps the column narrow. */
+.log-time span { display: block; }
+
 /* Model column: vendor prefix trimmed; <abbr> holds the full slug on hover. */
 .log-model abbr {
   text-decoration: underline dotted var(--ink-faint);

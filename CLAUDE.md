@@ -95,6 +95,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
+  - **Time** column: forced `en-GB` format (`04/09/2026, 15:39:46`) regardless
+    of browser locale, split onto two lines (date / clock) via `timeCell()`.
+    Still rendered in the viewer's local timezone.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
