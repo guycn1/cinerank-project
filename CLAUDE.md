@@ -134,9 +134,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
-* Reveal panel z-order: the lift (`z-index`) is on `.log-reveal`, not the panel —
-  a panel-level z-index only holds at opacity 1, and mid-fade `::details-content`
-  (0<opacity<1) becomes a stacking context that drops the panel behind later rows.
+* Reveal panel fade: the opacity animation + `@starting-style` live on the panel
+  (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
+  stacking context at any opacity. Animating opacity on `::details-content`
+  instead made *that pseudo* a stacking context only while 0<opacity<1, trapping
+  the panel behind later rows mid-fade (and a `z-index` on `.log-reveal` — a
+  table-cell SC — didn't lift past later `<tr>`s at all). `::details-content` now
+  only transitions `content-visibility` (`allow-discrete`) to stay rendered
+  through the close.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
