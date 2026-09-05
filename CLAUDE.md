@@ -72,6 +72,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `* { margin: 0 }` reset had killed the UA stylesheet's `dialog { margin: auto }`,
   so they rendered at top-left. Fixed with an explicit `margin: auto` on
   `.rate-dialog` / `.log-dialog`.
+* AI call log entry point promoted from a `.linkish` link buried in a footer
+  sentence to a `.log-cta` panel with a solid amber button (`#open-log` id
+  unchanged) + one-line description — it's the SPEC §7.2 "not a wrapper" proof,
+  so it should read as a real action. `.linkish` removed (was its only use).
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO

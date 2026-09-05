@@ -75,10 +75,20 @@
   </main>
 
   <footer class="site-foot">
-    <p>
+    <div class="log-cta">
+      <div class="log-cta__copy">
+        <strong>AI call log</strong>
+        <span>Every OpenRouter call — prompt version, tokens, latency &amp; cost, successes and failures.</span>
+      </div>
+      <button type="button" class="log-cta__btn" id="open-log">
+        <svg class="log-cta__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 5h16M4 10h16M4 15h10M4 20h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        View the AI call log
+      </button>
+    </div>
+    <p class="site-foot__credit">
       Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.
-      Every AI call is logged with token count &amp; cost —
-      <button type="button" class="linkish" id="open-log">view the AI call log</button>.
     </p>
   </footer>
 

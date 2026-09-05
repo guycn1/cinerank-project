@@ -420,6 +420,63 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-top: 1px solid var(--line);
 }
 
+/* AI call log — the "not a ChatGPT wrapper" proof (SPEC § 7.2). Given a
+   real call-to-action rather than a link buried in a sentence. */
+.log-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(245, 193, 91, 0.06), transparent 70%),
+    var(--bg-raised);
+}
+.log-cta__copy { display: flex; flex-direction: column; gap: 0.15rem; }
+.log-cta__copy strong {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.log-cta__copy span { color: var(--ink-faint); font-size: 0.82rem; }
+
+.log-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  background: var(--amber);
+  color: #1a1205;
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  padding: 0.7rem 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, box-shadow 0.25s var(--ease), transform 0.15s var(--ease);
+}
+.log-cta__btn:hover {
+  background: var(--amber-deep);
+  box-shadow: 0 10px 28px -10px rgba(245, 193, 91, 0.6);
+  transform: translateY(-1px);
+}
+.log-cta__btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.log-cta__icon { width: 1.15em; height: 1.15em; }
+
+.site-foot__credit { color: var(--ink-faint); }
+
+@media (max-width: 620px) {
+  .log-cta { flex-direction: column; align-items: stretch; }
+  .log-cta__btn { justify-content: center; }
+}
+
 .rate-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
@@ -455,17 +512,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
-
-.linkish {
-  background: none;
-  border: none;
-  color: var(--amber);
-  font: inherit;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.linkish:hover { color: var(--amber-deep); }
 
 /* AI call log dialog ------------------------------------------------ */
 .log-dialog {
