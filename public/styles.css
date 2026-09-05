@@ -566,13 +566,17 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
 .log-table th, .log-table td {
-  text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
 }
 .log-table thead th {
   position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
   font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase;
 }
-.log-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.75rem; }
 .log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }

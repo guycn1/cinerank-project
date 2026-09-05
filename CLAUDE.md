@@ -90,9 +90,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   stay put, inner table is the only scroller. `body:has(dialog[open]) { overflow:
   hidden }` also freezes the page behind any open modal.
 * AI call log table — narrowing it column by column to kill the horizontal
-  scroll. Done so far: **Model** column shows only the part after the vendor `/`
-  (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
-  cursor) so the full slug is one hover away. `modelCell()` in app.js.
+  scroll. Done so far:
+  - all `th`/`td` content centred (h + v); `.num` right-align dropped.
+  - **Model** column shows only the part after the vendor `/`
+    (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
+    cursor) so the full slug is one hover away. `modelCell()` in app.js.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
