@@ -81,6 +81,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
   animation 0.6s → 0.5s. Still subtle.
+* AI call log dialog scroll fixed: `.log-dialog` is now a flex column with
+  `overflow: hidden`, and `.log-scroll` is `flex: 1; min-height: 0` (its old
+  `max-height: 66vh` removed) — the header/blurb stay put and the inner table is
+  the only scroller. `body:has(dialog[open]) { overflow: hidden }` also freezes
+  the page behind any open modal.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far: **Model** column shows only the part after the vendor `/`
   (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
