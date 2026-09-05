@@ -638,7 +638,11 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-result--error { color: var(--crimson); font-size: 0.9em; }
 
-.log-reveal { position: relative; }
+.log-reveal {
+  position: relative;
+  --reveal-fade: 200ms; /* single knob — drives both the opacity fade and how
+                           long ::details-content stays rendered on close */
+}
 .log-reveal summary {
   cursor: pointer;
   color: var(--amber);
@@ -671,12 +675,12 @@ body:has(dialog[open]) { overflow: hidden; }
   line-height: 1.5;
   white-space: normal;
   overflow-wrap: break-word;
-  /* Fade in/out (200ms) HERE, on the panel — it's already position:absolute +
-     z-index so it's its own stacking context regardless of opacity. Animating
-     opacity on ::details-content instead made the *pseudo* a stacking context
-     only while 0<opacity<1, trapping the panel behind later rows mid-fade. */
+  /* Fade in/out HERE, on the panel — it's already position:absolute + z-index so
+     it's its own stacking context regardless of opacity. Animating opacity on
+     ::details-content instead made the *pseudo* a stacking context only while
+     0<opacity<1, trapping the panel behind later rows mid-fade. */
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--reveal-fade) ease;
 }
 .log-reveal[open] ul,
 .log-reveal[open] p { opacity: 1; }
@@ -692,7 +696,9 @@ body:has(dialog[open]) { overflow: hidden; }
    here (see the panel rule above for why). Engines without ::details-content /
    @starting-style just snap; prefers-reduced-motion disables it. */
 .log-reveal::details-content {
-  transition: content-visibility 0.2s allow-discrete;
+  /* Same duration as the panel's opacity fade — if this is shorter, the panel
+     is yanked out of rendering mid-fade-out. */
+  transition: content-visibility var(--reveal-fade) allow-discrete;
 }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
