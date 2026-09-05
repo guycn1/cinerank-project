@@ -595,11 +595,18 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 
-/* Result column: collapsed to a short trigger; the full content is one click
-   away in a <details> reveal, so this column no longer bloats the table. */
-.log-result { white-space: normal; max-width: 20ch; }
-.log-result--error { color: var(--crimson); font-size: 0.92em; }
+/* Result column: collapsed to a short trigger, full content one click away in a
+   <details>. The column is pinned to a fixed width; the revealed content is
+   positioned OUT OF FLOW (a small floating panel), so opening a row can never
+   widen the column or the table — it just overlays the rows below. */
+.log-result {
+  width: 9.5rem;
+  max-width: 9.5rem;
+  white-space: normal;
+}
+.log-result--error { color: var(--crimson); font-size: 0.9em; }
 
+.log-reveal { position: relative; }
 .log-reveal summary {
   cursor: pointer;
   color: var(--amber);
@@ -611,17 +618,29 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal summary::after { content: ' ▾'; color: var(--ink-faint); font-size: 0.8em; }
 .log-reveal[open] summary::after { content: ' ▴'; }
 .log-reveal summary:hover { color: var(--amber-deep); }
+
 .log-reveal ul,
 .log-reveal p {
-  display: inline-block;
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+  width: 16rem;
+  max-width: 60vw;
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
   text-align: left;
-  margin: 0.5rem 0 0.1rem;
-  max-width: 30ch;
   color: var(--ink-dim);
-  font-size: 0.95em;
+  font-size: 0.72em;          /* significantly smaller than the table body */
+  line-height: 1.5;
   white-space: normal;
+  overflow-wrap: break-word;
 }
-.log-reveal ul { padding-left: 1.1rem; }
+.log-reveal ul { padding-left: 1.6rem; list-style: disc; }
 .log-reveal li { margin: 0.15rem 0; }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The

@@ -108,8 +108,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `summary` string. `resultCell()` renders: failed → error inline; recommendation
     → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
     `<details>` revealing the text. `<details name="ai-log-result">` so opening
-    one closes the others. Table text also toned down (`.log-table` color
-    `#e0dcd3`, was inherited `--ink`).
+    one closes the others. The column is pinned to `width: 9.5rem` and the
+    revealed content is `position: absolute` (a small floating panel, ~0.72em
+    font) — opening a row can never widen/reflow the table or steal width from
+    other columns. Caveat: a panel opened on the very last visible row can be
+    clipped by `.log-scroll`'s overflow (scroll or resize to see it).
+    Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
