@@ -564,7 +564,9 @@ body:has(dialog[open]) { overflow: hidden; }
   border: 1px solid var(--line);
   border-radius: 10px;
 }
-.log-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+/* Base cell size; the header/sub/badge sizes below are `em` so this one
+   value scales the whole table. ~10% down from 0.86rem — room to spare. */
+.log-table { width: 100%; border-collapse: collapse; font-size: 0.77rem; }
 .log-table th, .log-table td {
   text-align: center;
   vertical-align: middle;
@@ -574,11 +576,11 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-table thead th {
   position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
-  font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase;
+  font-weight: 600; font-size: 0.87em; letter-spacing: 0.03em; text-transform: uppercase;
 }
 .log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
-.log-table .sub { display: block; color: var(--ink-faint); font-size: 0.75rem; }
+.log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 .log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. */
@@ -594,7 +596,7 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
 .log-badge {
-  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
 }
 .log-badge.ok { background: rgba(90, 180, 120, 0.15); color: #7fce9b; }
 .log-badge.fail { background: rgba(226, 87, 76, 0.16); color: var(--crimson); }
