@@ -87,16 +87,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
   pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
-  Close scroll away (scroll back up / Esc). The `tfoot` "Total" row is sticky too
-  (`bottom: 0`) so it stays in view at the bottom. `.log-dialog` has **no top
-  padding** (`padding: 0 1.5rem 1.5rem`) so the thead pins flush — the `header`
-  carries `padding-top` instead; the bottom padding stays (the sticky scrollport
-  is the padding box, so it doesn't offset the tfoot, and it keeps the normal gap
-  + `.log-scroll` corners visible once you scroll past the Total row). In card
-  mode the pin moves to the whole
-  `tr.log-total` (a block there, so `<tr>` sticky works) since per-cell sticky
-  would stack three boxes. `display: flex` only on `.log-dialog[open]` (a bare
-  rule overrides the UA `dialog:not([open])` hide → never closes).
+  Close scroll away (scroll back up / Esc). `.log-dialog` has **no top padding**
+  (`padding: 0 1.5rem 1.5rem`; `header` carries `padding-top`) so the thead pins
+  flush.
+  **Total row:** the real `<tfoot>` is NOT sticky — a sticky footer can't clear
+  its own containing block, so it never sits truly flush *and* still shows the
+  spacing/corners once you scroll to the end. Instead `#log-total-bar` (a
+  `position: absolute` copy pinned to the dialog's bottom edge) is toggled by an
+  `IntersectionObserver` (`root: .log-dialog`) watching the real `<tfoot>`: shown
+  while the real row is out of view, hidden once it scrolls in (so the real row +
+  its normal spacing/corners show). `.log-dialog[open]` carries `display: flex`;
+  a bare rule overrides the UA `dialog:not([open])` hide → never closes.
   `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:

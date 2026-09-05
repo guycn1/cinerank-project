@@ -721,10 +721,31 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-time span { display: block; }
 
 .log-table tfoot td {
-  position: sticky; bottom: 0; z-index: 3; /* Total row stays in view at the
-                                              bottom, mirroring the sticky thead */
   background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
+
+/* A copy of the Total row, pinned to the dialog's visible bottom edge. Shown by
+   an IntersectionObserver only while the real <tfoot> is scrolled out of view —
+   so the real one keeps its normal spacing + rounded corners at the very bottom.
+   `position: absolute` (the modal dialog is `position: fixed` → a containing
+   block) so it never scrolls and adds no layout. */
+.log-total-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--bg-card);
+  border-top: 2px solid var(--line);
+  font-weight: 600;
+  font-size: 0.77rem;
+  color: #e0dcd3;
+}
+.log-total-bar[hidden] { display: none; } /* author `display` would beat UA [hidden] */
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
 }
@@ -809,19 +830,11 @@ body:has(dialog[open]) { overflow: hidden; }
     font-size: 0.9em;
   }
 
-  /* In card mode the per-cell sticky would stack three boxes at the bottom —
-     move the pin to the whole Total card (a block here, so <tr> sticky works). */
-  .log-table tfoot td { position: static; }
-  .log-table tr.log-total {
-    position: sticky;
-    bottom: 0;
-    z-index: 3;
-    border-color: var(--amber-deep);
-    background: var(--bg-card);
-  }
+  .log-table tr.log-total { border-color: var(--amber-deep); }
   .log-total__pad { display: none; }
   .log-total__label { text-align: left; }
   .log-total__label::before { content: none; }
+  .log-total-bar { padding-left: 0.85rem; padding-right: 0.85rem; }
 
   .log-empty { padding: 1.5rem 0; }
   .log-empty::before { content: none; }

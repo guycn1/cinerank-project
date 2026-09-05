@@ -30,6 +30,7 @@ const el = {
   logClose: $('#log-close'),
   logBody: $('#log-body'),
   logFoot: $('#log-foot'),
+  logTotalBar: $('#log-total-bar'),
   toast: $('#toast'),
 };
 
@@ -551,6 +552,8 @@ function resultCell(r) {
 async function renderAiLog() {
   el.logBody.replaceChildren();
   el.logFoot.replaceChildren();
+  logFootObserver?.disconnect();
+  el.logTotalBar.hidden = true; // no totals during loading / error / empty
   const loading = document.createElement('tr');
   const ld = document.createElement('td');
   ld.colSpan = 9;
@@ -635,6 +638,28 @@ async function renderAiLog() {
   rest.className = 'log-total__pad';
   footRow.append(rest);
   el.logFoot.append(footRow);
+
+  syncTotalBar(footRow, `Total · ${data.totals.calls} call(s)`,
+    `${fmtTokens(data.totals.tokens)} tokens · ${fmtCost(data.totals.cost)}`);
+}
+
+// The real <tfoot> keeps its normal place (and the spacing/corners below it).
+// This bar is a fixed copy at the dialog's bottom edge, shown only while the
+// real one is scrolled out of view.
+let logFootObserver;
+function syncTotalBar(footRow, left, right) {
+  const a = document.createElement('span');
+  a.textContent = left;
+  const b = document.createElement('span');
+  b.textContent = right;
+  el.logTotalBar.replaceChildren(a, b);
+
+  logFootObserver?.disconnect();
+  logFootObserver = new IntersectionObserver(
+    ([entry]) => { el.logTotalBar.hidden = entry.isIntersecting; },
+    { root: el.logDialog }
+  );
+  logFootObserver.observe(footRow);
 }
 
 el.openLog.addEventListener('click', () => {
