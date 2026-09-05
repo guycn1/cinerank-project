@@ -30,7 +30,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # pure-helper + prompt-loader tests (Node's built-in runner)
+   npm test         # 31 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
 
@@ -50,7 +50,8 @@ server/
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js   run before every commit
-test/              pure-helper + prompt-loader tests (npm test)
+test/              npm test — helpers, prompt loader, routes, resilience
+                   (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
 ```

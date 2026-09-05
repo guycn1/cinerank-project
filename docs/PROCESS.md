@@ -87,10 +87,24 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency) covers the pure helpers where
-every truncation bug actually lived — `parseModelJson`, `tidyReason`,
-`tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the real prompt
-files, so a malformed prompt version fails the suite.
+`npm test` (Node's built-in runner, no dependency, 31 tests) covers:
+
+- **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
+  `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
+  real prompt files, so a malformed prompt version fails the suite.
+- **Routes** (`test/routes.test.js`): input validation (the 400s), duplicate add
+  (409), `GET /api/config` / `/api/health`, TMDB-unreachable (502), the
+  below-threshold guards (422), and — the one that matters most — OpenRouter
+  unreachable returning 422 *and* still writing a `status='failed'` row to
+  `recommendation_logs`. That's the "make failure visible" contract under test.
+
+To keep the live database untouched (§5), the Supabase client is swapped for a
+small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through
+`globalThis.fetch`. `server/index.js` exports `app` and only starts listening
+when run directly, so a test can drive it on an ephemeral port.
+
+Still manual: the resilience *UI* states (the calm inline messages) — worth a few
+screenshots for the submission even though the server side is now tested.
 
 ## 7. Known gaps / next
 

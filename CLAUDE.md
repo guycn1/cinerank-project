@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (taste_verdict_v4; tests + `/api/health` + docs/PROCESS.md; accessibility pass)
+**Last updated:** 2026-09-05 (route + resilience tests; main merged at SPEC-complete milestone)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -49,8 +49,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via footer link.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner) — `parseModelJson`, `tidyReason`,
-  `tidyVerdict`, `estimateCostUsd`, `loadPrompt` against the real prompt files.
+* Tests: `npm test` (Node built-in runner, 31 tests). Pure helpers
+  (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
+  (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
+  below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
+  log row written). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
+  `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -67,9 +72,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * [ ] User re-adding lost movies (see Incident 1).
 * [ ] Not deployed — **Netlify won't run the Express server** (static + serverless
   only); target Render / Railway / Fly.io, or refactor routes to functions.
-* [~] Tests: pure helpers + prompt loader covered (`npm test`). Route-level and
-  resilience (TMDB/OpenRouter down) still only verified manually — capture the
-  latter as screenshots for submission.
+* [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
+  and TMDB/OpenRouter-down resilience all covered by `npm test` (31). Still worth
+  capturing the resilience states as UI screenshots for the submission.
 * [ ] Prompt-injection defense: add a demo movie with an injection-attempt review
   and screenshot the verdict/recs staying on-topic (Module 17 evidence).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both

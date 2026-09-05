@@ -1,5 +1,5 @@
 import express from 'express';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { config } from './config.js';
 import { moviesRouter } from './routes/movies.js';
@@ -41,6 +41,14 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Something went wrong on our side.' });
 });
 
-app.listen(config.port, () => {
-  console.log(`CineRank running at http://localhost:${config.port}`);
-});
+export { app };
+
+// Only listen when run directly (`node server/index.js`), not when imported by a
+// test that drives the app on an ephemeral port.
+const isEntry =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isEntry) {
+  app.listen(config.port, () => {
+    console.log(`CineRank running at http://localhost:${config.port}`);
+  });
+}

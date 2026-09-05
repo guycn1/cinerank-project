@@ -6,6 +6,20 @@ recover them later). Newest first.
 
 ---
 
+## D-018 · Route + resilience tests without touching the live DB
+Added `test/routes.test.js` covering the SPEC §7.1 checklist items that the pure
+-helper tests couldn't: validation 400s, duplicate 409, TMDB-down 502,
+below-threshold 422, and OpenRouter-down 422 **with** a `status='failed'` row
+written (the Module 13 "make failure visible" contract, now enforced). The
+constraint was the binding working agreement to never touch the user's Supabase
+data — so the client is replaced with an in-memory fake query builder
+(`test/helpers.js`, keyed by `"<table>:<op>"`, recording writes so a test can
+assert "a log row was written"), and TMDB/OpenRouter are stubbed via
+`globalThis.fetch`. `server/index.js` now `export`s `app` and guards `listen()`
+behind an is-this-the-entrypoint check so a test can run it on an ephemeral port.
+No runtime behaviour changed. Chose Node's `--experimental-test-module-mocks`
+(built-in, no dependency) over adding `supertest`/`sinon`.
+
 ## D-017 · Keep `/api/recommendations/history` rather than delete it
 `/api/ai-log` (added in D-010) is a strict superset of `/history` for the
 recommendation side — both tables, failure status, token split, duration,
