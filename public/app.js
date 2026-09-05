@@ -431,9 +431,10 @@ const fmtDur = (ms) =>
   ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
 
-function cell(text, className) {
+function cell(text, className, label) {
   const td = document.createElement('td');
   if (className) td.className = className;
+  if (label) td.dataset.label = label; // shown as the field label in the narrow card layout
   td.textContent = text;
   return td;
 }
@@ -566,12 +567,16 @@ async function renderAiLog() {
   for (const r of data.rows) {
     const tr = document.createElement('tr');
 
-    tr.append(cell(r.feature, 'log-feature'));
-    tr.append(cell(r.prompt_version || '—'));
-    tr.append(modelCell(r.model_used));
+    tr.append(cell(r.feature, 'log-feature', 'Feature'));
+    tr.append(cell(r.prompt_version || '—', null, 'Prompt'));
+
+    const mdl = modelCell(r.model_used);
+    mdl.dataset.label = 'Model';
+    tr.append(mdl);
 
     const tok = document.createElement('td');
     tok.className = 'num';
+    tok.dataset.label = 'Tokens';
     tok.textContent = fmtTokens(r.tokens_used);
     if (r.prompt_tokens != null || r.completion_tokens != null) {
       const sub = document.createElement('span');
@@ -581,30 +586,38 @@ async function renderAiLog() {
     }
     tr.append(tok);
 
-    tr.append(cell(fmtCost(r.estimated_cost_usd), 'num'));
-    tr.append(cell(fmtDur(r.duration_ms), 'num'));
+    tr.append(cell(fmtCost(r.estimated_cost_usd), 'num', 'Cost'));
+    tr.append(cell(fmtDur(r.duration_ms), 'num', 'Duration'));
 
     const st = document.createElement('td');
+    st.dataset.label = 'Status';
     const badge = document.createElement('span');
     badge.className = `log-badge ${r.status === 'failed' ? 'fail' : 'ok'}`;
     badge.textContent = r.status;
     st.append(badge);
     tr.append(st);
 
-    tr.append(resultCell(r));
-    tr.append(timeCell(r.created_at));
+    const rc = resultCell(r);
+    rc.dataset.label = 'Result';
+    tr.append(rc);
+
+    const tc = timeCell(r.created_at);
+    tc.dataset.label = 'Time';
+    tr.append(tc);
 
     el.logBody.append(tr);
   }
 
   const footRow = document.createElement('tr');
-  const label = cell(`Total · ${data.totals.calls} call(s)`);
+  footRow.className = 'log-total';
+  const label = cell(`Total · ${data.totals.calls} call(s)`, 'log-total__label');
   label.colSpan = 3;
   footRow.append(label);
-  footRow.append(cell(fmtTokens(data.totals.tokens), 'num'));
-  footRow.append(cell(fmtCost(data.totals.cost), 'num'));
+  footRow.append(cell(fmtTokens(data.totals.tokens), 'num', 'Total tokens'));
+  footRow.append(cell(fmtCost(data.totals.cost), 'num', 'Total cost'));
   const rest = document.createElement('td');
   rest.colSpan = 4;
+  rest.className = 'log-total__pad';
   footRow.append(rest);
   el.logFoot.append(footRow);
 }

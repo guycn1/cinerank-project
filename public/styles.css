@@ -666,6 +666,74 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-feature { font-weight: 600; }
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
 
+/* ---- narrow viewports: a 9-column table can't fit below ~1150px, so render
+        each call as a card (label / value rows). No horizontal scroll. ---- */
+@media (max-width: 1200px) {
+  .log-table,
+  .log-table tbody,
+  .log-table tfoot,
+  .log-table tr,
+  .log-table td {
+    display: block;
+    width: auto;
+  }
+  .log-table thead { display: none; }
+  .log-scroll { border: none; }
+
+  .log-table tr {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.35rem 0.9rem;
+    margin-bottom: 0.7rem;
+  }
+  .log-table tbody tr:hover { background: none; }
+
+  .log-table td {
+    text-align: right;
+    padding: 0.4rem 0;
+    white-space: normal;
+    border: none;
+    overflow-wrap: break-word;
+  }
+  .log-table td:not(:last-child) { border-bottom: 1px solid var(--line-faint); }
+  .log-table td::before {
+    content: attr(data-label);
+    float: left;
+    margin-right: 1rem;
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .log-time { font-size: 1em; line-height: 1.4; }
+  .log-time span { display: inline; }
+  .log-time span + span::before { content: '\00a0'; }
+
+  .log-result { width: auto; max-width: none; }
+  .log-reveal { display: inline-block; }
+  .log-reveal ul,
+  .log-reveal p {
+    position: static;
+    width: auto;
+    max-width: 100%;
+    margin: 0.45rem 0 0.1rem;
+    box-shadow: none;
+    background: var(--bg-card);
+    font-size: 0.9em;
+  }
+
+  .log-table tr.log-total { border-color: var(--amber-deep); }
+  .log-total__pad { display: none; }
+  .log-total__label { text-align: left; }
+  .log-total__label::before { content: none; }
+
+  .log-empty { padding: 1.5rem 0; }
+  .log-empty::before { content: none; }
+  .log-table tr:has(.log-empty) { border: none; padding: 0; }
+}
+
 .toast {
   position: fixed;
   bottom: 1.5rem;

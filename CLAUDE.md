@@ -114,6 +114,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     other columns. Caveat: a panel opened on the very last visible row can be
     clipped by `.log-scroll`'s overflow (scroll or resize to see it).
     Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
+  - **Responsive**: below 1200px viewport the 9-column table can't fit, so
+    `@media` reflows it into one card per call (label/value rows via
+    `td::before { content: attr(data-label) }`; `thead` hidden). No horizontal
+    scroll ≥ ~300px. Reveal panels flow inline (`position: static`) in card mode.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
