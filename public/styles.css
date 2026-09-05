@@ -429,6 +429,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   max-width: 380px;
   width: 90vw;
   box-shadow: var(--shadow);
+  /* The global `* { margin: 0 }` reset kills the UA stylesheet's `margin: auto`
+     that centres a modal <dialog> — restore it here (centres both axes). */
+  margin: auto;
 }
 .rate-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
 .rate-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
@@ -474,6 +477,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
+  /* restore the centring the global margin reset removes (see .rate-dialog) */
+  margin: auto;
 }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
 .log-dialog header { display: flex; align-items: center; justify-content: space-between; }

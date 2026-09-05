@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-05 (route + resilience tests; main merged at SPEC-complete milestone)
+**Last updated:** 2026-09-05 (front-end overhaul started — modal dialogs re-centred)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -66,6 +66,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
   spinners `aria-hidden`.
+
+### Front-end overhaul (in progress — started 2026-09-05)
+* Both modal `<dialog>`s (rate, AI call log) re-centred: the global
+  `* { margin: 0 }` reset had killed the UA stylesheet's `dialog { margin: auto }`,
+  so they rendered at top-left. Fixed with an explicit `margin: auto` on
+  `.rate-dialog` / `.log-dialog`.
+* More FE work to come — user is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
