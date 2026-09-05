@@ -533,12 +533,15 @@ body:has(dialog[open]) { overflow: hidden; }
   box-shadow: var(--shadow);
   /* restore the centring the global margin reset removes (see .rate-dialog) */
   margin: auto;
-  /* Column layout so the header + blurb stay put and ONLY .log-scroll scrolls —
-     the dialog itself never shows a second scrollbar. `display: flex` is applied
-     only via [open] below, so the UA `dialog:not([open]) { display: none }` still
-     hides the dialog when it's closed. */
+  /* Column layout so the header + blurb stay put and ONLY .log-scroll scrolls.
+     The flex maths sizes .log-scroll to exactly the leftover height, so the
+     dialog's own content never overflows and `overflow: auto` shows no second
+     scrollbar in normal use — but on an absurdly short viewport it scrolls to
+     reveal the header rather than clipping it (which `overflow: hidden` would).
+     `display: flex` is applied only via [open] so the UA
+     `dialog:not([open]) { display: none }` still hides a closed dialog. */
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 .log-dialog[open] { display: flex; }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
