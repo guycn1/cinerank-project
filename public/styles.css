@@ -19,7 +19,7 @@
   --crimson: #e2574c;
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
-  --line-strong: #50505f; /* brighter than --line — the AI-log Total row divider */
+  --line-strong: #575766; /* brighter than --line — the AI-log Total row divider */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -749,10 +749,10 @@ body:has(dialog[open]) { overflow: hidden; }
   /* A real border-top is drawn by the table's collapsed-border layer, so it stays
      behind at the row's natural spot when the row pins. An inset shadow is part
      of the cell and travels with it — separator visible in both states. */
-  box-shadow: inset 0 1.2px 0 0 var(--line-strong);
+  box-shadow: inset 0 1px 0 0 var(--line-strong);
 }
 /* …and drop the collapsed border it used to sit on, so the line stays a clean
-   1.2px rather than stacking on top of it. */
+   1px rather than stacking on top of it. */
 .log-table tbody tr:last-child td { border-bottom: none; }
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
