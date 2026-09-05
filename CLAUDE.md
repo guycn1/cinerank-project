@@ -68,18 +68,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   spinners `aria-hidden`.
 
 ### Open issues / TODO
+(Submission-readiness gaps are consolidated under **Pre-submission blockers**
+below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
-* [ ] User re-adding lost movies (see Incident 1).
-* [ ] Not deployed — **Netlify won't run the Express server** (static + serverless
-  only); target Render / Railway / Fly.io, or refactor routes to functions.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  and TMDB/OpenRouter-down resilience all covered by `npm test` (31). Still worth
-  capturing the resilience states as UI screenshots for the submission.
-* [ ] Prompt-injection defense: add a demo movie with an injection-attempt review
-  and screenshot the verdict/recs staying on-topic (Module 17 evidence).
+  and TMDB/OpenRouter-down resilience all covered by `npm test` (31).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
+* [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
+  exists.
 * [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
@@ -98,6 +96,28 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
   produces. Not started — user will kick this off later.
+
+### Pre-submission blockers — DO NOT call the project a wrap until these are done
+
+The code is functionally complete against SPEC §2–§6, but the submission is
+**not** ready. These are the known gaps. The user is deferring all
+screenshot/evidence capture to right before submission — that is a deliberate
+schedule choice, not a reason to forget them.
+
+* [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
+  README + the lecturer's project sheet.
+* [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
+* [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
+  search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
+  on the verdict (the "Couldn't come up with a verdict right now" fallback), with
+  the ranked list still working. Server side is tested (`npm test`); the *visual*
+  evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+* [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
+  attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
+* [ ] **README screenshots + architecture diagram** — currently text-only.
+* [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
+  names) and both add cross-referencing comments to the project sheet.
+* [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
