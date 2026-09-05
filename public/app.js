@@ -438,6 +438,24 @@ function cell(text, className) {
   return td;
 }
 
+// Model slugs are long ("anthropic/claude-haiku-4.5"). Show just the part after
+// the vendor "/", wrapped in <abbr> so the full string is one hover away and the
+// dotted underline signals it's shortened.
+function modelCell(model) {
+  const td = document.createElement('td');
+  td.className = 'log-model';
+  if (!model) {
+    td.textContent = '—';
+    return td;
+  }
+  const slash = model.indexOf('/');
+  const abbr = document.createElement('abbr');
+  abbr.textContent = slash === -1 ? model : model.slice(slash + 1);
+  abbr.title = model;
+  td.append(abbr);
+  return td;
+}
+
 async function renderAiLog() {
   el.logBody.replaceChildren();
   el.logFoot.replaceChildren();
@@ -477,7 +495,7 @@ async function renderAiLog() {
 
     tr.append(cell(r.feature, 'log-feature'));
     tr.append(cell(r.prompt_version || '—'));
-    tr.append(cell(r.model_used || '—'));
+    tr.append(modelCell(r.model_used));
 
     const tok = document.createElement('td');
     tok.className = 'num';

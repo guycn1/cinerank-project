@@ -81,6 +81,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
   animation 0.6s → 0.5s. Still subtle.
+* AI call log table — narrowing it column by column to kill the horizontal
+  scroll. Done so far: **Model** column shows only the part after the vendor `/`
+  (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
+  cursor) so the full slug is one hover away. `modelCell()` in app.js.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
