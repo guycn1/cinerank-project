@@ -563,21 +563,31 @@ body:has(dialog[open]) { overflow: hidden; }
   box-shadow: var(--shadow);
   /* restore the centring the global margin reset removes (see .rate-dialog) */
   margin: auto;
-  /* Column layout so the header + blurb stay put and ONLY .log-scroll scrolls.
-     The flex maths sizes .log-scroll to exactly the leftover height, so the
-     dialog's own content never overflows and `overflow: auto` shows no second
-     scrollbar in normal use — but on an absurdly short viewport it scrolls to
-     reveal the header rather than clipping it (which `overflow: hidden` would).
-     `display: flex` is applied only via [open] so the UA
+  /* THE DIALOG is the single scroller: everything (header, blurb, whole table)
+     scrolls together in one outer scrollbar. Earlier this was inverted — the
+     table scrolled inside a flex-sized `.log-scroll` — but on a short viewport
+     that box collapsed to nothing. The dialog header stays reachable by being
+     `position: sticky` (below). `display: flex` only via [open] so the UA
      `dialog:not([open]) { display: none }` still hides a closed dialog. */
+  --log-header-h: 2.8rem; /* ~sticky-header height; thead sticks here (slightly
+                             under the header so there's overlap, never a gap) */
   flex-direction: column;
   overflow: auto;
 }
 .log-dialog[open] { display: flex; }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
-.log-dialog header,
 .log-sub { flex: 0 0 auto; }
-.log-dialog header { display: flex; align-items: center; justify-content: space-between; }
+.log-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 6; /* above the reveal panel (5) so Close is always clickable */
+  background: var(--bg-raised);
+  padding-bottom: 0.6rem;
+}
 .log-dialog h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.4rem; }
 .log-dialog .ghost {
   background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
@@ -588,9 +598,8 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-sub code { color: var(--ink-dim); background: var(--bg-card); padding: 0 0.3em; border-radius: 4px; }
 
 .log-scroll {
-  overflow: auto;
-  flex: 1 1 auto;
-  min-height: 0; /* let the flex child shrink so its own scrollbar engages */
+  overflow: visible; /* no inner scrollbar — the dialog scrolls (see .log-dialog) */
+  flex: 0 0 auto;
   border: 1px solid var(--line);
   border-radius: 10px;
 }
@@ -624,7 +633,8 @@ body:has(dialog[open]) { overflow: hidden; }
   border-right: 1px solid var(--line-faint);
 }
 .log-table thead th {
-  position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
+  position: sticky; top: var(--log-header-h); z-index: 3;
+  background: var(--bg-card); color: var(--ink-dim);
   font-weight: 600; font-size: 0.87em; letter-spacing: 0.03em; text-transform: uppercase;
 }
 .log-table .num { font-variant-numeric: tabular-nums; }

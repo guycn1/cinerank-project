@@ -81,14 +81,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
   animation 0.6s → 0.5s. Still subtle.
-* AI call log dialog scroll fixed: `.log-dialog` is a flex column
-  (`overflow: auto` — the flex maths make it a no-op in normal use, but it fails
-  safe by scrolling rather than clipping on a tiny viewport; `display: flex` is
-  on `.log-dialog[open]` only, or a bare rule overrides the UA
-  `dialog:not([open])` hide and the dialog never closes), and `.log-scroll` is
-  `flex: 1; min-height: 0` (its old `max-height: 66vh` removed) — header/blurb
-  stay put, inner table is the only scroller. `body:has(dialog[open]) { overflow:
-  hidden }` also freezes the page behind any open modal.
+* AI call log dialog scrolling: **the dialog itself is the single scroller**
+  (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
+  `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
+  inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
+  to nothing. Now header + blurb + whole table scroll together; `.log-dialog
+  header` is `position: sticky; top: 0; z-index: 6` so Close stays reachable, and
+  `thead th` sticks at `top: var(--log-header-h)` (2.8rem, ~header height) so the
+  column headers stay too. `display: flex` only on `.log-dialog[open]` (a bare
+  rule overrides the UA `dialog:not([open])` hide → never closes).
+  `body:has(dialog[open]) { overflow: hidden }` freezes the page behind any modal.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
