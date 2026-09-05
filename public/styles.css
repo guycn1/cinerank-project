@@ -557,8 +557,8 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  padding: 0 1.5rem 1.5rem; /* no top padding — so the sticky thead pins flush to
-                               the top edge; the header carries its own top space */
+  padding: 0 1.5rem; /* no top/bottom padding — the sticky thead / tfoot pin
+                        flush to the edges; the header carries its own top space */
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
@@ -718,6 +718,8 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-time span { display: block; }
 
 .log-table tfoot td {
+  position: sticky; bottom: 0; z-index: 3; /* Total row stays in view at the
+                                              bottom, mirroring the sticky thead */
   background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
 }
 .log-badge {
@@ -731,7 +733,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
-  .log-dialog { padding: 0 0.85rem 1.25rem; }
+  .log-dialog { padding: 0 0.85rem; }
   .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
   .log-result { width: 7rem; max-width: 7rem; }
@@ -804,7 +806,16 @@ body:has(dialog[open]) { overflow: hidden; }
     font-size: 0.9em;
   }
 
-  .log-table tr.log-total { border-color: var(--amber-deep); }
+  /* In card mode the per-cell sticky would stack three boxes at the bottom —
+     move the pin to the whole Total card (a block here, so <tr> sticky works). */
+  .log-table tfoot td { position: static; }
+  .log-table tr.log-total {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    border-color: var(--amber-deep);
+    background: var(--bg-card);
+  }
   .log-total__pad { display: none; }
   .log-total__label { text-align: left; }
   .log-total__label::before { content: none; }

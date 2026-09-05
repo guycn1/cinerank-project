@@ -87,11 +87,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
   pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
-  Close scroll away (scroll back up / Esc). For the thead to pin *flush* to the
-  top, `.log-dialog` has **no top padding** (`padding: 0 1.5rem 1.5rem`) and the
-  `header` carries `padding-top` instead. `display: flex` only on
-  `.log-dialog[open]` (a bare rule overrides the UA `dialog:not([open])` hide →
-  never closes). `body:has(dialog[open]) { overflow: hidden }` freezes the page.
+  Close scroll away (scroll back up / Esc). The `tfoot` "Total" row is sticky too
+  (`bottom: 0`) so it stays in view at the bottom. For both to pin *flush* to the
+  edges, `.log-dialog` has **no top/bottom padding** (`padding: 0 1.5rem`) and the
+  `header` carries `padding-top`. In card mode the pin moves to the whole
+  `tr.log-total` (a block there, so `<tr>` sticky works) since per-cell sticky
+  would stack three boxes. `display: flex` only on `.log-dialog[open]` (a bare
+  rule overrides the UA `dialog:not([open])` hide → never closes).
+  `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
