@@ -92,6 +92,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * AI call log table — narrowing it column by column to kill the horizontal
   scroll. Done so far:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
+  - table font trimmed ~10% (`.log-table` 0.86→0.77rem; header/sub/badge → `em`).
+  - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
+    `--line-faint` = white 0.035). A short "floating tick" variant was tried to
+    make the row/column hierarchy clearer and reverted — user preferred the plain
+    hairline; hierarchy parked.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
