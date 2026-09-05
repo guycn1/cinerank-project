@@ -134,6 +134,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
+* Reveal panel z-order: the lift (`z-index`) is on `.log-reveal`, not the panel —
+  a panel-level z-index only holds at opacity 1, and mid-fade `::details-content`
+  (0<opacity<1) becomes a stacking context that drops the panel behind later rows.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
