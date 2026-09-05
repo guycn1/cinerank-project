@@ -557,8 +557,11 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  padding: 0 1.5rem; /* no top/bottom padding — the sticky thead / tfoot pin
-                        flush to the edges; the header carries its own top space */
+  /* No TOP padding (the header carries its own top space) so the sticky thead
+     pins flush. Bottom padding stays: the sticky tfoot pins flush anyway (the
+     scrollport is the padding box), and this keeps the normal gap + `.log-scroll`
+     rounded corners visible once you scroll past the tfoot to the very bottom. */
+  padding: 0 1.5rem 1.5rem;
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
@@ -733,7 +736,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
-  .log-dialog { padding: 0 0.85rem; }
+  .log-dialog { padding: 0 0.85rem 1.25rem; }
   .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
   .log-result { width: 7rem; max-width: 7rem; }
