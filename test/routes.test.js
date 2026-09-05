@@ -173,3 +173,33 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
     restore();
   }
 });
+
+/* ---------- /api/ai-log shape ---------------------------------------- */
+
+test('GET /api/ai-log returns structured result data per row', async () => {
+  db.results['recommendation_logs:select'] = {
+    data: [
+      { id: 'r1', created_at: '2026-09-04T10:00:00Z', prompt_version: 'recommend_v3', model_used: 'anthropic/claude-haiku-4.5', tokens_used: 1000, prompt_tokens: 700, completion_tokens: 300, duration_ms: 3000, status: 'success', error_text: null, estimated_cost_usd: 0.002, suggested_titles: ['Hostel', 'Saw'] },
+      { id: 'r2', created_at: '2026-09-04T09:00:00Z', prompt_version: 'recommend_v3', model_used: 'x', tokens_used: null, prompt_tokens: null, completion_tokens: null, duration_ms: 500, status: 'failed', error_text: 'OpenRouter unreachable', estimated_cost_usd: null, suggested_titles: [] },
+    ],
+    error: null,
+  };
+  db.results['taste_verdict_logs:select'] = {
+    data: [
+      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: null, estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
+    ],
+    error: null,
+  };
+
+  const res = await client.get('/api/ai-log');
+  assert.equal(res.status, 200);
+  const { rows, totals } = await res.json();
+
+  assert.equal(rows.length, 3);
+  assert.deepEqual(rows.find((r) => r.id === 'r1').suggested_titles, ['Hostel', 'Saw']);
+  assert.equal(rows.find((r) => r.id === 'r2').error_text, 'OpenRouter unreachable');
+  assert.equal(rows.find((r) => r.id === 'r2').suggested_titles.length, 0);
+  assert.equal(rows.find((r) => r.id === 'v1').verdict_text, 'You like bold films.');
+  assert.equal(rows.find((r) => r.id === 'v1').error_text, null);
+  assert.equal(totals.calls, 3);
+});

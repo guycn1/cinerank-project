@@ -28,7 +28,10 @@ aiLogRouter.get(
     if (recs.error) throw new Error(recs.error.message);
     if (verdicts.error) throw new Error(verdicts.error.message);
 
-    const norm = (row, feature, summary) => ({
+    // The "Result" cell has exactly three shapes, so send it structured and let
+    // the frontend render/reveal it: a recommendation's verified title list, a
+    // verdict's text, or (either feature) the error message on a failed call.
+    const norm = (row, feature, extra) => ({
       id: row.id,
       feature,
       created_at: row.created_at,
@@ -40,15 +43,17 @@ aiLogRouter.get(
       duration_ms: row.duration_ms,
       status: row.status,
       estimated_cost_usd: row.estimated_cost_usd,
-      summary: row.status === 'failed' ? (row.error_text || 'failed') : summary,
+      error_text: row.status === 'failed' ? row.error_text || 'failed' : null,
+      ...extra,
     });
 
     const rows = [
       ...(recs.data || []).map((r) =>
-        norm(r, 'Recommendation', `${(r.suggested_titles || []).length} suggestion(s)` +
-          ((r.suggested_titles || []).length ? `: ${r.suggested_titles.join(', ')}` : ''))
+        norm(r, 'Recommendation', { suggested_titles: r.suggested_titles || [] })
       ),
-      ...(verdicts.data || []).map((v) => norm(v, 'Taste verdict', v.verdict_text || '—')),
+      ...(verdicts.data || []).map((v) =>
+        norm(v, 'Taste verdict', { verdict_text: v.verdict_text || null })
+      ),
     ]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 60);

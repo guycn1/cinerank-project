@@ -102,7 +102,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
   - **Time** column: forced `en-GB` format (`04/09/2026, 15:39:46`) regardless
     of browser locale, split onto two lines (date / clock) via `timeCell()`.
-    Still rendered in the viewer's local timezone.
+    Still rendered in the viewer's local timezone. `.log-time` 0.9em to match.
+  - **Result** column collapsed. `/api/ai-log` now sends structured data
+    (`suggested_titles` / `verdict_text` / `error_text`) instead of a flattened
+    `summary` string. `resultCell()` renders: failed → error inline; recommendation
+    → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
+    `<details>` revealing the text. `<details name="ai-log-result">` so opening
+    one closes the others. Table text also toned down (`.log-table` color
+    `#e0dcd3`, was inherited `--ink`).
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO

@@ -479,6 +479,56 @@ function timeCell(iso) {
   return td;
 }
 
+// Result cell — three shapes (see routes/aiLog.js):
+//   failed call      -> the error message, shown inline (short, and you want it
+//                       visible when scanning for problems)
+//   recommendation   -> "N suggestions", click to reveal the verified title list
+//   taste verdict    -> "view verdict", click to reveal the full text
+// The reveal is a native <details> so it's keyboard-accessible with no JS; the
+// `name` makes the open one close its siblings, keeping the table compact.
+function revealDetails(summaryText, bodyNode) {
+  const details = document.createElement('details');
+  details.className = 'log-reveal';
+  details.name = 'ai-log-result';
+  const summary = document.createElement('summary');
+  summary.textContent = summaryText;
+  details.append(summary, bodyNode);
+  return details;
+}
+
+function resultCell(r) {
+  const td = document.createElement('td');
+  td.className = 'log-result';
+
+  if (r.status === 'failed') {
+    td.classList.add('log-result--error');
+    td.textContent = r.error_text || 'failed';
+    return td;
+  }
+
+  if (r.feature === 'Recommendation') {
+    const titles = r.suggested_titles || [];
+    if (!titles.length) {
+      td.textContent = 'no suggestions';
+      return td;
+    }
+    const ul = document.createElement('ul');
+    for (const t of titles) {
+      const li = document.createElement('li');
+      li.textContent = t;
+      ul.append(li);
+    }
+    td.append(revealDetails(`${titles.length} suggestion${titles.length === 1 ? '' : 's'}`, ul));
+    return td;
+  }
+
+  // Taste verdict
+  const p = document.createElement('p');
+  p.textContent = r.verdict_text || '—';
+  td.append(revealDetails('view verdict', p));
+  return td;
+}
+
 async function renderAiLog() {
   el.logBody.replaceChildren();
   el.logFoot.replaceChildren();
@@ -541,7 +591,7 @@ async function renderAiLog() {
     st.append(badge);
     tr.append(st);
 
-    tr.append(cell(r.summary || '—', 'result'));
+    tr.append(resultCell(r));
     tr.append(timeCell(r.created_at));
 
     el.logBody.append(tr);

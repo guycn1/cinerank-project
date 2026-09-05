@@ -594,7 +594,35 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
-.log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
+
+/* Result column: collapsed to a short trigger; the full content is one click
+   away in a <details> reveal, so this column no longer bloats the table. */
+.log-result { white-space: normal; max-width: 20ch; }
+.log-result--error { color: var(--crimson); font-size: 0.92em; }
+
+.log-reveal summary {
+  cursor: pointer;
+  color: var(--amber);
+  white-space: nowrap;
+  user-select: none;
+  list-style: none;
+}
+.log-reveal summary::-webkit-details-marker { display: none; }
+.log-reveal summary::after { content: ' ▾'; color: var(--ink-faint); font-size: 0.8em; }
+.log-reveal[open] summary::after { content: ' ▴'; }
+.log-reveal summary:hover { color: var(--amber-deep); }
+.log-reveal ul,
+.log-reveal p {
+  display: inline-block;
+  text-align: left;
+  margin: 0.5rem 0 0.1rem;
+  max-width: 30ch;
+  color: var(--ink-dim);
+  font-size: 0.95em;
+  white-space: normal;
+}
+.log-reveal ul { padding-left: 1.1rem; }
+.log-reveal li { margin: 0.15rem 0; }
 
 /* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
    all-figures text reads chunkier than the lowercase columns at the same size,

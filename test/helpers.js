@@ -47,6 +47,7 @@ export function makeFakeSupabase(state) {
         eq: () => b,
         order: () => b,
         not: () => b,
+        limit: () => b,
         single: () => b,
         insert: (p) => record('insert', p),
         update: (p) => record('update', p),
