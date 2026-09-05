@@ -596,7 +596,10 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 .log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
 
-/* Time column: date on line 1, clock on line 2 — keeps the column narrow. */
+/* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
+   all-figures text reads chunkier than the lowercase columns at the same size,
+   so nudge it down a hair and tighten the two-line stack. */
+.log-time { font-size: 0.9em; line-height: 1.35; }
 .log-time span { display: block; }
 
 /* Model column: vendor prefix trimmed; <abbr> holds the full slug on hover. */
