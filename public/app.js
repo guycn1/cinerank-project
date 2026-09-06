@@ -674,9 +674,13 @@ async function renderAiLog() {
   footRow.append(cell(fmtCost(t.cost), 'num', 'Total cost'));
   footRow.append(cell(t.timed ? fmtDur(t.durationMs) : '—', 'num', 'Total duration'));
 
+  // Fills the trailing gap and says what the Duration total actually is: the
+  // sum of per-call round trips to OpenRouter, which is a small fraction of the
+  // elapsed time between the first and last call.
   const rest = document.createElement('td');
   rest.colSpan = 3;
   rest.className = 'log-total__pad';
+  rest.textContent = '(summed model latency, not elapsed time)';
   footRow.append(rest);
   el.logFoot.append(footRow);
 }

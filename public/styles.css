@@ -872,6 +872,16 @@ body:has(dialog[open]) { overflow: hidden; }
    column border — that is what segmented the divider. Remove those borders on
    this row so the cells sit flush and the divider runs unbroken. The extra
    `:not(:last-child)` is needed to outrank the column-separator rule. */
+/* The label spans Feature+Prompt+Model, which are far wider than its text, so
+   unlike the rest of the footer it is not part of the column-width constraint
+   — give it back a readable size. The trailing note is muted; it explains the
+   Duration total rather than being data. */
+.log-table tfoot .log-total__label { font-size: 1.1em; }
+.log-table tfoot .log-total__pad {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-faint);
+}
 .log-table tfoot td:not(:last-child) { border-right: none; }
 /* Last cell: keep the divider, drop the separator — no column follows it. */
 .log-table tfoot td:last-child {
