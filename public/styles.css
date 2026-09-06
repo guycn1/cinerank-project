@@ -52,7 +52,8 @@ html { scroll-behavior: smooth; }
     border: 3px solid transparent; /* inset the thumb off the track edges */
     background-clip: padding-box;
   }
-  ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+  /* a gentle lift, not a jump to --ink-faint — keeps rest vs hover subtle */
+  ::-webkit-scrollbar-thumb:hover { background: #565462; }
   ::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
   ::-webkit-scrollbar-corner { background: var(--bg-raised); }
 
