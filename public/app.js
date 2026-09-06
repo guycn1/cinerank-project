@@ -656,9 +656,9 @@ async function renderAiLog() {
   label.colSpan = 3;
   footRow.append(label);
 
-  // Tokens: total, plus the in/out split summed over the calls that recorded
-  // one. When that's not every call the split can't add up to the total, so
-  // say how many it covers instead of leaving it looking like bad arithmetic.
+  // Totals mirror a data row: tokens with the in/out split beneath, then cost
+  // and total duration. `totals.detailed` / `.timed` are still returned by the
+  // API but deliberately not surfaced — see docs/DECISIONS.md D-018.
   const tokTotal = document.createElement('td');
   tokTotal.className = 'num';
   tokTotal.dataset.label = 'Total tokens';
@@ -667,28 +667,12 @@ async function renderAiLog() {
     const sub = document.createElement('span');
     sub.className = 'sub';
     sub.textContent = `${fmtTokens(t.promptTokens)} in / ${fmtTokens(t.completionTokens)} out`;
-    if (t.detailed < t.calls) {
-      sub.textContent += ` · ${t.detailed}/${t.calls}`;
-      tokTotal.title = `Input/output split recorded for ${t.detailed} of ${t.calls} calls`;
-    }
     tokTotal.append(sub);
   }
   footRow.append(tokTotal);
 
   footRow.append(cell(fmtCost(t.cost), 'num', 'Total cost'));
-
-  const durTotal = document.createElement('td');
-  durTotal.className = 'num';
-  durTotal.dataset.label = 'Total duration';
-  durTotal.textContent = t.timed ? fmtDur(t.durationMs) : '—';
-  if (t.timed && t.timed < t.calls) {
-    const sub = document.createElement('span');
-    sub.className = 'sub';
-    sub.textContent = `${t.timed}/${t.calls}`;
-    durTotal.title = `Duration recorded for ${t.timed} of ${t.calls} calls`;
-    durTotal.append(sub);
-  }
-  footRow.append(durTotal);
+  footRow.append(cell(t.timed ? fmtDur(t.durationMs) : '—', 'num', 'Total duration'));
 
   const rest = document.createElement('td');
   rest.colSpan = 3;

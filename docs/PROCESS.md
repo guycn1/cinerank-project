@@ -72,6 +72,13 @@ failures, token split, duration, per-call cost, and totals. `GET
 per-feature JSON view — recommendation runs only — but nothing in the UI depends
 on it; the merged log is what the app and the demo use.
 
+One honest caveat: six of the earliest log rows predated the migration that
+added the token split and duration columns, so they showed blanks in those
+fields. They were deleted by hand once, for presentation, rather than left to
+age out of the 60-row window. That is the only time anything has been removed
+from the audit trail, and no code path in the app can delete a log row — see
+`docs/DECISIONS.md` D-019.
+
 ## 5. Incident 1 — and the guardrail it produced
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second

@@ -6,6 +6,27 @@ recover them later). Newest first.
 
 ---
 
+## D-019 · Six pre-migration log rows deleted, rather than annotated forever
+The six oldest AI-log rows predate migration 001, so they carry no token split
+and no duration — the columns simply did not exist when they were written. The
+footer's summed `in / out` and total duration therefore covered only a subset,
+and showing that honestly meant a `· 13/19` marker plus tooltips in the Total
+row. That was a permanent piece of UI complexity paying for a temporary data
+gap: the viewer only ever shows the 60 most recent calls, so those rows will
+fall out of the window on their own after ~47 more calls.
+
+Decision: delete those six rows and drop the coverage markers. The predicate is
+self-describing — `prompt_tokens is null and completion_tokens is null and
+duration_ms is null` matches exactly the pre-migration rows and can never match
+a new one (every post-migration write records a duration, success or failure).
+
+**This is a deliberate exception, recorded because the log's whole argument is
+that it is an append-only audit trail.** Six rows were removed from it by hand,
+once, for presentation reasons — not by any code path. The app itself still has
+no way to delete a log row. `totals.detailed` / `totals.timed` stay in the
+`/api/ai-log` response (and under test) so the partial-coverage case is still
+handled correctly if it ever recurs; it is just not surfaced in the UI.
+
 ## D-018 · Route + resilience tests without touching the live DB
 Added `test/routes.test.js` covering the SPEC §7.1 checklist items that the pure
 -helper tests couldn't: validation 400s, duplicate 409, TMDB-down 502,
