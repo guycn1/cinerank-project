@@ -155,14 +155,13 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .verdict__text {
   flex: 1;
   min-width: 12rem;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--ink);
 }
-/* The real verdict only — slightly smaller, a half-step off white, and a touch
-   of tracking. `is-muted` marks every placeholder and the error fallback, which
-   keep the base size and `--ink-faint`. */
+/* The real verdict only — a half-step off white plus a touch of tracking.
+   `is-muted` marks every placeholder and the error fallback; those share the
+   base font-size above but stay `--ink-faint`, italic and untracked. */
 .verdict__text:not(.is-muted) {
-  font-size: 1rem;
   color: var(--ink-soft);
   letter-spacing: 0.1px;
 }
