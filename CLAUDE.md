@@ -155,6 +155,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
+* Custom scrollbar on `.log-dialog` only (`scrollbar-color` for Firefox,
+  `::-webkit-scrollbar-*` for Chromium/Safari) — thin, `--line-strong` thumb on a
+  transparent track, `--ink-faint` hover / `--amber-deep` active. Rest of the
+  page keeps native bars.
 * Reveal panel fade: the opacity animation + `@starting-style` live on the panel
   (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
   stacking context at any opacity. Animating opacity on `::details-content`
