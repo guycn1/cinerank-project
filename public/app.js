@@ -418,7 +418,7 @@ function syncVerdictAvailability() {
     el.verdictRefresh.hidden = false;
     if (!el.verdict.dataset.generated) {
       el.verdictText.classList.add('is-muted');
-      el.verdictText.textContent = 'Tap “New verdict” for a (probably unflattering) read on your taste.';
+      el.verdictText.textContent = 'Tap “New verdict” for a candid read on your taste.';
     }
   }
 }
