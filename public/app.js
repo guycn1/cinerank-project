@@ -652,7 +652,7 @@ async function renderAiLog() {
   const t = data.totals;
   const footRow = document.createElement('tr');
   footRow.className = 'log-total';
-  const label = cell(`Total · ${t.calls} call(s)`, 'log-total__label');
+  const label = cell(`Total · ${t.calls} call${t.calls === 1 ? '' : 's'}`, 'log-total__label');
   label.colSpan = 3;
   footRow.append(label);
 
