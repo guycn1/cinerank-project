@@ -746,27 +746,38 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table tfoot td {
   position: sticky; bottom: var(--log-curtain-h); z-index: 3;
   font-weight: 600; border-top: none; border-bottom: none;
-  /* Drawing this divider is fiddly — three approaches don't work:
-       • a real `border-top` is painted by the table's collapsed-border layer, so
-         it stays behind at the row's natural spot once the row pins;
-       • an OUTER box-shadow isn't painted on table cells at all under
-         `border-collapse: collapse` (Chrome);
-       • an `inset` box-shadow is clipped to the PADDING box, which excludes the
-         collapsed column border → a 1px hole at every column boundary.
-     A background-image gradient works: a cell's background painting area extends
-     to the MIDDLE of the collapsed border, so adjacent cells' gradients meet —
-     solid across columns, column separators kept, and it travels with the cell
-     when pinned. Oversized by 1px each side so the join can't hairline. */
+  /* Drawing this divider is fiddly. It can't be a real `border-top` — the
+     collapsed-border layer paints that and leaves it behind when the row pins.
+     Anything painted by the cell itself (inset shadow, background) is confined
+     to the cell's own paint area, and under `border-collapse: collapse` that
+     area STOPS at the collapsed column border — which is what broke the rule
+     into segments. So: take the collapsed borders off this row entirely (below)
+     and paint BOTH rules as backgrounds — a 2px divider across the top and a 1px
+     column separator at each cell's right edge. Cells are then truly adjacent,
+     so the divider is continuous, the separators are still there, and both
+     travel with the cell when it pins. */
   background-color: var(--bg-card);
-  background-image: linear-gradient(var(--line-strong), var(--line-strong));
-  background-repeat: no-repeat;
-  background-origin: border-box;
-  background-size: calc(100% + 2px) 2px;
-  background-position: -1px top;
+  background-image:
+    linear-gradient(var(--line-strong), var(--line-strong)),
+    linear-gradient(var(--line-faint), var(--line-faint));
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 2px, 1px 100%;
+  background-position: left top, right top;
   /* The divider overlays the top 2px of the cell, so text centred in the whole
      cell reads 1px high — 2px off the bottom padding re-centres it (and trims a
      row that read a touch tall anyway). */
   padding-bottom: calc(0.45rem - 2px);
+}
+/* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
+   column border — that is what segmented the divider. Remove those borders on
+   this row so the cells sit flush and the divider runs unbroken. The extra
+   `:not(:last-child)` is needed to outrank the column-separator rule. */
+.log-table tfoot td:not(:last-child) { border-right: none; }
+/* Last cell: keep the divider, drop the separator — no column follows it. */
+.log-table tfoot td:last-child {
+  background-image: linear-gradient(var(--line-strong), var(--line-strong));
+  background-size: 100% 2px;
+  background-position: left top;
 }
 /* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
 .log-table tbody tr:last-child td { border-bottom: none; }
@@ -862,6 +873,7 @@ body:has(dialog[open]) { overflow: hidden; }
     background-image: none; /* the card's own border is the separator here */
     padding-bottom: 0.4rem;
   }
+  .log-table tfoot td:last-child { background-image: none; }
   .log-table tr.log-total {
     position: sticky;
     bottom: var(--log-curtain-h);
