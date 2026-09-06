@@ -600,8 +600,13 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-scroll {
   overflow: visible; /* no inner scrollbar — the dialog scrolls (see .log-dialog) */
   flex: 0 0 auto;
+  /* Open at the bottom: the closing line + bottom corners live on .log-curtain,
+     which is always directly under the Total row in BOTH states (pinned and at
+     rest). A bottom border here would only be under the Total at rest, and would
+     double up with the curtain's top border. */
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
 }
 
 /* An opaque band pinned to the dialog's bottom edge, directly beneath the pinned
@@ -617,6 +622,10 @@ body:has(dialog[open]) { overflow: hidden; }
   bottom: 0;
   z-index: 2; /* over the rows, under the Total (3) */
   background: var(--bg-raised);
+  /* Closes the table box: the top border is the rule under the Total row, and
+     the sides + rounded bottom continue .log-scroll's frame. */
+  border: 1px solid var(--line);
+  border-radius: 0 0 10px 10px;
 }
 /* Base cell size; the header/sub/badge sizes below are `em` so this one
    value scales the whole table. ~10% down from 0.86rem — room to spare.
@@ -812,6 +821,7 @@ body:has(dialog[open]) { overflow: hidden; }
   }
   .log-table thead { display: none; }
   .log-scroll { border: none; }
+  .log-curtain { border: none; }
 
   .log-table tr {
     border: 1px solid var(--line);
