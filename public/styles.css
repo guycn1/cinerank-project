@@ -700,6 +700,12 @@ body:has(dialog[open]) { overflow: hidden; }
   display: block;
   font-size: 0.78em;
   line-height: 1.35;
+  /* `.log-table td { white-space: nowrap }` is more specific than
+     `.log-result { white-space: normal }`, so it wins on the cell and the span
+     inherits it — the text couldn't wrap however narrow the column. Set it
+     here explicitly; `overflow-wrap: anywhere` then also breaks an unbroken
+     token so min-content never exceeds the pinned width. */
+  white-space: normal;
   overflow-wrap: anywhere;
 }
 
