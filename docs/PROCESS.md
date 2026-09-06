@@ -18,12 +18,21 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Two merges to `main` so far, each a deliberate decision.
+  human sign-off.** Three merges to `main` so far, each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
 - **Every commit says why**, and design decisions are appended to
   `docs/DECISIONS.md` at the moment they're made (Module 8: the reasons are
   clearest then and can't be reconstructed later).
+
+The UI polish phase leans hard on this loop. The AI call log dialog alone took
+~100 small commits — the human runs the app, screenshots what looks off (a
+border that doesn't line up mid-scroll, a caret nub, a scrollbar-coloured line
+mistaken for a stray scrollbar), the agent explains the cause and fixes it, the
+human re-checks. Several rounds caught regressions the agent introduced
+(specificity conflicts leaking a desktop rule into the mobile card view, a
+`::details-content` stacking-context trap). The screenshot-in / explanation-out
+rhythm *is* the method for visual work — prose specs can't anticipate these.
 
 ## 2. Prompt engineering as version control
 
@@ -94,7 +103,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 31 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 32 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the

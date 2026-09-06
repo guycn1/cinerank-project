@@ -995,7 +995,21 @@ body:has(dialog[open]) { overflow: hidden; }
     border: none;
     overflow-wrap: break-word;
   }
-  .log-table td:not(:last-child) { border-bottom: 1px solid var(--line-faint); }
+  /* Kill the desktop column separator (`.log-table td:not(:last-child)`,
+     specificity 0,2,1 — it outranks the `border: none` above and would otherwise
+     stack into a faint vertical line down each card). Keep a horizontal hairline
+     between the label/value rows instead. */
+  .log-table td:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid var(--line-faint);
+  }
+  /* Line ~949 (`tbody tr:last-child td`, 0,3,1) removes the bottom border on
+     every cell of the final data row — a desktop rule so it does not double the
+     table s closing rule. Card mode has no closing rule and each card is its own
+     bordered box, so the last card needs its inner separators back too. */
+  .log-table tbody tr:last-child td:not(:last-child) {
+    border-bottom: 1px solid var(--line-faint);
+  }
   .log-table td::before {
     content: attr(data-label);
     float: left;
@@ -1006,6 +1020,26 @@ body:has(dialog[open]) { overflow: hidden; }
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
+
+  /* Cells with a sub-line (only Tokens: "428" stacked over "355 in / 73 out")
+     cannot centre the label with a float — a float pins to the top, so the
+     label sat high against a two-line value. Grid instead: the label spans both
+     rows, so `align-items: center` lands it at the true vertical middle, while
+     the value and its sub stay stacked and right-aligned like every other row.
+     Card view only; desktop `.sub` (block) and cell centring are untouched. */
+  .log-table td:has(.sub) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 1rem;
+  }
+  .log-table td:has(.sub)::before {
+    float: none;
+    margin-right: 0;
+    grid-row: 1 / span 2;
+    justify-self: start;
+  }
+  .log-table td:has(.sub) > .sub { grid-column: 2; }
 
   /* There's width for the full strings here — swap the abbreviations out. */
   .log-table td abbr {
@@ -1022,15 +1056,24 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-result { width: auto; max-width: none; }
   /* card mode has room — let the error read at the normal card size */
   .log-result--error .log-error { font-size: inherit; }
-  .log-reveal { display: inline-block; }
+  /* Keep the "view verdict" / "N suggestions" trigger on the label s line and
+     drop the panel to a full-width block beneath it. The old `inline-block`
+     reveal shrink-wrapped to its open panel; once that got wide the whole box
+     (summary included) wrapped below the floated label — the ugly line break.
+     `display: block` + a cleared panel fixes it, and makes the recommendation
+     <ul> and the verdict <p> the SAME width here (their different widths are a
+     desktop-table concern, set outside this media query and left untouched). */
+  .log-reveal { display: block; }
+  .log-reveal summary { text-align: right; }
   .log-reveal ul,
   .log-reveal p,
   .log-reveal ul:hover,
   .log-reveal p:hover {
     position: static;
+    clear: left;
     width: auto;
-    max-width: 100%;
-    margin: 0.45rem 0 0.1rem;
+    max-width: none;
+    margin: 0.5rem 0 0.1rem;
     box-shadow: none;
     background: var(--bg-card);
     font-size: 0.9em;
