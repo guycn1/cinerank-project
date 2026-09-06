@@ -675,7 +675,11 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 /* the footer cells are bold; its sub-lines shouldn't inherit that */
-.log-table tfoot .sub { font-weight: 400; }
+/* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
+   white-space is a safety net: the summed split is a few characters longer
+   than any body row's, so if it ever would outgrow the column it wraps onto a
+   second line instead of widening it (see the font-size note on tfoot td). */
+.log-table tfoot .sub { font-weight: 400; white-space: normal; }
 
 /* Result column: collapsed to a short trigger, full content one click away in a
    <details>. The column is pinned to a fixed width; the revealed content is
@@ -836,6 +840,12 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table tfoot td {
   position: sticky; bottom: var(--log-curtain-h); z-index: 3;
   font-weight: 600; border-top: none; border-bottom: none;
+  /* Smaller than the body rows, for two reasons. It reads less chunky, and —
+     since every cell including the footer feeds `table-layout: auto` — it
+     keeps the footer's summed figures from setting a wider max-content than
+     the body rows and shifting the columns. The binding pair is the token
+     split: body ~`773 in / 251 out`, footer ~`9,842 in / 2,101 out`. */
+  font-size: 0.8em;
   /* Drawing this divider is fiddly. It can't be a real `border-top` — the
      collapsed-border layer paints that and leaves it behind when the row pins.
      Anything painted by the cell itself (inset shadow, background) is confined
@@ -968,6 +978,7 @@ body:has(dialog[open]) { overflow: hidden; }
     position: static;
     background-image: none; /* the card's own border is the separator here */
     padding-bottom: 0.4rem;
+    font-size: 1em; /* no columns to protect here — match the other cards */
   }
   .log-table tfoot td:last-child { background-image: none; }
   .log-table tr.log-total {
