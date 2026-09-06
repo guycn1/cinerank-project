@@ -921,8 +921,8 @@ body:has(dialog[open]) { overflow: hidden; }
   background-position: left top, right top;
   /* Tighter than the body rows (this row read too tall); the divider overlays
      the top 1.5px, so bottom is `top - 1.5px` to keep the text centred. */
-  padding-top: 0.32rem;
-  padding-bottom: calc(0.32rem - 1.5px);
+  padding-top: 0.36rem;
+  padding-bottom: calc(0.36rem - 1.5px);
 }
 /* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
    column border — that is what segmented the divider. Remove those borders on
