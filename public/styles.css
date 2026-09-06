@@ -918,10 +918,10 @@ body:has(dialog[open]) { overflow: hidden; }
   background-repeat: no-repeat, no-repeat;
   background-size: 100% 1.5px, 1px 100%;
   background-position: left top, right top;
-  /* The divider overlays the top 1.5px of the cell, so text centred in the
-     whole cell reads slightly high — match it off the bottom padding to
-     re-centre (and it trims a row that read a touch tall anyway). */
-  padding-bottom: calc(0.45rem - 1.5px);
+  /* Tighter than the body rows (this row read too tall); the divider overlays
+     the top 1.5px, so bottom is `top - 1.5px` to keep the text centred. */
+  padding-top: 0.32rem;
+  padding-bottom: calc(0.32rem - 1.5px);
 }
 /* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
    column border — that is what segmented the divider. Remove those borders on
