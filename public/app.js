@@ -398,20 +398,21 @@ function renderRecommendations({ suggestions, meta }) {
     card.append(poster, body);
     el.recsGrid.append(card);
   });
-  const foot = document.createElement('div');
-  foot.className = 'recs__meta';
-  foot.textContent =
-    `Logged to recommendation_logs · prompt ${meta.promptVersion} · model ${meta.model} · ` +
-    `${meta.tokensUsed ?? '?'} tokens · ~$${meta.estimatedCostUsd ?? '?'}`;
-  el.recsGrid.append(foot);
+  el.recsGrid.append(aiMetaFooter(meta));
 }
 
 /* ---------- taste verdict ---------------------------------------- */
+/** Drop the meta footer under the verdict (there's no current call to describe). */
+function clearVerdictMeta() {
+  el.verdict.querySelector('.ai-meta')?.remove();
+}
+
 function syncVerdictAvailability() {
   const need = state.cfg.minRatedForVerdict;
   const have = ratedCount();
   if (have < need) {
     el.verdictRefresh.hidden = true;
+    clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
   } else {
@@ -425,13 +426,15 @@ function syncVerdictAvailability() {
 
 el.verdictRefresh.addEventListener('click', async () => {
   const restoreRefresh = busyButton(el.verdictRefresh);
+  clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
   try {
-    const { verdict } = await api('/api/taste-verdict', { method: 'POST' });
+    const { verdict, meta } = await api('/api/taste-verdict', { method: 'POST' });
     el.verdictText.classList.remove('is-muted');
     el.verdictText.textContent = verdict; // plain text, textContent only
     el.verdict.dataset.generated = '1';
+    el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = 'Couldn’t come up with a verdict right now.'; // quiet fallback (SPEC § 2.3)
@@ -445,6 +448,36 @@ const fmtCost = (usd) => (usd == null ? '—' : `${(usd * 100).toFixed(2)}¢`);
 const fmtDur = (ms) =>
   ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
+
+/**
+ * The footer under a generated AI result: one line of call metadata, then a
+ * link into the full log. Shared by BOTH features so they can't drift apart.
+ * Hoisted, so renderRecommendations (defined earlier) can call it.
+ */
+function aiMetaFooter(meta) {
+  const foot = document.createElement('div');
+  foot.className = 'ai-meta';
+
+  const line = document.createElement('div');
+  line.textContent = [
+    `Prompt: ${meta.promptVersion}`,
+    `Model: ${meta.model}`,
+    `${fmtTokens(meta.tokensUsed)} tokens`,
+    fmtCost(meta.estimatedCostUsd),
+    meta.durationMs == null ? '—' : `${meta.durationMs.toLocaleString()} ms`,
+  ].join(' · ');
+
+  // A button, not an <a>: it performs an action (opens a dialog) rather than
+  // navigating anywhere. Styled as a link in .ai-meta__link.
+  const link = document.createElement('button');
+  link.type = 'button';
+  link.className = 'ai-meta__link';
+  link.textContent = 'View more details in the AI call log »';
+  link.addEventListener('click', openAiLog);
+
+  foot.append(line, link);
+  return foot;
+}
 
 function cell(text, className, label) {
   const td = document.createElement('td');
@@ -704,10 +737,11 @@ async function renderAiLog() {
   el.logFoot.append(footRow);
 }
 
-el.openLog.addEventListener('click', () => {
+function openAiLog() {
   el.logDialog.showModal();
   renderAiLog();
-});
+}
+el.openLog.addEventListener('click', openAiLog);
 el.logClose.addEventListener('click', () => el.logDialog.close());
 
 // A reveal panel stays open until you click outside it — clicking its own text

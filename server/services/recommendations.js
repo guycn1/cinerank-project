@@ -150,6 +150,7 @@ export async function generateRecommendations() {
       model: result.model,
       tokensUsed: result.tokensUsed,
       estimatedCostUsd: estCost,
+      durationMs: result.durationMs,
       basedOn: topN.map((m) => m.title),
     },
   };

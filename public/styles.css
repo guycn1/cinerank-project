@@ -454,13 +454,33 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .rec-card__body button:hover { background: var(--amber-deep); }
 .rec-card__body button:disabled { opacity: 0.5; cursor: default; }
 
-.recs__meta {
-  grid-column: 1 / -1;
+/* Footer under a generated AI result — the call's metadata plus a link into the
+   full log. One block shared by the recommendations grid and the verdict banner
+   (built by aiMetaFooter() in app.js); only the placement differs per host. */
+.ai-meta {
   color: var(--ink-faint);
   font-size: 0.78rem;
   border-top: 1px dashed var(--line);
   padding-top: 0.8rem;
 }
+.ai-meta__link {
+  display: inline-block;
+  margin-top: 0.35rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;        /* stay at the metadata line's small size */
+  font-weight: 700;
+  color: var(--amber);
+  cursor: pointer;
+}
+.ai-meta__link:hover { color: var(--amber-bright); text-decoration: underline; }
+.ai-meta__link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+/* Placement: the recs grid is a grid, so span every column. */
+.recs__grid .ai-meta { grid-column: 1 / -1; }
+/* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
+.verdict__inner .ai-meta { flex: 1 0 100%; }
 
 /* footer / dialog / toast ----------------------------------------- */
 .site-foot {

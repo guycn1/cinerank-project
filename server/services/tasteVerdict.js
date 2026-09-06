@@ -106,6 +106,7 @@ export async function generateTasteVerdict() {
       model: result.model,
       tokensUsed: result.tokensUsed,
       estimatedCostUsd: estCost,
+      durationMs: result.durationMs,
     },
   };
 }
