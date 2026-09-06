@@ -747,19 +747,23 @@ body:has(dialog[open]) { overflow: hidden; }
   position: sticky; bottom: var(--log-curtain-h); z-index: 3;
   background: var(--bg-card); font-weight: 600; border-top: none; border-bottom: none;
   /* A real border-top is drawn by the table's collapsed-border layer, so it stays
-     behind at the row's natural spot when the row pins. A shadow is part of the
-     cell and travels with it. It must be an OUTER shadow, not `inset`:
-     - inset is clipped to the PADDING box, which excludes the 1px collapsed
-       column border between cells → a hole in the rule at every column;
-     - inset also eats the top 2px of the cell's own visible area, pushing the
-       vertically-centred text 1px above the centre of the space below the rule.
-     An outer shadow is cast from the BORDER box (contiguous across cells) and
-     sits outside the cell entirely, so the text centres naturally. */
-  box-shadow: 0 -2px 0 0 var(--line-strong);
-  /* Row read a touch tall — trim symmetrically so it stays centred. */
-  padding-top: calc(0.45rem - 1px);
-  padding-bottom: calc(0.45rem - 1px);
+     behind at the row's natural spot when the row pins — hence a shadow, which is
+     part of the cell and travels with it. It has to be `inset`: with
+     `border-collapse: collapse` Chrome does not paint OUTER shadows on table
+     cells at all. The two costs of `inset` are handled below. */
+  box-shadow: inset 0 2px 0 0 var(--line-strong);
+  /* (2) An inset rule eats the top 2px of the cell's visible area, so text
+     centred in the whole cell sits 1px above the centre of the space below the
+     rule. Taking 2px off the bottom padding re-centres it — and shortens the row,
+     which read a touch tall anyway. */
+  padding-bottom: calc(0.45rem - 2px);
 }
+/* (1) An inset shadow is clipped to the PADDING box, which excludes the 1px
+   collapsed column border between cells — that left a hole in the rule at every
+   column boundary. Drop the separators on this row so the cells are contiguous
+   (a summary row reads cleaner without them anyway). Needs the extra
+   `:not(:last-child)` to outrank the column-separator rule. */
+.log-table tfoot td:not(:last-child) { border-right: none; }
 /* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
 .log-table tbody tr:last-child td { border-bottom: none; }
 .log-badge {
@@ -849,7 +853,7 @@ body:has(dialog[open]) { overflow: hidden; }
   /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
      again sitting right on top of the curtain. The card's own border is the
      separator here, so drop the per-cell shadow. */
-  .log-table tfoot td { position: static; box-shadow: none; }
+  .log-table tfoot td { position: static; box-shadow: none; padding-bottom: 0.4rem; }
   .log-table tr.log-total {
     position: sticky;
     bottom: var(--log-curtain-h);
