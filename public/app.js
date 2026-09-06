@@ -517,8 +517,10 @@ function revealDetails(summaryText, bodyNode) {
   // there isn't room, so flip it above instead. Measured on open rather than
   // done in CSS because the panel's height depends on its content.
   details.addEventListener('toggle', () => {
-    details.classList.remove('log-reveal--above');
+    // On close, keep whichever side it is on so it fades out in place —
+    // clearing the class here would snap it back down mid-fade.
     if (!details.open) return;
+    details.classList.remove('log-reveal--above');
     const trigger = summary.getBoundingClientRect();
     const view = el.logDialog.getBoundingClientRect();
     const needed = bodyNode.offsetHeight + 12; // panel + the 0.35rem offset
