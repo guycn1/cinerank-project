@@ -6,7 +6,27 @@ recover them later). Newest first.
 
 ---
 
-## D-019 · Six pre-migration log rows deleted, rather than annotated forever
+## D-020 · The AI-log table view is frozen; card-view work must prove it can't touch it
+The desktop/table view of the AI call log took ~100 commits of screenshot-driven
+polish to settle (sticky thead/tfoot via `.log-curtain`, the collapsed-border
+divider painted as gradients, the reveal panel's caret + flip, themed
+scrollbars). It is done and it is fragile — several of those rules are the only
+CSS expression of a hard-won layout fact.
+
+Decision: once the table view was signed off, **every** subsequent AI-log change
+(the mobile card view, and anything later) must be provably unable to affect it.
+Concretely: card-view CSS lives only inside `@media (max-width: 850px)`, and each
+change is verified with `git diff <last-merge>..HEAD` showing (a) the only file
+touched is `styles.css` — no shared JS/HTML — and (b) every hunk falls between
+the `@media (max-width: 850px) {` line and its matching close. A browser never
+applies those rules above 850px, so the table view is unaffected by construction,
+not by inspection.
+
+Corollary: the card view's own bugs are fixed *in place* at matching-or-higher
+CSS specificity (the shared `.log-table` rules use `:last-child` /
+`:not(:last-child)` selectors at 0,2,1–0,3,1 that keep winning into card mode),
+never by refactoring the shared rules — that would put the table view back in
+scope.
 The six oldest AI-log rows predate migration 001, so they carry no token split
 and no duration — the columns simply did not exist when they were written. The
 footer's summed `in / out` and total duration therefore covered only a subset,
