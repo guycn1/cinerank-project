@@ -58,13 +58,31 @@ aiLogRouter.get(
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 60);
 
+    // `detailed` / `timed` count how many calls actually carry a token split
+    // and a duration. Rows written before migration 001 have neither, so the
+    // sums cover a subset — the viewer says so rather than silently showing an
+    // in/out split that doesn't add up to the token total.
     const totals = rows.reduce(
-      (acc, r) => ({
-        calls: acc.calls + 1,
-        tokens: acc.tokens + (r.tokens_used || 0),
-        cost: acc.cost + (r.estimated_cost_usd || 0),
-      }),
-      { calls: 0, tokens: 0, cost: 0 }
+      (acc, r) => {
+        acc.calls += 1;
+        acc.tokens += r.tokens_used || 0;
+        acc.cost += r.estimated_cost_usd || 0;
+        if (r.prompt_tokens != null || r.completion_tokens != null) {
+          acc.promptTokens += r.prompt_tokens || 0;
+          acc.completionTokens += r.completion_tokens || 0;
+          acc.detailed += 1;
+        }
+        if (r.duration_ms != null) {
+          acc.durationMs += r.duration_ms;
+          acc.timed += 1;
+        }
+        return acc;
+      },
+      {
+        calls: 0, tokens: 0, cost: 0,
+        promptTokens: 0, completionTokens: 0, detailed: 0,
+        durationMs: 0, timed: 0,
+      }
     );
     totals.cost = Number(totals.cost.toFixed(6));
 

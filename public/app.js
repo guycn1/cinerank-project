@@ -649,15 +649,49 @@ async function renderAiLog() {
     el.logBody.append(tr);
   }
 
+  const t = data.totals;
   const footRow = document.createElement('tr');
   footRow.className = 'log-total';
-  const label = cell(`Total · ${data.totals.calls} call(s)`, 'log-total__label');
+  const label = cell(`Total · ${t.calls} call(s)`, 'log-total__label');
   label.colSpan = 3;
   footRow.append(label);
-  footRow.append(cell(fmtTokens(data.totals.tokens), 'num', 'Total tokens'));
-  footRow.append(cell(fmtCost(data.totals.cost), 'num', 'Total cost'));
+
+  // Tokens: total, plus the in/out split summed over the calls that recorded
+  // one. When that's not every call the split can't add up to the total, so
+  // say how many it covers instead of leaving it looking like bad arithmetic.
+  const tokTotal = document.createElement('td');
+  tokTotal.className = 'num';
+  tokTotal.dataset.label = 'Total tokens';
+  tokTotal.textContent = fmtTokens(t.tokens);
+  if (t.detailed) {
+    const sub = document.createElement('span');
+    sub.className = 'sub';
+    sub.textContent = `${fmtTokens(t.promptTokens)} in / ${fmtTokens(t.completionTokens)} out`;
+    if (t.detailed < t.calls) {
+      sub.textContent += ` · ${t.detailed}/${t.calls}`;
+      tokTotal.title = `Input/output split recorded for ${t.detailed} of ${t.calls} calls`;
+    }
+    tokTotal.append(sub);
+  }
+  footRow.append(tokTotal);
+
+  footRow.append(cell(fmtCost(t.cost), 'num', 'Total cost'));
+
+  const durTotal = document.createElement('td');
+  durTotal.className = 'num';
+  durTotal.dataset.label = 'Total duration';
+  durTotal.textContent = t.timed ? fmtDur(t.durationMs) : '—';
+  if (t.timed && t.timed < t.calls) {
+    const sub = document.createElement('span');
+    sub.className = 'sub';
+    sub.textContent = `${t.timed}/${t.calls}`;
+    durTotal.title = `Duration recorded for ${t.timed} of ${t.calls} calls`;
+    durTotal.append(sub);
+  }
+  footRow.append(durTotal);
+
   const rest = document.createElement('td');
-  rest.colSpan = 4;
+  rest.colSpan = 3;
   rest.className = 'log-total__pad';
   footRow.append(rest);
   el.logFoot.append(footRow);

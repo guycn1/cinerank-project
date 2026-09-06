@@ -674,6 +674,8 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
+/* the footer cells are bold; its sub-lines shouldn't inherit that */
+.log-table tfoot .sub { font-weight: 400; }
 
 /* Result column: collapsed to a short trigger, full content one click away in a
    <details>. The column is pinned to a fixed width; the revealed content is

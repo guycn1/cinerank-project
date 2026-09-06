@@ -187,6 +187,8 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   db.results['taste_verdict_logs:select'] = {
     data: [
       { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: null, estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
+      // pre-migration-001 shape: no token split, no duration recorded
+      { id: 'v0', created_at: '2026-09-04T08:00:00Z', prompt_version: 'taste_verdict_v1', model_used: 'x', tokens_used: 400, prompt_tokens: null, completion_tokens: null, duration_ms: null, status: 'success', error_text: null, estimated_cost_usd: 0.0005, verdict_text: 'Old row.' },
     ],
     error: null,
   };
@@ -195,11 +197,20 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   assert.equal(res.status, 200);
   const { rows, totals } = await res.json();
 
-  assert.equal(rows.length, 3);
+  assert.equal(rows.length, 4);
   assert.deepEqual(rows.find((r) => r.id === 'r1').suggested_titles, ['Hostel', 'Saw']);
   assert.equal(rows.find((r) => r.id === 'r2').error_text, 'OpenRouter unreachable');
   assert.equal(rows.find((r) => r.id === 'r2').suggested_titles.length, 0);
   assert.equal(rows.find((r) => r.id === 'v1').verdict_text, 'You like bold films.');
   assert.equal(rows.find((r) => r.id === 'v1').error_text, null);
-  assert.equal(totals.calls, 3);
+  assert.equal(totals.calls, 4);
+
+  // Totals sum only the calls that recorded a split / duration, and report the
+  // coverage so the viewer can say the in+out doesn't cover every call.
+  assert.equal(totals.tokens, 2300);            // 1000 + 900 + 400 (r2 is null)
+  assert.equal(totals.promptTokens, 1500);      // r1 700 + v1 800
+  assert.equal(totals.completionTokens, 400);   // r1 300 + v1 100
+  assert.equal(totals.detailed, 2);             // r2 and v0 have no split
+  assert.equal(totals.durationMs, 5500);        // 3000 + 500 + 2000
+  assert.equal(totals.timed, 3);                // v0 has no duration
 });
