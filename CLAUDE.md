@@ -99,7 +99,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it. The two
   form one solid block down to the dialog edge, so nothing shows underneath.
   Scrolled to the end both un-pin and the curtain is just the gap below the
-  table's rounded corners (hence `.log-dialog` has no bottom padding). Card mode
+  table (hence `.log-dialog` has no bottom padding). The table's closing rule is
+  the curtain's `border-top` — the only element adjacent to the Total row in
+  BOTH states, so it can't go missing mid-scroll or double up at rest.
+  `.log-scroll` is therefore open at the bottom, and **fully square**: it must
+  stay `overflow: visible` (the dialog is the scroller) so it can't clip the
+  sticky thead/tfoot cell fills to a radius — a rounded border with square cell
+  backgrounds looked broken. Card mode
   pins the whole `tr.log-total` (per-cell sticky would stack three boxes).
   `.log-dialog[open]` carries
   `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never

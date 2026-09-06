@@ -603,11 +603,14 @@ body:has(dialog[open]) { overflow: hidden; }
   /* Open at the bottom: the closing rule lives on .log-curtain's top border,
      which is directly under the Total row in BOTH states (pinned and at rest).
      A bottom border here would only sit under the Total at rest, and would then
-     double up with the curtain's. Radius is top-only so the sides meet that
-     rule squarely instead of tapering into a half-drawn arc. */
+     double up with the curtain's.
+     Square corners, deliberately: .log-scroll must stay overflow:visible (the
+     dialog is the scroller), so it cannot clip the sticky thead/tfoot cell
+     fills to a radius — the border curved while the backgrounds stayed square.
+     Rounding only while a row sits naturally would mean tracking its stuck
+     state on every scroll; not worth it. */
   border: 1px solid var(--line);
   border-bottom: none;
-  border-radius: 10px 10px 0 0;
 }
 
 /* An opaque band pinned to the dialog's bottom edge, directly beneath the pinned
