@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-06 (AI call log — desktop/table view overhaul settled; mobile card view still untouched)
+**Last updated:** 2026-09-07 (AI call log dialog overhaul COMPLETE — desktop table + mobile card view both settled)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -204,11 +204,26 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
   (200ms) on `.log-reveal`. That's the single knob for the fade speed.
-* **AI call log — desktop/table view: DONE.** Mobile **card view** (`< 850px`)
-  has had zero design attention — it works (label/value rows, reveal panels flow
-  inline) but hasn't been reviewed. That's the one remaining piece before the
-  call-log overhaul is a wrap.
-* More FE work to come — user is driving this.
+* **AI call log dialog — COMPLETE** (desktop table + mobile card view). The
+  card-view pass touched only `styles.css`, three hunks, all strictly inside
+  `@media (max-width: 850px)` — the desktop table view is provably unchanged
+  since the last `main` merge (49738c2). Card fixes:
+  - Leftover desktop column separator (`td:not(:last-child)` border-right,
+    specificity 0,2,1) was stacking into a faint vertical line down each card —
+    cleared at matching specificity, card-scoped.
+  - Last card had no row separators: the desktop `tbody tr:last-child td` rule
+    (0,3,1 — kills the border so it doesn't double the table's closing rule)
+    outranked the card rule. Restored at (0,4,1), card-scoped.
+  - Tokens label sat high (a float pins to the top of a two-line value) —
+    `td:has(.sub)` switches to a 2-col grid, label spans both rows +
+    `align-items: center`.
+  - Reveal trigger wrapped below the label when the panel opened
+    (`inline-block` shrink-wrapped wide). `.log-reveal` is now `display: block`
+    in card view; summary stays on the label line, panel is a full-width block
+    with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
+    same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
+* Next: the rest of the UI overhaul (ranked list, recs, verdict banner, rate
+  dialog) — user is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
