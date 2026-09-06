@@ -755,6 +755,13 @@ body:has(dialog[open]) { overflow: hidden; }
     0 0 0 1px rgba(0, 0, 0, 0.8),
     0 18px 40px -6px rgba(0, 0, 0, 0.98);
 }
+/* Flipped above the trigger when there is no room below (class set on toggle
+   by revealDetails() in app.js, which has to measure the panel's height). */
+.log-reveal--above ul,
+.log-reveal--above p {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+}
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 

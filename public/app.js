@@ -512,6 +512,22 @@ function revealDetails(summaryText, bodyNode) {
   const summary = document.createElement('summary');
   summary.textContent = summaryText;
   details.append(summary, bodyNode);
+
+  // The panel normally drops below its trigger; near the bottom of the dialog
+  // there isn't room, so flip it above instead. Measured on open rather than
+  // done in CSS because the panel's height depends on its content.
+  details.addEventListener('toggle', () => {
+    details.classList.remove('log-reveal--above');
+    if (!details.open) return;
+    const trigger = summary.getBoundingClientRect();
+    const view = el.logDialog.getBoundingClientRect();
+    const needed = bodyNode.offsetHeight + 12; // panel + the 0.35rem offset
+    const below = view.bottom - trigger.bottom;
+    const above = trigger.top - view.top;
+    // Only flip if below genuinely can't hold it AND above is roomier.
+    if (below < needed && above > below) details.classList.add('log-reveal--above');
+  });
+
   return details;
 }
 
