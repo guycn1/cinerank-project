@@ -995,7 +995,14 @@ body:has(dialog[open]) { overflow: hidden; }
     border: none;
     overflow-wrap: break-word;
   }
-  .log-table td:not(:last-child) { border-bottom: 1px solid var(--line-faint); }
+  /* Kill the desktop column separator (`.log-table td:not(:last-child)`,
+     specificity 0,2,1 — it outranks the `border: none` above and would otherwise
+     stack into a faint vertical line down each card). Keep a horizontal hairline
+     between the label/value rows instead. */
+  .log-table td:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid var(--line-faint);
+  }
   .log-table td::before {
     content: attr(data-label);
     float: left;
