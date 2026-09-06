@@ -28,7 +28,11 @@
     <section class="verdict" id="verdict" aria-label="Taste verdict">
       <div class="verdict__inner">
         <span class="verdict__label">The verdict</span>
-        <p class="verdict__text" id="verdict-text" aria-live="polite">Reading the room…</p>
+        <!-- is-muted from the start: this is a placeholder like every other
+             pre-verdict message, and syncVerdictAvailability() re-applies the
+             class on load anyway — without it the initial paint briefly showed
+             the real verdict's styling. -->
+        <p class="verdict__text is-muted" id="verdict-text" aria-live="polite">Reading the room…</p>
         <button class="verdict__refresh" id="verdict-refresh" type="button" hidden>
           <span>New verdict</span>
         </button>
