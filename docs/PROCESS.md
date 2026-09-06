@@ -21,9 +21,9 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   human sign-off.** Three merges to `main` so far, each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
-- **Every commit says why**, and design decisions are appended to
-  `docs/DECISIONS.md` at the moment they're made (Module 8: the reasons are
-  clearest then and can't be reconstructed later).
+- **Every commit says why**, and design decisions go to the top of
+  `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
+  reasons are clearest then and can't be reconstructed later).
 
 The UI polish phase leans hard on this loop. The AI call log dialog alone took
 ~100 small commits — the human runs the app, screenshots what looks off (a
