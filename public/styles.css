@@ -722,11 +722,11 @@ body:has(dialog[open]) { overflow: hidden; }
   border: 1px solid var(--line);
   border-radius: 8px;
   /* Not var(--shadow): its -18px spread is tuned for big cards and shrinks to
-     nothing on a panel this small. A tight dark ring lifts it off the table's
-     own --line borders, the soft drop gives depth. */
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.65),
-    0 12px 30px -6px rgba(0, 0, 0, 0.92);
+     nothing on a panel this small. And no 1px ring either — a ring draws a
+     hard line straight across the caret's base, in a different colour from the
+     caret's rim, which shows as a nick at each base corner. The 1px border
+     plus a strong drop carry the separation instead. */
+  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.95);
   cursor: default; /* plain arrow over the panel, not the summary's pointer */
   text-align: left;
   color: var(--ink-dim);
@@ -751,9 +751,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* Deepen on hover so the panel reads as lifted while you're reading it. */
 .log-reveal ul:hover,
 .log-reveal p:hover {
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.8),
-    0 18px 40px -6px rgba(0, 0, 0, 0.98);
+  box-shadow: 0 20px 46px -6px rgba(0, 0, 0, 1);
 }
 /* Flipped above the trigger when there is no room below (class set on toggle
    by revealDetails() in app.js, which has to measure the panel's height). */
@@ -765,37 +763,52 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
-/* Caret pointing back at the trigger. A rotated square with only two borders:
-   the fill covers the panel's own edge where they meet, the borders draw the
-   two outer faces. It's a ::after on the panel so it inherits the fade, and
-   --arrow-x (set in app.js) is the trigger's centre — the panel is
+/* Caret pointing back at the trigger: two stacked FILLED triangles (outer in
+   the border colour, inner in the fill, 1px smaller and lower). Not a rotated
+   bordered square — that shape's two borders terminate in square caps, which
+   after rotation stick out as little nubs at the caret's base corners. Filled
+   shapes have clean edges, and the inner triangle covers the panel's own
+   border across the base so the rim joins it continuously.
+   --arrow-x (set in app.js) is the trigger's centre: the panel is
    right-aligned and wider than its cell, so 50% would miss. */
-.log-reveal ul::after,
-.log-reveal p::after {
+.log-reveal ul::before, .log-reveal ul::after,
+.log-reveal p::before,  .log-reveal p::after {
   content: '';
   position: absolute;
   left: var(--arrow-x, 50%);
-  margin-left: -5px; /* half the width; not translateX, to keep transform pure */
-  width: 10px;
-  height: 10px;
-  background: var(--bg-raised);
-  transform: rotate(45deg);
-  /* default: panel sits BELOW the trigger → caret on top, pointing up */
-  top: -5px;
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent;
 }
-.log-reveal--above ul::after,
-.log-reveal--above p::after {
-  /* flipped: panel sits ABOVE the trigger → caret underneath, pointing down */
+/* default: panel BELOW the trigger → caret on top, pointing up */
+.log-reveal ul::before, .log-reveal p::before {
+  top: -7px;
+  margin-left: -7px;
+  border-width: 0 7px 7px 7px;
+  border-bottom-color: var(--line);
+}
+.log-reveal ul::after, .log-reveal p::after {
+  top: -5px;
+  margin-left: -6px;
+  border-width: 0 6px 6px 6px;
+  border-bottom-color: var(--bg-raised);
+}
+/* flipped: panel ABOVE the trigger → caret underneath, pointing down */
+.log-reveal--above ul::before, .log-reveal--above p::before {
+  top: auto;
+  bottom: -7px;
+  border-width: 7px 7px 0 7px;
+  border-top-color: var(--line);
+  border-bottom-color: transparent;
+}
+.log-reveal--above ul::after, .log-reveal--above p::after {
   top: auto;
   bottom: -5px;
-  border-top: none;
-  border-left: none;
-  border-bottom: 1px solid var(--line);
-  border-right: 1px solid var(--line);
+  border-width: 6px 6px 0 6px;
+  border-top-color: var(--bg-raised);
+  border-bottom-color: transparent;
 }
-
 /* ::details-content is what <details> uses to show/hide the panel
    (content-visibility). Keep it rendered through the close fade — no opacity
    here (see the panel rule above for why). Engines without ::details-content /
@@ -939,8 +952,8 @@ body:has(dialog[open]) { overflow: hidden; }
     font-size: 0.9em;
   }
   /* panel flows inline here, so there's nothing to point at */
-  .log-reveal ul::after,
-  .log-reveal p::after { display: none; }
+  .log-reveal ul::before, .log-reveal ul::after,
+  .log-reveal p::before,  .log-reveal p::after { display: none; }
 
   /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
      again sitting right on top of the curtain. The card's own border is the
