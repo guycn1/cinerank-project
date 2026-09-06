@@ -7,6 +7,34 @@ file, directly under this header.**
 
 ---
 
+## D-021 · The two AI features share one UI vocabulary, enforced by shared builders
+Recommendations and the taste verdict are separate services with separate
+prompts, but to a user they are the same kind of thing: press a button, wait,
+read a generated result, see what it cost. Their UI had drifted anyway — the
+"New verdict" button was missing the busy state entirely, then had the wrong
+cursor, then kept its hover while disabled. Each was reported separately.
+
+Decision: the shared surfaces are built by shared functions rather than
+reimplemented per feature — `busyButton()` (disable, spinner + "Thinking…",
+lock the width, restore), `aiMetaFooter()` (the prompt/model/tokens/cost/duration
+line plus a link into the log), `logLink()` (the link-styled button that opens
+the log dialog). One CSS block each, with only *placement* differing per host.
+A third feature would get the same treatment for free, and neither existing one
+can drift again without the other following.
+
+Two implementation notes worth keeping:
+
+- **The busy width lock is measured, not declared.** `getBoundingClientRect()`
+  at click time, cleared on restore. A hardcoded `min-width` silently goes wrong
+  the moment a label or font changes, and the two buttons have different labels.
+- **`visibility`, never `display`, for the wrapped-separator fix.** The log link
+  sits inline after the metadata joined by a "·", and must drop to its own line
+  as a whole unit when short of room. CSS has no "did this wrap" selector, so
+  `syncMetaSeparator()` measures. Hiding the "·" with `display: none` changes
+  layout, so the link would then fit, so the "·" would return, so it would wrap
+  again — an infinite oscillation. `visibility: hidden` keeps the box, so the
+  hide cannot alter the thing it is reacting to.
+
 ## D-020 · The AI-log table view is frozen; card-view work must prove it can't touch it
 The desktop/table view of the AI call log took ~100 commits of screenshot-driven
 polish to settle (sticky thead/tfoot via `.log-curtain`, the collapsed-border

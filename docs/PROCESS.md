@@ -128,6 +128,14 @@ screenshots for the submission even though the server side is now tested.
   on Netlify as-is (static + serverless only) — target Render / Railway / Fly, or
   refactor routes to serverless functions.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
-  screenshots for the submission.
+  screenshots for the submission. Deliberately deferred to a dedicated
+  pre-submission session, so the shots match the finished UI rather than a
+  mid-overhaul one.
+- **The recommendations error state is written and then immediately overwritten**
+  by the availability-sync that runs in the same `finally`, so a failed run shows
+  the user nothing. The server side is correct and under test (422 plus a
+  `status='failed'` log row); this is the UI half of SPEC §7.1 and is fixed when
+  that section gets its overhaul pass. The verdict side already does it properly
+  — its fallback links straight into the AI call log.
 - The prompt-injection defense should be shown with a concrete demo movie whose
   review is an injection attempt.

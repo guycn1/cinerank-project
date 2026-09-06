@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-07 (AI call log dialog overhaul COMPLETE — desktop table + mobile card view both settled)
+**Last updated:** 2026-09-07 (AI call log dialog + Taste verdict section both DONE; Search section is next)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -222,8 +222,41 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     in card view; summary stays on the label line, panel is a full-width block
     with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
     same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
-* Next: the rest of the UI overhaul (ranked list, recs, verdict banner, rate
-  dialog) — user is driving this.
+* **Taste verdict section — DONE** (2026-09-07).
+  - "New verdict" gets the same busy state as "Get recommendations": disabled,
+    spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
+    `:hover:not(:disabled)`. Both buttons lock their width for the duration —
+    measured with `getBoundingClientRect()`, not a hardcoded `min-width`, so it
+    follows the label and font. The whole dance lives in ONE `busyButton()`
+    helper both handlers call, because the two buttons had already drifted
+    apart twice.
+  - Verdict text: `1.05rem → 1rem` (all states), and the real verdict alone
+    gets `--ink-soft` (#e8e5de, a half-step below `--ink`) + `0.1px` tracking
+    via `.verdict__text:not(.is-muted)`. `is-muted` marks every placeholder and
+    the error fallback; the initial "Reading the room…" now ships with it too.
+  - Copy: "(probably unflattering)" → "a candid read" — the old parenthetical
+    contradicted `taste_verdict_v4.md`, which says "never mean-spirited".
+  - **Shared meta footer** under both a generated verdict AND the recs:
+    `Prompt: … · Model: … · N tokens · C¢ · N ms` then a link into the log.
+    One `aiMetaFooter()` builder + one `.ai-meta` CSS block; only placement
+    differs (grid-column in the recs grid, flex row in the verdict banner).
+    Both services now return `meta.durationMs` (always measured in
+    `openrouter.js`, just never surfaced).
+  - The log link is inline after the metadata, joined by "·", and drops to its
+    own line as a whole unit when tight (it is `inline-block`, which cannot
+    break internally). CSS has no "did this wrap" selector, so
+    `syncMetaSeparator()` compares the separator's and link's box tops and
+    hides the "·" with **`visibility`, never `display`** — `display: none`
+    changes layout, so the link would then fit, so the "·" would come back, so
+    it would wrap again… an infinite oscillation. Re-run on window resize via
+    one page-level listener (a ResizeObserver per footer would leak, since
+    footers are replaced on every generation).
+  - Verdict error fallback now reads "…See the AI call log for details" with
+    the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
+    a BEM element name for a class now serving two unrelated blocks) is built
+    by a shared `logLink()` factory.
+* Next: **the Search section**, then the ranked list, recs and rate dialog —
+  user is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -234,6 +267,15 @@ below — this list is the smaller stuff.)
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
+* [ ] **Recommendations swallow their error message.** `renderRecommendations`'s
+  handler writes `err.message` into `#recs-hint` on failure, but its `finally`
+  then calls `syncRecommendationsAvailability()`, which unconditionally does
+  `classList.remove('err')` + overwrites `textContent` with the standard hint —
+  so the error is wiped in the same tick and the user sees nothing at all. The
+  server side is correct and tested (422 + a `status='failed'` log row); this is
+  purely the UI half of SPEC §7.1, and it would show up badly in the resilience
+  screenshots. Fix when the recommendations section gets its overhaul pass; the
+  verdict side already does this properly (points at the AI call log).
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
