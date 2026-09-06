@@ -725,8 +725,8 @@ body:has(dialog[open]) { overflow: hidden; }
      nothing on a panel this small. A tight dark ring lifts it off the table's
      own --line borders, the soft drop gives depth. */
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.5),
-    0 10px 24px -8px rgba(0, 0, 0, 0.85);
+    0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 12px 30px -6px rgba(0, 0, 0, 0.92);
   cursor: default; /* plain arrow over the panel, not the summary's pointer */
   text-align: left;
   color: var(--ink-dim);
@@ -739,13 +739,20 @@ body:has(dialog[open]) { overflow: hidden; }
      ::details-content instead made the *pseudo* a stacking context only while
      0<opacity<1, trapping the panel behind later rows mid-fade. */
   opacity: 0;
-  transition: opacity var(--reveal-fade) ease;
+  transition: opacity var(--reveal-fade) ease, box-shadow var(--reveal-fade) ease;
 }
 .log-reveal[open] ul,
 .log-reveal[open] p { opacity: 1; }
 @starting-style {
   .log-reveal[open] ul,
   .log-reveal[open] p { opacity: 0; }
+}
+/* Deepen on hover so the panel reads as lifted while you're reading it. */
+.log-reveal ul:hover,
+.log-reveal p:hover {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 18px 40px -6px rgba(0, 0, 0, 0.98);
 }
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
@@ -881,7 +888,9 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-result { width: auto; max-width: none; }
   .log-reveal { display: inline-block; }
   .log-reveal ul,
-  .log-reveal p {
+  .log-reveal p,
+  .log-reveal ul:hover,
+  .log-reveal p:hover {
     position: static;
     width: auto;
     max-width: 100%;
