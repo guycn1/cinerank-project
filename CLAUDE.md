@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-05 (front-end overhaul started — modal dialogs re-centred)
+**Last updated:** 2026-09-06 (AI call log — desktop/table view overhaul settled; mobile card view still untouched)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -152,6 +152,35 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     reveal panel on any click outside it (clicks on its own text keep it open so
     it stays selectable). Reveal panels fade 200ms (`::details-content` +
     `@starting-style`).
+  - **Sticky rows.** The whole dialog is the single scroller; only `thead`
+    (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
+    can't reach the dialog edge (clamped by the table), so `.log-curtain` — an
+    opaque `--bg-raised` band, a *direct child of the dialog* — pins under it;
+    the two form one solid block so no row shows through. Curtain's `border-top`
+    is the table's closing rule (only element adjacent to Total in both
+    states); `.log-scroll` is square (can't clip its sticky children to a
+    radius while it's `overflow: visible`).
+  - **Total-row divider.** Can't be a real border (collapsed-border layer
+    leaves it behind on pin) or a shadow (webkit outer shadows aren't painted
+    on cells; inset ones stop at the collapsed column border → gaps). Painted
+    as two `background` gradients (1.5px top rule in `--line-total` — warm, so
+    it's not mistaken for the cool-grey scrollbar; 1px right separators),
+    collapsed borders removed from the row so the rule is continuous. Footer
+    is `0.8em` (keeps its summed figures from widening the columns) with
+    trimmed vertical padding; label spans 3 cols so it's `1.1em`.
+  - **Failed rows.** `status` badge goes red; error text in a `.log-error`
+    span at `0.7em` with `white-space: normal` + `overflow-wrap: anywhere` so
+    it wraps and never widens the pinned Result column. Missing Tokens/Cost
+    render `—` in `--ink-faint` (a `log-empty-val` class, only when null).
+  - **Totals** sum the in/out split and durations; nulls on failed rows count
+    as 0. `(summed model latency, not elapsed time)` note fills the trailing
+    gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
+    (D-019) so the footer needs no partial-coverage markers.
+  - **Reveal panel** polish: caret pointing at its trigger (direction +
+    `--arrow-x` follow the flip); flips *above* the trigger when there's no
+    room below (measured in JS on `toggle`, kept on close so it doesn't jump
+    mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
+    eased on hover; outside-click / Esc dismiss.
 * Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
@@ -161,8 +190,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
   thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
   `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
-  `--ink-faint` hover / `--amber-deep` active, 14px page / 10px `.log-dialog`,
-  track `--bg-raised` page / transparent in the dialog.
+  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
+  `--bg-raised` page / transparent in the dialog. Chrome Fluent still widens the
+  thumb on hover — not CSS-controllable.
 * Reveal panel fade: the opacity animation + `@starting-style` live on the panel
   (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
   stacking context at any opacity. Animating opacity on `::details-content`
@@ -174,6 +204,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
   (200ms) on `.log-reveal`. That's the single knob for the fade speed.
+* **AI call log — desktop/table view: DONE.** Mobile **card view** (`< 850px`)
+  has had zero design attention — it works (label/value rows, reveal panels flow
+  inline) but hasn't been reviewed. That's the one remaining piece before the
+  call-log overhaul is a wrap.
 * More FE work to come — user is driving this.
 
 ### Open issues / TODO
