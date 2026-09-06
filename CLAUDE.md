@@ -155,11 +155,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
-* Themed scrollbars **globally** (`* { scrollbar-* }` for Firefox,
-  `::-webkit-scrollbar-*` for Chromium/Safari) — `--line-strong` pill thumb
-  (`background-clip: padding-box` + transparent border for inset), `--ink-faint`
-  hover / `--amber-deep` active. Page track `--bg-raised`; `.log-dialog` overrides
-  to a thinner bar + transparent track (it sits on `--bg-raised` already).
+* Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
+  so each engine sees only its own props — recent Chromium ignores
+  `::-webkit-scrollbar` once `scrollbar-width`/`scrollbar-color` is set (and those
+  inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
+  thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
+  `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
+  `--ink-faint` hover / `--amber-deep` active, 14px page / 10px `.log-dialog`,
+  track `--bg-raised` page / transparent in the dialog.
 * Reveal panel fade: the opacity animation + `@starting-style` live on the panel
   (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
   stacking context at any opacity. Animating opacity on `::details-content`
