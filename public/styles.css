@@ -754,7 +754,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal ul:hover,
 .log-reveal p:hover {
   box-shadow:
-    0 2px 34px 2px rgba(255, 255, 255, 0.27),
+    0 2px 32px 0 rgba(255, 255, 255, 0.21),
     0 18px 44px -8px rgba(0, 0, 0, 0.95);
 }
 /* Flipped above the trigger when there is no room below (class set on toggle
