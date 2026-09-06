@@ -2,9 +2,38 @@
 
 Started at project conception, not bolted on afterwards (course Module 8: the
 reasons behind a choice are clearest at the moment it's made, and the agent can't
-recover them later). Newest first.
+recover them later). **Newest first — a new entry goes at the TOP of this
+file, directly under this header.**
 
 ---
+
+## D-021 · The two AI features share one UI vocabulary, enforced by shared builders
+Recommendations and the taste verdict are separate services with separate
+prompts, but to a user they are the same kind of thing: press a button, wait,
+read a generated result, see what it cost. Their UI had drifted anyway — the
+"New verdict" button was missing the busy state entirely, then had the wrong
+cursor, then kept its hover while disabled. Each was reported separately.
+
+Decision: the shared surfaces are built by shared functions rather than
+reimplemented per feature — `busyButton()` (disable, spinner + "Thinking…",
+lock the width, restore), `aiMetaFooter()` (the prompt/model/tokens/cost/duration
+line plus a link into the log), `logLink()` (the link-styled button that opens
+the log dialog). One CSS block each, with only *placement* differing per host.
+A third feature would get the same treatment for free, and neither existing one
+can drift again without the other following.
+
+Two implementation notes worth keeping:
+
+- **The busy width lock is measured, not declared.** `getBoundingClientRect()`
+  at click time, cleared on restore. A hardcoded `min-width` silently goes wrong
+  the moment a label or font changes, and the two buttons have different labels.
+- **`visibility`, never `display`, for the wrapped-separator fix.** The log link
+  sits inline after the metadata joined by a "·", and must drop to its own line
+  as a whole unit when short of room. CSS has no "did this wrap" selector, so
+  `syncMetaSeparator()` measures. Hiding the "·" with `display: none` changes
+  layout, so the link would then fit, so the "·" would return, so it would wrap
+  again — an infinite oscillation. `visibility: hidden` keeps the box, so the
+  hide cannot alter the thing it is reacting to.
 
 ## D-020 · The AI-log table view is frozen; card-view work must prove it can't touch it
 The desktop/table view of the AI call log took ~100 commits of screenshot-driven
@@ -113,14 +142,6 @@ as evidence, never just recite the numbers. `max_tokens` 100 → 180, server
 truncation ceiling 350 → 450. Tone + injection guard unchanged. New prompt file;
 v1–v3 untouched.
 
-## D-012 · Recommendation reason length → `recommend_v3`
-v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
-Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
-clause-splicing dashes/semicolons; `tidyReason()` in the service strips markdown
-and truncates at a sentence/word boundary past a 130-char ceiling; and the card
-`.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
-file; v1/v2 untouched.
-
 ## D-013 · Taste verdict still too long → `taste_verdict_v3`
 v2's "one or two sentences, ~260 chars" still produced ~330-char run-ons
 (em-dashes splicing three clauses). v3 is blunt: ONE sentence, 20–30 words, no
@@ -128,6 +149,14 @@ dash/semicolon/"yet/while" clause-chaining, "cut detail not the sentence". Also
 `max_tokens` 160 → 100 so a rambler is physically bounded, and the server
 truncation ceiling 300 → 350 (user request) so a marginally-long verdict still
 shows in full. New prompt file; v1/v2 untouched.
+
+## D-012 · Recommendation reason length → `recommend_v3`
+v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
+Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
+clause-splicing dashes/semicolons; `tidyReason()` in the service strips markdown
+and truncates at a sentence/word boundary past a 130-char ceiling; and the card
+`.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
+file; v1/v2 untouched.
 
 ## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
@@ -157,30 +186,21 @@ a new prompt file per CLAUDE.md § Prompt Versioning; `recommend_v1.md` is kept
 untouched and every past `recommendation_logs` row still names the exact prompt
 that produced it. `taste_verdict_v1` is unaffected — versioned independently.
 
-## D-001 · Scope: single-user, no auth — and why that isn't a security hole
-The app is one person's movie list. Module 17's real topics — injection, secrets,
-prompt injection, least privilege — are all demonstrable without multi-user auth.
-Least privilege here = the frontend/back-end use the Supabase **anon key**, which
-is RLS-bounded, never the `service_role` key. Adding accounts would be
-manufacturing a demo the app doesn't need.
+## D-008 · Taste verdict never auto-runs
+The banner shows a threshold message or a "tap for a verdict" prompt on load, and
+only calls OpenRouter on the explicit "New verdict" click — no burning credit on
+an unrequested repeat call every page load (SPEC § 2.3).
 
-## D-002 · The AI is a component, not the product
-Two narrow LLM features (recommendations, taste verdict), each in its own service
-module, each with its own versioned prompt file. Either can be mocked or removed
-without touching movie CRUD. The model never supplies a fact shown to the user:
-recommendations return *titles only*, and TMDB supplies poster/year/overview after
-a cross-check. This is the concrete guard against hallucinated movies.
+## D-007 · Ranking is derived, never stored
+`GET /api/movies` returns movies ordered by `rating desc nulls last`; the
+frontend numbers them 1..N on render. No stale `rank` column (SPEC § 2.1).
 
-## D-003 · Cost logging is structural, not decorative
-`recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
-`estimated_cost_usd` per call. `config.estimateCostUsd` uses a small per-model
-price table; unknown models log `null` rather than a wild guess. A log-write
-failure is surfaced as an error, not swallowed — the audit record is the point.
-
-## D-004 · Model choice: cheap by default
-`anthropic/claude-3.5-haiku` via OpenRouter. The tasks are small (pick 3–6 titles;
-write one teasing sentence). Module 9: match the model to the task's difficulty;
-the biggest cost lever is model choice. Overridable via `OPENROUTER_MODEL`.
+## D-006 · Frontend: vanilla, but not plain
+No framework. The "polished, distinctive" bar (SPEC § 3) is met with deliberate
+choices: poster as the anchor of every card, Fraunces display numerals for rank,
+a marquee-amber accent on near-black, film grain, motion on hover/entry, a
+gradient-sheen verdict banner. AI-suggested cards reuse the card language but
+carry a quiet "AI pick · not yet rated" marker (SPEC § 3.3).
 
 ## D-005 · Prompt-injection posture
 Review text is untrusted user input flowing into both prompts. Mitigations, in
@@ -191,18 +211,27 @@ title is TMDB-verified, so a partial injection yields at worst a strange
 suggestion; (4) the verdict is length-capped server-side and rendered as
 `textContent`, so at worst it's an off-tone banner line.
 
-## D-006 · Frontend: vanilla, but not plain
-No framework. The "polished, distinctive" bar (SPEC § 3) is met with deliberate
-choices: poster as the anchor of every card, Fraunces display numerals for rank,
-a marquee-amber accent on near-black, film grain, motion on hover/entry, a
-gradient-sheen verdict banner. AI-suggested cards reuse the card language but
-carry a quiet "AI pick · not yet rated" marker (SPEC § 3.3).
+## D-004 · Model choice: cheap by default
+`anthropic/claude-3.5-haiku` via OpenRouter. The tasks are small (pick 3–6 titles;
+write one teasing sentence). Module 9: match the model to the task's difficulty;
+the biggest cost lever is model choice. Overridable via `OPENROUTER_MODEL`.
 
-## D-007 · Ranking is derived, never stored
-`GET /api/movies` returns movies ordered by `rating desc nulls last`; the
-frontend numbers them 1..N on render. No stale `rank` column (SPEC § 2.1).
+## D-003 · Cost logging is structural, not decorative
+`recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
+`estimated_cost_usd` per call. `config.estimateCostUsd` uses a small per-model
+price table; unknown models log `null` rather than a wild guess. A log-write
+failure is surfaced as an error, not swallowed — the audit record is the point.
 
-## D-008 · Taste verdict never auto-runs
-The banner shows a threshold message or a "tap for a verdict" prompt on load, and
-only calls OpenRouter on the explicit "New verdict" click — no burning credit on
-an unrequested repeat call every page load (SPEC § 2.3).
+## D-002 · The AI is a component, not the product
+Two narrow LLM features (recommendations, taste verdict), each in its own service
+module, each with its own versioned prompt file. Either can be mocked or removed
+without touching movie CRUD. The model never supplies a fact shown to the user:
+recommendations return *titles only*, and TMDB supplies poster/year/overview after
+a cross-check. This is the concrete guard against hallucinated movies.
+
+## D-001 · Scope: single-user, no auth — and why that isn't a security hole
+The app is one person's movie list. Module 17's real topics — injection, secrets,
+prompt injection, least privilege — are all demonstrable without multi-user auth.
+Least privilege here = the frontend/back-end use the Supabase **anon key**, which
+is RLS-bounded, never the `service_role` key. Adding accounts would be
+manufacturing a demo the app doesn't need.

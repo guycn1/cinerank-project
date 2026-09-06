@@ -12,6 +12,7 @@
   --bg-raised: #14141b;
   --bg-card: #191921;
   --ink: #f4f1ea;
+  --ink-soft: #e8e5de; /* a half-step below --ink — the taste verdict */
   --ink-dim: #a29d94;
   --ink-faint: #6b6760;
   --amber: #f5c15b;
@@ -154,8 +155,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .verdict__text {
   flex: 1;
   min-width: 12rem;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--ink);
+}
+/* The real verdict only — a half-step off white plus a touch of tracking.
+   `is-muted` marks every placeholder and the error fallback; those share the
+   base font-size above but stay `--ink-faint`, italic and untracked. */
+.verdict__text:not(.is-muted) {
+  color: var(--ink-soft);
+  letter-spacing: 0.1px;
 }
 .verdict__text.is-muted { color: var(--ink-faint); font-style: italic; }
 .verdict__refresh {
@@ -169,8 +177,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
-.verdict__refresh:hover { border-color: var(--amber); color: var(--amber); }
-.verdict__refresh:disabled { opacity: 0.4; cursor: progress; }
+/* :not(:disabled) so the amber hover doesn't fight the busy state — same as
+   .recs__trigger below, which this button's busy treatment mirrors. */
+.verdict__refresh:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+.verdict__refresh:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* add / search --------------------------------------------------------- */
 .add { margin: 2.5rem 0 1rem; }
@@ -444,13 +454,41 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .rec-card__body button:hover { background: var(--amber-deep); }
 .rec-card__body button:disabled { opacity: 0.5; cursor: default; }
 
-.recs__meta {
-  grid-column: 1 / -1;
+/* Footer under a generated AI result — the call's metadata plus a link into the
+   full log. One block shared by the recommendations grid and the verdict banner
+   (built by aiMetaFooter() in app.js); only the placement differs per host. */
+.ai-meta {
   color: var(--ink-faint);
   font-size: 0.78rem;
   border-top: 1px dashed var(--line);
   padding-top: 0.8rem;
 }
+/* A link-styled button that opens the AI call log. Used in two places — the
+   meta footer under a generated result, and the verdict's error fallback — so
+   it is its own class, not an element of either block. */
+.log-link {
+  /* inline-block is load-bearing: an inline-block never breaks internally, so
+     the link always moves as one whole unit rather than splitting mid-phrase —
+     wherever it sits. nowrap belts-and-braces the same guarantee. In the meta
+     footer that wrap is also what syncMetaSeparator() watches for, to hide the
+     joining .ai-meta__sep. */
+  display: inline-block;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;        /* size, weight and italics all come from the host text */
+  color: var(--amber);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.log-link:hover { color: var(--amber-bright); }
+.log-link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+/* Placement: the recs grid is a grid, so span every column. */
+.recs__grid .ai-meta { grid-column: 1 / -1; }
+/* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
+.verdict__inner .ai-meta { flex: 1 0 100%; }
 
 /* footer / dialog / toast ----------------------------------------- */
 .site-foot {

@@ -18,12 +18,12 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Three merges to `main` so far, each a deliberate decision.
+  human sign-off.** Four merges to `main` so far, each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
-- **Every commit says why**, and design decisions are appended to
-  `docs/DECISIONS.md` at the moment they're made (Module 8: the reasons are
-  clearest then and can't be reconstructed later).
+- **Every commit says why**, and design decisions go to the top of
+  `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
+  reasons are clearest then and can't be reconstructed later).
 
 The UI polish phase leans hard on this loop. The AI call log dialog alone took
 ~100 small commits — the human runs the app, screenshots what looks off (a
@@ -128,6 +128,14 @@ screenshots for the submission even though the server side is now tested.
   on Netlify as-is (static + serverless only) — target Render / Railway / Fly, or
   refactor routes to serverless functions.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
-  screenshots for the submission.
+  screenshots for the submission. Deliberately deferred to a dedicated
+  pre-submission session, so the shots match the finished UI rather than a
+  mid-overhaul one.
+- **The recommendations error state is written and then immediately overwritten**
+  by the availability-sync that runs in the same `finally`, so a failed run shows
+  the user nothing. The server side is correct and under test (422 plus a
+  `status='failed'` log row); this is the UI half of SPEC §7.1 and is fixed when
+  that section gets its overhaul pass. The verdict side already does it properly
+  — its fallback links straight into the AI call log.
 - The prompt-injection defense should be shown with a concrete demo movie whose
   review is an injection attempt.

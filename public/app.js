@@ -83,6 +83,28 @@ function spinnerNode() {
   return s;
 }
 
+/**
+ * Put an AI trigger button into its "Thinking…" state; returns a restore fn.
+ * Shared by both triggers so their busy behaviour can't drift apart.
+ */
+function busyButton(btn) {
+  const label = [...btn.childNodes]; // keep the nodes — a label may be wrapped in a <span>
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  // Lock the current width first: "Thinking…" is shorter than either label, so
+  // without this the button visibly shrinks. Measured rather than a hardcoded
+  // min-width, so it follows the label, font and padding automatically.
+  // (`* { box-sizing: border-box }` means min-width and rect.width agree.)
+  btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
+  btn.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
+  return () => {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    btn.style.minWidth = '';
+    btn.replaceChildren(...label);
+  };
+}
+
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /* ---------- ranked list ------------------------------------------------- */
@@ -328,10 +350,7 @@ function syncRecommendationsAvailability() {
 }
 
 el.recsTrigger.addEventListener('click', async () => {
-  el.recsTrigger.disabled = true;
-  el.recsTrigger.setAttribute('aria-busy', 'true');
-  const original = el.recsTrigger.textContent;
-  el.recsTrigger.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
+  const restoreTrigger = busyButton(el.recsTrigger);
   el.recsHint.classList.remove('err');
   el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
   el.recsGrid.replaceChildren();
@@ -342,9 +361,7 @@ el.recsTrigger.addEventListener('click', async () => {
     el.recsHint.classList.add('err');
     el.recsHint.textContent = err.message; // calm inline message (SPEC § 3.4)
   } finally {
-    el.recsTrigger.disabled = false;
-    el.recsTrigger.removeAttribute('aria-busy');
-    el.recsTrigger.textContent = original;
+    restoreTrigger();
     syncRecommendationsAvailability();
   }
 });
@@ -381,47 +398,54 @@ function renderRecommendations({ suggestions, meta }) {
     card.append(poster, body);
     el.recsGrid.append(card);
   });
-  const foot = document.createElement('div');
-  foot.className = 'recs__meta';
-  foot.textContent =
-    `Logged to recommendation_logs · prompt ${meta.promptVersion} · model ${meta.model} · ` +
-    `${meta.tokensUsed ?? '?'} tokens · ~$${meta.estimatedCostUsd ?? '?'}`;
-  el.recsGrid.append(foot);
+  el.recsGrid.append(aiMetaFooter(meta));
 }
 
 /* ---------- taste verdict ---------------------------------------- */
+/** Drop the meta footer under the verdict (there's no current call to describe). */
+function clearVerdictMeta() {
+  el.verdict.querySelector('.ai-meta')?.remove();
+}
+
 function syncVerdictAvailability() {
   const need = state.cfg.minRatedForVerdict;
   const have = ratedCount();
   if (have < need) {
     el.verdictRefresh.hidden = true;
+    clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
   } else {
     el.verdictRefresh.hidden = false;
     if (!el.verdict.dataset.generated) {
       el.verdictText.classList.add('is-muted');
-      el.verdictText.textContent = 'Tap “New verdict” for a (probably unflattering) read on your taste.';
+      el.verdictText.textContent = 'Tap “New verdict” for a candid read on your taste.';
     }
   }
 }
 
 el.verdictRefresh.addEventListener('click', async () => {
-  el.verdictRefresh.disabled = true;
-  el.verdictRefresh.setAttribute('aria-busy', 'true');
+  const restoreRefresh = busyButton(el.verdictRefresh);
+  clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
   try {
-    const { verdict } = await api('/api/taste-verdict', { method: 'POST' });
+    const { verdict, meta } = await api('/api/taste-verdict', { method: 'POST' });
     el.verdictText.classList.remove('is-muted');
     el.verdictText.textContent = verdict; // plain text, textContent only
     el.verdict.dataset.generated = '1';
+    el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = 'Couldn’t come up with a verdict right now.'; // quiet fallback (SPEC § 2.3)
+    // Quiet fallback (SPEC § 2.3) — but the failed call IS in the log, so say
+    // where to look. Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    el.verdictText.replaceChildren(
+      document.createTextNode('Couldn’t come up with a verdict right now. See the '),
+      logLink('AI call log'),
+      document.createTextNode(' for details')
+    );
   } finally {
-    el.verdictRefresh.disabled = false;
-    el.verdictRefresh.removeAttribute('aria-busy');
+    restoreRefresh();
   }
 });
 
@@ -430,6 +454,78 @@ const fmtCost = (usd) => (usd == null ? '—' : `${(usd * 100).toFixed(2)}¢`);
 const fmtDur = (ms) =>
   ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
+
+/**
+ * The footer under a generated AI result: one line of call metadata, then a
+ * link into the full log. Shared by BOTH features so they can't drift apart.
+ * Hoisted, so renderRecommendations (defined earlier) can call it.
+ */
+/**
+ * A link-styled button that opens the AI call log. A button, not an <a>: it
+ * performs an action (opens a dialog) rather than navigating anywhere.
+ */
+function logLink(text) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'log-link';
+  b.textContent = text;
+  b.addEventListener('click', openAiLog);
+  return b;
+}
+
+function aiMetaFooter(meta) {
+  const foot = document.createElement('div');
+  foot.className = 'ai-meta';
+
+  const text = [
+    `Prompt: ${meta.promptVersion}`,
+    `Model: ${meta.model}`,
+    `${fmtTokens(meta.tokensUsed)} tokens`,
+    fmtCost(meta.estimatedCostUsd),
+    meta.durationMs == null ? '—' : `${meta.durationMs.toLocaleString()} ms`,
+  ].join(' · ');
+
+  // Its own element so it can be hidden when the link drops to a new line.
+  const sep = document.createElement('span');
+  sep.className = 'ai-meta__sep';
+  sep.textContent = ' · ';
+
+  // .log-link is inline-block, so it can never break mid-phrase — it moves to
+  // the next line as one whole unit.
+  const link = logLink('View more details in the AI call log »');
+
+  foot.append(document.createTextNode(text), sep, link);
+  // Layout-dependent, so it can only run once the footer is in the document.
+  requestAnimationFrame(() => syncMetaSeparator(foot));
+  return foot;
+}
+
+/**
+ * The log link sits inline after the metadata, joined by a "·". When there is
+ * no room it drops to its own line (as a whole unit — it is inline-block), and
+ * that "·" would be left dangling at the end of the line above. Compare the two
+ * boxes' tops to spot it: on one line they share a top, a wrap puts the link a
+ * full line lower. CSS has no "did this wrap" selector, hence the measurement.
+ *
+ * Hidden with visibility, never display: visibility keeps the box, so hiding
+ * the separator cannot itself change where the link wraps. With display:none it
+ * would oscillate — hide, link now fits, show, link wraps again, hide...
+ */
+function syncMetaSeparator(foot) {
+  const sep = foot.querySelector('.ai-meta__sep');
+  const link = foot.querySelector('.log-link');
+  if (!sep || !link) return;
+  // A few px of tolerance: the inline-block button and the text sit on the same
+  // line without necessarily sharing an exact top. A real wrap is a line-height.
+  const wrapped = link.getBoundingClientRect().top - sep.getBoundingClientRect().top > 4;
+  sep.style.visibility = wrapped ? 'hidden' : 'visible';
+}
+
+// One listener for the page rather than an observer per footer — there are at
+// most two on screen and they only need re-checking when the width changes.
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+});
 
 function cell(text, className, label) {
   const td = document.createElement('td');
@@ -689,10 +785,11 @@ async function renderAiLog() {
   el.logFoot.append(footRow);
 }
 
-el.openLog.addEventListener('click', () => {
+function openAiLog() {
   el.logDialog.showModal();
   renderAiLog();
-});
+}
+el.openLog.addEventListener('click', openAiLog);
 el.logClose.addEventListener('click', () => el.logDialog.close());
 
 // A reveal panel stays open until you click outside it — clicking its own text
