@@ -619,7 +619,7 @@ async function renderAiLog() {
     tr.append(modelCell(r.model_used));
 
     const tok = document.createElement('td');
-    tok.className = 'num';
+    tok.className = r.tokens_used == null ? 'num log-empty-val' : 'num';
     tok.dataset.label = 'Tokens';
     tok.textContent = fmtTokens(r.tokens_used);
     if (r.prompt_tokens != null || r.completion_tokens != null) {
@@ -630,7 +630,8 @@ async function renderAiLog() {
     }
     tr.append(tok);
 
-    tr.append(cell(fmtCost(r.estimated_cost_usd), 'num', 'Cost'));
+    tr.append(cell(fmtCost(r.estimated_cost_usd),
+      r.estimated_cost_usd == null ? 'num log-empty-val' : 'num', 'Cost'));
     tr.append(cell(fmtDur(r.duration_ms), 'num', 'Duration'));
 
     const st = document.createElement('td');

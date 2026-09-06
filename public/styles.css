@@ -695,10 +695,14 @@ body:has(dialog[open]) { overflow: hidden; }
    long message wrap inside that width instead of stretching the column: an
    unbroken token (a URL, a long error code) would otherwise set the cell's
    min-content wider than the pin. */
+/* A missing Tokens / Cost value renders as '—'; the class is set in app.js
+   only when the value is null, so rows with real numbers keep their colour. */
+.log-table .log-empty-val { color: var(--ink-faint); }
+
 .log-result--error { color: var(--crimson); }
 .log-result--error .log-error {
   display: block;
-  font-size: 0.78em;
+  font-size: 0.7em; /* small — a long error must not read chunky in a pinned column */
   line-height: 1.35;
   /* `.log-table td { white-space: nowrap }` is more specific than
      `.log-result { white-space: normal }`, so it wins on the cell and the span
