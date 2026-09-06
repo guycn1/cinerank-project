@@ -1003,6 +1003,13 @@ body:has(dialog[open]) { overflow: hidden; }
     border-right: none;
     border-bottom: 1px solid var(--line-faint);
   }
+  /* Line ~949 (`tbody tr:last-child td`, 0,3,1) removes the bottom border on
+     every cell of the final data row — a desktop rule so it does not double the
+     table s closing rule. Card mode has no closing rule and each card is its own
+     bordered box, so the last card needs its inner separators back too. */
+  .log-table tbody tr:last-child td:not(:last-child) {
+    border-bottom: 1px solid var(--line-faint);
+  }
   .log-table td::before {
     content: attr(data-label);
     float: left;
