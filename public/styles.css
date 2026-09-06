@@ -916,12 +916,12 @@ body:has(dialog[open]) { overflow: hidden; }
     linear-gradient(var(--line-total), var(--line-total)),
     linear-gradient(var(--line-faint), var(--line-faint));
   background-repeat: no-repeat, no-repeat;
-  background-size: 100% 2px, 1px 100%;
+  background-size: 100% 1.5px, 1px 100%;
   background-position: left top, right top;
-  /* The divider overlays the top 2px of the cell, so text centred in the whole
-     cell reads 1px high — 2px off the bottom padding re-centres it (and trims a
-     row that read a touch tall anyway). */
-  padding-bottom: calc(0.45rem - 2px);
+  /* The divider overlays the top 1.5px of the cell, so text centred in the
+     whole cell reads slightly high — match it off the bottom padding to
+     re-centre (and it trims a row that read a touch tall anyway). */
+  padding-bottom: calc(0.45rem - 1.5px);
 }
 /* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
    column border — that is what segmented the divider. Remove those borders on
@@ -941,7 +941,7 @@ body:has(dialog[open]) { overflow: hidden; }
 /* Last cell: keep the divider, drop the separator — no column follows it. */
 .log-table tfoot td:last-child {
   background-image: linear-gradient(var(--line-total), var(--line-total));
-  background-size: 100% 2px;
+  background-size: 100% 1.5px;
   background-position: left top;
 }
 /* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
