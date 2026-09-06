@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Two merges to `main` so far, each a deliberate decision.
+  human sign-off.** Three merges to `main` so far, each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
 - **Every commit says why**, and design decisions are appended to
