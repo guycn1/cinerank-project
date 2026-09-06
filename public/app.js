@@ -458,8 +458,7 @@ function aiMetaFooter(meta) {
   const foot = document.createElement('div');
   foot.className = 'ai-meta';
 
-  const line = document.createElement('div');
-  line.textContent = [
+  const text = [
     `Prompt: ${meta.promptVersion}`,
     `Model: ${meta.model}`,
     `${fmtTokens(meta.tokensUsed)} tokens`,
@@ -467,17 +466,53 @@ function aiMetaFooter(meta) {
     meta.durationMs == null ? '—' : `${meta.durationMs.toLocaleString()} ms`,
   ].join(' · ');
 
+  // Its own element so it can be hidden when the link drops to a new line.
+  const sep = document.createElement('span');
+  sep.className = 'ai-meta__sep';
+  sep.textContent = ' · ';
+
   // A button, not an <a>: it performs an action (opens a dialog) rather than
-  // navigating anywhere. Styled as a link in .ai-meta__link.
+  // navigating anywhere. Styled as a link in .ai-meta__link. It is
+  // inline-block, so it can never break mid-phrase — it moves to the next
+  // line as one whole unit.
   const link = document.createElement('button');
   link.type = 'button';
   link.className = 'ai-meta__link';
   link.textContent = 'View more details in the AI call log »';
   link.addEventListener('click', openAiLog);
 
-  foot.append(line, link);
+  foot.append(document.createTextNode(text), sep, link);
+  // Layout-dependent, so it can only run once the footer is in the document.
+  requestAnimationFrame(() => syncMetaSeparator(foot));
   return foot;
 }
+
+/**
+ * The log link sits inline after the metadata, joined by a "·". When there is
+ * no room it drops to its own line (as a whole unit — it is inline-block), and
+ * that "·" would be left dangling at the end of the line above. Compare the two
+ * boxes' tops to spot it: on one line they share a top, a wrap puts the link a
+ * full line lower. CSS has no "did this wrap" selector, hence the measurement.
+ *
+ * Hidden with visibility, never display: visibility keeps the box, so hiding
+ * the separator cannot itself change where the link wraps. With display:none it
+ * would oscillate — hide, link now fits, show, link wraps again, hide...
+ */
+function syncMetaSeparator(foot) {
+  const sep = foot.querySelector('.ai-meta__sep');
+  const link = foot.querySelector('.ai-meta__link');
+  if (!sep || !link) return;
+  // A few px of tolerance: the inline-block button and the text sit on the same
+  // line without necessarily sharing an exact top. A real wrap is a line-height.
+  const wrapped = link.getBoundingClientRect().top - sep.getBoundingClientRect().top > 4;
+  sep.style.visibility = wrapped ? 'hidden' : 'visible';
+}
+
+// One listener for the page rather than an observer per footer — there are at
+// most two on screen and they only need re-checking when the width changes.
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+});
 
 function cell(text, className, label) {
   const td = document.createElement('td');

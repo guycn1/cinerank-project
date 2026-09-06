@@ -464,8 +464,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   padding-top: 0.8rem;
 }
 .ai-meta__link {
+  /* inline-block is load-bearing: an inline-block never breaks internally, so
+     the link always moves to the next line as one whole unit rather than
+     splitting mid-phrase. nowrap belts-and-braces the same guarantee.
+     syncMetaSeparator() in app.js hides .ai-meta__sep when that happens. */
   display: inline-block;
-  margin-top: 0.35rem;
+  white-space: nowrap;
   background: none;
   border: none;
   padding: 0;
