@@ -16,6 +16,7 @@
   --ink-faint: #6b6760;
   --amber: #f5c15b;
   --amber-deep: #d99b2f;
+  --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
@@ -701,6 +702,11 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal summary::after { content: ' ▾'; color: var(--ink-faint); font-size: 0.8em; }
 .log-reveal[open] summary::after { content: ' ▴'; }
 .log-reveal summary:hover { color: var(--amber-deep); }
+/* Keep the open row's trigger lit, so it's obvious which row the floating
+   panel belongs to. The :hover pair outranks the plain hover rule above. */
+.log-reveal[open] summary,
+.log-reveal[open] summary:hover { color: var(--amber-bright); }
+.log-reveal[open] summary::after { color: var(--amber-bright); }
 
 .log-reveal ul,
 .log-reveal p {
