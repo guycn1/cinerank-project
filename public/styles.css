@@ -21,7 +21,7 @@
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
   --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
-  --line-total: #4c4636;  /* AI-log Total-row divider — warm, so it doesn't read
+  --line-total: #494540;  /* AI-log Total-row divider — a touch warm, so it doesn't read
                              as the (cool-grey) scrollbar thumb sneaking in */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
