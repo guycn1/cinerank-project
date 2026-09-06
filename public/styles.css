@@ -1021,6 +1021,26 @@ body:has(dialog[open]) { overflow: hidden; }
     text-transform: uppercase;
   }
 
+  /* Cells with a sub-line (only Tokens: "428" stacked over "355 in / 73 out")
+     cannot centre the label with a float — a float pins to the top, so the
+     label sat high against a two-line value. Grid instead: the label spans both
+     rows, so `align-items: center` lands it at the true vertical middle, while
+     the value and its sub stay stacked and right-aligned like every other row.
+     Card view only; desktop `.sub` (block) and cell centring are untouched. */
+  .log-table td:has(.sub) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 1rem;
+  }
+  .log-table td:has(.sub)::before {
+    float: none;
+    margin-right: 0;
+    grid-row: 1 / span 2;
+    justify-self: start;
+  }
+  .log-table td:has(.sub) > .sub { grid-column: 2; }
+
   /* There's width for the full strings here — swap the abbreviations out. */
   .log-table td abbr {
     text-decoration: none;
