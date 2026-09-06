@@ -409,6 +409,11 @@ function syncVerdictAvailability() {
 el.verdictRefresh.addEventListener('click', async () => {
   el.verdictRefresh.disabled = true;
   el.verdictRefresh.setAttribute('aria-busy', 'true');
+  // Same busy treatment as the recommendations trigger. Stash the original child
+  // nodes rather than round-tripping through textContent — this button's label is
+  // wrapped in a <span>, which textContent would drop on restore.
+  const label = [...el.verdictRefresh.childNodes];
+  el.verdictRefresh.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
   try {
@@ -422,6 +427,7 @@ el.verdictRefresh.addEventListener('click', async () => {
   } finally {
     el.verdictRefresh.disabled = false;
     el.verdictRefresh.removeAttribute('aria-busy');
+    el.verdictRefresh.replaceChildren(...label);
   }
 });
 
