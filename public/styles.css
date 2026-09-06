@@ -721,7 +721,13 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  /* Not var(--shadow): its -18px spread is tuned for big cards and shrinks to
+     nothing on a panel this small. A tight dark ring lifts it off the table's
+     own --line borders, the soft drop gives depth. */
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 10px 24px -8px rgba(0, 0, 0, 0.85);
+  cursor: default; /* plain arrow over the panel, not the summary's pointer */
   text-align: left;
   color: var(--ink-dim);
   font-size: 0.8em;           /* smaller than the table body */
