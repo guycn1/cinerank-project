@@ -169,8 +169,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
-.verdict__refresh:hover { border-color: var(--amber); color: var(--amber); }
-.verdict__refresh:disabled { opacity: 0.4; cursor: progress; }
+/* :not(:disabled) so the amber hover doesn't fight the busy state — same as
+   .recs__trigger below, which this button's busy treatment mirrors. */
+.verdict__refresh:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+.verdict__refresh:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* add / search --------------------------------------------------------- */
 .add { margin: 2.5rem 0 1rem; }

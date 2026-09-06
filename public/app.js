@@ -83,6 +83,28 @@ function spinnerNode() {
   return s;
 }
 
+/**
+ * Put an AI trigger button into its "Thinking…" state; returns a restore fn.
+ * Shared by both triggers so their busy behaviour can't drift apart.
+ */
+function busyButton(btn) {
+  const label = [...btn.childNodes]; // keep the nodes — a label may be wrapped in a <span>
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
+  // Lock the current width first: "Thinking…" is shorter than either label, so
+  // without this the button visibly shrinks. Measured rather than a hardcoded
+  // min-width, so it follows the label, font and padding automatically.
+  // (`* { box-sizing: border-box }` means min-width and rect.width agree.)
+  btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
+  btn.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
+  return () => {
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    btn.style.minWidth = '';
+    btn.replaceChildren(...label);
+  };
+}
+
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /* ---------- ranked list ------------------------------------------------- */
@@ -328,10 +350,7 @@ function syncRecommendationsAvailability() {
 }
 
 el.recsTrigger.addEventListener('click', async () => {
-  el.recsTrigger.disabled = true;
-  el.recsTrigger.setAttribute('aria-busy', 'true');
-  const original = el.recsTrigger.textContent;
-  el.recsTrigger.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
+  const restoreTrigger = busyButton(el.recsTrigger);
   el.recsHint.classList.remove('err');
   el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
   el.recsGrid.replaceChildren();
@@ -342,9 +361,7 @@ el.recsTrigger.addEventListener('click', async () => {
     el.recsHint.classList.add('err');
     el.recsHint.textContent = err.message; // calm inline message (SPEC § 3.4)
   } finally {
-    el.recsTrigger.disabled = false;
-    el.recsTrigger.removeAttribute('aria-busy');
-    el.recsTrigger.textContent = original;
+    restoreTrigger();
     syncRecommendationsAvailability();
   }
 });
@@ -407,13 +424,7 @@ function syncVerdictAvailability() {
 }
 
 el.verdictRefresh.addEventListener('click', async () => {
-  el.verdictRefresh.disabled = true;
-  el.verdictRefresh.setAttribute('aria-busy', 'true');
-  // Same busy treatment as the recommendations trigger. Stash the original child
-  // nodes rather than round-tripping through textContent — this button's label is
-  // wrapped in a <span>, which textContent would drop on restore.
-  const label = [...el.verdictRefresh.childNodes];
-  el.verdictRefresh.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
+  const restoreRefresh = busyButton(el.verdictRefresh);
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
   try {
@@ -425,9 +436,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = 'Couldn’t come up with a verdict right now.'; // quiet fallback (SPEC § 2.3)
   } finally {
-    el.verdictRefresh.disabled = false;
-    el.verdictRefresh.removeAttribute('aria-busy');
-    el.verdictRefresh.replaceChildren(...label);
+    restoreRefresh();
   }
 });
 
