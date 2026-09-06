@@ -30,6 +30,26 @@
 
 html { scroll-behavior: smooth; }
 
+/* Themed scrollbars everywhere (page + any scrollable panel). Firefox uses the
+   two-keyword `scrollbar-*`; Chromium/Safari the `::-webkit-scrollbar` pseudos.
+   The page bar sits against `--bg` (darker than the dialog's `--bg-raised`), so
+   the track gets a faint tint here rather than the dialog's transparent one. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg-raised); }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent; /* inset the thumb off the track edges */
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
+::-webkit-scrollbar-corner { background: var(--bg-raised); }
+
 body {
   background:
     radial-gradient(1200px 600px at 15% -10%, rgba(245, 193, 91, 0.08), transparent 60%),
@@ -581,26 +601,12 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-dialog[open] { display: flex; }
 
-/* Custom scrollbar for the log dialog — matches the app palette. Firefox uses
-   the two-keyword `scrollbar-*`; Chromium/Safari the ::-webkit-scrollbar
-   pseudos. Both are on `.log-dialog` only, so the rest of the page keeps the
-   native bars. */
-.log-dialog {
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
-}
+/* The log dialog overrides only what differs from the global bar above:
+   slightly thinner, and a transparent track since it sits on `--bg-raised`. */
 .log-dialog::-webkit-scrollbar { width: 10px; }
-.log-dialog::-webkit-scrollbar-track { background: transparent; }
-.log-dialog::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border-radius: 999px;
-  /* the padding-look: a transparent border keeps the thumb off the edges */
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.log-dialog::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
-.log-dialog::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
+.log-dialog::-webkit-scrollbar-track,
 .log-dialog::-webkit-scrollbar-corner { background: transparent; }
+.log-dialog::-webkit-scrollbar-thumb { border-width: 2px; }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
 .log-sub { flex: 0 0 auto; }
 .log-dialog header {
