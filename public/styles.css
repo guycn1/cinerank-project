@@ -463,23 +463,27 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-top: 1px dashed var(--line);
   padding-top: 0.8rem;
 }
-.ai-meta__link {
+/* A link-styled button that opens the AI call log. Used in two places — the
+   meta footer under a generated result, and the verdict's error fallback — so
+   it is its own class, not an element of either block. */
+.log-link {
   /* inline-block is load-bearing: an inline-block never breaks internally, so
-     the link always moves to the next line as one whole unit rather than
-     splitting mid-phrase. nowrap belts-and-braces the same guarantee.
-     syncMetaSeparator() in app.js hides .ai-meta__sep when that happens. */
+     the link always moves as one whole unit rather than splitting mid-phrase —
+     wherever it sits. nowrap belts-and-braces the same guarantee. In the meta
+     footer that wrap is also what syncMetaSeparator() watches for, to hide the
+     joining .ai-meta__sep. */
   display: inline-block;
   white-space: nowrap;
   background: none;
   border: none;
   padding: 0;
-  font: inherit;        /* stay at the metadata line's small size and weight */
+  font: inherit;        /* size, weight and italics all come from the host text */
   color: var(--amber);
   cursor: pointer;
   transition: color 0.2s;
 }
-.ai-meta__link:hover { color: var(--amber-bright); }
-.ai-meta__link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.log-link:hover { color: var(--amber-bright); }
+.log-link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 /* Placement: the recs grid is a grid, so span every column. */
 .recs__grid .ai-meta { grid-column: 1 / -1; }

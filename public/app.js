@@ -437,7 +437,13 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = 'Couldn’t come up with a verdict right now.'; // quiet fallback (SPEC § 2.3)
+    // Quiet fallback (SPEC § 2.3) — but the failed call IS in the log, so say
+    // where to look. Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    el.verdictText.replaceChildren(
+      document.createTextNode('Couldn’t come up with a verdict right now. See the '),
+      logLink('AI call log'),
+      document.createTextNode(' for details')
+    );
   } finally {
     restoreRefresh();
   }
@@ -454,6 +460,19 @@ const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
  * link into the full log. Shared by BOTH features so they can't drift apart.
  * Hoisted, so renderRecommendations (defined earlier) can call it.
  */
+/**
+ * A link-styled button that opens the AI call log. A button, not an <a>: it
+ * performs an action (opens a dialog) rather than navigating anywhere.
+ */
+function logLink(text) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'log-link';
+  b.textContent = text;
+  b.addEventListener('click', openAiLog);
+  return b;
+}
+
 function aiMetaFooter(meta) {
   const foot = document.createElement('div');
   foot.className = 'ai-meta';
@@ -471,15 +490,9 @@ function aiMetaFooter(meta) {
   sep.className = 'ai-meta__sep';
   sep.textContent = ' · ';
 
-  // A button, not an <a>: it performs an action (opens a dialog) rather than
-  // navigating anywhere. Styled as a link in .ai-meta__link. It is
-  // inline-block, so it can never break mid-phrase — it moves to the next
-  // line as one whole unit.
-  const link = document.createElement('button');
-  link.type = 'button';
-  link.className = 'ai-meta__link';
-  link.textContent = 'View more details in the AI call log »';
-  link.addEventListener('click', openAiLog);
+  // .log-link is inline-block, so it can never break mid-phrase — it moves to
+  // the next line as one whole unit.
+  const link = logLink('View more details in the AI call log »');
 
   foot.append(document.createTextNode(text), sep, link);
   // Layout-dependent, so it can only run once the footer is in the document.
@@ -500,7 +513,7 @@ function aiMetaFooter(meta) {
  */
 function syncMetaSeparator(foot) {
   const sep = foot.querySelector('.ai-meta__sep');
-  const link = foot.querySelector('.ai-meta__link');
+  const link = foot.querySelector('.log-link');
   if (!sep || !link) return;
   // A few px of tolerance: the inline-block button and the text sit on the same
   // line without necessarily sharing an exact top. A real wrap is a line-height.
