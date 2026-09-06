@@ -547,7 +547,10 @@ function resultCell(r) {
 
   if (r.status === 'failed') {
     td.classList.add('log-result--error');
-    td.textContent = r.error_text || 'failed';
+    const err = document.createElement('span');
+    err.className = 'log-error';
+    err.textContent = r.error_text || 'failed';
+    td.append(err);
     return td;
   }
 

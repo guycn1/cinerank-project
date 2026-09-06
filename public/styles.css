@@ -690,7 +690,18 @@ body:has(dialog[open]) { overflow: hidden; }
   max-width: 8rem;
   white-space: normal;
 }
-.log-result--error { color: var(--crimson); font-size: 0.9em; }
+/* Error text only — the reveal triggers keep the base size. The column is
+   pinned (width/max-width above), so `overflow-wrap: anywhere` is what makes a
+   long message wrap inside that width instead of stretching the column: an
+   unbroken token (a URL, a long error code) would otherwise set the cell's
+   min-content wider than the pin. */
+.log-result--error { color: var(--crimson); }
+.log-result--error .log-error {
+  display: block;
+  font-size: 0.78em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
 
 .log-reveal {
   position: relative;
@@ -964,6 +975,8 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-time span + span::before { content: '\00a0'; }
 
   .log-result { width: auto; max-width: none; }
+  /* card mode has room — let the error read at the normal card size */
+  .log-result--error .log-error { font-size: inherit; }
   .log-reveal { display: inline-block; }
   .log-reveal ul,
   .log-reveal p,
