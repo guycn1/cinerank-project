@@ -16,8 +16,13 @@
   --ink-faint: #6b6760;
   --amber: #f5c15b;
   --amber-deep: #d99b2f;
+  --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
   --line: #26262f;
+  --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
+  --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
+  --line-total: #494540;  /* AI-log Total-row divider — a touch warm, so it doesn't read
+                             as the (cool-grey) scrollbar thumb sneaking in */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -26,6 +31,39 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
+
+/* Themed scrollbars everywhere. The two engines are split with @supports so
+   neither sees the other's properties: recent Chromium ignores
+   `::-webkit-scrollbar` the moment `scrollbar-width`/`scrollbar-color` is set
+   on the element (they're inherited, so a `* {}` rule would poison every
+   scroller). `selector(::-webkit-scrollbar)` is true only in Chromium/Safari. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: var(--bg-raised); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+    border: 3px solid transparent; /* inset the thumb off the track edges */
+    background-clip: padding-box;
+  }
+  /* a gentle lift, not a jump to --ink-faint — keeps rest vs hover subtle */
+  ::-webkit-scrollbar-thumb:hover { background: #565462; }
+  ::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
+  ::-webkit-scrollbar-corner { background: var(--bg-raised); }
+
+  /* The log dialog: slightly thinner, transparent track (it sits on
+     `--bg-raised` already). */
+  .log-dialog::-webkit-scrollbar { width: 9px; }
+  .log-dialog::-webkit-scrollbar-track,
+  .log-dialog::-webkit-scrollbar-corner { background: transparent; }
+  .log-dialog::-webkit-scrollbar-thumb { border-width: 2px; }
+}
 
 body {
   background:
@@ -45,12 +83,16 @@ a:hover { text-decoration: underline; }
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
   position: fixed;
-  inset: 0;
+  /* Bleed past every edge. The grain animation translates this layer by up to
+     translate(-3%, 2%); at inset:0 that briefly left a ~3% strip at the right
+     (and top) edge uncovered, which flickered as a dark bar. Overhanging the
+     viewport keeps the shift fully covered — the grain + motion are unchanged. */
+  inset: -8%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.035;
+  opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 0.6s steps(2) infinite;
+  animation: grain 0.5s steps(2) infinite;
 }
 @keyframes grain { to { transform: translate(-3%, 2%); } }
 
@@ -420,6 +462,96 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-top: 1px solid var(--line);
 }
 
+/* AI call log — the "not a ChatGPT wrapper" proof (SPEC § 7.2). Given a
+   real call-to-action rather than a link buried in a sentence. */
+.log-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(245, 193, 91, 0.06), transparent 70%),
+    var(--bg-raised);
+}
+.log-cta__copy { display: flex; flex-direction: column; gap: 0.15rem; }
+.log-cta__copy strong {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.log-cta__copy span { color: var(--ink-faint); font-size: 0.82rem; }
+
+.log-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  background: var(--amber);
+  color: #1a1205;
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  padding: 0.7rem 1.25rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, box-shadow 0.25s var(--ease), transform 0.15s var(--ease);
+}
+.log-cta__btn:hover {
+  background: var(--amber-deep);
+  box-shadow: 0 10px 28px -10px rgba(245, 193, 91, 0.6);
+  transform: translateY(-1px);
+}
+.log-cta__btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.log-cta__icon { width: 1.15em; height: 1.15em; }
+
+.site-foot__credit { color: var(--ink-faint); }
+
+@media (max-width: 620px) {
+  .log-cta { flex-direction: column; align-items: stretch; }
+  .log-cta__btn { justify-content: center; }
+}
+
+/* While any modal <dialog> is open, freeze the page behind it so the only
+   scrollbar in view is the one inside the dialog's own content. */
+body:has(dialog[open]) { overflow: hidden; }
+
+/* Fade both modal dialogs + their backdrops in/out. `display` and `overlay` are
+   transitioned discretely so the fade-OUT is visible (the element stays rendered
+   and in the top layer until the fade finishes). */
+.rate-dialog,
+.log-dialog,
+.rate-dialog::backdrop,
+.log-dialog::backdrop {
+  --dialog-fade: 250ms;
+  opacity: 0;
+  transition:
+    opacity var(--dialog-fade) ease,
+    display var(--dialog-fade) allow-discrete,
+    overlay var(--dialog-fade) allow-discrete;
+}
+.rate-dialog[open],
+.log-dialog[open],
+.rate-dialog[open]::backdrop,
+.log-dialog[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .rate-dialog[open],
+  .log-dialog[open],
+  .rate-dialog[open]::backdrop,
+  .log-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
 .rate-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
@@ -429,6 +561,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   max-width: 380px;
   width: 90vw;
   box-shadow: var(--shadow);
+  /* The global `* { margin: 0 }` reset kills the UA stylesheet's `margin: auto`
+     that centres a modal <dialog> — restore it here (centres both axes). */
+  margin: auto;
 }
 .rate-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
 .rate-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
@@ -453,30 +588,42 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
 
-.linkish {
-  background: none;
-  border: none;
-  color: var(--amber);
-  font: inherit;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.linkish:hover { color: var(--amber-deep); }
-
 /* AI call log dialog ------------------------------------------------ */
 .log-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  /* No top padding — the sticky thead pins flush to the top edge and the header
+     carries its own top space. No bottom padding either: `.log-curtain` (the
+     last child) provides the gap under the table AND backs the pinned Total. */
+  padding: 0 1.5rem;
+  --log-curtain-h: 1.5rem; /* gap under the table == where the Total row pins */
   width: min(1080px, 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
+  /* restore the centring the global margin reset removes (see .rate-dialog) */
+  margin: auto;
+  /* THE DIALOG is the single scroller: header, blurb and table scroll together
+     in one outer scrollbar. Earlier this was inverted — the table scrolled
+     inside a flex-sized `.log-scroll` — which collapsed to nothing on a short
+     viewport. Only the table's own `thead` row stays pinned while scrolling
+     (see `.log-table thead th`); the "AI call log" heading and Close scroll away
+     (Close is a scroll-back-up or Esc away). `display: flex` only via [open] so
+     the UA `dialog:not([open]) { display: none }` still hides a closed dialog. */
+  flex-direction: column;
+  overflow: auto;
 }
+.log-dialog[open] { display: flex; }
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
-.log-dialog header { display: flex; align-items: center; justify-content: space-between; }
+.log-sub { flex: 0 0 auto; }
+.log-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  padding-top: 1.5rem; /* the dialog has none; scrolls away with the header */
+}
 .log-dialog h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.4rem; }
 .log-dialog .ghost {
   background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
@@ -486,29 +633,437 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .log-sub { color: var(--ink-faint); font-size: 0.85rem; margin: 0.5rem 0 1rem; }
 .log-sub code { color: var(--ink-dim); background: var(--bg-card); padding: 0 0.3em; border-radius: 4px; }
 
-.log-scroll { overflow: auto; max-height: 66vh; border: 1px solid var(--line); border-radius: 10px; }
-.log-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.log-scroll {
+  overflow: visible; /* no inner scrollbar — the dialog scrolls (see .log-dialog) */
+  flex: 0 0 auto;
+  /* Open at the bottom: the closing rule lives on .log-curtain's top border,
+     which is directly under the Total row in BOTH states (pinned and at rest).
+     A bottom border here would only sit under the Total at rest, and would then
+     double up with the curtain's.
+     Square corners, deliberately: .log-scroll must stay overflow:visible (the
+     dialog is the scroller), so it cannot clip the sticky thead/tfoot cell
+     fills to a radius — the border curved while the backgrounds stayed square.
+     Rounding only while a row sits naturally would mean tracking its stuck
+     state on every scroll; not worth it. */
+  border: 1px solid var(--line);
+  border-bottom: none;
+}
+
+/* An opaque band pinned to the dialog's bottom edge, directly beneath the pinned
+   Total row (which pins at `bottom: var(--log-curtain-h)` — i.e. exactly on top
+   of this). Its containing block is the dialog, not the table, so unlike the
+   Total row it is never clamped and always reaches the true bottom: nothing from
+   the table can show under the Total mid-scroll. Scrolled to the end it un-pins
+   and is simply the empty gap below the table's rounded corners. */
+.log-curtain {
+  flex: 0 0 auto;
+  height: var(--log-curtain-h);
+  position: sticky;
+  bottom: 0;
+  z-index: 2; /* over the rows, under the Total (3) */
+  background: var(--bg-raised);
+  /* ONLY a top border — that single line is the table's closing rule, and the
+     curtain is directly under the Total row in both states. Giving it sides and
+     a rounded bottom too made the empty band read as a detached box mid-scroll. */
+  border-top: 1px solid var(--line);
+}
+/* Base cell size; the header/sub/badge sizes below are `em` so this one
+   value scales the whole table. ~10% down from 0.86rem — room to spare.
+   Default cell text is a step down from --ink so it doesn't glare against the
+   dark dialog; .result / .sub / thead keep their own (dimmer) colours. */
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.77rem;
+  color: #e0dcd3;
+}
 .log-table th, .log-table td {
-  text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.45rem 0.45rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+/* Abbreviated cells (Feature R/TV, Prompt R_v3, Model …) — the full string is
+   in the <abbr> title; dotted underline + help cursor signals it. */
+.log-table abbr {
+  text-decoration: underline dotted var(--ink-faint);
+  text-underline-offset: 2px;
+  cursor: help;
+}
+/* Column separators — deliberately fainter than the row borders. */
+.log-table th:not(:last-child),
+.log-table td:not(:last-child) {
+  border-right: 1px solid var(--line-faint);
 }
 .log-table thead th {
-  position: sticky; top: 0; background: var(--bg-card); color: var(--ink-dim);
-  font-weight: 600; font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase;
+  position: sticky; top: 0; z-index: 3;
+  background: var(--bg-card); color: var(--ink-dim);
+  font-weight: 600; font-size: 0.87em; letter-spacing: 0.03em; text-transform: uppercase;
+  /* Same collapsed-border problem as the tfoot (see below): a real border-bottom
+     is painted by the table and left behind when the row pins, so use an inset
+     shadow that travels with the cell. */
+  border-bottom: none;
+  box-shadow: inset 0 -1px 0 0 var(--line);
 }
-.log-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
-.log-table .sub { display: block; color: var(--ink-faint); font-size: 0.75rem; }
-.log-table .result { white-space: normal; max-width: 320px; color: var(--ink-dim); }
-.log-table tfoot td {
-  background: var(--bg-card); font-weight: 600; border-top: 2px solid var(--line); border-bottom: none;
+.log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
+/* the footer cells are bold; its sub-lines shouldn't inherit that */
+/* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
+   white-space is a safety net: the summed split is a few characters longer
+   than any body row's, so if it ever would outgrow the column it wraps onto a
+   second line instead of widening it (see the font-size note on tfoot td). */
+.log-table tfoot .sub { font-weight: 400; white-space: normal; }
+
+/* Result column: collapsed to a short trigger, full content one click away in a
+   <details>. The column is pinned to a fixed width; the revealed content is
+   positioned OUT OF FLOW (a small floating panel), so opening a row can never
+   widen the column or the table — it just overlays the rows below. */
+.log-result {
+  width: 8rem;
+  max-width: 8rem;
+  white-space: normal;
 }
+/* Error text only — the reveal triggers keep the base size. The column is
+   pinned (width/max-width above), so `overflow-wrap: anywhere` is what makes a
+   long message wrap inside that width instead of stretching the column: an
+   unbroken token (a URL, a long error code) would otherwise set the cell's
+   min-content wider than the pin. */
+/* A missing Tokens / Cost value renders as '—'; the class is set in app.js
+   only when the value is null, so rows with real numbers keep their colour. */
+.log-table .log-empty-val { color: var(--ink-faint); }
+
+.log-result--error { color: var(--crimson); }
+.log-result--error .log-error {
+  display: block;
+  font-size: 0.7em; /* small — a long error must not read chunky in a pinned column */
+  line-height: 1.35;
+  /* `.log-table td { white-space: nowrap }` is more specific than
+     `.log-result { white-space: normal }`, so it wins on the cell and the span
+     inherits it — the text couldn't wrap however narrow the column. Set it
+     here explicitly; `overflow-wrap: anywhere` then also breaks an unbroken
+     token so min-content never exceeds the pinned width. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.log-reveal {
+  position: relative;
+  --reveal-fade: 250ms; /* single knob — drives both the opacity fade and how
+                           long ::details-content stays rendered on close */
+}
+.log-reveal summary {
+  cursor: pointer;
+  color: var(--amber);
+  white-space: nowrap;
+  user-select: none;
+  list-style: none;
+}
+.log-reveal summary::-webkit-details-marker { display: none; }
+.log-reveal summary::after { content: ' ▾'; color: var(--ink-faint); font-size: 0.8em; }
+.log-reveal[open] summary::after { content: ' ▴'; }
+.log-reveal summary:hover { color: var(--amber-deep); }
+/* Keep the open row's trigger lit, so it's obvious which row the floating
+   panel belongs to. The :hover pair outranks the plain hover rule above. */
+.log-reveal[open] summary,
+.log-reveal[open] summary:hover { color: var(--amber-bright); }
+.log-reveal[open] summary::after { color: var(--amber-bright); }
+
+.log-reveal ul,
+.log-reveal p {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+  width: 16rem;
+  max-width: 60vw;
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  /* A white glow, not a black drop: on a near-black UI a dark shadow has
+     nothing to darken and reads as almost nothing. The dark layer only adds
+     weight underneath. Every layer is heavily blurred on purpose — a hard
+     0-blur ring would draw a line straight across the caret's base and nick
+     each of its corners, which is what the previous version did. */
+  box-shadow:
+    0 2px 26px -2px rgba(255, 255, 255, 0.15),
+    0 14px 34px -8px rgba(0, 0, 0, 0.9);
+  cursor: default; /* plain arrow over the panel, not the summary's pointer */
+  text-align: left;
+  color: var(--ink-dim);
+  font-size: 0.8em;           /* smaller than the table body */
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* Fade in/out HERE, on the panel — it's already position:absolute + z-index so
+     it's its own stacking context regardless of opacity. Animating opacity on
+     ::details-content instead made the *pseudo* a stacking context only while
+     0<opacity<1, trapping the panel behind later rows mid-fade. */
+  opacity: 0;
+  /* box-shadow eases too, so the hover lift fades in/out rather than snapping. */
+  transition: opacity var(--reveal-fade) ease, box-shadow var(--reveal-fade) ease;
+}
+.log-reveal[open] ul,
+.log-reveal[open] p { opacity: 1; }
+@starting-style {
+  .log-reveal[open] ul,
+  .log-reveal[open] p { opacity: 0; }
+}
+/* Deepen on hover so the panel reads as lifted while you're reading it. */
+.log-reveal ul:hover,
+.log-reveal p:hover {
+  box-shadow:
+    0 2px 32px 0 rgba(255, 255, 255, 0.21),
+    0 18px 44px -8px rgba(0, 0, 0, 0.95);
+}
+/* Flipped above the trigger when there is no room below (class set on toggle
+   by revealDetails() in app.js, which has to measure the panel's height). */
+.log-reveal--above ul,
+.log-reveal--above p {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+}
+.log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
+.log-reveal li { padding: 0; margin: 0; }
+
+/* Caret pointing back at the trigger: two stacked FILLED triangles (outer in
+   the border colour, inner in the fill, 1px smaller and lower). Not a rotated
+   bordered square — that shape's two borders terminate in square caps, which
+   after rotation stick out as little nubs at the caret's base corners. Filled
+   shapes have clean edges, and the inner triangle covers the panel's own
+   border across the base so the rim joins it continuously.
+   --arrow-x (set in app.js) is the trigger's centre: the panel is
+   right-aligned and wider than its cell, so 50% would miss. */
+.log-reveal ul::before, .log-reveal ul::after,
+.log-reveal p::before,  .log-reveal p::after {
+  content: '';
+  position: absolute;
+  left: var(--arrow-x, 50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent;
+}
+/* default: panel BELOW the trigger → caret on top, pointing up */
+.log-reveal ul::before, .log-reveal p::before {
+  top: -7px;
+  margin-left: -7px;
+  border-width: 0 7px 7px 7px;
+  border-bottom-color: var(--line);
+}
+.log-reveal ul::after, .log-reveal p::after {
+  top: -5px;
+  margin-left: -6px;
+  border-width: 0 6px 6px 6px;
+  border-bottom-color: var(--bg-raised);
+}
+/* flipped: panel ABOVE the trigger → caret underneath, pointing down */
+.log-reveal--above ul::before, .log-reveal--above p::before {
+  top: auto;
+  bottom: -7px;
+  border-width: 7px 7px 0 7px;
+  border-top-color: var(--line);
+  border-bottom-color: transparent;
+}
+.log-reveal--above ul::after, .log-reveal--above p::after {
+  top: auto;
+  bottom: -5px;
+  border-width: 6px 6px 0 6px;
+  border-top-color: var(--bg-raised);
+  border-bottom-color: transparent;
+}
+/* ::details-content is what <details> uses to show/hide the panel
+   (content-visibility). Keep it rendered through the close fade — no opacity
+   here (see the panel rule above for why). Engines without ::details-content /
+   @starting-style just snap; prefers-reduced-motion disables it. */
+.log-reveal::details-content {
+  /* Same duration as the panel's opacity fade — if this is shorter, the panel
+     is yanked out of rendering mid-fade-out. */
+  transition: content-visibility var(--reveal-fade) allow-discrete;
+}
+
+/* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
+   all-figures text reads chunkier than the lowercase columns at the same size,
+   so nudge it down a hair and tighten the two-line stack. */
+.log-time { font-size: 0.9em; line-height: 1.45; }
+.log-time span { display: block; }
+
+/* Total row pins just above `.log-curtain`, so the two together form one solid
+   block from the row down to the dialog's bottom edge — no row can peek below. */
+.log-table tfoot td {
+  position: sticky; bottom: var(--log-curtain-h); z-index: 3;
+  font-weight: 600; border-top: none; border-bottom: none;
+  /* Smaller than the body rows, for two reasons. It reads less chunky, and —
+     since every cell including the footer feeds `table-layout: auto` — it
+     keeps the footer's summed figures from setting a wider max-content than
+     the body rows and shifting the columns. The binding pair is the token
+     split: body ~`773 in / 251 out`, footer ~`9,842 in / 2,101 out`. */
+  font-size: 0.8em;
+  /* Drawing this divider is fiddly. It can't be a real `border-top` — the
+     collapsed-border layer paints that and leaves it behind when the row pins.
+     Anything painted by the cell itself (inset shadow, background) is confined
+     to the cell's own paint area, and under `border-collapse: collapse` that
+     area STOPS at the collapsed column border — which is what broke the rule
+     into segments. So: take the collapsed borders off this row entirely (below)
+     and paint BOTH rules as backgrounds — a 2px divider across the top and a 1px
+     column separator at each cell's right edge. Cells are then truly adjacent,
+     so the divider is continuous, the separators are still there, and both
+     travel with the cell when it pins. */
+  background-color: var(--bg-card);
+  background-image:
+    linear-gradient(var(--line-total), var(--line-total)),
+    linear-gradient(var(--line-faint), var(--line-faint));
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 1.5px, 1px 100%;
+  background-position: left top, right top;
+  /* Tighter than the body rows (this row read too tall); the divider overlays
+     the top 1.5px, so bottom is `top - 1.5px` to keep the text centred. */
+  padding-top: 0.36rem;
+  padding-bottom: calc(0.36rem - 1.5px);
+}
+/* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
+   column border — that is what segmented the divider. Remove those borders on
+   this row so the cells sit flush and the divider runs unbroken. The extra
+   `:not(:last-child)` is needed to outrank the column-separator rule. */
+/* The label spans Feature+Prompt+Model, which are far wider than its text, so
+   unlike the rest of the footer it is not part of the column-width constraint
+   — give it back a readable size. The trailing note is muted; it explains the
+   Duration total rather than being data. */
+.log-table tfoot .log-total__label { font-size: 1.1em; }
+.log-table tfoot .log-total__pad {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+.log-table tfoot td:not(:last-child) { border-right: none; }
+/* Last cell: keep the divider, drop the separator — no column follows it. */
+.log-table tfoot td:last-child {
+  background-image: linear-gradient(var(--line-total), var(--line-total));
+  background-size: 100% 1.5px;
+  background-position: left top;
+}
+/* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
+.log-table tbody tr:last-child td { border-bottom: none; }
 .log-badge {
-  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600;
+  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;
 }
 .log-badge.ok { background: rgba(90, 180, 120, 0.15); color: #7fce9b; }
 .log-badge.fail { background: rgba(226, 87, 76, 0.16); color: var(--crimson); }
 .log-feature { font-weight: 600; }
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
+
+/* ---- mid range: claw back horizontal space (cell + dialog padding, Result
+        width) so the full table survives further down before cards kick in. ---- */
+@media (max-width: 1040px) {
+  .log-dialog { padding: 0 0.85rem; --log-curtain-h: 1.25rem; }
+  .log-dialog header { padding-top: 1.25rem; }
+  .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
+  .log-result { width: 7rem; max-width: 7rem; }
+}
+
+/* ---- narrow viewports: below ~850px the trimmed 9-column table no longer fits
+        the dialog, so render each call as a card (label / value rows). No
+        horizontal scroll at any width down to ~300px. ---- */
+@media (max-width: 850px) {
+  .log-table,
+  .log-table tbody,
+  .log-table tfoot,
+  .log-table tr,
+  .log-table td {
+    display: block;
+    width: auto;
+  }
+  .log-table thead { display: none; }
+  .log-scroll { border: none; }
+  .log-curtain { border-top: none; }
+
+  .log-table tr {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.35rem 0.9rem;
+    margin-bottom: 0.7rem;
+  }
+  .log-table tbody tr:hover { background: none; }
+
+  .log-table td {
+    text-align: right;
+    padding: 0.4rem 0;
+    white-space: normal;
+    border: none;
+    overflow-wrap: break-word;
+  }
+  .log-table td:not(:last-child) { border-bottom: 1px solid var(--line-faint); }
+  .log-table td::before {
+    content: attr(data-label);
+    float: left;
+    margin-right: 1rem;
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* There's width for the full strings here — swap the abbreviations out. */
+  .log-table td abbr {
+    text-decoration: none;
+    cursor: auto;
+    font-size: 0;
+  }
+  .log-table td abbr::after { content: attr(title); font-size: 0.77rem; }
+
+  .log-time { font-size: 1em; line-height: 1.4; }
+  .log-time span { display: inline; }
+  .log-time span + span::before { content: '\00a0'; }
+
+  .log-result { width: auto; max-width: none; }
+  /* card mode has room — let the error read at the normal card size */
+  .log-result--error .log-error { font-size: inherit; }
+  .log-reveal { display: inline-block; }
+  .log-reveal ul,
+  .log-reveal p,
+  .log-reveal ul:hover,
+  .log-reveal p:hover {
+    position: static;
+    width: auto;
+    max-width: 100%;
+    margin: 0.45rem 0 0.1rem;
+    box-shadow: none;
+    background: var(--bg-card);
+    font-size: 0.9em;
+  }
+  /* panel flows inline here, so there's nothing to point at */
+  .log-reveal ul::before, .log-reveal ul::after,
+  .log-reveal p::before,  .log-reveal p::after { display: none; }
+
+  /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
+     again sitting right on top of the curtain. The card's own border is the
+     separator here, so drop the per-cell shadow. */
+  .log-table tfoot td {
+    position: static;
+    background-image: none; /* the card's own border is the separator here */
+    padding-bottom: 0.4rem;
+    font-size: 1em; /* no columns to protect here — match the other cards */
+  }
+  .log-table tfoot td:last-child { background-image: none; }
+  .log-table tr.log-total {
+    position: sticky;
+    bottom: var(--log-curtain-h);
+    z-index: 3;
+    border-color: var(--amber-deep);
+    background: var(--bg-card);
+  }
+  .log-total__pad { display: none; }
+  .log-total__label { text-align: left; }
+  .log-total__label::before { content: none; }
+
+  .log-empty { padding: 1.5rem 0; }
+  .log-empty::before { content: none; }
+  .log-table tr:has(.log-empty) { border: none; padding: 0; }
+}
 
 .toast {
   position: fixed;
@@ -558,4 +1113,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
+  .log-reveal::details-content,
+  .rate-dialog, .log-dialog,
+  .rate-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
 }

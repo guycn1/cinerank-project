@@ -24,12 +24,14 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-04 (taste_verdict_v4; tests + `/api/health` + docs/PROCESS.md; accessibility pass)
+**Last updated:** 2026-09-06 (AI call log — desktop/table view overhaul settled; mobile card view still untouched)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
+* `main` merged at the "functionally complete vs SPEC §2–§6" milestone
+  (2026-09-05); `draft` continues for submission-packaging work.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -47,8 +49,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via footer link.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner) — `parseModelJson`, `tidyReason`,
-  `tidyVerdict`, `estimateCostUsd`, `loadPrompt` against the real prompt files.
+* Tests: `npm test` (Node built-in runner, 31 tests). Pure helpers
+  (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
+  (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
+  below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
+  log row written). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
+  `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -60,18 +67,160 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
   spinners `aria-hidden`.
 
+### Front-end overhaul (in progress — started 2026-09-05)
+* Both modal `<dialog>`s (rate, AI call log) re-centred: the global
+  `* { margin: 0 }` reset had killed the UA stylesheet's `dialog { margin: auto }`,
+  so they rendered at top-left. Fixed with an explicit `margin: auto` on
+  `.rate-dialog` / `.log-dialog`.
+* AI call log entry point promoted from a `.linkish` link buried in a footer
+  sentence to a `.log-cta` panel with a solid amber button (`#open-log` id
+  unchanged) + one-line description — it's the SPEC §7.2 "not a wrapper" proof,
+  so it should read as a real action. `.linkish` removed (was its only use).
+* Fixed a pre-existing glitch: the `.grain` film-grain overlay (`inset: 0`) is
+  translated up to 3% by its animation, which briefly exposed a flickering dark
+  strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
+* Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
+  animation 0.6s → 0.5s. Still subtle.
+* AI call log dialog scrolling: **the dialog itself is the single scroller**
+  (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
+  `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
+  inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
+  to nothing. Header + blurb + whole table scroll together; **only `thead th`
+  pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading and
+  Close scroll away (scroll back up / Esc). `.log-dialog` has **no top/bottom
+  padding** (`padding: 0 1.5rem`; `header` carries `padding-top`) so the thead
+  pins flush at the top.
+  **Total row (took several tries — don't "simplify" this):** a sticky `<tfoot>`
+  alone never works, because it's clamped by its own containing block (the table)
+  and can't reach the dialog's bottom edge — table rows always peeked underneath
+  it mid-scroll. The fix is `.log-curtain`: an opaque `--bg-raised` band that is a
+  **direct child of the dialog** (containing block = the dialog, so it's never
+  clamped), `position: sticky; bottom: 0`, `z-index: 2`. The Total row pins at
+  `bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it. The two
+  form one solid block down to the dialog edge, so nothing shows underneath.
+  Scrolled to the end both un-pin and the curtain is just the gap below the
+  table (hence `.log-dialog` has no bottom padding). The table's closing rule is
+  the curtain's `border-top` — the only element adjacent to the Total row in
+  BOTH states, so it can't go missing mid-scroll or double up at rest.
+  `.log-scroll` is therefore open at the bottom, and **fully square**: it must
+  stay `overflow: visible` (the dialog is the scroller) so it can't clip the
+  sticky thead/tfoot cell fills to a radius — a rounded border with square cell
+  backgrounds looked broken. Card mode
+  pins the whole `tr.log-total` (per-cell sticky would stack three boxes).
+  `.log-dialog[open]` carries
+  `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never
+  closes. `body:has(dialog[open]) { overflow: hidden }` freezes the page.
+* AI call log table — narrowing it column by column to kill the horizontal
+  scroll. Done so far:
+  - all `th`/`td` content centred (h + v); `.num` right-align dropped.
+  - table font trimmed ~10% (`.log-table` 0.86→0.77rem; header/sub/badge → `em`).
+  - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
+    `--line-faint` = white 0.035). A short "floating tick" variant was tried to
+    make the row/column hierarchy clearer and reverted — user preferred the plain
+    hairline; hierarchy parked.
+  - **Model** column shows only the part after the vendor `/`
+    (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
+    cursor) so the full slug is one hover away. `modelCell()` in app.js.
+  - **Time** column: forced `en-GB` format (`04/09/2026, 15:39:46`) regardless
+    of browser locale, split onto two lines (date / clock) via `timeCell()`.
+    Still rendered in the viewer's local timezone. `.log-time` 0.9em to match.
+  - **Result** column collapsed. `/api/ai-log` now sends structured data
+    (`suggested_titles` / `verdict_text` / `error_text`) instead of a flattened
+    `summary` string. `resultCell()` renders: failed → error inline; recommendation
+    → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
+    `<details>` revealing the text. `<details name="ai-log-result">` so opening
+    one closes the others. The column is pinned to `width: 9.5rem` and the
+    revealed content is `position: absolute` (a small floating panel, ~0.72em
+    font) — opening a row can never widen/reflow the table or steal width from
+    other columns. Caveat: a panel opened on the very last visible row can be
+    clipped by `.log-scroll`'s overflow (scroll or resize to see it).
+    Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
+  - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
+    Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
+    `taste_verdict_v1`→`TV_v1`, model→slug after the `/`. `abbrCell()` +
+    `shortPromptVersion()` in app.js; `.log-table abbr` = dotted underline.
+    Feature has exactly two values (verified in `routes/aiLog.js`).
+  - cell padding trimmed `0.6rem 0.8rem` → `0.45rem 0.45rem`; Result column
+    `9.5rem` → `8rem`.
+  - **Responsive**: full table down to **~850px** (card `@media` breakpoint),
+    helped by a mid-range `@media (max-width: 1040px)` that tightens cell padding
+    `0.45→0.28rem`, dialog padding `1.5→0.85rem`, and the Result column
+    `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. < 850px → one card
+    per call (label/value rows via `td::before { content: attr(data-label) }`;
+    `thead` hidden; abbreviations swapped back to full text via
+    `abbr::after { content: attr(title) }`). Reveal panels flow inline in card mode. A document click listener collapses an open
+    reveal panel on any click outside it (clicks on its own text keep it open so
+    it stays selectable). Reveal panels fade 200ms (`::details-content` +
+    `@starting-style`).
+  - **Sticky rows.** The whole dialog is the single scroller; only `thead`
+    (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
+    can't reach the dialog edge (clamped by the table), so `.log-curtain` — an
+    opaque `--bg-raised` band, a *direct child of the dialog* — pins under it;
+    the two form one solid block so no row shows through. Curtain's `border-top`
+    is the table's closing rule (only element adjacent to Total in both
+    states); `.log-scroll` is square (can't clip its sticky children to a
+    radius while it's `overflow: visible`).
+  - **Total-row divider.** Can't be a real border (collapsed-border layer
+    leaves it behind on pin) or a shadow (webkit outer shadows aren't painted
+    on cells; inset ones stop at the collapsed column border → gaps). Painted
+    as two `background` gradients (1.5px top rule in `--line-total` — warm, so
+    it's not mistaken for the cool-grey scrollbar; 1px right separators),
+    collapsed borders removed from the row so the rule is continuous. Footer
+    is `0.8em` (keeps its summed figures from widening the columns) with
+    trimmed vertical padding; label spans 3 cols so it's `1.1em`.
+  - **Failed rows.** `status` badge goes red; error text in a `.log-error`
+    span at `0.7em` with `white-space: normal` + `overflow-wrap: anywhere` so
+    it wraps and never widens the pinned Result column. Missing Tokens/Cost
+    render `—` in `--ink-faint` (a `log-empty-val` class, only when null).
+  - **Totals** sum the in/out split and durations; nulls on failed rows count
+    as 0. `(summed model latency, not elapsed time)` note fills the trailing
+    gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
+    (D-019) so the footer needs no partial-coverage markers.
+  - **Reveal panel** polish: caret pointing at its trigger (direction +
+    `--arrow-x` follow the flip); flips *above* the trigger when there's no
+    room below (measured in JS on `toggle`, kept on close so it doesn't jump
+    mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
+    eased on hover; outside-click / Esc dismiss.
+* Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
+  `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
+  `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
+* Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
+  so each engine sees only its own props — recent Chromium ignores
+  `::-webkit-scrollbar` once `scrollbar-width`/`scrollbar-color` is set (and those
+  inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
+  thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
+  `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
+  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
+  `--bg-raised` page / transparent in the dialog. Chrome Fluent still widens the
+  thumb on hover — not CSS-controllable.
+* Reveal panel fade: the opacity animation + `@starting-style` live on the panel
+  (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
+  stacking context at any opacity. Animating opacity on `::details-content`
+  instead made *that pseudo* a stacking context only while 0<opacity<1, trapping
+  the panel behind later rows mid-fade (and a `z-index` on `.log-reveal` — a
+  table-cell SC — didn't lift past later `<tr>`s at all). `::details-content` now
+  only transitions `content-visibility` (`allow-discrete`) to stay rendered
+  through the close. The panel-opacity duration and the `::details-content`
+  content-visibility duration are on different elements but MUST match (else the
+  panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
+  (200ms) on `.log-reveal`. That's the single knob for the fade speed.
+* **AI call log — desktop/table view: DONE.** Mobile **card view** (`< 850px`)
+  has had zero design attention — it works (label/value rows, reveal panels flow
+  inline) but hasn't been reviewed. That's the one remaining piece before the
+  call-log overhaul is a wrap.
+* More FE work to come — user is driving this.
+
 ### Open issues / TODO
+(Submission-readiness gaps are consolidated under **Pre-submission blockers**
+below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
-* [ ] User re-adding lost movies (see Incident 1).
-* [ ] Not deployed — **Netlify won't run the Express server** (static + serverless
-  only); target Render / Railway / Fly.io, or refactor routes to functions.
-* [~] Tests: pure helpers + prompt loader covered (`npm test`). Route-level and
-  resilience (TMDB/OpenRouter down) still only verified manually — capture the
-  latter as screenshots for submission.
-* [ ] Prompt-injection defense: add a demo movie with an injection-attempt review
-  and screenshot the verdict/recs staying on-topic (Module 17 evidence).
-* [ ] `/api/recommendations/history` endpoint exists but is superseded by
-  `/api/ai-log`; decide whether to remove it.
+* [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
+  and TMDB/OpenRouter-down resilience all covered by `npm test` (31).
+* [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
+  (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
+  narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
+* [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
+  exists.
 * [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
@@ -90,6 +239,28 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
   produces. Not started — user will kick this off later.
+
+### Pre-submission blockers — DO NOT call the project a wrap until these are done
+
+The code is functionally complete against SPEC §2–§6, but the submission is
+**not** ready. These are the known gaps. The user is deferring all
+screenshot/evidence capture to right before submission — that is a deliberate
+schedule choice, not a reason to forget them.
+
+* [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
+  README + the lecturer's project sheet.
+* [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
+* [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
+  search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
+  on the verdict (the "Couldn't come up with a verdict right now" fallback), with
+  the ranked list still working. Server side is tested (`npm test`); the *visual*
+  evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+* [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
+  attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
+* [ ] **README screenshots + architecture diagram** — currently text-only.
+* [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
+  names) and both add cross-referencing comments to the project sheet.
+* [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing

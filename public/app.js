@@ -431,10 +431,149 @@ const fmtDur = (ms) =>
   ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 const fmtTokens = (n) => (n == null ? '—' : n.toLocaleString());
 
-function cell(text, className) {
+function cell(text, className, label) {
   const td = document.createElement('td');
   if (className) td.className = className;
+  if (label) td.dataset.label = label; // shown as the field label in the narrow card layout
   td.textContent = text;
+  return td;
+}
+
+// A cell whose short form is an <abbr> carrying the full text in its title
+// (dotted underline + hover). In the narrow card layout CSS swaps in the full
+// text — there's width for it there.
+function abbrCell(short, full, className, label) {
+  const td = document.createElement('td');
+  if (className) td.className = className;
+  if (label) td.dataset.label = label;
+  if (!full || short === full) {
+    td.textContent = short || '—';
+    return td;
+  }
+  const abbr = document.createElement('abbr');
+  abbr.textContent = short;
+  abbr.title = full;
+  td.append(abbr);
+  return td;
+}
+
+const FEATURE_ABBR = { Recommendation: 'R', 'Taste verdict': 'TV' };
+
+// "recommend_v3" -> "R_v3", "taste_verdict_v1" -> "TV_v1"
+function shortPromptVersion(pv) {
+  const m = /^(.+)_v(\d+)$/.exec(pv || '');
+  if (!m) return pv || '—';
+  const initials = m[1].split('_').map((w) => w[0].toUpperCase()).join('');
+  return `${initials}_v${m[2]}`;
+}
+
+// Model slugs are long ("anthropic/claude-haiku-4.5") — drop the vendor prefix.
+function modelCell(model) {
+  if (!model) return abbrCell('—', null, 'log-model', 'Model');
+  const slash = model.indexOf('/');
+  const short = slash === -1 ? model : model.slice(slash + 1);
+  return abbrCell(short, model, 'log-model', 'Model');
+}
+
+// Timestamp cell: forced European format (dd/mm/yyyy, 24h) regardless of the
+// browser locale, with the date and clock on separate lines to keep the column
+// narrow.
+function timeCell(iso) {
+  const td = document.createElement('td');
+  td.className = 'log-time';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    td.textContent = '—';
+    return td;
+  }
+  const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const time = d.toLocaleTimeString('en-GB', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+  const dateLine = document.createElement('span');
+  dateLine.textContent = `${date},`;
+  const timeLine = document.createElement('span');
+  timeLine.textContent = time;
+  td.append(dateLine, timeLine);
+  return td;
+}
+
+// Result cell — three shapes (see routes/aiLog.js):
+//   failed call      -> the error message, shown inline (short, and you want it
+//                       visible when scanning for problems)
+//   recommendation   -> "N suggestions", click to reveal the verified title list
+//   taste verdict    -> "view verdict", click to reveal the full text
+// The reveal is a native <details> so it's keyboard-accessible with no JS; the
+// `name` makes the open one close its siblings, keeping the table compact.
+function revealDetails(summaryText, bodyNode) {
+  const details = document.createElement('details');
+  details.className = 'log-reveal';
+  details.name = 'ai-log-result';
+  const summary = document.createElement('summary');
+  summary.textContent = summaryText;
+  details.append(summary, bodyNode);
+
+  // The panel normally drops below its trigger; near the bottom of the dialog
+  // there isn't room, so flip it above instead. Measured on open rather than
+  // done in CSS because the panel's height depends on its content.
+  details.addEventListener('toggle', () => {
+    // On close, keep whichever side it is on so it fades out in place —
+    // clearing the class here would snap it back down mid-fade.
+    if (!details.open) return;
+    details.classList.remove('log-reveal--above');
+    const trigger = summary.getBoundingClientRect();
+    const view = el.logDialog.getBoundingClientRect();
+    const needed = bodyNode.offsetHeight + 12; // panel + the 0.35rem offset
+    const below = view.bottom - trigger.bottom;
+    const above = trigger.top - view.top;
+    // Only flip if below genuinely can't hold it AND above is roomier.
+    if (below < needed && above > below) details.classList.add('log-reveal--above');
+
+    // Point the caret at the trigger's centre. The panel is right-aligned and
+    // wider than its cell, so this can't be a fixed percentage. Clamped so it
+    // never lands on a rounded corner.
+    const panel = bodyNode.getBoundingClientRect();
+    const centre = trigger.left + trigger.width / 2 - panel.left;
+    const x = Math.min(Math.max(centre, 14), panel.width - 14);
+    details.style.setProperty('--arrow-x', `${x}px`);
+  });
+
+  return details;
+}
+
+function resultCell(r) {
+  const td = document.createElement('td');
+  td.className = 'log-result';
+
+  if (r.status === 'failed') {
+    td.classList.add('log-result--error');
+    const err = document.createElement('span');
+    err.className = 'log-error';
+    err.textContent = r.error_text || 'failed';
+    td.append(err);
+    return td;
+  }
+
+  if (r.feature === 'Recommendation') {
+    const titles = r.suggested_titles || [];
+    if (!titles.length) {
+      td.textContent = 'no suggestions';
+      return td;
+    }
+    const ul = document.createElement('ul');
+    for (const t of titles) {
+      const li = document.createElement('li');
+      li.textContent = t;
+      ul.append(li);
+    }
+    td.append(revealDetails(`${titles.length} suggestion${titles.length === 1 ? '' : 's'}`, ul));
+    return td;
+  }
+
+  // Taste verdict
+  const p = document.createElement('p');
+  p.textContent = r.verdict_text || '—';
+  td.append(revealDetails('view verdict', p));
   return td;
 }
 
@@ -475,12 +614,13 @@ async function renderAiLog() {
   for (const r of data.rows) {
     const tr = document.createElement('tr');
 
-    tr.append(cell(r.feature, 'log-feature'));
-    tr.append(cell(r.prompt_version || '—'));
-    tr.append(cell(r.model_used || '—'));
+    tr.append(abbrCell(FEATURE_ABBR[r.feature] || r.feature, r.feature, 'log-feature', 'Feature'));
+    tr.append(abbrCell(shortPromptVersion(r.prompt_version), r.prompt_version || '—', 'log-prompt', 'Prompt'));
+    tr.append(modelCell(r.model_used));
 
     const tok = document.createElement('td');
-    tok.className = 'num';
+    tok.className = r.tokens_used == null ? 'num log-empty-val' : 'num';
+    tok.dataset.label = 'Tokens';
     tok.textContent = fmtTokens(r.tokens_used);
     if (r.prompt_tokens != null || r.completion_tokens != null) {
       const sub = document.createElement('span');
@@ -490,30 +630,61 @@ async function renderAiLog() {
     }
     tr.append(tok);
 
-    tr.append(cell(fmtCost(r.estimated_cost_usd), 'num'));
-    tr.append(cell(fmtDur(r.duration_ms), 'num'));
+    tr.append(cell(fmtCost(r.estimated_cost_usd),
+      r.estimated_cost_usd == null ? 'num log-empty-val' : 'num', 'Cost'));
+    tr.append(cell(fmtDur(r.duration_ms), 'num', 'Duration'));
 
     const st = document.createElement('td');
+    st.dataset.label = 'Status';
     const badge = document.createElement('span');
     badge.className = `log-badge ${r.status === 'failed' ? 'fail' : 'ok'}`;
     badge.textContent = r.status;
     st.append(badge);
     tr.append(st);
 
-    tr.append(cell(r.summary || '—', 'result'));
-    tr.append(cell(new Date(r.created_at).toLocaleString()));
+    const rc = resultCell(r);
+    rc.dataset.label = 'Result';
+    tr.append(rc);
+
+    const tc = timeCell(r.created_at);
+    tc.dataset.label = 'Time';
+    tr.append(tc);
 
     el.logBody.append(tr);
   }
 
+  const t = data.totals;
   const footRow = document.createElement('tr');
-  const label = cell(`Total · ${data.totals.calls} call(s)`);
+  footRow.className = 'log-total';
+  const label = cell(`Total · ${t.calls} call${t.calls === 1 ? '' : 's'}`, 'log-total__label');
   label.colSpan = 3;
   footRow.append(label);
-  footRow.append(cell(fmtTokens(data.totals.tokens), 'num'));
-  footRow.append(cell(fmtCost(data.totals.cost), 'num'));
+
+  // Totals mirror a data row: tokens with the in/out split beneath, then cost
+  // and total duration. `totals.detailed` / `.timed` are still returned by the
+  // API but deliberately not surfaced — see docs/DECISIONS.md D-018.
+  const tokTotal = document.createElement('td');
+  tokTotal.className = 'num';
+  tokTotal.dataset.label = 'Total tokens';
+  tokTotal.textContent = fmtTokens(t.tokens);
+  if (t.detailed) {
+    const sub = document.createElement('span');
+    sub.className = 'sub';
+    sub.textContent = `${fmtTokens(t.promptTokens)} in / ${fmtTokens(t.completionTokens)} out`;
+    tokTotal.append(sub);
+  }
+  footRow.append(tokTotal);
+
+  footRow.append(cell(fmtCost(t.cost), 'num', 'Total cost'));
+  footRow.append(cell(t.timed ? fmtDur(t.durationMs) : '—', 'num', 'Total duration'));
+
+  // Fills the trailing gap and says what the Duration total actually is: the
+  // sum of per-call round trips to OpenRouter, which is a small fraction of the
+  // elapsed time between the first and last call.
   const rest = document.createElement('td');
-  rest.colSpan = 4;
+  rest.colSpan = 3;
+  rest.className = 'log-total__pad';
+  rest.textContent = '(summed model latency, not elapsed time)';
   footRow.append(rest);
   el.logFoot.append(footRow);
 }
@@ -523,6 +694,16 @@ el.openLog.addEventListener('click', () => {
   renderAiLog();
 });
 el.logClose.addEventListener('click', () => el.logDialog.close());
+
+// A reveal panel stays open until you click outside it — clicking its own text
+// keeps it up (so it can be selected/copied); a click anywhere else collapses it.
+document.addEventListener('click', (e) => {
+  el.logDialog
+    .querySelectorAll('details.log-reveal[open]')
+    .forEach((d) => {
+      if (!d.contains(e.target)) d.open = false;
+    });
+});
 
 /* ---------- boot ------------------------------------------------- */
 (async function init() {

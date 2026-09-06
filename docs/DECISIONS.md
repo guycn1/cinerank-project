@@ -6,6 +6,53 @@ recover them later). Newest first.
 
 ---
 
+## D-019 · Six pre-migration log rows deleted, rather than annotated forever
+The six oldest AI-log rows predate migration 001, so they carry no token split
+and no duration — the columns simply did not exist when they were written. The
+footer's summed `in / out` and total duration therefore covered only a subset,
+and showing that honestly meant a `· 13/19` marker plus tooltips in the Total
+row. That was a permanent piece of UI complexity paying for a temporary data
+gap: the viewer only ever shows the 60 most recent calls, so those rows will
+fall out of the window on their own after ~47 more calls.
+
+Decision: delete those six rows and drop the coverage markers. The predicate is
+self-describing — `prompt_tokens is null and completion_tokens is null and
+duration_ms is null` matches exactly the pre-migration rows and can never match
+a new one (every post-migration write records a duration, success or failure).
+
+**This is a deliberate exception, recorded because the log's whole argument is
+that it is an append-only audit trail.** Six rows were removed from it by hand,
+once, for presentation reasons — not by any code path. The app itself still has
+no way to delete a log row. `totals.detailed` / `totals.timed` stay in the
+`/api/ai-log` response (and under test) so the partial-coverage case is still
+handled correctly if it ever recurs; it is just not surfaced in the UI.
+
+## D-018 · Route + resilience tests without touching the live DB
+Added `test/routes.test.js` covering the SPEC §7.1 checklist items that the pure
+-helper tests couldn't: validation 400s, duplicate 409, TMDB-down 502,
+below-threshold 422, and OpenRouter-down 422 **with** a `status='failed'` row
+written (the Module 13 "make failure visible" contract, now enforced). The
+constraint was the binding working agreement to never touch the user's Supabase
+data — so the client is replaced with an in-memory fake query builder
+(`test/helpers.js`, keyed by `"<table>:<op>"`, recording writes so a test can
+assert "a log row was written"), and TMDB/OpenRouter are stubbed via
+`globalThis.fetch`. `server/index.js` now `export`s `app` and guards `listen()`
+behind an is-this-the-entrypoint check so a test can run it on an ephemeral port.
+No runtime behaviour changed. Chose Node's `--experimental-test-module-mocks`
+(built-in, no dependency) over adding `supertest`/`sinon`.
+
+## D-017 · Keep `/api/recommendations/history` rather than delete it
+`/api/ai-log` (added in D-010) is a strict superset of `/history` for the
+recommendation side — both tables, failure status, token split, duration,
+totals — and it's the only log endpoint the UI calls. `/history` is unused and
+untested, so code-hygiene says delete it. Decided to **keep** it: it's listed in
+SPEC §4.5 (as optional), removing it is a SPEC-table deviation that buys nothing
+on the impression/creativity axes and only a marginal workflow point, and a
+pre-submission deletion carries dangling-reference risk. Instead: one sentence in
+`docs/PROCESS.md` frames `/api/ai-log` as the primary audit surface and
+`/history` as the narrower per-feature JSON view. Revisit as post-submission
+cleanup.
+
 ## D-016 · Accessibility pass
 Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
 `aria-label`s so a screen reader in a 20-row list hears which film, not just

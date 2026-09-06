@@ -66,6 +66,19 @@ inline message in the UI. The in-app "AI call log" viewer (footer link) shows
 both log tables merged, so the audit trail is demonstrable in the browser, not
 only in the Supabase table editor.
 
+`GET /api/ai-log` is the primary audit surface: both features, successes and
+failures, token split, duration, per-call cost, and totals. `GET
+/api/recommendations/history` (SPEC §4.5) is deliberately kept as the narrower
+per-feature JSON view — recommendation runs only — but nothing in the UI depends
+on it; the merged log is what the app and the demo use.
+
+One honest caveat: six of the earliest log rows predated the migration that
+added the token split and duration columns, so they showed blanks in those
+fields. They were deleted by hand once, for presentation, rather than left to
+age out of the 60-row window. That is the only time anything has been removed
+from the audit trail, and no code path in the app can delete a log row — see
+`docs/DECISIONS.md` D-019.
+
 ## 5. Incident 1 — and the guardrail it produced
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second
@@ -81,10 +94,24 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency) covers the pure helpers where
-every truncation bug actually lived — `parseModelJson`, `tidyReason`,
-`tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the real prompt
-files, so a malformed prompt version fails the suite.
+`npm test` (Node's built-in runner, no dependency, 31 tests) covers:
+
+- **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
+  `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
+  real prompt files, so a malformed prompt version fails the suite.
+- **Routes** (`test/routes.test.js`): input validation (the 400s), duplicate add
+  (409), `GET /api/config` / `/api/health`, TMDB-unreachable (502), the
+  below-threshold guards (422), and — the one that matters most — OpenRouter
+  unreachable returning 422 *and* still writing a `status='failed'` row to
+  `recommendation_logs`. That's the "make failure visible" contract under test.
+
+To keep the live database untouched (§5), the Supabase client is swapped for a
+small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through
+`globalThis.fetch`. `server/index.js` exports `app` and only starts listening
+when run directly, so a test can drive it on an ephemeral port.
+
+Still manual: the resilience *UI* states (the calm inline messages) — worth a few
+screenshots for the submission even though the server side is now tested.
 
 ## 7. Known gaps / next
 

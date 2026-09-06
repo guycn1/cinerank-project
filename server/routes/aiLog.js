@@ -28,7 +28,10 @@ aiLogRouter.get(
     if (recs.error) throw new Error(recs.error.message);
     if (verdicts.error) throw new Error(verdicts.error.message);
 
-    const norm = (row, feature, summary) => ({
+    // The "Result" cell has exactly three shapes, so send it structured and let
+    // the frontend render/reveal it: a recommendation's verified title list, a
+    // verdict's text, or (either feature) the error message on a failed call.
+    const norm = (row, feature, extra) => ({
       id: row.id,
       feature,
       created_at: row.created_at,
@@ -40,26 +43,46 @@ aiLogRouter.get(
       duration_ms: row.duration_ms,
       status: row.status,
       estimated_cost_usd: row.estimated_cost_usd,
-      summary: row.status === 'failed' ? (row.error_text || 'failed') : summary,
+      error_text: row.status === 'failed' ? row.error_text || 'failed' : null,
+      ...extra,
     });
 
     const rows = [
       ...(recs.data || []).map((r) =>
-        norm(r, 'Recommendation', `${(r.suggested_titles || []).length} suggestion(s)` +
-          ((r.suggested_titles || []).length ? `: ${r.suggested_titles.join(', ')}` : ''))
+        norm(r, 'Recommendation', { suggested_titles: r.suggested_titles || [] })
       ),
-      ...(verdicts.data || []).map((v) => norm(v, 'Taste verdict', v.verdict_text || '—')),
+      ...(verdicts.data || []).map((v) =>
+        norm(v, 'Taste verdict', { verdict_text: v.verdict_text || null })
+      ),
     ]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 60);
 
+    // `detailed` / `timed` count how many calls actually carry a token split
+    // and a duration. Rows written before migration 001 have neither, so the
+    // sums cover a subset — the viewer says so rather than silently showing an
+    // in/out split that doesn't add up to the token total.
     const totals = rows.reduce(
-      (acc, r) => ({
-        calls: acc.calls + 1,
-        tokens: acc.tokens + (r.tokens_used || 0),
-        cost: acc.cost + (r.estimated_cost_usd || 0),
-      }),
-      { calls: 0, tokens: 0, cost: 0 }
+      (acc, r) => {
+        acc.calls += 1;
+        acc.tokens += r.tokens_used || 0;
+        acc.cost += r.estimated_cost_usd || 0;
+        if (r.prompt_tokens != null || r.completion_tokens != null) {
+          acc.promptTokens += r.prompt_tokens || 0;
+          acc.completionTokens += r.completion_tokens || 0;
+          acc.detailed += 1;
+        }
+        if (r.duration_ms != null) {
+          acc.durationMs += r.duration_ms;
+          acc.timed += 1;
+        }
+        return acc;
+      },
+      {
+        calls: 0, tokens: 0, cost: 0,
+        promptTokens: 0, completionTokens: 0, detailed: 0,
+        durationMs: 0, timed: 0,
+      }
     );
     totals.cost = Number(totals.cost.toFixed(6));
 
