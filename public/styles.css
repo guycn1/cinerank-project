@@ -42,7 +42,7 @@ html { scroll-behavior: smooth; }
   }
 }
 @supports selector(::-webkit-scrollbar) {
-  ::-webkit-scrollbar { width: 14px; height: 14px; }
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
   ::-webkit-scrollbar-track { background: var(--bg-raised); }
   ::-webkit-scrollbar-thumb {
     background: var(--line-strong);
@@ -56,7 +56,7 @@ html { scroll-behavior: smooth; }
 
   /* The log dialog: slightly thinner, transparent track (it sits on
      `--bg-raised` already). */
-  .log-dialog::-webkit-scrollbar { width: 10px; }
+  .log-dialog::-webkit-scrollbar { width: 9px; }
   .log-dialog::-webkit-scrollbar-track,
   .log-dialog::-webkit-scrollbar-corner { background: transparent; }
   .log-dialog::-webkit-scrollbar-thumb { border-width: 2px; }
