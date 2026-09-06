@@ -765,6 +765,37 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
+/* Caret pointing back at the trigger. A rotated square with only two borders:
+   the fill covers the panel's own edge where they meet, the borders draw the
+   two outer faces. It's a ::after on the panel so it inherits the fade, and
+   --arrow-x (set in app.js) is the trigger's centre — the panel is
+   right-aligned and wider than its cell, so 50% would miss. */
+.log-reveal ul::after,
+.log-reveal p::after {
+  content: '';
+  position: absolute;
+  left: var(--arrow-x, 50%);
+  margin-left: -5px; /* half the width; not translateX, to keep transform pure */
+  width: 10px;
+  height: 10px;
+  background: var(--bg-raised);
+  transform: rotate(45deg);
+  /* default: panel sits BELOW the trigger → caret on top, pointing up */
+  top: -5px;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.log-reveal--above ul::after,
+.log-reveal--above p::after {
+  /* flipped: panel sits ABOVE the trigger → caret underneath, pointing down */
+  top: auto;
+  bottom: -5px;
+  border-top: none;
+  border-left: none;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
 /* ::details-content is what <details> uses to show/hide the panel
    (content-visibility). Keep it rendered through the close fade — no opacity
    here (see the panel rule above for why). Engines without ::details-content /
@@ -907,6 +938,9 @@ body:has(dialog[open]) { overflow: hidden; }
     background: var(--bg-card);
     font-size: 0.9em;
   }
+  /* panel flows inline here, so there's nothing to point at */
+  .log-reveal ul::after,
+  .log-reveal p::after { display: none; }
 
   /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
      again sitting right on top of the curtain. The card's own border is the

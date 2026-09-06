@@ -528,6 +528,14 @@ function revealDetails(summaryText, bodyNode) {
     const above = trigger.top - view.top;
     // Only flip if below genuinely can't hold it AND above is roomier.
     if (below < needed && above > below) details.classList.add('log-reveal--above');
+
+    // Point the caret at the trigger's centre. The panel is right-aligned and
+    // wider than its cell, so this can't be a fixed percentage. Clamped so it
+    // never lands on a rounded corner.
+    const panel = bodyNode.getBoundingClientRect();
+    const centre = trigger.left + trigger.width / 2 - panel.left;
+    const x = Math.min(Math.max(centre, 14), panel.width - 14);
+    details.style.setProperty('--arrow-x', `${x}px`);
   });
 
   return details;
