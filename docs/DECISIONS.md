@@ -27,6 +27,8 @@ CSS specificity (the shared `.log-table` rules use `:last-child` /
 `:not(:last-child)` selectors at 0,2,1–0,3,1 that keep winning into card mode),
 never by refactoring the shared rules — that would put the table view back in
 scope.
+
+## D-019 · Six pre-migration log rows deleted, rather than annotated forever
 The six oldest AI-log rows predate migration 001, so they carry no token split
 and no duration — the columns simply did not exist when they were written. The
 footer's summed `in / out` and total duration therefore covered only a subset,
