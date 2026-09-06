@@ -721,12 +721,14 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-radius: 8px;
-  /* Not var(--shadow): its -18px spread is tuned for big cards and shrinks to
-     nothing on a panel this small. And no 1px ring either — a ring draws a
-     hard line straight across the caret's base, in a different colour from the
-     caret's rim, which shows as a nick at each base corner. The 1px border
-     plus a strong drop carry the separation instead. */
-  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.95);
+  /* A white glow, not a black drop: on a near-black UI a dark shadow has
+     nothing to darken and reads as almost nothing. The dark layer only adds
+     weight underneath. Every layer is heavily blurred on purpose — a hard
+     0-blur ring would draw a line straight across the caret's base and nick
+     each of its corners, which is what the previous version did. */
+  box-shadow:
+    0 2px 26px -2px rgba(255, 255, 255, 0.15),
+    0 14px 34px -8px rgba(0, 0, 0, 0.9);
   cursor: default; /* plain arrow over the panel, not the summary's pointer */
   text-align: left;
   color: var(--ink-dim);
@@ -751,7 +753,9 @@ body:has(dialog[open]) { overflow: hidden; }
 /* Deepen on hover so the panel reads as lifted while you're reading it. */
 .log-reveal ul:hover,
 .log-reveal p:hover {
-  box-shadow: 0 20px 46px -6px rgba(0, 0, 0, 1);
+  box-shadow:
+    0 2px 34px 2px rgba(255, 255, 255, 0.27),
+    0 18px 44px -8px rgba(0, 0, 0, 0.95);
 }
 /* Flipped above the trigger when there is no room below (class set on toggle
    by revealDetails() in app.js, which has to measure the panel's height). */
