@@ -20,7 +20,9 @@
   --crimson: #e2574c;
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
-  --line-strong: #42424f; /* brighter than --line — the AI-log Total row divider */
+  --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
+  --line-total: #4c4636;  /* AI-log Total-row divider — warm, so it doesn't read
+                             as the (cool-grey) scrollbar thumb sneaking in */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -911,7 +913,7 @@ body:has(dialog[open]) { overflow: hidden; }
      travel with the cell when it pins. */
   background-color: var(--bg-card);
   background-image:
-    linear-gradient(var(--line-strong), var(--line-strong)),
+    linear-gradient(var(--line-total), var(--line-total)),
     linear-gradient(var(--line-faint), var(--line-faint));
   background-repeat: no-repeat, no-repeat;
   background-size: 100% 2px, 1px 100%;
@@ -938,7 +940,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table tfoot td:not(:last-child) { border-right: none; }
 /* Last cell: keep the divider, drop the separator — no column follows it. */
 .log-table tfoot td:last-child {
-  background-image: linear-gradient(var(--line-strong), var(--line-strong));
+  background-image: linear-gradient(var(--line-total), var(--line-total));
   background-size: 100% 2px;
   background-position: left top;
 }
