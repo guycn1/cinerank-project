@@ -739,7 +739,8 @@ body:has(dialog[open]) { overflow: hidden; }
      ::details-content instead made the *pseudo* a stacking context only while
      0<opacity<1, trapping the panel behind later rows mid-fade. */
   opacity: 0;
-  transition: opacity var(--reveal-fade) ease, box-shadow var(--reveal-fade) ease;
+  /* opacity only — the hover shadow change is deliberately instant, not eased. */
+  transition: opacity var(--reveal-fade) ease;
 }
 .log-reveal[open] ul,
 .log-reveal[open] p { opacity: 1; }
