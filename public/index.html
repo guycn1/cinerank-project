@@ -57,7 +57,12 @@
                Inter's loaded subset, so it would fall to whatever the OS has,
                or tofu. This is our own vector: identical everywhere, and
                stroke="currentColor" follows hover/disabled like the text does.
-               Same pattern as .log-cta__icon. -->
+               Same pattern as .log-cta__icon.
+               Orientation is deliberate: lens upper-left, handle down-right —
+               the Material/Feather/Heroicons convention. Note this is NOT the
+               orientation of the 🔎 (U+1F50E) it replaced, which is the
+               MIRRORED variant; the conventional emoji is 🔍 (U+1F50D).
+               Do not flip it. -->
           <svg class="search-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
             <path d="M16 16 20.5 20.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
