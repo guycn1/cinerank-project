@@ -250,17 +250,18 @@ el.searchForm.addEventListener('submit', async (e) => {
   }
 });
 
-// The panel is transient: Escape or a click outside it puts it away. Escape is
-// only ours when no <dialog> is open — there it belongs to the dialog.
+// Escape puts the panel away — but only when no <dialog> is open, where the
+// key belongs to the dialog.
+//
+// Deliberately NOT dismissed by an outside click, unlike the AI-log reveal
+// panels. Those are position:absolute and sit ON TOP of table rows, so they
+// have to get out of the way. This panel is in normal flow — it pushes the
+// page down and obscures nothing, so there is nothing to get out of the way
+// of. Dismissing it on a stray click would just cost the user a re-typed
+// query and another TMDB round-trip to add the second film they had found.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape' || el.searchResults.hidden) return;
   if (document.querySelector('dialog[open]')) return;
-  closeSearchResults();
-});
-document.addEventListener('click', (e) => {
-  if (el.searchResults.hidden) return;
-  // Clicks on the form itself (input, Search button) must not dismiss it.
-  if (el.searchResults.contains(e.target) || el.searchForm.contains(e.target)) return;
   closeSearchResults();
 });
 
