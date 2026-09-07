@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog items 1-8 and 12 done, #9 is next — see the canonical 19-item table in the ranked-list bullet)
+**Last updated:** 2026-09-08 (ranked-list backlog items 1-8 and 12 done, #9 is next — see the canonical 20-item table in the ranked-list bullet)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -388,7 +388,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
-18–19. **This list is the source of truth** — it previously existed only in chat
+18–20. **This list is the source of truth** — it previously existed only in chat
 and would have been lost to a compact. Keep the statuses current as items land,
 and do not renumber: the numbers are how the user refers to them.
 
@@ -413,6 +413,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
 
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
