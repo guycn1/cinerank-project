@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
+**Last updated:** 2026-09-08, end of session (ranked-list backlog items 1-10 and 12 done; **#11 is next** — see the canonical 20-item table and the agreed order of work directly beneath it)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,7 +33,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "Ranked-list overhaul
-  + Render deploy config" (2026-09-07, `61be6aa`). **Eight** merges so far;
+  + live Render deployment" (2026-09-07, `1ab515f`). **Nine** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -71,7 +71,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
-  spinners `aria-hidden`.
+  spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
+  backlog #10 — a bare selector, so anything focusable added later is covered
+  without being remembered; `.search input` is the one deliberate exception, see
+  the ranked-list bullets), and the destructive-action confirm's
+  `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
+  just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
 ### Front-end overhaul (in progress — started 2026-09-05)
 * Both modal `<dialog>`s (rate, AI call log) re-centred: the global
@@ -188,8 +193,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `--arrow-x` follow the flip); flips *above* the trigger when there's no
     room below (measured in JS on `toggle`, kept on close so it doesn't jump
     mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
-    eased on hover; outside-click / Esc dismiss.
-* Both modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
+    eased on hover; outside-click dismiss. (NOT Esc: `<details>` has no Esc
+    behaviour and no handler was ever written for one. Esc closes the whole
+    log dialog, which takes the panel with it — not the same thing.)
+* All three modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
@@ -359,12 +366,154 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     not by the toast (D-032): a modal `<dialog>` is in the top layer, so no
     `z-index` can lift a toast above it and the `::backdrop` dims it anyway —
     and inline is what search, the verdict and recs already do.
-  Still open from the audit: expanded reviews collapse on re-render (only the
-  element-reuse rewrite rejected in D-031 would fix that); the 🎬 placeholder is
-  an emoji (vs D-027); "Not rated yet" is crimson (an error colour for a
-  non-error); `confirm()` is the last native modal; no `:focus-visible` on card
-  controls; and `tmdb_rating` is fetched, shown in search, then discarded on
-  insert.
+  - **Poster placeholder is an inline SVG film strip**, not the 🎬 emoji it
+    replaced (D-027: an emoji ignores `color`, carries its own baseline metrics
+    and looks different on every platform). Cloned from a `<template>` in
+    `index.html` so it reads as markup and avoids `createElementNS` — note
+    `document.createElement('svg')` does NOT make a real SVG element. Centred
+    with `inset: 0; margin: auto`, deliberately not `top/left: 50%`: a
+    percentage `top` resolves against the parent's HEIGHT, and
+    `.rec-card .noposter` gets its height from `aspect-ratio`, where that is not
+    reliable. Also `display: grid` on `.noposter` would have lost to
+    `.rec-card .noposter { display: block }` at higher specificity — positioning
+    sidesteps both problems. Size is now proportional (`40%`, capped) instead of
+    a flat `1.4rem` that was identical in a 46px search row and a ~190px rec
+    card. **No emoji remain in rendered output anywhere** — the only ones left in
+    the source are inside comments explaining why they were rejected.
+
+  - **The unrated line is a chip, not crimson prose** (D-033). `Not rated yet`
+    is now an amber pill borrowing `.rec-card::before`'s exact vocabulary — that
+    marker already reads 'AI pick · not yet rated', so the two sides of the list
+    describe the same state the same way — with the instruction beside it in
+    `--ink-dim`, wrapping below on a narrow card. Crimson is the error colour and
+    nothing has failed; but the obvious correction, muting it the way 'No matches'
+    was muted in Search, would have left it identical to a review in colour,
+    weight AND position. Shape carries the distinction so colour needn't shout.
+    The rank slot's `?` stays faint on purpose (D-029) — one marker, in the body,
+    beside the button that resolves it.
+
+  - **Remove is confirmed by the app's own dialog, not `window.confirm()`** —
+    the last piece of native browser chrome in the UI, and the one modal that
+    ignored the whole design language. The new `.confirm-dialog` shares the rate
+    dialog's shell, backdrop, fade, Fraunces heading and button row by being
+    ADDED to those selector lists rather than by copying their declarations:
+    adding a selector to a list cannot change what the other selectors match, so
+    the rate dialog is provably untouched (it was not to be re-tested), and the
+    two cannot drift. Only the crimson `.danger` fill, the tighter heading and
+    the consequence line are its own. Copy names what is actually lost — built
+    from the film's real state, so it never promises to delete a review that was
+    never written — and says the deletion cannot be undone, which after Incident
+    1 is literal: the free tier has no point-in-time recovery. `role="alertdialog"`
+    + `aria-describedby` so the consequence is announced, `autofocus` on Cancel
+    so a stray Enter is the safe choice, and `returnValue` is reset before every
+    open so "confirmed" is reachable ONLY by clicking the button — engines
+    disagree about what Escape leaves behind.
+    **None of the three dialogs light-dismisses, and that is on purpose.** A
+    native `<dialog>` does NOT close on a backdrop click — the behaviour has to
+    be added (a click handler comparing `event.target === dialog`, or the newer
+    `closedby="any"`), and none of them has it. Cancel/Close and Esc are the
+    only exits. Do not add it to one alone: for the rate dialog in particular, a
+    stray outside click discarding a typed review is exactly the failure #6
+    existed to fix.
+
+  - **Every confirmation toast names its film, in one shape** (2026-09-08,
+    user-raised, part of #16). `“Dune” added — rate it any time.` / `“Dune”
+    saved.` / `“Dune” removed.` Two of the three named no film at all, and the
+    three had three different shapes. `— ranking updated` is now CHECKED rather
+    than assumed (D-034): a signature of the ranking as displayed is compared
+    before and after the reload, and the clause appears only when it really
+    differs. It was briefly deleted outright; the user pushed back correctly —
+    every save DOES recompute the ranking, so the claim was never false — and
+    the surviving objection was only that it reads as a claim about the outcome.
+    **The signature pairs each id with whether the film is rated, not positions
+    alone**: rating the only unrated film can leave its POSITION unchanged while
+    its slot goes `?` → a number. Do not simplify that back. The two
+    ERROR toasts were deliberately left alone: they pass the server's own
+    wording through, and prefixing it client-side would produce doublings like
+    `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
+
+  - **One focus ring for the whole app, and the dialog buttons finally react**
+    (#10). A bare `:focus-visible { outline: 2px solid var(--amber);
+    outline-offset: 3px }` replaces the two identical per-control rules that
+    were the only designed focus styling in the file — everything else fell back
+    to the browser's own ring, which IS drawn but is engine-coloured, so the app
+    showed two different focus indicators depending on what you tabbed to. Bare,
+    not a selector list, so anything focusable added later is covered without
+    being remembered. `:focus-visible` never `:focus`, so a pointer user sees no
+    change at all. **One control it deliberately does not reach:** `.search
+    input:focus` sets `outline: none` at higher specificity and keeps its amber
+    border instead.
+    Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states —
+    they were the only controls in the app that did not react at all. Existing
+    vocabulary, not new: outline buttons go amber (as `.log-dialog .ghost`
+    already did), filled buttons darken their fill, and `--crimson-deep` was
+    added to give the `.danger` fill somewhere to go, mirroring
+    `--amber`/`--amber-deep`.
+    **Every one is `:not(:disabled)`.** Auditing that guard against every
+    button that can actually be disabled found a REAL pre-existing bug:
+    `.rec-card__body button:hover` had no guard while carrying a `:disabled`
+    rule, and the two set different properties (`background` vs `opacity`) at
+    equal specificity, so both applied — a dead `✓ Added` card still darkened
+    under the cursor. Now guarded. The only two unguarded hover rules left
+    (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
+    disables — verified against every `disabled =` assignment in app.js.
+
+#### Ranked-list backlog — THE canonical list, worked in numeric order
+
+Claude audited the section on 2026-09-07 and produced items 1–17; the user added
+18–20. **This list is the source of truth** — it previously existed only in chat
+and would have been lost to a compact. Keep the statuses current as items land,
+and do not renumber: the numbers are how the user refers to them.
+
+| # | Item | Status |
+|---|---|---|
+| 1 | Unrated films got a rank number, contradicting their own "rate it to place it" caption; the gold #1 was `:first-child`, so it could crown an unrated film | **done** — D-029 |
+| 2 | Poster overflowed its column below 620px (width declared twice) | **done** |
+| 3 | Multi-digit rank numerals: 2-digit fine everywhere, 3-digit ran under the poster | **done** — D-030 |
+| 4 | The whole list replayed its staggered entrance on every add/rate/remove | **done** — D-031 |
+| 5 | "view more…" toggle measured once per render, never on resize/zoom/font-swap | **done** (+ the expanded-review follow-up) |
+| 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** — D-032 |
+| 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
+| 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
+| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
+| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — **next**, scope call |
+| 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
+| 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
+| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
+| 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
+
+##### Agreed order of work from here (set by the user, 2026-09-08, session end)
+
+Work this top to bottom. It is the user's own sequencing, not Claude's
+suggestion — do not re-prioritise it, and do not start further down because
+something looks quicker.
+
+1. **#11** — the `tmdb_rating` scope call. The user flagged it as "big yet
+   important" and deliberately chose to start a fresh session on it rather than
+   begin it tired. It needs **migration 002** (a new column), so it is the only
+   remaining backlog item that touches the schema. Ship the migration as a
+   numbered, re-runnable file in `db/migrations/` AND fold it into
+   `db/schema.sql`, per the conventions above; it is applied by hand in the
+   Supabase SQL editor.
+2. **#13 → #20** in numeric order. Note **#12 is already done** (delivered by
+   #4 / D-031) — the user said "#12 through #20" at session end, so say so
+   rather than silently skipping it. **#16 is partly done**: only the two error
+   toasts and the `5 films · 5 rated` string remain.
+3. **"What to watch next" (recommendations) overhaul.** Carries the known
+   swallowed-error bug listed under Open issues — the handler writes
+   `err.message` into `#recs-hint` and its own `finally` overwrites it in the
+   same tick, so a failed run shows the user nothing — and a label inconsistent
+   with Search ("Add to my list" vs "+ Add").
+4. **Everything still open under Pre-submission blockers**, plus the leftovers
+   in Open issues.
+
+
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
   issues) and a label inconsistent with the Search one ("Add to my list" vs
@@ -466,6 +615,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
   restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
   request-blocking do not simulate them.
+  **Added 2026-09-08: the database being unreachable is a fifth state, and it
+  is the one nobody had tried.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY` in
+  `.env` + restart; the ranked list then fails to load and the toast reads
+  "Could not load your movies: …". Note this is the ONE resilience shot where
+  the ranked list is legitimately NOT working — it is the thing that broke — so
+  it does not belong in the "all with the ranked list still working" set above.
+  Finding it is what caught the central 500 handler claiming "on our side" for a
+  failure that was neither a bug nor on the server's side.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.

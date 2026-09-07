@@ -19,6 +19,7 @@
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
+  --crimson-deep: #c4433a; /* pressed/hovered .danger fill — mirrors the --amber/--amber-deep pair */
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
   --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
@@ -103,6 +104,27 @@ body {
 
 a { color: var(--amber); text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* ONE focus ring for the whole app. This used to exist on exactly two controls
+   (.log-link and .log-cta__btn, with these same two declarations); every other
+   button, link, summary and field fell back to the browser's own ring — which
+   IS drawn, but is engine-coloured and so had the app showing two different
+   focus indicators depending on what you tabbed to.
+   Deliberately a bare :focus-visible rather than a list of selectors: anything
+   focusable added later is covered without being remembered. The confirm dialog
+   is the proof — it was written the same day and a selector list would have
+   missed it.
+   :focus-visible, never :focus — it does not fire on a mouse click, so this
+   cannot change anything a pointer user sees. Only keyboard and assistive
+   focus draw the ring.
+   NOTE the one control this does NOT reach: `.search input:focus` sets
+   `outline: none` at (0,2,0) and outranks this (0,1,0). That is intentional —
+   a focused text field with a caret and an amber border is already unambiguous,
+   and a ring around a full-width input is heavy. */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
 
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
@@ -458,9 +480,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .movie-card__poster {
   width: var(--poster-w);
   /* Height derived, not restated: TMDB posters are 2:3, so 92x138 was already
-     exactly this. Kept as a calc rather than `aspect-ratio` because .noposter
-     is a div whose ::after sizes itself `height: 100%` — that percentage needs
-     a definite parent height, which a calc guarantees on every engine. */
+     exactly this. Originally a calc rather than `aspect-ratio` because the
+     placeholder's `::after` sized itself `height: 100%` and needed a definite
+     parent height — that `::after` is gone (the placeholder is now an SVG
+     centred with insets, which needs no percentage height), so either would
+     work now. Kept as the calc because it is equivalent and swapping it would
+     be churn on a rule that is correct. */
   height: calc(var(--poster-w) * 1.5);
   border-radius: 8px;
   object-fit: cover;
@@ -501,7 +526,43 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
 }
 .review-toggle:hover { color: var(--amber-deep); text-decoration: underline; }
-.movie-card__body .unrated { color: var(--crimson); font-size: 0.85rem; margin-top: 0.35rem; }
+/* "Not rated yet" is a PENDING state, not a failure. It was --crimson, which is
+   exactly the mistake the search panel made before "No matches" moved out of
+   makeError() into the muted .search-note: crimson is this app's error colour
+   and nothing has gone wrong here.
+   But it must not simply go quiet either. In --ink-dim at review size it would
+   sit in the same place, in the same colour, at the same weight as a review —
+   the one thing it must never be read as. So it is distinguished by SHAPE
+   first and colour second: a chip, which no review or title ever is.
+   Amber, and specifically THIS amber, because the app already has a marker for
+   this exact idea — `.rec-card::before` reads "AI pick · not yet rated" in an
+   amber pill. That is the "clear but subtle marker" CLAUDE.md's design notes
+   ask for, and a film you added but haven't rated is the same state on the
+   other side of the list. Sizing and letter-spacing are taken from that rule
+   deliberately: keep the two in step if either is ever retuned.
+   The chip does NOT get the amber a control gets (.review-toggle, links) —
+   --amber-deep on the border keeps it a label rather than something to click,
+   and it is not focusable, so nothing invites a click that does nothing. The
+   Rate button beside it is the affordance. */
+.movie-card__body .unrated {
+  display: flex;
+  flex-wrap: wrap;      /* the hint drops below the chip when the card narrows */
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+.unrated__badge {
+  border: 1px solid var(--amber-deep);
+  background: rgba(245, 193, 91, 0.09);
+  color: var(--amber);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;  /* short by design — it must never wrap inside the pill */
+}
+.unrated__hint { color: var(--ink-dim); font-size: 0.82rem; }
 
 .movie-card__score {
   display: flex;
@@ -639,7 +700,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-weight: 600;
   cursor: pointer;
 }
-.rec-card__body button:hover { background: var(--amber-deep); }
+.rec-card__body button:hover:not(:disabled) { background: var(--amber-deep); }
 .rec-card__body button:disabled { opacity: 0.5; cursor: default; }
 
 /* Footer under a generated AI result — the call's metadata plus a link into the
@@ -671,7 +732,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   transition: color 0.2s;
 }
 .log-link:hover { color: var(--amber-bright); }
-.log-link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 /* Placement: the recs grid is a grid, so span every column. */
 .recs__grid .ai-meta { grid-column: 1 / -1; }
@@ -735,7 +795,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   box-shadow: 0 10px 28px -10px rgba(245, 193, 91, 0.6);
   transform: translateY(-1px);
 }
-.log-cta__btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 .log-cta__icon { width: 1.15em; height: 1.15em; }
 
 .site-foot__credit { color: var(--ink-faint); }
@@ -749,12 +808,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    scrollbar in view is the one inside the dialog's own content. */
 body:has(dialog[open]) { overflow: hidden; }
 
-/* Fade both modal dialogs + their backdrops in/out. `display` and `overlay` are
+/* Fade all three modal dialogs + their backdrops in/out. `display` and `overlay` are
    transitioned discretely so the fade-OUT is visible (the element stays rendered
    and in the top layer until the fade finishes). */
 .rate-dialog,
+.confirm-dialog,
 .log-dialog,
 .rate-dialog::backdrop,
+.confirm-dialog::backdrop,
 .log-dialog::backdrop {
   --dialog-fade: 250ms;
   opacity: 0;
@@ -764,21 +825,26 @@ body:has(dialog[open]) { overflow: hidden; }
     overlay var(--dialog-fade) allow-discrete;
 }
 .rate-dialog[open],
+.confirm-dialog[open],
 .log-dialog[open],
 .rate-dialog[open]::backdrop,
+.confirm-dialog[open]::backdrop,
 .log-dialog[open]::backdrop {
   opacity: 1;
 }
 @starting-style {
   .rate-dialog[open],
+  .confirm-dialog[open],
   .log-dialog[open],
   .rate-dialog[open]::backdrop,
+  .confirm-dialog[open]::backdrop,
   .log-dialog[open]::backdrop {
     opacity: 0;
   }
 }
 
-.rate-dialog {
+.rate-dialog,
+.confirm-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
   color: var(--ink);
@@ -791,8 +857,10 @@ body:has(dialog[open]) { overflow: hidden; }
      that centres a modal <dialog> — restore it here (centres both axes). */
   margin: auto;
 }
-.rate-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
-.rate-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
+.rate-dialog::backdrop,
+.confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+.rate-dialog h3,
+.confirm-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
@@ -818,23 +886,99 @@ body:has(dialog[open]) { overflow: hidden; }
   font-size: 0.85rem;
   line-height: 1.4;
 }
-.rate-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
-.rate-dialog button {
+.rate-dialog menu,
+.confirm-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
+.rate-dialog button,
+.confirm-dialog button {
   border-radius: 8px; padding: 0.5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
 }
-.rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
+.rate-dialog button.ghost,
+.confirm-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
+/* Hover/press. Every treatment below is the app's existing vocabulary, not a new
+   one: an OUTLINE button goes amber on the border and the text
+   (`.log-dialog .ghost`, which is the Close button in the other dialog, plus
+   `.card-actions button`, `.result-row .add-btn` and `.verdict__refresh`), and a
+   FILLED button darkens its fill (`.rec-card__body button` → `--amber-deep`).
+   Cancel going amber alongside an amber-filled Save is not a clash: outline and
+   fill stay obviously different, and the log dialog's Close already does exactly
+   this.
+   `:not(:disabled)` throughout, per the rule the Search button settled — a
+   button mid-save must not light up under the cursor.
+   The press is a 1px nudge down, and these are the first `:active` states on
+   any button in the app; nothing else has one to be inconsistent with. */
+.rate-dialog button.ghost:hover:not(:disabled),
+.confirm-dialog button.ghost:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.rate-dialog button.primary:hover:not(:disabled) {
+  background: var(--amber-deep);
+  border-color: var(--amber-deep);
+}
+.confirm-dialog button.danger:hover:not(:disabled) {
+  background: var(--crimson-deep);
+  border-color: var(--crimson-deep);
+}
+.rate-dialog button:active:not(:disabled),
+.confirm-dialog button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 /* Busy/disabled while a save is in flight. Two different treatments on purpose,
    per the rule the Search button settled: opacity dims an OUTLINE button
    convincingly, but a saturated amber FILL at 45% still composites to an
    unmistakably amber button over --bg, so the filled one has to leave the amber
    family entirely rather than just fade. */
-.rate-dialog button:disabled { cursor: not-allowed; }
-.rate-dialog button.ghost:disabled { opacity: 0.45; }
+.rate-dialog button:disabled,
+.confirm-dialog button:disabled { cursor: not-allowed; }
+.rate-dialog button.ghost:disabled,
+.confirm-dialog button.ghost:disabled { opacity: 0.45; }
 .rate-dialog button.primary:disabled {
   background: var(--bg-card);
   color: var(--ink-dim);
   border-color: var(--line);
+}
+
+/* Confirm dialog -----------------------------------------------------
+   Everything structural — the panel shell, the backdrop, the Fraunces
+   heading, the button row and the ghost/disabled treatments — is SHARED with
+   .rate-dialog by adding this class to those selector lists above, not by
+   copying their declarations here. Adding a selector to a list cannot change
+   what the other selectors in it match, so the rate dialog is provably
+   unaffected, and the two can never drift apart the way two copies would.
+   Only what is genuinely different lives below. */
+
+/* Tighter than the rate dialog's 1rem, because the sentence underneath belongs
+   to the question rather than starting a new block the way a form field does. */
+.confirm-dialog h3 {
+  margin-bottom: 0.55rem;
+  /* A film title goes inside this heading, and titles are arbitrary user-facing
+     strings — a long unbroken one would otherwise push past the panel edge. */
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+/* The consequence line. --ink-dim and small, like every other explanatory line
+   in the app (.tagline, .result-row .meta, .unrated__hint) — it is context for
+   the question above it, not a warning shouting on its own. The stakes are
+   carried by the words and by the crimson button, not by colouring the prose. */
+.confirm-dialog .confirm-body {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+/* The destructive action. The only visual difference from the rate dialog's
+   `.primary` is the hue: filled, so it is unmistakably the committing button,
+   but crimson rather than amber, matching the `.danger` Remove button on the
+   card that opened this. Dark text on the fill for the same reason .primary
+   uses #1a1205 — a saturated fill needs a dark label, not --ink.
+   Its hover and press states live with the rate dialog's, below the shared
+   button rules, so the two dialogs cannot drift apart. */
+.confirm-dialog button.danger {
+  background: var(--crimson);
+  color: #2a0f0c;
+  border-color: var(--crimson);
 }
 
 /* AI call log dialog ------------------------------------------------ */
@@ -1389,18 +1533,35 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.noposter::after {
-  content: '🎬';
-  display: grid;
-  place-items: center;
-  width: 100%; height: 100%;
-  font-size: 1.4rem;
-  opacity: 0.4;
+/* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
+   posterNode), replacing a 🎬 emoji that could not take a colour, sat off the
+   baseline, and rendered differently on every platform — D-027.
+   Centred by absolute positioning rather than `display: grid; place-items`,
+   because `.rec-card .noposter` sets `display: block` at a higher specificity
+   and would win. Positioning sidesteps that entirely and works the same in all
+   three places this appears: search rows, ranked cards and rec cards.
+   `color` here is what the SVG's `stroke="currentColor"` picks up. */
+.noposter { position: relative; color: var(--ink-faint); }
+.noposter__icon {
+  position: absolute;
+  /* `inset: 0` + `margin: auto` rather than `top/left: 50%` + a translate: a
+     percentage `top` has to resolve against the parent's HEIGHT, and one of the
+     three parents (.rec-card .noposter) gets its height from `aspect-ratio`,
+     where percentage resolution is not reliable across engines. Insets only
+     need the box edges, which always exist. */
+  inset: 0;
+  margin: auto;
+  /* Proportional, unlike the emoji's flat 1.4rem, which was identical in a 46px
+     search thumbnail and a ~190px recommendation card. The cap stops it looking
+     like a logo on the largest one. */
+  width: 40%;
+  max-width: 46px;
+  height: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
   .log-reveal::details-content,
-  .rate-dialog, .log-dialog,
-  .rate-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
+  .rate-dialog, .confirm-dialog, .log-dialog,
+  .rate-dialog::backdrop, .confirm-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
 }

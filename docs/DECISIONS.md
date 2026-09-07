@@ -7,6 +7,108 @@ file, directly under this header.**
 
 ---
 
+## D-034 · "ranking updated" is checked before it is claimed
+The three confirmation toasts had three different shapes and two named no film
+at all (`Added “X” — rate it any time.` / `Saved — ranking updated.` /
+`Removed.`). The user asked for one shape with the film first, which is what
+they now are: `“X” added…` / `“X” saved…` / `“X” removed.`
+
+The interesting part is the second clause of the save toast, which took three
+passes.
+
+**First pass — deleted it.** The reasoning was that editing only a review does
+not change the ranking, so the clause was an unverified claim of the same kind
+as the central 500 handler's "on our side" (removed the same afternoon on the
+user's own principle: a vaguer message that is true beats a specific one that is
+not).
+
+**The user pushed back, and was right.** Every save calls `loadMovies()`, which
+re-fetches the entire list server-sorted and re-renders it — so a ranking update
+really is triggered on every save, unconditionally. The claim was never false,
+and backlog #16's original wording ("claims a ranking change even when only the
+review was edited") was unfair on the same count. Recorded plainly: the argument
+for deleting the clause was overstated.
+
+**What survived the pushback** is a narrower objection. "Ranking updated" reads
+as a claim about the OUTCOME, not about an internal recompute. When the film
+stays at #3 the user goes looking for a change that is not there. That is a
+wording problem, not a truth problem — which makes it the user's call, not a
+correctness fix to be made unilaterally.
+
+**Settled on: say it only when it is observably true.** A signature of the
+ranking as displayed is captured before the write and compared after the reload.
+Costs one comparison, and the sentence becomes true in the strong sense — the
+app claims only what it verified. The two rejected options are both defensible
+and are one line each: restore the clause unconditionally (true, per the
+pushback above) or leave it off permanently (never wrong, and the re-sort
+animation already shows a move).
+
+**The trap, and Claude got this wrong first.** The obvious signature is the list
+of ids in order — and it is not sufficient. Unrated films already sort last, so
+rating the only unrated film with a low score can leave it in exactly the same
+POSITION while its rank slot changes from `?` to a real number: a visible
+ranking change with no reordering. `rankSignature()` therefore pairs each id
+with whether the film is rated. Do not "simplify" it back to positions.
+
+**Not changed: the two error toasts.** They pass the server's own wording
+through by design, and prefixing it client-side produces doublings like
+`Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
+the messages at the source; it stays on backlog #16.
+
+---
+
+## D-033 · The unrated line is a chip, because muting it was the wrong correction
+`.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
+ranking." — was `--crimson`, the app's error colour, on a state where nothing
+has failed. That much was clear from the audit (backlog item #8).
+
+**The obvious fix was to mute it, and it was rejected.** The precedent was
+right there and was the one cited when the item was raised: the search panel's
+"No matches" had already moved out of `makeError()` into the muted
+`.search-note`, precisely because an empty result set is not a failure. Applying
+the same move here — `--ink-dim`, review size — would have landed the line in
+the same colour, the same weight and the same position as a review. The user
+pushed back before it was built: an unrated film is a *pending* state the user
+should stay aware of, and dropping it to the tone of body prose lets the
+surrounding elements swallow it. The two cases only look alike. "No matches" is
+transient text in a panel that is about to be replaced; "Not rated yet" is a
+persistent property of a card that will sit in the list until acted on.
+
+**So the correction is a demotion in urgency, not in prominence.** The line is
+distinguished by **shape first, colour second**: `Not rated yet` became a chip,
+which no review and no title ever is, so it reads as a status marker before its
+colour registers at all. The instruction ("Rate it to place it in the ranking.")
+stays beside it as quiet `--ink-dim` prose, and wraps below on a narrow card.
+The em dash that joined them is gone — the chip's edge is the separator.
+
+**Amber was not picked because it is the accent colour.** It was picked because
+the app already has a marker for this exact idea: `.rec-card::before` renders
+"AI pick · not yet rated" as an amber pill, which is the "clear but subtle
+visual marker" CLAUDE.md's design notes call for. A film you added but haven't
+rated is that same state on the other side of the list, so it should not invent
+a second visual language for it. `.unrated__badge` therefore borrows that rule's
+sizing, letter-spacing and radius on purpose — retune one and retune both.
+
+Alternatives weighed and dropped:
+- **Plain amber text, no chip.** One line of CSS, but amber alone is this app's
+  *interactive* colour (`.review-toggle`, links, `.recs__trigger`), so a
+  non-clickable amber sentence sitting directly above a "Rate" button invites a
+  click that does nothing. The chip's `--amber-deep` border reads as a label,
+  not a control, and the element is not focusable.
+- **A left border / leading dot with muted text.** Distinguishes structurally
+  without touching colour, but it is a shape the app uses nowhere else — the
+  chip already exists in the vocabulary.
+- **Making the rank slot's `?` amber too.** Rejected: D-029 sized and faded that
+  `?` so it reads as an *absence* beside the ranking rather than competing with
+  the rank numerals, and lighting it up would undo that. One marker, in the body,
+  next to the button that resolves it.
+
+Not changed: the `?`, the missing score badge, and the button reading "Rate"
+instead of "Edit" are the card's other three unrated signals and are all correct
+as they stand.
+
+---
+
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
 Testing the save-failure path (throttled to Offline) showed the crimson toast
 appearing *behind* the rate dialog and dimmed by its backdrop — legible only if

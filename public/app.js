@@ -28,12 +28,17 @@ const el = {
   rateCancel: $('#rate-cancel'),
   rateSave: $('#rate-save'),
   rateError: $('#rate-error'),
+  confirmDialog: $('#confirm-dialog'),
+  confirmTitle: $('#confirm-title'),
+  confirmBody: $('#confirm-body'),
+  confirmOk: $('#confirm-ok'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
   logClose: $('#log-close'),
   logBody: $('#log-body'),
   logFoot: $('#log-foot'),
   toast: $('#toast'),
+  noposterIcon: $('#noposter-icon'),
 };
 
 const state = {
@@ -87,6 +92,10 @@ function posterNode(url, title) {
   ph.className = 'noposter';
   ph.setAttribute('role', 'img');
   ph.setAttribute('aria-label', `${title} — no poster available`);
+  // Cloned from the <template> in index.html rather than built here: SVG needs
+  // createElementNS to produce real elements, and the icon reads better as
+  // markup next to the page's other two (D-027).
+  ph.append(el.noposterIcon.content.cloneNode(true));
   return ph;
 }
 
@@ -133,6 +142,22 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 }
 
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
+
+/**
+ * A fingerprint of the ranking AS DISPLAYED, for telling a save that reordered
+ * the list from one that did not.
+ *
+ * Position alone is not enough, which is the trap here. Rate the only unrated
+ * film in the list and it may keep its position (unrated films already sort
+ * last, so a low rating can leave it exactly where it was) while its rank slot
+ * changes from "?" to a real number — a visible ranking change with no
+ * reordering at all. Hence the rated flag alongside each id.
+ *
+ * Compared as a string rather than element-by-element: the array is small, and
+ * one !== is harder to get subtly wrong than a hand-rolled loop.
+ */
+const rankSignature = () =>
+  state.movies.map((m) => `${m.id}:${m.rating != null}`).join('|');
 
 /**
  * Run a DOM update inside a View Transition, so a re-sorted list animates to
@@ -252,9 +277,20 @@ function renderRanked() {
     h3.append(yr);
     body.append(h3);
     if (!isRated) {
+      // Two parts, not one sentence: a STATUS and an instruction, which want
+      // different weights. The status is a chip — a shape no review or title
+      // ever takes — so the line cannot be mistaken for prose even before its
+      // colour registers; the instruction stays quiet beside it. The em dash
+      // that used to join them is gone; the chip's edge is the separator now.
       const u = document.createElement('p');
       u.className = 'unrated';
-      u.textContent = 'Not rated yet — rate it to place it in the ranking.';
+      const badge = document.createElement('span');
+      badge.className = 'unrated__badge';
+      badge.textContent = 'Not rated yet';
+      const hint = document.createElement('span');
+      hint.className = 'unrated__hint';
+      hint.textContent = 'Rate it to place it in the ranking.';
+      u.append(badge, hint);
       body.append(u);
     } else if (m.review) {
       const r = document.createElement('p');
@@ -583,7 +619,7 @@ el.rateForm.addEventListener('submit', async (e) => {
     // Say what actually happened instead of nothing (or, worse, "Saved").
     // No preventDefault: nothing is being written, so `method="dialog"` closing
     // it immediately is exactly right here.
-    if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
+    if (state.editingIsNew) toast(`“${movie.title}” added — rate it any time.`);
     return;
   }
 
@@ -599,6 +635,9 @@ el.rateForm.addEventListener('submit', async (e) => {
   // request nor be trusted to mean "discard". Esc still closes the dialog, so
   // there is always a way out if the request hangs.
   el.rateCancel.disabled = true;
+  // Captured BEFORE the request, because loadMovies() replaces state.movies
+  // wholesale and there is no "previous" left to compare against afterwards.
+  const rankingBefore = rankSignature();
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',
@@ -614,7 +653,15 @@ el.rateForm.addEventListener('submit', async (e) => {
     // one place that animation earns its keep.
     el.rateDialog.close();
     await loadMovies();
-    toast('Saved — ranking updated.');
+    // "ranking updated" is CHECKED, not assumed. Every save does recompute the
+    // ranking (loadMovies re-fetches the whole list, server-sorted), so the old
+    // unconditional wording was never false — but it reads as a claim about the
+    // OUTCOME, and editing only a review, or re-rating without crossing a
+    // neighbour, leaves the ranking looking identical. Then the user goes
+    // hunting for a change that is not there. Saying it only when it is
+    // observably true costs one comparison.
+    const reordered = rankSignature() !== rankingBefore;
+    toast(`“${movie.title}” saved${reordered ? ' — ranking updated.' : '.'}`);
   } catch (err) {
     // Deliberately leaves the dialog open with the rating and review exactly as
     // typed, so Save can simply be pressed again. Reported INLINE rather than as
@@ -628,8 +675,60 @@ el.rateForm.addEventListener('submit', async (e) => {
   }
 });
 
+/**
+ * The app's own confirm, replacing window.confirm(). Resolves true only if the
+ * user pressed the confirming button; Cancel and Escape both resolve false, so
+ * every ambiguous exit is the safe one.
+ *
+ * Those are the only two ways out, and that is deliberate. A native <dialog>
+ * does NOT close on a backdrop click — that behaviour has to be added, and
+ * neither of the other two dialogs has it either. Do not add it here alone:
+ * the newest dialog would become the one that behaves differently.
+ *
+ * `returnValue` is reset before opening rather than trusted: it persists on the
+ * element between opens, and engines disagree on whether an Escape dismissal
+ * clears it. Resetting makes "true" reachable ONLY through a real click on the
+ * confirming button, whatever the browser does with Escape.
+ *
+ * The `close` event is the single resolution point — it fires for the buttons
+ * (via `method="dialog"`, which sets returnValue from the submitter) and for
+ * Escape alike, so there is no dismissal path that leaves the promise pending.
+ */
+function confirmAction({ title, body, confirmLabel = 'Remove' }) {
+  el.confirmTitle.textContent = title;
+  el.confirmBody.textContent = body;
+  el.confirmOk.textContent = confirmLabel;
+  el.confirmDialog.returnValue = '';
+  return new Promise((resolve) => {
+    el.confirmDialog.addEventListener(
+      'close',
+      () => resolve(el.confirmDialog.returnValue === 'confirm'),
+      { once: true },
+    );
+    el.confirmDialog.showModal();
+  });
+}
+
 async function removeMovie(movie, btn) {
-  if (!confirm(`Remove “${movie.title}” from your ranking?`)) return;
+  // Name what actually goes with it. Incident 1 is the reason this is spelled
+  // out rather than left to "are you sure?": a rating and a review are typed
+  // once and gone for good — the free tier has no point-in-time recovery, so
+  // "this can't be undone" is literal, not boilerplate.
+  // Built from what this film really has, never assumed: a film can be rated
+  // with no review, and (the PATCH endpoint permits it — backlog #15) reviewed
+  // with no rating. Promising to delete a review that was never written would
+  // be its own small lie.
+  const lost = [];
+  if (movie.rating != null) lost.push(`your ${movie.rating.toFixed(1)} rating`);
+  if (movie.review) lost.push('your review');
+  const body = lost.length
+    ? `${lost.join(' and ')} will go with it — this can’t be undone.`
+    : 'This can’t be undone.';
+  const confirmed = await confirmAction({
+    title: `Remove “${movie.title}”?`,
+    body: body[0].toUpperCase() + body.slice(1),
+  });
+  if (!confirmed) return;
   // Spinner only, no busy LABEL: busyButton locks the button's current width as
   // a min-width, and "Removing…" is far wider than "Remove", so a label would
   // grow the button and shove its neighbour sideways mid-request. The card
@@ -639,7 +738,7 @@ async function removeMovie(movie, btn) {
   try {
     await api(`/api/movies/${movie.id}`, { method: 'DELETE' });
     await loadMovies();
-    toast('Removed.');
+    toast(`“${movie.title}” removed.`);
     // No settle() on success — loadMovies() has already destroyed this button
     // along with its card.
   } catch (err) {

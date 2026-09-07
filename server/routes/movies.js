@@ -117,7 +117,7 @@ moviesRouter.patch(
     // (PGRST116, "zero or multiple rows returned"), not as an empty result. So
     // this has to be checked BEFORE the generic throw below: otherwise a film
     // deleted in another tab fell through to the central handler and surfaced
-    // as a 500 "Something went wrong on our side" — blaming the server for the
+    // as the central error handler's generic 500 — blaming the server for the
     // client asking about something that is simply gone, and giving the user a
     // message that no amount of retrying could clear.
     // The `!data` half is belt-and-braces for a client that returns an empty

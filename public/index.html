@@ -137,6 +137,30 @@
     </form>
   </dialog>
 
+  <!-- Destructive-action confirm. Replaces window.confirm(), which was the last
+       piece of native browser chrome left in the app: OS-styled, unthemeable,
+       and it froze the whole page on a synchronous call.
+       role="alertdialog" (not the implicit "dialog") is the correct role for a
+       modal that interrupts to confirm a consequence, and it makes assistive
+       tech announce the body text on open — hence aria-describedby, which a
+       plain dialog would not need.
+       Cancel carries `autofocus` deliberately. A <dialog> otherwise focuses its
+       first focusable child, and for a destructive action the safe choice is
+       what a stray Enter should land on. Esc resolves to cancel too.
+       Title and body are filled in by confirmAction(); the body names what is
+       actually about to be lost, so it is written per film, not hardcoded. -->
+  <dialog id="confirm-dialog" class="confirm-dialog" role="alertdialog"
+          aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <form method="dialog">
+      <h3 id="confirm-title"></h3>
+      <p class="confirm-body" id="confirm-body"></p>
+      <menu>
+        <button value="cancel" type="submit" class="ghost" id="confirm-cancel" autofocus>Cancel</button>
+        <button value="confirm" type="submit" class="danger" id="confirm-ok">Remove</button>
+      </menu>
+    </form>
+  </dialog>
+
   <!-- AI call log -->
   <dialog id="log-dialog" class="log-dialog" aria-labelledby="log-title">
     <header>
@@ -167,6 +191,25 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Poster placeholder icon, cloned by posterNode() for any film TMDB has no
+       poster for. Lives here as markup rather than being built in JS so it reads
+       as a drawing, and so it matches the other two icons in this file — the
+       alternative is createElementNS() boilerplate, since document.createElement
+       does NOT produce a real SVG element.
+       A film strip, not the 🎬 emoji it replaced: an emoji ignores `color`, so it
+       could never match the dim placeholder tone, carries its own baseline
+       metrics, and looks different on every platform (D-027). The parent
+       .noposter carries role="img" and an aria-label naming the film, so this is
+       aria-hidden. -->
+  <template id="noposter-icon">
+    <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M8.5 4v16M15.5 4v16" />
+      <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
+    </svg>
+  </template>
 
   <script type="module" src="app.js"></script>
 </body>

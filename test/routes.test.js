@@ -69,7 +69,7 @@ test('PATCH /api/movies/:id with a non-numeric rating → 400', async () => {
 
 // Regression guard. `.single()` reports "no such row" as PGRST116 rather than as
 // an empty result, so this used to fall through to the central error handler and
-// come back as a 500 "Something went wrong on our side" — which is both the wrong
+// come back as the central error handler's generic 500 — which is both the wrong
 // status and a message the user could never clear by retrying. Reachable for real:
 // delete a film in one tab, save it from another.
 test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', async () => {
