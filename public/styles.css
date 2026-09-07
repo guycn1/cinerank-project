@@ -412,10 +412,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    33.6px font). Two earlier guesses — 0.63em, then an over-corrected 0.8em —
    both produced wrong sizes, so do not re-tune this by eye; re-measure.
    Budget is `track + 2 × min(17.6px padding, 19.2px gap)`, and the PADDING is
-   the binding side. Clearance here is ≥9px on desktop and ≥6.8px in card mode.
-   The `4.8vw` middle term is not decorative: it is set so the numeral is
-   already down to 30.4px by the 620px breakpoint, where the track drops
-   64px → 40px and the budget collapses from 99px to 75px. This is NOT a no-op
+   the binding side. Clearance here is ≥10.8px on desktop and ≥12.3px in card
+   mode. Those are deliberately generous rather than minimal: an earlier pass
+   sized to a mathematically-sufficient ~6.8px in card mode and still read as
+   cramped, because the eye judges the gap against the 40px track beside it, not
+   against zero.
+   The `4vw` middle term is not decorative: it is set so the numeral is already
+   down to ~24.8px by the 620px breakpoint, where the track drops 64px → 40px
+   and the budget collapses from 99px to 75px in a single step. Lower the
+   ceiling all you like, but do not raise this coefficient without re-checking
+   the 620px row. This is NOT a no-op
    in card mode — the 40px track is tighter relative to its font than the
    desktop one, so the floor has to come down too, not just the ceiling.
    font-size, not `scale`/`transform`: a transform would shrink the absolute
@@ -424,7 +430,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    the track is a fixed width and only the text ever overflowed it — so posters
    stay aligned card to card either way.
    Ranks of 1000+ are not handled and are not worth handling. */
-.movie-card__rank.is-wide { font-size: clamp(1.9rem, 4.8vw, 2.5rem); }
+.movie-card__rank.is-wide { font-size: clamp(1.5rem, 4vw, 2.4rem); }
 
 .movie-card__poster {
   width: var(--poster-w);

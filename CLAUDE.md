@@ -336,8 +336,8 @@ below — this list is the smaller stuff.)
   painted ~110px against a ~99px budget (64px track + the 17.6px padding and
   19.2px gap it may legitimately spill into), and the poster — later in DOM
   order — covered the last digit. `renderRanked()` now marks 100+ with
-  `is-wide` → `clamp(1.9rem, 4.8vw, 2.5rem)`, **solved** against that measured
-  figure width; clears by ≥9px on desktop and ≥6.8px in card mode. Two earlier
+  `is-wide` → `clamp(1.5rem, 4vw, 2.4rem)`, **solved** against that measured
+  figure width; clears by ≥10.8px on desktop and ≥12.3px in card mode. Two earlier
   values were *estimated* and both wrong (0.63em too low, then 0.8em
   over-corrected) — re-measure with `Range.getBoundingClientRect()`, never
   re-tune this by eye. **The trap, if this is ever

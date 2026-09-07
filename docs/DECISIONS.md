@@ -10,7 +10,7 @@ file, directly under this header.**
 ## D-030 · Three-digit ranks are capped, not documented away
 A forced test (ranks rewritten to 250+ in the console) showed three-digit
 numerals running under the poster: the rank font clamps at `3.4rem` = 54.4px and
-Fraunces Black figures are ~0.63em, so "250" paints ~102px. Its budget is ~99px
+Fraunces Black figures measure 0.66em, so "250" paints ~109px. Its budget is ~99px
 — the 64px track *plus* the 17.6px card padding and 19.2px gap it may
 legitimately spill into — and the poster, later in DOM order, paints over the
 overflow.
@@ -31,9 +31,11 @@ on and the user accepted:
 
 * **0.5 is roughly twice the shrink needed.** The numeral does not have to fit
   the 64px track — it only has to avoid the card border and the poster, a ~99px
-  budget. `2.75rem` (≈0.81×) suffices, and a subtle step reads as typographic
-  fitting where a halved numeral reads as a bug. A visible hack grades worse than
-  the honest TODO it was meant to replace.
+  budget, so something near 0.8× was argued to be enough (it was not — see the
+  three sizing passes below; the *principle* held, the first number did not).
+  A subtle step reads as typographic fitting where a halved numeral reads as a
+  bug, and a visible hack grades worse than the honest TODO it was meant to
+  replace.
 * **`font-size`, not `scale`/`transform`.** A transform shrinks the absolute
   `1.5px -webkit-text-stroke` with the glyph, so the numeral would sit beside its
   two-digit neighbours with a visibly thinner, washed-out outline. Changing the
@@ -52,16 +54,21 @@ from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
 #100 conspicuously smaller than #99 — sliding back toward the "ugly, sloppy"
 look the fix existed to avoid. Only then was the value actually measured, with
 `Range.getBoundingClientRect()` on a live `222`: **0.66em per digit** (66.5px at
-a 33.6px font). Solving against that gives `clamp(1.9rem, 4.8vw, 2.5rem)` —
-*larger* than the pass before it, ≥9px clear on desktop and ≥6.8px in card mode,
-and a gentler 0.74× step down from the two-digit size. **Re-measure, never
-re-tune by eye.**
+a 33.6px font). Solving against that gives `clamp(1.5rem, 4vw, 2.4rem)` —
+*larger* than the pass before it. A further pass then widened the card-mode
+clearance again — 6.8px was mathematically sufficient but still read as cramped,
+because the eye judges the gap against the 40px track beside it rather than
+against zero. Final: ≥10.8px clear on desktop, ≥12.3px in card mode,
+and a 0.71× step down from the two-digit size. **Re-measure, never re-tune by
+eye.**
 
 Two details that fall out of the real numbers. The binding side is the card's
 **17.6px padding**, not the 19.2px gap, so the left edge is what constrains the
-size. And the `4.8vw` middle term is load-bearing rather than decorative: it
-brings the numeral to 30.4px by the 620px breakpoint, where the track drops
-64px → 40px and the budget collapses from 99px to 75px in a single step.
+size. And the `4vw` middle term is load-bearing rather than decorative: it
+brings the numeral to ~24.8px by the 620px breakpoint, where the track drops
+64px → 40px and the budget collapses from 99px to 75px in a single step. Lower
+the ceiling freely; do not raise that coefficient without re-checking the 620px
+case, which is the one the whole clamp is shaped around.
 
 **Three agent errors, all caught by the user.** (1) The first description of the
 failure claimed the numeral "sits flush against the [card] border" and that
