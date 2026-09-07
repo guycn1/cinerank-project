@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog items 1-10 and 12 done, #11 is next — see the canonical 20-item table in the ranked-list bullet)
+**Last updated:** 2026-09-08, end of session (ranked-list backlog items 1-10 and 12 done; **#11 is next** — see the canonical 20-item table and the agreed order of work directly beneath it)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -482,6 +482,32 @@ and do not renumber: the numbers are how the user refers to them.
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
+
+##### Agreed order of work from here (set by the user, 2026-09-08, session end)
+
+Work this top to bottom. It is the user's own sequencing, not Claude's
+suggestion — do not re-prioritise it, and do not start further down because
+something looks quicker.
+
+1. **#11** — the `tmdb_rating` scope call. The user flagged it as "big yet
+   important" and deliberately chose to start a fresh session on it rather than
+   begin it tired. It needs **migration 002** (a new column), so it is the only
+   remaining backlog item that touches the schema. Ship the migration as a
+   numbered, re-runnable file in `db/migrations/` AND fold it into
+   `db/schema.sql`, per the conventions above; it is applied by hand in the
+   Supabase SQL editor.
+2. **#13 → #20** in numeric order. Note **#12 is already done** (delivered by
+   #4 / D-031) — the user said "#12 through #20" at session end, so say so
+   rather than silently skipping it. **#16 is partly done**: only the two error
+   toasts and the `5 films · 5 rated` string remain.
+3. **"What to watch next" (recommendations) overhaul.** Carries the known
+   swallowed-error bug listed under Open issues — the handler writes
+   `err.message` into `#recs-hint` and its own `finally` overwrites it in the
+   same tick, so a failed run shows the user nothing — and a label inconsistent
+   with Search ("Add to my list" vs "+ Add").
+4. **Everything still open under Pre-submission blockers**, plus the leftovers
+   in Open issues.
+
 
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
