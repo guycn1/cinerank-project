@@ -341,7 +341,7 @@ async function addMovie(tmdbId, btn) {
     });
     // Refreshes state.ownedTmdbIds, and with it every other open result row.
     await loadMovies();
-    settle?.('Added ✓'); // after the sync, so this button keeps the confirmation
+    settle?.('✓ Added'); // after the sync, so this button keeps the confirmation
     // The results panel described a search, not the list — it is stale now, and
     // the rate dialog is about to cover it anyway.
     closeSearchResults();
