@@ -7,6 +7,78 @@ file, directly under this header.**
 
 ---
 
+## D-027 · Icons are inline SVG or plain characters — never emoji
+Three icon choices in the Search section landed on the same rule, so it is
+written once here.
+
+**Emoji are rejected outright.** A colour emoji is a fixed full-colour image: it
+ignores `color`, so it cannot go amber on hover or dim under a `:disabled`
+opacity the way its neighbouring text does; it ignores `font-weight`; and it
+carries its own metrics, so it sits off the baseline next to Inter. It also
+renders differently on every platform — the opposite of the consistency it is
+usually reached for.
+
+- **"+ Add"** uses a plain `+` (U+002B), not the heavy-plus emoji. It is
+  `currentColor`, so it follows hover and the disabled dim for free, and it
+  matches the text-glyph checkmark already in "Added".
+- **The Search button's magnifier is an inline SVG**, not the magnifier emoji and
+  not the text glyph `⌕`. `⌕` looks like the right answer and is a trap: it lives
+  in Miscellaneous Technical (its actual Unicode name is TELEPHONE RECORDER),
+  which is *outside the Inter subset this page downloads*. It would fall through
+  to whatever the OS happens to have, or render as tofu — worse device
+  consistency than the emoji, not better. Forcing text presentation with VS15 is
+  ignored by Chrome and Android. An SVG is our own vector: identical everywhere,
+  and `stroke="currentColor"` follows every state. Same pattern as
+  `.log-cta__icon`.
+
+**Its orientation is deliberate: lens upper-left, handle down-right** — the
+Material / Feather / Heroicons convention, which users recognise
+pre-attentively. Do not flip it. Note this is *not* the orientation of the emoji
+it replaced: `&#128270;` is U+1F50E "MAGNIFYING GLASS TILTED **RIGHT**", the
+mirrored variant (lens upper-right, handle lower-left); the conventional one is
+U+1F50D. The naming is counterintuitive — "tilted left" describes the lens
+rotating leftward, which swings the handle right — and it was misread once
+already, so the switch to SVG quietly *corrected* the orientation rather than
+preserving it. Mirroring is standard only in RTL locales, which this
+single-locale `lang="en"` app is not.
+
+Mechanically the button carries both a `.search-btn__label` and the SVG, and the
+500px breakpoint swaps which displays — cleaner than a `::after`, and
+`busyButton()` stashes and restores both for free. `busyButton()` wraps its own
+label in a `.busy-label` span for the same reason, so the breakpoint can hide it
+and leave the spinner standing alone. Separately, `.search button` is
+`flex-shrink: 0`: a flex item's automatic minimum size is not reliable on a
+`<button>` across engines, and shrinking is what clipped the label to begin with.
+
+## D-026 · A sync must not stomp a deliberate state ("Added" is sticky)
+Reported as "skipping the rate dialog does not sync the search results". It was
+the reverse — skipping was correct, and **saving** was the bug. Saving a rating
+runs `loadMovies()` a second time, whose `syncSearchResultButtons()`
+unconditionally reset every owned button to "In your list", wiping the "Added"
+confirmation set moments earlier. Skipping runs nothing, so it kept it. One
+state, two labels, decided by an unrelated round-trip.
+
+Decision: make the "Added" confirmation **sticky** (a `dataset.justAdded` flag
+honoured by `setAddButtonState`) rather than make skipping reset it. It is the
+more informative of the two labels — it marks what *you* just added versus what
+was already in the list, which matters when adding several films from one result
+set — and it is the state D-024 went out of its way to keep visible. Removing the
+film clears the flag, so the row offers "+ Add" again.
+
+**The pattern is what matters here, because this is the third instance:** a sync
+function that runs unconditionally will silently overwrite a deliberate transient
+state set moments earlier.
+
+1. The recommendations error message, written into `#recs-hint` and then wiped by
+   `syncRecommendationsAvailability()` in the handler's own `finally` — still
+   open, see CLAUDE.md.
+2. `syncSearchResultButtons()` writing `textContent` into a button that was still
+   mid-request, destroying its spinner. Fixed by skipping anything with
+   `aria-busy`.
+3. This one.
+
+Before adding a sync call, check which deliberate states it can reach.
+
 ## D-025 · Hide the browser's search clear button rather than theme it
 `<input type="search">` makes Chromium/Safari draw their own clear "×" inside the
 field. On a near-black amber panel it renders as an unthemed blue glyph — the most
