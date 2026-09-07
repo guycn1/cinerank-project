@@ -307,7 +307,13 @@ The code is functionally complete against SPEC §2–§6, but the submission is
 screenshot/evidence capture to right before submission, in a dedicated session,
 so the shots match the finished UI rather than a mid-overhaul one. That is a
 deliberate schedule choice, restated more than once — do NOT push to capture
-them early, and do NOT let that be a reason to forget them.
+them early.
+
+**But DO keep this list growing as the work happens.** The user is explicitly
+relying on this file instead of their own memory. Whenever a change creates
+something demo-able or provable — a new failure state, a guardrail worth
+showing, a before/after worth contrasting — append it here the moment it
+appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 
 * [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
   README + the lecturer's project sheet.
