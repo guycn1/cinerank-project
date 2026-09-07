@@ -206,7 +206,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
 /* The magnifier only exists below the narrow breakpoint (see the @media at the
    end of the search block). */
-.search-btn__icon { display: none; }
+.search-btn__icon { display: none; width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
 .search button {
   /* Never squeezed by the input beside it: a flex item's automatic minimum size
      is not reliable on a <button> across engines, and shrinking is what clipped
@@ -233,7 +233,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 @media (max-width: 500px) {
   .search button { padding: 0 1rem; }
   .search-btn__label { display: none; }
-  .search-btn__icon { display: inline; }
+  .search-btn__icon { display: inline-block; }
   .search button .busy-label { display: none; }
 }
 
