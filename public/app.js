@@ -257,9 +257,20 @@ function renderRanked() {
     h3.append(yr);
     body.append(h3);
     if (!isRated) {
+      // Two parts, not one sentence: a STATUS and an instruction, which want
+      // different weights. The status is a chip — a shape no review or title
+      // ever takes — so the line cannot be mistaken for prose even before its
+      // colour registers; the instruction stays quiet beside it. The em dash
+      // that used to join them is gone; the chip's edge is the separator now.
       const u = document.createElement('p');
       u.className = 'unrated';
-      u.textContent = 'Not rated yet — rate it to place it in the ranking.';
+      const badge = document.createElement('span');
+      badge.className = 'unrated__badge';
+      badge.textContent = 'Not rated yet';
+      const hint = document.createElement('span');
+      hint.className = 'unrated__hint';
+      hint.textContent = 'Rate it to place it in the ranking.';
+      u.append(badge, hint);
       body.append(u);
     } else if (m.review) {
       const r = document.createElement('p');

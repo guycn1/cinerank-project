@@ -7,6 +7,58 @@ file, directly under this header.**
 
 ---
 
+## D-033 · The unrated line is a chip, because muting it was the wrong correction
+`.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
+ranking." — was `--crimson`, the app's error colour, on a state where nothing
+has failed. That much was clear from the audit (backlog item #8).
+
+**The obvious fix was to mute it, and it was rejected.** The precedent was
+right there and was the one cited when the item was raised: the search panel's
+"No matches" had already moved out of `makeError()` into the muted
+`.search-note`, precisely because an empty result set is not a failure. Applying
+the same move here — `--ink-dim`, review size — would have landed the line in
+the same colour, the same weight and the same position as a review. The user
+pushed back before it was built: an unrated film is a *pending* state the user
+should stay aware of, and dropping it to the tone of body prose lets the
+surrounding elements swallow it. The two cases only look alike. "No matches" is
+transient text in a panel that is about to be replaced; "Not rated yet" is a
+persistent property of a card that will sit in the list until acted on.
+
+**So the correction is a demotion in urgency, not in prominence.** The line is
+distinguished by **shape first, colour second**: `Not rated yet` became a chip,
+which no review and no title ever is, so it reads as a status marker before its
+colour registers at all. The instruction ("Rate it to place it in the ranking.")
+stays beside it as quiet `--ink-dim` prose, and wraps below on a narrow card.
+The em dash that joined them is gone — the chip's edge is the separator.
+
+**Amber was not picked because it is the accent colour.** It was picked because
+the app already has a marker for this exact idea: `.rec-card::before` renders
+"AI pick · not yet rated" as an amber pill, which is the "clear but subtle
+visual marker" CLAUDE.md's design notes call for. A film you added but haven't
+rated is that same state on the other side of the list, so it should not invent
+a second visual language for it. `.unrated__badge` therefore borrows that rule's
+sizing, letter-spacing and radius on purpose — retune one and retune both.
+
+Alternatives weighed and dropped:
+- **Plain amber text, no chip.** One line of CSS, but amber alone is this app's
+  *interactive* colour (`.review-toggle`, links, `.recs__trigger`), so a
+  non-clickable amber sentence sitting directly above a "Rate" button invites a
+  click that does nothing. The chip's `--amber-deep` border reads as a label,
+  not a control, and the element is not focusable.
+- **A left border / leading dot with muted text.** Distinguishes structurally
+  without touching colour, but it is a shape the app uses nowhere else — the
+  chip already exists in the vocabulary.
+- **Making the rank slot's `?` amber too.** Rejected: D-029 sized and faded that
+  `?` so it reads as an *absence* beside the ranking rather than competing with
+  the rank numerals, and lighting it up would undo that. One marker, in the body,
+  next to the button that resolves it.
+
+Not changed: the `?`, the missing score badge, and the button reading "Rate"
+instead of "Edit" are the card's other three unrated signals and are all correct
+as they stand.
+
+---
+
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
 Testing the save-failure path (throttled to Offline) showed the crimson toast
 appearing *behind* the rate dialog and dimmed by its backdrop — legible only if

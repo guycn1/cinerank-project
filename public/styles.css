@@ -504,7 +504,43 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
 }
 .review-toggle:hover { color: var(--amber-deep); text-decoration: underline; }
-.movie-card__body .unrated { color: var(--crimson); font-size: 0.85rem; margin-top: 0.35rem; }
+/* "Not rated yet" is a PENDING state, not a failure. It was --crimson, which is
+   exactly the mistake the search panel made before "No matches" moved out of
+   makeError() into the muted .search-note: crimson is this app's error colour
+   and nothing has gone wrong here.
+   But it must not simply go quiet either. In --ink-dim at review size it would
+   sit in the same place, in the same colour, at the same weight as a review —
+   the one thing it must never be read as. So it is distinguished by SHAPE
+   first and colour second: a chip, which no review or title ever is.
+   Amber, and specifically THIS amber, because the app already has a marker for
+   this exact idea — `.rec-card::before` reads "AI pick · not yet rated" in an
+   amber pill. That is the "clear but subtle marker" CLAUDE.md's design notes
+   ask for, and a film you added but haven't rated is the same state on the
+   other side of the list. Sizing and letter-spacing are taken from that rule
+   deliberately: keep the two in step if either is ever retuned.
+   The chip does NOT get the amber a control gets (.review-toggle, links) —
+   --amber-deep on the border keeps it a label rather than something to click,
+   and it is not focusable, so nothing invites a click that does nothing. The
+   Rate button beside it is the affordance. */
+.movie-card__body .unrated {
+  display: flex;
+  flex-wrap: wrap;      /* the hint drops below the chip when the card narrows */
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+.unrated__badge {
+  border: 1px solid var(--amber-deep);
+  background: rgba(245, 193, 91, 0.09);
+  color: var(--amber);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;  /* short by design — it must never wrap inside the pill */
+}
+.unrated__hint { color: var(--ink-dim); font-size: 0.82rem; }
 
 .movie-card__score {
   display: flex;

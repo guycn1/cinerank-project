@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (deployed to Render; ranked-list backlog items 1-7 and 12 done, #8 is next — see the canonical 19-item table in the ranked-list bullet)
+**Last updated:** 2026-09-08 (ranked-list backlog items 1-8 and 12 done, #9 is next — see the canonical 19-item table in the ranked-list bullet)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -374,6 +374,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     card. **No emoji remain in rendered output anywhere** — the only ones left in
     the source are inside comments explaining why they were rejected.
 
+  - **The unrated line is a chip, not crimson prose** (D-033). `Not rated yet`
+    is now an amber pill borrowing `.rec-card::before`'s exact vocabulary — that
+    marker already reads 'AI pick · not yet rated', so the two sides of the list
+    describe the same state the same way — with the instruction beside it in
+    `--ink-dim`, wrapping below on a narrow card. Crimson is the error colour and
+    nothing has failed; but the obvious correction, muting it the way 'No matches'
+    was muted in Search, would have left it identical to a review in colour,
+    weight AND position. Shape carries the distinction so colour needn't shout.
+    The rank slot's `?` stays faint on purpose (D-029) — one marker, in the body,
+    beside the button that resolves it.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -390,8 +401,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 5 | "view more…" toggle measured once per render, never on resize/zoom/font-swap | **done** (+ the expanded-review follow-up) |
 | 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** — D-032 |
 | 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
-| 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | open — **next** |
-| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | open |
+| 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
+| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | open — **next** |
 | 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | open |
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — scope call |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
