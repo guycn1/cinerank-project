@@ -27,6 +27,22 @@
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Scrollbar widths — page and log dialog. The `vw` term is the zoom guard.
+     No CSS length is immune to browser zoom (px, rem, pt all multiply), but
+     zoom shrinks the CSS viewport by the same factor it magnifies by, so a
+     vw length holds a roughly CONSTANT physical size as you zoom. A flat
+     `12px` became a ~60px slab at 500%.
+     The ceilings are the old values and the coefficients are set so the
+     ceiling wins at any viewport ≥ 1000px CSS px — so nothing changes at
+     normal zoom on a normal window; they only bite when the viewport is
+     genuinely small OR heavily zoomed. Floors keep the bar grabbable, and
+     hold the page:dialog ratio at 4:3 (12:9 → 6:4.5) so the page scrollbar
+     stays the wider of the two at every size, as intended.
+     Firefox is unaffected: `scrollbar-width` takes only auto/thin/none, so
+     there is no numeric width to clamp on that engine. */
+  --sb-w: clamp(6px, 1.2vw, 12px);
+  --sb-dialog-w: clamp(4.5px, 0.9vw, 9px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,12 +61,16 @@ html { scroll-behavior: smooth; }
   }
 }
 @supports selector(::-webkit-scrollbar) {
-  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar { width: var(--sb-w); height: var(--sb-w); }
   ::-webkit-scrollbar-track { background: var(--bg-raised); }
   ::-webkit-scrollbar-thumb {
     background: var(--line-strong);
     border-radius: 999px;
-    border: 3px solid transparent; /* inset the thumb off the track edges */
+    /* Insets the thumb off the track edges. Derived, not a flat 3px: the
+       border is subtracted from BOTH sides, so a fixed 3px against a floored
+       6px track would leave a 0px-wide thumb. /4 reproduces the old 3px at the
+       12px ceiling exactly. */
+    border: calc(var(--sb-w) / 4) solid transparent;
     background-clip: padding-box;
   }
   /* a gentle lift, not a jump to --ink-faint — keeps rest vs hover subtle */
@@ -60,10 +80,13 @@ html { scroll-behavior: smooth; }
 
   /* The log dialog: slightly thinner, transparent track (it sits on
      `--bg-raised` already). */
-  .log-dialog::-webkit-scrollbar { width: 9px; }
+  .log-dialog::-webkit-scrollbar { width: var(--sb-dialog-w); }
   .log-dialog::-webkit-scrollbar-track,
   .log-dialog::-webkit-scrollbar-corner { background: transparent; }
-  .log-dialog::-webkit-scrollbar-thumb { border-width: 2px; }
+  /* /4.5, not /4 — the dialog thumb was deliberately tuned proportionally
+     fatter than the page one (2px inset on 9px, vs 3px on 12px). This keeps
+     that exact relationship at every size instead of flattening the two. */
+  .log-dialog::-webkit-scrollbar-thumb { border-width: calc(var(--sb-dialog-w) / 4.5); }
 }
 
 body {
