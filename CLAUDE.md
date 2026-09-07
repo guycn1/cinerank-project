@@ -188,8 +188,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `--arrow-x` follow the flip); flips *above* the trigger when there's no
     room below (measured in JS on `toggle`, kept on close so it doesn't jump
     mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
-    eased on hover; outside-click / Esc dismiss.
-* Both modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
+    eased on hover; outside-click dismiss. (NOT Esc: `<details>` has no Esc
+    behaviour and no handler was ever written for one. Esc closes the whole
+    log dialog, which takes the panel with it — not the same thing.)
+* All three modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
@@ -401,6 +403,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     so a stray Enter is the safe choice, and `returnValue` is reset before every
     open so "confirmed" is reachable ONLY by clicking the button — engines
     disagree about what Escape leaves behind.
+    **None of the three dialogs light-dismisses, and that is on purpose.** A
+    native `<dialog>` does NOT close on a backdrop click — the behaviour has to
+    be added (a click handler comparing `event.target === dialog`, or the newer
+    `closedby="any"`), and none of them has it. Cancel/Close and Esc are the
+    only exits. Do not add it to one alone: for the rate dialog in particular, a
+    stray outside click discarding a typed review is exactly the failure #6
+    existed to fix.
 
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 

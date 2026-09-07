@@ -788,7 +788,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    scrollbar in view is the one inside the dialog's own content. */
 body:has(dialog[open]) { overflow: hidden; }
 
-/* Fade both modal dialogs + their backdrops in/out. `display` and `overlay` are
+/* Fade all three modal dialogs + their backdrops in/out. `display` and `overlay` are
    transitioned discretely so the fade-OUT is visible (the element stays rendered
    and in the top layer until the fade finishes). */
 .rate-dialog,
@@ -922,7 +922,7 @@ body:has(dialog[open]) { overflow: hidden; }
    but crimson rather than amber, matching the `.danger` Remove button on the
    card that opened this. Dark text on the fill for the same reason .primary
    uses #1a1205 — a saturated fill needs a dark label, not --ink.
-   No :hover rule, deliberately: neither dialog's buttons have one, and adding
+   No :hover rule, deliberately: the rate dialog's buttons have none, and adding
    it to this one alone would leave Cancel sitting inert beside a button that
    reacts. Focus styling is item #10's job, for all of them at once. */
 .confirm-dialog button.danger {

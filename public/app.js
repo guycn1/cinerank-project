@@ -650,8 +650,13 @@ el.rateForm.addEventListener('submit', async (e) => {
 
 /**
  * The app's own confirm, replacing window.confirm(). Resolves true only if the
- * user pressed the confirming button — Escape, the backdrop, or Cancel all
- * resolve false, so every ambiguous exit is the safe one.
+ * user pressed the confirming button; Cancel and Escape both resolve false, so
+ * every ambiguous exit is the safe one.
+ *
+ * Those are the only two ways out, and that is deliberate. A native <dialog>
+ * does NOT close on a backdrop click — that behaviour has to be added, and
+ * neither of the other two dialogs has it either. Do not add it here alone:
+ * the newest dialog would become the one that behaves differently.
  *
  * `returnValue` is reset before opening rather than trusted: it persists on the
  * element between opens, and engines disagree on whether an Escape dismissal
