@@ -7,6 +7,56 @@ file, directly under this header.**
 
 ---
 
+## D-034 · "ranking updated" is checked before it is claimed
+The three confirmation toasts had three different shapes and two named no film
+at all (`Added “X” — rate it any time.` / `Saved — ranking updated.` /
+`Removed.`). The user asked for one shape with the film first, which is what
+they now are: `“X” added…` / `“X” saved…` / `“X” removed.`
+
+The interesting part is the second clause of the save toast, which took three
+passes.
+
+**First pass — deleted it.** The reasoning was that editing only a review does
+not change the ranking, so the clause was an unverified claim of the same kind
+as the central 500 handler's "on our side" (removed the same afternoon on the
+user's own principle: a vaguer message that is true beats a specific one that is
+not).
+
+**The user pushed back, and was right.** Every save calls `loadMovies()`, which
+re-fetches the entire list server-sorted and re-renders it — so a ranking update
+really is triggered on every save, unconditionally. The claim was never false,
+and backlog #16's original wording ("claims a ranking change even when only the
+review was edited") was unfair on the same count. Recorded plainly: the argument
+for deleting the clause was overstated.
+
+**What survived the pushback** is a narrower objection. "Ranking updated" reads
+as a claim about the OUTCOME, not about an internal recompute. When the film
+stays at #3 the user goes looking for a change that is not there. That is a
+wording problem, not a truth problem — which makes it the user's call, not a
+correctness fix to be made unilaterally.
+
+**Settled on: say it only when it is observably true.** A signature of the
+ranking as displayed is captured before the write and compared after the reload.
+Costs one comparison, and the sentence becomes true in the strong sense — the
+app claims only what it verified. The two rejected options are both defensible
+and are one line each: restore the clause unconditionally (true, per the
+pushback above) or leave it off permanently (never wrong, and the re-sort
+animation already shows a move).
+
+**The trap, and Claude got this wrong first.** The obvious signature is the list
+of ids in order — and it is not sufficient. Unrated films already sort last, so
+rating the only unrated film with a low score can leave it in exactly the same
+POSITION while its rank slot changes from `?` to a real number: a visible
+ranking change with no reordering. `rankSignature()` therefore pairs each id
+with whether the film is rated. Do not "simplify" it back to positions.
+
+**Not changed: the two error toasts.** They pass the server's own wording
+through by design, and prefixing it client-side produces doublings like
+`Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
+the messages at the source; it stays on backlog #16.
+
+---
+
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
 `.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
 ranking." — was `--crimson`, the app's error colour, on a state where nothing

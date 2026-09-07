@@ -144,6 +144,22 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /**
+ * A fingerprint of the ranking AS DISPLAYED, for telling a save that reordered
+ * the list from one that did not.
+ *
+ * Position alone is not enough, which is the trap here. Rate the only unrated
+ * film in the list and it may keep its position (unrated films already sort
+ * last, so a low rating can leave it exactly where it was) while its rank slot
+ * changes from "?" to a real number — a visible ranking change with no
+ * reordering at all. Hence the rated flag alongside each id.
+ *
+ * Compared as a string rather than element-by-element: the array is small, and
+ * one !== is harder to get subtly wrong than a hand-rolled loop.
+ */
+const rankSignature = () =>
+  state.movies.map((m) => `${m.id}:${m.rating != null}`).join('|');
+
+/**
  * Run a DOM update inside a View Transition, so a re-sorted list animates to
  * its new order instead of teleporting.
  *
@@ -619,6 +635,9 @@ el.rateForm.addEventListener('submit', async (e) => {
   // request nor be trusted to mean "discard". Esc still closes the dialog, so
   // there is always a way out if the request hangs.
   el.rateCancel.disabled = true;
+  // Captured BEFORE the request, because loadMovies() replaces state.movies
+  // wholesale and there is no "previous" left to compare against afterwards.
+  const rankingBefore = rankSignature();
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',
@@ -634,11 +653,15 @@ el.rateForm.addEventListener('submit', async (e) => {
     // one place that animation earns its keep.
     el.rateDialog.close();
     await loadMovies();
-    // Names the film, and deliberately no longer claims the ranking changed:
-    // editing only the review, or re-rating without crossing a neighbour,
-    // leaves the order exactly as it was. Saying so anyway was the same kind
-    // of unverified claim as the central handler's old "on our side".
-    toast(`“${movie.title}” saved.`);
+    // "ranking updated" is CHECKED, not assumed. Every save does recompute the
+    // ranking (loadMovies re-fetches the whole list, server-sorted), so the old
+    // unconditional wording was never false — but it reads as a claim about the
+    // OUTCOME, and editing only a review, or re-rating without crossing a
+    // neighbour, leaves the ranking looking identical. Then the user goes
+    // hunting for a change that is not there. Saying it only when it is
+    // observably true costs one comparison.
+    const reordered = rankSignature() !== rankingBefore;
+    toast(`“${movie.title}” saved${reordered ? ' — ranking updated.' : '.'}`);
   } catch (err) {
     // Deliberately leaves the dialog open with the rating and review exactly as
     // typed, so Save can simply be pressed again. Reported INLINE rather than as
