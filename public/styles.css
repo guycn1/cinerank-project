@@ -353,10 +353,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   -webkit-text-stroke: 1.5px var(--amber);
   text-align: center;
 }
-.movie-card:first-child .movie-card__rank {
+/* The top-rated film. Set as a class by renderRanked(), NOT as
+   `.movie-card:first-child` — list position and "highest rated" are different
+   facts, and they come apart as soon as the list holds an unrated film (with
+   nothing rated at all, the positional rule crowned an unrated card). */
+.movie-card__rank.is-top {
   color: var(--amber);
   -webkit-text-stroke: 0;
   text-shadow: 0 0 24px rgba(245, 193, 91, 0.45);
+}
+/* An unrated film has no rank, so it shows a "?" rather than borrowing the next
+   number. Much smaller and faint on purpose: it should read as an absence
+   sitting beside the ranking, not as a competing entry in it. Overrides both
+   the outlined-numeral treatment above (transparent fill + amber stroke). */
+.movie-card__rank.is-unranked {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 600;
+  color: var(--ink-faint);
+  -webkit-text-stroke: 0;
 }
 
 .movie-card__poster {

@@ -7,6 +7,64 @@ file, directly under this header.**
 
 ---
 
+## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
+The ranked list numbered every card `i + 1`, unrated films included. So an
+unrated film was handed a rank, directly under its own caption saying "Not rated
+yet — **rate it to place it in the ranking**." It had already been placed. The
+second half was worse: the `#1` treatment (solid amber, glow) was
+`.movie-card:first-child .movie-card__rank`, pure DOM position, so on a list
+where nothing was rated yet the golden **#1** landed on a film with no rating at
+all.
+
+Four options were weighed:
+
+* **Reword the caption** ("ranked last by default") — cheapest, and rejected.
+  It fixes the sentence without fixing the claim: an unrated film genuinely has
+  no rank, so "#7" stays false, just more carefully worded. It also leaves the
+  crown bug standing.
+* **Group unrated films into a labelled sub-section**, or **move them out of the
+  ranked list entirely** — both rejected for the same reason: they fight the add
+  flow. Adding a film opens the rate dialog with **"Skip for now"**, which is a
+  deferral, not a rejection. The film should stay in the list you just added it
+  to, quietly nagging. Relocating it makes "Skip for now" feel like the film went
+  *somewhere else*.
+* **Chosen: one list, but only rated films consume a number.** A counter
+  (`rankNo`) that increments only when `m.rating != null`; unrated cards show a
+  glyph in the rank slot instead.
+
+**The glyph: `?`, not `—`.** Claude proposed `—` in `--ink-faint`, reusing the AI
+call log's missing-Tokens/Cost vocabulary (D-021, shared UI vocabulary). The user
+chose `?` instead. It is the better call: `—` means "this value does not exist",
+which is what an empty log cell means, but an unrated film's rank is not absent —
+it is *undetermined pending an action the user can take*. `?` says "unknown, ask
+me" where `—` says "nothing here". Styled much smaller and faint so it reads as
+an absence beside the ranking rather than an entry competing within it.
+
+**Two traps this decision creates, both handled and both easy to undo later:**
+
+1. `const isRated = m.rating != null` — **never truthiness.** `0` is falsy, and
+   0.0 is a rating the user deliberately gave. A later "simplification" to
+   `m.rating ? …` would silently strip a 0.0 film of its rank, its score badge
+   and its Edit label in one move. The four sites that branch on rated-ness now
+   all read the single `isRated` const so they cannot drift apart.
+2. **`rankNo` must not be "simplified" back to the loop index `i`.** They agree
+   today only because the server sorts `nulls last`, making rated films
+   contiguous at the top — that is a coincidence of the sort order, not the rule.
+   The counter states the rule; `i` merely happens to match it.
+
+Screen readers: the `<ol>` still numbers every `<li>` implicitly, so an unrated
+card could be announced as "list item 7" while showing `?`. The rank slot is
+therefore `aria-hidden` on unrated cards and the "Not rated yet" line carries the
+meaning. Splitting the list into two elements purely to fix the announcement was
+considered and judged disproportionate.
+
+Deliberately **not** changed: unrated films still sort to the very bottom, so on
+a long list a just-skipped film is far out of sight. Raised with the user, who
+chose to leave it — noted here so the omission reads as a decision rather than an
+oversight.
+
+---
+
 ## D-028 · Search stays typo-intolerant; the empty state explains instead
 Search is strict: "obamma" returns nothing, "obama" returns plenty. First
 established that this is **TMDB's** behaviour, not ours — `searchMovies()` passes

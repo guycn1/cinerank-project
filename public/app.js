@@ -139,14 +139,42 @@ function renderRanked() {
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
   el.rankedEmpty.hidden = count > 0;
 
+  // Rank counter. Deliberately NOT the array index: only a rated film has a
+  // rank, so an unrated one must not consume a number (D-029). The server sorts
+  // nulls last, so rated films are contiguous at the top and this counter and
+  // the index agree for them — but the counter states the rule instead of
+  // depending on the sort order to imply it.
+  let rankNo = 0;
+
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
     li.className = 'movie-card';
     li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
 
+    // `!= null`, never truthiness: 0.0 is a rating the user deliberately gave,
+    // and `0` is falsy — `m.rating ? …` would silently demote a 0.0 film to
+    // "unrated", losing its rank, its score badge and its Edit label at once.
+    const isRated = m.rating != null;
+
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
-    rank.textContent = String(i + 1);
+    if (isRated) {
+      rank.textContent = String(++rankNo);
+      // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
+      // in the list" and "your top-rated film" are different facts, and they
+      // come apart the moment the list holds an unrated film — with nothing
+      // rated yet, the positional rule crowned a film with no rating at all.
+      if (rankNo === 1) rank.classList.add('is-top');
+    } else {
+      // No rank to show. Same "no value here" glyph vocabulary as the AI call
+      // log's empty Tokens/Cost cells, so the absence reads as an absence.
+      // aria-hidden: the "Not rated yet" line below already says this, and the
+      // <ol> still counts every <li>, so a reader would otherwise be told a
+      // position this card is explicitly not claiming.
+      rank.classList.add('is-unranked');
+      rank.textContent = '?';
+      rank.setAttribute('aria-hidden', 'true');
+    }
 
     const poster = posterNode(m.poster_url, m.title);
     poster.classList.add('movie-card__poster');
@@ -160,7 +188,7 @@ function renderRanked() {
     yr.textContent = m.year ? `(${m.year})` : '';
     h3.append(yr);
     body.append(h3);
-    if (m.rating == null) {
+    if (!isRated) {
       const u = document.createElement('p');
       u.className = 'unrated';
       u.textContent = 'Not rated yet — rate it to place it in the ranking.';
@@ -187,7 +215,7 @@ function renderRanked() {
 
     const score = document.createElement('div');
     score.className = 'movie-card__score';
-    if (m.rating != null) {
+    if (isRated) {
       const badge = document.createElement('div');
       badge.className = 'score-badge';
       badge.append(document.createTextNode(m.rating.toFixed(1) + ' '));
@@ -200,8 +228,8 @@ function renderRanked() {
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');
     rateBtn.type = 'button';
-    rateBtn.textContent = m.rating == null ? 'Rate' : 'Edit';
-    rateBtn.setAttribute('aria-label', `${m.rating == null ? 'Rate' : 'Edit rating for'} ${m.title}`);
+    rateBtn.textContent = isRated ? 'Edit' : 'Rate';
+    rateBtn.setAttribute('aria-label', `${isRated ? 'Edit rating for' : 'Rate'} ${m.title}`);
     rateBtn.addEventListener('click', () => openRate(m));
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
