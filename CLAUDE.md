@@ -33,7 +33,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "Ranked-list overhaul
-  + Render deploy config" (2026-09-07, `61be6aa`). **Eight** merges so far;
+  + live Render deployment" (2026-09-07, `1ab515f`). **Nine** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
