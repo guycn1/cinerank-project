@@ -27,7 +27,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 **Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
 
 ### Build status
-* Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
+* **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
+  `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
+  deploy entry under Pre-submission blockers for the service's exact settings.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "Ranked-list overhaul

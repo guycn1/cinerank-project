@@ -21,7 +21,21 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   human sign-off.** Eight merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
-  `npm run scan-secrets` scans the staged diff for key-shaped strings.
+  `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
+  rule shaped the deploy: `render.yaml` declares the four secrets as
+  `sync: false`, so Render prompts for them in its dashboard and no value ever
+  enters the committed file.
+- **Dependency advisories get diagnosed, not force-fixed.** The first Render
+  build reported three moderate advisories in `qs`, Express's query-string
+  parser. `npm audit fix` did nothing — and neither did `--force`, which is the
+  point where it would have been easy to either shrug or reach for a major
+  upgrade. The actual cause was that Express 4 pins `qs` to *exactly* the
+  vulnerable `6.15.3`, leaving npm no semver room, so the only move it could see
+  was Express 5 and its breaking changes. An `overrides` entry lifting `qs` to
+  the patched `6.16.0` — a minor bump — cleared all three, with the route tests
+  covering exactly the surface involved (query strings, JSON bodies). Recorded in
+  `package.json` next to the override, because an unexplained override is the
+  kind of thing a later reader deletes.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -127,9 +141,14 @@ screenshots for the submission even though the server side is now tested.
 
 ## 7. Known gaps / next
 
-- Not yet deployed. **Note:** the current Express `app.listen` server does not run
-  on Netlify as-is (static + serverless only) — target Render / Railway / Fly, or
-  refactor routes to serverless functions.
+- ~~Not yet deployed.~~ **Deployed 2026-09-07 to Render:
+  https://cinerank-g6lx.onrender.com** — no application changes were needed,
+  which is the point: the `start` script, `engines`, `process.env.PORT` handling
+  and the `/api/health` probe had all been in place since before there was
+  anywhere to deploy to. Netlify was ruled out from the beginning and stayed
+  ruled out (static files + serverless functions only; this is a long-lived
+  `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
+  first request then takes about a minute.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
   screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a
