@@ -97,7 +97,13 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   // so it follows the label, font and padding automatically.
   // (`* { box-sizing: border-box }` means min-width and rect.width agree.)
   btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
-  btn.replaceChildren(spinnerNode(), document.createTextNode(' ' + busyLabel));
+  // The label goes in a span rather than a bare text node so a narrow
+  // breakpoint can hide it and leave the spinner standing alone (see the
+  // icon-only Search button under 500px).
+  const busy = document.createElement('span');
+  busy.className = 'busy-label';
+  busy.textContent = ' ' + busyLabel;
+  btn.replaceChildren(spinnerNode(), busy);
   // Ends the busy state. With no argument the button goes back exactly as it
   // was, enabled. Pass text to settle on a new label instead and stay disabled —
   // for an action that cannot be repeated ("Added ✓", "In your list").

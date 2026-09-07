@@ -204,7 +204,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    longer in the box. `type="search"` stays for the semantics and the mobile
    keyboard's Search key — this drops only the chrome. */
 .search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
+/* The magnifier only exists below the narrow breakpoint (see the @media at the
+   end of the search block). */
+.search-btn__icon { display: none; }
 .search button {
+  /* Never squeezed by the input beside it: a flex item's automatic minimum size
+     is not reliable on a <button> across engines, and shrinking is what clipped
+     the label in the first place. The input has flex: 1 and absorbs instead. */
+  flex-shrink: 0;
   background: var(--amber);
   color: #1a1205;
   border: none;
@@ -217,6 +224,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .search button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
 .search button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Under ~500px "Search" no longer fits beside the input and the label was
+   clipped. Swap the word for a magnifier: the two spans trade places, and
+   while the call is in flight the busy label hides too so the spinner stands
+   alone. The button keeps aria-label="Search", since display:none takes the
+   word out of the accessibility tree as well as the layout. */
+@media (max-width: 500px) {
+  .search button { padding: 0 1rem; }
+  .search-btn__label { display: none; }
+  .search-btn__icon { display: inline; }
+  .search button .busy-label { display: none; }
+}
 
 .search-results {
   margin-top: 0.8rem;

@@ -48,7 +48,12 @@
           placeholder="Search a film to add…"
           aria-label="Search for a movie by title"
         />
-        <button type="submit" id="search-btn">Search</button>
+        <!-- aria-label because the word is display:none under 500px, where the
+             magnifier is all that shows; the emoji itself is aria-hidden. -->
+        <button type="submit" id="search-btn" aria-label="Search">
+          <span class="search-btn__label">Search</span>
+          <span class="search-btn__icon" aria-hidden="true">&#128270;</span>
+        </button>
       </form>
       <div class="search-results" id="search-results" role="status" aria-live="polite" hidden></div>
     </section>
