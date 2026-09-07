@@ -26,6 +26,7 @@ const el = {
   rateOutput: $('#rate-output'),
   rateReview: $('#rate-review'),
   rateCancel: $('#rate-cancel'),
+  rateSave: $('#rate-save'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
   logClose: $('#log-close'),
@@ -294,7 +295,7 @@ function renderRanked() {
     delBtn.className = 'danger';
     delBtn.textContent = 'Remove';
     delBtn.setAttribute('aria-label', `Remove ${m.title} from your ranking`);
-    delBtn.addEventListener('click', () => removeMovie(m));
+    delBtn.addEventListener('click', () => removeMovie(m, delBtn));
     actions.append(rateBtn, delBtn);
     score.append(actions);
 
@@ -572,9 +573,23 @@ el.rateForm.addEventListener('submit', async (e) => {
     // "Skip for now" saves nothing, so there is no "Saved" to report — but the
     // add itself had no confirmation of its own, which left this path silent.
     // Say what actually happened instead of nothing (or, worse, "Saved").
+    // No preventDefault: nothing is being written, so `method="dialog"` closing
+    // it immediately is exactly right here.
     if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
     return;
   }
+
+  // Stop `method="dialog"` from closing the form. The dialog must OUTLIVE the
+  // request: it used to close on submit and the PATCH then ran invisibly, so a
+  // failure produced an error toast about a dialog that was already gone — with
+  // the user's typed review destroyed and no way to retry it. Now it closes
+  // only after the write is known to have succeeded.
+  e.preventDefault();
+  const settleSave = busyButton(el.rateSave, 'Saving…');
+  // Cancel is disabled for the duration too: mid-write it can neither undo the
+  // request nor be trusted to mean "discard". Esc still closes the dialog, so
+  // there is always a way out if the request hangs.
+  el.rateCancel.disabled = true;
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',
@@ -584,21 +599,40 @@ el.rateForm.addEventListener('submit', async (e) => {
         review: el.rateReview.value.trim(),
       }),
     });
+    // Closed BEFORE the reload, not after, so the ranked list's re-sort
+    // animation happens on a visible page rather than behind the backdrop —
+    // a rating change is the main thing that reorders the list, so it is the
+    // one place that animation earns its keep.
+    el.rateDialog.close();
     await loadMovies();
-    toast(`Saved — ranking updated.`);
+    toast('Saved — ranking updated.');
   } catch (err) {
+    // Deliberately leaves the dialog open with the rating and review exactly as
+    // typed, so Save can simply be pressed again.
     toast(err.message, true);
+  } finally {
+    settleSave();
+    el.rateCancel.disabled = false;
   }
 });
 
-async function removeMovie(movie) {
+async function removeMovie(movie, btn) {
   if (!confirm(`Remove “${movie.title}” from your ranking?`)) return;
+  // Spinner only, no busy LABEL: busyButton locks the button's current width as
+  // a min-width, and "Removing…" is far wider than "Remove", so a label would
+  // grow the button and shove its neighbour sideways mid-request. The card
+  // buttons are small enough that a spinner in a disabled button reads clearly
+  // on its own, and the aria-label still names the film.
+  const settle = btn ? busyButton(btn, '') : null;
   try {
     await api(`/api/movies/${movie.id}`, { method: 'DELETE' });
     await loadMovies();
     toast('Removed.');
+    // No settle() on success — loadMovies() has already destroyed this button
+    // along with its card.
   } catch (err) {
     toast(err.message, true);
+    settle?.();
   }
 }
 

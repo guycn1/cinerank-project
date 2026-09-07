@@ -340,12 +340,25 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the staleness to a lingering "show less". A review that no longer clips is
     left collapsed, and `setReviewExpanded()` is the single writer for the
     class, the label and `aria-expanded` so the three cannot drift.
+  - **The rate dialog now outlives its own save.** The form is
+    `method="dialog"`, so submitting used to close it *before* the PATCH ran:
+    the write went out invisibly and a failure produced an error toast about a
+    dialog that was already gone, with the typed review destroyed and no way to
+    retry. Save now `preventDefault()`s, shows the shared `busyButton()` state,
+    and closes only once the write has succeeded; on failure the dialog stays
+    open with the rating and review exactly as typed. Cancel is disabled for the
+    duration (Esc still works). Remove gained a busy state too — spinner only,
+    no label, since `busyButton()` locks the width as a min-width and
+    "Removing…" would grow the button and shove its neighbour. Both also gained
+    the `:disabled` styling they never had: opacity for the outline buttons,
+    a fill swap out of the amber family for the filled `.primary`, per the rule
+    the Search button settled.
   Still open from the audit: expanded reviews collapse on re-render (only the
-  element-reuse rewrite rejected in D-031 would fix that); Remove/Save have no busy state
-  and Save closes the dialog *before* its PATCH runs; the 🎬 placeholder is an
-  emoji (vs D-027); "Not rated yet" is crimson (an error colour for a non-error);
-  `confirm()` is the last native modal; no `:focus-visible` on card controls;
-  and `tmdb_rating` is fetched, shown in search, then discarded on insert.
+  element-reuse rewrite rejected in D-031 would fix that); the 🎬 placeholder is
+  an emoji (vs D-027); "Not rated yet" is crimson (an error colour for a
+  non-error); `confirm()` is the last native modal; no `:focus-visible` on card
+  controls; and `tmdb_rating` is fetched, shown in search, then discarded on
+  insert.
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
   issues) and a label inconsistent with the Search one ("Add to my list" vs

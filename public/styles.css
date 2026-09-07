@@ -528,8 +528,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
-.card-actions button:hover { color: var(--amber); border-color: var(--amber); }
-.card-actions button.danger:hover { color: var(--crimson); border-color: var(--crimson); }
+/* `:not(:disabled)` so a button mid-request doesn't light up under the cursor —
+   these are outline buttons, so opacity is the right dimming tool here. */
+.card-actions button:hover:not(:disabled) { color: var(--amber); border-color: var(--amber); }
+.card-actions button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
+.card-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Ranked list, narrow viewports. Lives HERE, at the end of the section it
    modifies, like every other media query in this file (500px after search,
@@ -810,6 +813,18 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
+/* Busy/disabled while a save is in flight. Two different treatments on purpose,
+   per the rule the Search button settled: opacity dims an OUTLINE button
+   convincingly, but a saturated amber FILL at 45% still composites to an
+   unmistakably amber button over --bg, so the filled one has to leave the amber
+   family entirely rather than just fade. */
+.rate-dialog button:disabled { cursor: not-allowed; }
+.rate-dialog button.ghost:disabled { opacity: 0.45; }
+.rate-dialog button.primary:disabled {
+  background: var(--bg-card);
+  color: var(--ink-dim);
+  border-color: var(--line);
+}
 
 /* AI call log dialog ------------------------------------------------ */
 .log-dialog {
