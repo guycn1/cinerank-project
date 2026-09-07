@@ -792,8 +792,10 @@ body:has(dialog[open]) { overflow: hidden; }
    transitioned discretely so the fade-OUT is visible (the element stays rendered
    and in the top layer until the fade finishes). */
 .rate-dialog,
+.confirm-dialog,
 .log-dialog,
 .rate-dialog::backdrop,
+.confirm-dialog::backdrop,
 .log-dialog::backdrop {
   --dialog-fade: 250ms;
   opacity: 0;
@@ -803,21 +805,26 @@ body:has(dialog[open]) { overflow: hidden; }
     overlay var(--dialog-fade) allow-discrete;
 }
 .rate-dialog[open],
+.confirm-dialog[open],
 .log-dialog[open],
 .rate-dialog[open]::backdrop,
+.confirm-dialog[open]::backdrop,
 .log-dialog[open]::backdrop {
   opacity: 1;
 }
 @starting-style {
   .rate-dialog[open],
+  .confirm-dialog[open],
   .log-dialog[open],
   .rate-dialog[open]::backdrop,
+  .confirm-dialog[open]::backdrop,
   .log-dialog[open]::backdrop {
     opacity: 0;
   }
 }
 
-.rate-dialog {
+.rate-dialog,
+.confirm-dialog {
   border: 1px solid var(--line);
   background: var(--bg-raised);
   color: var(--ink);
@@ -830,8 +837,10 @@ body:has(dialog[open]) { overflow: hidden; }
      that centres a modal <dialog> — restore it here (centres both axes). */
   margin: auto;
 }
-.rate-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
-.rate-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
+.rate-dialog::backdrop,
+.confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+.rate-dialog h3,
+.confirm-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
@@ -857,23 +866,69 @@ body:has(dialog[open]) { overflow: hidden; }
   font-size: 0.85rem;
   line-height: 1.4;
 }
-.rate-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
-.rate-dialog button {
+.rate-dialog menu,
+.confirm-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
+.rate-dialog button,
+.confirm-dialog button {
   border-radius: 8px; padding: 0.5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
 }
-.rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
+.rate-dialog button.ghost,
+.confirm-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
 /* Busy/disabled while a save is in flight. Two different treatments on purpose,
    per the rule the Search button settled: opacity dims an OUTLINE button
    convincingly, but a saturated amber FILL at 45% still composites to an
    unmistakably amber button over --bg, so the filled one has to leave the amber
    family entirely rather than just fade. */
-.rate-dialog button:disabled { cursor: not-allowed; }
-.rate-dialog button.ghost:disabled { opacity: 0.45; }
+.rate-dialog button:disabled,
+.confirm-dialog button:disabled { cursor: not-allowed; }
+.rate-dialog button.ghost:disabled,
+.confirm-dialog button.ghost:disabled { opacity: 0.45; }
 .rate-dialog button.primary:disabled {
   background: var(--bg-card);
   color: var(--ink-dim);
   border-color: var(--line);
+}
+
+/* Confirm dialog -----------------------------------------------------
+   Everything structural — the panel shell, the backdrop, the Fraunces
+   heading, the button row and the ghost/disabled treatments — is SHARED with
+   .rate-dialog by adding this class to those selector lists above, not by
+   copying their declarations here. Adding a selector to a list cannot change
+   what the other selectors in it match, so the rate dialog is provably
+   unaffected, and the two can never drift apart the way two copies would.
+   Only what is genuinely different lives below. */
+
+/* Tighter than the rate dialog's 1rem, because the sentence underneath belongs
+   to the question rather than starting a new block the way a form field does. */
+.confirm-dialog h3 {
+  margin-bottom: 0.55rem;
+  /* A film title goes inside this heading, and titles are arbitrary user-facing
+     strings — a long unbroken one would otherwise push past the panel edge. */
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+/* The consequence line. --ink-dim and small, like every other explanatory line
+   in the app (.tagline, .result-row .meta, .unrated__hint) — it is context for
+   the question above it, not a warning shouting on its own. The stakes are
+   carried by the words and by the crimson button, not by colouring the prose. */
+.confirm-dialog .confirm-body {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+/* The destructive action. The only visual difference from the rate dialog's
+   `.primary` is the hue: filled, so it is unmistakably the committing button,
+   but crimson rather than amber, matching the `.danger` Remove button on the
+   card that opened this. Dark text on the fill for the same reason .primary
+   uses #1a1205 — a saturated fill needs a dark label, not --ink.
+   No :hover rule, deliberately: neither dialog's buttons have one, and adding
+   it to this one alone would leave Cancel sitting inert beside a button that
+   reacts. Focus styling is item #10's job, for all of them at once. */
+.confirm-dialog button.danger {
+  background: var(--crimson);
+  color: #2a0f0c;
+  border-color: var(--crimson);
 }
 
 /* AI call log dialog ------------------------------------------------ */
@@ -1457,6 +1512,6 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
   .log-reveal::details-content,
-  .rate-dialog, .log-dialog,
-  .rate-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
+  .rate-dialog, .confirm-dialog, .log-dialog,
+  .rate-dialog::backdrop, .confirm-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
 }

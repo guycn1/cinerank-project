@@ -28,6 +28,10 @@ const el = {
   rateCancel: $('#rate-cancel'),
   rateSave: $('#rate-save'),
   rateError: $('#rate-error'),
+  confirmDialog: $('#confirm-dialog'),
+  confirmTitle: $('#confirm-title'),
+  confirmBody: $('#confirm-body'),
+  confirmOk: $('#confirm-ok'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
   logClose: $('#log-close'),
@@ -644,8 +648,55 @@ el.rateForm.addEventListener('submit', async (e) => {
   }
 });
 
+/**
+ * The app's own confirm, replacing window.confirm(). Resolves true only if the
+ * user pressed the confirming button — Escape, the backdrop, or Cancel all
+ * resolve false, so every ambiguous exit is the safe one.
+ *
+ * `returnValue` is reset before opening rather than trusted: it persists on the
+ * element between opens, and engines disagree on whether an Escape dismissal
+ * clears it. Resetting makes "true" reachable ONLY through a real click on the
+ * confirming button, whatever the browser does with Escape.
+ *
+ * The `close` event is the single resolution point — it fires for the buttons
+ * (via `method="dialog"`, which sets returnValue from the submitter) and for
+ * Escape alike, so there is no dismissal path that leaves the promise pending.
+ */
+function confirmAction({ title, body, confirmLabel = 'Remove' }) {
+  el.confirmTitle.textContent = title;
+  el.confirmBody.textContent = body;
+  el.confirmOk.textContent = confirmLabel;
+  el.confirmDialog.returnValue = '';
+  return new Promise((resolve) => {
+    el.confirmDialog.addEventListener(
+      'close',
+      () => resolve(el.confirmDialog.returnValue === 'confirm'),
+      { once: true },
+    );
+    el.confirmDialog.showModal();
+  });
+}
+
 async function removeMovie(movie, btn) {
-  if (!confirm(`Remove “${movie.title}” from your ranking?`)) return;
+  // Name what actually goes with it. Incident 1 is the reason this is spelled
+  // out rather than left to "are you sure?": a rating and a review are typed
+  // once and gone for good — the free tier has no point-in-time recovery, so
+  // "this can't be undone" is literal, not boilerplate.
+  // Built from what this film really has, never assumed: a film can be rated
+  // with no review, and (the PATCH endpoint permits it — backlog #15) reviewed
+  // with no rating. Promising to delete a review that was never written would
+  // be its own small lie.
+  const lost = [];
+  if (movie.rating != null) lost.push(`your ${movie.rating.toFixed(1)} rating`);
+  if (movie.review) lost.push('your review');
+  const body = lost.length
+    ? `${lost.join(' and ')} will go with it — this can’t be undone.`
+    : 'This can’t be undone.';
+  const confirmed = await confirmAction({
+    title: `Remove “${movie.title}”?`,
+    body: body[0].toUpperCase() + body.slice(1),
+  });
+  if (!confirmed) return;
   // Spinner only, no busy LABEL: busyButton locks the button's current width as
   // a min-width, and "Removing…" is far wider than "Remove", so a label would
   // grow the button and shove its neighbour sideways mid-request. The card

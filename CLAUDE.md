@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog items 1-8 and 12 done, #9 is next — see the canonical 20-item table in the ranked-list bullet)
+**Last updated:** 2026-09-08 (ranked-list backlog items 1-9 and 12 done, #10 is next — see the canonical 20-item table in the ranked-list bullet)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -385,6 +385,23 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     The rank slot's `?` stays faint on purpose (D-029) — one marker, in the body,
     beside the button that resolves it.
 
+  - **Remove is confirmed by the app's own dialog, not `window.confirm()`** —
+    the last piece of native browser chrome in the UI, and the one modal that
+    ignored the whole design language. The new `.confirm-dialog` shares the rate
+    dialog's shell, backdrop, fade, Fraunces heading and button row by being
+    ADDED to those selector lists rather than by copying their declarations:
+    adding a selector to a list cannot change what the other selectors match, so
+    the rate dialog is provably untouched (it was not to be re-tested), and the
+    two cannot drift. Only the crimson `.danger` fill, the tighter heading and
+    the consequence line are its own. Copy names what is actually lost — built
+    from the film's real state, so it never promises to delete a review that was
+    never written — and says the deletion cannot be undone, which after Incident
+    1 is literal: the free tier has no point-in-time recovery. `role="alertdialog"`
+    + `aria-describedby` so the consequence is announced, `autofocus` on Cancel
+    so a stray Enter is the safe choice, and `returnValue` is reset before every
+    open so "confirmed" is reachable ONLY by clicking the button — engines
+    disagree about what Escape leaves behind.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -402,8 +419,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** — D-032 |
 | 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
 | 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
-| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | open — **next** |
-| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | open |
+| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
+| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | open — **next** |
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — scope call |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |

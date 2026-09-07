@@ -137,6 +137,30 @@
     </form>
   </dialog>
 
+  <!-- Destructive-action confirm. Replaces window.confirm(), which was the last
+       piece of native browser chrome left in the app: OS-styled, unthemeable,
+       and it froze the whole page on a synchronous call.
+       role="alertdialog" (not the implicit "dialog") is the correct role for a
+       modal that interrupts to confirm a consequence, and it makes assistive
+       tech announce the body text on open — hence aria-describedby, which a
+       plain dialog would not need.
+       Cancel carries `autofocus` deliberately. A <dialog> otherwise focuses its
+       first focusable child, and for a destructive action the safe choice is
+       what a stray Enter should land on. Esc resolves to cancel too.
+       Title and body are filled in by confirmAction(); the body names what is
+       actually about to be lost, so it is written per film, not hardcoded. -->
+  <dialog id="confirm-dialog" class="confirm-dialog" role="alertdialog"
+          aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <form method="dialog">
+      <h3 id="confirm-title"></h3>
+      <p class="confirm-body" id="confirm-body"></p>
+      <menu>
+        <button value="cancel" type="submit" class="ghost" id="confirm-cancel" autofocus>Cancel</button>
+        <button value="confirm" type="submit" class="danger" id="confirm-ok">Remove</button>
+      </menu>
+    </form>
+  </dialog>
+
   <!-- AI call log -->
   <dialog id="log-dialog" class="log-dialog" aria-labelledby="log-title">
     <header>
