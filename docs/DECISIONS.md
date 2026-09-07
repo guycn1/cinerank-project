@@ -7,6 +7,40 @@ file, directly under this header.**
 
 ---
 
+## D-032 · A failed save reports inside the rate dialog, not via the toast
+Testing the save-failure path (throttled to Offline) showed the crimson toast
+appearing *behind* the rate dialog and dimmed by its backdrop — legible only if
+you already knew it was there.
+
+**The obvious fix does not exist.** A modal `<dialog>` opened with `showModal()`
+is in the **top layer**, which paints above every normal element *regardless of
+`z-index`* — there is no value that lifts the toast above it, and the
+`::backdrop` dims everything beneath as well. The only ways into the top layer
+are another modal dialog or the Popover API. Converting the toast to a popover
+would work, but it means fighting the UA's `[popover]` defaults (`position:
+fixed; inset: 0; margin: auto; border: solid`) on a component every flow depends
+on, hours before submission, to serve one call site.
+
+Decision: report the failure **inline in the dialog**, above the buttons, and
+leave the toast for confirmations. This is not a workaround — it is what the rest
+of the app already does. Search failures render in the results panel via
+`searchNote()`, the verdict's failure replaces the verdict text, the recs error
+belongs in `#recs-hint`. **Errors go next to the thing that failed; the toast
+reports things that succeeded.** The rate dialog was the one place breaking that
+pattern, and the top-layer problem was the symptom rather than the cause.
+
+**Trap: do not "fix" this later by making the toast a popover and reverting the
+inline error.** That would restore a page-level error message for a failure whose
+context is entirely inside the dialog, and it would put the rate dialog back out
+of step with the other three sections.
+
+Two toast calls still fire while a dialog is *closing* ("Added … — rate it any
+time" on Skip, and "Saved — ranking updated"). Both are dimmed for the ~250ms of
+the dialog's fade-out. Both are confirmations rather than errors and remain
+readable for the other ~3s, so they are deliberately left alone.
+
+---
+
 ## D-031 · The ranked list re-sorts with a View Transition, not a rewritten renderer
 `renderRanked()` opens with `replaceChildren()`, so every render destroys and
 rebuilds every card — and each card carried `animation: fade-slide` with a

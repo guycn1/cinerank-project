@@ -27,6 +27,7 @@ const el = {
   rateReview: $('#rate-review'),
   rateCancel: $('#rate-cancel'),
   rateSave: $('#rate-save'),
+  rateError: $('#rate-error'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
   logClose: $('#log-close'),
@@ -551,6 +552,12 @@ async function addMovie(tmdbId, btn) {
 }
 
 /* ---------- rate / remove ------------------------------------------- */
+/** Show or clear the rate dialog's inline error. Empty string clears it. */
+function setRateError(message) {
+  el.rateError.textContent = message;
+  el.rateError.hidden = !message;
+}
+
 function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
   state.editingIsNew = isNew;
@@ -561,6 +568,7 @@ function openRate(movie, { isNew = false } = {}) {
   el.rateRange.value = movie.rating ?? 7;
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
   el.rateReview.value = movie.review ?? '';
+  setRateError('');
   el.rateDialog.showModal();
 }
 el.rateRange.addEventListener('input', () => {
@@ -585,6 +593,7 @@ el.rateForm.addEventListener('submit', async (e) => {
   // the user's typed review destroyed and no way to retry it. Now it closes
   // only after the write is known to have succeeded.
   e.preventDefault();
+  setRateError(''); // a retry starts clean
   const settleSave = busyButton(el.rateSave, 'Saving…');
   // Cancel is disabled for the duration too: mid-write it can neither undo the
   // request nor be trusted to mean "discard". Esc still closes the dialog, so
@@ -608,8 +617,11 @@ el.rateForm.addEventListener('submit', async (e) => {
     toast('Saved — ranking updated.');
   } catch (err) {
     // Deliberately leaves the dialog open with the rating and review exactly as
-    // typed, so Save can simply be pressed again.
-    toast(err.message, true);
+    // typed, so Save can simply be pressed again. Reported INLINE rather than as
+    // a toast: this dialog is modal, so it is in the top layer and its
+    // ::backdrop dims the page — a toast fired here is behind it and greyed
+    // out, which is exactly how it looked before this changed.
+    setRateError(err.message);
   } finally {
     settleSave();
     el.rateCancel.disabled = false;

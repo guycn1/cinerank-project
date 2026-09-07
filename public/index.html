@@ -123,6 +123,13 @@
       <input type="range" id="rate-range" min="0" max="10" step="0.1" value="7" />
       <label for="rate-review">Review <span>(optional)</span></label>
       <textarea id="rate-review" rows="3" maxlength="2000" placeholder="One line on why…"></textarea>
+      <!-- A failed save reports HERE, not via the toast. A modal dialog sits in
+           the top layer and its ::backdrop dims everything below, so a toast
+           fired while this is open is both behind it and dimmed — invisible in
+           practice. It also matches how the rest of the app reports failure:
+           inline, next to the thing that failed (search panel, verdict banner,
+           recs hint). The toast stays for confirmations. -->
+      <p class="rate-error" id="rate-error" role="alert" hidden></p>
       <menu>
         <button value="cancel" type="submit" class="ghost" id="rate-cancel">Cancel</button>
         <button value="save" type="submit" class="primary" id="rate-save">Save</button>

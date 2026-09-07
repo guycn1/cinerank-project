@@ -807,6 +807,17 @@ body:has(dialog[open]) { overflow: hidden; }
   padding: 0.6rem;
   resize: vertical;
 }
+/* Inline save error. Same crimson-on-small-text vocabulary as `.search-note.err`
+   — failures are reported next to whatever failed, and the toast is left for
+   confirmations. `hidden` is honoured by the global `[hidden]` handling, and it
+   sits directly above the buttons so it reads as "this is why Save didn't
+   work". */
+.rate-dialog .rate-error {
+  margin-top: 0.9rem;
+  color: var(--crimson);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
 .rate-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
 .rate-dialog button {
   border-radius: 8px; padding: 0.5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);

@@ -352,7 +352,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     "Removing…" would grow the button and shove its neighbour. Both also gained
     the `:disabled` styling they never had: opacity for the outline buttons,
     a fill swap out of the amber family for the filled `.primary`, per the rule
-    the Search button settled.
+    the Search button settled. The failure is reported **inline in the dialog**,
+    not by the toast (D-032): a modal `<dialog>` is in the top layer, so no
+    `z-index` can lift a toast above it and the `::backdrop` dims it anyway —
+    and inline is what search, the verdict and recs already do.
   Still open from the audit: expanded reviews collapse on re-render (only the
   element-reuse rewrite rejected in D-031 would fix that); the 🎬 placeholder is
   an emoji (vs D-027); "Not rated yet" is crimson (an error colour for a
