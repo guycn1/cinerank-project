@@ -427,9 +427,12 @@ colour here" → done → never mentioned again; a padding, opacity or breakpoin
 tuned by eye; a bug with one obviously correct fix. All of these are recoverable
 by reading the file, and logging them buries the entries that matter.
 
-**Decisions**, by contrast, look like: three separate questions resolving to one
-principle (D-024); an obvious approach rejected for a non-obvious reason
-(D-027's `⌕`); a reported symptom whose diagnosis turned out backwards (D-026).
+**Decisions**, by contrast, look like: several viable approaches enumerated and
+compared, one of them settled by a finding (D-025 — style the native `×`, hide
+it, or leave it, decided by Firefox drawing none at all); three separate
+questions resolving to one principle (D-024); an obvious approach rejected for a
+non-obvious reason (D-027's `⌕`); a reported symptom whose diagnosis turned
+out backwards (D-026).
 
 **When in doubt, leave it out.** A log padded with tweaks is as useless as an
 empty one — the point is that a reader can find the handful of choices that
