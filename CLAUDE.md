@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-07 (AI call log dialog + Taste verdict section both DONE; Search section is next)
+**Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
@@ -49,7 +49,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
-  both tables; in-app viewer via footer link.
+  both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
 * Tests: `npm test` (Node built-in runner, 32 tests). Pure helpers
@@ -132,11 +132,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `summary` string. `resultCell()` renders: failed → error inline; recommendation
     → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
     `<details>` revealing the text. `<details name="ai-log-result">` so opening
-    one closes the others. The column is pinned to `width: 9.5rem` and the
-    revealed content is `position: absolute` (a small floating panel, ~0.72em
+    one closes the others. The column is pinned to a fixed width (9.5rem
+    originally, 8rem now) and the
+    revealed content is `position: absolute` (a small floating panel, 0.8em
     font) — opening a row can never widen/reflow the table or steal width from
-    other columns. Caveat: a panel opened on the very last visible row can be
-    clipped by `.log-scroll`'s overflow (scroll or resize to see it).
+    other columns. (An early caveat about the last row's panel being clipped is
+    obsolete twice over: `.log-scroll` is `overflow: visible` so it clips nothing,
+    and the panel now flips above its trigger when there is no room below.)
     Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
   - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
     Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
@@ -153,7 +155,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `thead` hidden; abbreviations swapped back to full text via
     `abbr::after { content: attr(title) }`). Reveal panels flow inline in card mode. A document click listener collapses an open
     reveal panel on any click outside it (clicks on its own text keep it open so
-    it stays selectable). Reveal panels fade 200ms (`::details-content` +
+    it stays selectable). Reveal panels fade (`::details-content` +
     `@starting-style`).
   - **Sticky rows.** The whole dialog is the single scroller; only `thead`
     (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
@@ -184,7 +186,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     room below (measured in JS on `toggle`, kept on close so it doesn't jump
     mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
     eased on hover; outside-click / Esc dismiss.
-* Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
+* Both modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
@@ -206,7 +208,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   through the close. The panel-opacity duration and the `::details-content`
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
-  (200ms) on `.log-reveal`. That's the single knob for the fade speed.
+  (250ms) on `.log-reveal`. That's the single knob for the fade speed.
 * **AI call log dialog — COMPLETE** (desktop table + mobile card view). The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
@@ -258,8 +260,54 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
-* Next: **the Search section**, then the ranked list, recs and rate dialog —
-  user is driving this.
+* **Search section — DONE** (2026-09-07). Behaviour first, then chrome.
+  - Seven fixes in one pass: a dead `row` click handler whose body was only a
+    guarded early return; `.result-row`'s `cursor: pointer`, which promised a
+    click the row never had; open results going stale after an add (one
+    `setAddButtonState()` now renders the states and `syncSearchResultButtons()`
+    re-applies it to every row from `loadMovies()`, so removals re-open the
+    offer too); Search + Add gaining the shared `busyButton()` treatment; the
+    last inline `element.style` writes in app.js replaced by `searchNote()` +
+    `.search-note`; the panel gaining an Escape dismissal; and an empty query,
+    which used to be a silent no-op, now saying so and focusing the input.
+  - **The panel is persistent, not a dropdown (D-024).** Outside-click dismissal
+    and close-on-add were both built and then removed: `.search-results` is in
+    normal flow and obscures nothing, so there is nothing to get out of the way
+    of, and every auto-dismissal cost a TMDB round-trip to undo. Close-on-add
+    was also self-defeating — it ran in the same tick as the "✓ Added" settle,
+    so that state could never be painted, and it left no rows for the sync to
+    update. Escape closes it; a new search replaces it.
+  - Add button states: `+ Add` → `⟳ Adding…` → `✓ Added`, or `In your list` for
+    something already owned. **"✓ Added" is sticky (D-026)** via
+    `dataset.justAdded` — saving a rating used to run `loadMovies()` again and
+    quietly reset it, while skipping did not. All three states are `disabled`,
+    so one `:disabled` rule covers them.
+  - **Icons: inline SVG or plain characters, never emoji (D-027).** The `+` is
+    U+002B (inherits `currentColor`, so it follows hover and the disabled dim);
+    the magnifier under 500px is an inline SVG, because `⌕` (U+2315) sits
+    outside the Inter subset the page downloads and would render as tofu. Its
+    orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
+    `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
+    is unreliable on a `<button>`, and shrinking is what clipped the label.
+  - Browser's native `type="search"` clear × hidden (D-025): styling it would
+    still leave Firefox (which draws none) different, and it only half-worked —
+    it cleared the input but left the results panel populated.
+  - **Graceful degradation, all four paths hand-tested:** TMDB down on search,
+    TMDB down on add, CineRank itself unreachable, and the *non*-error empty
+    state. `api()` now catches the network-level fetch rejection so the
+    browser's own engine-specific wording ("Failed to fetch") never reaches the
+    UI, while an HTTP error response still surfaces the server's user-facing
+    message. "No matches" moved from `makeError` to the muted `searchNote` — an
+    empty result set is not a failure and should not be crimson.
+  - `.search button:disabled` no longer relies on opacity. It is the only FILLED
+    button; amber at 55% still composites to an unmistakably amber ~#8c6f39, so
+    it read as active for the whole second it said "Searching…". The fill now
+    leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
+    keep opacity, where it works.
+* Next: **the ranked list**, then recommendations and the rate dialog. The recs
+  section carries a known open bug (its error message is overwritten by its own
+  `finally` — see Open issues) and a label inconsistent with the Search one
+  ("Add to my list" vs "+ Add"). User is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -373,7 +421,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * Keep TMDB calls and OpenRouter calls in separate service modules — never inline `fetch()` calls directly inside route handlers.
 * All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) — never hand-built SQL strings.
 * The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file — each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
-* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation\_logs` or `taste\_verdict\_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer link) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
+* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation\_logs` or `taste\_verdict\_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
 * Do not add authentication/multi-user support unless explicitly asked — SPEC.md marks this as v1 out-of-scope.
 
 \---

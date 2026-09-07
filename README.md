@@ -5,7 +5,7 @@ A personal movie-ranking app where the database and the AI each earn their place
 - **The database** tracks a growing *taste profile* (your rated films + reviews) that
   is read back to ground AI recommendations, and it keeps an **audit log of every AI
   call** — prompt version, model, token split, duration, success/failure, estimated
-  cost. Viewable in-app via the "AI call log" link in the footer.
+  cost. Viewable in-app via the "AI call log" button in the footer.
 - **The AI** (via OpenRouter) has one narrow job: given your top-rated films, name
   similar ones you haven't added — and it is **never trusted for facts**. Every
   suggested title is cross-checked against TMDB, which supplies the real poster,
@@ -64,7 +64,7 @@ docs/PROCESS.md     how it was built with an LLM in the loop
 3. Trigger a recommendation run, narrating: top-N pulled → versioned prompt sent →
    each returned title cross-checked against TMDB → row written to
    `recommendation_logs`.
-4. Open the in-app **AI call log** (footer link) — show prompt version, model,
+4. Open the in-app **AI call log** (footer button) — show prompt version, model,
    token split, duration, status, and per-call cost for both features.
 5. Try a duplicate add and a recommendation run below the 3-rated threshold — show
    both graceful states.

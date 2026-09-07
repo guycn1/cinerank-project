@@ -117,7 +117,7 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   btn.replaceChildren(spinnerNode(), busy);
   // Ends the busy state. With no argument the button goes back exactly as it
   // was, enabled. Pass text to settle on a new label instead and stay disabled —
-  // for an action that cannot be repeated ("Added ✓", "In your list").
+  // for an action that cannot be repeated ("✓ Added", "In your list").
   return (settledLabel) => {
     btn.removeAttribute('aria-busy');
     btn.style.minWidth = '';

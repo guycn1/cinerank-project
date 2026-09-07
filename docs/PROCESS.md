@@ -74,7 +74,7 @@ it reaches the DOM.
 Once an AI call is attempted, a log row is **always** written — success *or*
 failure — with `status`, `error_text`, token split and duration. A handled
 model/parse/network failure logs `status='failed'` and then re-throws for a calm
-inline message in the UI. The in-app "AI call log" viewer (footer link) shows
+inline message in the UI. The in-app "AI call log" viewer (footer button) shows
 both log tables merged, so the audit trail is demonstrable in the browser, not
 only in the Supabase table editor.
 
