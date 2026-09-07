@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
+**Last updated:** 2026-09-08 (deployed to Render; ranked-list backlog items 1-7 and 12 done, #8 is next — see the canonical 19-item table in the ranked-list bullet)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -373,11 +373,36 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     a flat `1.4rem` that was identical in a 46px search row and a ~190px rec
     card. **No emoji remain in rendered output anywhere** — the only ones left in
     the source are inside comments explaining why they were rejected.
-  Still open from the audit: expanded reviews collapse on re-render (only the
-  element-reuse rewrite rejected in D-031 would fix that); "Not rated yet" is
-  crimson (an error colour for a non-error); `confirm()` is the last native
-  modal; no `:focus-visible` on card controls; and `tmdb_rating` is fetched,
-  shown in search, then discarded on insert.
+
+#### Ranked-list backlog — THE canonical list, worked in numeric order
+
+Claude audited the section on 2026-09-07 and produced items 1–17; the user added
+18–19. **This list is the source of truth** — it previously existed only in chat
+and would have been lost to a compact. Keep the statuses current as items land,
+and do not renumber: the numbers are how the user refers to them.
+
+| # | Item | Status |
+|---|---|---|
+| 1 | Unrated films got a rank number, contradicting their own "rate it to place it" caption; the gold #1 was `:first-child`, so it could crown an unrated film | **done** — D-029 |
+| 2 | Poster overflowed its column below 620px (width declared twice) | **done** |
+| 3 | Multi-digit rank numerals: 2-digit fine everywhere, 3-digit ran under the poster | **done** — D-030 |
+| 4 | The whole list replayed its staggered entrance on every add/rate/remove | **done** — D-031 |
+| 5 | "view more…" toggle measured once per render, never on resize/zoom/font-swap | **done** (+ the expanded-review follow-up) |
+| 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** — D-032 |
+| 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
+| 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | open — **next** |
+| 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | open |
+| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | open |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — scope call |
+| 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
+| 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
+| 16 | Copy inconsistencies: `'Removed.'` vs `Added “X” — rate it any time.`; `Saved — ranking updated.` claims a ranking change even when only the review was edited; `5 films · 5 rated` reads oddly | open |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
+| 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
+
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
   issues) and a label inconsistent with the Search one ("Add to my list" vs
