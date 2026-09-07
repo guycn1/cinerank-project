@@ -330,8 +330,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
 
 .movie-card {
+  /* One source of truth for the poster's width — the grid track AND the image
+     itself both read it, so they cannot fall out of step. They had: the 620px
+     query narrowed the track to 68px and left the image declaring 92px, so the
+     poster hung 24px into the title column on every phone. Override this one
+     property to resize the poster; never restate the number. */
+  --poster-w: 92px;
   display: grid;
-  grid-template-columns: 64px 92px 1fr auto;
+  grid-template-columns: 64px var(--poster-w) 1fr auto;
   gap: 1.2rem;
   align-items: center;
   background: var(--bg-card);
@@ -374,7 +380,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 
 .movie-card__poster {
-  width: 92px; height: 138px;
+  width: var(--poster-w);
+  /* Height derived, not restated: TMDB posters are 2:3, so 92x138 was already
+     exactly this. Kept as a calc rather than `aspect-ratio` because .noposter
+     is a div whose ::after sizes itself `height: 100%` — that percentage needs
+     a definite parent height, which a calc guarantees on every engine. */
+  height: calc(var(--poster-w) * 1.5);
   border-radius: 8px;
   object-fit: cover;
   background: var(--bg-raised);
@@ -1261,7 +1272,10 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @media (max-width: 620px) {
-  .movie-card { grid-template-columns: 40px 68px 1fr; }
+  /* Resize the poster by overriding --poster-w only — the track and the image
+     both follow it. Restating a width on .movie-card__poster here is what
+     caused the overflow this rule used to have. */
+  .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
   .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
 }
 
