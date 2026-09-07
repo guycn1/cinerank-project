@@ -41,20 +41,38 @@ on and the user accepted:
   the track is fixed and only the *text* ever overflowed — so posters stay
   aligned card to card either way.
 
-Implemented as a lowered clamp **ceiling** (`clamp(2.2rem, 6vw, 2.75rem)`) rather
-than a flat size, which makes the rule a no-op below a ~733px viewport: mobile
-was measured as already clearing the poster, so it is left completely untouched.
 CSS cannot count characters, so `renderRanked()` marks the digit count with an
 `is-wide` class; the threshold is 99 and not 9 because two digits were measured
 and fit at every width.
 
-**Two agent errors, both caught by the user.** The first description of the
+**The size took three passes, because the first two were estimated instead of
+measured — this is the substantive lesson of the entry.** `2.75rem` was derived
+from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
+`2.1rem` then over-corrected to a pessimistic ~0.8em, which cleared but made
+#100 conspicuously smaller than #99 — sliding back toward the "ugly, sloppy"
+look the fix existed to avoid. Only then was the value actually measured, with
+`Range.getBoundingClientRect()` on a live `222`: **0.66em per digit** (66.5px at
+a 33.6px font). Solving against that gives `clamp(1.9rem, 4.8vw, 2.5rem)` —
+*larger* than the pass before it, ≥9px clear on desktop and ≥6.8px in card mode,
+and a gentler 0.74× step down from the two-digit size. **Re-measure, never
+re-tune by eye.**
+
+Two details that fall out of the real numbers. The binding side is the card's
+**17.6px padding**, not the 19.2px gap, so the left edge is what constrains the
+size. And the `4.8vw` middle term is load-bearing rather than decorative: it
+brings the numeral to 30.4px by the 620px breakpoint, where the track drops
+64px → 40px and the budget collapses from 99px to 75px in a single step.
+
+**Three agent errors, all caught by the user.** (1) The first description of the
 failure claimed the numeral "sits flush against the [card] border" and that
-nothing clipped it — a screenshot showed it actually vanishing under the poster,
-and the digit-width estimate behind that claim (~0.58em) was low. It was
-corrected in place rather than preserved, per the "wrong when written" exception.
-Second, the original audit flagged *two*-digit ranks as broken on mobile; they
-are not, and the user disproved it with a sharper test than the one suggested —
+nothing clipped it — a screenshot showed it vanishing under the poster instead.
+Corrected in place rather than preserved, per the "wrong when written"
+exception. (2) The claim that the fix was a no-op in card mode, and that card
+mode already cleared the poster on its own — both followed from the same bad
+figure-width estimate; the 40px track is in fact *tighter* relative to its font
+than the 64px one, so the clamp floor had to come down as well as the ceiling.
+(3) The original audit flagged *two*-digit ranks as broken on mobile; they are
+not, and the user disproved it with a sharper test than the one suggested —
 forcing ranks to 20+ instead of 10+, so the narrow `1` could not flatter the
 result.
 

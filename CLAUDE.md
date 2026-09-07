@@ -332,12 +332,15 @@ below — this list is the smaller stuff.)
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
   ranks were fine at every width (checked at ~350px with numerals forced to 20+,
   so the narrow `1` couldn't flatter the test). Three were not: the font clamps
-  at `3.4rem` = 54.4px and Fraunces Black figures run ~0.63em, so "250" painted
-  ~102px against a ~99px budget (64px track + the 17.6px padding and 19.2px gap
-  it may legitimately spill into), and the poster — later in DOM order — covered
-  the last digit. `renderRanked()` now marks 100+ with `is-wide`, which lowers
-  only the clamp *ceiling* to `2.75rem`: a no-op below a ~733px viewport, ~86px
-  and 6.5px of clearance per side on desktop. **The trap, if this is ever
+  at `3.4rem` = 54.4px and Fraunces Black figures measure **0.66em**, so "250"
+  painted ~110px against a ~99px budget (64px track + the 17.6px padding and
+  19.2px gap it may legitimately spill into), and the poster — later in DOM
+  order — covered the last digit. `renderRanked()` now marks 100+ with
+  `is-wide` → `clamp(1.9rem, 4.8vw, 2.5rem)`, **solved** against that measured
+  figure width; clears by ≥9px on desktop and ≥6.8px in card mode. Two earlier
+  values were *estimated* and both wrong (0.63em too low, then 0.8em
+  over-corrected) — re-measure with `Range.getBoundingClientRect()`, never
+  re-tune this by eye. **The trap, if this is ever
   revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
   misalign every poster's left edge down the list, trading a rare problem for a
   permanent one. 1000+ is unhandled by choice.
