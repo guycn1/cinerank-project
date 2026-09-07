@@ -196,6 +196,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   transition: border-color 0.2s;
 }
 .search input:focus { outline: none; border-color: var(--amber); }
+/* Drop the browser's own clear button. Chromium/Safari draw an unthemed blue ×
+   here; Firefox draws nothing at all — so STYLING it would still leave the
+   browsers disagreeing, just with a nicer × in two of them. Hiding it is the
+   only option that looks the same everywhere. It also only half-worked: it
+   clears the input but leaves .search-results showing matches for a query no
+   longer in the box. `type="search"` stays for the semantics and the mobile
+   keyboard's Search key — this drops only the chrome. */
+.search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
 .search button {
   background: var(--amber);
   color: #1a1205;
