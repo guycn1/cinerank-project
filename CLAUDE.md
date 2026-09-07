@@ -71,7 +71,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
-  spinners `aria-hidden`.
+  spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
+  backlog #10 — a bare selector, so anything focusable added later is covered
+  without being remembered; `.search input` is the one deliberate exception, see
+  the ranked-list bullets), and the destructive-action confirm's
+  `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
+  just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
 ### Front-end overhaul (in progress — started 2026-09-05)
 * Both modal `<dialog>`s (rate, AI call log) re-centred: the global
