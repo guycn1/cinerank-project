@@ -7,6 +7,98 @@ file, directly under this header.**
 
 ---
 
+## D-031 · The ranked list re-sorts with a View Transition, not a rewritten renderer
+`renderRanked()` opens with `replaceChildren()`, so every render destroys and
+rebuilds every card — and each card carried `animation: fade-slide` with a
+staggered delay. Rating one film therefore replayed the *entire* list's entrance:
+~850ms of the whole page shimmering because one number changed. Removing a film
+was worse — the list vanished and re-entered. Meanwhile the README's demo script
+promises "the ranked list **re-sorting live** as ratings change", and there was
+no re-sorting to watch: the list blinked out and a new one faded in.
+
+Four options were laid out:
+
+* **A — animate first paint only** (~6 lines). Kills the churn, keeps the
+  entrance on load. But the list still hard-swaps, and expanded reviews still
+  collapse.
+* **B — reuse card elements keyed by movie id** (~50 lines). The "proper" fix:
+  fixes the churn, the collapsing reviews and the poster churn, and is the
+  prerequisite for C.
+* **C — B plus a FLIP transition** (~25 more lines). Cards visibly slide.
+* **D — `document.startViewTransition()`** (~10 lines). The browser snapshots
+  before and after and morphs between them, matching elements by
+  `view-transition-name` — so it delivers C's effect *without* B's refactor,
+  because it does not care that the elements were destroyed.
+
+**Claude recommended B, then C. The user overruled it, correctly, on time and
+risk.** With hours left before submission, B's failure mode is the wrong shape:
+a missed field on a reused card produces a *stale card that still looks
+correct*, which is the most expensive kind of bug to find under time pressure —
+and B meant rewriting the function whose rated/unrated logic D-029 had just
+settled. D's failure mode is the opposite: feature-detect, and an unsupported
+browser gets exactly today's behaviour. Nothing half-renders.
+
+**A and D ship together, not D alone.** D on its own would fight the existing
+entrance: every rebuilt card still runs `fade-slide` *inside* a snapshot that is
+simultaneously cross-fading it. Muddy. A is what makes D legible.
+
+### The user's question that changed the design
+
+Asked what a removal would look like after generating recommendations and a
+verdict — and whether other sections would morph "just because something updated
+in the ranked list". The answer required correcting the framing: **a View
+Transition snapshots the whole document and cannot be scoped to one section.**
+What follows from that is two cases, not one:
+
+1. **Unchanged, unmoved content** (header, verdict, search) cross-fades against
+   an identical copy of itself. `(1−t)·X + t·X = X` — invisible by construction,
+   not by luck.
+2. **Content that moved** is the real problem. Removing a card shortens the list,
+   so `.recs` and the footer genuinely shift up — they do today too, instantly.
+   Unnamed, they belong to the single `root` group, and cross-fading something
+   that moved renders it as a **ghosted double image at both positions**. With
+   four tall poster cards that would have been glaring.
+
+Hence two mitigations that would not otherwise exist: `view-transition-name` on
+`.recs` and `.site-foot` so they *morph* between positions instead of ghosting,
+and — less obvious — **running the three `sync*()` calls BEFORE the transition
+rather than inside it**, so the recs hint, verdict placeholder and search buttons
+are already settled when the first snapshot is taken. That leaves the ranked list
+as the only difference between the two frames, which is as close to "scoped" as
+the API permits.
+
+### Two Claude errors, both caught
+
+* **Risk "the grain will double-composite" was wrong.** Both root snapshots are
+  flattened images containing the same grain layer, so the cross-fade preserves
+  it at constant strength; only the animation freezes for ~250ms, at
+  `opacity: 0.06`. The user pushed back that the grain was not what worried them
+  — the other *sections* were — and they were right that the analysis had aimed
+  at the wrong target.
+* **Firefox support was recalled as "~139".** MDN says **144** (Chrome/Edge 111,
+  Safari 18). The user checked rather than taking it, and verified live in Edge
+  152, Chrome 152 and Firefox 155. The recollection was close enough to be
+  dangerous — the habit of verifying is what caught it.
+
+### What this deliberately does NOT fix
+
+Expanded reviews still collapse on any re-render, and posters still re-decode,
+because the DOM is still rebuilt. Only option B addresses those; the review
+collapse stays open as its own item. This is a chosen trade, not an oversight.
+
+### Traps
+
+* **Do not name `.ranked` itself.** Cards inside it are named individually, and
+  nesting a named element inside another named one changes which snapshot owns
+  what.
+* **Keep the `sync*()` calls outside the transition callback.** Moving them in
+  reintroduces cross-fading of unrelated text.
+* **`view-transition-name` must be unique per document**, hence the `movie-`
+  prefix on the UUID — a bare UUID can begin with a digit, which is not a valid
+  CSS ident, and a duplicate aborts the entire transition.
+
+---
+
 ## D-030 · Three-digit ranks are capped, not documented away
 A forced test (ranks rewritten to 250+ in the console) showed three-digit
 numerals running under the poster: the rank font clamps at `3.4rem` = 54.4px and

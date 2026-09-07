@@ -368,10 +368,33 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   box-shadow: var(--shadow);
-  animation: fade-slide 0.45s var(--ease) both;
   transition: transform 0.25s var(--ease), border-color 0.25s;
 }
+/* The staggered entrance runs on the FIRST paint only (renderRanked adds the
+   class). It used to sit on .movie-card itself, and since every re-render
+   replaces every card, rating one film replayed the whole list's entrance —
+   ~850ms of the page shimmering because one number changed. Later renders are
+   animated by a View Transition instead; running both made cards fade-slide in
+   while the transition cross-faded them, which looked muddy. */
+.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) both; }
 .movie-card:hover { transform: translateY(-3px); border-color: #34343f; }
+
+/* View Transition names for the two blocks that sit BELOW the ranked list.
+   These exist only because of the list's transition, which is why they live
+   here rather than with their own sections.
+   A View Transition snapshots the whole document; anything without a name is
+   lumped into one `root` group that CROSS-FADES. That is invisible for content
+   which neither changed nor moved (an identical image blended with itself), but
+   removing a card shortens the list, so everything beneath it genuinely shifts
+   up — and cross-fading content that moved renders it as a ghosted double
+   image at both positions. Giving each block its own name makes the browser
+   morph it between the two positions, so it slides instead.
+   Outside a transition these declarations have no rendering effect at all.
+   Do NOT name `.ranked` itself: the cards inside it are named individually, and
+   nesting a named element inside another named one changes which snapshot owns
+   what. Nothing above the list needs a name — it does not move. */
+.recs { view-transition-name: recs-section; }
+.site-foot { view-transition-name: site-footer; }
 
 .movie-card__rank {
   font-family: 'Fraunces', serif;

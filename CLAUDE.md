@@ -304,10 +304,34 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* Next: **the ranked list**, then recommendations and the rate dialog. The recs
-  section carries a known open bug (its error message is overwritten by its own
-  `finally` — see Open issues) and a label inconsistent with the Search one
-  ("Add to my list" vs "+ Add"). User is driving this.
+* **Ranked list — in progress.** Audited into a 17-item list; the user is
+  working it in order. Done so far:
+  - Only a rated film earns a rank number; unrated cards show a faint `?`, and
+    the #1 crown moved off `:first-child` onto a class (D-029).
+  - Poster no longer overflows its column below 620px — the width was declared
+    twice, now one `--poster-w` the grid track and the image both read.
+  - Card buttons stay bottom-right on unrated cards in card mode
+    (`space-between` puts a *lone* child at the start; an auto margin does not).
+  - Three-digit rank numerals capped so the poster can't eat a digit (D-030),
+    sized from a **measured** 0.66em figure width after two wrong estimates.
+  - Ranked list re-sorts with a **View Transition**, and the staggered entrance
+    animation now runs on first paint only (D-031). `.recs` / `.site-foot` carry
+    `view-transition-name`s so they slide rather than ghost when the list
+    shortens; the `sync*()` calls run BEFORE the transition so nothing outside
+    the list differs between snapshots.
+  - Off-list, found while testing: custom scrollbars ballooned under browser
+    zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
+    shrinks the viewport proportionally so `vw` holds a constant physical size).
+  Still open from the audit: expanded reviews collapse on re-render and the
+  review clamp is never re-measured on resize; Remove/Save have no busy state
+  and Save closes the dialog *before* its PATCH runs; the 🎬 placeholder is an
+  emoji (vs D-027); "Not rated yet" is crimson (an error colour for a non-error);
+  `confirm()` is the last native modal; no `:focus-visible` on card controls;
+  and `tmdb_rating` is fetched, shown in search, then discarded on insert.
+* Then: recommendations, then the rate dialog. The recs section carries a known
+  open bug (its error message is overwritten by its own `finally` — see Open
+  issues) and a label inconsistent with the Search one ("Add to my list" vs
+  "+ Add"). User is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**

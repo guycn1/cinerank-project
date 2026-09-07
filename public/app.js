@@ -132,8 +132,55 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
+/**
+ * Run a DOM update inside a View Transition, so a re-sorted list animates to
+ * its new order instead of teleporting.
+ *
+ * The API snapshots the WHOLE document before and after `update()` and morphs
+ * between the two. It cannot be scoped to one section — so the discipline is on
+ * the caller: put ONLY the thing that should animate inside `update()`, and let
+ * everything else already be settled before this is called. Anything unchanged
+ * and unmoved cross-fades against an identical copy of itself, which is
+ * invisible by construction.
+ *
+ * Falls straight through to a plain call when unsupported or when the user asks
+ * for reduced motion — an unsupported browser gets exactly the old behaviour,
+ * which is what makes this safe. (Baseline: Chrome/Edge 111, Firefox 144,
+ * Safari 18.)
+ */
+function withViewTransition(update) {
+  if (
+    typeof document.startViewTransition !== 'function' ||
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    update();
+    return;
+  }
+  const t = document.startViewTransition(update);
+  // A transition superseded by a newer one rejects `ready`. That is normal
+  // here (click Remove twice quickly) and must not surface as an unhandled
+  // rejection in the console.
+  t.ready.catch(() => {});
+  t.finished.catch(() => {});
+}
+
 /* ---------- ranked list ------------------------------------------------- */
+// Has the list been painted at least once? The first paint is an ENTRANCE (the
+// staggered fade-slide, nothing to morph from); every later one is a CHANGE to
+// a list already on screen, and gets the transition instead. Running both at
+// once made cards fade-slide in while the transition simultaneously cross-faded
+// them, which just looked muddy.
+let rankedPainted = false;
+
+/** Re-render the ranked list, animating the difference when there is one. */
+function refreshRanked() {
+  if (!rankedPainted) return renderRanked();
+  withViewTransition(renderRanked);
+}
+
 function renderRanked() {
+  const entering = !rankedPainted;
+  rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
@@ -149,7 +196,15 @@ function renderRanked() {
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
     li.className = 'movie-card';
-    li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+    if (entering) {
+      li.classList.add('is-entering');
+      li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+    }
+    // Pairs this card's before/after snapshots so the browser morphs it from
+    // its old position to its new one. The name must be a valid CSS ident and
+    // unique across the document, hence the prefix — a bare UUID can start with
+    // a digit, and a duplicate aborts the whole transition.
+    li.style.viewTransitionName = `movie-${m.id}`;
 
     // `!= null`, never truthiness: 0.0 is a rating the user deliberately gave,
     // and `0` is falsy — `m.rating ? …` would silently demote a 0.0 film to
@@ -265,10 +320,16 @@ async function loadMovies() {
   const { movies } = await api('/api/movies');
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
-  renderRanked();
+  // The syncs run BEFORE the render, deliberately. A View Transition snapshots
+  // the whole document, so anything these three touch (the recs hint, the
+  // verdict placeholder, the search-result buttons) would cross-fade too.
+  // Settling them first leaves the ranked list as the only difference between
+  // the two snapshots. None of them reads DOM that renderRanked() builds — they
+  // read `state`, which is already updated above — so the order is free.
   syncSearchResultButtons();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
+  refreshRanked();
 }
 
 /* ---------- search + add ---------------------------------------------- */
