@@ -88,7 +88,12 @@ moviesRouter.patch(
     if (req.body?.rating !== undefined && req.body.rating !== null && req.body.rating !== '') {
       const rating = Number(req.body.rating);
       if (Number.isNaN(rating) || rating < 0 || rating > 10) {
-        return res.status(400).json({ error: 'rating must be between 0 and 10' });
+        // Phrased as a sentence because it is DISPLAYED: the rate dialog renders
+        // it inline above its buttons (D-032). The three validation messages in
+        // this file that the UI guards against ever sending — missing query,
+        // missing tmdb_id, empty patch — stay terse and developer-facing, since
+        // only a direct API call can reach them.
+        return res.status(400).json({ error: 'Your rating must be between 0 and 10.' });
       }
       patch.rating = Math.round(rating * 10) / 10;
     } else if (req.body?.rating === null) {
