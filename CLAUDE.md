@@ -322,8 +322,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Off-list, found while testing: custom scrollbars ballooned under browser
     zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
     shrinks the viewport proportionally so `vw` holds a constant physical size).
-  Still open from the audit: expanded reviews collapse on re-render and the
-  review clamp is never re-measured on resize; Remove/Save have no busy state
+  - Review "view more…" toggles are re-measured on resize (and on zoom, and
+    after a late webfont swap), not once per render. They used to go stale in
+    both directions — narrowing clipped a review whose toggle stayed hidden, so
+    the text became unreachable. `hidden` is now assigned both ways; an
+    *expanded* review is skipped, because `overflow: visible` makes it measure
+    as "does not clip" and would hide the toggle needed to collapse it.
+  Still open from the audit: expanded reviews collapse on re-render (only the
+  element-reuse rewrite rejected in D-031 would fix that); Remove/Save have no busy state
   and Save closes the dialog *before* its PATCH runs; the 🎬 placeholder is an
   emoji (vs D-027); "Not rated yet" is crimson (an error colour for a non-error);
   `confirm()` is the last native modal; no `:focus-visible` on card controls;

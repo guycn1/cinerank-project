@@ -270,6 +270,9 @@ function renderRanked() {
         const expanded = r.classList.toggle('expanded');
         toggle.textContent = expanded ? 'show less' : 'view more…';
         toggle.setAttribute('aria-expanded', String(expanded));
+        // Collapsing makes the clamped state measurable again. If the window
+        // was resized while this was expanded, its toggle may now be wrong.
+        if (!expanded) syncReviewToggles();
       });
       body.append(r, toggle);
     }
@@ -305,14 +308,35 @@ function renderRanked() {
     el.rankedList.append(li);
   });
 
-  // Reveal a "view more" toggle only for reviews whose text is actually clipped.
-  requestAnimationFrame(() => {
-    el.rankedList.querySelectorAll('.review').forEach((p) => {
-      const toggle = p.nextElementSibling;
-      if (toggle?.classList.contains('review-toggle') && p.scrollHeight - p.clientHeight > 4) {
-        toggle.hidden = false;
-      }
-    });
+  // Measured after layout, not during: the cards were only just appended.
+  requestAnimationFrame(syncReviewToggles);
+}
+
+/**
+ * Show each review's "view more…" toggle only when the text is actually clipped.
+ *
+ * `-webkit-line-clamp` hides the overflow silently and CSS has no "did this
+ * overflow?" selector, so it has to be measured. The important part is that it
+ * must be measured AGAIN whenever the layout changes: this used to run once per
+ * render and never on resize, so narrowing the window clipped a review that had
+ * fitted while its toggle stayed hidden — the text became unreachable, with no
+ * cue that anything was missing. Widening produced the mirror image: a
+ * "view more…" that expanded nothing.
+ *
+ * Hence `hidden` is ASSIGNED both ways here. The old version only ever set it to
+ * false, which is why the state could never recover once it was wrong.
+ */
+function syncReviewToggles() {
+  el.rankedList.querySelectorAll('.review').forEach((p) => {
+    const toggle = p.nextElementSibling;
+    if (!toggle?.classList.contains('review-toggle')) return;
+    // An expanded review is `overflow: visible`, so scrollHeight === clientHeight
+    // and it measures as "does not clip" — which would hide the very toggle
+    // needed to collapse it again. Only the clamped state is measurable, so an
+    // expanded one keeps whatever it has until the user collapses it (the click
+    // handler re-measures then).
+    if (p.classList.contains('expanded')) return;
+    toggle.hidden = p.scrollHeight - p.clientHeight <= 4;
   });
 }
 
@@ -736,11 +760,32 @@ function syncMetaSeparator(foot) {
   sep.style.visibility = wrapped ? 'hidden' : 'visible';
 }
 
-// One listener for the page rather than an observer per footer — there are at
-// most two on screen and they only need re-checking when the width changes.
+// One listener for every layout-dependent measurement on the page, rather than
+// an observer per element. Both of these read geometry (getBoundingClientRect /
+// scrollHeight), which forces layout, and `resize` fires continuously while a
+// window is dragged — so the work is throttled to at most once per frame. rAF
+// rather than a debounce on purpose: a debounce would leave both measurements
+// visibly stale for the whole drag, where this keeps them live and still does
+// the reads only once per painted frame.
+//
+// Browser zoom fires `resize` too (it changes the CSS viewport), so this covers
+// zooming as well as dragging.
+let relayoutQueued = false;
 window.addEventListener('resize', () => {
-  document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+  if (relayoutQueued) return;
+  relayoutQueued = true;
+  requestAnimationFrame(() => {
+    relayoutQueued = false;
+    document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+    syncReviewToggles();
+  });
 });
+
+// A late webfont swap re-flows every review, which can invalidate a measurement
+// taken against the fallback face. `display=swap` makes that a real possibility
+// on a slow connection, and it resolves immediately when the fonts are already
+// cached, so it costs nothing in the common case.
+document.fonts?.ready.then(syncReviewToggles);
 
 function cell(text, className, label) {
   const td = document.createElement('td');
