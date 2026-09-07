@@ -44,7 +44,17 @@ const state = {
 
 /* ---------- helpers ------------------------------------------------------- */
 async function api(path, options) {
-  const res = await fetch(path, options);
+  let res;
+  try {
+    res = await fetch(path, options);
+  } catch {
+    // fetch only rejects on a network-level failure — server down, DNS, or the
+    // browser offline. Its message is engine-specific ("Failed to fetch" in
+    // Chromium, "NetworkError when attempting to fetch resource" in Firefox)
+    // and reads like a stack trace, so it never reaches the UI. An HTTP error
+    // response is a different thing and keeps the server's own wording below.
+    throw new Error('Couldn’t reach CineRank. Check your connection and try again.');
+  }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
   return body;
@@ -327,7 +337,9 @@ function syncSearchResultButtons() {
 function renderSearchResults(results) {
   el.searchResults.replaceChildren();
   if (!results.length) {
-    el.searchResults.append(makeError('No matches — try a different title.'));
+    // searchNote, not makeError: a search that matched nothing is an empty
+    // state, not a failure, and crimson said otherwise.
+    el.searchResults.append(searchNote('No matches — try a different title.'));
     return;
   }
   for (const r of results) {
