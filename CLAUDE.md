@@ -329,14 +329,15 @@ below — this list is the smaller stuff.)
   verdict side already does this properly (points at the AI call log).
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
-* [~] **Rank numerals ≥ 100 touch the card's left edge. Measured, and
-  deliberately NOT fixed.** Two-digit ranks are fine at every width (checked at
-  ~350px with the numerals forced to 20+, so the narrow `1` couldn't flatter the
-  test). Three digits are not: the rank font is clamped at `3.4rem` = 54.4px, so
-  "100" is ~98px including its `-webkit-text-stroke`, inside a 64px track. The
-  ~17px of spill per side exactly equals the card's 17.6px inner padding, so the
-  numeral sits flush against the border and reads as cropped. Nothing actually
-  clips it — `.movie-card` and `.ranked__list` have no `overflow`.
+* [~] **Rank numerals ≥ 100 run under the poster. Measured, and deliberately NOT
+  fixed.** Two-digit ranks are fine at every width (checked at ~350px with the
+  numerals forced to 20+, so the narrow `1` couldn't flatter the test). Three
+  digits are not: the rank font is clamped at `3.4rem` = 54.4px and Fraunces
+  Black figures run ~0.63em, so "250" paints ~102px wide inside a 64px track.
+  The ~19px of spill per side overruns the card's 17.6px left padding *and* the
+  19.2px gap on the right — where the poster, being later in DOM order, paints
+  on top and swallows the final digit. Nothing *clips* it (`.movie-card` and
+  `.ranked__list` have no `overflow`); it is overlap, not clipping.
   Not fixed because all three fixes cost more than the defect: shrinking the font
   for 3+ digits puts #99 and #100 on adjacent cards at different sizes (reads as
   a bug); **auto-sizing the rank track (`minmax(64px, auto)`) is the trap — it
