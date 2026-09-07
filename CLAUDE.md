@@ -524,6 +524,25 @@ commit as the change it explains. Newest first — a new entry goes at the TOP o
 up after the fact says so in its own text. `CLAUDE.md`'s living log stays the
 *what / now*; `docs/DECISIONS.md` is the *why*.
 
+**Historical records are not maintained — they are preserved.** A `docs/DECISIONS.md`
+entry, or a code comment that explicitly narrates a past state ("this used to be
+X; changed because Y"), describes what was true *at the time*. Do **not** edit it
+to match the present during a staleness sweep — that destroys the only thing it
+exists for. D-010 still says the AI call log is reachable from a "footer link";
+it was, when D-010 was written, and it stays.
+
+The line to apply when sweeping: **does the text claim to describe current
+reality, or does it describe a past decision?** Living-log bullets, README prose
+and comments on live code claim the present and get corrected. Decision entries
+and explicitly-past narration do not. When a decision is genuinely superseded,
+write a NEW entry that says so and references the old number — never rewrite the
+old one.
+
+**One exception: a claim that was WRONG when written gets corrected**, because it
+was never a valid record — the merge count that had drifted, or the magnifier
+orientation Claude asserted backwards. Fix the fact and say in the commit message
+that it is a correction, not an update.
+
 \---
 
 ## Version Control Workflow (non-negotiable)
