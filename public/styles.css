@@ -455,6 +455,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .card-actions button:hover { color: var(--amber); border-color: var(--amber); }
 .card-actions button.danger:hover { color: var(--crimson); border-color: var(--crimson); }
 
+/* Ranked list, narrow viewports. Lives HERE, at the end of the section it
+   modifies, like every other media query in this file (500px after search,
+   620px after the footer CTA, 1040/850px inside the log table). It used to sit
+   ~800 lines away under "utilities", which is how the poster overflow survived
+   unnoticed: nothing next to the poster rule hinted that another rule resized
+   it. A media query adds no specificity, so these must stay AFTER the base
+   rules they override — keep this block below .movie-card and
+   .movie-card__score, never above them. */
+@media (max-width: 620px) {
+  /* Resize the poster by overriding --poster-w only — the track and the image
+     both follow it. Restating a width on .movie-card__poster here is what
+     caused the overflow this rule used to have. */
+  .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
+  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
+}
+
 /* recommendations --------------------------------------------------- */
 .recs__trigger {
   background: transparent;
@@ -1269,14 +1285,6 @@ body:has(dialog[open]) { overflow: hidden; }
   width: 100%; height: 100%;
   font-size: 1.4rem;
   opacity: 0.4;
-}
-
-@media (max-width: 620px) {
-  /* Resize the poster by overriding --poster-w only — the track and the image
-     both follow it. Restating a width on .movie-card__poster here is what
-     caused the overflow this rule used to have. */
-  .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
-  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
