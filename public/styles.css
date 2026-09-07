@@ -207,7 +207,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: transform 0.15s var(--ease), box-shadow 0.2s;
 }
-.search button:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
+.search button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
+.search button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .search-results {
   margin-top: 0.8rem;
@@ -219,13 +220,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
+/* Lines inside the results panel — loading, "no matches", errors, the
+   empty-query nudge. Built by searchNote() in app.js. */
+.search-note { padding: 1rem; color: var(--ink-dim); }
+.search-note.err { color: var(--crimson); }
+
 .result-row {
   display: flex;
   gap: 0.9rem;
   align-items: center;
   padding: 0.55rem;
   border-radius: 10px;
-  cursor: pointer;
+  /* Deliberately NOT cursor: pointer — the row itself does nothing, only its
+     Add button does. The hover tint stays as a row-tracking cue. */
   transition: background 0.15s;
 }
 .result-row:hover { background: var(--bg-raised); }
