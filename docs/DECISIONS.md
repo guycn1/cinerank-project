@@ -7,6 +7,179 @@ file, directly under this header.**
 
 ---
 
+## D-027 · Icons are inline SVG or plain characters — never emoji
+Three icon choices in the Search section landed on the same rule, so it is
+written once here.
+
+**Emoji are rejected outright.** A colour emoji is a fixed full-colour image: it
+ignores `color`, so it cannot go amber on hover or dim under a `:disabled`
+opacity the way its neighbouring text does; it ignores `font-weight`; and it
+carries its own metrics, so it sits off the baseline next to Inter. It also
+renders differently on every platform — the opposite of the consistency it is
+usually reached for.
+
+- **"+ Add"** uses a plain `+` (U+002B), not the heavy-plus emoji. It is
+  `currentColor`, so it follows hover and the disabled dim for free, and it
+  matches the text-glyph checkmark already in "Added".
+- **The Search button's magnifier is an inline SVG**, not the magnifier emoji and
+  not the text glyph `⌕`. `⌕` looks like the right answer and is a trap: it lives
+  in Miscellaneous Technical (its actual Unicode name is TELEPHONE RECORDER),
+  which is *outside the Inter subset this page downloads*. It would fall through
+  to whatever the OS happens to have, or render as tofu — worse device
+  consistency than the emoji, not better. Forcing text presentation with VS15 is
+  ignored by Chrome and Android. An SVG is our own vector: identical everywhere,
+  and `stroke="currentColor"` follows every state. Same pattern as
+  `.log-cta__icon`.
+
+**Its orientation is deliberate: lens upper-left, handle down-right** — the
+Material / Feather / Heroicons convention, which users recognise
+pre-attentively. Do not flip it. Note this is *not* the orientation of the emoji
+it replaced: `&#128270;` is U+1F50E "MAGNIFYING GLASS TILTED **RIGHT**", the
+mirrored variant (lens upper-right, handle lower-left); the conventional one is
+U+1F50D. The naming is counterintuitive — "tilted left" describes the lens
+rotating leftward, which swings the handle right — and it was misread once
+already, so the switch to SVG quietly *corrected* the orientation rather than
+preserving it. Mirroring is standard only in RTL locales, which this
+single-locale `lang="en"` app is not.
+
+Mechanically the button carries both a `.search-btn__label` and the SVG, and the
+500px breakpoint swaps which displays — cleaner than a `::after`, and
+`busyButton()` stashes and restores both for free. `busyButton()` wraps its own
+label in a `.busy-label` span for the same reason, so the breakpoint can hide it
+and leave the spinner standing alone. Separately, `.search button` is
+`flex-shrink: 0`: a flex item's automatic minimum size is not reliable on a
+`<button>` across engines, and shrinking is what clipped the label to begin with.
+
+## D-026 · A sync must not stomp a deliberate state ("Added" is sticky)
+Reported as "skipping the rate dialog does not sync the search results". It was
+the reverse — skipping was correct, and **saving** was the bug. Saving a rating
+runs `loadMovies()` a second time, whose `syncSearchResultButtons()`
+unconditionally reset every owned button to "In your list", wiping the "Added"
+confirmation set moments earlier. Skipping runs nothing, so it kept it. One
+state, two labels, decided by an unrelated round-trip.
+
+Decision: make the "Added" confirmation **sticky** (a `dataset.justAdded` flag
+honoured by `setAddButtonState`) rather than make skipping reset it. It is the
+more informative of the two labels — it marks what *you* just added versus what
+was already in the list, which matters when adding several films from one result
+set — and it is the state D-024 went out of its way to keep visible. Removing the
+film clears the flag, so the row offers "+ Add" again.
+
+**The pattern is what matters here, because this is the third instance:** a sync
+function that runs unconditionally will silently overwrite a deliberate transient
+state set moments earlier.
+
+1. The recommendations error message, written into `#recs-hint` and then wiped by
+   `syncRecommendationsAvailability()` in the handler's own `finally` — still
+   open, see CLAUDE.md.
+2. `syncSearchResultButtons()` writing `textContent` into a button that was still
+   mid-request, destroying its spinner. Fixed by skipping anything with
+   `aria-busy`.
+3. This one.
+
+Before adding a sync call, check which deliberate states it can reach.
+
+## D-025 · Hide the browser's search clear button rather than theme it
+`<input type="search">` makes Chromium/Safari draw their own clear "×" inside the
+field. On a near-black amber panel it renders as an unthemed blue glyph — the most
+literal instance of the "generic default-component appearance" CLAUDE.md's design
+notes rule out.
+
+The obvious fix is to style it via `::-webkit-search-cancel-button`. Rejected:
+**Firefox draws no clear button at all**, so styling leaves the browsers still
+disagreeing — just with a nicer × in two of them. Hiding it is the only option
+that renders identically everywhere, and cross-browser sameness matters more here
+than a prettier glyph for a submission opened on a browser we do not control.
+
+It was also only half-wired: the native × clears the input but leaves
+`.search-results` showing matches for a query no longer in the box. Keeping it
+honestly would have meant extra JS to close the panel, for a control much of the
+audience never sees. `type="search"` stays — the semantics and the mobile
+keyboard's Search key are unaffected; only the chrome goes.
+
+## D-024 · The search results panel is a persistent surface, not a dropdown
+Three separate questions — should an outside click dismiss it, should adding a
+film dismiss it, should it get its own "×" — all resolve to one distinction:
+
+**A floating layer must be dismissible; an in-flow one need not be.** The AI-log
+reveal panels are `position: absolute` and sit ON TOP of table rows, so they have
+to get out of the way, and they earn their outside-click handler.
+`.search-results` is in normal flow. It pushes the page down and obscures
+nothing, so there is nothing to get out of the way of.
+
+Both auto-dismissals were built and then removed:
+- **Outside click** (33ad1ec) — pattern-matched from the reveal panels without
+  checking whether the reason applied. A stray click cost the user a re-typed
+  query and another TMDB round-trip.
+- **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
+  tick as `settle('✓ Added')`, so that confirmation could never be painted, and
+  it cancelled out `syncSearchResultButtons()`, which exists precisely to update
+  the OTHER open rows after an add. Keeping the panel open serves the real flow:
+  search once, add two films.
+
+**No "×" either**, declined for a second reason: `type="search"` already renders
+a native × a few pixels away (see D-025), and the two would do *different* things
+— native clears the input, ours would close the results. Adjacent identical
+glyphs with different meanings is a trap. Escape closes it; a new search replaces
+it; otherwise it stays.
+
+## D-023 · The reveal-panel fade animates the panel, never `::details-content`
+*Recorded retroactively — decided 2026-09-05 over commits bfafeb2, 1476446,
+de244d7.*
+
+The obvious place to animate a `<details>` open/close is `::details-content`,
+which is what the pseudo exists for. Doing that made the panel flicker BEHIND
+later table rows mid-fade.
+
+Cause: `0 < opacity < 1` creates a stacking context, `opacity: 1` does not. So
+animating opacity on `::details-content` made *that pseudo* a transient stacking
+context only while the fade was running, trapping the panel underneath rows that
+come later in paint order. Raising `z-index` on `.log-reveal` did not help — it
+is a table-cell stacking context and cannot lift past later `<tr>`s at all.
+
+Decision: the opacity transition and `@starting-style` live on the panel itself
+(`.log-reveal ul/p`), which is already `position: absolute` + `z-index` and so a
+*stable* stacking context at every opacity. `::details-content` transitions only
+`content-visibility` (`allow-discrete`), to keep the panel rendered through the
+close.
+
+The trap that follows: those two durations live on different elements but MUST
+match, or the panel is yanked mid-fade-out. Both read one custom property,
+`--reveal-fade` on `.log-reveal` — the single knob. Do not split them.
+
+## D-022 · The AI-log Total row rides on a curtain, not on a sticky `<tfoot>`
+*Recorded retroactively — decided 2026-09-05 after four attempts (842fe03,
+6c08db4, 188b6bf, 58f787b).*
+
+Pinning the Total row to the bottom of the log dialog looks like a one-liner and
+is not. What failed, in order:
+
+1. **`position: sticky` on the `<tfoot>` alone.** A sticky element can never be
+   positioned outside its own containing block, and the tfoot's is the `<table>`.
+   It therefore cannot reach the dialog's bottom edge, and table rows peeked
+   underneath it mid-scroll.
+2. **An absolutely-positioned bar toggled by an IntersectionObserver.** Floated
+   mid-content instead of pinning.
+3. **A sticky tfoot plus a non-sticky spacer row.** Same clamping problem.
+
+What works — and the reason to keep it: `.log-curtain`, an opaque `--bg-raised`
+band that is a **direct child of the dialog**, so its containing block is the
+dialog and it is never clamped. It is `position: sticky; bottom: 0; z-index: 2`;
+the Total row pins at `bottom: var(--log-curtain-h)` with `z-index: 3`, exactly
+on top of it. The two form one solid block down to the dialog edge, so nothing
+shows underneath.
+
+The curtain's `border-top` is also the table's closing rule, because the curtain
+is the only element adjacent to the Total row in BOTH states (pinned and at
+rest) — anywhere else the rule goes missing mid-scroll or doubles up at rest.
+
+**This is why `.log-scroll` is square.** It must stay `overflow: visible` (the
+dialog is the single scroller), so it cannot clip its sticky children to a
+radius; a rounded border around square cell fills looked broken. "Round it when
+the row sits naturally, square when stuck" has no CSS expression — there is no
+is-stuck selector — so it would need a scroll listener or a sentinel observer.
+Not worth it. Do not "simplify" any of this.
+
 ## D-021 · The two AI features share one UI vocabulary, enforced by shared builders
 Recommendations and the taste verdict are separate services with separate
 prompts, but to a user they are the same kind of thing: press a button, wait,

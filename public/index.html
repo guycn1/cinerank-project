@@ -48,7 +48,26 @@
           placeholder="Search a film to add…"
           aria-label="Search for a movie by title"
         />
-        <button type="submit">Search</button>
+        <!-- aria-label because the word is display:none under 500px, where the
+             magnifier is all that shows; the emoji itself is aria-hidden. -->
+        <button type="submit" id="search-btn" aria-label="Search">
+          <span class="search-btn__label">Search</span>
+          <!-- Inline SVG, not 🔎 and not U+2315 ⌕. The emoji is a fixed
+               full-colour image that ignores the button colour; ⌕ is outside
+               Inter's loaded subset, so it would fall to whatever the OS has,
+               or tofu. This is our own vector: identical everywhere, and
+               stroke="currentColor" follows hover/disabled like the text does.
+               Same pattern as .log-cta__icon.
+               Orientation is deliberate: lens upper-left, handle down-right —
+               the Material/Feather/Heroicons convention. Note this is NOT the
+               orientation of the 🔎 (U+1F50E) it replaced, which is the
+               MIRRORED variant; the conventional emoji is 🔍 (U+1F50D).
+               Do not flip it. -->
+          <svg class="search-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <path d="M16 16 20.5 20.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
       </form>
       <div class="search-results" id="search-results" role="status" aria-live="polite" hidden></div>
     </section>

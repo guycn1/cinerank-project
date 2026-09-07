@@ -24,14 +24,17 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-07 (AI call log dialog + Taste verdict section both DONE; Search section is next)
+**Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
 
 ### Build status
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
-* `main` merged at the "functionally complete vs SPEC §2–§6" milestone
-  (2026-09-05); `draft` continues for submission-packaging work.
+* `main` is at the latest settled UI milestone — currently "Taste verdict
+  section polish" (2026-09-07). Six merges so far; `git log --merges --oneline
+  main` is the source of truth, do NOT increment a number in a doc without
+  checking it (that is exactly how PROCESS.md drifted to a wrong count).
+  `draft` continues day to day.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -46,7 +49,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
-  both tables; in-app viewer via footer link.
+  both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
 * Tests: `npm test` (Node built-in runner, 32 tests). Pure helpers
@@ -129,11 +132,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `summary` string. `resultCell()` renders: failed → error inline; recommendation
     → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
     `<details>` revealing the text. `<details name="ai-log-result">` so opening
-    one closes the others. The column is pinned to `width: 9.5rem` and the
-    revealed content is `position: absolute` (a small floating panel, ~0.72em
+    one closes the others. The column is pinned to a fixed width (9.5rem
+    originally, 8rem now) and the
+    revealed content is `position: absolute` (a small floating panel, 0.8em
     font) — opening a row can never widen/reflow the table or steal width from
-    other columns. Caveat: a panel opened on the very last visible row can be
-    clipped by `.log-scroll`'s overflow (scroll or resize to see it).
+    other columns. (An early caveat about the last row's panel being clipped is
+    obsolete twice over: `.log-scroll` is `overflow: visible` so it clips nothing,
+    and the panel now flips above its trigger when there is no room below.)
     Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
   - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
     Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
@@ -150,7 +155,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `thead` hidden; abbreviations swapped back to full text via
     `abbr::after { content: attr(title) }`). Reveal panels flow inline in card mode. A document click listener collapses an open
     reveal panel on any click outside it (clicks on its own text keep it open so
-    it stays selectable). Reveal panels fade 200ms (`::details-content` +
+    it stays selectable). Reveal panels fade (`::details-content` +
     `@starting-style`).
   - **Sticky rows.** The whole dialog is the single scroller; only `thead`
     (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
@@ -181,7 +186,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     room below (measured in JS on `toggle`, kept on close so it doesn't jump
     mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
     eased on hover; outside-click / Esc dismiss.
-* Both modal `<dialog>`s + backdrops fade in/out 200ms (`opacity` +
+* Both modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
@@ -203,7 +208,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   through the close. The panel-opacity duration and the `::details-content`
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
-  (200ms) on `.log-reveal`. That's the single knob for the fade speed.
+  (250ms) on `.log-reveal`. That's the single knob for the fade speed.
 * **AI call log dialog — COMPLETE** (desktop table + mobile card view). The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
@@ -255,8 +260,54 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
-* Next: **the Search section**, then the ranked list, recs and rate dialog —
-  user is driving this.
+* **Search section — DONE** (2026-09-07). Behaviour first, then chrome.
+  - Seven fixes in one pass: a dead `row` click handler whose body was only a
+    guarded early return; `.result-row`'s `cursor: pointer`, which promised a
+    click the row never had; open results going stale after an add (one
+    `setAddButtonState()` now renders the states and `syncSearchResultButtons()`
+    re-applies it to every row from `loadMovies()`, so removals re-open the
+    offer too); Search + Add gaining the shared `busyButton()` treatment; the
+    last inline `element.style` writes in app.js replaced by `searchNote()` +
+    `.search-note`; the panel gaining an Escape dismissal; and an empty query,
+    which used to be a silent no-op, now saying so and focusing the input.
+  - **The panel is persistent, not a dropdown (D-024).** Outside-click dismissal
+    and close-on-add were both built and then removed: `.search-results` is in
+    normal flow and obscures nothing, so there is nothing to get out of the way
+    of, and every auto-dismissal cost a TMDB round-trip to undo. Close-on-add
+    was also self-defeating — it ran in the same tick as the "✓ Added" settle,
+    so that state could never be painted, and it left no rows for the sync to
+    update. Escape closes it; a new search replaces it.
+  - Add button states: `+ Add` → `⟳ Adding…` → `✓ Added`, or `In your list` for
+    something already owned. **"✓ Added" is sticky (D-026)** via
+    `dataset.justAdded` — saving a rating used to run `loadMovies()` again and
+    quietly reset it, while skipping did not. All three states are `disabled`,
+    so one `:disabled` rule covers them.
+  - **Icons: inline SVG or plain characters, never emoji (D-027).** The `+` is
+    U+002B (inherits `currentColor`, so it follows hover and the disabled dim);
+    the magnifier under 500px is an inline SVG, because `⌕` (U+2315) sits
+    outside the Inter subset the page downloads and would render as tofu. Its
+    orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
+    `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
+    is unreliable on a `<button>`, and shrinking is what clipped the label.
+  - Browser's native `type="search"` clear × hidden (D-025): styling it would
+    still leave Firefox (which draws none) different, and it only half-worked —
+    it cleared the input but left the results panel populated.
+  - **Graceful degradation, all four paths hand-tested:** TMDB down on search,
+    TMDB down on add, CineRank itself unreachable, and the *non*-error empty
+    state. `api()` now catches the network-level fetch rejection so the
+    browser's own engine-specific wording ("Failed to fetch") never reaches the
+    UI, while an HTTP error response still surfaces the server's user-facing
+    message. "No matches" moved from `makeError` to the muted `searchNote` — an
+    empty result set is not a failure and should not be crimson.
+  - `.search button:disabled` no longer relies on opacity. It is the only FILLED
+    button; amber at 55% still composites to an unmistakably amber ~#8c6f39, so
+    it read as active for the whole second it said "Searching…". The fill now
+    leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
+    keep opacity, where it works.
+* Next: **the ranked list**, then recommendations and the rate dialog. The recs
+  section carries a known open bug (its error message is overwritten by its own
+  `finally` — see Open issues) and a label inconsistent with the Search one
+  ("Add to my list" vs "+ Add"). User is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -301,17 +352,31 @@ below — this list is the smaller stuff.)
 
 The code is functionally complete against SPEC §2–§6, but the submission is
 **not** ready. These are the known gaps. The user is deferring all
-screenshot/evidence capture to right before submission — that is a deliberate
-schedule choice, not a reason to forget them.
+screenshot/evidence capture to right before submission, in a dedicated session,
+so the shots match the finished UI rather than a mid-overhaul one. That is a
+deliberate schedule choice, restated more than once — do NOT push to capture
+them early.
+
+**But DO keep this list growing as the work happens.** The user is explicitly
+relying on this file instead of their own memory. Whenever a change creates
+something demo-able or provable — a new failure state, a guardrail worth
+showing, a before/after worth contrasting — append it here the moment it
+appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 
 * [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
   README + the lecturer's project sheet.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
-  on the verdict (the "Couldn't come up with a verdict right now" fallback), with
-  the ranked list still working. Server side is tested (`npm test`); the *visual*
-  evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+  on the verdict (that fallback now links into the AI call log — the shot should
+  show it), **CineRank itself unreachable** (stop `npm start`, then search:
+  "Couldn't reach CineRank…"), and the *non*-error empty state ("No matches",
+  muted rather than crimson — worth one shot to show the two are distinguished).
+  All with the ranked list still working. Server side is tested (`npm test`);
+  the *visual* evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+  How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
+  restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
+  request-blocking do not simulate them.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.
@@ -356,7 +421,7 @@ schedule choice, not a reason to forget them.
 * Keep TMDB calls and OpenRouter calls in separate service modules — never inline `fetch()` calls directly inside route handlers.
 * All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) — never hand-built SQL strings.
 * The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file — each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
-* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation\_logs` or `taste\_verdict\_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer link) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
+* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation\_logs` or `taste\_verdict\_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
 * Do not add authentication/multi-user support unless explicitly asked — SPEC.md marks this as v1 out-of-scope.
 
 \---
@@ -399,6 +464,84 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 ### Security \& Scope (why no accounts ≠ no security story)
 
 This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the frontend key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
+
+\---
+
+## Decision Logging (non-negotiable)
+
+**Claude records non-obvious decisions in `docs/DECISIONS.md` proactively — the
+user should never have to ask.** The course grades *process* (Module 8), and a
+reason is only recoverable at the moment it is made. This has had to be asked for
+twice; treat it as a standing obligation, not a task.
+
+**The test.** A decision belongs in the log only if ALL THREE hold:
+
+1. **It was actually deliberated.** Options were weighed, or the user pushed
+   back, or it took more than one exchange to settle. A single instruction
+   carried out and never revisited is not a decision, however deliberate the
+   instruction was.
+2. **A real fork was taken** — the obvious or first-tried option was rejected.
+3. **The reason is not visible in the code**, so someone later (including a
+   future Claude session) could plausibly pick the rejected option again.
+
+**Not decisions**, no matter how carefully made: "use a slightly more subtle
+colour here" → done → never mentioned again; a padding, opacity or breakpoint
+tuned by eye; a bug with one obviously correct fix. All of these are recoverable
+by reading the file, and logging them buries the entries that matter.
+
+**Decisions**, by contrast, look like: several viable approaches enumerated and
+compared, one of them settled by a finding (D-025 — style the native `×`, hide
+it, or leave it, decided by Firefox drawing none at all); three separate
+questions resolving to one principle (D-024); an obvious approach rejected for a
+non-obvious reason (D-027's `⌕`); a reported symptom whose diagnosis turned
+out backwards (D-026).
+
+**When in doubt, leave it out.** A log padded with tweaks is as useless as an
+empty one — the point is that a reader can find the handful of choices that
+would otherwise be silently undone.
+
+**What the entry must contain**, beyond the choice itself:
+
+* The alternatives considered and *why each was rejected* — the rejected paths
+  are the content; "we chose X" alone is worthless a month later.
+* **The user's pushback, and Claude's counter-argument.** Where the user
+  overruled Claude, or Claude talked the user out of something, say so plainly.
+  That exchange *is* the LLM-augmented workflow the course is assessing.
+* **Where Claude was wrong, say that too** — a reversed diagnosis, a false claim
+  the user caught, an approach built and then removed. A log that only records
+  wins is not evidence of process.
+* Any trap that follows from the decision ("do not flip this", "these two
+  durations must stay tied to one custom property").
+
+**A commit message or a code comment is not a substitute.** A commit explains a
+diff, a comment explains a line; only the decision log explains a *choice between
+alternatives*, and it is the only one of the three anybody reads before
+undoing something.
+
+**Timing and placement:** at the moment the decision is made, ideally in the same
+commit as the change it explains. Newest first — a new entry goes at the TOP of
+`docs/DECISIONS.md`. Numbers are sequential by *when recorded*; a decision written
+up after the fact says so in its own text. `CLAUDE.md`'s living log stays the
+*what / now*; `docs/DECISIONS.md` is the *why*.
+
+**Historical records are not maintained — they are preserved.** A `docs/DECISIONS.md`
+entry, or a code comment that explicitly narrates a past state ("this used to be
+X; changed because Y"), describes what was true *at the time*. Do **not** edit it
+to match the present during a staleness sweep — that destroys the only thing it
+exists for. D-010 still says the AI call log is reachable from a "footer link";
+it was, when D-010 was written, and it stays.
+
+The line to apply when sweeping: **does the text claim to describe current
+reality, or does it describe a past decision?** Living-log bullets, README prose
+and comments on live code claim the present and get corrected. Decision entries
+and explicitly-past narration do not. When a decision is genuinely superseded,
+write a NEW entry that says so and references the old number — never rewrite the
+old one.
+
+**One exception: a claim that was WRONG when written gets corrected**, because it
+was never a valid record — the merge count that had drifted, or the magnifier
+orientation Claude asserted backwards. Fix the fact and say in the commit message
+that it is a correction, not an update.
 
 \---
 

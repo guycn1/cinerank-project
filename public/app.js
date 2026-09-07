@@ -12,6 +12,7 @@ const el = {
   searchForm: $('#search-form'),
   searchInput: $('#search-input'),
   searchResults: $('#search-results'),
+  searchBtn: $('#search-btn'),
   rankedList: $('#ranked-list'),
   rankedCount: $('#ranked-count'),
   rankedEmpty: $('#ranked-empty'),
@@ -38,11 +39,22 @@ const state = {
   cfg: { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 },
   ownedTmdbIds: new Set(),
   editing: null,
+  editingIsNew: false, // the rate dialog is for a film added seconds ago
 };
 
 /* ---------- helpers ------------------------------------------------------- */
 async function api(path, options) {
-  const res = await fetch(path, options);
+  let res;
+  try {
+    res = await fetch(path, options);
+  } catch {
+    // fetch only rejects on a network-level failure — server down, DNS, or the
+    // browser offline. Its message is engine-specific ("Failed to fetch" in
+    // Chromium, "NetworkError when attempting to fetch resource" in Firefox)
+    // and reads like a stack trace, so it never reaches the UI. An HTTP error
+    // response is a different thing and keeps the server's own wording below.
+    throw new Error('Couldn’t reach CineRank. Check your connection and try again.');
+  }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
   return body;
@@ -87,21 +99,34 @@ function spinnerNode() {
  * Put an AI trigger button into its "Thinking…" state; returns a restore fn.
  * Shared by both triggers so their busy behaviour can't drift apart.
  */
-function busyButton(btn) {
+function busyButton(btn, busyLabel = 'Thinking…') {
   const label = [...btn.childNodes]; // keep the nodes — a label may be wrapped in a <span>
   btn.disabled = true;
   btn.setAttribute('aria-busy', 'true');
-  // Lock the current width first: "Thinking…" is shorter than either label, so
-  // without this the button visibly shrinks. Measured rather than a hardcoded
-  // min-width, so it follows the label, font and padding automatically.
+  // Lock the current width first: the busy label is usually shorter, so without
+  // this the button visibly shrinks. Measured rather than a hardcoded min-width,
+  // so it follows the label, font and padding automatically.
   // (`* { box-sizing: border-box }` means min-width and rect.width agree.)
   btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
-  btn.replaceChildren(spinnerNode(), document.createTextNode(' Thinking…'));
-  return () => {
-    btn.disabled = false;
+  // The label goes in a span rather than a bare text node so a narrow
+  // breakpoint can hide it and leave the spinner standing alone (see the
+  // icon-only Search button under 500px).
+  const busy = document.createElement('span');
+  busy.className = 'busy-label';
+  busy.textContent = ' ' + busyLabel;
+  btn.replaceChildren(spinnerNode(), busy);
+  // Ends the busy state. With no argument the button goes back exactly as it
+  // was, enabled. Pass text to settle on a new label instead and stay disabled —
+  // for an action that cannot be repeated ("✓ Added", "In your list").
+  return (settledLabel) => {
     btn.removeAttribute('aria-busy');
     btn.style.minWidth = '';
-    btn.replaceChildren(...label);
+    if (settledLabel === undefined) {
+      btn.disabled = false;
+      btn.replaceChildren(...label);
+    } else {
+      btn.replaceChildren(document.createTextNode(settledLabel));
+    }
   };
 }
 
@@ -207,44 +232,114 @@ async function loadMovies() {
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
   renderRanked();
+  syncSearchResultButtons();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
 }
 
 /* ---------- search + add ---------------------------------------------- */
+/** Hide and empty the results panel — it should not outlive its query. */
+function closeSearchResults() {
+  el.searchResults.hidden = true;
+  el.searchResults.replaceChildren();
+}
+
 el.searchForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const q = el.searchInput.value.trim();
-  if (!q) return;
   el.searchResults.hidden = false;
+  if (!q) {
+    // Was a silent no-op. Say why nothing happened and put the caret where the
+    // user needs it, rather than letting the button look broken.
+    el.searchResults.replaceChildren(searchNote('Type a film title to search.'));
+    el.searchInput.focus();
+    return;
+  }
+  const settle = busyButton(el.searchBtn, 'Searching…');
   el.searchResults.replaceChildren(makeLoading('Searching…'));
   try {
     const { results } = await api(`/api/movies/search?q=${encodeURIComponent(q)}`);
     renderSearchResults(results);
   } catch (err) {
     el.searchResults.replaceChildren(makeError(err.message));
+  } finally {
+    settle();
   }
 });
 
-function makeLoading(label) {
+// Escape puts the panel away — but only when no <dialog> is open, where the
+// key belongs to the dialog.
+//
+// Deliberately NOT dismissed by an outside click, unlike the AI-log reveal
+// panels. Those are position:absolute and sit ON TOP of table rows, so they
+// have to get out of the way. This panel is in normal flow — it pushes the
+// page down and obscures nothing, so there is nothing to get out of the way
+// of. Dismissing it on a stray click would just cost the user a re-typed
+// query and another TMDB round-trip to add the second film they had found.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || el.searchResults.hidden) return;
+  if (document.querySelector('dialog[open]')) return;
+  closeSearchResults();
+});
+
+// A line inside the search-results panel: loading, "no matches", an error, or
+// the nudge for an empty query. Class-driven — these were the only inline
+// element.style writes left in this file.
+function searchNote(text, kind) {
   const d = document.createElement('div');
-  d.style.padding = '1rem';
-  d.style.color = 'var(--ink-dim)';
+  d.className = kind ? `search-note ${kind}` : 'search-note';
+  if (text) d.textContent = text;
+  return d;
+}
+function makeLoading(label) {
+  const d = searchNote();
   d.append(spinnerNode(), document.createTextNode(' ' + label));
   return d;
 }
-function makeError(msg) {
-  const d = document.createElement('div');
-  d.style.padding = '1rem';
-  d.style.color = 'var(--crimson)';
-  d.textContent = msg;
-  return d;
+const makeError = (msg) => searchNote(msg, 'err');
+
+/** The two states an Add button can rest in. */
+function setAddButtonState(btn, owned) {
+  const title = btn.dataset.title;
+  // Three labels, not two. "✓ Added" is stickier than it looks: once set it
+  // survives every later sync, so it still reads "✓ Added" after the rate
+  // dialog closes by EITHER route. Without the flag, saving a rating ran
+  // loadMovies() again and quietly reset it to "In your list", while skipping
+  // did not — the same state wearing two labels depending on an unrelated
+  // round-trip. It marks what YOU just added versus what was already there.
+  // Removing the film clears the flag, so the row can offer "+ Add" again.
+  if (!owned) delete btn.dataset.justAdded;
+  // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
+  // goes amber on hover and dims with the :disabled opacity, and it matches
+  // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
+  btn.textContent = !owned ? '+ Add' : btn.dataset.justAdded ? '✓ Added' : 'In your list';
+  btn.setAttribute(
+    'aria-label',
+    owned ? `${title} is already in your list` : `Add ${title} to your list`,
+  );
+  btn.disabled = owned;
+}
+
+// Results already on screen go stale the moment the list changes: adding one
+// film used to update only the button that was clicked, leaving every other
+// row still offering "Add" for something now owned. Called from loadMovies(),
+// so removals re-open the offer too. No-op when the panel is closed.
+function syncSearchResultButtons() {
+  el.searchResults.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
+    // Skip a button mid-request: addMovie() awaits loadMovies(), which calls
+    // this, so writing textContent here would wipe the spinner out of the very
+    // button that is still waiting on its own response.
+    if (btn.getAttribute('aria-busy') === 'true') return;
+    setAddButtonState(btn, state.ownedTmdbIds.has(Number(btn.dataset.tmdbId)));
+  });
 }
 
 function renderSearchResults(results) {
   el.searchResults.replaceChildren();
   if (!results.length) {
-    el.searchResults.append(makeError('No matches — try a different title.'));
+    // searchNote, not makeError: a search that matched nothing is an empty
+    // state, not a failure, and crimson said otherwise.
+    el.searchResults.append(searchNote('No matches — try a different title.'));
     return;
   }
   for (const r of results) {
@@ -261,39 +356,48 @@ function renderSearchResults(results) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'add-btn';
-    const owned = state.ownedTmdbIds.has(r.tmdb_id);
-    btn.textContent = owned ? 'In your list' : 'Add';
-    btn.setAttribute('aria-label', owned ? `${r.title} is already in your list` : `Add ${r.title} to your list`);
-    btn.disabled = owned;
+    btn.dataset.tmdbId = r.tmdb_id; // so syncSearchResultButtons() can find it
+    btn.dataset.title = r.title;
+    setAddButtonState(btn, state.ownedTmdbIds.has(r.tmdb_id));
     btn.addEventListener('click', () => addMovie(r.tmdb_id, btn));
     row.append(poster, meta, btn);
-    row.addEventListener('click', (e) => { if (e.target === btn) return; });
     el.searchResults.append(row);
   }
 }
 
 async function addMovie(tmdbId, btn) {
-  if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
+  // Same busy treatment as every other trigger: disabled, spinner, held width.
+  const settle = btn ? busyButton(btn, 'Adding…') : null;
   try {
     const { movie } = await api('/api/movies', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tmdb_id: tmdbId }),
     });
+    // Refreshes state.ownedTmdbIds, and with it every other open result row.
     await loadMovies();
-    if (btn) btn.textContent = 'Added ✓';
+    // Marked before settling so every later sync keeps showing "✓ Added".
+    if (btn) btn.dataset.justAdded = '1';
+    settle?.('✓ Added');
+    // The panel deliberately STAYS open. Closing it here made "✓ Added"
+    // impossible to ever see, and made syncSearchResultButtons() pointless —
+    // there would be no other rows left on screen to re-sync. Keeping it lets
+    // you add a second film from the same results instead of re-searching.
     // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
     toast(err.message, true); // "Already in your list" surfaces here (SPEC § 3.4)
-    if (btn) { btn.disabled = err.message.includes('Already'); btn.textContent = err.message.includes('Already') ? 'In your list' : 'Add'; }
+    // Already owned is not retryable, so settle there; anything else is, so
+    // restore the button as it was (enabled, reading "Add").
+    settle?.(err.message.includes('Already') ? 'In your list' : undefined);
   }
 }
 
 /* ---------- rate / remove ------------------------------------------- */
 function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
+  state.editingIsNew = isNew;
   el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
   // On a fresh add, closing without saving just leaves the movie unrated —
   // make that an explicit "later" choice, not a dead-end "Cancel".
@@ -308,8 +412,14 @@ el.rateRange.addEventListener('input', () => {
 });
 el.rateForm.addEventListener('submit', async (e) => {
   const action = e.submitter?.value;
-  if (action !== 'save') return;
   const movie = state.editing;
+  if (action !== 'save') {
+    // "Skip for now" saves nothing, so there is no "Saved" to report — but the
+    // add itself had no confirmation of its own, which left this path silent.
+    // Say what actually happened instead of nothing (or, worse, "Saved").
+    if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
+    return;
+  }
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',

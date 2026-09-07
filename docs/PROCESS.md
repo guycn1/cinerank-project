@@ -18,12 +18,15 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Four merges to `main` so far, each a deliberate decision.
+  human sign-off.** Seven merges to `main` so far (verify with
+  `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
-  reasons are clearest then and can't be reconstructed later).
+  reasons are clearest then and can't be reconstructed later). Entries record the
+  alternatives rejected, the human pushback that changed the outcome, and the
+  times the agent was wrong — a log of only wins is not evidence of process.
 
 The UI polish phase leans hard on this loop. The AI call log dialog alone took
 ~100 small commits — the human runs the app, screenshots what looks off (a
@@ -71,7 +74,7 @@ it reaches the DOM.
 Once an AI call is attempted, a log row is **always** written — success *or*
 failure — with `status`, `error_text`, token split and duration. A handled
 model/parse/network failure logs `status='failed'` and then re-throws for a calm
-inline message in the UI. The in-app "AI call log" viewer (footer link) shows
+inline message in the UI. The in-app "AI call log" viewer (footer button) shows
 both log tables merged, so the audit trail is demonstrable in the browser, not
 only in the Supabase table editor.
 
