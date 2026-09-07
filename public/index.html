@@ -168,6 +168,25 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <!-- Poster placeholder icon, cloned by posterNode() for any film TMDB has no
+       poster for. Lives here as markup rather than being built in JS so it reads
+       as a drawing, and so it matches the other two icons in this file — the
+       alternative is createElementNS() boilerplate, since document.createElement
+       does NOT produce a real SVG element.
+       A film strip, not the 🎬 emoji it replaced: an emoji ignores `color`, so it
+       could never match the dim placeholder tone, carries its own baseline
+       metrics, and looks different on every platform (D-027). The parent
+       .noposter carries role="img" and an aria-label naming the film, so this is
+       aria-hidden. -->
+  <template id="noposter-icon">
+    <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M8.5 4v16M15.5 4v16" />
+      <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
+    </svg>
+  </template>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -34,6 +34,7 @@ const el = {
   logBody: $('#log-body'),
   logFoot: $('#log-foot'),
   toast: $('#toast'),
+  noposterIcon: $('#noposter-icon'),
 };
 
 const state = {
@@ -87,6 +88,10 @@ function posterNode(url, title) {
   ph.className = 'noposter';
   ph.setAttribute('role', 'img');
   ph.setAttribute('aria-label', `${title} — no poster available`);
+  // Cloned from the <template> in index.html rather than built here: SVG needs
+  // createElementNS to produce real elements, and the icon reads better as
+  // markup next to the page's other two (D-027).
+  ph.append(el.noposterIcon.content.cloneNode(true));
   return ph;
 }
 

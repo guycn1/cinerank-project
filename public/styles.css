@@ -458,9 +458,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .movie-card__poster {
   width: var(--poster-w);
   /* Height derived, not restated: TMDB posters are 2:3, so 92x138 was already
-     exactly this. Kept as a calc rather than `aspect-ratio` because .noposter
-     is a div whose ::after sizes itself `height: 100%` — that percentage needs
-     a definite parent height, which a calc guarantees on every engine. */
+     exactly this. Originally a calc rather than `aspect-ratio` because the
+     placeholder's `::after` sized itself `height: 100%` and needed a definite
+     parent height — that `::after` is gone (the placeholder is now an SVG
+     centred with insets, which needs no percentage height), so either would
+     work now. Kept as the calc because it is equivalent and swapping it would
+     be churn on a rule that is correct. */
   height: calc(var(--poster-w) * 1.5);
   border-radius: 8px;
   object-fit: cover;
@@ -1389,13 +1392,30 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.noposter::after {
-  content: '🎬';
-  display: grid;
-  place-items: center;
-  width: 100%; height: 100%;
-  font-size: 1.4rem;
-  opacity: 0.4;
+/* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
+   posterNode), replacing a 🎬 emoji that could not take a colour, sat off the
+   baseline, and rendered differently on every platform — D-027.
+   Centred by absolute positioning rather than `display: grid; place-items`,
+   because `.rec-card .noposter` sets `display: block` at a higher specificity
+   and would win. Positioning sidesteps that entirely and works the same in all
+   three places this appears: search rows, ranked cards and rec cards.
+   `color` here is what the SVG's `stroke="currentColor"` picks up. */
+.noposter { position: relative; color: var(--ink-faint); }
+.noposter__icon {
+  position: absolute;
+  /* `inset: 0` + `margin: auto` rather than `top/left: 50%` + a translate: a
+     percentage `top` has to resolve against the parent's HEIGHT, and one of the
+     three parents (.rec-card .noposter) gets its height from `aspect-ratio`,
+     where percentage resolution is not reliable across engines. Insets only
+     need the box edges, which always exist. */
+  inset: 0;
+  margin: auto;
+  /* Proportional, unlike the emoji's flat 1.4rem, which was identical in a 46px
+     search thumbnail and a ~190px recommendation card. The cap stops it looking
+     like a logo on the largest one. */
+  width: 40%;
+  max-width: 46px;
+  height: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

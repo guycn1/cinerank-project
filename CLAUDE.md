@@ -359,12 +359,25 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     not by the toast (D-032): a modal `<dialog>` is in the top layer, so no
     `z-index` can lift a toast above it and the `::backdrop` dims it anyway —
     and inline is what search, the verdict and recs already do.
+  - **Poster placeholder is an inline SVG film strip**, not the 🎬 emoji it
+    replaced (D-027: an emoji ignores `color`, carries its own baseline metrics
+    and looks different on every platform). Cloned from a `<template>` in
+    `index.html` so it reads as markup and avoids `createElementNS` — note
+    `document.createElement('svg')` does NOT make a real SVG element. Centred
+    with `inset: 0; margin: auto`, deliberately not `top/left: 50%`: a
+    percentage `top` resolves against the parent's HEIGHT, and
+    `.rec-card .noposter` gets its height from `aspect-ratio`, where that is not
+    reliable. Also `display: grid` on `.noposter` would have lost to
+    `.rec-card .noposter { display: block }` at higher specificity — positioning
+    sidesteps both problems. Size is now proportional (`40%`, capped) instead of
+    a flat `1.4rem` that was identical in a 46px search row and a ~190px rec
+    card. **No emoji remain in rendered output anywhere** — the only ones left in
+    the source are inside comments explaining why they were rejected.
   Still open from the audit: expanded reviews collapse on re-render (only the
-  element-reuse rewrite rejected in D-031 would fix that); the 🎬 placeholder is
-  an emoji (vs D-027); "Not rated yet" is crimson (an error colour for a
-  non-error); `confirm()` is the last native modal; no `:focus-visible` on card
-  controls; and `tmdb_rating` is fetched, shown in search, then discarded on
-  insert.
+  element-reuse rewrite rejected in D-031 would fix that); "Not rated yet" is
+  crimson (an error colour for a non-error); `confirm()` is the last native
+  modal; no `:focus-visible` on card controls; and `tmdb_rating` is fetched,
+  shown in search, then discarded on insert.
 * Then: recommendations, then the rate dialog. The recs section carries a known
   open bug (its error message is overwritten by its own `finally` — see Open
   issues) and a label inconsistent with the Search one ("Add to my list" vs
