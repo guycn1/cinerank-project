@@ -304,17 +304,25 @@ below — this list is the smaller stuff.)
 
 The code is functionally complete against SPEC §2–§6, but the submission is
 **not** ready. These are the known gaps. The user is deferring all
-screenshot/evidence capture to right before submission — that is a deliberate
-schedule choice, not a reason to forget them.
+screenshot/evidence capture to right before submission, in a dedicated session,
+so the shots match the finished UI rather than a mid-overhaul one. That is a
+deliberate schedule choice, restated more than once — do NOT push to capture
+them early, and do NOT let that be a reason to forget them.
 
 * [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
   README + the lecturer's project sheet.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
-  on the verdict (the "Couldn't come up with a verdict right now" fallback), with
-  the ranked list still working. Server side is tested (`npm test`); the *visual*
-  evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+  on the verdict (that fallback now links into the AI call log — the shot should
+  show it), **CineRank itself unreachable** (stop `npm start`, then search:
+  "Couldn't reach CineRank…"), and the *non*-error empty state ("No matches",
+  muted rather than crimson — worth one shot to show the two are distinguished).
+  All with the ranked list still working. Server side is tested (`npm test`);
+  the *visual* evidence for SPEC §7.1 is still missing. Put them in `docs/`.
+  How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
+  restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
+  request-blocking do not simulate them.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.
