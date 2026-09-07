@@ -112,8 +112,22 @@ moviesRouter.patch(
       .eq('id', req.params.id)
       .select()
       .single();
+    // `.single()` does not mean "one row or nothing" — it asserts that exactly
+    // one row comes back, and PostgREST reports a broken assertion as an ERROR
+    // (PGRST116, "zero or multiple rows returned"), not as an empty result. So
+    // this has to be checked BEFORE the generic throw below: otherwise a film
+    // deleted in another tab fell through to the central handler and surfaced
+    // as a 500 "Something went wrong on our side" — blaming the server for the
+    // client asking about something that is simply gone, and giving the user a
+    // message that no amount of retrying could clear.
+    // The `!data` half is belt-and-braces for a client that returns an empty
+    // result instead; both mean the same thing to the caller.
+    if (error?.code === 'PGRST116' || (!error && !data)) {
+      return res
+        .status(404)
+        .json({ error: "Couldn't find that film — it may have been removed. Refresh and try again." });
+    }
     if (error) throw new Error(error.message);
-    if (!data) return res.status(404).json({ error: 'Movie not found' });
     res.json({ movie: data });
   })
 );

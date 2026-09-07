@@ -67,6 +67,25 @@ test('PATCH /api/movies/:id with a non-numeric rating → 400', async () => {
   assert.equal(res.status, 400);
 });
 
+// Regression guard. `.single()` reports "no such row" as PGRST116 rather than as
+// an empty result, so this used to fall through to the central error handler and
+// come back as a 500 "Something went wrong on our side" — which is both the wrong
+// status and a message the user could never clear by retrying. Reachable for real:
+// delete a film in one tab, save it from another.
+test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', async () => {
+  db.results['movies:update'] = {
+    data: null,
+    error: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' },
+  };
+  try {
+    const res = await client.patch('/api/movies/00000000-0000-0000-0000-000000000000', { rating: 5 });
+    assert.equal(res.status, 404);
+    assert.match((await res.json()).error, /may have been removed/);
+  } finally {
+    delete db.results['movies:update'];
+  }
+});
+
 test('PATCH /api/movies/:id with an empty body → 400 (nothing to update)', async () => {
   const res = await client.patch('/api/movies/some-id', {});
   assert.equal(res.status, 400);

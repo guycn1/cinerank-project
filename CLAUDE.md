@@ -52,7 +52,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 32 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 33 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
@@ -372,7 +372,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  and TMDB/OpenRouter-down resilience all covered by `npm test` (32).
+  and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
