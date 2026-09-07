@@ -27,6 +27,22 @@
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Scrollbar widths — page and log dialog. The `vw` term is the zoom guard.
+     No CSS length is immune to browser zoom (px, rem, pt all multiply), but
+     zoom shrinks the CSS viewport by the same factor it magnifies by, so a
+     vw length holds a roughly CONSTANT physical size as you zoom. A flat
+     `12px` became a ~60px slab at 500%.
+     The ceilings are the old values and the coefficients are set so the
+     ceiling wins at any viewport ≥ 1000px CSS px — so nothing changes at
+     normal zoom on a normal window; they only bite when the viewport is
+     genuinely small OR heavily zoomed. Floors keep the bar grabbable, and
+     hold the page:dialog ratio at 4:3 (12:9 → 6:4.5) so the page scrollbar
+     stays the wider of the two at every size, as intended.
+     Firefox is unaffected: `scrollbar-width` takes only auto/thin/none, so
+     there is no numeric width to clamp on that engine. */
+  --sb-w: clamp(6px, 1.2vw, 12px);
+  --sb-dialog-w: clamp(4.5px, 0.9vw, 9px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,12 +61,16 @@ html { scroll-behavior: smooth; }
   }
 }
 @supports selector(::-webkit-scrollbar) {
-  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar { width: var(--sb-w); height: var(--sb-w); }
   ::-webkit-scrollbar-track { background: var(--bg-raised); }
   ::-webkit-scrollbar-thumb {
     background: var(--line-strong);
     border-radius: 999px;
-    border: 3px solid transparent; /* inset the thumb off the track edges */
+    /* Insets the thumb off the track edges. Derived, not a flat 3px: the
+       border is subtracted from BOTH sides, so a fixed 3px against a floored
+       6px track would leave a 0px-wide thumb. /4 reproduces the old 3px at the
+       12px ceiling exactly. */
+    border: calc(var(--sb-w) / 4) solid transparent;
     background-clip: padding-box;
   }
   /* a gentle lift, not a jump to --ink-faint — keeps rest vs hover subtle */
@@ -60,10 +80,13 @@ html { scroll-behavior: smooth; }
 
   /* The log dialog: slightly thinner, transparent track (it sits on
      `--bg-raised` already). */
-  .log-dialog::-webkit-scrollbar { width: 9px; }
+  .log-dialog::-webkit-scrollbar { width: var(--sb-dialog-w); }
   .log-dialog::-webkit-scrollbar-track,
   .log-dialog::-webkit-scrollbar-corner { background: transparent; }
-  .log-dialog::-webkit-scrollbar-thumb { border-width: 2px; }
+  /* /4.5, not /4 — the dialog thumb was deliberately tuned proportionally
+     fatter than the page one (2px inset on 9px, vs 3px on 12px). This keeps
+     that exact relationship at every size instead of flattening the two. */
+  .log-dialog::-webkit-scrollbar-thumb { border-width: calc(var(--sb-dialog-w) / 4.5); }
 }
 
 body {
@@ -330,8 +353,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
 
 .movie-card {
+  /* One source of truth for the poster's width — the grid track AND the image
+     itself both read it, so they cannot fall out of step. They had: the 620px
+     query narrowed the track to 68px and left the image declaring 92px, so the
+     poster hung 24px into the title column on every phone. Override this one
+     property to resize the poster; never restate the number. */
+  --poster-w: 92px;
   display: grid;
-  grid-template-columns: 64px 92px 1fr auto;
+  grid-template-columns: 64px var(--poster-w) 1fr auto;
   gap: 1.2rem;
   align-items: center;
   background: var(--bg-card);
@@ -339,10 +368,33 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   box-shadow: var(--shadow);
-  animation: fade-slide 0.45s var(--ease) both;
   transition: transform 0.25s var(--ease), border-color 0.25s;
 }
+/* The staggered entrance runs on the FIRST paint only (renderRanked adds the
+   class). It used to sit on .movie-card itself, and since every re-render
+   replaces every card, rating one film replayed the whole list's entrance —
+   ~850ms of the page shimmering because one number changed. Later renders are
+   animated by a View Transition instead; running both made cards fade-slide in
+   while the transition cross-faded them, which looked muddy. */
+.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) both; }
 .movie-card:hover { transform: translateY(-3px); border-color: #34343f; }
+
+/* View Transition names for the two blocks that sit BELOW the ranked list.
+   These exist only because of the list's transition, which is why they live
+   here rather than with their own sections.
+   A View Transition snapshots the whole document; anything without a name is
+   lumped into one `root` group that CROSS-FADES. That is invisible for content
+   which neither changed nor moved (an identical image blended with itself), but
+   removing a card shortens the list, so everything beneath it genuinely shifts
+   up — and cross-fading content that moved renders it as a ghosted double
+   image at both positions. Giving each block its own name makes the browser
+   morph it between the two positions, so it slides instead.
+   Outside a transition these declarations have no rendering effect at all.
+   Do NOT name `.ranked` itself: the cards inside it are named individually, and
+   nesting a named element inside another named one changes which snapshot owns
+   what. Nothing above the list needs a name — it does not move. */
+.recs { view-transition-name: recs-section; }
+.site-foot { view-transition-name: site-footer; }
 
 .movie-card__rank {
   font-family: 'Fraunces', serif;
@@ -353,14 +405,63 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   -webkit-text-stroke: 1.5px var(--amber);
   text-align: center;
 }
-.movie-card:first-child .movie-card__rank {
+/* The top-rated film. Set as a class by renderRanked(), NOT as
+   `.movie-card:first-child` — list position and "highest rated" are different
+   facts, and they come apart as soon as the list holds an unrated film (with
+   nothing rated at all, the positional rule crowned an unrated card). */
+.movie-card__rank.is-top {
   color: var(--amber);
   -webkit-text-stroke: 0;
   text-shadow: 0 0 24px rgba(245, 193, 91, 0.45);
 }
+/* An unrated film has no rank, so it shows a "?" rather than borrowing the next
+   number. Much smaller and faint on purpose: it should read as an absence
+   sitting beside the ranking, not as a competing entry in it. Overrides both
+   the outlined-numeral treatment above (transparent fill + amber stroke). */
+.movie-card__rank.is-unranked {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 600;
+  color: var(--ink-faint);
+  -webkit-text-stroke: 0;
+}
+/* Ranks of 100+ (marked `is-wide` in renderRanked — CSS cannot count digits).
+   The numeral does NOT have to fit its track — it may spill into the card's
+   17.6px padding and the 19.2px gap. It must only avoid the card border and the
+   poster, which is a ~99px budget on desktop (64px track) and ~75px in card
+   mode (40px track). Beyond that the poster, later in DOM order, paints over
+   the overflow and eats the last digit.
+   Sizes below are SOLVED, not estimated. Fraunces Black's figures measure
+   **0.66em** per digit (Range.getBoundingClientRect on a live "222": 66.5px at
+   33.6px font). Two earlier guesses — 0.63em, then an over-corrected 0.8em —
+   both produced wrong sizes, so do not re-tune this by eye; re-measure.
+   Budget is `track + 2 × min(17.6px padding, 19.2px gap)`, and the PADDING is
+   the binding side. Clearance here is ≥10.8px on desktop and ≥12.3px in card
+   mode. Those are deliberately generous rather than minimal: an earlier pass
+   sized to a mathematically-sufficient ~6.8px in card mode and still read as
+   cramped, because the eye judges the gap against the 40px track beside it, not
+   against zero.
+   The `4vw` middle term is not decorative: it is set so the numeral is already
+   down to ~24.8px by the 620px breakpoint, where the track drops 64px → 40px
+   and the budget collapses from 99px to 75px in a single step. Lower the
+   ceiling all you like, but do not raise this coefficient without re-checking
+   the 620px row. This is NOT a no-op
+   in card mode — the 40px track is tighter relative to its font than the
+   desktop one, so the floor has to come down too, not just the ceiling.
+   font-size, not `scale`/`transform`: a transform would shrink the absolute
+   1.5px `-webkit-text-stroke` along with the glyph, leaving a thin, washed-out
+   outline beside its two-digit neighbours. Neither approach affects layout —
+   the track is a fixed width and only the text ever overflowed it — so posters
+   stay aligned card to card either way.
+   Ranks of 1000+ are not handled and are not worth handling. */
+.movie-card__rank.is-wide { font-size: clamp(1.5rem, 4vw, 2.4rem); }
 
 .movie-card__poster {
-  width: 92px; height: 138px;
+  width: var(--poster-w);
+  /* Height derived, not restated: TMDB posters are 2:3, so 92x138 was already
+     exactly this. Kept as a calc rather than `aspect-ratio` because .noposter
+     is a div whose ::after sizes itself `height: 100%` — that percentage needs
+     a definite parent height, which a calc guarantees on every engine. */
+  height: calc(var(--poster-w) * 1.5);
   border-radius: 8px;
   object-fit: cover;
   background: var(--bg-raised);
@@ -427,8 +528,36 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
-.card-actions button:hover { color: var(--amber); border-color: var(--amber); }
-.card-actions button.danger:hover { color: var(--crimson); border-color: var(--crimson); }
+/* `:not(:disabled)` so a button mid-request doesn't light up under the cursor —
+   these are outline buttons, so opacity is the right dimming tool here. */
+.card-actions button:hover:not(:disabled) { color: var(--amber); border-color: var(--amber); }
+.card-actions button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
+.card-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ranked list, narrow viewports. Lives HERE, at the end of the section it
+   modifies, like every other media query in this file (500px after search,
+   620px after the footer CTA, 1040/850px inside the log table). It used to sit
+   ~800 lines away under "utilities", which is how the poster overflow survived
+   unnoticed: nothing next to the poster rule hinted that another rule resized
+   it. A media query adds no specificity, so these must stay AFTER the base
+   rules they override — keep this block below .movie-card and
+   .movie-card__score, never above them. */
+@media (max-width: 620px) {
+  /* Resize the poster by overriding --poster-w only — the track and the image
+     both follow it. Restating a width on .movie-card__poster here is what
+     caused the overflow this rule used to have. */
+  .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
+  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; margin-top: 0.4rem; }
+  /* The buttons are pushed right by an auto margin, NOT by
+     `justify-content: space-between` on the row. space-between only separates
+     two or more children, and an unrated card has no score badge — leaving
+     .card-actions as the only child, which space-between parks on the LEFT.
+     An auto margin eats the free space whether or not a badge is there, so the
+     buttons sit bottom-right on every card and an unrated one simply leaves
+     the bottom-left empty. Identical result to space-between when a badge IS
+     present, so rated cards are unchanged. */
+  .movie-card__score .card-actions { margin-left: auto; }
+}
 
 /* recommendations --------------------------------------------------- */
 .recs__trigger {
@@ -678,12 +807,35 @@ body:has(dialog[open]) { overflow: hidden; }
   padding: 0.6rem;
   resize: vertical;
 }
+/* Inline save error. Same crimson-on-small-text vocabulary as `.search-note.err`
+   — failures are reported next to whatever failed, and the toast is left for
+   confirmations. `hidden` is honoured by the global `[hidden]` handling, and it
+   sits directly above the buttons so it reads as "this is why Save didn't
+   work". */
+.rate-dialog .rate-error {
+  margin-top: 0.9rem;
+  color: var(--crimson);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
 .rate-dialog menu { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; }
 .rate-dialog button {
   border-radius: 8px; padding: 0.5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
 }
 .rate-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
+/* Busy/disabled while a save is in flight. Two different treatments on purpose,
+   per the rule the Search button settled: opacity dims an OUTLINE button
+   convincingly, but a saturated amber FILL at 45% still composites to an
+   unmistakably amber button over --bg, so the filled one has to leave the amber
+   family entirely rather than just fade. */
+.rate-dialog button:disabled { cursor: not-allowed; }
+.rate-dialog button.ghost:disabled { opacity: 0.45; }
+.rate-dialog button.primary:disabled {
+  background: var(--bg-card);
+  color: var(--ink-dim);
+  border-color: var(--line);
+}
 
 /* AI call log dialog ------------------------------------------------ */
 .log-dialog {
@@ -1244,11 +1396,6 @@ body:has(dialog[open]) { overflow: hidden; }
   width: 100%; height: 100%;
   font-size: 1.4rem;
   opacity: 0.4;
-}
-
-@media (max-width: 620px) {
-  .movie-card { grid-template-columns: 40px 68px 1fr; }
-  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -52,7 +52,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 32 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 33 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
@@ -209,7 +209,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
   (250ms) on `.log-reveal`. That's the single knob for the fade speed.
-* **AI call log dialog — COMPLETE** (desktop table + mobile card view). The
+* **AI call log dialog — COMPLETE** (desktop table + mobile card view). One
+  later fix (2026-09-07, during the ranked-list pass): an open reveal panel's
+  flip side and caret were measured only on open, so resizing the window while
+  one was open left both stale. The measurement is now re-run from the shared
+  page resize pass, guarded on the dialog being open AND the panel being open.
+  Done as conservatively as possible — the measurement body was lifted into a
+  closure over its existing variables and is **byte-identical**, so the
+  open path is provably unchanged; nothing about the table's layout is touched.
+  The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
   since the last `main` merge (49738c2). Card fixes:
@@ -304,17 +312,67 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* Next: **the ranked list**, then recommendations and the rate dialog. The recs
-  section carries a known open bug (its error message is overwritten by its own
-  `finally` — see Open issues) and a label inconsistent with the Search one
-  ("Add to my list" vs "+ Add"). User is driving this.
+* **Ranked list — in progress.** Audited into a 17-item list; the user is
+  working it in order. Done so far:
+  - Only a rated film earns a rank number; unrated cards show a faint `?`, and
+    the #1 crown moved off `:first-child` onto a class (D-029).
+  - Poster no longer overflows its column below 620px — the width was declared
+    twice, now one `--poster-w` the grid track and the image both read.
+  - Card buttons stay bottom-right on unrated cards in card mode
+    (`space-between` puts a *lone* child at the start; an auto margin does not).
+  - Three-digit rank numerals capped so the poster can't eat a digit (D-030),
+    sized from a **measured** 0.66em figure width after two wrong estimates.
+  - Ranked list re-sorts with a **View Transition**, and the staggered entrance
+    animation now runs on first paint only (D-031). `.recs` / `.site-foot` carry
+    `view-transition-name`s so they slide rather than ghost when the list
+    shortens; the `sync*()` calls run BEFORE the transition so nothing outside
+    the list differs between snapshots.
+  - Off-list, found while testing: custom scrollbars ballooned under browser
+    zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
+    shrinks the viewport proportionally so `vw` holds a constant physical size).
+  - Review "view more…" toggles are re-measured on resize (and on zoom, and
+    after a late webfont swap), not once per render. They used to go stale in
+    both directions — narrowing clipped a review whose toggle stayed hidden, so
+    the text became unreachable. `hidden` is now assigned both ways. The pass
+    measures the CLAMPED state always, collapsing/reading/restoring in one
+    frame: a first attempt skipped expanded reviews (they are
+    `overflow: visible`, so they always measure as "fits") and that just moved
+    the staleness to a lingering "show less". A review that no longer clips is
+    left collapsed, and `setReviewExpanded()` is the single writer for the
+    class, the label and `aria-expanded` so the three cannot drift.
+  - **The rate dialog now outlives its own save.** The form is
+    `method="dialog"`, so submitting used to close it *before* the PATCH ran:
+    the write went out invisibly and a failure produced an error toast about a
+    dialog that was already gone, with the typed review destroyed and no way to
+    retry. Save now `preventDefault()`s, shows the shared `busyButton()` state,
+    and closes only once the write has succeeded; on failure the dialog stays
+    open with the rating and review exactly as typed. Cancel is disabled for the
+    duration (Esc still works). Remove gained a busy state too — spinner only,
+    no label, since `busyButton()` locks the width as a min-width and
+    "Removing…" would grow the button and shove its neighbour. Both also gained
+    the `:disabled` styling they never had: opacity for the outline buttons,
+    a fill swap out of the amber family for the filled `.primary`, per the rule
+    the Search button settled. The failure is reported **inline in the dialog**,
+    not by the toast (D-032): a modal `<dialog>` is in the top layer, so no
+    `z-index` can lift a toast above it and the `::backdrop` dims it anyway —
+    and inline is what search, the verdict and recs already do.
+  Still open from the audit: expanded reviews collapse on re-render (only the
+  element-reuse rewrite rejected in D-031 would fix that); the 🎬 placeholder is
+  an emoji (vs D-027); "Not rated yet" is crimson (an error colour for a
+  non-error); `confirm()` is the last native modal; no `:focus-visible` on card
+  controls; and `tmdb_rating` is fetched, shown in search, then discarded on
+  insert.
+* Then: recommendations, then the rate dialog. The recs section carries a known
+  open bug (its error message is overwritten by its own `finally` — see Open
+  issues) and a label inconsistent with the Search one ("Add to my list" vs
+  "+ Add"). User is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  and TMDB/OpenRouter-down resilience all covered by `npm test` (32).
+  and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -329,6 +387,21 @@ below — this list is the smaller stuff.)
   verdict side already does this properly (points at the AI call log).
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
+* [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
+  ranks were fine at every width (checked at ~350px with numerals forced to 20+,
+  so the narrow `1` couldn't flatter the test). Three were not: the font clamps
+  at `3.4rem` = 54.4px and Fraunces Black figures measure **0.66em**, so "250"
+  painted ~110px against a ~99px budget (64px track + the 17.6px padding and
+  19.2px gap it may legitimately spill into), and the poster — later in DOM
+  order — covered the last digit. `renderRanked()` now marks 100+ with
+  `is-wide` → `clamp(1.5rem, 4vw, 2.4rem)`, **solved** against that measured
+  figure width; clears by ≥10.8px on desktop and ≥12.3px in card mode. Two earlier
+  values were *estimated* and both wrong (0.63em too low, then 0.8em
+  over-corrected) — re-measure with `Range.getBoundingClientRect()`, never
+  re-tune this by eye. **The trap, if this is ever
+  revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
+  misalign every poster's left edge down the list, trading a rare problem for a
+  permanent one. 1000+ is unhandled by choice.
 * [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
@@ -554,6 +627,30 @@ that it is a correction, not an update.
 * **Merging `draft` → `main` only happens at a notable, settled milestone** — a UI milestone or a backend milestone believed to be genuinely complete, not a small incremental change. **Claude must ask the user for explicit confirmation before merging to `main`.** Never merge automatically, even if the milestone seems obviously done.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * Commit messages should include a summary of what actually changed.
+
+### Environment & tooling traps (all of these have actually bitten here)
+
+Windows, Git Bash for POSIX commands, `"type": "module"` in `package.json`.
+Each of the following cost real time at least once — they are recorded so the
+next session does not rediscover them.
+
+* **Never put backticks inside a double-quoted `git commit -m "…"`.** Bash runs
+  them as command substitution and silently deletes the word. This mangled
+  `619ed64`, where "they share a `` `name` ``" was committed as "they share a".
+  The message was already pushed and was left as-is rather than force-pushing a
+  history rewrite over it. Use plain quotes in commit messages, or single-quote
+  the whole `-m` argument. The same applies to `$` and `!`.
+* **`git merge -F -` does not read from stdin.** Use repeated `-m` flags for a
+  multi-paragraph merge message.
+* **Temporary helper scripts must be `.cjs`.** `package.json` sets
+  `"type": "module"`, so a stray `.js` file is parsed as an ES module and
+  `require` throws. Delete them when done; never leave one in the repo.
+* **Do not write temp files to `/tmp`.** Git Bash and Windows Node resolve it
+  differently (`D:\tmp`), and `$TMPDIR` is unset. Use the session scratchpad, or
+  a repo-relative file that is deleted in the same command.
+* **The UI copy uses curly apostrophes** (`’`, e.g. "Couldn’t reach CineRank").
+  An edit anchored on a straight `'` will not match. Copy the exact character
+  out of the file rather than retyping it.
 
 \---
 

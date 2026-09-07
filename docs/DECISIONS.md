@@ -7,6 +7,314 @@ file, directly under this header.**
 
 ---
 
+## D-032 · A failed save reports inside the rate dialog, not via the toast
+Testing the save-failure path (throttled to Offline) showed the crimson toast
+appearing *behind* the rate dialog and dimmed by its backdrop — legible only if
+you already knew it was there.
+
+**The obvious fix does not exist.** A modal `<dialog>` opened with `showModal()`
+is in the **top layer**, which paints above every normal element *regardless of
+`z-index`* — there is no value that lifts the toast above it, and the
+`::backdrop` dims everything beneath as well. The only ways into the top layer
+are another modal dialog or the Popover API. Converting the toast to a popover
+would work, but it means fighting the UA's `[popover]` defaults (`position:
+fixed; inset: 0; margin: auto; border: solid`) on a component every flow depends
+on, hours before submission, to serve one call site.
+
+Decision: report the failure **inline in the dialog**, above the buttons, and
+leave the toast for confirmations. This is not a workaround — it is what the rest
+of the app already does. Search failures render in the results panel via
+`searchNote()`, the verdict's failure replaces the verdict text, the recs error
+belongs in `#recs-hint`. **Errors go next to the thing that failed; the toast
+reports things that succeeded.** The rate dialog was the one place breaking that
+pattern, and the top-layer problem was the symptom rather than the cause.
+
+**Trap: do not "fix" this later by making the toast a popover and reverting the
+inline error.** That would restore a page-level error message for a failure whose
+context is entirely inside the dialog, and it would put the rate dialog back out
+of step with the other three sections.
+
+Two toast calls still fire while a dialog is *closing* ("Added … — rate it any
+time" on Skip, and "Saved — ranking updated"). Both are dimmed for the ~250ms of
+the dialog's fade-out. Both are confirmations rather than errors and remain
+readable for the other ~3s, so they are deliberately left alone.
+
+---
+
+## D-031 · The ranked list re-sorts with a View Transition, not a rewritten renderer
+`renderRanked()` opens with `replaceChildren()`, so every render destroys and
+rebuilds every card — and each card carried `animation: fade-slide` with a
+staggered delay. Rating one film therefore replayed the *entire* list's entrance:
+~850ms of the whole page shimmering because one number changed. Removing a film
+was worse — the list vanished and re-entered. Meanwhile the README's demo script
+promises "the ranked list **re-sorting live** as ratings change", and there was
+no re-sorting to watch: the list blinked out and a new one faded in.
+
+Four options were laid out:
+
+* **A — animate first paint only** (~6 lines). Kills the churn, keeps the
+  entrance on load. But the list still hard-swaps, and expanded reviews still
+  collapse.
+* **B — reuse card elements keyed by movie id** (~50 lines). The "proper" fix:
+  fixes the churn, the collapsing reviews and the poster churn, and is the
+  prerequisite for C.
+* **C — B plus a FLIP transition** (~25 more lines). Cards visibly slide.
+* **D — `document.startViewTransition()`** (~10 lines). The browser snapshots
+  before and after and morphs between them, matching elements by
+  `view-transition-name` — so it delivers C's effect *without* B's refactor,
+  because it does not care that the elements were destroyed.
+
+**Claude recommended B, then C. The user overruled it, correctly, on time and
+risk.** With hours left before submission, B's failure mode is the wrong shape:
+a missed field on a reused card produces a *stale card that still looks
+correct*, which is the most expensive kind of bug to find under time pressure —
+and B meant rewriting the function whose rated/unrated logic D-029 had just
+settled. D's failure mode is the opposite: feature-detect, and an unsupported
+browser gets exactly today's behaviour. Nothing half-renders.
+
+**A and D ship together, not D alone.** D on its own would fight the existing
+entrance: every rebuilt card still runs `fade-slide` *inside* a snapshot that is
+simultaneously cross-fading it. Muddy. A is what makes D legible.
+
+### The user's question that changed the design
+
+Asked what a removal would look like after generating recommendations and a
+verdict — and whether other sections would morph "just because something updated
+in the ranked list". The answer required correcting the framing: **a View
+Transition snapshots the whole document and cannot be scoped to one section.**
+What follows from that is two cases, not one:
+
+1. **Unchanged, unmoved content** (header, verdict, search) cross-fades against
+   an identical copy of itself. `(1−t)·X + t·X = X` — invisible by construction,
+   not by luck.
+2. **Content that moved** is the real problem. Removing a card shortens the list,
+   so `.recs` and the footer genuinely shift up — they do today too, instantly.
+   Unnamed, they belong to the single `root` group, and cross-fading something
+   that moved renders it as a **ghosted double image at both positions**. With
+   four tall poster cards that would have been glaring.
+
+Hence two mitigations that would not otherwise exist: `view-transition-name` on
+`.recs` and `.site-foot` so they *morph* between positions instead of ghosting,
+and — less obvious — **running the three `sync*()` calls BEFORE the transition
+rather than inside it**, so the recs hint, verdict placeholder and search buttons
+are already settled when the first snapshot is taken. That leaves the ranked list
+as the only difference between the two frames, which is as close to "scoped" as
+the API permits.
+
+### Two Claude errors, both caught
+
+* **Risk "the grain will double-composite" was wrong.** Both root snapshots are
+  flattened images containing the same grain layer, so the cross-fade preserves
+  it at constant strength; only the animation freezes for ~250ms, at
+  `opacity: 0.06`. The user pushed back that the grain was not what worried them
+  — the other *sections* were — and they were right that the analysis had aimed
+  at the wrong target.
+* **Firefox support was recalled as "~139".** MDN says **144** (Chrome/Edge 111,
+  Safari 18). The user checked rather than taking it, and verified live in Edge
+  152, Chrome 152 and Firefox 155. The recollection was close enough to be
+  dangerous — the habit of verifying is what caught it.
+
+### What this deliberately does NOT fix
+
+Expanded reviews still collapse on any re-render, and posters still re-decode,
+because the DOM is still rebuilt. Only option B addresses those; the review
+collapse stays open as its own item. This is a chosen trade, not an oversight.
+
+### Traps
+
+* **Do not name `.ranked` itself.** Cards inside it are named individually, and
+  nesting a named element inside another named one changes which snapshot owns
+  what.
+* **Keep the `sync*()` calls outside the transition callback.** Moving them in
+  reintroduces cross-fading of unrelated text.
+* **`view-transition-name` must be unique per document**, hence the `movie-`
+  prefix on the UUID — a bare UUID can begin with a digit, which is not a valid
+  CSS ident, and a duplicate aborts the entire transition.
+
+---
+
+## D-030 · Three-digit ranks are capped, not documented away
+A forced test (ranks rewritten to 250+ in the console) showed three-digit
+numerals running under the poster: the rank font clamps at `3.4rem` = 54.4px and
+Fraunces Black figures measure 0.66em, so "250" paints ~109px. Its budget is ~99px
+— the 64px track *plus* the 17.6px card padding and 19.2px gap it may
+legitimately spill into — and the poster, later in DOM order, paints over the
+overflow.
+
+**Claude first recommended NOT fixing it**, and wrote that up as a measured
+non-fix: unreachable below 100 films, demo seed list is 3–4, and each candidate
+fix looked more expensive than the defect. **The user overruled it on grounds
+Claude had not weighed** — that a grader reading an unchecked TODO box may not
+read the paragraph under it, and will score "documented limitation" as "too lazy
+to fix edge cases". That is a judgement about the audience, and the audience is
+the point of the artefact. Recorded because the reasoning is invisible in the
+diff: the code now contains a fix for a case nobody will hit, and a later reader
+would reasonably wonder why.
+
+The counter-argument Claude *did* win: the user proposed `scale: 0.5` for 100+,
+calling it "ugly, sloppy, but better grading-wise". Both halves were pushed back
+on and the user accepted:
+
+* **0.5 is roughly twice the shrink needed.** The numeral does not have to fit
+  the 64px track — it only has to avoid the card border and the poster, a ~99px
+  budget, so something near 0.8× was argued to be enough (it was not — see the
+  three sizing passes below; the *principle* held, the first number did not).
+  A subtle step reads as typographic fitting where a halved numeral reads as a
+  bug, and a visible hack grades worse than the honest TODO it was meant to
+  replace.
+* **`font-size`, not `scale`/`transform`.** A transform shrinks the absolute
+  `1.5px -webkit-text-stroke` with the glyph, so the numeral would sit beside its
+  two-digit neighbours with a visibly thinner, washed-out outline. Changing the
+  font size leaves the stroke at its intended weight. Neither affects layout —
+  the track is fixed and only the *text* ever overflowed — so posters stay
+  aligned card to card either way.
+
+CSS cannot count characters, so `renderRanked()` marks the digit count with an
+`is-wide` class; the threshold is 99 and not 9 because two digits were measured
+and fit at every width.
+
+**The size took three passes, because the first two were estimated instead of
+measured — this is the substantive lesson of the entry.** `2.75rem` was derived
+from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
+`2.1rem` then over-corrected to a pessimistic ~0.8em, which cleared but made
+#100 conspicuously smaller than #99 — sliding back toward the "ugly, sloppy"
+look the fix existed to avoid. Only then was the value actually measured, with
+`Range.getBoundingClientRect()` on a live `222`: **0.66em per digit** (66.5px at
+a 33.6px font). Solving against that gives `clamp(1.5rem, 4vw, 2.4rem)` —
+*larger* than the pass before it. A further pass then widened the card-mode
+clearance again — 6.8px was mathematically sufficient but still read as cramped,
+because the eye judges the gap against the 40px track beside it rather than
+against zero. Final: ≥10.8px clear on desktop, ≥12.3px in card mode,
+and a 0.71× step down from the two-digit size. **Re-measure, never re-tune by
+eye.**
+
+Two details that fall out of the real numbers. The binding side is the card's
+**17.6px padding**, not the 19.2px gap, so the left edge is what constrains the
+size. And the `4vw` middle term is load-bearing rather than decorative: it
+brings the numeral to ~24.8px by the 620px breakpoint, where the track drops
+64px → 40px and the budget collapses from 99px to 75px in a single step. Lower
+the ceiling freely; do not raise that coefficient without re-checking the 620px
+case, which is the one the whole clamp is shaped around.
+
+**Three agent errors, all caught by the user.** (1) The first description of the
+failure claimed the numeral "sits flush against the [card] border" and that
+nothing clipped it — a screenshot showed it vanishing under the poster instead.
+Corrected in place rather than preserved, per the "wrong when written"
+exception. (2) The claim that the fix was a no-op in card mode, and that card
+mode already cleared the poster on its own — both followed from the same bad
+figure-width estimate; the 40px track is in fact *tighter* relative to its font
+than the 64px one, so the clamp floor had to come down as well as the ceiling.
+(3) The original audit flagged *two*-digit ranks as broken on mobile; they are
+not, and the user disproved it with a sharper test than the one suggested —
+forcing ranks to 20+ instead of 10+, so the narrow `1` could not flatter the
+result.
+
+**Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It is
+the obvious move and it is wrong: cards with wider ranks get a wider first
+column, so poster left edges stop aligning down the list — trading a problem
+nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
+
+---
+
+## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
+The ranked list numbered every card `i + 1`, unrated films included. So an
+unrated film was handed a rank, directly under its own caption saying "Not rated
+yet — **rate it to place it in the ranking**." It had already been placed. The
+second half was worse: the `#1` treatment (solid amber, glow) was
+`.movie-card:first-child .movie-card__rank`, pure DOM position, so on a list
+where nothing was rated yet the golden **#1** landed on a film with no rating at
+all.
+
+Four options were weighed:
+
+* **Reword the caption** ("ranked last by default") — cheapest, and rejected.
+  It fixes the sentence without fixing the claim: an unrated film genuinely has
+  no rank, so "#7" stays false, just more carefully worded. It also leaves the
+  crown bug standing.
+* **Group unrated films into a labelled sub-section**, or **move them out of the
+  ranked list entirely** — both rejected for the same reason: they fight the add
+  flow. Adding a film opens the rate dialog with **"Skip for now"**, which is a
+  deferral, not a rejection. The film should stay in the list you just added it
+  to, quietly nagging. Relocating it makes "Skip for now" feel like the film went
+  *somewhere else*.
+* **Chosen: one list, but only rated films consume a number.** A counter
+  (`rankNo`) that increments only when `m.rating != null`; unrated cards show a
+  glyph in the rank slot instead.
+
+**The glyph: `?`, not `—`.** Claude proposed `—` in `--ink-faint`, reusing the AI
+call log's missing-Tokens/Cost vocabulary (D-021, shared UI vocabulary). The user
+chose `?` instead. It is the better call: `—` means "this value does not exist",
+which is what an empty log cell means, but an unrated film's rank is not absent —
+it is *undetermined pending an action the user can take*. `?` says "unknown, ask
+me" where `—` says "nothing here". Styled much smaller and faint so it reads as
+an absence beside the ranking rather than an entry competing within it.
+
+**Two traps this decision creates, both handled and both easy to undo later:**
+
+1. `const isRated = m.rating != null` — **never truthiness.** `0` is falsy, and
+   0.0 is a rating the user deliberately gave. A later "simplification" to
+   `m.rating ? …` would silently strip a 0.0 film of its rank, its score badge
+   and its Edit label in one move. The four sites that branch on rated-ness now
+   all read the single `isRated` const so they cannot drift apart.
+2. **`rankNo` must not be "simplified" back to the loop index `i`.** They agree
+   today only because the server sorts `nulls last`, making rated films
+   contiguous at the top — that is a coincidence of the sort order, not the rule.
+   The counter states the rule; `i` merely happens to match it.
+
+Screen readers: the `<ol>` still numbers every `<li>` implicitly, so an unrated
+card could be announced as "list item 7" while showing `?`. The rank slot is
+therefore `aria-hidden` on unrated cards and the "Not rated yet" line carries the
+meaning. Splitting the list into two elements purely to fix the announcement was
+considered and judged disproportionate.
+
+Deliberately **not** changed: unrated films still sort to the very bottom, so on
+a long list a just-skipped film is far out of sight. Raised with the user, who
+chose to leave it — noted here so the omission reads as a decision rather than an
+oversight.
+
+---
+
+## D-028 · Search stays typo-intolerant; the empty state explains instead
+Search is strict: "obamma" returns nothing, "obama" returns plenty. First
+established that this is **TMDB's** behaviour, not ours — `searchMovies()` passes
+the query straight through with no filtering, TMDB's `/search/movie` has no
+fuzzy or edit-distance parameter to enable, and TMDB's own website behaves the
+same way. So there was nothing to un-break on our side.
+
+**A local, no-AI spellcheck is not merely expensive, it is impossible here.**
+Correction needs a corpus to correct *toward*, and we have none: the catalogue
+lives at TMDB, we only ever see the twelve results of one query, and on a typo we
+see zero. A generic dictionary would not help either — film titles are full of
+proper nouns, invented words and stylised spellings. Nothing in this repo can
+turn "obamma" into "obama".
+
+That left one real fix — ask the model, then re-query TMDB — and it was
+**rejected on scope**. It would actually fit the never-trust-the-model posture
+perfectly (D-002/D-005: the model produces only a search string, TMDB still
+supplies every fact, blast radius is a weird result). But it is a *third* AI
+feature where SPEC scopes two, and CLAUDE.md requires every OpenRouter call to be
+logged with tokens and cost — neither existing log table fits, so it needs
+migration 002, a new service, a versioned prompt file and tests, days before
+submission. Revisit post-submission if ever.
+
+Decision: reword the empty state to echo the query back —
+`No matches for "obamma". Check the spelling, or try a different title.` It
+detects nothing; it just makes the typo self-evident, since after typing fast
+you do not reliably recall what you typed. It also fixes a small dishonesty: the
+old "try a different title" implied the film was absent, sending the user hunting
+for a different film rather than checking their spelling, when both causes are
+possible. The query is capped at 40 characters so a pasted block cannot blow the
+message out, and echoing raw input is safe by construction because `searchNote()`
+builds with `textContent`.
+
+**Two agent errors worth recording, both caught by the user.** The options were
+presented with a "~15 minutes" estimate for this one; it is two lines, and the
+number was inflated to make three options feel more differentiated — which is
+padding, not estimating. And a "full" and a "trimmed" variant were offered as if
+they were different options when they were *identical code* with a different
+sentence; the difference was the agent disagreeing with its own copywriting. The
+user asked what the real implementation difference was, and there was none.
+
 ## D-027 · Icons are inline SVG or plain characters — never emoji
 Three icon choices in the Search section landed on the same rule, so it is
 written once here.

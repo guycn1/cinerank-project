@@ -26,6 +26,8 @@ const el = {
   rateOutput: $('#rate-output'),
   rateReview: $('#rate-review'),
   rateCancel: $('#rate-cancel'),
+  rateSave: $('#rate-save'),
+  rateError: $('#rate-error'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
   logClose: $('#log-close'),
@@ -132,21 +134,110 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
+/**
+ * Run a DOM update inside a View Transition, so a re-sorted list animates to
+ * its new order instead of teleporting.
+ *
+ * The API snapshots the WHOLE document before and after `update()` and morphs
+ * between the two. It cannot be scoped to one section — so the discipline is on
+ * the caller: put ONLY the thing that should animate inside `update()`, and let
+ * everything else already be settled before this is called. Anything unchanged
+ * and unmoved cross-fades against an identical copy of itself, which is
+ * invisible by construction.
+ *
+ * Falls straight through to a plain call when unsupported or when the user asks
+ * for reduced motion — an unsupported browser gets exactly the old behaviour,
+ * which is what makes this safe. (Baseline: Chrome/Edge 111, Firefox 144,
+ * Safari 18.)
+ */
+function withViewTransition(update) {
+  if (
+    typeof document.startViewTransition !== 'function' ||
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    update();
+    return;
+  }
+  const t = document.startViewTransition(update);
+  // A transition superseded by a newer one rejects `ready`. That is normal
+  // here (click Remove twice quickly) and must not surface as an unhandled
+  // rejection in the console.
+  t.ready.catch(() => {});
+  t.finished.catch(() => {});
+}
+
 /* ---------- ranked list ------------------------------------------------- */
+// Has the list been painted at least once? The first paint is an ENTRANCE (the
+// staggered fade-slide, nothing to morph from); every later one is a CHANGE to
+// a list already on screen, and gets the transition instead. Running both at
+// once made cards fade-slide in while the transition simultaneously cross-faded
+// them, which just looked muddy.
+let rankedPainted = false;
+
+/** Re-render the ranked list, animating the difference when there is one. */
+function refreshRanked() {
+  if (!rankedPainted) return renderRanked();
+  withViewTransition(renderRanked);
+}
+
 function renderRanked() {
+  const entering = !rankedPainted;
+  rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
   el.rankedEmpty.hidden = count > 0;
 
+  // Rank counter. Deliberately NOT the array index: only a rated film has a
+  // rank, so an unrated one must not consume a number (D-029). The server sorts
+  // nulls last, so rated films are contiguous at the top and this counter and
+  // the index agree for them — but the counter states the rule instead of
+  // depending on the sort order to imply it.
+  let rankNo = 0;
+
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
     li.className = 'movie-card';
-    li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+    if (entering) {
+      li.classList.add('is-entering');
+      li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+    }
+    // Pairs this card's before/after snapshots so the browser morphs it from
+    // its old position to its new one. The name must be a valid CSS ident and
+    // unique across the document, hence the prefix — a bare UUID can start with
+    // a digit, and a duplicate aborts the whole transition.
+    li.style.viewTransitionName = `movie-${m.id}`;
+
+    // `!= null`, never truthiness: 0.0 is a rating the user deliberately gave,
+    // and `0` is falsy — `m.rating ? …` would silently demote a 0.0 film to
+    // "unrated", losing its rank, its score badge and its Edit label at once.
+    const isRated = m.rating != null;
 
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
-    rank.textContent = String(i + 1);
+    if (isRated) {
+      rank.textContent = String(++rankNo);
+      // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
+      // in the list" and "your top-rated film" are different facts, and they
+      // come apart the moment the list holds an unrated film — with nothing
+      // rated yet, the positional rule crowned a film with no rating at all.
+      if (rankNo === 1) rank.classList.add('is-top');
+      // Three digits are wider than the rank gutter can hold at the desktop
+      // font size — "250" overran the gap and the poster painted over its last
+      // digit. CSS cannot count characters, so the digit count is marked here
+      // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
+      // not 9: two digits were measured and fit fine at every width.
+      if (rankNo > 99) rank.classList.add('is-wide');
+    } else {
+      // No rank to show. Same "no value here" glyph vocabulary as the AI call
+      // log's empty Tokens/Cost cells, so the absence reads as an absence.
+      // aria-hidden: the "Not rated yet" line below already says this, and the
+      // <ol> still counts every <li>, so a reader would otherwise be told a
+      // position this card is explicitly not claiming.
+      rank.classList.add('is-unranked');
+      rank.textContent = '?';
+      rank.setAttribute('aria-hidden', 'true');
+    }
 
     const poster = posterNode(m.poster_url, m.title);
     poster.classList.add('movie-card__poster');
@@ -160,7 +251,7 @@ function renderRanked() {
     yr.textContent = m.year ? `(${m.year})` : '';
     h3.append(yr);
     body.append(h3);
-    if (m.rating == null) {
+    if (!isRated) {
       const u = document.createElement('p');
       u.className = 'unrated';
       u.textContent = 'Not rated yet — rate it to place it in the ranking.';
@@ -174,20 +265,17 @@ function renderRanked() {
       toggle.type = 'button';
       toggle.className = 'review-toggle';
       toggle.hidden = true; // shown after layout only if the text actually clips
-      toggle.textContent = 'view more…';
-      toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-controls', r.id);
+      setReviewExpanded(r, toggle, false); // label + aria via the single writer
       toggle.addEventListener('click', () => {
-        const expanded = r.classList.toggle('expanded');
-        toggle.textContent = expanded ? 'show less' : 'view more…';
-        toggle.setAttribute('aria-expanded', String(expanded));
+        setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
       });
       body.append(r, toggle);
     }
 
     const score = document.createElement('div');
     score.className = 'movie-card__score';
-    if (m.rating != null) {
+    if (isRated) {
       const badge = document.createElement('div');
       badge.className = 'score-badge';
       badge.append(document.createTextNode(m.rating.toFixed(1) + ' '));
@@ -200,15 +288,15 @@ function renderRanked() {
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');
     rateBtn.type = 'button';
-    rateBtn.textContent = m.rating == null ? 'Rate' : 'Edit';
-    rateBtn.setAttribute('aria-label', `${m.rating == null ? 'Rate' : 'Edit rating for'} ${m.title}`);
+    rateBtn.textContent = isRated ? 'Edit' : 'Rate';
+    rateBtn.setAttribute('aria-label', `${isRated ? 'Edit rating for' : 'Rate'} ${m.title}`);
     rateBtn.addEventListener('click', () => openRate(m));
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.className = 'danger';
     delBtn.textContent = 'Remove';
     delBtn.setAttribute('aria-label', `Remove ${m.title} from your ranking`);
-    delBtn.addEventListener('click', () => removeMovie(m));
+    delBtn.addEventListener('click', () => removeMovie(m, delBtn));
     actions.append(rateBtn, delBtn);
     score.append(actions);
 
@@ -216,25 +304,84 @@ function renderRanked() {
     el.rankedList.append(li);
   });
 
-  // Reveal a "view more" toggle only for reviews whose text is actually clipped.
-  requestAnimationFrame(() => {
-    el.rankedList.querySelectorAll('.review').forEach((p) => {
-      const toggle = p.nextElementSibling;
-      if (toggle?.classList.contains('review-toggle') && p.scrollHeight - p.clientHeight > 4) {
-        toggle.hidden = false;
-      }
-    });
-  });
+  // Measured after layout, not during: the cards were only just appended.
+  requestAnimationFrame(syncReviewToggles);
+}
+
+/**
+ * Show each review's "view more…" toggle only when the text is actually clipped.
+ *
+ * `-webkit-line-clamp` hides the overflow silently and CSS has no "did this
+ * overflow?" selector, so it has to be measured. The important part is that it
+ * must be measured AGAIN whenever the layout changes: this used to run once per
+ * render and never on resize, so narrowing the window clipped a review that had
+ * fitted while its toggle stayed hidden — the text became unreachable, with no
+ * cue that anything was missing. Widening produced the mirror image: a
+ * "view more…" that expanded nothing.
+ *
+ * Hence `hidden` is ASSIGNED both ways here. An earlier version only ever set it
+ * to false, which is why a wrong state could never recover.
+ *
+ * An expanded review is `overflow: visible`, so it always measures as "fits" —
+ * the first attempt at this therefore SKIPPED expanded reviews, which just moved
+ * the staleness: expand at a narrow width, widen until the text fits in two
+ * lines, and a "show less" lingered over an unclipped review. The fix is to
+ * measure the CLAMPED state always, by collapsing, reading, and restoring within
+ * one frame. Only the clamped state answers the question "is a toggle needed at
+ * all", so it is the only state worth measuring.
+ */
+function syncReviewToggles() {
+  const items = [...el.rankedList.querySelectorAll('.review')]
+    .map((p) => ({ p, toggle: p.nextElementSibling }))
+    .filter(({ toggle }) => toggle?.classList.contains('review-toggle'));
+  if (!items.length) return;
+
+  // Three passes, not one loop: reading geometry straight after a class change
+  // forces a synchronous layout, so interleaving write/read per item would cost
+  // one layout PER REVIEW. Batching costs one for the whole pass. Nothing is
+  // painted in between — the browser cannot render until this returns.
+  for (const it of items) {
+    it.wasExpanded = it.p.classList.contains('expanded');
+    if (it.wasExpanded) it.p.classList.remove('expanded');
+  }
+  for (const it of items) it.clips = it.p.scrollHeight - it.p.clientHeight > 4;
+  for (const it of items) {
+    it.toggle.hidden = !it.clips;
+    // `it.clips && it.wasExpanded`, so a review that no longer clips is left
+    // COLLAPSED rather than restored. Both states render identically when the
+    // text fits in two lines, so nothing moves — but leaving `expanded` set
+    // would mean the next narrowing showed the full text with no toggle at all,
+    // which is the original unreachable-text bug wearing a different hat.
+    setReviewExpanded(it.p, it.toggle, it.clips && it.wasExpanded);
+  }
+}
+
+/**
+ * The single writer for a review's expanded state. The class, the button label
+ * and `aria-expanded` describe one fact and must never disagree — they drifted
+ * once already, when the toggle's label was updated on click but never by the
+ * resize pass.
+ */
+function setReviewExpanded(p, toggle, expanded) {
+  p.classList.toggle('expanded', expanded);
+  toggle.textContent = expanded ? 'show less' : 'view more…';
+  toggle.setAttribute('aria-expanded', String(expanded));
 }
 
 async function loadMovies() {
   const { movies } = await api('/api/movies');
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
-  renderRanked();
+  // The syncs run BEFORE the render, deliberately. A View Transition snapshots
+  // the whole document, so anything these three touch (the recs hint, the
+  // verdict placeholder, the search-result buttons) would cross-fade too.
+  // Settling them first leaves the ranked list as the only difference between
+  // the two snapshots. None of them reads DOM that renderRanked() builds — they
+  // read `state`, which is already updated above — so the order is free.
   syncSearchResultButtons();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
+  refreshRanked();
 }
 
 /* ---------- search + add ---------------------------------------------- */
@@ -259,7 +406,7 @@ el.searchForm.addEventListener('submit', async (e) => {
   el.searchResults.replaceChildren(makeLoading('Searching…'));
   try {
     const { results } = await api(`/api/movies/search?q=${encodeURIComponent(q)}`);
-    renderSearchResults(results);
+    renderSearchResults(results, q);
   } catch (err) {
     el.searchResults.replaceChildren(makeError(err.message));
   } finally {
@@ -334,12 +481,22 @@ function syncSearchResultButtons() {
   });
 }
 
-function renderSearchResults(results) {
+function renderSearchResults(results, query) {
   el.searchResults.replaceChildren();
   if (!results.length) {
     // searchNote, not makeError: a search that matched nothing is an empty
     // state, not a failure, and crimson said otherwise.
-    el.searchResults.append(searchNote('No matches — try a different title.'));
+    //
+    // Echo the query back. The app cannot detect a typo and deliberately does
+    // not try (D-028) — but quoting what was actually typed makes one
+    // self-evident, and "check the spelling" is honest about the two possible
+    // causes where the old "try a different title" implied only one.
+    // Capped so a pasted essay can't blow the message out. Safe to echo raw
+    // input: searchNote builds with textContent, never innerHTML.
+    const shown = query.length > 40 ? query.slice(0, 40) + '…' : query;
+    el.searchResults.append(
+      searchNote(`No matches for “${shown}”. Check the spelling, or try a different title.`)
+    );
     return;
   }
   for (const r of results) {
@@ -395,6 +552,12 @@ async function addMovie(tmdbId, btn) {
 }
 
 /* ---------- rate / remove ------------------------------------------- */
+/** Show or clear the rate dialog's inline error. Empty string clears it. */
+function setRateError(message) {
+  el.rateError.textContent = message;
+  el.rateError.hidden = !message;
+}
+
 function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
   state.editingIsNew = isNew;
@@ -405,6 +568,7 @@ function openRate(movie, { isNew = false } = {}) {
   el.rateRange.value = movie.rating ?? 7;
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
   el.rateReview.value = movie.review ?? '';
+  setRateError('');
   el.rateDialog.showModal();
 }
 el.rateRange.addEventListener('input', () => {
@@ -417,9 +581,24 @@ el.rateForm.addEventListener('submit', async (e) => {
     // "Skip for now" saves nothing, so there is no "Saved" to report — but the
     // add itself had no confirmation of its own, which left this path silent.
     // Say what actually happened instead of nothing (or, worse, "Saved").
+    // No preventDefault: nothing is being written, so `method="dialog"` closing
+    // it immediately is exactly right here.
     if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
     return;
   }
+
+  // Stop `method="dialog"` from closing the form. The dialog must OUTLIVE the
+  // request: it used to close on submit and the PATCH then ran invisibly, so a
+  // failure produced an error toast about a dialog that was already gone — with
+  // the user's typed review destroyed and no way to retry it. Now it closes
+  // only after the write is known to have succeeded.
+  e.preventDefault();
+  setRateError(''); // a retry starts clean
+  const settleSave = busyButton(el.rateSave, 'Saving…');
+  // Cancel is disabled for the duration too: mid-write it can neither undo the
+  // request nor be trusted to mean "discard". Esc still closes the dialog, so
+  // there is always a way out if the request hangs.
+  el.rateCancel.disabled = true;
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',
@@ -429,21 +608,43 @@ el.rateForm.addEventListener('submit', async (e) => {
         review: el.rateReview.value.trim(),
       }),
     });
+    // Closed BEFORE the reload, not after, so the ranked list's re-sort
+    // animation happens on a visible page rather than behind the backdrop —
+    // a rating change is the main thing that reorders the list, so it is the
+    // one place that animation earns its keep.
+    el.rateDialog.close();
     await loadMovies();
-    toast(`Saved — ranking updated.`);
+    toast('Saved — ranking updated.');
   } catch (err) {
-    toast(err.message, true);
+    // Deliberately leaves the dialog open with the rating and review exactly as
+    // typed, so Save can simply be pressed again. Reported INLINE rather than as
+    // a toast: this dialog is modal, so it is in the top layer and its
+    // ::backdrop dims the page — a toast fired here is behind it and greyed
+    // out, which is exactly how it looked before this changed.
+    setRateError(err.message);
+  } finally {
+    settleSave();
+    el.rateCancel.disabled = false;
   }
 });
 
-async function removeMovie(movie) {
+async function removeMovie(movie, btn) {
   if (!confirm(`Remove “${movie.title}” from your ranking?`)) return;
+  // Spinner only, no busy LABEL: busyButton locks the button's current width as
+  // a min-width, and "Removing…" is far wider than "Remove", so a label would
+  // grow the button and shove its neighbour sideways mid-request. The card
+  // buttons are small enough that a spinner in a disabled button reads clearly
+  // on its own, and the aria-label still names the film.
+  const settle = btn ? busyButton(btn, '') : null;
   try {
     await api(`/api/movies/${movie.id}`, { method: 'DELETE' });
     await loadMovies();
     toast('Removed.');
+    // No settle() on success — loadMovies() has already destroyed this button
+    // along with its card.
   } catch (err) {
     toast(err.message, true);
+    settle?.();
   }
 }
 
@@ -631,11 +832,45 @@ function syncMetaSeparator(foot) {
   sep.style.visibility = wrapped ? 'hidden' : 'visible';
 }
 
-// One listener for the page rather than an observer per footer — there are at
-// most two on screen and they only need re-checking when the width changes.
+// One listener for every layout-dependent measurement on the page, rather than
+// an observer per element. Both of these read geometry (getBoundingClientRect /
+// scrollHeight), which forces layout, and `resize` fires continuously while a
+// window is dragged — so the work is throttled to at most once per frame. rAF
+// rather than a debounce on purpose: a debounce would leave both measurements
+// visibly stale for the whole drag, where this keeps them live and still does
+// the reads only once per painted frame.
+//
+// Browser zoom fires `resize` too (it changes the CSS viewport), so this covers
+// zooming as well as dragging.
+let relayoutQueued = false;
 window.addEventListener('resize', () => {
-  document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+  if (relayoutQueued) return;
+  relayoutQueued = true;
+  requestAnimationFrame(() => {
+    relayoutQueued = false;
+    document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
+    syncReviewToggles();
+    // An open AI-log reveal panel was positioned for the geometry it opened in,
+    // so a resize leaves its side and caret stale. Guarded twice, deliberately:
+    //   - only while the dialog is actually OPEN. A closed <dialog> is
+    //     `display: none`, so every rect reads zero and the caret would be
+    //     written as a nonsense offset.
+    //   - only for panels that are themselves OPEN. A closed one must keep its
+    //     side so it fades out in place (see the toggle handler).
+    // At most one can be open — they share a `name` — so this is one element.
+    // Inert below 850px, where the panel is `position: static` and the carets
+    // are `display: none`.
+    if (el.logDialog.open) {
+      document.querySelectorAll('.log-reveal[open]').forEach((d) => d.repositionPanel?.());
+    }
+  });
 });
+
+// A late webfont swap re-flows every review, which can invalidate a measurement
+// taken against the fallback face. `display=swap` makes that a real possibility
+// on a slow connection, and it resolves immediately when the fonts are already
+// cached, so it costs nothing in the common case.
+document.fonts?.ready.then(syncReviewToggles);
 
 function cell(text, className, label) {
   const td = document.createElement('td');
@@ -722,10 +957,16 @@ function revealDetails(summaryText, bodyNode) {
   // The panel normally drops below its trigger; near the bottom of the dialog
   // there isn't room, so flip it above instead. Measured on open rather than
   // done in CSS because the panel's height depends on its content.
-  details.addEventListener('toggle', () => {
-    // On close, keep whichever side it is on so it fades out in place —
-    // clearing the class here would snap it back down mid-fade.
-    if (!details.open) return;
+  // The measurement, unchanged, lifted out of the handler so the resize pass can
+  // re-run it: a panel positioned for the geometry it opened in keeps a stale
+  // side and caret if the window is resized while it is open.
+  //
+  // It stays a closure over the SAME `details` / `summary` / `bodyNode` it always
+  // used, and is stashed on the element rather than re-derived from the DOM
+  // elsewhere. Re-deriving would have been tidier and is the thing not worth
+  // risking here — this way the open path runs byte-identical code on identical
+  // variables, so opening a panel cannot behave differently than before.
+  const positionPanel = () => {
     details.classList.remove('log-reveal--above');
     const trigger = summary.getBoundingClientRect();
     const view = el.logDialog.getBoundingClientRect();
@@ -742,6 +983,14 @@ function revealDetails(summaryText, bodyNode) {
     const centre = trigger.left + trigger.width / 2 - panel.left;
     const x = Math.min(Math.max(centre, 14), panel.width - 14);
     details.style.setProperty('--arrow-x', `${x}px`);
+  };
+  details.repositionPanel = positionPanel;
+
+  details.addEventListener('toggle', () => {
+    // On close, keep whichever side it is on so it fades out in place —
+    // clearing the class here would snap it back down mid-fade.
+    if (!details.open) return;
+    positionPanel();
   });
 
   return details;

@@ -30,7 +30,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 32 tests — helpers, prompt loader, routes, resilience
+   npm test         # 33 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
 
@@ -73,9 +73,26 @@ docs/PROCESS.md     how it was built with an LLM in the loop
 
 ## Deployment
 
-The Express server (`app.listen`) needs a Node host — **Render, Railway or Fly.io**
-(all have free tiers), not Netlify (static + serverless only). Set the same four
-`.env` vars in the host's dashboard.
+Hosted on **Render**. The Express server (`app.listen`) needs a Node host —
+Netlify is not an option (static files + serverless functions only). `render.yaml`
+in the repo root is the blueprint; a service created by hand in the dashboard
+behaves identically and ignores the file.
+
+**Live URL:** _(to be added once the first deploy is green)_
+
+Deploying it yourself:
+
+1. Push to GitHub, then Render → **New** → **Web Service** → connect the repo.
+2. Branch **`main`**, runtime **Node**, build `npm ci`, start `npm start`.
+3. Add the four secrets under **Environment**: `SUPABASE_URL`,
+   `SUPABASE_ANON_KEY` (anon key only, never `service_role`), `TMDB_API_KEY`,
+   `OPENROUTER_API_KEY`. `PORT` is injected by Render and must not be set —
+   `server/config.js` already reads it.
+4. Health check path `/api/health`.
+
+**Free-tier caveat:** the instance sleeps after ~15 minutes idle, so the first
+request after a quiet period takes roughly a minute to answer while it wakes.
+Subsequent loads are immediate. Worth opening the link once before demoing it.
 
 ## Security notes (course Module 17)
 
