@@ -7,6 +7,47 @@ file, directly under this header.**
 
 ---
 
+## D-028 · Search stays typo-intolerant; the empty state explains instead
+Search is strict: "obamma" returns nothing, "obama" returns plenty. First
+established that this is **TMDB's** behaviour, not ours — `searchMovies()` passes
+the query straight through with no filtering, TMDB's `/search/movie` has no
+fuzzy or edit-distance parameter to enable, and TMDB's own website behaves the
+same way. So there was nothing to un-break on our side.
+
+**A local, no-AI spellcheck is not merely expensive, it is impossible here.**
+Correction needs a corpus to correct *toward*, and we have none: the catalogue
+lives at TMDB, we only ever see the twelve results of one query, and on a typo we
+see zero. A generic dictionary would not help either — film titles are full of
+proper nouns, invented words and stylised spellings. Nothing in this repo can
+turn "obamma" into "obama".
+
+That left one real fix — ask the model, then re-query TMDB — and it was
+**rejected on scope**. It would actually fit the never-trust-the-model posture
+perfectly (D-002/D-005: the model produces only a search string, TMDB still
+supplies every fact, blast radius is a weird result). But it is a *third* AI
+feature where SPEC scopes two, and CLAUDE.md requires every OpenRouter call to be
+logged with tokens and cost — neither existing log table fits, so it needs
+migration 002, a new service, a versioned prompt file and tests, days before
+submission. Revisit post-submission if ever.
+
+Decision: reword the empty state to echo the query back —
+`No matches for "obamma". Check the spelling, or try a different title.` It
+detects nothing; it just makes the typo self-evident, since after typing fast
+you do not reliably recall what you typed. It also fixes a small dishonesty: the
+old "try a different title" implied the film was absent, sending the user hunting
+for a different film rather than checking their spelling, when both causes are
+possible. The query is capped at 40 characters so a pasted block cannot blow the
+message out, and echoing raw input is safe by construction because `searchNote()`
+builds with `textContent`.
+
+**Two agent errors worth recording, both caught by the user.** The options were
+presented with a "~15 minutes" estimate for this one; it is two lines, and the
+number was inflated to make three options feel more differentiated — which is
+padding, not estimating. And a "full" and a "trimmed" variant were offered as if
+they were different options when they were *identical code* with a different
+sentence; the difference was the agent disagreeing with its own copywriting. The
+user asked what the real implementation difference was, and there was none.
+
 ## D-027 · Icons are inline SVG or plain characters — never emoji
 Three icon choices in the Search section landed on the same rule, so it is
 written once here.

@@ -259,7 +259,7 @@ el.searchForm.addEventListener('submit', async (e) => {
   el.searchResults.replaceChildren(makeLoading('Searching…'));
   try {
     const { results } = await api(`/api/movies/search?q=${encodeURIComponent(q)}`);
-    renderSearchResults(results);
+    renderSearchResults(results, q);
   } catch (err) {
     el.searchResults.replaceChildren(makeError(err.message));
   } finally {
@@ -334,12 +334,22 @@ function syncSearchResultButtons() {
   });
 }
 
-function renderSearchResults(results) {
+function renderSearchResults(results, query) {
   el.searchResults.replaceChildren();
   if (!results.length) {
     // searchNote, not makeError: a search that matched nothing is an empty
     // state, not a failure, and crimson said otherwise.
-    el.searchResults.append(searchNote('No matches — try a different title.'));
+    //
+    // Echo the query back. The app cannot detect a typo and deliberately does
+    // not try (D-028) — but quoting what was actually typed makes one
+    // self-evident, and "check the spelling" is honest about the two possible
+    // causes where the old "try a different title" implied only one.
+    // Capped so a pasted essay can't blow the message out. Safe to echo raw
+    // input: searchNote builds with textContent, never innerHTML.
+    const shown = query.length > 40 ? query.slice(0, 40) + '…' : query;
+    el.searchResults.append(
+      searchNote(`No matches for “${shown}”. Check the spelling, or try a different title.`)
+    );
     return;
   }
   for (const r of results) {
