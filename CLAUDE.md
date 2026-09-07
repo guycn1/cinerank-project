@@ -411,6 +411,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     stray outside click discarding a typed review is exactly the failure #6
     existed to fix.
 
+  - **Every confirmation toast names its film, in one shape** (2026-09-08,
+    user-raised, part of #16). `“Dune” added — rate it any time.` / `“Dune”
+    saved.` / `“Dune” removed.` Two of the three named no film at all, and the
+    three had three different shapes. `Saved — ranking updated.` also lost its
+    second clause: editing only the review, or re-rating without crossing a
+    neighbour, leaves the order untouched, so the claim was unverified in
+    exactly the way the central 500 handler's old "on our side" was. The two
+    ERROR toasts were deliberately left alone: they pass the server's own
+    wording through, and prefixing it client-side would produce doublings like
+    `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -435,7 +446,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
 | 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
-| 16 | Copy inconsistencies: `'Removed.'` vs `Added “X” — rate it any time.`; `Saved — ranking updated.` claims a ranking change even when only the review was edited; `5 films · 5 rated` reads oddly | open |
+| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `Saved — ranking updated.` claimed a re-sort that editing a review does not cause. **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |

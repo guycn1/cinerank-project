@@ -603,7 +603,7 @@ el.rateForm.addEventListener('submit', async (e) => {
     // Say what actually happened instead of nothing (or, worse, "Saved").
     // No preventDefault: nothing is being written, so `method="dialog"` closing
     // it immediately is exactly right here.
-    if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
+    if (state.editingIsNew) toast(`“${movie.title}” added — rate it any time.`);
     return;
   }
 
@@ -634,7 +634,11 @@ el.rateForm.addEventListener('submit', async (e) => {
     // one place that animation earns its keep.
     el.rateDialog.close();
     await loadMovies();
-    toast('Saved — ranking updated.');
+    // Names the film, and deliberately no longer claims the ranking changed:
+    // editing only the review, or re-rating without crossing a neighbour,
+    // leaves the order exactly as it was. Saying so anyway was the same kind
+    // of unverified claim as the central handler's old "on our side".
+    toast(`“${movie.title}” saved.`);
   } catch (err) {
     // Deliberately leaves the dialog open with the rating and review exactly as
     // typed, so Save can simply be pressed again. Reported INLINE rather than as
@@ -711,7 +715,7 @@ async function removeMovie(movie, btn) {
   try {
     await api(`/api/movies/${movie.id}`, { method: 'DELETE' });
     await loadMovies();
-    toast('Removed.');
+    toast(`“${movie.title}” removed.`);
     // No settle() on success — loadMovies() has already destroyed this button
     // along with its card.
   } catch (err) {
