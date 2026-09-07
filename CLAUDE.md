@@ -437,8 +437,21 @@ something demo-able or provable — a new failure state, a guardrail worth
 showing, a before/after worth contrasting — append it here the moment it
 appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 
-* [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
-  README + the lecturer's project sheet.
+* [x] **Deployed to Render** (2026-09-07) — **https://cinerank-g6lx.onrender.com**
+  URL is at the very top of the README. Web service created through the Render
+  dashboard rather than from `render.yaml`, so the blueprint is documentation
+  only; the live service's settings are: branch `main`, build `npm ci`, start
+  `npm start`, health check `/api/health`, auto-deploy **on commit** (the repo
+  has no CI, so "after CI checks pass" would wait forever). All four secrets are
+  set in Render's Environment tab; `PORT` deliberately is not — Render injects
+  it. Verified live: health probe, ranked list (Supabase), search (TMDB), and
+  recommendations/verdict (OpenRouter). Free tier sleeps after ~15 min idle, so
+  the first hit takes ~1 min — open the link before demoing.
+  **Still to do:** put the URL on the lecturer's project sheet.
+  Node resolves to whatever is newest (`engines` says `>=20`; the live build
+  picked 26.8.1) because the dashboard service ignores `render.yaml`'s
+  `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
+  ever breaks on a new Node.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
