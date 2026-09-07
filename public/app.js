@@ -39,6 +39,7 @@ const state = {
   cfg: { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 },
   ownedTmdbIds: new Set(),
   editing: null,
+  editingIsNew: false, // the rate dialog is for a film added seconds ago
 };
 
 /* ---------- helpers ------------------------------------------------------- */
@@ -290,10 +291,18 @@ const makeError = (msg) => searchNote(msg, 'err');
 /** The two states an Add button can rest in. */
 function setAddButtonState(btn, owned) {
   const title = btn.dataset.title;
+  // Three labels, not two. "✓ Added" is stickier than it looks: once set it
+  // survives every later sync, so it still reads "✓ Added" after the rate
+  // dialog closes by EITHER route. Without the flag, saving a rating ran
+  // loadMovies() again and quietly reset it to "In your list", while skipping
+  // did not — the same state wearing two labels depending on an unrelated
+  // round-trip. It marks what YOU just added versus what was already there.
+  // Removing the film clears the flag, so the row can offer "+ Add" again.
+  if (!owned) delete btn.dataset.justAdded;
   // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
   // goes amber on hover and dims with the :disabled opacity, and it matches
   // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
-  btn.textContent = owned ? 'In your list' : '+ Add';
+  btn.textContent = !owned ? '+ Add' : btn.dataset.justAdded ? '✓ Added' : 'In your list';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
@@ -307,6 +316,10 @@ function setAddButtonState(btn, owned) {
 // so removals re-open the offer too. No-op when the panel is closed.
 function syncSearchResultButtons() {
   el.searchResults.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
+    // Skip a button mid-request: addMovie() awaits loadMovies(), which calls
+    // this, so writing textContent here would wipe the spinner out of the very
+    // button that is still waiting on its own response.
+    if (btn.getAttribute('aria-busy') === 'true') return;
     setAddButtonState(btn, state.ownedTmdbIds.has(Number(btn.dataset.tmdbId)));
   });
 }
@@ -351,7 +364,9 @@ async function addMovie(tmdbId, btn) {
     });
     // Refreshes state.ownedTmdbIds, and with it every other open result row.
     await loadMovies();
-    settle?.('✓ Added'); // after the sync, so this button keeps the confirmation
+    // Marked before settling so every later sync keeps showing "✓ Added".
+    if (btn) btn.dataset.justAdded = '1';
+    settle?.('✓ Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
     // impossible to ever see, and made syncSearchResultButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets
@@ -370,6 +385,7 @@ async function addMovie(tmdbId, btn) {
 /* ---------- rate / remove ------------------------------------------- */
 function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
+  state.editingIsNew = isNew;
   el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
   // On a fresh add, closing without saving just leaves the movie unrated —
   // make that an explicit "later" choice, not a dead-end "Cancel".
@@ -384,8 +400,14 @@ el.rateRange.addEventListener('input', () => {
 });
 el.rateForm.addEventListener('submit', async (e) => {
   const action = e.submitter?.value;
-  if (action !== 'save') return;
   const movie = state.editing;
+  if (action !== 'save') {
+    // "Skip for now" saves nothing, so there is no "Saved" to report — but the
+    // add itself had no confirmation of its own, which left this path silent.
+    // Say what actually happened instead of nothing (or, worse, "Saved").
+    if (state.editingIsNew) toast(`Added “${movie.title}” — rate it any time.`);
+    return;
+  }
   try {
     await api(`/api/movies/${movie.id}`, {
       method: 'PATCH',
