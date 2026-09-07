@@ -24,7 +24,9 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   `npm run scan-secrets` scans the staged diff for key-shaped strings.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
-  reasons are clearest then and can't be reconstructed later).
+  reasons are clearest then and can't be reconstructed later). Entries record the
+  alternatives rejected, the human pushback that changed the outcome, and the
+  times the agent was wrong — a log of only wins is not evidence of process.
 
 The UI polish phase leans hard on this loop. The AI call log dialog alone took
 ~100 small commits — the human runs the app, screenshots what looks off (a

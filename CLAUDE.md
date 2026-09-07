@@ -405,6 +405,48 @@ This is a single-user app by design (SPEC.md §1), but Module 17's actual topics
 
 \---
 
+## Decision Logging (non-negotiable)
+
+**Claude records non-obvious decisions in `docs/DECISIONS.md` proactively — the
+user should never have to ask.** The course grades *process* (Module 8), and a
+reason is only recoverable at the moment it is made. This has had to be asked for
+twice; treat it as a standing obligation, not a task.
+
+**The test — a decision belongs in the log if BOTH are true:**
+
+1. There was a real fork, and the obvious or first-tried option was rejected.
+2. Someone later (including a future Claude session) could plausibly pick the
+   rejected option again, because the reason is not visible in the code.
+
+If the answer is recoverable just by reading the file — a colour value, a
+padding, a breakpoint number — it does **not** belong. Keep the signal high.
+
+**What the entry must contain**, beyond the choice itself:
+
+* The alternatives considered and *why each was rejected* — the rejected paths
+  are the content; "we chose X" alone is worthless a month later.
+* **The user's pushback, and Claude's counter-argument.** Where the user
+  overruled Claude, or Claude talked the user out of something, say so plainly.
+  That exchange *is* the LLM-augmented workflow the course is assessing.
+* **Where Claude was wrong, say that too** — a reversed diagnosis, a false claim
+  the user caught, an approach built and then removed. A log that only records
+  wins is not evidence of process.
+* Any trap that follows from the decision ("do not flip this", "these two
+  durations must stay tied to one custom property").
+
+**A commit message or a code comment is not a substitute.** A commit explains a
+diff, a comment explains a line; only the decision log explains a *choice between
+alternatives*, and it is the only one of the three anybody reads before
+undoing something.
+
+**Timing and placement:** at the moment the decision is made, ideally in the same
+commit as the change it explains. Newest first — a new entry goes at the TOP of
+`docs/DECISIONS.md`. Numbers are sequential by *when recorded*; a decision written
+up after the fact says so in its own text. `CLAUDE.md`'s living log stays the
+*what / now*; `docs/DECISIONS.md` is the *why*.
+
+\---
+
 ## Version Control Workflow (non-negotiable)
 
 * **Repo:** https://github.com/guycn1/cinerank-project.git (repo name: `cinerank-project`)
