@@ -290,7 +290,10 @@ const makeError = (msg) => searchNote(msg, 'err');
 /** The two states an Add button can rest in. */
 function setAddButtonState(btn, owned) {
   const title = btn.dataset.title;
-  btn.textContent = owned ? 'In your list' : 'Add';
+  // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
+  // goes amber on hover and dims with the :disabled opacity, and it matches
+  // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
+  btn.textContent = owned ? 'In your list' : '+ Add';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
