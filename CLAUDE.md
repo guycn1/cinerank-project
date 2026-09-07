@@ -30,10 +30,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "Taste verdict
-  section polish" (2026-09-07). Six merges so far; `git log --merges --oneline
-  main` is the source of truth, do NOT increment a number in a doc without
-  checking it (that is exactly how PROCESS.md drifted to a wrong count).
+* `main` is at the latest settled UI milestone — currently "Ranked-list overhaul
+  + Render deploy config" (2026-09-07, `61be6aa`). **Eight** merges so far;
+  `git log --merges --oneline main` is the source of truth, do NOT increment a
+  number in a doc without checking it (that is exactly how PROCESS.md drifted to
+  a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
   `draft` continues day to day.
 
 ### Implemented
