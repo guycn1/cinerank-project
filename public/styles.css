@@ -220,10 +220,27 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s var(--ease), box-shadow 0.2s;
+  transition: transform 0.15s var(--ease), box-shadow 0.2s,
+              background-color 0.2s, color 0.2s;
 }
 .search button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
-.search button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+/* Opacity alone is enough for the OUTLINE buttons (.verdict__refresh,
+   .recs__trigger): dimming those lets the dark page through their border and
+   they visibly switch off. This is the only FILLED button, and a saturated
+   amber at 55% still composites to ~#8c6f39 over --bg — measurably dimmer, but
+   unmistakably still an amber button. It read as active for the whole second it
+   spent saying "Searching…". A filled button's identity IS its fill, so take
+   the fill out of the amber family rather than making it translucent. The label
+   stays --ink-dim: "Searching…" is information, and should still be readable.
+   Eased via the transition above, since a hard flash each way over a ~1s state
+   would be worse than the problem. */
+.search button:disabled {
+  background: var(--bg-card);
+  color: var(--ink-dim);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 /* Under ~500px "Search" no longer fits beside the input and the label was
    clipped. Swap the word for a magnifier: the two spans trade places, and
