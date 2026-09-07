@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog items 1-9 and 12 done, #10 is next — see the canonical 20-item table in the ranked-list bullet)
+**Last updated:** 2026-09-08 (ranked-list backlog items 1-10 and 12 done, #11 is next — see the canonical 20-item table in the ranked-list bullet)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -427,6 +427,32 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     wording through, and prefixing it client-side would produce doublings like
     `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
 
+  - **One focus ring for the whole app, and the dialog buttons finally react**
+    (#10). A bare `:focus-visible { outline: 2px solid var(--amber);
+    outline-offset: 3px }` replaces the two identical per-control rules that
+    were the only designed focus styling in the file — everything else fell back
+    to the browser's own ring, which IS drawn but is engine-coloured, so the app
+    showed two different focus indicators depending on what you tabbed to. Bare,
+    not a selector list, so anything focusable added later is covered without
+    being remembered. `:focus-visible` never `:focus`, so a pointer user sees no
+    change at all. **One control it deliberately does not reach:** `.search
+    input:focus` sets `outline: none` at higher specificity and keeps its amber
+    border instead.
+    Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states —
+    they were the only controls in the app that did not react at all. Existing
+    vocabulary, not new: outline buttons go amber (as `.log-dialog .ghost`
+    already did), filled buttons darken their fill, and `--crimson-deep` was
+    added to give the `.danger` fill somewhere to go, mirroring
+    `--amber`/`--amber-deep`.
+    **Every one is `:not(:disabled)`.** Auditing that guard against every
+    button that can actually be disabled found a REAL pre-existing bug:
+    `.rec-card__body button:hover` had no guard while carrying a `:disabled`
+    rule, and the two set different properties (`background` vs `opacity`) at
+    equal specificity, so both applied — a dead `✓ Added` card still darkened
+    under the cursor. Now guarded. The only two unguarded hover rules left
+    (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
+    disables — verified against every `disabled =` assignment in app.js.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -445,8 +471,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
 | 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
 | 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
-| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | open — **next** |
-| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — scope call |
+| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — **next**, scope call |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
 | 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |

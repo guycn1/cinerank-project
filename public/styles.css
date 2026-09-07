@@ -19,6 +19,7 @@
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
+  --crimson-deep: #c4433a; /* pressed/hovered .danger fill — mirrors the --amber/--amber-deep pair */
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
   --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
@@ -103,6 +104,27 @@ body {
 
 a { color: var(--amber); text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* ONE focus ring for the whole app. This used to exist on exactly two controls
+   (.log-link and .log-cta__btn, with these same two declarations); every other
+   button, link, summary and field fell back to the browser's own ring — which
+   IS drawn, but is engine-coloured and so had the app showing two different
+   focus indicators depending on what you tabbed to.
+   Deliberately a bare :focus-visible rather than a list of selectors: anything
+   focusable added later is covered without being remembered. The confirm dialog
+   is the proof — it was written the same day and a selector list would have
+   missed it.
+   :focus-visible, never :focus — it does not fire on a mouse click, so this
+   cannot change anything a pointer user sees. Only keyboard and assistive
+   focus draw the ring.
+   NOTE the one control this does NOT reach: `.search input:focus` sets
+   `outline: none` at (0,2,0) and outranks this (0,1,0). That is intentional —
+   a focused text field with a caret and an amber border is already unambiguous,
+   and a ring around a full-width input is heavy. */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
 
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
@@ -678,7 +700,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-weight: 600;
   cursor: pointer;
 }
-.rec-card__body button:hover { background: var(--amber-deep); }
+.rec-card__body button:hover:not(:disabled) { background: var(--amber-deep); }
 .rec-card__body button:disabled { opacity: 0.5; cursor: default; }
 
 /* Footer under a generated AI result — the call's metadata plus a link into the
@@ -710,7 +732,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   transition: color 0.2s;
 }
 .log-link:hover { color: var(--amber-bright); }
-.log-link:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 /* Placement: the recs grid is a grid, so span every column. */
 .recs__grid .ai-meta { grid-column: 1 / -1; }
@@ -774,7 +795,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   box-shadow: 0 10px 28px -10px rgba(245, 193, 91, 0.6);
   transform: translateY(-1px);
 }
-.log-cta__btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 .log-cta__icon { width: 1.15em; height: 1.15em; }
 
 .site-foot__credit { color: var(--ink-faint); }
@@ -871,10 +891,41 @@ body:has(dialog[open]) { overflow: hidden; }
 .rate-dialog button,
 .confirm-dialog button {
   border-radius: 8px; padding: 0.5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line);
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
 }
 .rate-dialog button.ghost,
 .confirm-dialog button.ghost { background: transparent; color: var(--ink-dim); }
 .rate-dialog button.primary { background: var(--amber); color: #1a1205; border-color: var(--amber); }
+/* Hover/press. Every treatment below is the app's existing vocabulary, not a new
+   one: an OUTLINE button goes amber on the border and the text
+   (`.log-dialog .ghost`, which is the Close button in the other dialog, plus
+   `.card-actions button`, `.result-row .add-btn` and `.verdict__refresh`), and a
+   FILLED button darkens its fill (`.rec-card__body button` → `--amber-deep`).
+   Cancel going amber alongside an amber-filled Save is not a clash: outline and
+   fill stay obviously different, and the log dialog's Close already does exactly
+   this.
+   `:not(:disabled)` throughout, per the rule the Search button settled — a
+   button mid-save must not light up under the cursor.
+   The press is a 1px nudge down, and these are the first `:active` states on
+   any button in the app; nothing else has one to be inconsistent with. */
+.rate-dialog button.ghost:hover:not(:disabled),
+.confirm-dialog button.ghost:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.rate-dialog button.primary:hover:not(:disabled) {
+  background: var(--amber-deep);
+  border-color: var(--amber-deep);
+}
+.confirm-dialog button.danger:hover:not(:disabled) {
+  background: var(--crimson-deep);
+  border-color: var(--crimson-deep);
+}
+.rate-dialog button:active:not(:disabled),
+.confirm-dialog button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 /* Busy/disabled while a save is in flight. Two different treatments on purpose,
    per the rule the Search button settled: opacity dims an OUTLINE button
    convincingly, but a saturated amber FILL at 45% still composites to an
@@ -922,9 +973,8 @@ body:has(dialog[open]) { overflow: hidden; }
    but crimson rather than amber, matching the `.danger` Remove button on the
    card that opened this. Dark text on the fill for the same reason .primary
    uses #1a1205 — a saturated fill needs a dark label, not --ink.
-   No :hover rule, deliberately: the rate dialog's buttons have none, and adding
-   it to this one alone would leave Cancel sitting inert beside a button that
-   reacts. Focus styling is item #10's job, for all of them at once. */
+   Its hover and press states live with the rate dialog's, below the shared
+   button rules, so the two dialogs cannot drift apart. */
 .confirm-dialog button.danger {
   background: var(--crimson);
   color: #2a0f0c;
