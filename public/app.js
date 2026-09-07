@@ -343,9 +343,10 @@ async function addMovie(tmdbId, btn) {
     // Refreshes state.ownedTmdbIds, and with it every other open result row.
     await loadMovies();
     settle?.('✓ Added'); // after the sync, so this button keeps the confirmation
-    // The results panel described a search, not the list — it is stale now, and
-    // the rate dialog is about to cover it anyway.
-    closeSearchResults();
+    // The panel deliberately STAYS open. Closing it here made "✓ Added"
+    // impossible to ever see, and made syncSearchResultButtons() pointless —
+    // there would be no other rows left on screen to re-sync. Keeping it lets
+    // you add a second film from the same results instead of re-searching.
     // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
