@@ -263,16 +263,10 @@ function renderRanked() {
       toggle.type = 'button';
       toggle.className = 'review-toggle';
       toggle.hidden = true; // shown after layout only if the text actually clips
-      toggle.textContent = 'view more…';
-      toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-controls', r.id);
+      setReviewExpanded(r, toggle, false); // label + aria via the single writer
       toggle.addEventListener('click', () => {
-        const expanded = r.classList.toggle('expanded');
-        toggle.textContent = expanded ? 'show less' : 'view more…';
-        toggle.setAttribute('aria-expanded', String(expanded));
-        // Collapsing makes the clamped state measurable again. If the window
-        // was resized while this was expanded, its toggle may now be wrong.
-        if (!expanded) syncReviewToggles();
+        setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
       });
       body.append(r, toggle);
     }
@@ -323,21 +317,53 @@ function renderRanked() {
  * cue that anything was missing. Widening produced the mirror image: a
  * "view more…" that expanded nothing.
  *
- * Hence `hidden` is ASSIGNED both ways here. The old version only ever set it to
- * false, which is why the state could never recover once it was wrong.
+ * Hence `hidden` is ASSIGNED both ways here. An earlier version only ever set it
+ * to false, which is why a wrong state could never recover.
+ *
+ * An expanded review is `overflow: visible`, so it always measures as "fits" —
+ * the first attempt at this therefore SKIPPED expanded reviews, which just moved
+ * the staleness: expand at a narrow width, widen until the text fits in two
+ * lines, and a "show less" lingered over an unclipped review. The fix is to
+ * measure the CLAMPED state always, by collapsing, reading, and restoring within
+ * one frame. Only the clamped state answers the question "is a toggle needed at
+ * all", so it is the only state worth measuring.
  */
 function syncReviewToggles() {
-  el.rankedList.querySelectorAll('.review').forEach((p) => {
-    const toggle = p.nextElementSibling;
-    if (!toggle?.classList.contains('review-toggle')) return;
-    // An expanded review is `overflow: visible`, so scrollHeight === clientHeight
-    // and it measures as "does not clip" — which would hide the very toggle
-    // needed to collapse it again. Only the clamped state is measurable, so an
-    // expanded one keeps whatever it has until the user collapses it (the click
-    // handler re-measures then).
-    if (p.classList.contains('expanded')) return;
-    toggle.hidden = p.scrollHeight - p.clientHeight <= 4;
-  });
+  const items = [...el.rankedList.querySelectorAll('.review')]
+    .map((p) => ({ p, toggle: p.nextElementSibling }))
+    .filter(({ toggle }) => toggle?.classList.contains('review-toggle'));
+  if (!items.length) return;
+
+  // Three passes, not one loop: reading geometry straight after a class change
+  // forces a synchronous layout, so interleaving write/read per item would cost
+  // one layout PER REVIEW. Batching costs one for the whole pass. Nothing is
+  // painted in between — the browser cannot render until this returns.
+  for (const it of items) {
+    it.wasExpanded = it.p.classList.contains('expanded');
+    if (it.wasExpanded) it.p.classList.remove('expanded');
+  }
+  for (const it of items) it.clips = it.p.scrollHeight - it.p.clientHeight > 4;
+  for (const it of items) {
+    it.toggle.hidden = !it.clips;
+    // `it.clips && it.wasExpanded`, so a review that no longer clips is left
+    // COLLAPSED rather than restored. Both states render identically when the
+    // text fits in two lines, so nothing moves — but leaving `expanded` set
+    // would mean the next narrowing showed the full text with no toggle at all,
+    // which is the original unreachable-text bug wearing a different hat.
+    setReviewExpanded(it.p, it.toggle, it.clips && it.wasExpanded);
+  }
+}
+
+/**
+ * The single writer for a review's expanded state. The class, the button label
+ * and `aria-expanded` describe one fact and must never disagree — they drifted
+ * once already, when the toggle's label was updated on click but never by the
+ * resize pass.
+ */
+function setReviewExpanded(p, toggle, expanded) {
+  p.classList.toggle('expanded', expanded);
+  toggle.textContent = expanded ? 'show less' : 'view more…';
+  toggle.setAttribute('aria-expanded', String(expanded));
 }
 
 async function loadMovies() {

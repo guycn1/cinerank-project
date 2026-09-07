@@ -325,9 +325,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Review "view more…" toggles are re-measured on resize (and on zoom, and
     after a late webfont swap), not once per render. They used to go stale in
     both directions — narrowing clipped a review whose toggle stayed hidden, so
-    the text became unreachable. `hidden` is now assigned both ways; an
-    *expanded* review is skipped, because `overflow: visible` makes it measure
-    as "does not clip" and would hide the toggle needed to collapse it.
+    the text became unreachable. `hidden` is now assigned both ways. The pass
+    measures the CLAMPED state always, collapsing/reading/restoring in one
+    frame: a first attempt skipped expanded reviews (they are
+    `overflow: visible`, so they always measure as "fits") and that just moved
+    the staleness to a lingering "show less". A review that no longer clips is
+    left collapsed, and `setReviewExpanded()` is the single writer for the
+    class, the label and `aria-expanded` so the three cannot drift.
   Still open from the audit: expanded reviews collapse on re-render (only the
   element-reuse rewrite rejected in D-031 would fix that); Remove/Save have no busy state
   and Save closes the dialog *before* its PATCH runs; the 🎬 placeholder is an
