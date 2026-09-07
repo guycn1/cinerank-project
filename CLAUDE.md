@@ -542,6 +542,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
   restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
   request-blocking do not simulate them.
+  **Added 2026-09-08: the database being unreachable is a fifth state, and it
+  is the one nobody had tried.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY` in
+  `.env` + restart; the ranked list then fails to load and the toast reads
+  "Could not load your movies: …". Note this is the ONE resilience shot where
+  the ranked list is legitimately NOT working — it is the thing that broke — so
+  it does not belong in the "all with the ranked list still working" set above.
+  Finding it is what caught the central 500 handler claiming "on our side" for a
+  failure that was neither a bug nor on the server's side.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.

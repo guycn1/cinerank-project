@@ -35,10 +35,21 @@ app.use('/api/taste-verdict', tasteVerdictRouter);
 app.use('/api/ai-log', aiLogRouter);
 
 // Central error handler — nothing leaks a stack trace to the client.
+//
+// The message does NOT say "on our side", and must not be changed back. This
+// handler is the catch-all for everything unhandled anywhere in the app, and it
+// cannot know whose fault the failure was: Supabase unreachable or refusing the
+// credentials looks identical here to a genuine bug in this code. Naming a
+// culprit it has not identified is a guess presented to the user as a fact, and
+// it was wrong the first time anyone checked — bad Supabase credentials in .env
+// produced "something went wrong on our side" for a problem that was neither a
+// bug nor on the server's side. A vaguer message that is true beats a specific
+// one that is not. The real cause is on the line above, in the server log,
+// where it can be read without being guessed at.
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   console.error('[cinerank]', err);
-  res.status(500).json({ error: 'Something went wrong on our side.' });
+  res.status(500).json({ error: 'Something went wrong.' });
 });
 
 export { app };
