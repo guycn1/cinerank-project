@@ -412,14 +412,28 @@ user should never have to ask.** The course grades *process* (Module 8), and a
 reason is only recoverable at the moment it is made. This has had to be asked for
 twice; treat it as a standing obligation, not a task.
 
-**The test — a decision belongs in the log if BOTH are true:**
+**The test.** A decision belongs in the log only if ALL THREE hold:
 
-1. There was a real fork, and the obvious or first-tried option was rejected.
-2. Someone later (including a future Claude session) could plausibly pick the
-   rejected option again, because the reason is not visible in the code.
+1. **It was actually deliberated.** Options were weighed, or the user pushed
+   back, or it took more than one exchange to settle. A single instruction
+   carried out and never revisited is not a decision, however deliberate the
+   instruction was.
+2. **A real fork was taken** — the obvious or first-tried option was rejected.
+3. **The reason is not visible in the code**, so someone later (including a
+   future Claude session) could plausibly pick the rejected option again.
 
-If the answer is recoverable just by reading the file — a colour value, a
-padding, a breakpoint number — it does **not** belong. Keep the signal high.
+**Not decisions**, no matter how carefully made: "use a slightly more subtle
+colour here" → done → never mentioned again; a padding, opacity or breakpoint
+tuned by eye; a bug with one obviously correct fix. All of these are recoverable
+by reading the file, and logging them buries the entries that matter.
+
+**Decisions**, by contrast, look like: three separate questions resolving to one
+principle (D-024); an obvious approach rejected for a non-obvious reason
+(D-027's `⌕`); a reported symptom whose diagnosis turned out backwards (D-026).
+
+**When in doubt, leave it out.** A log padded with tweaks is as useless as an
+empty one — the point is that a reader can find the handful of choices that
+would otherwise be silently undone.
 
 **What the entry must contain**, beyond the choice itself:
 
