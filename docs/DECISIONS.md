@@ -7,6 +7,107 @@ file, directly under this header.**
 
 ---
 
+## D-025 · Hide the browser's search clear button rather than theme it
+`<input type="search">` makes Chromium/Safari draw their own clear "×" inside the
+field. On a near-black amber panel it renders as an unthemed blue glyph — the most
+literal instance of the "generic default-component appearance" CLAUDE.md's design
+notes rule out.
+
+The obvious fix is to style it via `::-webkit-search-cancel-button`. Rejected:
+**Firefox draws no clear button at all**, so styling leaves the browsers still
+disagreeing — just with a nicer × in two of them. Hiding it is the only option
+that renders identically everywhere, and cross-browser sameness matters more here
+than a prettier glyph for a submission opened on a browser we do not control.
+
+It was also only half-wired: the native × clears the input but leaves
+`.search-results` showing matches for a query no longer in the box. Keeping it
+honestly would have meant extra JS to close the panel, for a control much of the
+audience never sees. `type="search"` stays — the semantics and the mobile
+keyboard's Search key are unaffected; only the chrome goes.
+
+## D-024 · The search results panel is a persistent surface, not a dropdown
+Three separate questions — should an outside click dismiss it, should adding a
+film dismiss it, should it get its own "×" — all resolve to one distinction:
+
+**A floating layer must be dismissible; an in-flow one need not be.** The AI-log
+reveal panels are `position: absolute` and sit ON TOP of table rows, so they have
+to get out of the way, and they earn their outside-click handler.
+`.search-results` is in normal flow. It pushes the page down and obscures
+nothing, so there is nothing to get out of the way of.
+
+Both auto-dismissals were built and then removed:
+- **Outside click** (33ad1ec) — pattern-matched from the reveal panels without
+  checking whether the reason applied. A stray click cost the user a re-typed
+  query and another TMDB round-trip.
+- **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
+  tick as `settle('✓ Added')`, so that confirmation could never be painted, and
+  it cancelled out `syncSearchResultButtons()`, which exists precisely to update
+  the OTHER open rows after an add. Keeping the panel open serves the real flow:
+  search once, add two films.
+
+**No "×" either**, declined for a second reason: `type="search"` already renders
+a native × a few pixels away (see D-025), and the two would do *different* things
+— native clears the input, ours would close the results. Adjacent identical
+glyphs with different meanings is a trap. Escape closes it; a new search replaces
+it; otherwise it stays.
+
+## D-023 · The reveal-panel fade animates the panel, never `::details-content`
+*Recorded retroactively — decided 2026-09-05 over commits bfafeb2, 1476446,
+de244d7.*
+
+The obvious place to animate a `<details>` open/close is `::details-content`,
+which is what the pseudo exists for. Doing that made the panel flicker BEHIND
+later table rows mid-fade.
+
+Cause: `0 < opacity < 1` creates a stacking context, `opacity: 1` does not. So
+animating opacity on `::details-content` made *that pseudo* a transient stacking
+context only while the fade was running, trapping the panel underneath rows that
+come later in paint order. Raising `z-index` on `.log-reveal` did not help — it
+is a table-cell stacking context and cannot lift past later `<tr>`s at all.
+
+Decision: the opacity transition and `@starting-style` live on the panel itself
+(`.log-reveal ul/p`), which is already `position: absolute` + `z-index` and so a
+*stable* stacking context at every opacity. `::details-content` transitions only
+`content-visibility` (`allow-discrete`), to keep the panel rendered through the
+close.
+
+The trap that follows: those two durations live on different elements but MUST
+match, or the panel is yanked mid-fade-out. Both read one custom property,
+`--reveal-fade` on `.log-reveal` — the single knob. Do not split them.
+
+## D-022 · The AI-log Total row rides on a curtain, not on a sticky `<tfoot>`
+*Recorded retroactively — decided 2026-09-05 after four attempts (842fe03,
+6c08db4, 188b6bf, 58f787b).*
+
+Pinning the Total row to the bottom of the log dialog looks like a one-liner and
+is not. What failed, in order:
+
+1. **`position: sticky` on the `<tfoot>` alone.** A sticky element can never be
+   positioned outside its own containing block, and the tfoot's is the `<table>`.
+   It therefore cannot reach the dialog's bottom edge, and table rows peeked
+   underneath it mid-scroll.
+2. **An absolutely-positioned bar toggled by an IntersectionObserver.** Floated
+   mid-content instead of pinning.
+3. **A sticky tfoot plus a non-sticky spacer row.** Same clamping problem.
+
+What works — and the reason to keep it: `.log-curtain`, an opaque `--bg-raised`
+band that is a **direct child of the dialog**, so its containing block is the
+dialog and it is never clamped. It is `position: sticky; bottom: 0; z-index: 2`;
+the Total row pins at `bottom: var(--log-curtain-h)` with `z-index: 3`, exactly
+on top of it. The two form one solid block down to the dialog edge, so nothing
+shows underneath.
+
+The curtain's `border-top` is also the table's closing rule, because the curtain
+is the only element adjacent to the Total row in BOTH states (pinned and at
+rest) — anywhere else the rule goes missing mid-scroll or doubles up at rest.
+
+**This is why `.log-scroll` is square.** It must stay `overflow: visible` (the
+dialog is the single scroller), so it cannot clip its sticky children to a
+radius; a rounded border around square cell fills looked broken. "Round it when
+the row sits naturally, square when stuck" has no CSS expression — there is no
+is-stuck selector — so it would need a scroll listener or a sentinel observer.
+Not worth it. Do not "simplify" any of this.
+
 ## D-021 · The two AI features share one UI vocabulary, enforced by shared builders
 Recommendations and the taste verdict are separate services with separate
 prompts, but to a user they are the same kind of thing: press a button, wait,
