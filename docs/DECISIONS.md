@@ -7,6 +7,64 @@ file, directly under this header.**
 
 ---
 
+## D-030 · Three-digit ranks are capped, not documented away
+A forced test (ranks rewritten to 250+ in the console) showed three-digit
+numerals running under the poster: the rank font clamps at `3.4rem` = 54.4px and
+Fraunces Black figures are ~0.63em, so "250" paints ~102px. Its budget is ~99px
+— the 64px track *plus* the 17.6px card padding and 19.2px gap it may
+legitimately spill into — and the poster, later in DOM order, paints over the
+overflow.
+
+**Claude first recommended NOT fixing it**, and wrote that up as a measured
+non-fix: unreachable below 100 films, demo seed list is 3–4, and each candidate
+fix looked more expensive than the defect. **The user overruled it on grounds
+Claude had not weighed** — that a grader reading an unchecked TODO box may not
+read the paragraph under it, and will score "documented limitation" as "too lazy
+to fix edge cases". That is a judgement about the audience, and the audience is
+the point of the artefact. Recorded because the reasoning is invisible in the
+diff: the code now contains a fix for a case nobody will hit, and a later reader
+would reasonably wonder why.
+
+The counter-argument Claude *did* win: the user proposed `scale: 0.5` for 100+,
+calling it "ugly, sloppy, but better grading-wise". Both halves were pushed back
+on and the user accepted:
+
+* **0.5 is roughly twice the shrink needed.** The numeral does not have to fit
+  the 64px track — it only has to avoid the card border and the poster, a ~99px
+  budget. `2.75rem` (≈0.81×) suffices, and a subtle step reads as typographic
+  fitting where a halved numeral reads as a bug. A visible hack grades worse than
+  the honest TODO it was meant to replace.
+* **`font-size`, not `scale`/`transform`.** A transform shrinks the absolute
+  `1.5px -webkit-text-stroke` with the glyph, so the numeral would sit beside its
+  two-digit neighbours with a visibly thinner, washed-out outline. Changing the
+  font size leaves the stroke at its intended weight. Neither affects layout —
+  the track is fixed and only the *text* ever overflowed — so posters stay
+  aligned card to card either way.
+
+Implemented as a lowered clamp **ceiling** (`clamp(2.2rem, 6vw, 2.75rem)`) rather
+than a flat size, which makes the rule a no-op below a ~733px viewport: mobile
+was measured as already clearing the poster, so it is left completely untouched.
+CSS cannot count characters, so `renderRanked()` marks the digit count with an
+`is-wide` class; the threshold is 99 and not 9 because two digits were measured
+and fit at every width.
+
+**Two agent errors, both caught by the user.** The first description of the
+failure claimed the numeral "sits flush against the [card] border" and that
+nothing clipped it — a screenshot showed it actually vanishing under the poster,
+and the digit-width estimate behind that claim (~0.58em) was low. It was
+corrected in place rather than preserved, per the "wrong when written" exception.
+Second, the original audit flagged *two*-digit ranks as broken on mobile; they
+are not, and the user disproved it with a sharper test than the one suggested —
+forcing ranks to 20+ instead of 10+, so the narrow `1` could not flatter the
+result.
+
+**Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It is
+the obvious move and it is wrong: cards with wider ranks get a wider first
+column, so poster left edges stop aligning down the list — trading a problem
+nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
+
+---
+
 ## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
 The ranked list numbered every card `i + 1`, unrated films included. So an
 unrated film was handed a rank, directly under its own caption saying "Not rated

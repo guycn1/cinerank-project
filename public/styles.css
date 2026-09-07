@@ -401,6 +401,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   color: var(--ink-faint);
   -webkit-text-stroke: 0;
 }
+/* Ranks of 100+ (marked `is-wide` in renderRanked — CSS cannot count digits).
+   Same clamp as the base rule with a lower CEILING, so this is a no-op below a
+   ~733px viewport, where 6vw is under the cap and three digits already clear
+   the poster on their own. Only the desktop maximum changes: 3.4rem → 2.75rem.
+   The numeral does NOT have to fit the 64px track — it may spill into the
+   17.6px card padding and the 19.2px gap. It must only avoid the card's border
+   and the poster, and at 3.4rem "250" needed ~102px against a ~99px budget.
+   2.75rem lands it near 86px, leaving ~7px clear on each side.
+   font-size, not `scale`/`transform`: a transform would shrink the absolute
+   1.5px `-webkit-text-stroke` along with the glyph, leaving a thin, washed-out
+   outline beside its two-digit neighbours. Neither approach affects layout —
+   the track is a fixed width and only the text ever overflowed it — so posters
+   stay aligned card to card either way.
+   Ranks of 1000+ are not handled and are not worth handling. */
+.movie-card__rank.is-wide { font-size: clamp(2.2rem, 6vw, 2.75rem); }
 
 .movie-card__poster {
   width: var(--poster-w);

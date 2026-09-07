@@ -165,6 +165,12 @@ function renderRanked() {
       // come apart the moment the list holds an unrated film — with nothing
       // rated yet, the positional rule crowned a film with no rating at all.
       if (rankNo === 1) rank.classList.add('is-top');
+      // Three digits are wider than the rank gutter can hold at the desktop
+      // font size — "250" overran the gap and the poster painted over its last
+      // digit. CSS cannot count characters, so the digit count is marked here
+      // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
+      // not 9: two digits were measured and fit fine at every width.
+      if (rankNo > 99) rank.classList.add('is-wide');
     } else {
       // No rank to show. Same "no value here" glyph vocabulary as the AI call
       // log's empty Tokens/Cost cells, so the absence reads as an absence.
