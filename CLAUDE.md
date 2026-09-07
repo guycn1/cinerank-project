@@ -612,6 +612,30 @@ that it is a correction, not an update.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * Commit messages should include a summary of what actually changed.
 
+### Environment & tooling traps (all of these have actually bitten here)
+
+Windows, Git Bash for POSIX commands, `"type": "module"` in `package.json`.
+Each of the following cost real time at least once — they are recorded so the
+next session does not rediscover them.
+
+* **Never put backticks inside a double-quoted `git commit -m "…"`.** Bash runs
+  them as command substitution and silently deletes the word. This mangled
+  `619ed64`, where "they share a `` `name` ``" was committed as "they share a".
+  The message was already pushed and was left as-is rather than force-pushing a
+  history rewrite over it. Use plain quotes in commit messages, or single-quote
+  the whole `-m` argument. The same applies to `$` and `!`.
+* **`git merge -F -` does not read from stdin.** Use repeated `-m` flags for a
+  multi-paragraph merge message.
+* **Temporary helper scripts must be `.cjs`.** `package.json` sets
+  `"type": "module"`, so a stray `.js` file is parsed as an ES module and
+  `require` throws. Delete them when done; never leave one in the repo.
+* **Do not write temp files to `/tmp`.** Git Bash and Windows Node resolve it
+  differently (`D:\tmp`), and `$TMPDIR` is unset. Use the session scratchpad, or
+  a repo-relative file that is deleted in the same command.
+* **The UI copy uses curly apostrophes** (`’`, e.g. "Couldn’t reach CineRank").
+  An edit anchored on a straight `'` will not match. Copy the exact character
+  out of the file rather than retyping it.
+
 \---
 
 ## Out of Scope (v1)
