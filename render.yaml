@@ -1,0 +1,55 @@
+# Render blueprint — https://render.com/docs/blueprint-spec
+#
+# Optional: a web service created by hand in the Render dashboard works exactly
+# the same and ignores this file. It is checked in so the deploy is reproducible
+# and reviewable rather than living only in someone's browser session.
+#
+# Netlify is NOT an option for this app: it serves static files and serverless
+# functions, and this is a long-lived Express server (`app.listen`). Render,
+# Railway and Fly all host that shape; Render is the one used here.
+services:
+  - type: web
+    name: cinerank
+    runtime: node
+    plan: free
+    # Closest Render region to the authors. Change freely — it affects latency
+    # only, and Supabase/TMDB/OpenRouter are all reached over the public net.
+    region: frankfurt
+
+    # Deploys from `main`, not `draft`. CLAUDE.md treats `main` as the settled
+    # branch, so the public URL only ever moves at a milestone merge — the live
+    # site can never be a half-finished afternoon's work.
+    branch: main
+
+    buildCommand: npm ci
+    startCommand: npm start
+
+    # Already implemented for exactly this purpose. Render polls it to decide
+    # whether a deploy came up healthy, and rolls back if it never does.
+    healthCheckPath: /api/health
+
+    envVars:
+      # `sync: false` means "ask me in the dashboard, never store the value in
+      # this file". That is the whole point: this file is committed, and
+      # CLAUDE.md § Security & Secrets #1 says a secret never enters source
+      # control. The four below are entered once in Render's Environment tab.
+      - key: SUPABASE_URL
+        sync: false
+      # The anon key ONLY — never service_role (CLAUDE.md § Security #3).
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: TMDB_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+
+      # Not a secret, so it can live here: the model both AI features route to.
+      - key: OPENROUTER_MODEL
+        value: anthropic/claude-haiku-4.5
+
+      # package.json only asks for ">=20". Pinning it here means a Render-side
+      # default bump can't change the runtime under us mid-submission.
+      - key: NODE_VERSION
+        value: "22"
+
+      # PORT is injected by Render and read by server/config.js. Do NOT set it.
