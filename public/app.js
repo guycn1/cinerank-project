@@ -804,6 +804,19 @@ window.addEventListener('resize', () => {
     relayoutQueued = false;
     document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
     syncReviewToggles();
+    // An open AI-log reveal panel was positioned for the geometry it opened in,
+    // so a resize leaves its side and caret stale. Guarded twice, deliberately:
+    //   - only while the dialog is actually OPEN. A closed <dialog> is
+    //     `display: none`, so every rect reads zero and the caret would be
+    //     written as a nonsense offset.
+    //   - only for panels that are themselves OPEN. A closed one must keep its
+    //     side so it fades out in place (see the toggle handler).
+    // At most one can be open — they share a `name` — so this is one element.
+    // Inert below 850px, where the panel is `position: static` and the carets
+    // are `display: none`.
+    if (el.logDialog.open) {
+      document.querySelectorAll('.log-reveal[open]').forEach((d) => d.repositionPanel?.());
+    }
   });
 });
 
@@ -898,10 +911,16 @@ function revealDetails(summaryText, bodyNode) {
   // The panel normally drops below its trigger; near the bottom of the dialog
   // there isn't room, so flip it above instead. Measured on open rather than
   // done in CSS because the panel's height depends on its content.
-  details.addEventListener('toggle', () => {
-    // On close, keep whichever side it is on so it fades out in place —
-    // clearing the class here would snap it back down mid-fade.
-    if (!details.open) return;
+  // The measurement, unchanged, lifted out of the handler so the resize pass can
+  // re-run it: a panel positioned for the geometry it opened in keeps a stale
+  // side and caret if the window is resized while it is open.
+  //
+  // It stays a closure over the SAME `details` / `summary` / `bodyNode` it always
+  // used, and is stashed on the element rather than re-derived from the DOM
+  // elsewhere. Re-deriving would have been tidier and is the thing not worth
+  // risking here — this way the open path runs byte-identical code on identical
+  // variables, so opening a panel cannot behave differently than before.
+  const positionPanel = () => {
     details.classList.remove('log-reveal--above');
     const trigger = summary.getBoundingClientRect();
     const view = el.logDialog.getBoundingClientRect();
@@ -918,6 +937,14 @@ function revealDetails(summaryText, bodyNode) {
     const centre = trigger.left + trigger.width / 2 - panel.left;
     const x = Math.min(Math.max(centre, 14), panel.width - 14);
     details.style.setProperty('--arrow-x', `${x}px`);
+  };
+  details.repositionPanel = positionPanel;
+
+  details.addEventListener('toggle', () => {
+    // On close, keep whichever side it is on so it fades out in place —
+    // clearing the class here would snap it back down mid-fade.
+    if (!details.open) return;
+    positionPanel();
   });
 
   return details;

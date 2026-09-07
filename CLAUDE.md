@@ -209,7 +209,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   content-visibility duration are on different elements but MUST match (else the
   panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
   (250ms) on `.log-reveal`. That's the single knob for the fade speed.
-* **AI call log dialog — COMPLETE** (desktop table + mobile card view). The
+* **AI call log dialog — COMPLETE** (desktop table + mobile card view). One
+  later fix (2026-09-07, during the ranked-list pass): an open reveal panel's
+  flip side and caret were measured only on open, so resizing the window while
+  one was open left both stale. The measurement is now re-run from the shared
+  page resize pass, guarded on the dialog being open AND the panel being open.
+  Done as conservatively as possible — the measurement body was lifted into a
+  closure over its existing variables and is **byte-identical**, so the
+  open path is provably unchanged; nothing about the table's layout is touched.
+  The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
   since the last `main` merge (49738c2). Card fixes:
