@@ -27,13 +27,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 **Last updated:** 2026-09-07 (AI call log dialog, Taste verdict and Search sections all DONE; ranked list is next)
 
 ### Build status
-* Runs locally only (`npm start` → http://localhost:3000). Not deployed yet.
+* **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
+  `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
+  deploy entry under Pre-submission blockers for the service's exact settings.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "Taste verdict
-  section polish" (2026-09-07). Six merges so far; `git log --merges --oneline
-  main` is the source of truth, do NOT increment a number in a doc without
-  checking it (that is exactly how PROCESS.md drifted to a wrong count).
+* `main` is at the latest settled UI milestone — currently "Ranked-list overhaul
+  + Render deploy config" (2026-09-07, `61be6aa`). **Eight** merges so far;
+  `git log --merges --oneline main` is the source of truth, do NOT increment a
+  number in a doc without checking it (that is exactly how PROCESS.md drifted to
+  a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
   `draft` continues day to day.
 
 ### Implemented
@@ -436,8 +439,21 @@ something demo-able or provable — a new failure state, a guardrail worth
 showing, a before/after worth contrasting — append it here the moment it
 appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 
-* [ ] **Deploy** (Render/Railway/Fly — not Netlify) and put the live URL in
-  README + the lecturer's project sheet.
+* [x] **Deployed to Render** (2026-09-07) — **https://cinerank-g6lx.onrender.com**
+  URL is at the very top of the README. Web service created through the Render
+  dashboard rather than from `render.yaml`, so the blueprint is documentation
+  only; the live service's settings are: branch `main`, build `npm ci`, start
+  `npm start`, health check `/api/health`, auto-deploy **on commit** (the repo
+  has no CI, so "after CI checks pass" would wait forever). All four secrets are
+  set in Render's Environment tab; `PORT` deliberately is not — Render injects
+  it. Verified live: health probe, ranked list (Supabase), search (TMDB), and
+  recommendations/verdict (OpenRouter). Free tier sleeps after ~15 min idle, so
+  the first hit takes ~1 min — open the link before demoing.
+  **Still to do:** put the URL on the lecturer's project sheet.
+  Node resolves to whatever is newest (`engines` says `>=20`; the live build
+  picked 26.8.1) because the dashboard service ignores `render.yaml`'s
+  `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
+  ever breaks on a new Node.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down

@@ -13,6 +13,10 @@
   "engines": {
     "node": ">=20"
   },
+  "_comment_overrides": "Express 4 pins qs to exactly 6.15.3, which carries two moderate advisories (GHSA-x5fp-wj9c-mxmx array-limit bypass, GHSA-4mjr-xmp4-gh2g DoS via isBuffer). npm audit fix cannot resolve them — even with --force — because the exact pin leaves no semver room, and the only other route is Express 5, a major version with breaking changes. This override lifts qs to the patched 6.16.0, a minor bump. qs is Express's query-string parser, which is exactly what test/routes.test.js exercises (search query strings, JSON bodies), so the suite covers the risk. Remove this when the project moves to Express 5.",
+  "overrides": {
+    "qs": "^6.16.0"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
     "dotenv": "^16.4.5",

@@ -1,5 +1,12 @@
 # CineRank
 
+### ▶ Live app: **https://cinerank-g6lx.onrender.com**
+
+> Hosted on Render's free tier, which sleeps after ~15 minutes idle — **the first
+> request after a quiet spell takes about a minute** while the instance wakes.
+> Every load after that is immediate. Worth opening the link a minute before you
+> need it.
+
 A personal movie-ranking app where the database and the AI each earn their place:
 
 - **The database** tracks a growing *taste profile* (your rated films + reviews) that
@@ -78,7 +85,11 @@ Netlify is not an option (static files + serverless functions only). `render.yam
 in the repo root is the blueprint; a service created by hand in the dashboard
 behaves identically and ignores the file.
 
-**Live URL:** _(to be added once the first deploy is green)_
+**Live URL:** https://cinerank-g6lx.onrender.com
+
+The `-g6lx` suffix is Render's own: it appends a random string to every new
+`onrender.com` subdomain so they can't be squatted or guessed. It is not a name
+collision, and renaming the service does not remove it.
 
 Deploying it yourself:
 
