@@ -290,7 +290,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
-* **Search section — DONE** (2026-09-07). Behaviour first, then chrome.
+* **Search section — overhauled 2026-09-07, then REOPENED and worked again on
+  2026-09-08/09**, so this is not a closed section. The 2026-09-07 pass below is
+  behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
+  and is recorded in the ranked-list bullets further down, since it came out of
+  the same whole-app sweep: the Add button breaking in two, the input refusing to
+  yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
+  mid-word, and the new sub-500px grid layout. **More is scheduled:** step 5 of
+  the agreed order is a complete overhaul of the portrait view under 500px, which
+  lands here again.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
@@ -778,7 +786,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `body.error` can observe a new sibling key. That rule also parked a real
     finding — the server carries the same straight-apostrophe inconsistency, but
     a test asserts one of those messages verbatim, so the sweep would have broken
-    a test for a cosmetic gain. **Still open, deliberately.**
+    a test for a cosmetic gain. It was parked at the time and then **closed the
+    same day in its own commit** (`a124934`), together with the one test
+    assertion that quotes a message verbatim — which is exactly why it needed a
+    separate commit rather than being folded in here.
     `failureText()` also normalises the terminal full stop, since the causes
     disagree ("Already in your list" has none, "Something went wrong." does) and
     most are not ours to edit. Two incidental fixes came out of the same testing:

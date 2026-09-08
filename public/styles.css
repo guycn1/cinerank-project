@@ -391,7 +391,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 .result-row {
   display: flex;
-  /* The row STACKS instead of crushing its middle column (sweep finding C). At
+  /* NOT REACHED IN PRACTICE ANY MORE — read this before trusting it. Every
+     threshold below sits under 500px, and the `@media (max-width: 500px)` block
+     further down replaces this whole row with a grid, so the flex wrapping never
+     actually fires. It is kept as the 500px-and-up behaviour and as the fallback
+     if that breakpoint is ever moved down. The rest of this comment describes
+     what WOULD happen then.
+
+     The row STACKS instead of crushing its middle column (sweep finding C). At
      283px the title column was down to ~29px and "Papa Obama" fragmented into
      "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
      a column that should never have been that narrow. Three columns simply do
@@ -437,7 +444,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    widths (68 / 104 / 85 / 95px for "+ Add" / "Adding…" / "✓ Added" / "In your
    list"), not estimated: 289px for "+ Add", 306px for "✓ Added", 316px for "In
    your list", 325px mid-add. Below those the title column would be 53–79px,
-   which is the crushed state this exists to prevent.
+   which is the crushed state this exists to prevent. **All four are under 500px,
+   so the grid layout in that media query gets there first and none of them
+   actually fires today** — see the note above `flex-wrap`.
    Visually inert above that: today the leftover space goes to the button's
    `margin-left: auto`, and with `flex-grow: 1` it goes to `.meta` instead. The
    button ends at the right edge either way and the text is left-aligned in both,
