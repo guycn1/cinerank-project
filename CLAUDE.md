@@ -475,8 +475,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     top read as too tight; it is on the BODY ALONE so the rating stays pinned to
     the true top) and the score column is `align-self: stretch` with the rating
     at the top and the buttons pushed down by `margin-top: auto`. The rating
-    then gets `0.15rem` of its own — half the body's — on `.score-badge` rather
-    than on the column, so only the rating shifts and the buttons stay pinned.
+    then gets a hair of its own (`0.06rem`, on `.score-badge` rather than on the
+    column, so only the rating shifts and the buttons stay pinned). It is NOT a
+    fraction of the body's margin and must not be re-derived as one: the rating
+    is 1.5rem to the title's 1.15rem at the same line-height, so more
+    half-leading already sits above its glyphs and it starts lower in its own
+    box. Set to 0.15rem first and that visibly over-shot, dropping the rating
+    below the title's line.
     **All four desktop-only properties are reset inside the existing 620px
     query**, so card mode is untouched; `align-self: stretch` needs no reset
     because the score moves to its own grid row there, sized by itself, where
