@@ -7,6 +7,65 @@ file, directly under this header.**
 
 ---
 
+## D-038 · Tied films share a rank number, and say so
+Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
+order between them comes from `created_at desc` — which was added more recently —
+so the numbers asserted a ranking the data does not contain. The defect was never
+the ordering (something has to be drawn first); it was the *claim*.
+
+**Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
+use, plus a small muted `tied` caption under the numeral. The skipped number is
+the point: two films are jointly 2nd, so nothing is 3rd.
+
+**Rejected: a tie marker without changing the numbers.** Cheaper, and
+self-defeating — the numbers would still say one film beat the other while a
+badge next to them said otherwise.
+
+**Rejected: breaking ties by `tmdb_rating`**, which had just been added and was
+sitting right there. It would let TMDB's opinion silently order a list whose
+entire premise is that it is the user's own. **Rejected: alphabetical**, which
+swaps one arbitrary order for another and still leaves the numbers lying.
+
+**Rejected: rendering the numeral as `=2`**, the UK chart convention, which is
+the most compact way to say "joint". It would widen the glyph and walk straight
+into the figure-width budget solved by measurement in D-030 — where two
+*estimates* were already wrong twice. A separate caption leaves that arithmetic
+untouched.
+
+**The layout problem, and the two ways out of it.** The caption must not move the
+numeral: the rank cell is centred by the grid, so anything that makes the cell
+taller shifts its numeral up while untied neighbours stay put — a visible
+inconsistency between adjacent cards for a feature that only affects some of
+them. Reserving the space on *every* card fixes the inconsistency by moving every
+numeral instead, which is worse.
+
+The obvious remedy is `position: relative` on the rank plus an absolutely
+positioned caption. **Rejected**, for a non-obvious reason: it would move the
+cell into the positioned-paint layer, and the poster — later in DOM order and
+*not* positioned — would then paint UNDER an overflowing numeral instead of over
+it, silently reversing the overlap order D-030's note describes.
+
+Used instead: `height: 1em` on the rank, and the caption simply overflows it.
+`line-height: 1` already makes that box exactly one em tall, so the declaration
+is a **no-op on every card that has no caption** — provably zero layout change —
+while pinning the height for the ones that do. `em` rather than a length so it
+tracks the clamp and both `.is-unranked` and `.is-wide`.
+
+**Accepted consequence: a tie at the top crowns BOTH films.** `is-top` fires on
+the displayed rank, so two films at the same top score both get the amber
+treatment. That is correct rather than a side effect — D-029 defines the crown as
+"your top-rated film", and if two are scored the same then both are.
+
+**The caption is readable text, not an `aria-label`.** A label on a generic
+`<div>` is not reliably exposed by assistive tech, so the honest choice is text
+a screen reader reads anyway: "2 tied".
+
+Verified by simulating the algorithm over nine cases rather than by reading it —
+ties at the top, middle and bottom, a three-way tie, everything tied, unrated
+films mixed in, 0.0 as a real rating, and the 99→100 `is-wide` boundary.
+
+---
+
 ## D-037 · TMDB's `vote_average: 0` is an absence, not a score
 Found by the user immediately after D-036 shipped, from two screenshots of the
 same film: *Barack Obama (2008)* showed **no** TMDB rating in the search results,

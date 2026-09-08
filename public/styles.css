@@ -432,6 +432,38 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   color: transparent;
   -webkit-text-stroke: 1.5px var(--amber);
   text-align: center;
+  /* Pinned so the "tied" caption below cannot move the numeral. `line-height: 1`
+     already makes this box exactly one em tall, so on a card WITHOUT a caption
+     this declaration changes nothing — it only stops a card WITH one from
+     growing, which (the cell being centred by the grid) would otherwise nudge
+     its numeral up while its untied neighbours stayed put.
+     `em`, not a fixed length, so it tracks the clamp above and both
+     `.is-unranked` and `.is-wide`, which each change the font size.
+     Height only — NOT `position: relative`, which would have been the other way
+     to take the caption out of the flow. That would move this cell into the
+     positioned-paint layer and reverse the poster/numeral overlap order the
+     `.is-wide` note below describes. */
+  height: 1em;
+}
+/* The tie marker. Sits BELOW the pinned box and simply overflows it (nothing on
+   this card clips), so it is out of the layout without being out of the flow.
+   Every inherited property of the numeral has to be undone: the display face,
+   the 900 weight, the transparent fill with its amber stroke, and `.is-top`'s
+   glow — a child would otherwise render as a tiny outlined amber word.
+   Lowercase and short by design: at 0.62rem it measures well under the 40px
+   rank track of card mode, which is the narrowest place it has to fit, so it
+   cannot wrap or overhang however wide the numeral beside it gets. */
+.rank-tie {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
 }
 /* The top-rated film. Set as a class by renderRanked(), NOT as
    `.movie-card:first-child` — list position and "highest rated" are different

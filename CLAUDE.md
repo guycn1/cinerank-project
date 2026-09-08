@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items 1-12 done, **#13 is next**; migration 002 is written but NOT yet applied — see Open issues, adding a film fails until it is)
+**Last updated:** 2026-09-09 (ranked-list backlog items 1-13 done, **#14 is next**; migrations 002 + 003 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -540,6 +540,27 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     tall 1.5rem line box already insets its own glyphs while a 0.72rem caption at
     line-height 1.3 starts flush against the card's top edge. Reset in card mode.
 
+  - **Tied films share a rank number, and say so** (#13, D-038). Two films the
+    user scored 8.0 showed as #3 and #4, ordered by `created_at` — which was
+    added more recently — so the numbers asserted a ranking the data does not
+    contain. Now **competition ranking** (1, 2, 2, 4; the skipped number is the
+    point) plus a muted `tied` caption under the numeral, because two adjacent
+    identical numbers otherwise read as a rendering fault.
+    **Zero layout change, and that took the non-obvious route.** The caption
+    must not move the numeral — the cell is grid-centred, so a taller cell
+    shifts its numeral up while untied neighbours stay put. `position: relative`
+    + an absolute caption was rejected: it moves the cell into the positioned
+    paint layer, so the poster would paint UNDER an overflowing numeral instead
+    of over it, reversing what the `.is-wide` note describes. Instead
+    `.movie-card__rank` gets `height: 1em` — which `line-height: 1` already made
+    true, so it is a **no-op on every card without a caption** — and the caption
+    overflows it. `em`, so it tracks the clamp and both `.is-unranked` and
+    `.is-wide`.
+    Not `=2` in the numeral (the chart convention): that widens the glyph into
+    the figure-width budget D-030 solved by measurement. A tie at the top crowns
+    BOTH films, which is correct — D-029 defines the crown as *your top-rated
+    film*, and if two are scored the same then both are.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -561,8 +582,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036, needs migration 002 applied by hand |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
-| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open — **next** |
-| 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
+| 14 | Expanded reviews collapse on any unrelated re-render | open — **next**; only the element-reuse rewrite **rejected in D-031** fixes it |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
 | 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |

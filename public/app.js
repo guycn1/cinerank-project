@@ -213,12 +213,33 @@ function renderRanked() {
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
   el.rankedEmpty.hidden = count > 0;
 
-  // Rank counter. Deliberately NOT the array index: only a rated film has a
+  // How many films share each rating, so a tie can be marked. Counted up front
+  // rather than by peeking at neighbours: adjacency would also have worked
+  // (the list is sorted by rating) but would have to special-case the first and
+  // last card, and this says what it means. Keyed by the rating NUMBER — the
+  // column is numeric(3,1), so 8.0 and 8.0 are exactly equal and 8.0 vs 8.1 are
+  // exactly not.
+  const sharedRatings = new Map();
+  for (const mv of state.movies) {
+    if (mv.rating == null) continue;
+    sharedRatings.set(mv.rating, (sharedRatings.get(mv.rating) ?? 0) + 1);
+  }
+
+  // Rank counters. Deliberately NOT the array index: only a rated film has a
   // rank, so an unrated one must not consume a number (D-029). The server sorts
-  // nulls last, so rated films are contiguous at the top and this counter and
-  // the index agree for them — but the counter states the rule instead of
-  // depending on the sort order to imply it.
-  let rankNo = 0;
+  // nulls last, so rated films are contiguous at the top and these counters and
+  // the index agree for them — but they state the rule instead of depending on
+  // the sort order to imply it.
+  //
+  // TWO counters, because this is COMPETITION ranking (1, 2, 2, 4): `position`
+  // is where a film sits and always increments; `shownRank` is what the card
+  // displays and repeats across a tie, then jumps to the next position. Films
+  // the user scored identically must not be told apart by a number — the order
+  // between them is only `created_at`, i.e. which was added more recently,
+  // which has nothing to do with taste (backlog #13).
+  let position = 0;
+  let shownRank = 0;
+  let prevRating = null;
 
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
@@ -241,18 +262,40 @@ function renderRanked() {
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
     if (isRated) {
-      rank.textContent = String(++rankNo);
+      position++;
+      // A new distinct rating takes its true position; an equal one keeps the
+      // number the first of its group got. Hence 1, 2, 2, 4 — the skipped 3 is
+      // the point, not a bug: two films are jointly 2nd, so nothing is 3rd.
+      if (m.rating !== prevRating) shownRank = position;
+      prevRating = m.rating;
+      rank.append(document.createTextNode(String(shownRank)));
       // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
       // in the list" and "your top-rated film" are different facts, and they
       // come apart the moment the list holds an unrated film — with nothing
       // rated yet, the positional rule crowned a film with no rating at all.
-      if (rankNo === 1) rank.classList.add('is-top');
+      // A tie at the very top crowns BOTH films, which is correct rather than a
+      // side effect: D-029 defines this as "your top-rated film", and if two are
+      // scored the same then both are.
+      if (shownRank === 1) rank.classList.add('is-top');
       // Three digits are wider than the rank gutter can hold at the desktop
       // font size — "250" overran the gap and the poster painted over its last
       // digit. CSS cannot count characters, so the digit count is marked here
       // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
       // not 9: two digits were measured and fit fine at every width.
-      if (rankNo > 99) rank.classList.add('is-wide');
+      if (shownRank > 99) rank.classList.add('is-wide');
+      // Says the repeated number is deliberate. Without it two adjacent cards
+      // showing "2" read as a rendering fault. Deliberately NOT baked into the
+      // numeral as "=2", the UK chart convention: that would widen the glyph and
+      // walk straight into the measured figure-width budget D-030 solved.
+      // It is also readable text rather than an aria-label — a label on a
+      // generic <div> is not reliably exposed, so a screen reader is left with
+      // "2 tied", which is exactly right anyway.
+      if (sharedRatings.get(m.rating) > 1) {
+        const tie = document.createElement('span');
+        tie.className = 'rank-tie';
+        tie.textContent = 'tied';
+        rank.append(tie);
+      }
     } else {
       // No rank to show. Same "no value here" glyph vocabulary as the AI call
       // log's empty Tokens/Cost cells, so the absence reads as an absence.
