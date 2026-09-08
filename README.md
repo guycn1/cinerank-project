@@ -3,9 +3,9 @@
 ### ▶ Live app: **https://cinerank-g6lx.onrender.com**
 
 > Hosted on Render's free tier, which sleeps after ~15 minutes idle — **the first
-> request after a quiet spell takes about a minute** while the instance wakes.
-> Every load after that is immediate. Worth opening the link a minute before you
-> need it.
+> request after a quiet spell takes anywhere from a few seconds to a minute**
+> while the instance wakes. Every load after that is immediate. Worth opening the
+> link shortly before you need it.
 
 A personal movie-ranking app where the database and the AI each earn their place:
 
