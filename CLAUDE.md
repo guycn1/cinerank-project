@@ -371,6 +371,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     moves from the button's `margin-left: auto` to `.meta`'s `flex-grow`, and
     since grow is resolved before auto margins see the space, the button still
     ends at the right edge.
+    **The results panel's height cap is viewport-aware** (sweep finding E). It
+    was a bare `max-height: 340px` — the app's only fixed-pixel height cap, while
+    the AI log dialog already used `88vh`. On a short viewport (a phone in
+    landscape, a small desktop window) 340px is most of the screen, so the panel
+    buried the page. Now `min(340px, 60svh)` with a `60vh` line above it as the
+    fallback, since a lone unsupported `svh` would invalidate the declaration and
+    leave NO cap at all. `svh` and not `dvh` so it does not resize mid-scroll as
+    a mobile URL bar collapses.
+    **Strictly shrinking, so nothing comfortable today can change:** `min()`
+    cannot return more than 340px. Viewports 640px tall and up are byte-identical;
+    only 500px and below see a smaller panel (300px at 500 tall, 216px at 360).
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.

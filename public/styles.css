@@ -326,7 +326,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.5rem;
-  max-height: 340px;
+  /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
+     AI log dialog already caps itself at `88vh`. On a short viewport (a phone
+     in landscape, a small desktop window) 340px is most of the screen, so the
+     results panel buried the page behind it.
+     `min()` can only ever return something <= 340px, so this is a STRICTLY
+     SHRINKING change: no viewport that is comfortable today can get a taller
+     panel, and only viewports where 340px was already too much see any
+     difference at all.
+     Two declarations, and the order matters: the `vh` line is the fallback, and
+     the `svh` line overrides it wherever `svh` is understood. `svh` is the
+     SMALL viewport height, so it stays put while a mobile URL bar collapses,
+     where `dvh` would resize the panel mid-scroll. Written as a pair because a
+     lone unsupported `svh` would invalidate the whole declaration and leave the
+     panel with NO cap — worse than the fixed value it replaced. */
+  max-height: min(340px, 60vh);
+  max-height: min(340px, 60svh);
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
