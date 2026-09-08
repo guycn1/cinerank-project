@@ -471,9 +471,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - **Desktop card alignment** (2026-09-09, user-raised, off-backlog). The grid
     is `align-items: center`, so on >620px a short title floated in the middle
     of the 138px poster and the score column sat centred as one block. Now the
-    body is `align-self: start` and the score column is `align-self: stretch`
-    with the rating at the top and the buttons pushed down by
-    `margin-top: auto`. **An auto margin, NOT `justify-content: space-between`**
+    body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
+    top read as too tight; it is on the BODY ALONE so the rating stays pinned to
+    the true top) and the score column is `align-self: stretch` with the rating
+    at the top and the buttons pushed down by `margin-top: auto`.
+    Top vs centred was settled by a side-by-side screenshot: centring made each
+    title's distance from the card's top edge depend on its review length, so
+    the titles stopped forming a straight column to scan — which matters because
+    this is a ranked LIST. Top-aligning also pairs the title and the score on one
+    header line. Its one weakness, a void under a review-less card, is what
+    backlog **#20** fills, so #20 is now worth more, not less. **An auto margin, NOT `justify-content: space-between`**
     — the same trap the 620px block already documents in the other axis: an
     unrated card has no score badge, and space-between parks a LONE child at the
     START, which would put the buttons at the TOP. The rank numeral stays
