@@ -844,11 +844,16 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   the first hit takes anywhere from a few seconds to a minute while the instance
   wakes — a minute is the observed worst case, not the typical one. Open the link
   shortly before demoing.
-  **Still to do:** put the URL on the lecturer's project sheet.
   Node resolves to whatever is newest (`engines` says `>=20`; the live build
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s
   `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
   ever breaks on a new Node.
+* [ ] **Put the live URL on the project sheet** —
+  https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
+  *inside* the ticked deploy item above, where it did not show up as an open
+  checkbox and could be missed on a skim. It is its own task: deploying and
+  submitting the address are two different things, and the second is what makes
+  the first count.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
