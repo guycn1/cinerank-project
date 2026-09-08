@@ -342,6 +342,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     consecutive bugs, one root cause:** this, the add button, and the ranked
     card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
     flex or grid item. When something will not shrink, look there first.
+    **The row's `year · TMDB score` line no longer breaks mid-value.** It is one
+    text node, so the browser could break at ANY space in it — including the one
+    inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
+    ~340px and under. A NON-BREAKING space now glues the label to its number,
+    written as a ` ` ESCAPE rather than a literal character so it cannot be
+    mistaken for an ordinary space and tidied away. The break around " · " is
+    deliberately left, so a narrow row wraps as "2013 ·" / "TMDB 7.0".
+    **Provably invisible at any width that is not already breaking there:** U+00A0
+    renders identically to U+0020 and only removes a break OPPORTUNITY. The
+    ranked card needs no equivalent — `.score-tmdb` is `white-space: nowrap`,
+    which forbids the break outright.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.

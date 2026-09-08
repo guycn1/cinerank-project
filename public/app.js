@@ -844,7 +844,20 @@ function renderSearchResults(results, query) {
     // TMDB's "no votes" zero here while the ranked card showed it as "TMDB 0.0"
     // — the two surfaces disagreed about the same film. That zero is now null
     // at the source (shapeMovie), so both are absent for the same reason.
-    const tmdb = r.tmdb_rating != null ? `TMDB ${r.tmdb_rating.toFixed(1)}` : null;
+    // NON-BREAKING space between the label and the number, written as an escape
+    // rather than a literal so it cannot be mistaken for an ordinary space and
+    // "tidied" away. The whole line is ONE text node, so the browser may break
+    // it at any space in it — including the one inside "TMDB 7.0", which is the
+    // one place it must not. At ~340px and below that produced "2013 · TMDB"
+    // with a stranded "7.0" on the next line, reading as a rendering fault.
+    // Gluing only this pair leaves the break around " · " available, so a narrow
+    // row wraps as "2013 ·" / "TMDB 7.0" instead.
+    // Invisible on any width where the line already fits: U+00A0 renders
+    // identically to U+0020 and only removes a break OPPORTUNITY, so no layout
+    // that is not currently breaking here can change.
+    // The ranked card needs no equivalent — `.score-tmdb` is `white-space:
+    // nowrap`, which already forbids the break outright.
+    const tmdb = r.tmdb_rating != null ? `TMDB\u00A0${r.tmdb_rating.toFixed(1)}` : null;
     span.textContent = [r.year, tmdb].filter(Boolean).join(' · ');
     meta.append(strong, span);
     const btn = document.createElement('button');
