@@ -334,7 +334,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* **Ranked list — DONE** (2026-09-08). Claude's audit produced items 1–17 and the user
+* **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
+  NOT closed: the user is still raising off-backlog refinements and bugs found
+  by using it ("a few more things to settle before calling the whole ranked-list
+  overhaul a wrap"). Do not treat the empty backlog as the finish line.
+  Claude's audit produced items 1–17 and the user
   added 18–20; **all 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
@@ -798,6 +802,27 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `syncReviewToggles()` selects `.review` to measure for clamping, and a
     one-line placeholder has no business entering the pass item #5 took four
     commits to settle.
+
+  - **No user text can widen a card** (off-backlog, user-found, D-045). A review
+    of ~400 unbroken `f`s widened the card, the section and then the whole page,
+    with no scrollbar to reveal what had been pushed off. The card's `1fr` track
+    is `minmax(auto, 1fr)`, and that `auto` minimum is the **min-content width** —
+    for one unbreakable word, the entire word. `.review`'s `overflow: hidden`
+    from the line clamp did nothing, because clipping governs PAINTING, not the
+    intrinsic size a track is measured from.
+    **`overflow-wrap: anywhere`, and `break-word` would NOT have fixed it.** The
+    two render identically — spaces first, mid-word only when a word cannot fit a
+    line alone — but `break-word`'s break opportunities are ignored when
+    min-content is calculated, so the track would still have been sized to the
+    unbroken word. `anywhere` counts them, so min-content collapses to about one
+    character. Same appearance, different arithmetic; do not simplify it.
+    It inherits, so one declaration covers the title, review, #20's placeholder
+    and the unrated hint. `min-width: 0` sits beside it as the structural half,
+    since `overflow-wrap` governs text only.
+    `.rec-card__body` and `.result-row` got the same guard **defensively** and are
+    labelled as such in the CSS — the recs grid has a FIXED `minmax(190px, …)`
+    minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
+    the ranked card was actually broken.
 
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 

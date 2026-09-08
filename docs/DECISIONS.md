@@ -6,6 +6,60 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
+Found by the user after the backlog closed, with a review consisting of ~400
+unbroken `f`s. The ranked list did not merely overflow: the card widened, the
+section widened, and the whole page layout broke, with no scrollbar to reveal
+what had been pushed off-screen.
+
+**Why one word can do that.** `.movie-card` is a grid with
+`grid-template-columns: 64px var(--poster-w) 1fr auto`. A `1fr` track is
+`minmax(auto, 1fr)`, and that `auto` minimum resolves to the item's **min-content
+width** — which, for a single unbreakable word, is the entire word. The track grew
+to fit it and everything downstream followed. `.review` already had
+`overflow: hidden` from its line clamp and it did not help at all, because
+clipping governs PAINTING, not the intrinsic size a track is measured from.
+
+### The obvious fix would not have worked
+`overflow-wrap: break-word` is what anyone reaches for, and on screen it wraps
+**identically**: normal breaks at spaces, mid-word only when a word cannot fit a
+line by itself — precisely the behaviour the user asked for. It would still have
+left the bug in place, because `break-word`'s break opportunities are **not
+counted when min-content is calculated**. The track would have been sized to the
+unbroken word exactly as before, and the page would have blown out exactly as
+before, while the review itself looked correctly wrapped — the most expensive
+kind of near-miss, since the visible symptom would have moved without the cause.
+
+`overflow-wrap: anywhere` is identical in rendering and different in
+**measurement**: its break opportunities DO count toward intrinsic sizes, so
+min-content collapses to roughly one character and the track can no longer be
+pushed open. Same appearance, different arithmetic. **Do not "simplify" it to
+`break-word`.**
+
+The property inherits, so one declaration on `.movie-card__body` covers the
+title, the review, #20's placeholder and the unrated hint. It is also the
+property `.log-error` already uses, for the same reason, in the AI call log.
+
+### `min-width: 0` alongside it
+`overflow-wrap` governs TEXT only. The user's requirement was categorical —
+"ensure no user input can ever widen a card's width" — so the grid item also gets
+`min-width: 0`, which makes the track structurally incapable of being pushed open
+by anything, including future non-text content with its own intrinsic width. The
+`overflow-wrap` line is what fixes the reported bug; this one closes the class.
+
+### Two surfaces guarded defensively, and labelled as such
+* `.rec-card__body` — the recs grid is `minmax(190px, 1fr)`, a FIXED minimum, so
+  it cannot be pushed open the way the ranked card was. But the reason text is
+  model output derived from the user's own reviews, which is the prompt-injection
+  surface, and the card title is not clipped the way `.reason` is.
+* `.result-row` — a flex container, and a flex item's automatic minimum size is
+  min-content, the same mechanism. Its text comes from TMDB, so nothing is known
+  to be broken.
+
+Both are marked in the CSS as defensive rather than corrective, so a later reader
+does not mistake them for evidence of bugs that happened.
+
+---
 ## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
 Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
 pronounced, and more importantly - brighter. It's barely visible against the dark

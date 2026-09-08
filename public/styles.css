@@ -329,6 +329,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Deliberately NOT cursor: pointer — the row itself does nothing, only its
      Add button does. The hover tint stays as a row-tracking cue. */
   transition: background 0.15s;
+  /* Also defensive. A flex item's automatic minimum size is min-content, the
+     same mechanism that blew the ranked card open, and this row is a flex
+     container whose text comes from TMDB. Real titles do not contain
+     400-character words, so nothing is known to be broken here — but the guard
+     is one declaration and the failure mode is the whole page. */
+  overflow-wrap: anywhere;
 }
 .result-row:hover { background: var(--bg-raised); }
 .result-row img, .result-row .noposter {
@@ -681,7 +687,36 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    as slightly too tight. It is deliberately on .movie-card__body ALONE — the
    score column must NOT move with it, so the rating stays pinned to the true
    top of the card. Tune this number freely; nothing is solved against it. */
-.movie-card__body { align-self: start; margin-top: 0.3rem; }
+/* `min-width` + `overflow-wrap` are the guard that stops user text widening the
+   card. A 400-character unbroken "ffff…" review blew the whole page open: the
+   card's `1fr` track is `minmax(auto, 1fr)`, and that `auto` minimum is the
+   MIN-CONTENT width — which for one unbreakable word is the whole word. The
+   track grew to fit it, the card grew with it, and the layout went with them.
+   `overflow: hidden` on `.review` did not help, because clipping affects
+   painting, not the intrinsic size the track is measured from.
+
+   `anywhere`, NOT `break-word`, and the difference is the entire fix. Both wrap
+   identically on screen — normal breaks at spaces, mid-word only when a single
+   word cannot fit a line on its own, which is exactly the wanted behaviour. But
+   `break-word` is ignored when min-content is CALCULATED, so the track would
+   still have been sized to the unbroken word and the card would still have blown
+   out. `anywhere` counts those break opportunities in intrinsic sizing, so
+   min-content collapses to about one character. Same rendering, different
+   measurement — do not "simplify" this to `break-word`.
+   It inherits, so the title, review, placeholder and unrated hint are all
+   covered by the one declaration. Same property the AI log's error cell already
+   uses for the same reason.
+
+   `min-width: 0` is the structural half: `overflow-wrap` only governs TEXT, so
+   any future non-text content in this column (something with `white-space:
+   nowrap`, a wide image) could size the track the same way. This makes the track
+   incapable of being pushed open regardless of what lands in it. */
+.movie-card__body {
+  align-self: start;
+  margin-top: 0.3rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -1003,6 +1038,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   display: flex;
   flex-direction: column;
   flex: 1; /* fills the card; cards in a row stretch to equal height */
+  /* Defensive, unlike the ranked card's copy of this, which fixes a bug that
+     actually happened. This grid is `minmax(190px, 1fr)`, so its tracks have a
+     FIXED minimum and cannot be pushed open the way the ranked card's `auto`
+     minimum was — but the reason text is model output derived from the user's
+     own reviews, which is the prompt-injection surface, and the title is not
+     clipped the way `.reason` is. One inherited declaration removes the whole
+     question. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
