@@ -152,6 +152,39 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /**
+ * The subtitle beside "Your ranking": the film count always, the outstanding
+ * work only when there is any.
+ *
+ * It used to be `N films · N rated` (backlog #16). Three things were wrong with
+ * that. It restated the first number in the app's STEADY state — once everything
+ * is rated, "5 films · 5 rated" is one fact wearing two hats — so it was longest
+ * exactly when it had least to say. It made the reader subtract to reach the one
+ * actionable fact, how many still need rating. And the `·` joined a set to its
+ * own SUBSET, where every other use of that separator in this app joins peer
+ * facts (`2023 · TMDB 7.2` in a search row, the AI meta footer, `Total · 3
+ * calls`) — which is why "5 films · 3 rated" reads as two tallies rather than
+ * "3 of the 5".
+ *
+ * Silence is the "all rated" signal. The clause exists to flag outstanding work,
+ * so nothing outstanding means nothing to say; unrated cards carry their own
+ * "Not rated yet" chip, so the fact is still on screen.
+ *
+ * `none rated yet` and not `N not rated yet` when nothing is rated at all —
+ * otherwise both numbers are equal again and the doubling is back. That branch
+ * is also what settled the wording against the shorter "N unrated", which reads
+ * better after a numeral but would need a SECOND vocabulary here, since
+ * "5 unrated" is the doubling this exists to remove. One phrasing covers both
+ * cases, and "yet" keeps the pending sense D-033 built the chip around.
+ */
+function rankedCountLabel(count, rated) {
+  const films = `${count} film${count === 1 ? '' : 's'}`;
+  const unrated = count - rated;
+  if (unrated === 0) return films;
+  if (unrated === count) return `${films} · none rated yet`;
+  return `${films} · ${unrated} not rated yet`;
+}
+
+/**
  * The ranking AS DISPLAYED: for every film, the number its card shows (null
  * when unrated) and whether it shares that number with another film.
  *
@@ -267,7 +300,7 @@ function renderRanked() {
   rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
-  el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
+  el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
 
   // Computed ONCE, by the same function rankSignature() uses, so what is drawn

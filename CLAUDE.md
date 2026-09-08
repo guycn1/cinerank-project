@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-15 all done**, #16 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-15 all done**, #16 part-done — only its error-toast half, "#16-B", is left; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -625,6 +625,21 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     One-directional on purpose: a rating with NO review stays valid, which is
     what #20 labels.
 
+  - **The ranked-list subtitle stops restating itself** (#16 part b). `5 films ·
+    5 rated` said one fact twice in the app's steady state, was longest exactly
+    when it had least to say, and made the reader subtract to reach the only
+    actionable number. The `·` also joined a set to its own SUBSET, where every
+    other use of that separator in the app joins peer facts. Now `5 films` when
+    everything is rated (silence IS the all-rated signal — the clause exists to
+    flag outstanding work, and unrated cards still carry their own chip),
+    `5 films · 2 not rated yet` when some are, and `5 films · none rated yet`
+    when none are. That last branch is not cosmetic: `5 not rated yet` would put
+    both equal numbers back. It is also what settled the wording against the
+    shorter `2 unrated` — which reads better after a numeral, and the user asked
+    why not — because "unrated" would need a SECOND vocabulary for the
+    nothing-rated branch, and "yet" keeps the pending sense D-033 built the chip
+    around. Built as `rankedCountLabel()` so the three branches are readable.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -649,7 +664,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
-| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — **next**; partly done |
+| 16 | Copy inconsistencies. Split into three parts as it was worked; **two done, one open**. **(a) Confirmation toasts — done** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle — done** (2026-09-09): now `5 films` when everything is rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when nothing is. **(c) `#16-B`, the two ERROR toasts — open**: they pass the server's wording through unprefixed, so a failed add/remove names no film. Deferred by the user to its own pass | open — **next** is (c); (a) and (b) done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
