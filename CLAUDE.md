@@ -60,11 +60,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 33 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 35 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
-  below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
-  log row written). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
+  log row written), a row deleted mid-edit (404, not a 500), and the two
+  `tmdb_rating` guards — that the value reaches the insert at all, and that
+  TMDB's no-votes `0` is stored as `null` (D-037). Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
@@ -645,7 +647,8 @@ below — this list is the smaller stuff.)
   database the deployed app uses — there is no separate prod DB to migrate at
   release time.**
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
+  TMDB/OpenRouter-down resilience, and the `tmdb_rating` guards all covered by
+  `npm test` (35).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.

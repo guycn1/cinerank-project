@@ -120,7 +120,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 33 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 35 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -130,6 +130,10 @@ of the practice.
   below-threshold guards (422), and — the one that matters most — OpenRouter
   unreachable returning 422 *and* still writing a `status='failed'` row to
   `recommendation_logs`. That's the "make failure visible" contract under test.
+- **Regression guards**, each added the day the bug was found and each checked to
+  fail without its fix: a film deleted in another tab returning 404 rather than a
+  500, TMDB's own rating actually reaching the insert, and TMDB's "no votes"
+  `vote_average: 0` being stored as `null` instead of as a real score of zero.
 
 To keep the live database untouched (§5), the Supabase client is swapped for a
 small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through
