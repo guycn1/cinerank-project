@@ -345,6 +345,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .result-row .meta span { color: var(--ink-dim); font-size: 0.85rem; }
 .result-row .add-btn {
   margin-left: auto;
+  /* THE SAME BUG `.search button` already documents twenty lines up, missed on
+     this button. A flex item may shrink below its content, so when the title
+     beside it is long the row squeezes THIS instead — and "+ Add" breaks at its
+     space into two lines, turning a pill into a lump. It looked width-related
+     but is not: it depends on how long the neighbouring TITLE is, which is why
+     narrowing the window makes more rows go wrong one at a time rather than all
+     at once. On a phone in portrait most titles wrap, so most buttons break.
+     `flex-shrink: 0` is the fix — the button keeps its content width and
+     `.meta` absorbs the pressure, which it can, since it wraps and now also
+     carries `overflow-wrap: anywhere`. `white-space: nowrap` makes it
+     unbreakable rather than merely unsqueezed, which matters because the longest
+     label this button ever shows is not "+ Add" but "In your list". No width
+     threshold is involved anywhere, deliberately. */
+  flex-shrink: 0;
+  white-space: nowrap;
   background: var(--bg-raised);
   border: 1px solid var(--line);
   color: var(--ink);

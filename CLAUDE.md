@@ -319,6 +319,19 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
     `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
     is unreliable on a `<button>`, and shrinking is what clipped the label.
+    **The add button needed the identical fix and did not get it until
+    2026-09-08**, found by the user on an Android phone in portrait (and
+    reproducible on a narrowed desktop window). `.result-row .add-btn` could
+    shrink below its content, so a row with a LONG TITLE squeezed the button
+    instead and "+ Add" broke at its space into two lines. It looks like a width
+    bug and is not — it depends on the neighbouring title's length, which is why
+    narrowing the window spoils more rows one at a time rather than all at once,
+    and why almost every button breaks on a phone, where almost every title
+    wraps. Now `flex-shrink: 0` (the button keeps its content width; `.meta`
+    absorbs the pressure, which it can, since it wraps) plus
+    `white-space: nowrap`, because the longest label this button ever shows is
+    not "+ Add" but "In your list". **No width threshold anywhere**, per the
+    user's explicit ask.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.
