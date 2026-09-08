@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
+**Last updated:** 2026-09-09 (eleventh merge to main, bc67ff2; ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,9 +33,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + migrations `001`, `002` and `003`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "Ranked-list items
-  8-10 + the app own confirm dialog + one focus ring app-wide" (2026-09-08,
-  `d019509`). **Ten** merges so far;
+* `main` is at the latest settled UI milestone — currently "TMDB ratings
+  persisted (#11) + tied ranks made honest (#13)" (2026-09-09,
+  `bc67ff2`). **Eleven** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
