@@ -43,8 +43,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
   guard via `unique(tmdb_id)`. Add auto-opens the rate dialog ("Skip for now").
-  Long reviews clamp to 2 lines with a "view more…/show less" toggle (shown only
-  when the text actually clips).
+  Long reviews clamp to 3 lines on desktop and 2 in card mode, with a
+  "view more…/show less" toggle (shown only when the text actually clips). The
+  line count lives ONLY in CSS — the toggle is decided by measuring whether the
+  text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines.

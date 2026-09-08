@@ -530,7 +530,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 0.9rem;
   margin-top: 0.35rem;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  /* Three lines on desktop, two in card mode (overridden in the 620px block).
+     Raised from two once the body became top-aligned: three lines roughly fill
+     the poster's height instead of leaving dead space under the text.
+     **This number lives ONLY here.** syncReviewToggles() decides whether to show
+     a "view more…" toggle by measuring `scrollHeight - clientHeight`, which asks
+     the browser whether the text actually overflowed — it has no idea how many
+     lines the clamp allows, and must never be given one. That is what makes this
+     a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)
+     untouched. Crossing the 620px breakpoint re-clamps, and the rAF-throttled
+     resize listener re-runs the measurement, which is the same path that already
+     handles a window drag changing how many lines the text wraps to. */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -683,6 +694,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Card mode centres the score row (align-items: center), so the desktop nudge
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
+  /* Back to two lines in card mode: the poster is only 102px here and the
+     column is far narrower, so three clamped lines would dominate the card.
+     Lower specificity than `.review.expanded` (0,3,0) on purpose — an expanded
+     review must stay unclamped in both modes. */
+  .movie-card__body .review { -webkit-line-clamp: 2; }
 }
 
 /* recommendations --------------------------------------------------- */
