@@ -367,6 +367,15 @@ function renderRanked() {
       hint.textContent = 'Rate it to place it in the ranking.';
       u.append(badge, hint);
       body.append(u);
+      // `else if`, and it is EXHAUSTIVE rather than merely convenient: the
+      // `review_requires_rating` constraint (migration 004, D-041) makes a
+      // review on an unrated film unwritable, so this branch cannot be hiding
+      // one. Backlog #15 was that it could — the fix was to forbid the state in
+      // the database, not to render it here, because the rating is the required
+      // part and the review the optional one. Do NOT "fix" this into two
+      // independent `if`s: that would add a branch for a state the schema
+      // guarantees cannot exist. If the constraint is ever dropped, this comment
+      // is the thing that stops being true.
     } else if (m.review) {
       const r = document.createElement('p');
       r.className = 'review';

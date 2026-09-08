@@ -86,6 +86,52 @@ test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', a
   }
 });
 
+// Regression guard for migration 004's `review_requires_rating` constraint
+// (backlog #15, D-041). Postgres enforces the rule itself; what this asserts is
+// the ROUTE's half of it — a check_violation must surface as a 400 with a
+// message that says what to do, not as the central handler's generic 500, which
+// would blame the server for a request that is simply invalid. Unreachable from
+// the UI (the rate dialog always sends a rating from a range input), but a
+// direct API caller can do it — and the demo seed helper will be one.
+test('PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500', async () => {
+  db.results['movies:update'] = {
+    data: null,
+    error: {
+      code: '23514',
+      message: 'new row for relation "movies" violates check constraint "review_requires_rating"',
+    },
+  };
+  try {
+    const res = await client.patch('/api/movies/00000000-0000-0000-0000-000000000000', {
+      review: 'Written without ever rating it.',
+    });
+    assert.equal(res.status, 400);
+    assert.match((await res.json()).error, /needs a rating/);
+  } finally {
+    delete db.results['movies:update'];
+  }
+});
+
+// The handler matches the constraint NAME, not the bare 23514 code, because the
+// movies table carries two range constraints as well. This is that guard: a
+// violation of one of those must not be dressed up as the review rule.
+test('PATCH /api/movies/:id — an unrelated check violation is not reported as the review rule', async () => {
+  db.results['movies:update'] = {
+    data: null,
+    error: {
+      code: '23514',
+      message: 'new row for relation "movies" violates check constraint "tmdb_rating_range"',
+    },
+  };
+  try {
+    const res = await client.patch('/api/movies/some-id', { rating: 5 });
+    assert.equal(res.status, 500);
+    assert.doesNotMatch((await res.json()).error, /needs a rating/);
+  } finally {
+    delete db.results['movies:update'];
+  }
+});
+
 test('PATCH /api/movies/:id with an empty body → 400 (nothing to update)', async () => {
   const res = await client.patch('/api/movies/some-id', {});
   assert.equal(res.status, 400);

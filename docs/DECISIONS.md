@@ -6,6 +6,67 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
+Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
+film that is unrated but carries a review drew the "Not rated yet" chip and its
+review was never rendered at all — the text sat in the table and no screen ever
+showed it.
+
+**Claude proposed the wrong fix, and the user replaced it.** The proposal was to
+split the branch into two independent `if`s so an unrated card showed the chip
+AND the review. The user's question was better: the UI already refuses to create
+this state, so *should the state exist at all?* The rating is the required part
+and the review the optional one — that is the product rule, and it was written
+down nowhere except in the shape of the rate dialog.
+
+### What was verified first
+The backlog row said only "the PATCH endpoint permits that state", which is true
+but stops short. Tracing every writer showed the state is **unreachable from the
+UI**: `POST /api/movies` writes neither column, and the rate dialog's Save always
+sends `Number(el.rateRange.value)` from a range input that cannot be empty. So
+#15 was latent, not a live bug — worth saying, because the row read as though
+there might be hidden reviews already. A pre-check (`where review is not null and
+rating is null`) returned zero rows before anything was changed.
+
+### Three options
+* **A — render both** (Claude's). Rejected: it copes with data the product does
+  not want instead of preventing it, and adds a permanent branch to
+  `renderRanked()` for a state nothing should ever produce.
+* **B — validate in the PATCH route.** Rejected on a finding, not on taste: the
+  rule is about the **resulting row**, not about the patch. `PATCH {review}`
+  alone is perfectly valid when the film is already rated, so the route would
+  have to re-read the row to judge it. Postgres already knows the resulting row.
+* **C — a `check` constraint** (the user's). Chosen. `check (review is null or
+  rating is not null)`, migration 004, folded into `db/schema.sql`. It is the
+  only layer that can enforce the rule in one place at no cost, and it turns the
+  renderer's `else if` from accidentally correct into **provably exhaustive**.
+
+### The consequence, accepted deliberately
+This converts a silent hide into a loud failure. That is the right direction —
+fail at the boundary rather than accept-and-hide — but it has a concrete cost:
+**the demo seed helper must send rating and review in the same PATCH**, or it
+will error. That failure lands during seed development rather than silently in
+front of a reader, which is the good version of the problem, but it is a real
+constraint on code not yet written, so it is recorded here and under the
+pre-submission blockers.
+
+`PATCH` still accepts an explicit `rating: null`; after this that call fails for
+any film that has a review. No UI path sends it.
+
+### Traps
+* The `else if` in `renderRanked()` is exhaustive **because of this constraint**.
+  Do not "fix" it into two independent `if`s — that adds a branch for a state the
+  schema forbids. A comment at the branch says so; if the constraint is ever
+  dropped, that comment is what stops being true.
+* The route maps `23514` to a 400 **matched on the constraint name**, not on the
+  code alone: the table carries two range constraints as well, and the review
+  message must never be shown for a violation of either. Both halves have a test,
+  and both were verified to fail without their fix rather than assumed to work.
+* One-directional on purpose. A rating with **no** review stays valid — that is
+  the common case, and backlog #20 is about labelling it in the UI, not
+  forbidding it.
+
+---
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
 Backlog #14. Expand a review with "view more…", then rate, add or remove a
 *different* film, and it snapped shut. `renderRanked()` opens with

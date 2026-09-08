@@ -15,10 +15,15 @@ create table if not exists movies (
   poster_url   text,
   rating       numeric(3,1),                     -- 0.0–10.0, nullable until rated
   tmdb_rating  numeric(3,1),                     -- TMDB's own score at add time (migration 002)
-  review       text,
+  review       text,                             -- optional; requires a rating (migration 004)
   created_at   timestamptz not null default now(),
   constraint rating_range check (rating is null or (rating >= 0 and rating <= 10)),
-  constraint tmdb_rating_range check (tmdb_rating is null or (tmdb_rating >= 0 and tmdb_rating <= 10))
+  constraint tmdb_rating_range check (tmdb_rating is null or (tmdb_rating >= 0 and tmdb_rating <= 10)),
+  -- The rating is the required part, the review the optional one. One-directional:
+  -- a rating with no review is the common case and stays valid. Without this the
+  -- API could write a review onto an unrated film, which no screen ever displays
+  -- (backlog #15, D-041, migration 004).
+  constraint review_requires_rating check (review is null or rating is not null)
 );
 
 create index if not exists movies_rating_idx on movies (rating desc nulls last);

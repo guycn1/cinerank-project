@@ -24,13 +24,13 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-14 all done**, #15 is next; eleventh merge to main was bc67ff2; migrations 001-003 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-15 all done**, #16 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + migrations `001`, `002` and `003`
+* Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "TMDB ratings
@@ -60,13 +60,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 35 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 37 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
   log row written), a row deleted mid-edit (404, not a 500), and the two
   `tmdb_rating` guards — that the value reaches the insert at all, and that
-  TMDB's no-votes `0` is stored as `null` (D-037). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  TMDB's no-votes `0` is stored as `null` (D-037) — plus the two
+  `review_requires_rating` guards (D-041): a check violation comes back as a
+  400 with a usable message rather than a generic 500, and a violation of one of
+  the table's OTHER check constraints is not dressed up as the review message.
+  Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
@@ -331,7 +335,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **14 of the 20 are done** and the canonical table with every
+  added 18–20; **15 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -598,6 +602,29 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     collapses with a bare `classList.remove()` on purpose — that one is a
     measuring fixture, not a state change; do not route it through the writer.
 
+  - **A rating-less review is now impossible, rather than invisible** (#15,
+    D-041, migration 004). `renderRanked()` branches `if (!isRated) … else if
+    (m.review)`, so an unrated film's review was never drawn — the text sat in
+    the table and no screen showed it. **Claude proposed splitting the branch so
+    both render; the user replaced that with the better question** — the UI
+    already refuses to create this state, so should the state exist at all? The
+    rating is the required part and the review the optional one, and that rule
+    was written down nowhere except in the shape of the rate dialog. It now
+    lives in the schema: `check (review is null or rating is not null)`.
+    **Enforced in the DB and not in the route because the rule is about the
+    RESULTING ROW, not the patch:** `PATCH {review}` alone is valid when the film
+    is already rated, so the route would need an extra read to judge it, while
+    Postgres already knows. The route's job is only to turn the resulting `23514`
+    into a 400 with a usable message instead of a generic 500 — matched on the
+    constraint NAME, since the table carries two range constraints as well.
+    Verified before shipping: the state was **unreachable from the UI** (POST
+    writes neither column; Save always sends a number from a range input), and a
+    pre-check found zero existing rows to migrate. So #15 was latent, not live.
+    **The `else if` is now provably exhaustive — do not split it into two
+    independent `if`s**, which would add a branch for a state the schema forbids.
+    One-directional on purpose: a rating with NO review stays valid, which is
+    what #20 labels.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -621,8 +648,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
-| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open — **next** |
-| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
+| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — **next**; partly done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
@@ -676,9 +703,15 @@ below — this list is the smaller stuff.)
   **Both are applied to the single live Supabase project, which is the same
   database the deployed app uses — there is no separate prod DB to migrate at
   release time.**
+* [x] **Migration 004 (`review_requires_rating`) applied 2026-09-09.** A `check`
+  constraint forbidding a review on an unrated film (#15, D-041) — the rating is
+  the required part, the review the optional one, and until now only the UI knew
+  that. A pre-check confirmed **zero** existing rows violated it before it went
+  on. Adding it to a live DB is safe in a way 002 was not: it forbids a state
+  nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  TMDB/OpenRouter-down resilience, and the `tmdb_rating` guards all covered by
-  `npm test` (35).
+  TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
+  `review_requires_rating` guards all covered by `npm test` (37).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -726,6 +759,12 @@ below — this list is the smaller stuff.)
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
   produces. Not started — user will kick this off later.
+  **One hard constraint on that helper, from migration 004 (D-041): rating and
+  review must go in the SAME `PATCH`.** A review-only patch on a film that is not
+  yet rated now violates `review_requires_rating` and comes back as a 400 ("A
+  review needs a rating"). This is deliberate — it fails loudly in the seed run
+  rather than silently storing a review no screen would ever display — but it
+  will look like a mystery if it is met without knowing why.
 
 ### Pre-submission blockers — DO NOT call the project a wrap until these are done
 
