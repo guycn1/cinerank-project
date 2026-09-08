@@ -612,6 +612,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-weight: 900;
   font-size: 1.5rem;
   color: var(--amber);
+  /* Half the 0.3rem the title block gets, so the rating settles just off the
+     card's top edge without losing the header line it shares with the title.
+     On .score-badge itself, NOT on .movie-card__score: the column is
+     align-self: stretch and its buttons hang off margin-top: auto, so a margin
+     on the column would move the whole thing. Here only the rating shifts, the
+     buttons stay pinned to the bottom, and an unrated card — which has no
+     badge at all — is untouched by construction.
+     Tied to the body's margin by intent, not by a shared value: this is meant
+     to be about half of it, so if that one changes, revisit this one. */
+  margin-top: 0.15rem;
 }
 .score-badge small { color: var(--ink-faint); font-size: 0.7rem; font-weight: 400; }
 .card-actions { display: flex; gap: 0.4rem; }
@@ -662,6 +672,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      by the score itself, so `align-self: stretch` and `center` produce an
      identical box. */
   .movie-card__body { align-self: center; margin-top: 0; }
+  /* Card mode centres the score row (align-items: center), so the desktop nudge
+     would push the rating off that centre line. */
+  .score-badge { margin-top: 0; }
 }
 
 /* recommendations --------------------------------------------------- */

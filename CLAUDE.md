@@ -474,7 +474,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
     top read as too tight; it is on the BODY ALONE so the rating stays pinned to
     the true top) and the score column is `align-self: stretch` with the rating
-    at the top and the buttons pushed down by `margin-top: auto`.
+    at the top and the buttons pushed down by `margin-top: auto`. The rating
+    then gets `0.15rem` of its own — half the body's — on `.score-badge` rather
+    than on the column, so only the rating shifts and the buttons stay pinned.
+    **All four desktop-only properties are reset inside the existing 620px
+    query**, so card mode is untouched; `align-self: stretch` needs no reset
+    because the score moves to its own grid row there, sized by itself, where
+    stretch and center are the same box.
     Top vs centred was settled by a side-by-side screenshot: centring made each
     title's distance from the card's top edge depend on its review length, so
     the titles stopped forming a straight column to scan — which matters because
