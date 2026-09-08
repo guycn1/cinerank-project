@@ -752,6 +752,21 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the **second** time in this one item that a drop-shadow habit produced an
     asymmetry a glow should not have — the `translateY` lift was the first. Do
     not give these layers a Y-offset.
+    **Spotlight (user-raised, same item): hovering one card dims every other**
+    (`opacity: 0.45`), so the list recedes and only the card under the pointer is
+    at full strength. Two things make it work and neither is obvious.
+    **`:has()`, not `.ranked__list:hover .movie-card:not(:hover)`** — the list
+    has a 1rem `gap` that belongs to the list but to no card, so the shorter form
+    dims EVERYTHING while the pointer crosses a gap, and sliding down the list
+    would strobe. **And `z-index: 1` on the hovered card is required, not
+    decoration:** `opacity < 1` creates a stacking context, promoting every
+    dimmed sibling into the same paint step as the transformed hovered card,
+    where DOM order decides — so the card below would paint over the hovered
+    card's glow and clip it. Grid items take `z-index` with no `position`.
+    It also **only works because D-043 changed the entrance fill to
+    `backwards`**: `fade-slide` ends at `opacity: 1`, and a forwards fill would
+    have pinned every first-paint card there and silently refused to dim — the
+    same bug as the hover transform, one property over.
     **This supersedes D-043's own trap**, which said to hold the amber at
     0.10–0.12 alpha so hover could not be mistaken for keyboard focus. Followed
     literally, that is what made the effect invisible. What actually separates

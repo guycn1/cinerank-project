@@ -401,7 +401,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      completely static shadow. That is why the lift was almost invisible: a lift
      is sold by its shadow growing and softening, and this one had no elevation
      cue at all. The fix was never "make the 3px bigger". */
-  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease);
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
+    opacity 0.25s var(--ease);
 }
 /* The staggered entrance runs on the FIRST paint only (renderRanked adds the
    class). It used to sit on .movie-card itself, and since every re-render
@@ -474,6 +475,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   .movie-card:hover {
     transform: scale(1.02);
     border-color: rgba(245, 193, 91, 0.5);
+    /* REQUIRED once the siblings dim, not decoration. `opacity < 1` creates a
+       stacking context, which promotes every dimmed card into the same painting
+       step as this transformed one — and among equals, DOM order decides. The
+       card BELOW would then paint over this card's downward glow and clip it
+       ~16px down, reintroducing exactly the top/bottom asymmetry the zero
+       Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
+       is `display: grid`, and grid items take z-index directly. */
+    z-index: 1;
     /* ALL LIGHT, NO BLACK — see D-044. The first version led with
        `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is
        `--bg: #0b0b0f`, so a black shadow has nothing left to darken. On a dark
@@ -496,6 +505,30 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
       0 0 40px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
       0 0 80px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
+
+  /* Spotlight: hovering one card dims every OTHER card, so the list recedes and
+     the one under the pointer is the only thing at full strength.
+
+     `:has()` and NOT `.ranked__list:hover .movie-card:not(:hover)`, which is the
+     shorter and obvious form. The list has a 1rem `gap`, and that gap is part of
+     the list but part of no card — so crossing it with the pointer satisfies
+     `.ranked__list:hover` while NOTHING matches `:hover`, and every card dims at
+     once. Sliding down the list would strobe. `:has(.movie-card:hover)` fires
+     only when a card really is hovered. It is already relied on elsewhere in
+     this file (`body:has(dialog[open])`, the log's card view), so it costs no
+     new browser support.
+
+     This only works because D-043 changed the entrance animation's fill from
+     `both` to `backwards`. `fade-slide` animates opacity to 1, and a
+     forwards-filling animation keeps applying that final keyframe — which
+     outranks normal declarations. With `both`, every first-paint card would have
+     been pinned at `opacity: 1` and would simply have refused to dim, silently,
+     exactly as the hover transform did. Same bug, different property.
+
+     0.45 is the dial. Contrast is not a concern at rest: this state exists only
+     while a pointer is over the list, and `:hover` never fires for keyboard
+     users, so nothing a screen reader or a tabbing user encounters is dimmed. */
+  .ranked__list:has(.movie-card:hover) .movie-card:not(:hover) { opacity: 0.45; }
 }
 
 /* View Transition names for the two blocks that sit BELOW the ranked list.
