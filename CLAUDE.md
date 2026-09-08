@@ -521,6 +521,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     The rating and this caption sit in one `.score-block` wrapper so the score
     column still has exactly TWO children — the block and the buttons — which is
     what its `margin-top: auto` bottom-pinning depends on.
+    On an UNRATED card the caption leads the block, and `:first-child` is the
+    test for that — the badge is appended before it whenever a rating exists. It
+    gets `0.45rem` there, far more than the badge's `0.06rem`, because the badge's
+    tall 1.5rem line box already insets its own glyphs while a 0.72rem caption at
+    line-height 1.3 starts flush against the card's top edge. Reset in card mode.
 
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
