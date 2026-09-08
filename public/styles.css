@@ -568,7 +568,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      the text — but only where the card is wide enough that the title still fits
      on one line, which is what the 900px floor is protecting.
      **This number lives ONLY here.** syncReviewToggles() decides whether to show
-     a "view more…" toggle by measuring `scrollHeight - clientHeight`, which asks
+     a "show more" toggle by measuring `scrollHeight - clientHeight`, which asks
      the browser whether the text actually overflowed — it has no idea how many
      lines the clamp allows, and must never be given one. That is what makes this
      a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)

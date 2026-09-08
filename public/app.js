@@ -590,7 +590,11 @@ function renderRanked() {
 }
 
 /**
- * Show each review's "view more…" toggle only when the text is actually clipped.
+ * Show each review's "show more" toggle only when the text is actually clipped.
+ *
+ * (The two "view more…" mentions further down are PAST-TENSE and stay: the label
+ * really was that when those bugs happened. #18 renamed it — see
+ * setReviewExpanded().)
  *
  * `-webkit-line-clamp` hides the overflow silently and CSS has no "did this
  * overflow?" selector, so it has to be measured. The important part is that it
@@ -656,7 +660,14 @@ function syncReviewToggles() {
  */
 function setReviewExpanded(p, toggle, expanded) {
   p.classList.toggle('expanded', expanded);
-  toggle.textContent = expanded ? 'show less' : 'view more…';
+  // One verb, both directions (backlog #18). It was "view more…" / "show less":
+  // two verbs for one control, and an ellipsis on only one half. The ellipsis is
+  // gone rather than balanced, because the clamp draws its OWN — `.review` is a
+  // -webkit-box with -webkit-line-clamp, so the browser already ends the clipped
+  // line in "…" and the label repeated it one line below. "show", not "view",
+  // because within-control consistency beats matching the log's "view verdict"
+  // on another surface, and "view less" is the weaker half of that pair.
+  toggle.textContent = expanded ? 'show less' : 'show more';
   toggle.setAttribute('aria-expanded', String(expanded));
   if (expanded) state.expandedReviews.add(p.dataset.movieId);
   else state.expandedReviews.delete(p.dataset.movieId);

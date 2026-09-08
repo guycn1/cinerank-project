@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-17 all done**, #18 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-18 all done**, #19 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -46,7 +46,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
   user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
   Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
-  "view more…/show less" toggle (shown only when the text actually clips). The
+  "show more/show less" toggle (shown only when the text actually clips). The
   line count lives ONLY in CSS — the toggle is decided by measuring whether the
   text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
@@ -79,7 +79,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
   film, not just the verb), live regions on search results / recs hint / verdict
   text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
-  `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
+  `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
   spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
@@ -335,7 +335,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **17 of the 20 are done** and the canonical table with every
+  added 18–20; **18 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -353,7 +353,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Off-list, found while testing: custom scrollbars ballooned under browser
     zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
     shrinks the viewport proportionally so `vw` holds a constant physical size).
-  - Review "view more…" toggles are re-measured on resize (and on zoom, and
+  - Review "show more" toggles are re-measured on resize (and on zoom, and
     after a late webfont swap), not once per render. They used to go stale in
     both directions — narrowing clipped a review whose toggle stayed hidden, so
     the text became unreachable. `hidden` is now assigned both ways. The pass
@@ -685,6 +685,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     measuring the real fold: that reads layout during the render, which is
     exactly what `syncReviewToggles()`'s three batched passes exist to avoid.
 
+  - **The review toggle uses one verb in both directions** (#18, user-raised).
+    It read `view more…` / `show less` — two verbs for one control, and an
+    ellipsis on only one half. **Not a considered pairing:** both strings landed
+    together in `93bd6d3`, whose message only narrates them, and no decision
+    entry ever discussed the wording. Now `show more` / `show less`.
+    **The ellipsis is dropped rather than balanced, for a checkable reason:**
+    `.review` is a `-webkit-box` with `-webkit-line-clamp`, so the browser
+    already ends the clipped line in "…" — the label repeated it one line below.
+    `show` and not `view`, even though the AI log's reveal summary says
+    `view verdict`: consistency WITHIN one control beats matching a different
+    surface, and "view less" is the weaker half of that pair. No accessibility
+    consequence — the toggle carries `aria-expanded`, so the state is announced
+    independently of the label.
+    Past-tense mentions of `view more…` in `syncReviewToggles()`'s JSDoc and in
+    `docs/DECISIONS.md` are LEFT ALONE: the label really was that when those
+    bugs happened, and rewriting them would be maintaining history rather than
+    preserving it.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -711,8 +729,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
 | 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
-| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — **next**; user-added |
-| 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
+| 19 | Add a grow-on-hover effect to each ranked-list item | open — **next**; user-added |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
 
 ##### Agreed order of work from here (set by the user, 2026-09-08, session end)
@@ -818,7 +836,7 @@ below — this list is the smaller stuff.)
   2. Rating spread: a couple high, one mid, one low "guilty pleasure /
      disappointment" outlier for contrast.
   3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
-     demos the "view more" toggle + injection-safe handling.
+     demos the "show more" toggle + injection-safe handling.
   4. Recommendation headroom: likely AI picks not already in the list, real
      enough to pass TMDB verification cleanly (no silently-dropped cards).
   5. Dry-run the verdict a few times pre-submission; adjust the seed set if the
