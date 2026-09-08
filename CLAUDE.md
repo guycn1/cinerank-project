@@ -24,14 +24,14 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items 1-13 done, **#14 is next**; migrations 002 + 003 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
-  **`002_tmdb_rating.sql` is written but NOT yet applied** — see Open issues.
+* Supabase project is live; `db/schema.sql` + migrations `001`, `002` and `003`
+  all applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "Ranked-list items
   8-10 + the app own confirm dialog + one focus ring app-wide" (2026-09-08,
@@ -585,7 +585,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
 | 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
 | 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
-| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036, needs migration 002 applied by hand |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | open — **next**; only the element-reuse rewrite **rejected in D-031** fixes it |
@@ -631,18 +631,19 @@ something looks quicker.
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
-* [ ] **Migration 002 (`tmdb_rating`) — MUST be applied by hand in the Supabase
-  SQL editor.** This is a prerequisite, not a follow-up: until the column exists
-  PostgREST rejects the insert with PGRST204 and **adding any film fails**.
-  Adding a nullable column is backward compatible with the already-deployed
-  code, so apply it BEFORE the next merge to `main`. Then
-  `npm run backfill-tmdb-rating` (dry run) and `-- --write` to fill the rows
-  that predate it. **Applied 2026-09-09; backfill run.**
-* [ ] **Migration 003 (`tmdb_rating = 0` → NULL) — apply by hand too.** TMDB
+* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-09, backfill run.** It was
+  a prerequisite rather than a follow-up: until the column existed PostgREST
+  rejected the insert with PGRST204 and adding any film failed. A nullable
+  column is backward compatible with the code on `main`, so applying it early
+  was safe for the live site.
+* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-09.** TMDB
   reports `vote_average: 0` for a title nobody has voted on, so 002 + the
   backfill wrote a literal 0 for those and the card read "TMDB 0.0", i.e. worst
   film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
-  row can get one; 003 fixes the rows already written. Non-destructive.
+  row can get one; 003 fixed the rows already written.
+  **Both are applied to the single live Supabase project, which is the same
+  database the deployed app uses — there is no separate prod DB to migrate at
+  release time.**
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
