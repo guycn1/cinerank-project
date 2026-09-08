@@ -7,6 +7,52 @@ file, directly under this header.**
 
 ---
 
+## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
+Reported by the user within minutes of D-038 shipping. Two films were tied at
+first place; they lowered the rating of the one already drawn *second*. Its card
+correctly went from `1 tied` to `2` — and the toast said only "saved", with no
+"ranking updated" clause.
+
+**D-034 stands; its signature does not.** The decision — say "ranking updated"
+only when it is observably true — is unchanged and still right. What was wrong is
+the definition of "the ranking". That signature was `id + rated`, and this case
+changes neither: the film kept its position, because it was already below its
+twin, and it stayed rated. Nothing in the fingerprint moved, so the detector saw
+nothing.
+
+Ironically D-034 already recorded that *position alone* is insufficient, and
+added the rated flag for the `?` → number case. D-038's competition ranking then
+introduced a third axis — the displayed NUMBER — and the signature was not
+revisited. Checking the new signature against the old across nine cases found the
+old one blind to **four** of them, not one: this bug, its mirror (breaking the
+same tie by RAISING the upper film), a tie *forming* without reordering, and a
+three-way tie losing a member.
+
+**The real fix was not a better signature — it was deleting the second copy.**
+The ranking logic lived only in `renderRanked()`, so the detector had to
+approximate it, and an approximation of a rule is exactly the thing that goes
+stale when the rule changes. `displayedRanking()` now computes it once and both
+callers read it, so what is drawn and what counts as a change cannot disagree
+again. The signature is `id + displayed rank + tie state`: literally what the
+card shows.
+
+This is the same failure mode `busyButton()` was extracted for — CLAUDE.md notes
+the two AI trigger buttons "had already drifted apart twice" before their
+behaviour was made one function. A rule expressed twice will be changed once.
+
+**Rejected: adding a tie flag to the old signature.** It would have fixed the
+reported case and left the duplication, so the next change to the ranking rule
+would break the detector again, silently. The signature must be *derived from*
+the ranking, not a parallel description of it.
+
+Verified by simulation over nine before/after pairs rather than by reasoning:
+the five that must fire, and the four that must NOT — a review edited alone, a
+re-rating that crosses no neighbour, and an untouched tie among them — since a
+signature that is merely more sensitive would be its own bug. Related: [D-034],
+[D-038].
+
+---
+
 ## D-038 · Tied films share a rank number, and say so
 Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
 order between them comes from `created_at desc` — which was added more recently —

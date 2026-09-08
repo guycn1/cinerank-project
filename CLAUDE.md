@@ -430,9 +430,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     differs. It was briefly deleted outright; the user pushed back correctly —
     every save DOES recompute the ranking, so the claim was never false — and
     the surviving objection was only that it reads as a claim about the outcome.
-    **The signature pairs each id with whether the film is rated, not positions
-    alone**: rating the only unrated film can leave its POSITION unchanged while
-    its slot goes `?` → a number. Do not simplify that back. The two
+    **The signature is now id + displayed RANK + tie state, computed by the one
+    `displayedRanking()` the renderer itself uses (D-039).** It was id + rated,
+    which missed four cases — including the reported one: break a tie for first
+    place by lowering the film already drawn second and nothing moves, yet it
+    goes from `1 tied` to `2`. The fix was deleting the second copy of the
+    ranking rule, not writing a cleverer fingerprint: an approximation of a rule
+    goes stale the moment the rule changes, which is exactly what D-038 did to
+    it. Same failure mode `busyButton()` was extracted for. The two
     ERROR toasts were deliberately left alone: they pass the server's own
     wording through, and prefixing it client-side would produce doublings like
     `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Still listed under #16.

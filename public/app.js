@@ -144,20 +144,69 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /**
- * A fingerprint of the ranking AS DISPLAYED, for telling a save that reordered
- * the list from one that did not.
+ * The ranking AS DISPLAYED: for every film, the number its card shows (null
+ * when unrated) and whether it shares that number with another film.
  *
- * Position alone is not enough, which is the trap here. Rate the only unrated
- * film in the list and it may keep its position (unrated films already sort
- * last, so a low rating can leave it exactly where it was) while its rank slot
- * changes from "?" to a real number — a visible ranking change with no
- * reordering at all. Hence the rated flag alongside each id.
+ * ONE function, used by both renderRanked() and rankSignature(), because the
+ * two must never disagree about what "the ranking" is — and they did. This
+ * logic lived only in the renderer, so the detector had to approximate it, and
+ * the approximation was wrong in a way nobody would guess: see rankSignature().
  *
- * Compared as a string rather than element-by-element: the array is small, and
+ * Competition ranking (1, 2, 2, 4). `position` is where a film sits and always
+ * increments; `shown` repeats across a tie, then jumps to the next position.
+ * Deliberately NOT the array index — only a rated film has a rank, so an
+ * unrated one must not consume a number (D-029).
+ *
+ * `shared` is counted up front rather than by peeking at neighbours: adjacency
+ * would also work (the list arrives sorted by rating) but would have to
+ * special-case the first and last film. Keyed by the rating NUMBER — the column
+ * is numeric(3,1), so 8.0 and 8.0 are exactly equal and 8.0 vs 8.1 are exactly
+ * not.
+ */
+function displayedRanking(movies) {
+  const shared = new Map();
+  for (const m of movies) {
+    if (m.rating == null) continue;
+    shared.set(m.rating, (shared.get(m.rating) ?? 0) + 1);
+  }
+  let position = 0;
+  let shown = 0;
+  let prevRating = null;
+  return movies.map((m) => {
+    if (m.rating == null) return { id: m.id, rank: null, tied: false };
+    position++;
+    if (m.rating !== prevRating) shown = position;
+    prevRating = m.rating;
+    return { id: m.id, rank: shown, tied: shared.get(m.rating) > 1 };
+  });
+}
+
+/**
+ * A fingerprint of the ranking as displayed, for telling a save that changed
+ * the ranking from one that did not.
+ *
+ * Built from displayedRanking() rather than from the raw list, because
+ * "the ranking changed" is not the same as "the order changed", and the two
+ * come apart in at least three ways:
+ *
+ *  - Rate the only unrated film and it may keep its POSITION (unrated films
+ *    already sort last, so a low rating can leave it exactly where it was)
+ *    while its slot changes from "?" to a number.
+ *  - Break a tie for first place by lowering the LOWER-placed of the two, and
+ *    nothing moves at all — it was already drawn second — yet it goes from
+ *    "1 tied" to "2". This one shipped broken: the signature was id + rated,
+ *    so it saw no change and the toast said only "saved".
+ *  - A tie forming or dissolving changes the caption without changing the
+ *    number.
+ *
+ * Hence id + displayed rank + tie state: literally what the card shows.
+ * Compared as a string rather than element-by-element — the array is small, and
  * one !== is harder to get subtly wrong than a hand-rolled loop.
  */
 const rankSignature = () =>
-  state.movies.map((m) => `${m.id}:${m.rating != null}`).join('|');
+  displayedRanking(state.movies)
+    .map((r) => `${r.id}:${r.rank ?? '?'}:${r.tied}`)
+    .join('|');
 
 /**
  * Run a DOM update inside a View Transition, so a re-sorted list animates to
@@ -213,33 +262,12 @@ function renderRanked() {
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
   el.rankedEmpty.hidden = count > 0;
 
-  // How many films share each rating, so a tie can be marked. Counted up front
-  // rather than by peeking at neighbours: adjacency would also have worked
-  // (the list is sorted by rating) but would have to special-case the first and
-  // last card, and this says what it means. Keyed by the rating NUMBER — the
-  // column is numeric(3,1), so 8.0 and 8.0 are exactly equal and 8.0 vs 8.1 are
-  // exactly not.
-  const sharedRatings = new Map();
-  for (const mv of state.movies) {
-    if (mv.rating == null) continue;
-    sharedRatings.set(mv.rating, (sharedRatings.get(mv.rating) ?? 0) + 1);
-  }
-
-  // Rank counters. Deliberately NOT the array index: only a rated film has a
-  // rank, so an unrated one must not consume a number (D-029). The server sorts
-  // nulls last, so rated films are contiguous at the top and these counters and
-  // the index agree for them — but they state the rule instead of depending on
-  // the sort order to imply it.
-  //
-  // TWO counters, because this is COMPETITION ranking (1, 2, 2, 4): `position`
-  // is where a film sits and always increments; `shownRank` is what the card
-  // displays and repeats across a tie, then jumps to the next position. Films
-  // the user scored identically must not be told apart by a number — the order
-  // between them is only `created_at`, i.e. which was added more recently,
-  // which has nothing to do with taste (backlog #13).
-  let position = 0;
-  let shownRank = 0;
-  let prevRating = null;
+  // Computed ONCE, by the same function rankSignature() uses, so what is drawn
+  // and what counts as "the ranking changed" cannot drift apart. Films the user
+  // scored identically must not be told apart by a number — the order between
+  // them is only `created_at`, i.e. which was added more recently, which has
+  // nothing to do with taste (backlog #13).
+  const ranking = displayedRanking(state.movies);
 
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
@@ -262,13 +290,9 @@ function renderRanked() {
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
     if (isRated) {
-      position++;
-      // A new distinct rating takes its true position; an equal one keeps the
-      // number the first of its group got. Hence 1, 2, 2, 4 — the skipped 3 is
-      // the point, not a bug: two films are jointly 2nd, so nothing is 3rd.
-      if (m.rating !== prevRating) shownRank = position;
-      prevRating = m.rating;
-      rank.append(document.createTextNode(String(shownRank)));
+      // 1, 2, 2, 4 — the skipped 3 is the point, not a bug: two films are
+      // jointly 2nd, so nothing is 3rd.
+      rank.append(document.createTextNode(String(ranking[i].rank)));
       // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
       // in the list" and "your top-rated film" are different facts, and they
       // come apart the moment the list holds an unrated film — with nothing
@@ -276,13 +300,13 @@ function renderRanked() {
       // A tie at the very top crowns BOTH films, which is correct rather than a
       // side effect: D-029 defines this as "your top-rated film", and if two are
       // scored the same then both are.
-      if (shownRank === 1) rank.classList.add('is-top');
+      if (ranking[i].rank === 1) rank.classList.add('is-top');
       // Three digits are wider than the rank gutter can hold at the desktop
       // font size — "250" overran the gap and the poster painted over its last
       // digit. CSS cannot count characters, so the digit count is marked here
       // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
       // not 9: two digits were measured and fit fine at every width.
-      if (shownRank > 99) rank.classList.add('is-wide');
+      if (ranking[i].rank > 99) rank.classList.add('is-wide');
       // Says the repeated number is deliberate. Without it two adjacent cards
       // showing "2" read as a rendering fault. Deliberately NOT baked into the
       // numeral as "=2", the UK chart convention: that would widen the glyph and
@@ -290,7 +314,7 @@ function renderRanked() {
       // It is also readable text rather than an aria-label — a label on a
       // generic <div> is not reliably exposed, so a screen reader is left with
       // "2 tied", which is exactly right anyway.
-      if (sharedRatings.get(m.rating) > 1) {
+      if (ranking[i].tied) {
         const tie = document.createElement('span');
         tie.className = 'rank-tie';
         tie.textContent = 'tied';
