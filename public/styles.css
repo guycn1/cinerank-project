@@ -620,6 +620,26 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    Reset to 0 in card mode, where the column becomes a row and this would fight
    that row's `align-items: center`. */
 .movie-card__score .card-actions { margin-top: auto; }
+/* The rating and TMDB's score as one unit, so the score column still has just
+   two children — this block and the buttons. That matters: the buttons reach the
+   bottom via `margin-top: auto`, and the column's 0.5rem gap would otherwise sit
+   between the rating and its own caption, which is far too much. */
+.score-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+/* TMDB's own score. Faint and small on purpose: the amber figure above is the
+   user's, this is context for it, and the size gap is what keeps the two from
+   being confused at a glance. The "TMDB" word is not decoration — it is the
+   only thing distinguishing whose number this is, so do not shorten it away. */
+.score-tmdb {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 .score-badge {
   font-family: 'Fraunces', serif;
   font-weight: 900;

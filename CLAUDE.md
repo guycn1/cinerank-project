@@ -24,13 +24,14 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08, end of session (tenth merge to main, d019509; ranked-list backlog items 1-10 and 12 done, **#11 is next** — see the canonical 20-item table and the agreed order of work directly beneath it)
+**Last updated:** 2026-09-09 (ranked-list backlog items 1-12 done, **#13 is next**; migration 002 is written but NOT yet applied — see Open issues, adding a film fails until it is)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
 * Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
+  **`002_tmdb_rating.sql` is written but NOT yet applied** — see Open issues.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "Ranked-list items
   8-10 + the app own confirm dialog + one focus ring app-wide" (2026-09-08,
@@ -42,7 +43,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
-  guard via `unique(tmdb_id)`. Add auto-opens the rate dialog ("Skip for now").
+  guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
+  user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
   Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
   "view more…/show less" toggle (shown only when the text actually clips). The
   line count lives ONLY in CSS — the toggle is decided by measuring whether the
@@ -502,6 +504,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     reset inside the existing 620px query rather than fenced off behind a new
     `min-width`, which would leave a gap at fractional viewport widths.
 
+  - **TMDB's own score now persists and is shown** (#11, D-036). The number was
+    always fetched by `shapeMovie()` and always shown in search rows, then
+    dropped on insert because no column existed. Migration 002 adds
+    `tmdb_rating numeric(3,1)` with a check constraint mirroring the user's own
+    `rating_range`; the insert stores it; the ranked card shows it faintly under
+    the amber figure as `TMDB 7.2`.
+    **A snapshot, not a live value** — written once at add time, never
+    refreshed. Refreshing would cost one TMDB call per film per page load, make
+    the ranked list depend on TMDB being up (it currently renders fine when TMDB
+    is down, which is a resilience state being screenshotted), and make the
+    comparison meaningless by drifting. Do not add a refresh; read D-036 first.
+    Shown on unrated cards too — it is labelled `TMDB`, so it cannot be misread
+    as the user's own score. Rendered from `!= null`, never truthiness, because
+    0.0 is a real TMDB average and is falsy.
+    The rating and this caption sit in one `.score-block` wrapper so the score
+    column still has exactly TWO children — the block and the buttons — which is
+    what its `margin-top: auto` bottom-pinning depends on.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -521,9 +541,9 @@ and do not renumber: the numbers are how the user refers to them.
 | 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
 | 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
 | 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
-| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — **next**, scope call |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036, needs migration 002 applied by hand |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
-| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open — **next** |
 | 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
 | 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
@@ -567,6 +587,13 @@ something looks quicker.
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
+* [ ] **Migration 002 (`tmdb_rating`) — MUST be applied by hand in the Supabase
+  SQL editor.** This is a prerequisite, not a follow-up: until the column exists
+  PostgREST rejects the insert with PGRST204 and **adding any film fails**.
+  Adding a nullable column is backward compatible with the already-deployed
+  code, so apply it BEFORE the next merge to `main`. Then
+  `npm run backfill-tmdb-rating` (dry run) and `-- --write` to fill the rows
+  that predate it.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both

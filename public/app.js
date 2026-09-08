@@ -311,6 +311,15 @@ function renderRanked() {
 
     const score = document.createElement('div');
     score.className = 'movie-card__score';
+    // The rating and TMDB's score go in ONE wrapper, not straight into the score
+    // column. The column's two children are the block and the buttons, and the
+    // buttons hang off `margin-top: auto` to reach the bottom — adding a third
+    // sibling would put the column's 0.5rem gap between the rating and its own
+    // sub-line, which is far too much for a caption. Inside the block the
+    // spacing is set on its own terms, and the column keeps exactly the two
+    // children its layout was built around.
+    const scoreBlock = document.createElement('div');
+    scoreBlock.className = 'score-block';
     if (isRated) {
       const badge = document.createElement('div');
       badge.className = 'score-badge';
@@ -318,8 +327,23 @@ function renderRanked() {
       const s = document.createElement('small');
       s.textContent = '/10';
       badge.append(s);
-      score.append(badge);
+      scoreBlock.append(badge);
     }
+    // Shown on unrated cards too: it is explicitly labelled "TMDB", so it cannot
+    // be read as the user's own score, and it is the one number a film has
+    // before you have rated it. `!= null` and not truthiness — a legitimate 0.0
+    // is falsy, the same trap `isRated` above documents.
+    if (m.tmdb_rating != null) {
+      const t = document.createElement('div');
+      t.className = 'score-tmdb';
+      t.textContent = `TMDB ${m.tmdb_rating.toFixed(1)}`;
+      // The visible text already reads "TMDB 7.2", which is terse next to the
+      // user's own big amber number; spell the comparison out for a screen
+      // reader, where there is no visual grouping to make it obvious.
+      t.setAttribute('aria-label', `TMDB rating ${m.tmdb_rating.toFixed(1)} out of 10`);
+      scoreBlock.append(t);
+    }
+    if (scoreBlock.children.length) score.append(scoreBlock);
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');

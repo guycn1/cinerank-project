@@ -65,6 +65,13 @@ moviesRouter.post(
         year: details.year,
         description: details.description,
         poster_url: details.poster_url,
+        // shapeMovie() has always returned this and the search rows have always
+        // shown it; until migration 002 there was no column to put it in, so it
+        // was fetched, displayed once and discarded (backlog #11). Stored at ADD
+        // time and never refreshed: it is the score the film had when it entered
+        // the list, which is what makes it a fair thing to compare a rating
+        // against. Null for a title TMDB has no votes for.
+        tmdb_rating: details.tmdb_rating,
       })
       .select()
       .single();

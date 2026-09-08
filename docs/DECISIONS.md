@@ -7,6 +7,57 @@ file, directly under this header.**
 
 ---
 
+## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
+Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
+results had always displayed it, but `POST /api/movies` dropped it because no
+column existed — the number was fetched, shown once, and thrown away the moment
+the film was added. Migration 002 adds the column; the interesting question was
+what the stored value should *mean*.
+
+**Settled on: the score the film had when it entered your list, written once and
+never refreshed.** That is a defensible thing to compare a personal rating
+against — "you rated it 8.5, the crowd said 7.2 when you added it" — and it is
+stable, so the comparison does not silently change under the user.
+
+**Rejected: refreshing it.** The obvious alternative is to re-read TMDB when the
+ranked list loads, so the figure is always current. Rejected on three counts.
+It costs one TMDB call **per film per page load**, on a free-tier key, to update
+a decorative caption. It makes the ranked list depend on a third party being up
+for something that is not the list's job — today the list renders fine with TMDB
+down, and that is one of the resilience states being screenshotted for
+submission. And a figure that drifts makes the comparison meaningless: the user
+would have no idea whether a gap they see now is the gap that existed when they
+formed their opinion. A future session that "improves" this by adding a refresh
+should read this paragraph first.
+
+**Shown on unrated cards too**, not only as the "yours vs theirs" pair. It is
+explicitly labelled `TMDB`, so it cannot be misread as the user's own score, and
+it is the only number a film has before it has been rated. The alternative —
+restricting it to rated cards to keep the comparison framing pure — throws away
+useful information for no gain.
+
+**The value is `null`-able and must stay so.** Rows added before migration 002
+have no value, and TMDB genuinely returns no rating for titles nobody has voted
+on. `shapeMovie()` already maps that to `null`, and the renderer tests
+`!= null` rather than truthiness — 0.0 is a real average and is falsy, the same
+trap `isRated` documents one block above it.
+
+**Backfill, and why it is a separate opt-in script.** Existing rows would stay
+blank forever otherwise. `scripts/backfill-tmdb-rating.js` is dry-run by
+default and needs `--write`, updates one row at a time BY ID, writes exactly the
+one column migration 002 just created — so no pre-existing value can be
+overwritten by it — and skips rows that already have a value, making a re-run a
+no-op. It is not run by Claude: after Incident 1 the standing rule is that the
+user drives anything that touches live data.
+
+**Trap.** Applying migration 002 is a prerequisite, not an optional follow-up:
+until the column exists, PostgREST rejects the insert with PGRST204 and adding
+any film fails. Adding a nullable column is backward compatible with the
+already-deployed code, so the migration can and should be applied BEFORE the
+next merge to `main`.
+
+---
+
 ## D-035 · The Remove button's label is light, and arithmetic decided that
 Yesterday's hover pass (#10) gave the confirm dialog's Remove button a darker
 crimson fill on hover. The user then asked two things of it: make the rest→hover
