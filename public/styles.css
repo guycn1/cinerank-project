@@ -19,7 +19,13 @@
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
-  --crimson-deep: #c4433a; /* pressed/hovered .danger fill — mirrors the --amber/--amber-deep pair */
+  /* Destructive-button fills. Role-named, not colour-named, and deliberately
+     NOT interchangeable with --crimson above: --crimson is the error TEXT and
+     border colour, and it is too light to carry a readable label as a fill.
+     Both of these are dark enough for --ink to clear WCAG AA (4.5:1) on them.
+     Do not "simplify" the button back to background: var(--crimson). */
+  --danger-fill: #c83a2f;        /* rest  — --ink on it = 4.54:1 */
+  --danger-fill-hover: #9a2d24;  /* hover — --ink on it = 6.71:1 */
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
   --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
@@ -917,9 +923,13 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--amber-deep);
   border-color: var(--amber-deep);
 }
+/* Measured, not eyeballed. The rest -> hover luminance step is 0.572 (was
+   0.683, which read as too subtle), and both states clear AA against --ink:
+   4.54:1 at rest, 6.71:1 on hover. Re-measure if either token moves; do not
+   re-tune this by eye. */
 .confirm-dialog button.danger:hover:not(:disabled) {
-  background: var(--crimson-deep);
-  border-color: var(--crimson-deep);
+  background: var(--danger-fill-hover);
+  border-color: var(--danger-fill-hover);
 }
 .rate-dialog button:active:not(:disabled),
 .confirm-dialog button:active:not(:disabled) {
@@ -968,17 +978,26 @@ body:has(dialog[open]) { overflow: hidden; }
   font-size: 0.9rem;
   line-height: 1.5;
 }
-/* The destructive action. The only visual difference from the rate dialog's
-   `.primary` is the hue: filled, so it is unmistakably the committing button,
-   but crimson rather than amber, matching the `.danger` Remove button on the
-   card that opened this. Dark text on the fill for the same reason .primary
-   uses #1a1205 — a saturated fill needs a dark label, not --ink.
+/* The destructive action. Filled, so it is unmistakably the committing button,
+   and red rather than amber, matching the `.danger` Remove button on the card
+   that opened this.
+   **The label is LIGHT here, unlike the amber .primary next door, and that is
+   forced by arithmetic rather than taste.** A dark label on a fill imposes a
+   FLOOR on how dark the fill may go: #2a0f0c needs the fill at >= 0.2137
+   relative luminance to clear 4.5:1, and the original fill (--crimson,
+   #e2574c) sat at 0.2351 — barely above it. So the hover could not get
+   meaningfully darker without failing AA, which is exactly what happened: it
+   measured 3.59:1. Amber has no such problem because it is ~2.5x brighter
+   (relLum 0.583 vs 0.235), which is why .primary keeps its dark #1a1205.
+   A light label inverts the constraint into a CEILING instead, so the fill is
+   free to darken as far as the design wants. Hence a dedicated, deeper pair of
+   fill tokens, and --ink for the label.
    Its hover and press states live with the rate dialog's, below the shared
    button rules, so the two dialogs cannot drift apart. */
 .confirm-dialog button.danger {
-  background: var(--crimson);
-  color: #2a0f0c;
-  border-color: var(--crimson);
+  background: var(--danger-fill);
+  color: var(--ink);
+  border-color: var(--danger-fill);
 }
 
 /* AI call log dialog ------------------------------------------------ */

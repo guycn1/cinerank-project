@@ -447,9 +447,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states —
     they were the only controls in the app that did not react at all. Existing
     vocabulary, not new: outline buttons go amber (as `.log-dialog .ghost`
-    already did), filled buttons darken their fill, and `--crimson-deep` was
-    added to give the `.danger` fill somewhere to go, mirroring
-    `--amber`/`--amber-deep`.
+    already did), filled buttons darken their fill.
+    **Remove's colours were then re-derived by measurement, not eye (D-035).**
+    Its label failed WCAG AA on hover (3.59:1) and its rest→hover step read as
+    too subtle. A DARK label imposes a floor on how dark a fill may go, and
+    `--crimson` sat barely above it — so "darker on hover" and "readable label"
+    were in direct conflict, and five candidate labels were measured with none
+    passing both states. The fills had to move: `--danger-fill` /
+    `--danger-fill-hover` (role-named, because `--crimson` is the error TEXT
+    colour and is too light to carry a label as a fill) with `--ink` on top —
+    4.54:1 at rest, 6.71:1 on hover, step 0.683 → 0.572. Save keeps its dark
+    `#1a1205` because amber is ~2.5x brighter and measures 11.18/7.66. The two
+    buttons differ on purpose. `--crimson-deep` is retired.
     **Every one is `:not(:disabled)`.** Auditing that guard against every
     button that can actually be disabled found a REAL pre-existing bug:
     `.rec-card__body button:hover` had no guard while carrying a `:disabled`

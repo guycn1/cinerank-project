@@ -7,6 +7,60 @@ file, directly under this header.**
 
 ---
 
+## D-035 · The Remove button's label is light, and arithmetic decided that
+Yesterday's hover pass (#10) gave the confirm dialog's Remove button a darker
+crimson fill on hover. The user then asked two things of it: make the rest→hover
+difference **more pronounced**, and **respect the label's contrast**. Measuring
+showed those two requests were in direct conflict, and that the existing button
+already failed WCAG AA on hover — `#2a0f0c` on `#c4433a` measured **3.59:1**
+against a 4.5 requirement. At rest it scraped by at 4.86:1.
+
+**The finding that settled it.** A *dark* label on a fill imposes a **floor** on
+how dark that fill may go: `#2a0f0c` needs the fill at ≥ 0.2137 relative
+luminance, and pure black still needs ≥ 0.1750. The original fill was `--crimson`
+(#e2574c) at **0.2351** — barely above the floor. So with a dark label the hover
+could not get meaningfully darker *at all*, and every step in the direction the
+user asked for made the contrast worse. A *light* label inverts the same
+arithmetic into a **ceiling**, which the fill is then free to sit well below.
+
+The obvious fixes were enumerated and all failed. Five candidate labels were
+measured against both states — `#ffffff`, `--ink`, `#000000`, `#1a0605`,
+`#140404` — and **not one passed on both**: white passes on hover (4.99) and
+fails at rest (3.68); black is the best dark option and still only reaches 4.21
+on hover. No label choice alone fixes it; the fills themselves had to move.
+
+**Settled on:** a dedicated pair of role-named fill tokens, `--danger-fill`
+(#c83a2f) and `--danger-fill-hover` (#9a2d24), with `--ink` as the label.
+Measured: **4.54:1** at rest, **6.71:1** on hover, and the rest→hover luminance
+step went from **0.683 to 0.572** — the "more pronounced" the user asked for.
+
+**Why the tokens are role-named and NOT `--crimson-something`.** `--crimson` is
+the error *text and border* colour, used in about a dozen places, and it is too
+light to carry a readable label as a *fill*. Naming these after the role stops a
+future session reaching for `--crimson` as a button background again, which is
+exactly the bug being fixed. `--crimson-deep`, introduced the previous day and
+consumed by this one rule, is retired.
+
+**Why Save keeps its dark label.** The same question was asked of the amber
+`.primary` next door, and the answer is different because amber is ~2.5× brighter
+(relLum 0.583 vs 0.235). `#1a1205` measures 11.18:1 and 7.66:1 on the two amber
+states — enormous headroom. The two buttons look inconsistent in label colour on
+purpose; matching them would break one or the other.
+
+**Rejected:** keeping the punchy `--crimson` rest fill and flipping the label
+from dark to light only on hover. It satisfies every constraint and is the most
+*visually* pronounced option — but the user asked for "slightly" more pronounced,
+and a label inverting from near-black to near-white is a dramatic change, not a
+slight one.
+
+**Trap.** Do not put a dark label back on this button, and do not "simplify"
+`background: var(--danger-fill)` back to `var(--crimson)` — either one silently
+re-fails AA. If either token moves, re-measure; do not re-tune by eye. Related:
+D-030, where two eyeballed estimates were both wrong and only a measurement
+settled it.
+
+---
+
 ## D-034 · "ranking updated" is checked before it is claimed
 The three confirmation toasts had three different shapes and two named no film
 at all (`Added “X” — rate it any time.` / `Saved — ranking updated.` /
