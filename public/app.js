@@ -93,7 +93,7 @@ async function api(path, options) {
 /**
  * Compose a failure message: what the user was trying to do, then why it failed.
  *
- * Backlog #16-B. The two action toasts used to show the cause ALONE, so a failed
+ * Backlog #16(c). The two action toasts used to show the cause ALONE, so a failed
  * add or remove named no film — with three cards on screen, nothing said which
  * one had not been removed. The obvious fix, pasting the context in front of
  * whatever came back, breaks on causes that are already complete sentences:

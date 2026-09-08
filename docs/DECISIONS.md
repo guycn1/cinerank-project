@@ -7,7 +7,7 @@ file, directly under this header.**
 
 ---
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
-Backlog #16-B. The add and remove toasts showed the CAUSE alone, so a failed add
+Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
 had not been removed. The obvious fix, putting the context in front of whatever
 came back, was recorded months earlier as unsafe because it produces

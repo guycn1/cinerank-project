@@ -640,7 +640,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     nothing-rated branch, and "yet" keeps the pending sense D-033 built the chip
     around. Built as `rankedCountLabel()` so the three branches are readable.
 
-  - **A failure message is a context plus a cause** (#16-B, D-042). The add and
+  - **A failure message is a context plus a cause** (#16(c), D-042). The add and
     remove toasts showed the cause ALONE, so a failed add or remove named no
     film. Prefixing the context was known to double — "Couldn’t remove “Dune” —
     Couldn’t reach CineRank. Check your connection…" — and **the user's hand
@@ -692,7 +692,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
-| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts, "#16-B"** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
+| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open — **next** |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
@@ -770,7 +770,7 @@ below — this list is the smaller stuff.)
 * [ ] **Straight apostrophes in three SERVER-side user-facing messages**
   (`server/routes/movies.js`: the two TMDB 502s and the PATCH 404), plus at least
   one in the recommendations route. The app's own copy uses curly `’` and the
-  client-side offenders were fixed with #16-B, but the server ones were left
+  client-side offenders were fixed with #16(c), but the server ones were left
   **deliberately**: `test/routes.test.js` asserts one of those messages verbatim
   with a straight apostrophe, so a tidy-up sweep breaks a test for a purely
   cosmetic gain. Do it as its own change, updating the assertion in the same

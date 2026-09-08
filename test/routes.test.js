@@ -235,7 +235,7 @@ test('POST /api/movies when TMDB is unreachable → 502 (no DB write)', async ()
   }
 });
 
-// Guards the server half of #16-B (D-042). The TMDB 502 carries a `short`
+// Guards the server half of #16(c) (D-042). The TMDB 502 carries a `short`
 // companion to `error` so the client can put a context in front of the cause
 // without doubling ('Couldn’t add “Dune” — Couldn’t reach the movie database.
 // Try again in a moment.'). Both halves are asserted deliberately: `error` must
