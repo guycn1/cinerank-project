@@ -37,7 +37,7 @@ moviesRouter.get(
         // use the full sentence without doubling — 'Couldn’t add “Dune” —
         // Couldn’t reach the movie database. Try again in a moment.' (D-042).
         return res.status(502).json({
-          error: "Couldn't reach the movie database. Try again in a moment.",
+          error: "Couldn’t reach the movie database. Try again in a moment.",
           short: 'TMDB is unreachable',
         });
       }
@@ -66,7 +66,7 @@ moviesRouter.post(
         // use the full sentence without doubling — 'Couldn’t add “Dune” —
         // Couldn’t reach the movie database. Try again in a moment.' (D-042).
         return res.status(502).json({
-          error: "Couldn't reach the movie database. Try again in a moment.",
+          error: "Couldn’t reach the movie database. Try again in a moment.",
           short: 'TMDB is unreachable',
         });
       }
@@ -148,7 +148,7 @@ moviesRouter.patch(
     if (error?.code === 'PGRST116' || (!error && !data)) {
       return res
         .status(404)
-        .json({ error: "Couldn't find that film — it may have been removed. Refresh and try again." });
+        .json({ error: "Couldn’t find that film — it may have been removed. Refresh and try again." });
     }
     // Postgres check_violation. The `review_requires_rating` constraint added in
     // migration 004 forbids a review on an unrated film (D-041), and without

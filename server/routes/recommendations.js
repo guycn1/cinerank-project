@@ -15,7 +15,7 @@ recommendationsRouter.post(
     } catch (err) {
       if (err instanceof RecommendationError) {
         // Calm, specific message — never a raw dump (SPEC § 3.4)
-        return res.status(422).json({ error: `Couldn't generate recommendations: ${err.message}` });
+        return res.status(422).json({ error: `Couldn’t generate recommendations: ${err.message}` });
       }
       throw err;
     }

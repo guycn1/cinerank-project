@@ -767,14 +767,14 @@ below — this list is the smaller stuff.)
   purely the UI half of SPEC §7.1, and it would show up badly in the resilience
   screenshots. Fix when the recommendations section gets its overhaul pass; the
   verdict side already does this properly (points at the AI call log).
-* [ ] **Straight apostrophes in three SERVER-side user-facing messages**
-  (`server/routes/movies.js`: the two TMDB 502s and the PATCH 404), plus at least
-  one in the recommendations route. The app's own copy uses curly `’` and the
-  client-side offenders were fixed with #16(c), but the server ones were left
-  **deliberately**: `test/routes.test.js` asserts one of those messages verbatim
-  with a straight apostrophe, so a tidy-up sweep breaks a test for a purely
-  cosmetic gain. Do it as its own change, updating the assertion in the same
-  commit — not folded into something else, which is how it would go unnoticed.
+* [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-09.**
+  The client's three offenders went with #16(c); the four server-side ones (the
+  two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
+  commit, together with the one test assertion that quotes a message verbatim —
+  which is why it was a separate change rather than folded into #16(c). Every
+  user-facing contraction in `server/`, `public/app.js` and `public/index.html`
+  now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
+  they are not UI copy.
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit

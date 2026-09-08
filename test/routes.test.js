@@ -286,7 +286,7 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
   try {
     const res = await client.post('/api/recommendations');
     assert.equal(res.status, 422);
-    assert.match((await res.json()).error, /Couldn't generate recommendations/);
+    assert.match((await res.json()).error, /Couldn’t generate recommendations/);
     const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
     assert.ok(logged, 'a recommendation_logs row should be written even on failure');
     assert.equal(logged.payload.status, 'failed');
