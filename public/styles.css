@@ -238,6 +238,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .search { display: flex; gap: 0.6rem; }
 .search input {
   flex: 1;
+  /* `flex: 1` alone is NOT enough, and this is the third appearance of one root
+     cause in as many fixes. A flex item's automatic minimum size is
+     `min-width: auto`, which resolves to min-content — and for an `<input>`
+     min-content is not its text but its intrinsic size, roughly the 20
+     characters of its default `size` attribute. So the input silently refused
+     to shrink past about 20ch + 2.5rem of padding, the row overflowed, and the
+     button beside it (correctly `flex-shrink: 0`) was pushed off the right edge
+     and clipped. At 311px the button was simply gone.
+     `min-width: 0` opts out of that automatic minimum so the input pays its
+     share. Nothing else needed: the button keeps its content width, and the
+     input has ~175px of text area left at 311px, which is ample.
+     Same family as `.result-row .add-btn`'s `flex-shrink: 0` and the ranked
+     card's `min-width: 0` — when a flex or grid item will not shrink, this
+     automatic minimum is almost always why. */
+  min-width: 0;
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: 999px;

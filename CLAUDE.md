@@ -332,6 +332,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     `white-space: nowrap`, because the longest label this button ever shows is
     not "+ Add" but "In your list". **No width threshold anywhere**, per the
     user's explicit ask.
+    **And the search INPUT needed `min-width: 0`** (2026-09-08, same user, same
+    phone): the Search button was clipped clean off the right edge at 311px.
+    `flex: 1` is not enough on an `<input>`, because a flex item's automatic
+    minimum size resolves to min-content and an input's min-content is its
+    INTRINSIC size — roughly the 20 characters of its default `size` attribute,
+    not its text. So the input refused to shrink, the row overflowed, and the
+    button (correctly `flex-shrink: 0`) was pushed out of view. **Three
+    consecutive bugs, one root cause:** this, the add button, and the ranked
+    card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
+    flex or grid item. When something will not shrink, look there first.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.
