@@ -726,7 +726,19 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     The second half was that **`box-shadow` was neither transitioned nor changed
     on hover**, so the card rose against a static shadow — a lift with no
     elevation cue. Now it deepens, and the user chose the option that adds a
-    faint amber rim. **Keep that amber weak:** it must not be confusable with the
+    faint amber rim.
+    **The lift itself was then removed, same day, on the user's report.** A
+    `translateY(-5px)` is directional: it shrank the gap ABOVE the card by 5px
+    and opened the one below, so a hovered card drifted toward its upper
+    neighbour — measured at 10px above vs 20px below, a 2:1 split the user
+    spotted straight away. In a vertical list of identical siblings that
+    asymmetry is the most visible thing about the effect. The card now scales
+    only (`scale(1.02)`, raised from 1.012 to keep it pronounced), which grows
+    from the centre and opens both gaps equally — 14.3px each. Elevation is still
+    expressed, by the downward-offset shadow alone, which is what sells depth
+    anyway. **A lift cannot be made symmetric** — that is what `translateY`
+    means — so do not restore one without re-reading this.
+    **Keep that amber weak:** it must not be confusable with the
     `:focus-visible` ring, which is the same colour but a crisp 2px solid. Hover
     rules are gated on `@media (hover: hover)` (NOT a width query) so a tap on a
     phone cannot park a card in the grown state, and `prefers-reduced-motion`

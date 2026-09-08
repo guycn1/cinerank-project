@@ -429,8 +429,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .movie-card.is-entering { animation: fade-slide 0.45s var(--ease) backwards; }
 /* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
    notice it on the poster", which was literally true — the card never scaled).
-   Three cues at once: it rises, it grows a little, and the shadow deepens and
-   picks up a faint warm rim.
+   Two cues: it grows a little, and the shadow deepens and picks up a faint warm
+   rim.
+
+   NO `translateY`, and that is the point rather than an omission. A lift is
+   directional: `translateY(-5px)` shrinks the gap above the card by 5px and
+   opens the one below by the same amount, so a hovered card visibly drifts
+   toward its upper neighbour. In a vertical LIST, where the card has an
+   identical sibling a fixed 1rem away on each side, that asymmetry is the most
+   noticeable thing about the effect — the user spotted it immediately, and it
+   read as the card being closer to the film above than the one below.
+   `scale()` grows from `transform-origin: 50% 50%`, so it opens both gaps
+   equally. Elevation is still expressed, just by the shadow alone, which is
+   offset downward and is what actually sells depth anyway (that was the whole
+   finding of D-043's second half). The scale was raised 1.012 → 1.02 to keep the
+   effect pronounced now that no vertical movement contributes to it.
+   If a lift is ever wanted back, it cannot be symmetric — that is what
+   `translateY` means — so do not "restore" it without re-reading this.
 
    THE AMBER IS DELIBERATELY WEAK, and this is the trap to respect if it is ever
    retuned. `--amber` is already the focus ring (`:focus-visible` draws a crisp
@@ -448,10 +463,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    stacking context, so it paints ABOVE its non-transformed siblings and the
    shadow spills over the next card instead of being covered by it. The scale
    cannot produce a horizontal scrollbar either — `main` keeps a 16–40px gutter,
-   and 1.012 adds at most ~6px per side at the 1080px max-width. */
+   and 1.02 on the widest card (1000px inside the 1080px max-width) adds 10px per
+   side against a 40px gutter there. Re-check this arithmetic if the scale is
+   ever raised much beyond 1.02. */
 @media (hover: hover) {
   .movie-card:hover {
-    transform: translateY(-5px) scale(1.012);
+    transform: scale(1.02);
     border-color: rgba(245, 193, 91, 0.35);
     box-shadow:
       0 28px 55px -20px rgba(0, 0, 0, 0.95),   /* the lift itself */
