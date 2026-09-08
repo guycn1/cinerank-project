@@ -501,6 +501,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
 
+/* Top-aligned, overriding the grid's `align-items: center`. The poster is the
+   tallest thing in the row (138px on desktop), so a short title + review used to
+   float in the middle of it with a gap above the title; the title now starts
+   level with the top of the poster. The rank numeral is deliberately left
+   CENTRED — it is a large display figure that reads as balanced against the
+   poster, and it was not part of the request.
+   Reset in the 620px block so card mode is untouched. */
+.movie-card__body { align-self: start; }
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -575,7 +583,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+  /* Fill the row instead of being centred in it, so the two children can go to
+     opposite ends. Without this the column shrink-wraps and there is no free
+     space for the auto margin below to push into. */
+  align-self: stretch;
 }
+/* The score badge sits at the top by default; this drops the buttons to the
+   bottom. An auto MARGIN, not `justify-content: space-between` on the column —
+   for exactly the reason the 620px block documents in the other axis: an
+   unrated card has no score badge, and space-between parks a LONE child at the
+   START, which would put the buttons at the top of the card. An auto margin
+   eats the free space whether or not a badge is there.
+   Reset to 0 in card mode, where the column becomes a row and this would fight
+   that row's `align-items: center`. */
+.movie-card__score .card-actions { margin-top: auto; }
 .score-badge {
   font-family: 'Fraunces', serif;
   font-weight: 900;
@@ -623,7 +644,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      buttons sit bottom-right on every card and an unrated one simply leaves
      the bottom-left empty. Identical result to space-between when a badge IS
      present, so rated cards are unchanged. */
-  .movie-card__score .card-actions { margin-left: auto; }
+  .movie-card__score .card-actions { margin-left: auto; margin-top: 0; }
+  /* Card mode keeps the title vertically centred against the poster, as it was.
+     The desktop-only request was for top alignment; this is the reset that
+     keeps that request desktop-only. `.movie-card__score` needs no such reset:
+     it moves to its own grid row here (`grid-column: 2 / -1`), which is sized
+     by the score itself, so `align-self: stretch` and `center` produce an
+     identical box. */
+  .movie-card__body { align-self: center; }
 }
 
 /* recommendations --------------------------------------------------- */

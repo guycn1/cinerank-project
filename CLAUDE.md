@@ -468,6 +468,20 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
     disables — verified against every `disabled =` assignment in app.js.
 
+  - **Desktop card alignment** (2026-09-09, user-raised, off-backlog). The grid
+    is `align-items: center`, so on >620px a short title floated in the middle
+    of the 138px poster and the score column sat centred as one block. Now the
+    body is `align-self: start` and the score column is `align-self: stretch`
+    with the rating at the top and the buttons pushed down by
+    `margin-top: auto`. **An auto margin, NOT `justify-content: space-between`**
+    — the same trap the 620px block already documents in the other axis: an
+    unrated card has no score badge, and space-between parks a LONE child at the
+    START, which would put the buttons at the TOP. The rank numeral stays
+    centred on purpose (a large display figure, balanced against the poster;
+    not part of the request). Card mode is untouched — both properties are
+    reset inside the existing 620px query rather than fenced off behind a new
+    `min-width`, which would leave a gap at fractional viewport widths.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
