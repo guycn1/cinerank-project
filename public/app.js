@@ -68,11 +68,61 @@ async function api(path, options) {
     // Chromium, "NetworkError when attempting to fetch resource" in Firefox)
     // and reads like a stack trace, so it never reaches the UI. An HTTP error
     // response is a different thing and keeps the server's own wording below.
-    throw new Error('Couldn’t reach CineRank. Check your connection and try again.');
+    const err = new Error('Couldn’t reach CineRank. Check your connection and try again.');
+    // A COMPOSABLE form of the same fact, for the sinks that put a context in
+    // front of it — see failureText(). The long form above is a complete
+    // sentence with its own subject AND its own advice, so prefixing it produced
+    // "Couldn’t load the log: Couldn’t reach CineRank. Check your connection…":
+    // two subjects and two "couldn’t"s for one failure.
+    err.short = 'CineRank is unreachable';
+    throw err;
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
+  if (!res.ok) {
+    const err = new Error(body.error || `Request failed (${res.status})`);
+    // Optional and absent from nearly every response: a route sends `short` only
+    // when its own message is too self-contained to sit after a context prefix.
+    // Purely additive — an endpoint that omits it behaves exactly as before,
+    // because failureText() falls back to the full message.
+    if (body.short) err.short = body.short;
+    throw err;
+  }
   return body;
+}
+
+/**
+ * Compose a failure message: what the user was trying to do, then why it failed.
+ *
+ * Backlog #16-B. The two action toasts used to show the cause ALONE, so a failed
+ * add or remove named no film — with three cards on screen, nothing said which
+ * one had not been removed. The obvious fix, pasting the context in front of
+ * whatever came back, breaks on causes that are already complete sentences:
+ * "Couldn’t load the log: Couldn’t reach CineRank. Check your connection and try
+ * again." That is not unpredictability to be defended against — there are two
+ * kinds of message here and the client knows which it has. It either fabricated
+ * the cause itself (api()'s transport failure) or the server told it, so the
+ * short form is attached at the source and this only has to prefer it.
+ *
+ * A cause with no `short` is passed through whole, which is right for the terse
+ * ones: "Couldn’t remove “Dune” — Something went wrong." reads correctly,
+ * because that message says nothing about WHAT failed and the context is the
+ * only specific thing in the sentence.
+ *
+ * Used by every sink that adds a context, so the rule cannot be applied four
+ * different ways — the same reason busyButton() and displayedRanking() exist.
+ * Sinks that are already surrounded by their own context (the search note, the
+ * verdict banner, the rate dialog's inline error) deliberately do NOT use this:
+ * there the operation is obvious from where the message appears.
+ */
+function failureText(context, err) {
+  const cause = err.short ?? err.message;
+  // Terminal punctuation is normalised HERE rather than trusted from the cause.
+  // The causes are inconsistent and most of them are not ours to edit: the 409
+  // reads "Already in your list" with no stop, the 500 reads "Something went
+  // wrong." with one. Left alone, the same toast would end with a full stop or
+  // without one depending on which failure produced it — the exact defect the
+  // verdict's missing "for details." was.
+  return `${context} — ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
 }
 
 let toastTimer;
@@ -775,9 +825,19 @@ async function addMovie(tmdbId, btn) {
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
-    toast(err.message, true); // "Already in your list" surfaces here (SPEC § 3.4)
+    // The film's title comes off the BUTTON, not from `movie` — the add failed,
+    // so there is no saved row to read it from, and `movie` is not even in scope
+    // here. renderResults() stamps `dataset.title` on every add button for
+    // syncSearchResultButtons(), and it is the only title available at this
+    // point. `btn` is optional in this function's signature, hence the fallback.
+    const title = btn?.dataset.title;
+    // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
+    // after a context: 'Couldn’t add “Dune” — Already in your list.'
+    toast(failureText(title ? `Couldn’t add “${title}”` : 'Couldn’t add that film', err), true);
     // Already owned is not retryable, so settle there; anything else is, so
-    // restore the button as it was (enabled, reading "Add").
+    // restore the button as it was (enabled, reading "Add"). Reads err.message
+    // and NOT the composed text on purpose: the composed string carries a title
+    // that could itself contain the word "Already".
     settle?.(err.message.includes('Already') ? 'In your list' : undefined);
   }
 }
@@ -937,7 +997,7 @@ async function removeMovie(movie, btn) {
     // No settle() on success — loadMovies() has already destroyed this button
     // along with its card.
   } catch (err) {
-    toast(err.message, true);
+    toast(failureText(`Couldn’t remove “${movie.title}”`, err), true);
     settle?.();
   }
 }
@@ -1047,7 +1107,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdictText.replaceChildren(
       document.createTextNode('Couldn’t come up with a verdict right now. See the '),
       logLink('AI call log'),
-      document.createTextNode(' for details')
+      document.createTextNode(' for details.')
     );
   } finally {
     restoreRefresh();
@@ -1343,7 +1403,7 @@ async function renderAiLog() {
   } catch (err) {
     el.logBody.replaceChildren();
     const tr = document.createElement('tr');
-    const td = cell(`Couldn't load the log: ${err.message}`, 'log-empty');
+    const td = cell(failureText('Couldn’t load the log', err), 'log-empty');
     td.colSpan = 9;
     tr.append(td);
     el.logBody.append(tr);
@@ -1463,6 +1523,6 @@ document.addEventListener('click', (e) => {
   try {
     await loadMovies();
   } catch (err) {
-    toast('Could not load your movies: ' + err.message, true);
+    toast(failureText('Couldn’t load your movies', err), true);
   }
 })();

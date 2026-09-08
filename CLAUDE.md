@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-15 all done**, #16 part-done — only its error-toast half, "#16-B", is left; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-16 all done**, #17 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -60,7 +60,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 37 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 38 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -335,7 +335,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **15 of the 20 are done** and the canonical table with every
+  added 18–20; **16 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -640,6 +640,34 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     nothing-rated branch, and "yet" keeps the pending sense D-033 built the chip
     around. Built as `rankedCountLabel()` so the three branches are readable.
 
+  - **A failure message is a context plus a cause** (#16-B, D-042). The add and
+    remove toasts showed the cause ALONE, so a failed add or remove named no
+    film. Prefixing the context was known to double — "Couldn’t remove “Dune” —
+    Couldn’t reach CineRank. Check your connection…" — and **the user's hand
+    testing of ten failure scenarios showed the doubling was already live** at
+    two sinks that do prefix (the boot toast and the AI log cell), not merely a
+    risk of the proposed fix as Claude had claimed.
+    Not unpredictable, though: there are exactly TWO kinds of message here and
+    the client always knows which it has, because it either fabricated the cause
+    (`api()`'s transport failure) or the server sent it. So a **`short` form is
+    attached at the source** and one `failureText(context, err)` prefers it —
+    used by all four context-adding sinks so the rule cannot be applied four
+    ways. Sinks that already sit inside their own context (search note, verdict
+    banner, rate dialog) deliberately do NOT compose; the user tested all three
+    and found them correct, and they are untouched.
+    **The server half is purely ADDITIVE, because the user capped the risk** ("as
+    long as it does not make this change noticeably riskier"): a new `short` key
+    beside `error`, and not one existing message edited. Nothing that reads
+    `body.error` can observe a new sibling key. That rule also parked a real
+    finding — the server carries the same straight-apostrophe inconsistency, but
+    a test asserts one of those messages verbatim, so the sweep would have broken
+    a test for a cosmetic gain. **Still open, deliberately.**
+    `failureText()` also normalises the terminal full stop, since the causes
+    disagree ("Already in your list" has none, "Something went wrong." does) and
+    most are not ours to edit. Two incidental fixes came out of the same testing:
+    the verdict fallback had **no full stop**, and "couldn’t" was spelled three
+    ways in app.js (curly, straight, and "Could not").
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -664,8 +692,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
-| 16 | Copy inconsistencies. Split into three parts as it was worked; **two done, one open**. **(a) Confirmation toasts — done** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle — done** (2026-09-09): now `5 films` when everything is rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when nothing is. **(c) `#16-B`, the two ERROR toasts — open**: they pass the server's wording through unprefixed, so a failed add/remove names no film. Deferred by the user to its own pass | open — **next** is (c); (a) and (b) done |
-| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
+| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts, "#16-B"** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open — **next** |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
@@ -726,7 +754,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (37).
+  `review_requires_rating` guards all covered by `npm test` (38).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -739,6 +767,14 @@ below — this list is the smaller stuff.)
   purely the UI half of SPEC §7.1, and it would show up badly in the resilience
   screenshots. Fix when the recommendations section gets its overhaul pass; the
   verdict side already does this properly (points at the AI call log).
+* [ ] **Straight apostrophes in three SERVER-side user-facing messages**
+  (`server/routes/movies.js`: the two TMDB 502s and the PATCH 404), plus at least
+  one in the recommendations route. The app's own copy uses curly `’` and the
+  client-side offenders were fixed with #16-B, but the server ones were left
+  **deliberately**: `test/routes.test.js` asserts one of those messages verbatim
+  with a straight apostrophe, so a tidy-up sweep breaks a test for a purely
+  cosmetic gain. Do it as its own change, updating the assertion in the same
+  commit — not folded into something else, which is how it would go unnoticed.
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit

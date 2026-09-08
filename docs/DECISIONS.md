@@ -6,6 +6,99 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
+Backlog #16-B. The add and remove toasts showed the CAUSE alone, so a failed add
+or remove named no film — with several cards on screen, nothing said which one
+had not been removed. The obvious fix, putting the context in front of whatever
+came back, was recorded months earlier as unsafe because it produces
+"Couldn’t remove “Dune” — Couldn’t reach CineRank. Check your connection and try
+again." Two subjects, two "couldn’t"s, one failure.
+
+**The user's field testing is what produced the design, and it corrected two
+things Claude had assumed.** They worked through ten scenarios by hand (offline
+via DevTools; a bogus `SUPABASE_ANON_KEY` for the DB-down case) and reported each
+sink's actual output. That established:
+
+* The doubling was **not hypothetical** — it already existed at two sinks that
+  DO prefix: the boot toast ("Could not load your movies: Couldn’t reach
+  CineRank…") and the AI log's cell ("Couldn't load the log: Couldn’t reach
+  CineRank…"). Claude had described it only as the failure mode of a proposed
+  fix, and had told the user it was not currently reproducible. It was.
+* It is **not limited to the transport error**. The TMDB 502 is also a
+  self-contained sentence starting with "Couldn't", so a naive prefix doubles
+  there too.
+* Two incidental bugs: the verdict fallback ended "See the AI call log for
+  details" with **no full stop**, and the app spelled the same word three ways —
+  `Couldn’t` (curly), `Couldn't` (straight), and `Could not`.
+
+### The reframing that made it tractable
+The user asked how to handle "the unpredictability of the exact error message".
+It is not unpredictable. There are exactly **two kinds** of message arriving at
+these sinks, and the client always knows which it holds: either it fabricated the
+cause itself (`api()`'s transport failure) or the server sent it. So the short
+form can be attached **at the source**, and the composer only has to prefer it.
+
+### Options
+* **A — prefix unconditionally.** Rejected: the doubling above.
+* **B — drop the context when the cause is self-contained.** Rejected, and this
+  is the interesting one. It reads fine in isolation, but it means the film is
+  named only *sometimes* — and the user cannot know that the omission is a
+  property of the error rather than of their action. Naming it inconsistently is
+  worse than never naming it.
+* **C — reorder: cause first, consequence appended** ("Couldn’t reach CineRank.
+  “Dune” was not removed."). Rejected: it makes every toast longer, and a toast
+  is on screen for 3.2 seconds.
+* **D — a `short` form attached at the source, one composer** (chosen).
+  `err.short ?? err.message`, prefixed with the context. An endpoint that sends
+  no `short` behaves exactly as it did.
+
+### The risk cap shaped the server half
+The user approved the server change **"as long as it does not make this change
+noticeably riskier — I do not have time to debug all error scenarios from
+scratch."** That turned into a hard rule: **add a key, never edit an existing
+`error` string.** The consequence is that adding `short` cannot change any
+existing behaviour, by the same argument the confirm dialog used for sharing
+selector lists — nothing that already reads `body.error` can observe a new
+sibling key.
+
+It also settled a temptation. The server carries the same straight-apostrophe
+inconsistency (three messages), but `test/routes.test.js` asserts one of them
+verbatim with a straight apostrophe, so a tidy-up sweep would have broken a test
+for a cosmetic gain. Left alone and reported instead.
+
+### Punctuation
+The composer normalises the terminal stop, rather than each cause being fixed by
+hand. The causes disagree — the 409 is "Already in your list" with no stop, the
+500 is "Something went wrong." with one — and most are not ours to edit. Without
+this the same toast would end with a full stop or not depending on which failure
+produced it, which is the defect the verdict's missing "for details." already
+was. Caught by running the composer over every scenario, not by eye.
+
+### Traps
+* **Do not lowercase or re-flow the cause to make it read as one sentence.** It
+  may start with a proper noun ("TMDB…", "Already…") and it is user-facing text
+  the server owns.
+* **The add handler's `settle()` must keep reading `err.message`, not the
+  composed string.** It tests for "Already" to decide whether the button is
+  retryable, and the composed text contains a film title that could itself
+  contain that word.
+* **`short` is optional on purpose.** Most endpoints will never need one —
+  "Something went wrong." composes correctly as it is. Do not "finish the job"
+  by adding one everywhere; the field exists only for causes too self-contained
+  to sit after a prefix.
+* Sinks that are already surrounded by their own context — the search note, the
+  verdict banner, the rate dialog's inline error — deliberately do NOT compose.
+  The user tested all three and found them correct; they were left untouched, and
+  the transport message they receive is byte-identical to before.
+
+### Verified, not assumed
+The shipped `failureText()` was extracted from `public/app.js` and run over all
+ten reported scenarios plus the no-title fallback: every result names the
+operation, names the film where one exists, says "couldn’t" exactly once and ends
+in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
+`short` **and** that its `error` text is unchanged.
+
+---
 ## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
 Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
 film that is unrated but carries a review drew the "Not rated yet" chip and its

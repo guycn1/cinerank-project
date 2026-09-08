@@ -31,7 +31,15 @@ moviesRouter.get(
       res.json({ results: await searchMovies(q) });
     } catch (err) {
       if (err instanceof TmdbError) {
-        return res.status(502).json({ error: "Couldn't reach the movie database. Try again in a moment." });
+        // `short` is ADDITIVE: the `error` text is untouched, so every existing
+        // consumer behaves exactly as it did. It exists for the client's
+        // failureText(), which puts a context in front of the cause and cannot
+        // use the full sentence without doubling — 'Couldn’t add “Dune” —
+        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        return res.status(502).json({
+          error: "Couldn't reach the movie database. Try again in a moment.",
+          short: 'TMDB is unreachable',
+        });
       }
       throw err;
     }
@@ -52,7 +60,15 @@ moviesRouter.post(
       details = await getMovieDetails(tmdbId);
     } catch (err) {
       if (err instanceof TmdbError) {
-        return res.status(502).json({ error: "Couldn't reach the movie database. Try again in a moment." });
+        // `short` is ADDITIVE: the `error` text is untouched, so every existing
+        // consumer behaves exactly as it did. It exists for the client's
+        // failureText(), which puts a context in front of the cause and cannot
+        // use the full sentence without doubling — 'Couldn’t add “Dune” —
+        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        return res.status(502).json({
+          error: "Couldn't reach the movie database. Try again in a moment.",
+          short: 'TMDB is unreachable',
+        });
       }
       throw err;
     }

@@ -235,6 +235,23 @@ test('POST /api/movies when TMDB is unreachable → 502 (no DB write)', async ()
   }
 });
 
+// Guards the server half of #16-B (D-042). The TMDB 502 carries a `short`
+// companion to `error` so the client can put a context in front of the cause
+// without doubling ('Couldn’t add “Dune” — Couldn’t reach the movie database.
+// Try again in a moment.'). Both halves are asserted deliberately: `error` must
+// be UNCHANGED, since every other consumer still reads it and the whole point of
+// adding a field rather than editing one was that nothing existing moves.
+test('the TMDB 502 carries a short form alongside its unchanged error text', async () => {
+  const restore = stubFetch({ 'themoviedb.org': 'throw' });
+  try {
+    const body = await (await client.post('/api/movies', { tmdb_id: 603 })).json();
+    assert.match(body.error, /movie database/i);
+    assert.equal(body.short, 'TMDB is unreachable');
+  } finally {
+    restore();
+  }
+});
+
 /* ---------- not-enough-data guards (pre-AI, so NOT logged) ------------- */
 
 test('POST /api/recommendations below the rated-movie threshold → 422, nothing logged', async () => {
