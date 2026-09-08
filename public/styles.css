@@ -651,6 +651,13 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    Set by eye against the title, not solved; tune freely. Reset in card mode,
    where the score is a centred ROW and has no top edge to sit against. */
 .score-block > .score-tmdb:first-child { margin-top: 0.45rem; }
+/* RATED cards: the caption follows the amber figure, so it needs only enough to
+   stop the two touching — the pair should still read as one block. Much smaller
+   than the unrated inset above, which is doing an entirely different job
+   (standing in for the badge's own optical top inset, not separating two lines).
+   The two selectors are mutually exclusive and equal specificity (0,3,0), so
+   neither can shadow the other. Reset in card mode, which was already right. */
+.score-block > .score-tmdb:not(:first-child) { margin-top: 0.12rem; }
 .score-badge {
   font-family: 'Fraunces', serif;
   font-weight: 900;
@@ -746,6 +753,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
+  .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
 }
 
 /* recommendations --------------------------------------------------- */
