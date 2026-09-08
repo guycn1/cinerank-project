@@ -738,7 +738,21 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     expressed, by the downward-offset shadow alone, which is what sells depth
     anyway. **A lift cannot be made symmetric** — that is what `translateY`
     means — so do not restore one without re-reading this.
-    **Keep that amber weak:** it must not be confusable with the
+    **Then the shadow was rebuilt out of light, not black** (D-044, user-raised:
+    "barely visible against the dark background"). It led with a black drop
+    shadow, and the page is `--bg: #0b0b0f` — a black shadow darkens what is
+    behind it, and there was nothing left to darken, so that layer did almost no
+    work at any opacity. It is REMOVED rather than reduced, and the amber carries
+    the effect: a lit edge, a warm pool below, a wide halo.
+    **This supersedes D-043's own trap**, which said to hold the amber at
+    0.10–0.12 alpha so hover could not be mistaken for keyboard focus. Followed
+    literally, that is what made the effect invisible. What actually separates
+    them is SHAPE: `:focus-visible` is a crisp, fully opaque 2px solid outline
+    held 3px off the element, while the hover glow is translucent, diffuse and
+    attached to the edge. Those differ at any brightness. The revised rule: the
+    glow may be as bright as it likes, but must never become a hard-edged opaque
+    amber line at an offset — that, not brightness, is where the two converge.
+    Older note, still true of the OTHER amber uses: it must not be confusable with the
     `:focus-visible` ring, which is the same colour but a crisp 2px solid. Hover
     rules are gated on `@media (hover: hover)` (NOT a width query) so a tap on a
     phone cannot park a card in the grown state, and `prefers-reduced-motion`

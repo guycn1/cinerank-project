@@ -6,6 +6,52 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
+Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
+pronounced, and more importantly - brighter. It's barely visible against the dark
+background."*
+
+**They were describing a real physical limit, not a preference.** The hover
+shadow led with `0 28px 55px -20px rgba(0, 0, 0, 0.95)`. The page is
+`--bg: #0b0b0f`. A black shadow works by darkening what is behind it, and there
+is essentially nothing left to darken — the layer was doing almost no work at
+any opacity. That is why the effect read as "barely visible" even after the
+scale was raised. On a dark UI, elevation cannot be a shadow; it has to be light.
+
+So the black layer is **removed rather than reduced** — it was not earning its
+place — and the amber glow carries the whole effect: a lit edge, a warm pool
+below the card, and a wide halo into the page.
+
+### This supersedes a trap D-043 recorded, and that is the point of the entry
+D-043 said, in its own Traps section: *"The amber must stay weak … diffuse at
+0.10–0.12 alpha specifically so 'the pointer is over this' cannot be confused
+with 'this has keyboard focus'."* Followed literally, that guidance is exactly
+what produced an invisible effect. **The instinct was right and the mechanism was
+wrong.**
+
+What actually separates hover from focus here is **shape, not dimness**:
+
+* `:focus-visible` draws a **crisp, fully opaque, 2px SOLID outline, held 3px off
+  the element** by `outline-offset` — a detached hard line with a visible gap.
+* The hover glow is **translucent, diffuse, and attached to the card's edge.**
+
+Those read as different things at any brightness, which is what makes a bright
+glow safe. Dimming was never the load-bearing property; it was a proxy for
+"don't make it look like an outline", and a bad one, because it also made it
+look like nothing.
+
+**The revised trap:** the glow may be as bright as it likes, but it must never
+become a hard-edged, opaque amber line sitting at an offset from the card. That
+is the state where the two genuinely converge — not brightness.
+
+### Note on process
+This is a case where a trap written in good faith made the next change worse, and
+it took a user report to catch it. The fix is a NEW entry rather than an edit to
+D-043, per the rule in CLAUDE.md: D-043 records what was decided and why at the
+time, including the reasoning that turned out to be too blunt, and that record is
+worth more intact than tidied.
+
+---
 ## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
 Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
 existing one as "too subtle - I can only notice it on the poster". That sentence

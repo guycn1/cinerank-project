@@ -447,12 +447,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    If a lift is ever wanted back, it cannot be symmetric — that is what
    `translateY` means — so do not "restore" it without re-reading this.
 
-   THE AMBER IS DELIBERATELY WEAK, and this is the trap to respect if it is ever
-   retuned. `--amber` is already the focus ring (`:focus-visible` draws a crisp
-   2px solid one), the #1 crown and the "Not rated yet" chip. A strong amber
-   glow here would blur "the pointer is over this" into "this has keyboard
-   focus". A diffuse 0.10–0.12 alpha reads as warmth; anything approaching the
-   focus ring's weight does not. Keep them distinguishable.
+   HOVER MUST STAY DISTINGUISHABLE FROM KEYBOARD FOCUS, and the thing keeping
+   them apart is SHAPE, not dimness (D-044 supersedes D-043's "keep the alpha at
+   0.10–0.12" — that guidance made the effect invisible, which is what the user
+   reported). `--amber` is also the `:focus-visible` ring, the #1 crown and the
+   "Not rated yet" chip. The ring is a crisp, fully opaque 2px SOLID outline
+   held 3px OFF the card by `outline-offset` — a detached hard line with a gap
+   you can see through. This is translucent, diffuse and attached to the edge.
+   Those read as different things at any brightness, which is why the glow can
+   be bright. What must NOT happen is this turning into a hard-edged, opaque
+   amber line at the same offset — then the two genuinely converge.
 
    `@media (hover: hover)`, not a width query: on a touch screen `:hover` sticks
    after a tap until you tap elsewhere, which would leave a card parked in the
@@ -469,11 +473,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 @media (hover: hover) {
   .movie-card:hover {
     transform: scale(1.02);
-    border-color: rgba(245, 193, 91, 0.35);
+    border-color: rgba(245, 193, 91, 0.5);
+    /* ALL LIGHT, NO BLACK — see D-044. The first version led with
+       `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is
+       `--bg: #0b0b0f`, so a black shadow has nothing left to darken. On a dark
+       UI, elevation is made of light. The black layer is gone rather than
+       reduced, because it was contributing nothing to earn its place. */
     box-shadow:
-      0 28px 55px -20px rgba(0, 0, 0, 0.95),   /* the lift itself */
-      0 0 0 1px rgba(245, 193, 91, 0.12),      /* hairline warm rim */
-      0 0 28px -6px rgba(245, 193, 91, 0.10);  /* faint glow around it */
+      0 0 0 1px rgba(245, 193, 91, 0.28),        /* lit edge, just outside the border */
+      0 16px 38px -10px rgba(245, 193, 91, 0.36), /* warm pool below the card */
+      0 0 80px -10px rgba(245, 193, 91, 0.24);   /* wide halo into the page */
   }
 }
 
