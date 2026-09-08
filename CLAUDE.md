@@ -854,36 +854,38 @@ and do not renumber: the numbers are how the user refers to them.
 | 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
-##### Agreed order of work from here (set by the user, 2026-09-08, session end)
+##### Agreed order of work from here (reset by the user, 2026-09-08)
 
 Work this top to bottom. It is the user's own sequencing, not Claude's
 suggestion — do not re-prioritise it, and do not start further down because
 something looks quicker.
 
-1. **#11** — the `tmdb_rating` scope call. The user flagged it as "big yet
-   important" and deliberately chose to start a fresh session on it rather than
-   begin it tired. It needs **migration 002** (a new column), so it is the only
-   remaining backlog item that touches the schema. Ship the migration as a
-   numbered, re-runnable file in `db/migrations/` AND fold it into
-   `db/schema.sql`, per the conventions above; it is applied by hand in the
-   Supabase SQL editor.
-2. **#13 → #20** in numeric order. Note **#12 is already done** (delivered by
-   #4 / D-031) — the user said "#12 through #20" at session end, so say so
-   rather than silently skipping it. **#16 is partly done**: only the two error
-   toasts and the `5 films · 5 rated` string remain.
-3. **"What to watch next" (recommendations) overhaul.** Carries the known
+**Superseding the earlier list**, whose first two steps are done: #11 shipped
+(D-036/D-037, migrations 002+003) and the whole 1–20 backlog is closed.
+
+1. **The remaining ranked-list issues the user is still raising.** The backlog
+   is empty but the section is NOT closed — the user's words: "a few more things
+   to settle before calling the whole ranked-list overhaul a wrap". These arrive
+   one at a time from using the app; D-045 (a 400-character word breaking the
+   page layout) is the kind of thing this step catches. Do not treat an empty
+   backlog table as permission to move on.
+2. **"What to watch next" (recommendations) overhaul.** Carries the known
    swallowed-error bug listed under Open issues — the handler writes
    `err.message` into `#recs-hint` and its own `finally` overwrites it in the
    same tick, so a failed run shows the user nothing — and a label inconsistent
-   with Search ("Add to my list" vs "+ Add").
-4. **Everything still open under Pre-submission blockers**, plus the leftovers
+   with Search ("Add to my list" vs "+ Add"). This is the **last functional bug**
+   on the open list, and it is SPEC §7.1 evidence, so it lands before the
+   resilience screenshots are captured.
+3. **Add a GitHub icon to the page** — a link out to the public repo.
+4. **Then discuss the favicon gap.** Deliberately its own step, after the icon,
+   not folded into it. The state today, verified 2026-09-08: there is **no
+   `<link rel="icon">` in `index.html`, no icon file in `public/`, and no
+   server-side favicon route**, so every browser auto-requests `/favicon.ico`,
+   misses the static middleware and lands on the 404 handler. That is the lone
+   console error on a clean load — harmless, but it shows on the LIVE site too,
+   which is the one a reader opens. Cosmetic, not a bug; discuss before building.
+5. **Everything still open under Pre-submission blockers**, plus the leftovers
    in Open issues.
-
-
-* Then: recommendations, then the rate dialog. The recs section carries a known
-  open bug (its error message is overwritten by its own `finally` — see Open
-  issues) and a label inconsistent with the Search one ("Add to my list" vs
-  "+ Add"). User is driving this.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
