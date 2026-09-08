@@ -367,6 +367,19 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     those the title column would be 53–79px — the crushed state this prevents.
     An earlier note here said 332/284px from estimated button widths; "In your
     list" is 95px, not the 111px guessed, so it stacks LATER than first written. Common widths (360/390/412px) are untouched.
+    **Follow-up the same day, on the user's "never break mid-word at >=250px":**
+    once the row stacks the title column is the viewport minus the poster —
+    124px at 250px, about 14 characters at 1rem, so a 15-letter word would still
+    have been broken by `overflow-wrap: anywhere`. A `@media (max-width: 300px)`
+    block drops `.result-row .meta strong` to 0.9rem, giving ~16 characters,
+    which covers every word length that occurs in real film titles. **A hard
+    cutoff, not a `clamp()`** — a fluid size would have to start shrinking
+    hundreds of pixels earlier to reach 0.9rem by 300px and would visibly touch
+    the wide views; 301px and up is provably unchanged.
+    `.result-row`'s `gap` was also split into `column-gap` / `row-gap`. The row
+    gap applies ONLY once the row has wrapped, and at 0.9rem it left the stacked
+    button floating clear of its film — the "sloppy" the user reported. Now
+    0.4rem; an unwrapped row has no second line, so nothing there can move.
     **The `5rem` basis is load-bearing, not decoration.** Without it `.meta`
     keeps `flex-basis: auto`, whose hypothetical size is MAX-CONTENT, and
     `flex-wrap` would then push the button onto its own line at ANY width the
