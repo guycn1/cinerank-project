@@ -138,12 +138,41 @@ function toast(message, isError = false) {
   }, 3200);
 }
 
-function posterNode(url, title) {
+/**
+ * How many ranked posters load eagerly (backlog #17).
+ *
+ * A JUDGEMENT CALL, not a measurement, and it must not be re-derived as one:
+ * there is nothing here to solve against the way D-030's numeral width was.
+ * A desktop fold fits roughly three or four cards below the header and search
+ * box; card mode fits fewer, but its posters are 68px rather than 92px and cost
+ * proportionally less. Three is inside the fold at every width, and the cost of
+ * being wrong is at most one image request that was not needed yet.
+ *
+ * Do NOT replace this with a measured fold. That means reading layout during the
+ * render — the very thing syncReviewToggles() is structured in three batched
+ * passes to avoid — to save a single request.
+ */
+const EAGER_POSTERS = 3;
+
+/**
+ * `eager` is opt-IN, so the two callers that render only after a click (search
+ * rows, recommendation cards) keep `lazy` without being touched: neither is ever
+ * part of the first paint, which is the only place the distinction matters.
+ */
+function posterNode(url, title, { eager = false } = {}) {
   if (url) {
     const img = document.createElement('img');
     img.src = url;
     img.alt = `${title} — poster`;
-    img.loading = 'lazy';
+    // `lazy` defers the request until the browser knows the image is near the
+    // viewport, which it cannot know before layout — so a poster that is ALREADY
+    // on screen at first paint is delayed for nothing. These images are built in
+    // JS after /api/movies returns, so the preload scanner was never going to
+    // see them either way; the win is a layout pass on the first few cards, not
+    // a dramatic one. It is worth having because the poster is this design's
+    // primary visual anchor (CLAUDE.md § Frontend Design Notes) and the top of
+    // the ranked list is what a reader looks at first.
+    img.loading = eager ? 'eager' : 'lazy';
     return img;
   }
   const ph = document.createElement('div');
@@ -422,7 +451,7 @@ function renderRanked() {
       rank.setAttribute('aria-hidden', 'true');
     }
 
-    const poster = posterNode(m.poster_url, m.title);
+    const poster = posterNode(m.poster_url, m.title, { eager: i < EAGER_POSTERS });
     poster.classList.add('movie-card__poster');
 
     const body = document.createElement('div');

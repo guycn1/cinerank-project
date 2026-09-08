@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-16 all done**, #17 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-17 all done**, #18 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -335,7 +335,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **16 of the 20 are done** and the canonical table with every
+  added 18–20; **17 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -668,6 +668,23 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the verdict fallback had **no full stop**, and "couldn’t" was spelled three
     ways in app.js (curly, straight, and "Could not").
 
+  - **The first three ranked posters load eagerly** (#17). Every poster was
+    `loading="lazy"`, which is right for #20 and wrong for the cards already on
+    screen: the browser cannot decide "is this near the viewport" before layout,
+    so an in-view poster is deferred for nothing. `posterNode()` now takes an
+    opt-IN `{ eager }`, so the two callers that render only after a click (search
+    rows, rec cards) keep `lazy` untouched — neither is ever part of the first
+    paint, which is the only place the distinction matters.
+    **Honest about the size:** these images are built in JS after `/api/movies`
+    returns, so the preload scanner was never going to see them either way. The
+    win is a layout pass on the first few cards, not a dramatic one; it is worth
+    having because the poster is the design's primary visual anchor and the top
+    of the list is what a reader looks at first. **`EAGER_POSTERS = 3` is a
+    judgement call, not a measurement** — three is inside the fold at every
+    width, and being wrong costs one unneeded request. Do not "improve" it by
+    measuring the real fold: that reads layout during the render, which is
+    exactly what `syncReviewToggles()`'s three batched passes exist to avoid.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -693,8 +710,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
 | 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
-| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open — **next** |
-| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — **next**; user-added |
 | 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
 
