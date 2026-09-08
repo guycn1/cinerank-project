@@ -568,7 +568,13 @@ function renderSearchResults(results, query) {
     const strong = document.createElement('strong');
     strong.textContent = r.title;
     const span = document.createElement('span');
-    span.textContent = [r.year, r.tmdb_rating ? `TMDB ${r.tmdb_rating}` : null].filter(Boolean).join(' · ');
+    // `!= null`, not truthiness, and `toFixed(1)` so this row and the ranked
+    // card state the same number the same way. Truthiness happened to hide
+    // TMDB's "no votes" zero here while the ranked card showed it as "TMDB 0.0"
+    // — the two surfaces disagreed about the same film. That zero is now null
+    // at the source (shapeMovie), so both are absent for the same reason.
+    const tmdb = r.tmdb_rating != null ? `TMDB ${r.tmdb_rating.toFixed(1)}` : null;
+    span.textContent = [r.year, tmdb].filter(Boolean).join(' · ');
     meta.append(strong, span);
     const btn = document.createElement('button');
     btn.type = 'button';

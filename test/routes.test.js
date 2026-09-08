@@ -1,7 +1,7 @@
 import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB } from './helpers.js';
+import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB, UNVOTED_TMDB } from './helpers.js';
 
 // Route-level tests. The Supabase client is swapped for an in-memory fake so
 // nothing here touches the live database (CLAUDE.md § Working agreements).
@@ -143,6 +143,23 @@ test('POST /api/movies stores TMDB own rating in the insert payload', async () =
     const inserts = db.calls.filter((c) => c.table === 'movies' && c.op === 'insert');
     assert.ok(inserts.length, 'expected an insert on movies');
     assert.equal(inserts.at(-1).payload.tmdb_rating, 8.2);
+  } finally {
+    restore();
+  }
+});
+
+// TMDB reports vote_average: 0 for a title nobody has voted on — an ABSENCE,
+// not a score of zero (its vote scale starts at 0.5). Storing the 0 made the
+// ranked card read "TMDB 0.0", i.e. worst film imaginable, while the search row
+// hid it because it used truthiness. Both surfaces now say "no rating" for the
+// same reason, because shapeMovie() nulls it at the source.
+test('POST /api/movies stores null, not 0, for a title with no TMDB votes', async () => {
+  const restore = stubFetch({ 'themoviedb.org': UNVOTED_TMDB });
+  db.results['movies:insert'] = { data: { id: 'uuid-2', tmdb_id: 999999 }, error: null };
+  try {
+    await client.post('/api/movies', { tmdb_id: 999999 });
+    const inserts = db.calls.filter((c) => c.table === 'movies' && c.op === 'insert');
+    assert.equal(inserts.at(-1).payload.tmdb_rating, null);
   } finally {
     restore();
   }

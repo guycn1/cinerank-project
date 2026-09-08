@@ -7,6 +7,51 @@ file, directly under this header.**
 
 ---
 
+## D-037 · TMDB's `vote_average: 0` is an absence, not a score
+Found by the user immediately after D-036 shipped, from two screenshots of the
+same film: *Barack Obama (2008)* showed **no** TMDB rating in the search results,
+then appeared in the ranked list as **"TMDB 0.0"**. Their reading was the right
+one — 0.0 says "worst possible film", when the truth is "nobody has rated this".
+
+**The diagnosis.** TMDB reports `vote_average: 0` for a title with no votes. Its
+user vote scale starts at 0.5, so an average of exactly 0 cannot be a real score
+— it is always the absence of one. `shapeMovie()` passed the number straight
+through, so migration 002's column (and the backfill) recorded a genuine `0`.
+
+**Why the two surfaces disagreed** is the part worth keeping. The search row
+tested `r.tmdb_rating ? …` — truthiness — and `0` is falsy, so it hid the value
+and looked correct **by accident**. The ranked card tested `!= null`, which was
+deliberately chosen so a legitimate `0.0` would not be swallowed (the same trap
+`isRated` documents). Both readings were defensible; they simply disagreed,
+because the underlying value was wrong and each renderer was papering over it
+differently.
+
+**Fixed at the source, not in either renderer.** The tempting fix is to make the
+ranked card test `> 0` and move on — one character, invisible, and it would have
+worked. Rejected: the wrong value would still be in the database, the two
+renderers would still be encoding the same domain rule in two different ways, and
+anything added later (the recs cards, an export, a future "sort by TMDB score")
+would have to rediscover it. `shapeMovie()` now maps the no-votes case to `null`,
+so "no rating" has exactly one representation everywhere.
+
+`vote_count` is the direct signal and is used whenever TMDB sends it, with
+`avg > 0` as a fallback — so a payload that happens to omit `vote_count` can
+never null out a rating that is genuinely there. **Do not "simplify" this back to
+`typeof avg === 'number'`**; that is precisely the bug.
+
+The search row was also switched from truthiness to `!= null` and given
+`toFixed(1)`, so both surfaces now state the same number the same way and are
+absent for the same reason rather than by coincidence.
+
+**Migration 003** nulls the zeros already written by 002 and the backfill. It is
+non-destructive — it replaces a value that was never meaningful, and the real
+figure is re-derivable with `npm run backfill-tmdb-rating` at any time.
+
+This does not supersede [D-036]; the snapshot-at-add-time decision stands
+unchanged. It corrects what a stored value of `0` means.
+
+---
+
 ## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
 Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
 results had always displayed it, but `POST /api/movies` dropped it because no

@@ -516,8 +516,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     is down, which is a resilience state being screenshotted), and make the
     comparison meaningless by drifting. Do not add a refresh; read D-036 first.
     Shown on unrated cards too — it is labelled `TMDB`, so it cannot be misread
-    as the user's own score. Rendered from `!= null`, never truthiness, because
-    0.0 is a real TMDB average and is falsy.
+    as the user's own score. Rendered from `!= null`, never truthiness.
+    **Follow-up the same day (D-037): TMDB's `vote_average: 0` means NO VOTES,
+    not a score of zero** — its vote scale starts at 0.5. `shapeMovie()` passed
+    it through, so an unvoted title stored a literal 0 and the card read
+    "TMDB 0.0". The search row hid it only because it used truthiness, so the two
+    surfaces disagreed about the same film — one right by accident, one wrong on
+    purpose. Fixed at the SOURCE (`vote_count` when present, `avg > 0` as a
+    fallback) rather than by making a renderer test `> 0`, so "no rating" has one
+    representation everywhere. Migration 003 nulls the rows already written. Do
+    not simplify `shapeMovie()` back to a bare `typeof avg === 'number'`.
     The rating and this caption sit in one `.score-block` wrapper so the score
     column still has exactly TWO children — the block and the buttons — which is
     what its `margin-top: auto` bottom-pinning depends on.
@@ -598,7 +606,12 @@ below — this list is the smaller stuff.)
   Adding a nullable column is backward compatible with the already-deployed
   code, so apply it BEFORE the next merge to `main`. Then
   `npm run backfill-tmdb-rating` (dry run) and `-- --write` to fill the rows
-  that predate it.
+  that predate it. **Applied 2026-09-09; backfill run.**
+* [ ] **Migration 003 (`tmdb_rating = 0` → NULL) — apply by hand too.** TMDB
+  reports `vote_average: 0` for a title nobody has voted on, so 002 + the
+  backfill wrote a literal 0 for those and the card read "TMDB 0.0", i.e. worst
+  film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
+  row can get one; 003 fixes the rows already written. Non-destructive.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
