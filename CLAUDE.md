@@ -86,10 +86,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
 ### Front-end overhaul (in progress — started 2026-09-05)
-* Both modal `<dialog>`s (rate, AI call log) re-centred: the global
-  `* { margin: 0 }` reset had killed the UA stylesheet's `dialog { margin: auto }`,
-  so they rendered at top-left. Fixed with an explicit `margin: auto` on
-  `.rate-dialog` / `.log-dialog`.
+* The two modal `<dialog>`s that existed at the time (rate, AI call log) were
+  re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
+  `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
+  `margin: auto` on `.rate-dialog` / `.log-dialog`. There are **three** dialogs
+  now — `.confirm-dialog` gets the same `margin: auto` by sharing that rule.
 * AI call log entry point promoted from a `.linkish` link buried in a footer
   sentence to a `.log-cta` panel with a solid amber button (`#open-log` id
   unchanged) + one-line description — it's the SPEC §7.2 "not a wrapper" proof,
@@ -329,8 +330,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* **Ranked list — in progress.** Audited into a 17-item list; the user is
-  working it in order. Done so far:
+* **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
+  added 18–20; **13 of the 20 are done** and the canonical table with every
+  status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared

@@ -36,6 +36,13 @@ callers read it, so what is drawn and what counts as a change cannot disagree
 again. The signature is `id + displayed rank + tie state`: literally what the
 card shows.
 
+**Where the old counter went.** D-029 named this counter `rankNo` and recorded a
+trap against it — that it must never be "simplified" back to the loop index `i`,
+because the two agree only by the coincidence of the server sorting nulls last.
+That trap still holds, but the identifier does not exist any more: the counter is
+now `position` inside `displayedRanking()`. Noted here rather than by editing
+D-029, which is a record of what was decided then and stays as written.
+
 This is the same failure mode `busyButton()` was extracted for — CLAUDE.md notes
 the two AI trigger buttons "had already drifted apart twice" before their
 behaviour was made one function. A rule expressed twice will be changed once.

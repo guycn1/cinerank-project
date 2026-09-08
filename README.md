@@ -44,8 +44,10 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 ## Project layout
 
 ```
-prompts/            versioned prompt files — recommend_v1.md, taste_verdict_v1.md
-db/schema.sql       Supabase schema + RLS
+prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
+                    taste_verdict_v1..v4 (live: recommend_v3, taste_verdict_v4)
+db/schema.sql       Supabase schema + RLS — fresh installs
+db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
   config.js         the only place env/secrets enter the process
   supabase.js       one anon-key client; all DB access via the query builder
@@ -56,7 +58,8 @@ server/
     tasteVerdict.js     rated movies → prompt → plain-text verdict → log
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
-scripts/scan-secrets.js   run before every commit
+scripts/scan-secrets.js         run before every commit
+scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 docs/DECISIONS.md   why the choices are what they are
@@ -102,8 +105,9 @@ Deploying it yourself:
 4. Health check path `/api/health`.
 
 **Free-tier caveat:** the instance sleeps after ~15 minutes idle, so the first
-request after a quiet period takes roughly a minute to answer while it wakes.
-Subsequent loads are immediate. Worth opening the link once before demoing it.
+request after a quiet period takes anywhere from a few seconds to a minute while
+it wakes. Subsequent loads are immediate. Worth opening the link shortly before
+demoing it.
 
 ## Security notes (course Module 17)
 

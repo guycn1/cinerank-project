@@ -489,7 +489,7 @@ function syncReviewToggles() {
     it.toggle.hidden = !it.clips;
     // `it.clips && it.wasExpanded`, so a review that no longer clips is left
     // COLLAPSED rather than restored. Both states render identically when the
-    // text fits in two lines, so nothing moves — but leaving `expanded` set
+    // text fits within the clamp, so nothing moves — but leaving `expanded` set
     // would mean the next narrowing showed the full text with no toggle at all,
     // which is the original unreachable-text bug wearing a different hat.
     setReviewExpanded(it.p, it.toggle, it.clips && it.wasExpanded);
