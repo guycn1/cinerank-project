@@ -396,7 +396,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   box-shadow: var(--shadow);
-  transition: transform 0.25s var(--ease), border-color 0.25s;
+  /* `box-shadow` is in this list deliberately (backlog #19). It was NOT, and the
+     hover rule did not change the shadow either — so the card rose 3px against a
+     completely static shadow. That is why the lift was almost invisible: a lift
+     is sold by its shadow growing and softening, and this one had no elevation
+     cue at all. The fix was never "make the 3px bigger". */
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease);
 }
 /* The staggered entrance runs on the FIRST paint only (renderRanked adds the
    class). It used to sit on .movie-card itself, and since every re-render
@@ -404,8 +409,56 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    ~850ms of the page shimmering because one number changed. Later renders are
    animated by a View Transition instead; running both made cards fade-slide in
    while the transition cross-faded them, which looked muddy. */
-.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) both; }
-.movie-card:hover { transform: translateY(-3px); border-color: #34343f; }
+/* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
+   `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
+   animation keeps applying its final keyframe, and animations outrank normal
+   author declarations in the cascade. `fade-slide` ends at `transform: none`, so
+   every first-paint card went on being pinned to `transform: none` for the life
+   of the page — silently beating `.movie-card:hover`'s transform. The card lift
+   therefore did nothing on a freshly loaded page, and only the poster (which has
+   no animation of its own) still moved. That is exactly the symptom this item
+   was raised for: "too subtle - I can only notice it on the poster".
+   It came back after any add/rate/remove, because those rebuild the cards
+   WITHOUT `is-entering` — which is what made it read as subtle rather than
+   broken.
+   `backwards` keeps the half that is actually needed: holding the from-state
+   during this card's stagger delay (set in JS, up to 400ms), so a card does not
+   flash at full opacity before its turn. Nothing needs the forwards half — the
+   final keyframe is `opacity: 1; transform: none`, which is identical to the
+   card's natural resting state. Do NOT put `both` back. */
+.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) backwards; }
+/* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
+   notice it on the poster", which was literally true — the card never scaled).
+   Three cues at once: it rises, it grows a little, and the shadow deepens and
+   picks up a faint warm rim.
+
+   THE AMBER IS DELIBERATELY WEAK, and this is the trap to respect if it is ever
+   retuned. `--amber` is already the focus ring (`:focus-visible` draws a crisp
+   2px solid one), the #1 crown and the "Not rated yet" chip. A strong amber
+   glow here would blur "the pointer is over this" into "this has keyboard
+   focus". A diffuse 0.10–0.12 alpha reads as warmth; anything approaching the
+   focus ring's weight does not. Keep them distinguishable.
+
+   `@media (hover: hover)`, not a width query: on a touch screen `:hover` sticks
+   after a tap until you tap elsewhere, which would leave a card parked in the
+   grown state after pressing Edit. This gates on the INPUT having real hover, so
+   a narrow desktop window keeps the effect and card mode's LAYOUT is untouched.
+
+   The overlap is safe and not by luck: a transform makes the hovered card a
+   stacking context, so it paints ABOVE its non-transformed siblings and the
+   shadow spills over the next card instead of being covered by it. The scale
+   cannot produce a horizontal scrollbar either — `main` keeps a 16–40px gutter,
+   and 1.012 adds at most ~6px per side at the 1080px max-width. */
+@media (hover: hover) {
+  .movie-card:hover {
+    transform: translateY(-5px) scale(1.012);
+    border-color: rgba(245, 193, 91, 0.35);
+    box-shadow:
+      0 28px 55px -20px rgba(0, 0, 0, 0.95),   /* the lift itself */
+      0 0 0 1px rgba(245, 193, 91, 0.12),      /* hairline warm rim */
+      0 0 28px -6px rgba(245, 193, 91, 0.10);  /* faint glow around it */
+  }
+}
 
 /* View Transition names for the two blocks that sit BELOW the ranked list.
    These exist only because of the list's transition, which is why they live
@@ -531,7 +584,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   box-shadow: 0 10px 24px -12px rgba(0,0,0,0.8);
   transition: transform 0.3s var(--ease);
 }
-.movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
+/* Same `hover: hover` gate as the card's own hover, for the same reason: on a
+   touch screen this would otherwise stay applied after a tap. Kept at 1.04 even
+   though the card now scales too — the two compound to ~1.055 on the poster,
+   which is the point. The poster is the design's primary visual anchor, so it
+   should still lead the effect rather than move in lockstep with its card. */
+@media (hover: hover) {
+  .movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
+}
 
 /* Top-aligned, overriding the grid's `align-items: center`. The poster is the
    tallest thing in the row (138px on desktop), so a short title + review used to
@@ -824,7 +884,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  animation: fade-slide 0.5s var(--ease) both;
+  /* backwards, not both: same reason as .movie-card.is-entering (D-043). No
+     hover transform exists on .rec-card today, so the forwards fill pins
+     nothing visible — but it is the same latent trap, and adding one later
+     would silently do nothing. Zero visual change: the final keyframe already
+     equals this card resting state. */
+  animation: fade-slide 0.5s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1751,6 +1816,13 @@ body:has(dialog[open]) { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
+  /* Killing the TRANSITION is not enough for the card hover (#19): without this
+     the lift and scale still applied, just instantly — and sudden movement is
+     precisely what a motion-sensitive user is asking not to have. The colour
+     cues stay, so the card still responds to the pointer: the deepened shadow,
+     the warm rim and the border are all untouched here. */
+  .movie-card:hover,
+  .movie-card:hover .movie-card__poster { transform: none; }
   .log-reveal::details-content,
   .rate-dialog, .confirm-dialog, .log-dialog,
   .rate-dialog::backdrop, .confirm-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }

@@ -6,6 +6,81 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
+Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
+existing one as "too subtle - I can only notice it on the poster". That sentence
+turned out to be literally, mechanically true, in two ways at once.
+
+**First, the card never grew.** `.movie-card:hover` set `translateY(-3px)` and a
+slightly lighter border. Nothing scaled except `.movie-card__poster`. So "I can
+only notice it on the poster" was an accurate description of the CSS.
+
+**Second, and worse: even the 3px lift did nothing on a freshly loaded page.**
+`.movie-card.is-entering` carried `animation: fade-slide 0.45s var(--ease)
+**both**`, and `is-entering` is added on first paint and **never removed**.
+`both` is `backwards` + `forwards`, and a *forwards*-filling animation keeps
+applying its final keyframe indefinitely — while **animation declarations outrank
+normal author declarations in the cascade**. `fade-slide` ends at
+`transform: none`. So every first-paint card was pinned to `transform: none` for
+the life of the page, silently beating the `:hover` rule's transform. Only the
+poster still moved, because the poster has no animation of its own.
+
+It came back after any add, rate or remove, because those re-renders rebuild the
+cards WITHOUT `is-entering` (D-031 restricted the entrance to first paint). An
+effect that works only after you interact with the list, and never on the page
+you first look at, reads exactly as "too subtle" rather than as broken. That is
+why it survived this long.
+
+### Two fixes, and why the JS one lost
+* **Remove `is-entering` on `animationend`.** The reflex answer, and rejected: it
+  adds a listener per card on every first render, needs its own teardown, and
+  re-couples a purely presentational concern to JS. It also has failure modes the
+  CSS fix does not — an animation that never runs or never completes (a
+  backgrounded tab, `prefers-reduced-motion` removing it entirely) leaves the
+  class attached forever, which is the very state being fixed.
+* **`both` → `backwards`** (chosen). One word, no JS. It keeps the half that is
+  actually needed — holding the from-state through this card's stagger delay (set
+  in JS, up to 400ms) so a card cannot flash at full opacity before its turn —
+  and drops the half that caused the bug. **Provably equivalent at rest:** the
+  final keyframe is `opacity: 1; transform: none`, which is identical to the
+  card's natural resting state, so removing the forwards fill changes nothing
+  visually.
+
+`.rec-card` had the same `both` and was fixed with it. No hover transform exists
+there today, so nothing was visibly broken — but it is the same latent trap, and
+adding one later would have silently done nothing.
+
+### The other half: a lift with no elevation cue
+`box-shadow` was set on `.movie-card` and **was not in its `transition` list, and
+was not changed on hover**. So the card rose against a completely static shadow.
+Elevation is sold by the shadow growing and softening; without that a 3px lift
+reads as nothing. The fix was never "make the 3px bigger" — the shadow had to
+join the transition and change on hover.
+
+### What shipped, and the choice the user made
+Three options were laid out: (A) elevation only, no scale, text stays crisp;
+(B) elevation plus a real scale; (C) elevation, scale, and a faint warm rim in
+the app's amber. **The user chose C.**
+
+### Traps
+* **Do not restore `both` on either entrance animation.** If a card ever flashes
+  before its stagger delay, `backwards` is already the fix for that; `both` adds
+  only the forwards fill, which is what broke the hover.
+* **The amber must stay weak.** `--amber` is already the `:focus-visible` ring (a
+  crisp 2px solid), the #1 crown and the "Not rated yet" chip. The hover glow is
+  diffuse at 0.10–0.12 alpha specifically so "the pointer is over this" cannot be
+  confused with "this has keyboard focus". Strengthening it breaks that.
+* **`@media (hover: hover)`, never a width query.** The gate exists because
+  `:hover` sticks on a touch screen after a tap — a card would stay parked in the
+  grown state after pressing Edit. Gating on input capability keeps the effect on
+  a narrow desktop window, which a `min-width` query would wrongly remove.
+* **`prefers-reduced-motion` suppresses the transform but keeps the colour.**
+  Killing the transition alone was not enough: the lift and scale still applied,
+  just instantly, which is precisely what a motion-sensitive user is asking to
+  avoid. The deepened shadow, warm rim and border still respond, so the card is
+  not left inert.
+
+---
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
 Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one

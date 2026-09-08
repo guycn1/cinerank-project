@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-18 all done**, #19 is next; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-19 all done**, #20 is the last one; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -335,7 +335,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **18 of the 20 are done** and the canonical table with every
+  added 18–20; **19 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -703,6 +703,35 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     bugs happened, and rewriting them would be maintaining history rather than
     preserving it.
 
+  - **Grow-on-hover — and the bug it uncovered** (#19, user-raised, D-043). The
+    user asked for something more pronounced, saying the old effect was "too
+    subtle - I can only notice it on the poster". That was literally true twice
+    over. The card never scaled at all (only `translateY(-3px)`) — **and even
+    that lift did nothing on a freshly loaded page.** `.movie-card.is-entering`
+    used `animation: … both`, the class is added on first paint and NEVER
+    removed, and a forwards-filling animation keeps applying its last keyframe —
+    which **outranks normal author declarations in the cascade.** `fade-slide`
+    ends at `transform: none`, so every first-paint card was pinned there for the
+    life of the page, silently beating `:hover`. It worked again after any
+    add/rate/remove, because those rebuild cards without the class — which is
+    what made it read as *subtle* rather than *broken*.
+    Fixed with `both` → `backwards`, not by removing the class in JS: `backwards`
+    keeps the half that is needed (holding the from-state through the stagger
+    delay) and drops the half that caused it, with no listener to leak and no
+    failure mode when the animation never runs. Provably no visual change at
+    rest — the final keyframe already equals the card's resting state.
+    `.rec-card` carried the same `both` and was fixed with it; nothing was
+    visibly broken there, but adding a hover transform later would have silently
+    done nothing.
+    The second half was that **`box-shadow` was neither transitioned nor changed
+    on hover**, so the card rose against a static shadow — a lift with no
+    elevation cue. Now it deepens, and the user chose the option that adds a
+    faint amber rim. **Keep that amber weak:** it must not be confusable with the
+    `:focus-visible` ring, which is the same colour but a crisp 2px solid. Hover
+    rules are gated on `@media (hover: hover)` (NOT a width query) so a tap on a
+    phone cannot park a card in the grown state, and `prefers-reduced-motion`
+    now drops the transform while keeping the colour response.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -730,8 +759,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
-| 19 | Add a grow-on-hover effect to each ranked-list item | open — **next**; user-added |
-| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
+| 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — **next**, and the last one; user-added |
 
 ##### Agreed order of work from here (set by the user, 2026-09-08, session end)
 
