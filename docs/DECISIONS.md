@@ -6,6 +6,80 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
+Backlog #14. Expand a review with "view more…", then rate, add or remove a
+*different* film, and it snapped shut. `renderRanked()` opens with
+`replaceChildren()`, and every rebuilt review was constructed with
+`setReviewExpanded(r, toggle, false)` — so the expanded state existed only as a
+class on a node that every render destroys.
+
+**The backlog row asserted for two days that "only the element-reuse rewrite
+rejected in D-031 fixes it". That claim was wrong, and Claude wrote it.** It was
+caught only because the user declined to take it at face value and asked for it
+to be re-assessed before any work started.
+
+Why it was wrong: it read #14 as a symptom of *elements being destroyed*, and
+filed it beside the animation churn and poster churn that D-031's option B was
+designed for. Those two genuinely are about element identity. #14 is not — it is
+a **state-persistence** problem wearing the same coat. The generic fix for "DOM
+state is lost on re-render" is to move the state somewhere the render cannot
+reach and re-apply it on the way out, not to stop re-rendering.
+
+Three options:
+
+* **A — reuse card elements keyed by movie id** (D-031's option B). Fixes #14 as
+  a side effect of never destroying the node. **Rejected again, for a reason that
+  has strengthened since:** D-031 rejected it because a missed field on a reused
+  card produces a *stale card that still looks correct*. `renderRanked()` has
+  since absorbed the competition-ranking and tie logic (D-038) and the whole
+  TMDB score column (D-036/D-037), so there is strictly more per-card state to
+  get silently wrong today than when it was first turned down.
+* **B — persist to `localStorage`.** Rejected: expansion is a transient reading
+  state, not a preference. The user confirmed the scope explicitly — it should
+  not survive a page reload.
+* **C — a `Set` of movie ids on `state`, seeded into each rebuilt card.** Chosen.
+  Eight lines of non-comment code, and no change to how often anything renders.
+
+**Why C composes instead of colliding with item #5.** `syncReviewToggles()`
+already runs on a `requestAnimationFrame` after every render, already captures
+`wasExpanded` from the class, and already collapses / measures / restores.
+Seeding the class at build time means that pass sees `wasExpanded = true` and its
+existing `it.clips && it.wasExpanded` rule treats a rebuilt card exactly as it
+already treats a resize: still clips, stays open; no longer clips, collapses. No
+new rule was introduced into the code that #5 took four commits (b59a893,
+59127cc, e0038a3, dd5ce2d) to settle — the three-pass measurement, the
+both-ways `hidden` assignment, and the deliberate absence of any line count in
+JS are all byte-identical.
+
+**The load-bearing detail: the `Set` is written by `setReviewExpanded()`, not by
+the click handler.** That function's docblock already declared it the single
+writer for the class, the label and `aria-expanded`, because those three had
+drifted once. The `Set` is a fourth facet of the same fact. Had the click handler
+owned it, `syncReviewToggles()`'s collapse of a no-longer-clipping review would
+have gone unrecorded, and the DOM and the `Set` would have disagreed from the
+very next render onward — the same drift, one layer down.
+
+### Traps
+* `syncReviewToggles()`'s first pass collapses with a bare `classList.remove()`
+  and **must not be tidied into a `setReviewExpanded()` call.** That collapse is
+  a measuring fixture, not a state change: routing it through the writer would
+  rewrite the label and `aria-expanded` on every resize frame, and would clear
+  the `Set` entry before pass three has decided whether to put it back.
+* `r.dataset.movieId` must stay **above** the first `setReviewExpanded()` call in
+  `renderRanked()`, which reads it back out.
+* `movies.id` is a `uuid`, so it is already a string and `dataset`'s
+  stringification cannot make the keys disagree. A numeric id would need
+  `String()` at both ends or `has(5)` would miss `"5"`.
+* Expansion is pruned in `loadMovies()` for any film that no longer has a review.
+  Without it, clearing a review and later writing a new one would render the new
+  text pre-expanded, inheriting a decision the user made about different text.
+
+The user's condition for approving the work was that it must not make the ranked
+list rebuild its HTML any more often than it already does. Verified rather than
+asserted: the diff touches no `replaceChildren`, `requestAnimationFrame`,
+`startViewTransition` or `refreshRanked` line.
+
+---
 
 ## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
 Reported by the user within minutes of D-038 shipping. Two films were tied at

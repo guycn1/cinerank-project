@@ -45,6 +45,14 @@ const state = {
   movies: [],
   cfg: { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 },
   ownedTmdbIds: new Set(),
+  // Which reviews the user has expanded, by movie id (backlog #14). It lives
+  // here and NOT in the DOM because renderRanked() rebuilds every card on every
+  // render, and a class on a <p> cannot outlive that <p> — so expanding one
+  // review and then rating a DIFFERENT film silently collapsed it again.
+  // Lifting the state out is the fix; keeping the elements alive instead is the
+  // element-reuse rewrite D-031 rejected, and it stays rejected (D-040).
+  // Session-only by choice: a reading state is not worth persisting to storage.
+  expandedReviews: new Set(),
   editing: null,
   editingIsNew: false, // the rate dialog is for a film added seconds ago
 };
@@ -363,13 +371,25 @@ function renderRanked() {
       const r = document.createElement('p');
       r.className = 'review';
       r.id = `review-${m.id}`;
+      // Set BEFORE the first setReviewExpanded() below, which reads it back out
+      // to record the state. `movies.id` is a uuid, so it is already a string
+      // and dataset's stringification cannot make the Set's keys disagree with
+      // the `m.id` looked up here — a numeric id would need String() at both
+      // ends to avoid has(5) missing "5".
+      r.dataset.movieId = m.id;
       r.textContent = m.review;
       const toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.className = 'review-toggle';
       toggle.hidden = true; // shown after layout only if the text actually clips
       toggle.setAttribute('aria-controls', r.id);
-      setReviewExpanded(r, toggle, false); // label + aria via the single writer
+      // Seeded from the Set, not hardcoded to false: this card may be a rebuild
+      // of one the user had already expanded. The toggle is still hidden here —
+      // the rAF'd syncReviewToggles() below reveals it if the text actually
+      // clips, and collapses this again if it no longer does. That pass reads
+      // the class we just set as its `wasExpanded`, so restoring here is exactly
+      // what makes it treat a rebuilt card like one that never went away.
+      setReviewExpanded(r, toggle, state.expandedReviews.has(m.id));
       toggle.addEventListener('click', () => {
         setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
       });
@@ -482,6 +502,12 @@ function syncReviewToggles() {
   // painted in between — the browser cannot render until this returns.
   for (const it of items) {
     it.wasExpanded = it.p.classList.contains('expanded');
+    // Deliberately a bare classList.remove() and NOT setReviewExpanded(): this
+    // collapse is a measuring fixture, not a state change. Routing it through
+    // the single writer would rewrite the label and aria-expanded on every
+    // resize frame, and would clear the movie's entry in state.expandedReviews
+    // before pass three has decided whether to put it back. Pass three is where
+    // this pass's one real decision gets written.
     if (it.wasExpanded) it.p.classList.remove('expanded');
   }
   for (const it of items) it.clips = it.p.scrollHeight - it.p.clientHeight > 4;
@@ -497,21 +523,38 @@ function syncReviewToggles() {
 }
 
 /**
- * The single writer for a review's expanded state. The class, the button label
- * and `aria-expanded` describe one fact and must never disagree — they drifted
- * once already, when the toggle's label was updated on click but never by the
- * resize pass.
+ * The single writer for a review's expanded state. The class, the button label,
+ * `aria-expanded` and the entry in `state.expandedReviews` describe one fact and
+ * must never disagree — the first three drifted once already, when the toggle's
+ * label was updated on click but never by the resize pass.
+ *
+ * The Set is written HERE and not in the click handler precisely because this is
+ * not the only place the state changes: syncReviewToggles() collapses a review
+ * that no longer clips, and if that collapse were not recorded, the DOM and the
+ * Set would disagree from the very next render onwards.
  */
 function setReviewExpanded(p, toggle, expanded) {
   p.classList.toggle('expanded', expanded);
   toggle.textContent = expanded ? 'show less' : 'view more…';
   toggle.setAttribute('aria-expanded', String(expanded));
+  if (expanded) state.expandedReviews.add(p.dataset.movieId);
+  else state.expandedReviews.delete(p.dataset.movieId);
 }
 
 async function loadMovies() {
   const { movies } = await api('/api/movies');
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
+  // Forget expansion state for anything that no longer has a review to expand —
+  // the film was removed, or its review was cleared by an edit. Without this,
+  // clearing a review and later writing a new one would render the new text
+  // pre-expanded, having inherited a decision the user made about different
+  // text. Ids are uuids, so a re-added film gets a fresh one and cannot inherit
+  // a stale entry either way.
+  const withReview = new Set(movies.filter((m) => m.review).map((m) => m.id));
+  for (const id of state.expandedReviews) {
+    if (!withReview.has(id)) state.expandedReviews.delete(id);
+  }
   // The syncs run BEFORE the render, deliberately. A View Transition snapshots
   // the whole document, so anything these three touch (the recs hint, the
   // verdict placeholder, the search-result buttons) would cross-fade too.

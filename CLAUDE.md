@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (eleventh merge to main, bc67ff2; ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-14 all done**, #15 is next; eleventh merge to main was bc67ff2; migrations 001-003 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -331,7 +331,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
 * **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **13 of the 20 are done** and the canonical table with every
+  added 18–20; **14 of the 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -570,6 +570,34 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     BOTH films, which is correct — D-029 defines the crown as *your top-rated
     film*, and if two are scored the same then both are.
 
+  - **An expanded review stays expanded across a re-render** (#14, D-040).
+    `renderRanked()` rebuilds every card, so the `expanded` class died with the
+    node it was on: expanding one review and then rating a DIFFERENT film
+    collapsed it. The expansion is now a `Set` of movie ids on `state`, seeded
+    back into each rebuilt card.
+    **The backlog row for #14 claimed only D-031's element-reuse rewrite could
+    fix this. That was wrong** — it filed a state-persistence problem beside the
+    element-identity ones (animation churn, poster churn) that the rewrite was
+    designed for. The rewrite stays rejected, and its original argument is now
+    STRONGER: a missed field on a reused card yields a stale card that still
+    looks right, and `renderRanked()` has since taken on the tie logic (D-038)
+    and the TMDB score column (D-036/D-037), so there is more to get wrong.
+    **It adds no rule to item #5's machinery** — the trickiest code in this
+    section, settled over four commits. `syncReviewToggles()` already collapses,
+    measures and restores on a rAF after every render, so seeding the class at
+    build time makes it treat a rebuilt card exactly as it treats a resize; its
+    `it.clips && it.wasExpanded` rule then does the right thing unaided. The
+    three-pass measurement, the both-ways `hidden`, and the deliberate absence of
+    any line count in JS are byte-identical.
+    **The `Set` is written by `setReviewExpanded()`, never by the click handler**
+    — that function is already the single writer for the class, the label and
+    `aria-expanded`, and the `Set` is a fourth facet of the same fact. The click
+    handler is NOT the only thing that changes the state: the resize pass
+    collapses a review that no longer clips, and an unrecorded collapse would
+    desync the DOM and the `Set` on the next render. Its first pass still
+    collapses with a bare `classList.remove()` on purpose — that one is a
+    measuring fixture, not a state change; do not route it through the writer.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -592,8 +620,8 @@ and do not renumber: the numbers are how the user refers to them.
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
-| 14 | Expanded reviews collapse on any unrelated re-render | open — **next**; only the element-reuse rewrite **rejected in D-031** fixes it |
-| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
+| 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open — **next** |
 | 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
