@@ -382,6 +382,22 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     **Strictly shrinking, so nothing comfortable today can change:** `min()`
     cannot return more than 340px. Viewports 640px tall and up are byte-identical;
     only 500px and below see a smaller panel (300px at 500 tall, 216px at 360).
+    **Two more one-line guards from the same sweep** (findings 7 and 8). The
+    rate dialog's heading shows a film title exactly as the confirm dialog's
+    does, but only the confirm dialog carried `overflow-wrap: anywhere` — the
+    reasoning had been written down once and applied to one of the two. The
+    declaration is now on the SHARED `.rate-dialog h3, .confirm-dialog h3` rule
+    and removed from the confirm-only block, rather than duplicated: the same
+    property in two rules is the shape that later gets changed in one of them.
+    Identical for the confirm dialog — both rules are (0,1,1) and nothing
+    competes, so the value just arrives from the shared rule instead. The toast
+    got the same guard: `max-width: 90vw` caps the BOX, so an unbreakable word
+    did not wrap, it spilled out of the rounded panel.
+    **Both are provably inert above ~300px**, which was the user's bar:
+    `overflow-wrap` only creates break opportunities that are used when a word
+    cannot fit a line by itself, and no realistic title or server message comes
+    near that. The only cases either can affect are ones already rendering
+    broken.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.

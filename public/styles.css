@@ -1318,8 +1318,20 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .rate-dialog::backdrop,
 .confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+/* A film title goes inside BOTH of these headings ("Rate “X”", "Remove “X”?"),
+   and titles are arbitrary strings, so the guard belongs on the shared rule. It
+   used to sit on `.confirm-dialog h3` alone — the reasoning was written down
+   once and applied to one of the two headings that needed it.
+   Moved rather than duplicated: the same property in two rules is the shape that
+   gets changed in one of them later. Provably identical for the confirm dialog —
+   both rules are specificity (0,1,1), and with no competing declaration left, the
+   value simply comes from here instead of from below. */
 .rate-dialog h3,
-.confirm-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
+.confirm-dialog h3 {
+  font-family: 'Fraunces', serif;
+  margin-bottom: 1rem;
+  overflow-wrap: anywhere;
+}
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
@@ -1417,9 +1429,9 @@ body:has(dialog[open]) { overflow: hidden; }
    to the question rather than starting a new block the way a form field does. */
 .confirm-dialog h3 {
   margin-bottom: 0.55rem;
-  /* A film title goes inside this heading, and titles are arbitrary user-facing
-     strings — a long unbroken one would otherwise push past the panel edge. */
-  overflow-wrap: anywhere;
+  /* `overflow-wrap: anywhere` used to live here and now sits on the shared
+     `.rate-dialog h3, .confirm-dialog h3` rule above, because the rate dialog's
+     heading shows a film title too. Nothing changed for this dialog. */
   line-height: 1.3;
 }
 /* The consequence line. --ink-dim and small, like every other explanatory line
@@ -1989,6 +2001,10 @@ body:has(dialog[open]) { overflow: hidden; }
   transition: opacity 0.25s, transform 0.25s var(--ease);
   z-index: 10000;
   max-width: 90vw;
+  /* The toast prints film titles and server error text. `max-width` caps the
+     BOX, so without this an unbreakable word does not wrap — it spills straight
+     out of the rounded panel. Same one-line guard the dialogs and cards carry. */
+  overflow-wrap: anywhere;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
