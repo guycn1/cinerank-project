@@ -94,4 +94,16 @@ export const MATRIX_TMDB = {
   overview: 'A hacker discovers reality is a simulation.',
   poster_path: '/matrix.jpg',
   vote_average: 8.2,
+  vote_count: 24000,
+};
+
+/** A real TMDB payload for a title nobody has voted on: average 0, count 0. */
+export const UNVOTED_TMDB = {
+  id: 999999,
+  title: 'Barack Obama',
+  release_date: '2008-01-01',
+  overview: 'A documentary nobody has rated.',
+  poster_path: '/obama.jpg',
+  vote_average: 0,
+  vote_count: 0,
 };

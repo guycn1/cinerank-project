@@ -24,16 +24,18 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08, end of session (ranked-list backlog items 1-10 and 12 done; **#11 is next** — see the canonical 20-item table and the agreed order of work directly beneath it)
+**Last updated:** 2026-09-09 (ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + `db/migrations/001` applied.
+* Supabase project is live; `db/schema.sql` + migrations `001`, `002` and `003`
+  all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "Ranked-list overhaul
-  + live Render deployment" (2026-09-07, `1ab515f`). **Nine** merges so far;
+* `main` is at the latest settled UI milestone — currently "Ranked-list items
+  8-10 + the app own confirm dialog + one focus ring app-wide" (2026-09-08,
+  `d019509`). **Ten** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -41,9 +43,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
-  guard via `unique(tmdb_id)`. Add auto-opens the rate dialog ("Skip for now").
-  Long reviews clamp to 2 lines with a "view more…/show less" toggle (shown only
-  when the text actually clips).
+  guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
+  user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
+  Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
+  "view more…/show less" toggle (shown only when the text actually clips). The
+  line count lives ONLY in CSS — the toggle is decided by measuring whether the
+  text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines.
@@ -55,11 +60,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 33 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 35 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
-  below-threshold (422), and OpenRouter-down (422 **with** a `status='failed'`
-  log row written). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
+  log row written), a row deleted mid-edit (404, not a 500), and the two
+  `tmdb_rating` guards — that the value reaches the insert at all, and that
+  TMDB's no-votes `0` is stored as `null` (D-037). Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
@@ -79,10 +86,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
 ### Front-end overhaul (in progress — started 2026-09-05)
-* Both modal `<dialog>`s (rate, AI call log) re-centred: the global
-  `* { margin: 0 }` reset had killed the UA stylesheet's `dialog { margin: auto }`,
-  so they rendered at top-left. Fixed with an explicit `margin: auto` on
-  `.rate-dialog` / `.log-dialog`.
+* The two modal `<dialog>`s that existed at the time (rate, AI call log) were
+  re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
+  `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
+  `margin: auto` on `.rate-dialog` / `.log-dialog`. There are **three** dialogs
+  now — `.confirm-dialog` gets the same `margin: auto` by sharing that rule.
 * AI call log entry point promoted from a `.linkish` link buried in a footer
   sentence to a `.log-cta` panel with a solid amber button (`#open-log` id
   unchanged) + one-line description — it's the SPEC §7.2 "not a wrapper" proof,
@@ -322,8 +330,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* **Ranked list — in progress.** Audited into a 17-item list; the user is
-  working it in order. Done so far:
+* **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
+  added 18–20; **13 of the 20 are done** and the canonical table with every
+  status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared
@@ -425,9 +434,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     differs. It was briefly deleted outright; the user pushed back correctly —
     every save DOES recompute the ranking, so the claim was never false — and
     the surviving objection was only that it reads as a claim about the outcome.
-    **The signature pairs each id with whether the film is rated, not positions
-    alone**: rating the only unrated film can leave its POSITION unchanged while
-    its slot goes `?` → a number. Do not simplify that back. The two
+    **The signature is now id + displayed RANK + tie state, computed by the one
+    `displayedRanking()` the renderer itself uses (D-039).** It was id + rated,
+    which missed four cases — including the reported one: break a tie for first
+    place by lowering the film already drawn second and nothing moves, yet it
+    goes from `1 tied` to `2`. The fix was deleting the second copy of the
+    ranking rule, not writing a cleverer fingerprint: an approximation of a rule
+    goes stale the moment the rule changes, which is exactly what D-038 did to
+    it. Same failure mode `busyButton()` was extracted for. The two
     ERROR toasts were deliberately left alone: they pass the server's own
     wording through, and prefixing it client-side would produce doublings like
     `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
@@ -446,9 +460,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states —
     they were the only controls in the app that did not react at all. Existing
     vocabulary, not new: outline buttons go amber (as `.log-dialog .ghost`
-    already did), filled buttons darken their fill, and `--crimson-deep` was
-    added to give the `.danger` fill somewhere to go, mirroring
-    `--amber`/`--amber-deep`.
+    already did), filled buttons darken their fill.
+    **Remove's colours were then re-derived by measurement, not eye (D-035).**
+    Its label failed WCAG AA on hover (3.59:1) and its rest→hover step read as
+    too subtle. A DARK label imposes a floor on how dark a fill may go, and
+    `--crimson` sat barely above it — so "darker on hover" and "readable label"
+    were in direct conflict, and five candidate labels were measured with none
+    passing both states. The fills had to move: `--danger-fill` /
+    `--danger-fill-hover` (role-named, because `--crimson` is the error TEXT
+    colour and is too light to carry a label as a fill) with `--ink` on top —
+    4.54:1 at rest, 6.71:1 on hover, step 0.683 → 0.572. Save keeps its dark
+    `#1a1205` because amber is ~2.5x brighter and measures 11.18/7.66. The two
+    buttons differ on purpose. `--crimson-deep` is retired.
     **Every one is `:not(:disabled)`.** Auditing that guard against every
     button that can actually be disabled found a REAL pre-existing bug:
     `.rec-card__body button:hover` had no guard while carrying a `:disabled`
@@ -457,6 +480,95 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     under the cursor. Now guarded. The only two unguarded hover rules left
     (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
     disables — verified against every `disabled =` assignment in app.js.
+
+  - **Desktop card alignment** (2026-09-09, user-raised, off-backlog). The grid
+    is `align-items: center`, so on >620px a short title floated in the middle
+    of the 138px poster and the score column sat centred as one block. Now the
+    body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
+    top read as too tight; it is on the BODY ALONE so the rating stays pinned to
+    the true top) and the score column is `align-self: stretch` with the rating
+    at the top and the buttons pushed down by `margin-top: auto`. The rating
+    then gets a hair of its own (`0.06rem`, on `.score-badge` rather than on the
+    column, so only the rating shifts and the buttons stay pinned). It is NOT a
+    fraction of the body's margin and must not be re-derived as one: the rating
+    is 1.5rem to the title's 1.15rem at the same line-height, so more
+    half-leading already sits above its glyphs and it starts lower in its own
+    box. Set to 0.15rem first and that visibly over-shot, dropping the rating
+    below the title's line.
+    **All four desktop-only properties are reset inside the existing 620px
+    query**, so card mode is untouched; `align-self: stretch` needs no reset
+    because the score moves to its own grid row there, sized by itself, where
+    stretch and center are the same box.
+    Top vs centred was settled by a side-by-side screenshot: centring made each
+    title's distance from the card's top edge depend on its review length, so
+    the titles stopped forming a straight column to scan — which matters because
+    this is a ranked LIST. Top-aligning also pairs the title and the score on one
+    header line. Its one weakness, a void under a review-less card, is what
+    backlog **#20** fills, so #20 is now worth more, not less. **An auto margin, NOT `justify-content: space-between`**
+    — the same trap the 620px block already documents in the other axis: an
+    unrated card has no score badge, and space-between parks a LONE child at the
+    START, which would put the buttons at the TOP. The rank numeral stays
+    centred on purpose (a large display figure, balanced against the poster;
+    not part of the request). Card mode is untouched — both properties are
+    reset inside the existing 620px query rather than fenced off behind a new
+    `min-width`, which would leave a gap at fractional viewport widths.
+
+  - **TMDB's own score now persists and is shown** (#11, D-036). The number was
+    always fetched by `shapeMovie()` and always shown in search rows, then
+    dropped on insert because no column existed. Migration 002 adds
+    `tmdb_rating numeric(3,1)` with a check constraint mirroring the user's own
+    `rating_range`; the insert stores it; the ranked card shows it faintly under
+    the amber figure as `TMDB 7.2`.
+    **A snapshot, not a live value** — written once at add time, never
+    refreshed. Refreshing would cost one TMDB call per film per page load, make
+    the ranked list depend on TMDB being up (it currently renders fine when TMDB
+    is down, which is a resilience state being screenshotted), and make the
+    comparison meaningless by drifting. Do not add a refresh; read D-036 first.
+    Shown on unrated cards too — it is labelled `TMDB`, so it cannot be misread
+    as the user's own score. Rendered from `!= null`, never truthiness.
+    **Follow-up the same day (D-037): TMDB's `vote_average: 0` means NO VOTES,
+    not a score of zero** — its vote scale starts at 0.5. `shapeMovie()` passed
+    it through, so an unvoted title stored a literal 0 and the card read
+    "TMDB 0.0". The search row hid it only because it used truthiness, so the two
+    surfaces disagreed about the same film — one right by accident, one wrong on
+    purpose. Fixed at the SOURCE (`vote_count` when present, `avg > 0` as a
+    fallback) rather than by making a renderer test `> 0`, so "no rating" has one
+    representation everywhere. Migration 003 nulls the rows already written. Do
+    not simplify `shapeMovie()` back to a bare `typeof avg === 'number'`.
+    The card then SAYS so rather than showing nothing: a muted italic
+    `No TMDB rating`, reusing the `is-muted` vocabulary `.verdict__text` already
+    uses for placeholders (and that #20 will use for a missing review). An empty
+    slot is indistinguishable from one that failed to load, and it would have
+    been emptiest on exactly the obscure titles where a reader wonders most.
+    The rating and this caption sit in one `.score-block` wrapper so the score
+    column still has exactly TWO children — the block and the buttons — which is
+    what its `margin-top: auto` bottom-pinning depends on.
+    On an UNRATED card the caption leads the block, and `:first-child` is the
+    test for that — the badge is appended before it whenever a rating exists. It
+    gets `0.45rem` there, far more than the badge's `0.06rem`, because the badge's
+    tall 1.5rem line box already insets its own glyphs while a 0.72rem caption at
+    line-height 1.3 starts flush against the card's top edge. Reset in card mode.
+
+  - **Tied films share a rank number, and say so** (#13, D-038). Two films the
+    user scored 8.0 showed as #3 and #4, ordered by `created_at` — which was
+    added more recently — so the numbers asserted a ranking the data does not
+    contain. Now **competition ranking** (1, 2, 2, 4; the skipped number is the
+    point) plus a muted `tied` caption under the numeral, because two adjacent
+    identical numbers otherwise read as a rendering fault.
+    **Zero layout change, and that took the non-obvious route.** The caption
+    must not move the numeral — the cell is grid-centred, so a taller cell
+    shifts its numeral up while untied neighbours stay put. `position: relative`
+    + an absolute caption was rejected: it moves the cell into the positioned
+    paint layer, so the poster would paint UNDER an overflowing numeral instead
+    of over it, reversing what the `.is-wide` note describes. Instead
+    `.movie-card__rank` gets `height: 1em` — which `line-height: 1` already made
+    true, so it is a **no-op on every card without a caption** — and the caption
+    overflows it. `em`, so it tracks the clamp and both `.is-unranked` and
+    `.is-wide`.
+    Not `=2` in the numeral (the chart convention): that widens the glyph into
+    the figure-width budget D-030 solved by measurement. A tie at the top crowns
+    BOTH films, which is correct — D-029 defines the crown as *your top-rated
+    film*, and if two are scored the same then both are.
 
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
@@ -477,10 +589,10 @@ and do not renumber: the numbers are how the user refers to them.
 | 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
 | 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
 | 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
-| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | open — **next**, scope call |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
-| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | open |
-| 14 | Expanded reviews collapse on any unrelated re-render | open — only the element-reuse rewrite **rejected in D-031** fixes it |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
+| 14 | Expanded reviews collapse on any unrelated re-render | open — **next**; only the element-reuse rewrite **rejected in D-031** fixes it |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
 | 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
@@ -523,8 +635,22 @@ something looks quicker.
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
+* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-09, backfill run.** It was
+  a prerequisite rather than a follow-up: until the column existed PostgREST
+  rejected the insert with PGRST204 and adding any film failed. A nullable
+  column is backward compatible with the code on `main`, so applying it early
+  was safe for the live site.
+* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-09.** TMDB
+  reports `vote_average: 0` for a title nobody has voted on, so 002 + the
+  backfill wrote a literal 0 for those and the card read "TMDB 0.0", i.e. worst
+  film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
+  row can get one; 003 fixed the rows already written.
+  **Both are applied to the single live Supabase project, which is the same
+  database the deployed app uses — there is no separate prod DB to migrate at
+  release time.**
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  and TMDB/OpenRouter-down resilience all covered by `npm test` (33).
+  TMDB/OpenRouter-down resilience, and the `tmdb_rating` guards all covered by
+  `npm test` (35).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -597,7 +723,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   set in Render's Environment tab; `PORT` deliberately is not — Render injects
   it. Verified live: health probe, ranked list (Supabase), search (TMDB), and
   recommendations/verdict (OpenRouter). Free tier sleeps after ~15 min idle, so
-  the first hit takes ~1 min — open the link before demoing.
+  the first hit takes anywhere from a few seconds to a minute while the instance
+  wakes — a minute is the observed worst case, not the typical one. Open the link
+  shortly before demoing.
   **Still to do:** put the URL on the lecturer's project sheet.
   Node resolves to whatever is newest (`engines` says `>=20`; the live build
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s

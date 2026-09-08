@@ -34,13 +34,24 @@ function toPosterUrl(posterPath) {
 }
 
 function shapeMovie(raw) {
+  // TMDB reports `vote_average: 0` for a title NOBODY HAS VOTED ON. That is the
+  // absence of a rating, not a rating of zero: its user vote scale starts at
+  // 0.5, so an average of exactly 0 cannot be a real score. Passing it straight
+  // through stored a 0, and the ranked card then read "TMDB 0.0" — worst film
+  // imaginable — for an obscure title with no votes at all.
+  // `vote_count` is the direct signal and is used whenever TMDB sends it. The
+  // `avg > 0` test is the fallback, so a payload that happens to omit
+  // vote_count can never null out a rating that is genuinely there.
+  const avg = raw.vote_average;
+  const hasRating =
+    typeof avg === 'number' && avg > 0 && (raw.vote_count == null || raw.vote_count > 0);
   return {
     tmdb_id: raw.id,
     title: raw.title,
     year: raw.release_date ? Number(raw.release_date.slice(0, 4)) : null,
     description: raw.overview || null,
     poster_url: toPosterUrl(raw.poster_path),
-    tmdb_rating: typeof raw.vote_average === 'number' ? Number(raw.vote_average.toFixed(1)) : null,
+    tmdb_rating: hasRating ? Number(avg.toFixed(1)) : null,
   };
 }
 

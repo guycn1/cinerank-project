@@ -144,20 +144,69 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
 
 /**
- * A fingerprint of the ranking AS DISPLAYED, for telling a save that reordered
- * the list from one that did not.
+ * The ranking AS DISPLAYED: for every film, the number its card shows (null
+ * when unrated) and whether it shares that number with another film.
  *
- * Position alone is not enough, which is the trap here. Rate the only unrated
- * film in the list and it may keep its position (unrated films already sort
- * last, so a low rating can leave it exactly where it was) while its rank slot
- * changes from "?" to a real number — a visible ranking change with no
- * reordering at all. Hence the rated flag alongside each id.
+ * ONE function, used by both renderRanked() and rankSignature(), because the
+ * two must never disagree about what "the ranking" is — and they did. This
+ * logic lived only in the renderer, so the detector had to approximate it, and
+ * the approximation was wrong in a way nobody would guess: see rankSignature().
  *
- * Compared as a string rather than element-by-element: the array is small, and
+ * Competition ranking (1, 2, 2, 4). `position` is where a film sits and always
+ * increments; `shown` repeats across a tie, then jumps to the next position.
+ * Deliberately NOT the array index — only a rated film has a rank, so an
+ * unrated one must not consume a number (D-029).
+ *
+ * `shared` is counted up front rather than by peeking at neighbours: adjacency
+ * would also work (the list arrives sorted by rating) but would have to
+ * special-case the first and last film. Keyed by the rating NUMBER — the column
+ * is numeric(3,1), so 8.0 and 8.0 are exactly equal and 8.0 vs 8.1 are exactly
+ * not.
+ */
+function displayedRanking(movies) {
+  const shared = new Map();
+  for (const m of movies) {
+    if (m.rating == null) continue;
+    shared.set(m.rating, (shared.get(m.rating) ?? 0) + 1);
+  }
+  let position = 0;
+  let shown = 0;
+  let prevRating = null;
+  return movies.map((m) => {
+    if (m.rating == null) return { id: m.id, rank: null, tied: false };
+    position++;
+    if (m.rating !== prevRating) shown = position;
+    prevRating = m.rating;
+    return { id: m.id, rank: shown, tied: shared.get(m.rating) > 1 };
+  });
+}
+
+/**
+ * A fingerprint of the ranking as displayed, for telling a save that changed
+ * the ranking from one that did not.
+ *
+ * Built from displayedRanking() rather than from the raw list, because
+ * "the ranking changed" is not the same as "the order changed", and the two
+ * come apart in at least three ways:
+ *
+ *  - Rate the only unrated film and it may keep its POSITION (unrated films
+ *    already sort last, so a low rating can leave it exactly where it was)
+ *    while its slot changes from "?" to a number.
+ *  - Break a tie for first place by lowering the LOWER-placed of the two, and
+ *    nothing moves at all — it was already drawn second — yet it goes from
+ *    "1 tied" to "2". This one shipped broken: the signature was id + rated,
+ *    so it saw no change and the toast said only "saved".
+ *  - A tie forming or dissolving changes the caption without changing the
+ *    number.
+ *
+ * Hence id + displayed rank + tie state: literally what the card shows.
+ * Compared as a string rather than element-by-element — the array is small, and
  * one !== is harder to get subtly wrong than a hand-rolled loop.
  */
 const rankSignature = () =>
-  state.movies.map((m) => `${m.id}:${m.rating != null}`).join('|');
+  displayedRanking(state.movies)
+    .map((r) => `${r.id}:${r.rank ?? '?'}:${r.tied}`)
+    .join('|');
 
 /**
  * Run a DOM update inside a View Transition, so a re-sorted list animates to
@@ -213,12 +262,12 @@ function renderRanked() {
   el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
   el.rankedEmpty.hidden = count > 0;
 
-  // Rank counter. Deliberately NOT the array index: only a rated film has a
-  // rank, so an unrated one must not consume a number (D-029). The server sorts
-  // nulls last, so rated films are contiguous at the top and this counter and
-  // the index agree for them — but the counter states the rule instead of
-  // depending on the sort order to imply it.
-  let rankNo = 0;
+  // Computed ONCE, by the same function rankSignature() uses, so what is drawn
+  // and what counts as "the ranking changed" cannot drift apart. Films the user
+  // scored identically must not be told apart by a number — the order between
+  // them is only `created_at`, i.e. which was added more recently, which has
+  // nothing to do with taste (backlog #13).
+  const ranking = displayedRanking(state.movies);
 
   state.movies.forEach((m, i) => {
     const li = document.createElement('li');
@@ -241,18 +290,36 @@ function renderRanked() {
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
     if (isRated) {
-      rank.textContent = String(++rankNo);
+      // 1, 2, 2, 4 — the skipped 3 is the point, not a bug: two films are
+      // jointly 2nd, so nothing is 3rd.
+      rank.append(document.createTextNode(String(ranking[i].rank)));
       // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
       // in the list" and "your top-rated film" are different facts, and they
       // come apart the moment the list holds an unrated film — with nothing
       // rated yet, the positional rule crowned a film with no rating at all.
-      if (rankNo === 1) rank.classList.add('is-top');
+      // A tie at the very top crowns BOTH films, which is correct rather than a
+      // side effect: D-029 defines this as "your top-rated film", and if two are
+      // scored the same then both are.
+      if (ranking[i].rank === 1) rank.classList.add('is-top');
       // Three digits are wider than the rank gutter can hold at the desktop
       // font size — "250" overran the gap and the poster painted over its last
       // digit. CSS cannot count characters, so the digit count is marked here
       // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
       // not 9: two digits were measured and fit fine at every width.
-      if (rankNo > 99) rank.classList.add('is-wide');
+      if (ranking[i].rank > 99) rank.classList.add('is-wide');
+      // Says the repeated number is deliberate. Without it two adjacent cards
+      // showing "2" read as a rendering fault. Deliberately NOT baked into the
+      // numeral as "=2", the UK chart convention: that would widen the glyph and
+      // walk straight into the measured figure-width budget D-030 solved.
+      // It is also readable text rather than an aria-label — a label on a
+      // generic <div> is not reliably exposed, so a screen reader is left with
+      // "2 tied", which is exactly right anyway.
+      if (ranking[i].tied) {
+        const tie = document.createElement('span');
+        tie.className = 'rank-tie';
+        tie.textContent = 'tied';
+        rank.append(tie);
+      }
     } else {
       // No rank to show. Same "no value here" glyph vocabulary as the AI call
       // log's empty Tokens/Cost cells, so the absence reads as an absence.
@@ -311,6 +378,15 @@ function renderRanked() {
 
     const score = document.createElement('div');
     score.className = 'movie-card__score';
+    // The rating and TMDB's score go in ONE wrapper, not straight into the score
+    // column. The column's two children are the block and the buttons, and the
+    // buttons hang off `margin-top: auto` to reach the bottom — adding a third
+    // sibling would put the column's 0.5rem gap between the rating and its own
+    // sub-line, which is far too much for a caption. Inside the block the
+    // spacing is set on its own terms, and the column keeps exactly the two
+    // children its layout was built around.
+    const scoreBlock = document.createElement('div');
+    scoreBlock.className = 'score-block';
     if (isRated) {
       const badge = document.createElement('div');
       badge.className = 'score-badge';
@@ -318,8 +394,36 @@ function renderRanked() {
       const s = document.createElement('small');
       s.textContent = '/10';
       badge.append(s);
-      score.append(badge);
+      scoreBlock.append(badge);
     }
+    // Always rendered — with the score when TMDB has one, and as an explicit
+    // "No TMDB rating" when it does not. Saying so beats an empty slot: an
+    // absent line is indistinguishable from a line that failed to load, and the
+    // slot would otherwise be silently empty on exactly the obscure titles where
+    // the reader is most likely to wonder.
+    // Shown on unrated cards too: it is explicitly labelled "TMDB", so it cannot
+    // be read as the user's own score, and it is the one number a film has
+    // before you have rated it.
+    // `!= null` and not truthiness. A 0 can no longer reach here — shapeMovie()
+    // maps TMDB's no-votes zero to null at the source (D-037) — but truthiness
+    // would be the wrong test to leave behind for the next value that comes
+    // through, and it is the same trap `isRated` above documents.
+    const t = document.createElement('div');
+    t.className = 'score-tmdb';
+    if (m.tmdb_rating != null) {
+      t.textContent = `TMDB ${m.tmdb_rating.toFixed(1)}`;
+      // The visible text already reads "TMDB 7.2", which is terse next to the
+      // user's own big amber number; spell the comparison out for a screen
+      // reader, where there is no visual grouping to make it obvious.
+      t.setAttribute('aria-label', `TMDB rating ${m.tmdb_rating.toFixed(1)} out of 10`);
+    } else {
+      // No aria-label: "No TMDB rating" already reads correctly aloud, and a
+      // label would only override it with a paraphrase.
+      t.classList.add('is-muted');
+      t.textContent = 'No TMDB rating';
+    }
+    scoreBlock.append(t);
+    score.append(scoreBlock);
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');
@@ -385,7 +489,7 @@ function syncReviewToggles() {
     it.toggle.hidden = !it.clips;
     // `it.clips && it.wasExpanded`, so a review that no longer clips is left
     // COLLAPSED rather than restored. Both states render identically when the
-    // text fits in two lines, so nothing moves — but leaving `expanded` set
+    // text fits within the clamp, so nothing moves — but leaving `expanded` set
     // would mean the next narrowing showed the full text with no toggle at all,
     // which is the original unreachable-text bug wearing a different hat.
     setReviewExpanded(it.p, it.toggle, it.clips && it.wasExpanded);
@@ -544,7 +648,13 @@ function renderSearchResults(results, query) {
     const strong = document.createElement('strong');
     strong.textContent = r.title;
     const span = document.createElement('span');
-    span.textContent = [r.year, r.tmdb_rating ? `TMDB ${r.tmdb_rating}` : null].filter(Boolean).join(' · ');
+    // `!= null`, not truthiness, and `toFixed(1)` so this row and the ranked
+    // card state the same number the same way. Truthiness happened to hide
+    // TMDB's "no votes" zero here while the ranked card showed it as "TMDB 0.0"
+    // — the two surfaces disagreed about the same film. That zero is now null
+    // at the source (shapeMovie), so both are absent for the same reason.
+    const tmdb = r.tmdb_rating != null ? `TMDB ${r.tmdb_rating.toFixed(1)}` : null;
+    span.textContent = [r.year, tmdb].filter(Boolean).join(' · ');
     meta.append(strong, span);
     const btn = document.createElement('button');
     btn.type = 'button';

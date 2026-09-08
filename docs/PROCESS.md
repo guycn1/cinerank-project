@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Nine merges to `main` so far (verify with
+  human sign-off.** Ten merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
@@ -120,7 +120,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 33 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 35 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -130,6 +130,10 @@ of the practice.
   below-threshold guards (422), and — the one that matters most — OpenRouter
   unreachable returning 422 *and* still writing a `status='failed'` row to
   `recommendation_logs`. That's the "make failure visible" contract under test.
+- **Regression guards**, each added the day the bug was found and each checked to
+  fail without its fix: a film deleted in another tab returning 404 rather than a
+  500, TMDB's own rating actually reaching the insert, and TMDB's "no votes"
+  `vote_average: 0` being stored as `null` instead of as a real score of zero.
 
 To keep the live database untouched (§5), the Supabase client is swapped for a
 small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through
@@ -148,7 +152,8 @@ screenshots for the submission even though the server side is now tested.
   anywhere to deploy to. Netlify was ruled out from the beginning and stayed
   ruled out (static files + serverless functions only; this is a long-lived
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
-  first request then takes about a minute.
+  first request then takes anywhere from a few seconds to a minute while the
+  instance wakes; every load after that is immediate.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
   screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a

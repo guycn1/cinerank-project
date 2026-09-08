@@ -14,9 +14,11 @@ create table if not exists movies (
   description  text,                             -- TMDB overview
   poster_url   text,
   rating       numeric(3,1),                     -- 0.0–10.0, nullable until rated
+  tmdb_rating  numeric(3,1),                     -- TMDB's own score at add time (migration 002)
   review       text,
   created_at   timestamptz not null default now(),
-  constraint rating_range check (rating is null or (rating >= 0 and rating <= 10))
+  constraint rating_range check (rating is null or (rating >= 0 and rating <= 10)),
+  constraint tmdb_rating_range check (tmdb_rating is null or (tmdb_rating >= 0 and tmdb_rating <= 10))
 );
 
 create index if not exists movies_rating_idx on movies (rating desc nulls last);

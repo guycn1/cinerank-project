@@ -19,7 +19,13 @@
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
   --crimson: #e2574c;
-  --crimson-deep: #c4433a; /* pressed/hovered .danger fill — mirrors the --amber/--amber-deep pair */
+  /* Destructive-button fills. Role-named, not colour-named, and deliberately
+     NOT interchangeable with --crimson above: --crimson is the error TEXT and
+     border colour, and it is too light to carry a readable label as a fill.
+     Both of these are dark enough for --ink to clear WCAG AA (4.5:1) on them.
+     Do not "simplify" the button back to background: var(--crimson). */
+  --danger-fill: #c83a2f;        /* rest  — --ink on it = 4.54:1 */
+  --danger-fill-hover: #9a2d24;  /* hover — --ink on it = 6.71:1 */
   --line: #26262f;
   --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
   --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
@@ -426,6 +432,38 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   color: transparent;
   -webkit-text-stroke: 1.5px var(--amber);
   text-align: center;
+  /* Pinned so the "tied" caption below cannot move the numeral. `line-height: 1`
+     already makes this box exactly one em tall, so on a card WITHOUT a caption
+     this declaration changes nothing — it only stops a card WITH one from
+     growing, which (the cell being centred by the grid) would otherwise nudge
+     its numeral up while its untied neighbours stayed put.
+     `em`, not a fixed length, so it tracks the clamp above and both
+     `.is-unranked` and `.is-wide`, which each change the font size.
+     Height only — NOT `position: relative`, which would have been the other way
+     to take the caption out of the flow. That would move this cell into the
+     positioned-paint layer and reverse the poster/numeral overlap order the
+     `.is-wide` note below describes. */
+  height: 1em;
+}
+/* The tie marker. Sits BELOW the pinned box and simply overflows it (nothing on
+   this card clips), so it is out of the layout without being out of the flow.
+   Every inherited property of the numeral has to be undone: the display face,
+   the 900 weight, the transparent fill with its amber stroke, and `.is-top`'s
+   glow — a child would otherwise render as a tiny outlined amber word.
+   Lowercase and short by design: at 0.62rem it measures well under the 40px
+   rank track of card mode, which is the narrowest place it has to fit, so it
+   cannot wrap or overhang however wide the numeral beside it gets. */
+.rank-tie {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
 }
 /* The top-rated film. Set as a class by renderRanked(), NOT as
    `.movie-card:first-child` — list position and "highest rated" are different
@@ -495,6 +533,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
 
+/* Top-aligned, overriding the grid's `align-items: center`. The poster is the
+   tallest thing in the row (138px on desktop), so a short title + review used to
+   float in the middle of it with a gap above the title; the title now starts
+   level with the top of the poster. The rank numeral is deliberately left
+   CENTRED — it is a large display figure that reads as balanced against the
+   poster, and it was not part of the request.
+   Reset in the 620px block so card mode is untouched. */
+/* Nudged down from the grid area's top edge, NOT centred in it. Compared side
+   by side against `center` and top alignment won: centring made the title's
+   distance from the card's top edge depend on how long its review is, so the
+   titles no longer formed a straight column to scan down — and this is a ranked
+   LIST, where scanning titles is the primary action. It also pairs the title
+   with the score on one header line.
+   The margin is the one adjustment on top of that: flush to the very top read
+   as slightly too tight. It is deliberately on .movie-card__body ALONE — the
+   score column must NOT move with it, so the rating stays pinned to the true
+   top of the card. Tune this number freely; nothing is solved against it. */
+.movie-card__body { align-self: start; margin-top: 0.3rem; }
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -506,7 +562,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 0.9rem;
   margin-top: 0.35rem;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  /* Three lines on WIDE viewports only; two at 900px and below (overridden in
+     the 900px block). Raised from two once the body became top-aligned: three
+     lines roughly fill the poster's height instead of leaving dead space under
+     the text — but only where the card is wide enough that the title still fits
+     on one line, which is what the 900px floor is protecting.
+     **This number lives ONLY here.** syncReviewToggles() decides whether to show
+     a "view more…" toggle by measuring `scrollHeight - clientHeight`, which asks
+     the browser whether the text actually overflowed — it has no idea how many
+     lines the clamp allows, and must never be given one. That is what makes this
+     a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)
+     untouched. Crossing the 620px breakpoint re-clamps, and the rAF-throttled
+     resize listener re-runs the measurement, which is the same path that already
+     handles a window drag changing how many lines the text wraps to. */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -569,12 +638,90 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+  /* Fill the row instead of being centred in it, so the two children can go to
+     opposite ends. Without this the column shrink-wraps and there is no free
+     space for the auto margin below to push into. */
+  align-self: stretch;
 }
+/* The score badge sits at the top by default; this drops the buttons to the
+   bottom. An auto MARGIN, not `justify-content: space-between` on the column —
+   for exactly the reason the 620px block documents in the other axis: an
+   unrated card has no score badge, and space-between parks a LONE child at the
+   START, which would put the buttons at the top of the card. An auto margin
+   eats the free space whether or not a badge is there.
+   Reset to 0 in card mode, where the column becomes a row and this would fight
+   that row's `align-items: center`. */
+.movie-card__score .card-actions { margin-top: auto; }
+/* The rating and TMDB's score as one unit, so the score column still has just
+   two children — this block and the buttons. That matters: the buttons reach the
+   bottom via `margin-top: auto`, and the column's 0.5rem gap would otherwise sit
+   between the rating and its own caption, which is far too much. */
+.score-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+/* TMDB's own score. Faint and small on purpose: the amber figure above is the
+   user's, this is context for it, and the size gap is what keeps the two from
+   being confused at a glance. The "TMDB" word is not decoration — it is the
+   only thing distinguishing whose number this is, so do not shorten it away. */
+.score-tmdb {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+/* UNRATED cards only. `:first-child` IS the "is this film unrated" test here —
+   the amber .score-badge is appended before this whenever there is a rating, so
+   the caption can only lead the block when there is none.
+   Why it needs so much more than the badge's 0.06rem: the badge is 1.5rem with
+   a tall line box, so its own half-leading already insets its glyphs from the
+   top of the column. This caption is 0.72rem at line-height 1.3 — barely any
+   half-leading — so with nothing above it, it starts flush against the card's
+   top edge. This roughly restores the line the title sits on.
+   Set by eye against the title, not solved; tune freely. Reset in card mode,
+   where the score is a centred ROW and has no top edge to sit against. */
+/* No score at all — TMDB has no votes for this title (D-037). Muted italic is
+   this app's established vocabulary for an absence rather than a value: exactly
+   what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
+   what backlog #20 will use for a missing review.
+   Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
+   the faintest ink token there is, so italic alone carries the distinction and
+   the line that DOES have a number keeps the weight it was tuned to. */
+.score-tmdb.is-muted { font-style: italic; }
+
+.score-block > .score-tmdb:first-child { margin-top: 0.45rem; }
+/* RATED cards: the caption follows the amber figure, so it needs only enough to
+   stop the two touching — the pair should still read as one block. Much smaller
+   than the unrated inset above, which is doing an entirely different job
+   (standing in for the badge's own optical top inset, not separating two lines).
+   The two selectors are mutually exclusive and equal specificity (0,3,0), so
+   neither can shadow the other. Reset in card mode, which was already right. */
+.score-block > .score-tmdb:not(:first-child) { margin-top: 0.12rem; }
 .score-badge {
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-size: 1.5rem;
   color: var(--amber);
+  /* A hair off the top edge — NOT half of the title block's 0.3rem, which is
+     what this was first set to and which visibly over-shot.
+     Why so much smaller than you would expect: the rating already carries an
+     offset the title does not. It is 1.5rem against the title's 1.15rem at the
+     same line-height, so proportionally more half-leading sits above its
+     glyphs — with both boxes top-aligned the rating's text already starts lower
+     inside its own box. The body's 0.3rem was compensating for that; adding
+     half of it again pushed the rating BELOW the title's line and broke the
+     header line the two are meant to share. Judged from a side-by-side
+     screenshot, not from these metrics, which are reasoned rather than measured.
+     So this is not "half the title's margin" and should not be re-derived as a
+     fraction of it. It is a hair, set by eye, against a level line.
+     On .score-badge itself, NOT on .movie-card__score: the column is
+     align-self: stretch and its buttons hang off margin-top: auto, so a margin
+     on the column would move the whole thing. Here only the rating shifts, the
+     buttons stay pinned to the bottom, and an unrated card — which has no
+     badge at all — is untouched by construction. */
+  margin-top: 0.06rem;
 }
 .score-badge small { color: var(--ink-faint); font-size: 0.7rem; font-weight: 400; }
 .card-actions { display: flex; gap: 0.4rem; }
@@ -594,6 +741,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .card-actions button:hover:not(:disabled) { color: var(--amber); border-color: var(--amber); }
 .card-actions button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
 .card-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Reviews go back to a two-line clamp at 900px and below. The third line only
+   pays for itself when the card is wide enough for the title to stay on ONE
+   line; once the title wraps, title + 3 lines + toggle exceeds the poster's
+   height and the card grows taller than its own poster, which is the side
+   effect this floor exists to mitigate.
+   Note MITIGATE, not eliminate: the real threshold is wherever a given title
+   stops wrapping, and that depends on the title's length, so a long one will
+   still wrap somewhat above 900px. Raise this number if that bothers you —
+   nothing is solved against it.
+   This single query covers card mode too, so the 620px block below deliberately
+   does NOT repeat the clamp: 620 is inside 900, and two rules setting the same
+   property at the same specificity is exactly how they drift apart.
+   Specificity (0,2,0), deliberately below `.review.expanded` (0,3,0), so an
+   expanded review stays unclamped at every width. */
+@media (max-width: 900px) {
+  .movie-card__body .review { -webkit-line-clamp: 2; }
+}
 
 /* Ranked list, narrow viewports. Lives HERE, at the end of the section it
    modifies, like every other media query in this file (500px after search,
@@ -617,7 +782,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      buttons sit bottom-right on every card and an unrated one simply leaves
      the bottom-left empty. Identical result to space-between when a badge IS
      present, so rated cards are unchanged. */
-  .movie-card__score .card-actions { margin-left: auto; }
+  .movie-card__score .card-actions { margin-left: auto; margin-top: 0; }
+  /* Card mode keeps the title vertically centred against the poster, as it was.
+     The desktop-only request was for top alignment; this is the reset that
+     keeps that request desktop-only. `.movie-card__score` needs no such reset:
+     it moves to its own grid row here (`grid-column: 2 / -1`), which is sized
+     by the score itself, so `align-self: stretch` and `center` produce an
+     identical box. */
+  .movie-card__body { align-self: center; margin-top: 0; }
+  /* Card mode centres the score row (align-items: center), so the desktop nudge
+     would push the rating off that centre line. */
+  .score-badge { margin-top: 0; }
+  .score-block > .score-tmdb:first-child { margin-top: 0; }
+  .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
 }
 
 /* recommendations --------------------------------------------------- */
@@ -917,9 +1094,13 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--amber-deep);
   border-color: var(--amber-deep);
 }
+/* Measured, not eyeballed. The rest -> hover luminance step is 0.572 (was
+   0.683, which read as too subtle), and both states clear AA against --ink:
+   4.54:1 at rest, 6.71:1 on hover. Re-measure if either token moves; do not
+   re-tune this by eye. */
 .confirm-dialog button.danger:hover:not(:disabled) {
-  background: var(--crimson-deep);
-  border-color: var(--crimson-deep);
+  background: var(--danger-fill-hover);
+  border-color: var(--danger-fill-hover);
 }
 .rate-dialog button:active:not(:disabled),
 .confirm-dialog button:active:not(:disabled) {
@@ -968,17 +1149,26 @@ body:has(dialog[open]) { overflow: hidden; }
   font-size: 0.9rem;
   line-height: 1.5;
 }
-/* The destructive action. The only visual difference from the rate dialog's
-   `.primary` is the hue: filled, so it is unmistakably the committing button,
-   but crimson rather than amber, matching the `.danger` Remove button on the
-   card that opened this. Dark text on the fill for the same reason .primary
-   uses #1a1205 — a saturated fill needs a dark label, not --ink.
+/* The destructive action. Filled, so it is unmistakably the committing button,
+   and red rather than amber, matching the `.danger` Remove button on the card
+   that opened this.
+   **The label is LIGHT here, unlike the amber .primary next door, and that is
+   forced by arithmetic rather than taste.** A dark label on a fill imposes a
+   FLOOR on how dark the fill may go: #2a0f0c needs the fill at >= 0.2137
+   relative luminance to clear 4.5:1, and the original fill (--crimson,
+   #e2574c) sat at 0.2351 — barely above it. So the hover could not get
+   meaningfully darker without failing AA, which is exactly what happened: it
+   measured 3.59:1. Amber has no such problem because it is ~2.5x brighter
+   (relLum 0.583 vs 0.235), which is why .primary keeps its dark #1a1205.
+   A light label inverts the constraint into a CEILING instead, so the fill is
+   free to darken as far as the design wants. Hence a dedicated, deeper pair of
+   fill tokens, and --ink for the label.
    Its hover and press states live with the rate dialog's, below the shared
    button rules, so the two dialogs cannot drift apart. */
 .confirm-dialog button.danger {
-  background: var(--crimson);
-  color: #2a0f0c;
-  border-color: var(--crimson);
+  background: var(--danger-fill);
+  color: var(--ink);
+  border-color: var(--danger-fill);
 }
 
 /* AI call log dialog ------------------------------------------------ */

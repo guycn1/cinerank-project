@@ -8,7 +8,8 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "test": "node --disable-warning=ExperimentalWarning --experimental-test-module-mocks --test \"test/**/*.test.js\"",
-    "scan-secrets": "node scripts/scan-secrets.js"
+    "scan-secrets": "node scripts/scan-secrets.js",
+    "backfill-tmdb-rating": "node scripts/backfill-tmdb-rating.js"
   },
   "engines": {
     "node": ">=20"
