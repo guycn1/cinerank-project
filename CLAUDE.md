@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog **COMPLETE — all 20 done**; next block is the recommendations overhaul; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; next up is the mobile-keypad fix, then the recommendations overhaul; eleventh merge to main was bc67ff2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -967,93 +967,99 @@ and do not renumber: the numbers are how the user refers to them.
 | 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
-##### Agreed order of work from here (reset by the user, 2026-09-08)
+##### Agreed order of work from here (set by the user, 2026-09-09)
 
-Work this top to bottom. It is the user's own sequencing, not Claude's
-suggestion — do not re-prioritise it, and do not start further down because
-something looks quicker.
+Work this top to bottom. It is the user's own sequencing, not Claude's — do not
+re-prioritise it, and do not start further down because something looks quicker.
+This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-**Superseding the earlier list**, whose first two steps are done: #11 shipped
-(D-036/D-037, migrations 002+003) and the whole 1–20 backlog is closed.
+1. **Mobile keypad does not close when a search is submitted.** On a phone the
+   soft keyboard stays up over the results. Mechanism, already traced: the submit
+   handler calls `e.preventDefault()` so the form never navigates, and **nothing
+   in `app.js` ever calls `.blur()`** — so the input keeps focus and the keyboard
+   with it. Careful with the fix: the empty-query path deliberately calls
+   `el.searchInput.focus()`, and that must keep working.
 
-1. **The remaining ranked-list issues the user is still raising.** The backlog
-   is empty but the section is NOT closed — the user's words: "a few more things
-   to settle before calling the whole ranked-list overhaul a wrap". These arrive
-   one at a time from using the app; D-045 (a 400-character word breaking the
-   page layout) is the kind of thing this step catches. Do not treat an empty
-   backlog table as permission to move on.
-2. **"What to watch next" (recommendations) overhaul.** Carries the known
-   swallowed-error bug listed under Open issues — the handler writes
-   `err.message` into `#recs-hint` and its own `finally` overwrites it in the
-   same tick, so a failed run shows the user nothing — and a label inconsistent
-   with Search ("Add to my list" vs "+ Add"). This is the **last functional bug**
-   on the open list, and it is SPEC §7.1 evidence, so it lands before the
-   resilience screenshots are captured.
-   **Read "Recommendations overhaul — the known issues" below before starting**;
-   it is the gathered list, and it holds two narrow-width defects found in the
-   2026-09-08 sweep that were deliberately left unfixed so they land here.
-3. **Add a GitHub icon to the page** — a link out to the public repo.
-4. **Then discuss the favicon gap.** Deliberately its own step, after the icon,
-   not folded into it. The state today, verified 2026-09-08: there is **no
-   `<link rel="icon">` in `index.html`, no icon file in `public/`, and no
-   server-side favicon route**, so every browser auto-requests `/favicon.ico`,
-   misses the static middleware and lands on the 404 handler. That is the lone
-   console error on a clean load — harmless, but it shows on the LIVE site too,
-   which is the one a reader opens. Cosmetic, not a bug; discuss before building.
-5. **Everything still open under Pre-submission blockers**, plus the leftovers
-   in Open issues.
+2. **Recommendations overhaul — a big one, with its own sub-backlog.** The items
+   below are the seed, NOT the whole list.
+   **Claude is expected to audit the section first and produce a large backlog of
+   its own**, the way the 17-item ranked-list audit was produced. The user's
+   words: "many more bug fixes, inconsistency fixes, and other enhancements that
+   I cannot remember right now". Do that audit before starting work, number the
+   items, and keep them here so a compact cannot lose them.
+   * **Error handling and visibility.** `renderRecommendations`'s handler writes
+     `err.message` into `#recs-hint` and sets `.err`, then its own `finally` calls
+     `syncRecommendationsAvailability()`, which unconditionally does
+     `classList.remove('err')` and overwrites `textContent`. Both run in the same
+     tick, so **a failed run shows the user nothing at all.** The server side is
+     correct and tested (422 + a `status='failed'` log row). This is the LAST
+     functional bug in the app and it is SPEC §7.1 evidence, so it must land
+     before the resilience screenshots are captured. The verdict side already
+     does this properly — it points at the AI call log; copy that shape.
+   * **Grow-on-hover**, matching what the ranked list got (D-043/D-044). Read
+     both entries first: elevation on this page is made of LIGHT not black, every
+     glow layer has a zero Y-offset, and the amber must not become a hard-edged
+     opaque line at an offset, which is where it converges with the focus ring.
+   * **A glittering ✨ AI icon on the recommendations button.** Prefer an inline
+     SVG, per D-027. **If mimicking a good-looking SVG proves problematic, this
+     one button is explicitly EXEMPT from the no-emoji rule** — the user has
+     granted that exemption in advance. Do not spend hours on the SVG.
+   * **Decide the "add to your list" label wording and glyph.** The rec card
+     reads `Add to my list` (app.js) while the search row reads `+ Add` with a
+     three-state machine (`+ Add` → `⟳ Adding…` → `✓ Added` / `In your list`).
+     One of them should move. Note the glyph/line-break rule under Frontend
+     Design Notes applies to whatever is chosen.
+   * **Verify that an already-added film is never recommended.** There is an
+     owned-titles filter; confirm it actually holds end to end.
+     * **Follow-up:** make sure the **UI, the API and the DB alike** safeguard
+       against duplicates in the ranked list. The DB has `unique(tmdb_id)` and
+       the route maps `23505` to a 409 — check the UI half and the recs path
+       against that, rather than assuming the constraint is doing all the work.
+   * **Two narrow-width defects found in the 2026-09-08 sweep and DELIBERATELY
+     left unfixed so they land here**, not scattered:
+     - `.recs__trigger` has **neither `flex-shrink: 0` nor `white-space: nowrap`**
+       (verified against all six of its rules), so "Get recommendations" can be
+       squeezed onto two lines. Mechanically identical to the `+ Add` bug already
+       fixed in Search. Its BUSY label is already safe — that comes from the
+       shared `busyButton()`.
+     - `.recs__head` has no `flex-wrap: wrap`, which is why the above bites
+       instead of resolving itself. `.ranked__head` was given the wrap on
+       2026-09-08 and `.recs__head` deliberately was not, so the two are
+       temporarily split in the stylesheet — **reunite them in this pass.**
 
-##### Recommendations overhaul — the known issues, gathered in ONE place
+   **Already done in this section, do NOT redo:** `.rec-card__body` carries
+   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation
+   fill was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   gained its missing `:not(:disabled)` guard (#10), and the glyph-glued labels
+   (`+\u00A0Add`, `✓\u00A0Added`) reach this card too, since it shares
+   `addMovie()`.
 
-Written down 2026-09-08 at the user's explicit request: *"I'm not counting on
-myself to remember it, and a compact is drawing near, so we must keep it
-somewhere safe."* **Do not start the overhaul without reading this list, and add
-to it the moment anything else recs-related is noticed.**
+3. **Add GitHub link(s)** to the page — out to the public repo.
 
-1. **The error message is swallowed — the only functional bug left in the app.**
-   `renderRecommendations`'s handler writes `err.message` into `#recs-hint` and
-   sets `.err` (app.js ~1095), then its own `finally` calls
-   `syncRecommendationsAvailability()`, which unconditionally does
-   `classList.remove('err')` and overwrites `textContent` (app.js ~1080). Both run
-   in the same tick, so **a failed run shows the user nothing at all.** The
-   server side is correct and tested (422 + a `status='failed'` log row). This is
-   purely the UI half of SPEC §7.1 and it would photograph badly in the
-   resilience screenshots. The verdict side already does this properly — it
-   points at the AI call log — so copy that shape.
-2. **"Get recommendations" breaks onto two lines at narrow widths.** Sweep
-   finding #1, reproduced by the user. `.recs__trigger` has **neither
-   `flex-shrink: 0` nor `white-space: nowrap`** — verified against all six of its
-   rules. Its label is two words, so min-content is "recommendations" and the
-   flex row can squeeze it below that, wrapping "Get" / "recommendations".
-   **Mechanically identical to the `+ Add` bug already fixed in Search**, and the
-   fix is the same two declarations. Deliberately NOT fixed yet, at the user's
-   instruction, so it lands with the overhaul.
-3. **`.recs__head` has no `flex-wrap: wrap`** — sweep finding #2, and the reason
-   #2 above bites instead of resolving itself. `.verdict__inner` and `.log-cta`
-   both wrap; the section heads did not, so the h2 and the button squeeze each
-   other rather than stacking. Fixing #2 and #3 together is one small change.
-   **`.ranked__head` was given the wrap on 2026-09-08 and `.recs__head`
-   deliberately was NOT**, so the two are temporarily split in the stylesheet.
-   The reason is written at the rule: wrapping `.recs__head` would have largely
-   MASKED item #2 above without fixing it — the button would stop being squeezed
-   while still lacking `flex-shrink: 0`, so the parked defect would look solved
-   and the real guard would never be added. **Reunite the two rules when this
-   pass happens.**
-4. **The resting label is exempt from the glyph/line-break rule.** See "Button
-   labels and line breaks" under Frontend Design Notes: a glyph must never split
-   from its word at any width, but `Get recommendations` is explicitly parked for
-   this pass. Its BUSY label ("⟳ Thinking…") is already covered, since that comes
-   from the shared `busyButton()`. Only the resting two-word label is outstanding,
-   and it is the same fix as item 2.
-5. **The add label disagrees with Search.** The rec card's button reads
-   `Add to my list` (app.js:1128) where the search row's reads `+ Add`. One of
-   them should move; the search row's three-state machine (`+ Add` → `⟳ Adding…`
-   → `✓ Added` / `In your list`) is the more developed of the two.
+4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
+   request. State verified 2026-09-08: there is **no `<link rel="icon">` in
+   `index.html`, no icon file in `public/`, and no server-side favicon route**,
+   so every browser auto-requests `/favicon.ico`, misses the static middleware
+   and lands on the 404 handler. That is the lone console error on a clean load,
+   and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
+   building.
 
-**Already done, do NOT redo:** `.rec-card__body` carries `min-width: 0` +
-`overflow-wrap: anywhere` (defensive, D-045), `.rec-card`'s entrance animation
-fill was corrected `both` → `backwards` (D-043), and `.rec-card__body button:hover`
-gained its missing `:not(:disabled)` guard during backlog #10.
+5. **Complete overhaul of the portrait view under 500px.**
+   **Plan and test against ~350px.** That is the target, not the floor.
+   **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
+   The user asked to be stopped, in advance, because the deadline is close:
+   * **Below ~350px: "good enough" only.** Actively talk the user out of tuning
+     these widths. The exceptions are narrow and specific — a fix that is safe,
+     straightforward and quick, or a case where the ~350px layout is itself
+     borderline and the narrow view is evidence of that. Anything else: say so
+     and move on.
+   * **Below ~290px: IGNORE COMPLETELY.** Do not investigate, do not measure, do
+     not fix, and **stop the user if they start**. This is not a judgement call
+     to re-litigate each time — it is a standing instruction, given deliberately
+     with the submission deadline in view.
+
+6. **All remaining documented pre-submission blockers**, plus the leftovers in
+   Open issues.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -1084,7 +1090,7 @@ below — this list is the smaller stuff.)
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
-* [ ] **Recommendations swallow their error message.** `renderRecommendations`'s
+* [ ] **Recommendations swallow their error message.** (Also step 2 of the agreed order — that entry is the one being worked from; keep this checkbox as the tracker, not a second description.) `renderRecommendations`'s
   handler writes `err.message` into `#recs-hint` on failure, but its `finally`
   then calls `syncRecommendationsAvailability()`, which unconditionally does
   `classList.remove('err')` + overwrites `textContent` with the standard hint —
