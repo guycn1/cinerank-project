@@ -980,9 +980,15 @@ to it the moment anything else recs-related is noticed.**
    instruction, so it lands with the overhaul.
 3. **`.recs__head` has no `flex-wrap: wrap`** — sweep finding #2, and the reason
    #2 above bites instead of resolving itself. `.verdict__inner` and `.log-cta`
-   both wrap; the two section heads (`.ranked__head`, `.recs__head`) do not, so
-   the h2 and the button squeeze each other rather than stacking. Fixing #2 and
-   #3 together is one small change.
+   both wrap; the section heads did not, so the h2 and the button squeeze each
+   other rather than stacking. Fixing #2 and #3 together is one small change.
+   **`.ranked__head` was given the wrap on 2026-09-08 and `.recs__head`
+   deliberately was NOT**, so the two are temporarily split in the stylesheet.
+   The reason is written at the rule: wrapping `.recs__head` would have largely
+   MASKED item #2 above without fixing it — the button would stop being squeezed
+   while still lacking `flex-shrink: 0`, so the parked defect would look solved
+   and the real guard would never be added. **Reunite the two rules when this
+   pass happens.**
 4. **The add label disagrees with Search.** The rec card's button reads
    `Add to my list` (app.js:1128) where the search row's reads `+ Add`. One of
    them should move; the search row's three-state machine (`+ Add` → `⟳ Adding…`

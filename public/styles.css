@@ -444,6 +444,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--line);
 }
+/* ONLY the ranked head, not the shared rule above — and the asymmetry is
+   deliberate, not an oversight. `.recs__head` holds the "Get recommendations"
+   button, whose two-word label can be squeezed onto two lines; adding the wrap
+   here would largely mask that without fixing it, and the user has parked it to
+   land with the recommendations overhaul. See "Recommendations overhaul — the
+   known issues" in CLAUDE.md. When that pass happens, this rule and
+   `.recs__head` should be reunited.
+   What it does: the film count drops below "Your ranking" instead of both
+   squeezing and wrapping internally. It only triggers when the count is long
+   AND the viewport is narrow — with the long form "5 films · 2 not rated yet"
+   at about 385px, and far narrower for the common short "5 films". Above that
+   nothing moves, since both items still fit on one line.
+   Note the lone item on the second line lands at the START, because
+   `justify-content: space-between` parks a single child at flex-start — the same
+   trap the 620px card-mode block documents. Here that is what we want: the count
+   reads as a subtitle under the heading. */
+.ranked__head { flex-wrap: wrap; }
 .ranked__head h2, .recs__head h2 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
