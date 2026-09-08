@@ -478,11 +478,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is
        `--bg: #0b0b0f`, so a black shadow has nothing left to darken. On a dark
        UI, elevation is made of light. The black layer is gone rather than
-       reduced, because it was contributing nothing to earn its place. */
+       reduced, because it was contributing nothing to earn its place.
+
+       EVERY LAYER HAS A ZERO Y-OFFSET, and that is a rule, not a coincidence.
+       A GLOW IS NOT A SHADOW: a shadow is cast, so it pools on the side away
+       from the light and a downward offset is correct for one. A glow is
+       EMITTED, so it radiates equally and any offset just makes it lopsided.
+       The middle layer was `0 16px 38px -10px` — described, in this very
+       comment, as "a warm pool below the card". With a 16px offset against an
+       ~9px reach, that layer contributed almost nothing ABOVE the card while
+       piling up below it, and it is the brightest of the three. The user saw it
+       immediately. This is the SECOND time in this item that a drop-shadow
+       idiom produced an asymmetry a glow should never have (the first was the
+       `translateY` lift). Do not give any of these layers a Y-offset. */
     box-shadow:
-      0 0 0 1px rgba(245, 193, 91, 0.28),        /* lit edge, just outside the border */
-      0 16px 38px -10px rgba(245, 193, 91, 0.36), /* warm pool below the card */
-      0 0 80px -10px rgba(245, 193, 91, 0.24);   /* wide halo into the page */
+      0 0 0 1px rgba(245, 193, 91, 0.28),      /* lit edge, just outside the border */
+      0 0 40px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
+      0 0 80px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
 }
 

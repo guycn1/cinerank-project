@@ -743,7 +743,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     shadow, and the page is `--bg: #0b0b0f` — a black shadow darkens what is
     behind it, and there was nothing left to darken, so that layer did almost no
     work at any opacity. It is REMOVED rather than reduced, and the amber carries
-    the effect: a lit edge, a warm pool below, a wide halo.
+    the effect: a lit edge, an inner glow and a wide halo.
+    **All three layers have a zero Y-offset, and that is a rule.** The middle
+    one shipped as `0 16px …` — a downward "pool", the drop-shadow idiom — and
+    the user spotted within minutes that the glow was far bigger below the card
+    than above it. A shadow is CAST and pools away from the light; a glow is
+    EMITTED and radiates evenly, so any offset only makes it lopsided. That was
+    the **second** time in this one item that a drop-shadow habit produced an
+    asymmetry a glow should not have — the `translateY` lift was the first. Do
+    not give these layers a Y-offset.
     **This supersedes D-043's own trap**, which said to hold the amber at
     0.10–0.12 alpha so hover could not be mistaken for keyboard focus. Followed
     literally, that is what made the effect invisible. What actually separates
