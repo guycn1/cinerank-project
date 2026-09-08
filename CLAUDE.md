@@ -361,9 +361,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     button drops to its own line and the title gets the full row.
     **No media query and no number encodes the threshold** — flex line breaking
     compares hypothetical sizes, so the browser derives it from the button's REAL
-    width, and it self-adjusts per row: "In your list" stacks around 332px while
-    "+ Add" holds to ~284px, which is right, since the wider button is the row
-    with less room. Common widths (360/390/412px) are untouched.
+    width, and it self-adjusts per row. **Thresholds MEASURED, not estimated**
+    (the user ran the button widths in the console: 68 / 104 / 85 / 95px):
+    "+ Add" 289px, "✓ Added" 306px, "In your list" 316px, mid-add 325px. Below
+    those the title column would be 53–79px — the crushed state this prevents.
+    An earlier note here said 332/284px from estimated button widths; "In your
+    list" is 95px, not the 111px guessed, so it stacks LATER than first written. Common widths (360/390/412px) are untouched.
     **The `5rem` basis is load-bearing, not decoration.** Without it `.meta`
     keeps `flex-basis: auto`, whose hypothetical size is MAX-CONTENT, and
     `flex-wrap` would then push the button onto its own line at ANY width the
