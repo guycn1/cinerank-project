@@ -364,7 +364,13 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      self-adjusts per row — "In your list" (the widest label) stacks earlier than
      "+ Add", which is exactly right, since that is the row with least room. */
   flex-wrap: wrap;
-  gap: 0.9rem;
+  /* Split, not one `gap`. The COLUMN gap is the spacing between poster, title
+     and button and is unchanged. The ROW gap only ever applies once the row has
+     wrapped, and 0.9rem there left the stacked button floating clear of the film
+     it belongs to — the user called it sloppy. Tightening it costs nothing on an
+     unwrapped row, where there is no second line for a row gap to sit in. */
+  column-gap: 0.9rem;
+  row-gap: 0.4rem;
   align-items: center;
   padding: 0.55rem;
   border-radius: 10px;
@@ -399,6 +405,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    so nothing moves — flex-grow is resolved before auto margins see the free
    space, so they simply get none. */
 .result-row .meta { flex: 1 1 5rem; }
+/* Below 300px the title drops a notch so words keep fitting WHOLE. Once the row
+   stacks, the title column is viewport minus the poster: 124px at 250px, about
+   14 characters at the inherited 1rem — so a 15-letter word ("Recommendations")
+   would be broken mid-word by `overflow-wrap: anywhere`, which is the last-resort
+   guard, not something a reader should ever meet. At 0.9rem the same column
+   holds ~16 characters, which covers every word length that occurs in real film
+   titles.
+   A hard `max-width` cutoff rather than a `clamp()`, deliberately: a fluid size
+   would have to start shrinking hundreds of pixels earlier to reach this value
+   by 300px, which would visibly touch the wide views that currently look right.
+   A media query cannot: 301px and up is provably unchanged. */
+@media (max-width: 300px) {
+  .result-row .meta strong { font-size: 0.9rem; }
+}
 .result-row .meta strong { display: block; font-weight: 600; }
 .result-row .meta span { color: var(--ink-dim); font-size: 0.85rem; }
 .result-row .add-btn {
