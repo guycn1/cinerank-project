@@ -939,6 +939,9 @@ something looks quicker.
    with Search ("Add to my list" vs "+ Add"). This is the **last functional bug**
    on the open list, and it is SPEC §7.1 evidence, so it lands before the
    resilience screenshots are captured.
+   **Read "Recommendations overhaul — the known issues" below before starting**;
+   it is the gathered list, and it holds two narrow-width defects found in the
+   2026-09-08 sweep that were deliberately left unfixed so they land here.
 3. **Add a GitHub icon to the page** — a link out to the public repo.
 4. **Then discuss the favicon gap.** Deliberately its own step, after the icon,
    not folded into it. The state today, verified 2026-09-08: there is **no
@@ -949,6 +952,46 @@ something looks quicker.
    which is the one a reader opens. Cosmetic, not a bug; discuss before building.
 5. **Everything still open under Pre-submission blockers**, plus the leftovers
    in Open issues.
+
+##### Recommendations overhaul — the known issues, gathered in ONE place
+
+Written down 2026-09-08 at the user's explicit request: *"I'm not counting on
+myself to remember it, and a compact is drawing near, so we must keep it
+somewhere safe."* **Do not start the overhaul without reading this list, and add
+to it the moment anything else recs-related is noticed.**
+
+1. **The error message is swallowed — the only functional bug left in the app.**
+   `renderRecommendations`'s handler writes `err.message` into `#recs-hint` and
+   sets `.err` (app.js ~1095), then its own `finally` calls
+   `syncRecommendationsAvailability()`, which unconditionally does
+   `classList.remove('err')` and overwrites `textContent` (app.js ~1080). Both run
+   in the same tick, so **a failed run shows the user nothing at all.** The
+   server side is correct and tested (422 + a `status='failed'` log row). This is
+   purely the UI half of SPEC §7.1 and it would photograph badly in the
+   resilience screenshots. The verdict side already does this properly — it
+   points at the AI call log — so copy that shape.
+2. **"Get recommendations" breaks onto two lines at narrow widths.** Sweep
+   finding #1, reproduced by the user. `.recs__trigger` has **neither
+   `flex-shrink: 0` nor `white-space: nowrap`** — verified against all six of its
+   rules. Its label is two words, so min-content is "recommendations" and the
+   flex row can squeeze it below that, wrapping "Get" / "recommendations".
+   **Mechanically identical to the `+ Add` bug already fixed in Search**, and the
+   fix is the same two declarations. Deliberately NOT fixed yet, at the user's
+   instruction, so it lands with the overhaul.
+3. **`.recs__head` has no `flex-wrap: wrap`** — sweep finding #2, and the reason
+   #2 above bites instead of resolving itself. `.verdict__inner` and `.log-cta`
+   both wrap; the two section heads (`.ranked__head`, `.recs__head`) do not, so
+   the h2 and the button squeeze each other rather than stacking. Fixing #2 and
+   #3 together is one small change.
+4. **The add label disagrees with Search.** The rec card's button reads
+   `Add to my list` (app.js:1128) where the search row's reads `+ Add`. One of
+   them should move; the search row's three-state machine (`+ Add` → `⟳ Adding…`
+   → `✓ Added` / `In your list`) is the more developed of the two.
+
+**Already done, do NOT redo:** `.rec-card__body` carries `min-width: 0` +
+`overflow-wrap: anywhere` (defensive, D-045), `.rec-card`'s entrance animation
+fill was corrected `both` → `backwards` (D-043), and `.rec-card__body button:hover`
+gained its missing `:not(:disabled)` guard during backlog #10.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
