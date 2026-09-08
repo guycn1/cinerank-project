@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-19 all done**, #20 is the last one; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-08 (ranked-list backlog items **1-19 all done**, #20 is the last one; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -34,7 +34,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   all applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "TMDB ratings
-  persisted (#11) + tied ranks made honest (#13)" (2026-09-09,
+  persisted (#11) + tied ranks made honest (#13)" (2026-09-08,
   `bc67ff2`). **Eleven** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -485,7 +485,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
     disables — verified against every `disabled =` assignment in app.js.
 
-  - **Desktop card alignment** (2026-09-09, user-raised, off-backlog). The grid
+  - **Desktop card alignment** (2026-09-08, user-raised, off-backlog). The grid
     is `align-items: center`, so on >620px a short title floated in the middle
     of the 138px poster and the score column sat centred as one block. Now the
     body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
@@ -756,7 +756,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
 | 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
-| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-09): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-09): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
+| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-08): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-08): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
 | 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
@@ -797,12 +797,12 @@ something looks quicker.
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
-* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-09, backfill run.** It was
+* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-08, backfill run.** It was
   a prerequisite rather than a follow-up: until the column existed PostgREST
   rejected the insert with PGRST204 and adding any film failed. A nullable
   column is backward compatible with the code on `main`, so applying it early
   was safe for the live site.
-* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-09.** TMDB
+* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-08.** TMDB
   reports `vote_average: 0` for a title nobody has voted on, so 002 + the
   backfill wrote a literal 0 for those and the card read "TMDB 0.0", i.e. worst
   film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
@@ -810,7 +810,7 @@ below — this list is the smaller stuff.)
   **Both are applied to the single live Supabase project, which is the same
   database the deployed app uses — there is no separate prod DB to migrate at
   release time.**
-* [x] **Migration 004 (`review_requires_rating`) applied 2026-09-09.** A `check`
+* [x] **Migration 004 (`review_requires_rating`) applied 2026-09-08.** A `check`
   constraint forbidding a review on an unrated film (#15, D-041) — the rating is
   the required part, the review the optional one, and until now only the UI knew
   that. A pre-check confirmed **zero** existing rows violated it before it went
@@ -831,7 +831,7 @@ below — this list is the smaller stuff.)
   purely the UI half of SPEC §7.1, and it would show up badly in the resilience
   screenshots. Fix when the recommendations section gets its overhaul pass; the
   verdict side already does this properly (points at the AI call log).
-* [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-09.**
+* [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
   The client's three offenders went with #16(c); the four server-side ones (the
   two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
   commit, together with the one test assertion that quotes a message verbatim —
