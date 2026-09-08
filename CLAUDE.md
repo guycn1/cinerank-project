@@ -353,6 +353,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     renders identically to U+0020 and only removes a break OPPORTUNITY. The
     ranked card needs no equivalent — `.score-tmdb` is `white-space: nowrap`,
     which forbids the break outright.
+    **And the row now STACKS rather than crushing its title column.** At 283px
+    the middle column was down to ~29px and a title fragmented into
+    "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
+    a column that should never have been that narrow. `.result-row` is
+    `flex-wrap: wrap` and `.meta` is `flex: 1 1 5rem`, so below a threshold the
+    button drops to its own line and the title gets the full row.
+    **No media query and no number encodes the threshold** — flex line breaking
+    compares hypothetical sizes, so the browser derives it from the button's REAL
+    width, and it self-adjusts per row: "In your list" stacks around 332px while
+    "+ Add" holds to ~284px, which is right, since the wider button is the row
+    with less room. Common widths (360/390/412px) are untouched.
+    **The `5rem` basis is load-bearing, not decoration.** Without it `.meta`
+    keeps `flex-basis: auto`, whose hypothetical size is MAX-CONTENT, and
+    `flex-wrap` would then push the button onto its own line at ANY width the
+    moment a title got long. Visually inert above the threshold: the free space
+    moves from the button's `margin-left: auto` to `.meta`'s `flex-grow`, and
+    since grow is resolved before auto margins see the space, the button still
+    ends at the right edge.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.

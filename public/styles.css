@@ -337,6 +337,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 .result-row {
   display: flex;
+  /* The row STACKS instead of crushing its middle column (sweep finding C). At
+     283px the title column was down to ~29px and "Papa Obama" fragmented into
+     "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
+     a column that should never have been that narrow. Three columns simply do
+     not fit that width, so below a threshold the button drops to its own line
+     and the title gets the full row.
+     The threshold is NOT a media query and no number here encodes it: flex line
+     breaking compares the items' hypothetical sizes against the row, so the
+     browser works it out from the button's REAL rendered width. It therefore
+     self-adjusts per row — "In your list" (the widest label) stacks earlier than
+     "+ Add", which is exactly right, since that is the row with least room. */
+  flex-wrap: wrap;
   gap: 0.9rem;
   align-items: center;
   padding: 0.55rem;
@@ -356,6 +368,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   width: 46px; height: 69px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
   background: var(--bg-raised);
 }
+/* `flex: 1 1 5rem` — the basis is load-bearing and this rule cannot be deleted
+   as redundant. Without it `.meta` keeps `flex-basis: auto`, whose hypothetical
+   size is MAX-CONTENT — the whole title on one line — so `flex-wrap` above would
+   push the button onto its own line at ANY width as soon as a title got long.
+   Pinning the basis to 5rem means the line only breaks when the title column
+   would fall under ~80px, which lands around 332px for an owned row and 284px
+   for "+ Add".
+   Visually inert above that: today the leftover space goes to the button's
+   `margin-left: auto`, and with `flex-grow: 1` it goes to `.meta` instead. The
+   button ends at the right edge either way and the text is left-aligned in both,
+   so nothing moves — flex-grow is resolved before auto margins see the free
+   space, so they simply get none. */
+.result-row .meta { flex: 1 1 5rem; }
 .result-row .meta strong { display: block; font-weight: 600; }
 .result-row .meta span { color: var(--ink-dim); font-size: 0.85rem; }
 .result-row .add-btn {
