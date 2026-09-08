@@ -753,7 +753,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     asymmetry a glow should not have — the `translateY` lift was the first. Do
     not give these layers a Y-offset.
     **Spotlight (user-raised, same item): hovering one card dims every other**
-    (`opacity: 0.45`), so the list recedes and only the card under the pointer is
+    (`opacity: 0.5`), so the list recedes and only the card under the pointer is
     at full strength. Two things make it work and neither is obvious.
     **`:has()`, not `.ranked__list:hover .movie-card:not(:hover)`** — the list
     has a 1rem `gap` that belongs to the list but to no card, so the shorter form

@@ -525,10 +525,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      been pinned at `opacity: 1` and would simply have refused to dim, silently,
      exactly as the hover transform did. Same bug, different property.
 
-     0.45 is the dial. Contrast is not a concern at rest: this state exists only
+     0.5 is the dial. Contrast is not a concern at rest: this state exists only
      while a pointer is over the list, and `:hover` never fires for keyboard
      users, so nothing a screen reader or a tabbing user encounters is dimmed. */
-  .ranked__list:has(.movie-card:hover) .movie-card:not(:hover) { opacity: 0.45; }
+  .ranked__list:has(.movie-card:hover) .movie-card:not(:hover) { opacity: 0.5; }
 }
 
 /* View Transition names for the two blocks that sit BELOW the ranked list.
