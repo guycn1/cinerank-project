@@ -650,6 +650,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    top edge. This roughly restores the line the title sits on.
    Set by eye against the title, not solved; tune freely. Reset in card mode,
    where the score is a centred ROW and has no top edge to sit against. */
+/* No score at all — TMDB has no votes for this title (D-037). Muted italic is
+   this app's established vocabulary for an absence rather than a value: exactly
+   what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
+   what backlog #20 will use for a missing review.
+   Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
+   the faintest ink token there is, so italic alone carries the distinction and
+   the line that DOES have a number keeps the weight it was tuned to. */
+.score-tmdb.is-muted { font-style: italic; }
+
 .score-block > .score-tmdb:first-child { margin-top: 0.45rem; }
 /* RATED cards: the caption follows the amber figure, so it needs only enough to
    stop the two touching — the pair should still read as one block. Much smaller

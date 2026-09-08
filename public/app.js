@@ -329,21 +329,34 @@ function renderRanked() {
       badge.append(s);
       scoreBlock.append(badge);
     }
+    // Always rendered — with the score when TMDB has one, and as an explicit
+    // "No TMDB rating" when it does not. Saying so beats an empty slot: an
+    // absent line is indistinguishable from a line that failed to load, and the
+    // slot would otherwise be silently empty on exactly the obscure titles where
+    // the reader is most likely to wonder.
     // Shown on unrated cards too: it is explicitly labelled "TMDB", so it cannot
     // be read as the user's own score, and it is the one number a film has
-    // before you have rated it. `!= null` and not truthiness — a legitimate 0.0
-    // is falsy, the same trap `isRated` above documents.
+    // before you have rated it.
+    // `!= null` and not truthiness. A 0 can no longer reach here — shapeMovie()
+    // maps TMDB's no-votes zero to null at the source (D-037) — but truthiness
+    // would be the wrong test to leave behind for the next value that comes
+    // through, and it is the same trap `isRated` above documents.
+    const t = document.createElement('div');
+    t.className = 'score-tmdb';
     if (m.tmdb_rating != null) {
-      const t = document.createElement('div');
-      t.className = 'score-tmdb';
       t.textContent = `TMDB ${m.tmdb_rating.toFixed(1)}`;
       // The visible text already reads "TMDB 7.2", which is terse next to the
       // user's own big amber number; spell the comparison out for a screen
       // reader, where there is no visual grouping to make it obvious.
       t.setAttribute('aria-label', `TMDB rating ${m.tmdb_rating.toFixed(1)} out of 10`);
-      scoreBlock.append(t);
+    } else {
+      // No aria-label: "No TMDB rating" already reads correctly aloud, and a
+      // label would only override it with a paraphrase.
+      t.classList.add('is-muted');
+      t.textContent = 'No TMDB rating';
     }
-    if (scoreBlock.children.length) score.append(scoreBlock);
+    scoreBlock.append(t);
+    score.append(scoreBlock);
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     const rateBtn = document.createElement('button');

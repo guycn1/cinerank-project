@@ -526,6 +526,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     fallback) rather than by making a renderer test `> 0`, so "no rating" has one
     representation everywhere. Migration 003 nulls the rows already written. Do
     not simplify `shapeMovie()` back to a bare `typeof avg === 'number'`.
+    The card then SAYS so rather than showing nothing: a muted italic
+    `No TMDB rating`, reusing the `is-muted` vocabulary `.verdict__text` already
+    uses for placeholders (and that #20 will use for a missing review). An empty
+    slot is indistinguishable from one that failed to load, and it would have
+    been emptiest on exactly the obscure titles where a reader wonders most.
     The rating and this caption sit in one `.score-block` wrapper so the score
     column still has exactly TWO children — the block and the buttons — which is
     what its `margin-top: auto` bottom-pinning depends on.
