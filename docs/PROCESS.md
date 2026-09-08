@@ -148,7 +148,8 @@ screenshots for the submission even though the server side is now tested.
   anywhere to deploy to. Netlify was ruled out from the beginning and stayed
   ruled out (static files + serverless functions only; this is a long-lived
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
-  first request then takes about a minute.
+  first request then takes anywhere from a few seconds to a minute while the
+  instance wakes; every load after that is immediate.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
   screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a

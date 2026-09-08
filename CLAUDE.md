@@ -718,7 +718,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   set in Render's Environment tab; `PORT` deliberately is not — Render injects
   it. Verified live: health probe, ranked list (Supabase), search (TMDB), and
   recommendations/verdict (OpenRouter). Free tier sleeps after ~15 min idle, so
-  the first hit takes ~1 min — open the link before demoing.
+  the first hit takes anywhere from a few seconds to a minute while the instance
+  wakes — a minute is the observed worst case, not the typical one. Open the link
+  shortly before demoing.
   **Still to do:** put the URL on the lecturer's project sheet.
   Node resolves to whatever is newest (`engines` says `>=20`; the live build
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s
