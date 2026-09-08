@@ -530,9 +530,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 0.9rem;
   margin-top: 0.35rem;
   display: -webkit-box;
-  /* Three lines on desktop, two in card mode (overridden in the 620px block).
-     Raised from two once the body became top-aligned: three lines roughly fill
-     the poster's height instead of leaving dead space under the text.
+  /* Three lines on WIDE viewports only; two at 900px and below (overridden in
+     the 900px block). Raised from two once the body became top-aligned: three
+     lines roughly fill the poster's height instead of leaving dead space under
+     the text — but only where the card is wide enough that the title still fits
+     on one line, which is what the 900px floor is protecting.
      **This number lives ONLY here.** syncReviewToggles() decides whether to show
      a "view more…" toggle by measuring `scrollHeight - clientHeight`, which asks
      the browser whether the text actually overflowed — it has no idea how many
@@ -661,6 +663,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .card-actions button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
 .card-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Reviews go back to a two-line clamp at 900px and below. The third line only
+   pays for itself when the card is wide enough for the title to stay on ONE
+   line; once the title wraps, title + 3 lines + toggle exceeds the poster's
+   height and the card grows taller than its own poster, which is the side
+   effect this floor exists to mitigate.
+   Note MITIGATE, not eliminate: the real threshold is wherever a given title
+   stops wrapping, and that depends on the title's length, so a long one will
+   still wrap somewhat above 900px. Raise this number if that bothers you —
+   nothing is solved against it.
+   This single query covers card mode too, so the 620px block below deliberately
+   does NOT repeat the clamp: 620 is inside 900, and two rules setting the same
+   property at the same specificity is exactly how they drift apart.
+   Specificity (0,2,0), deliberately below `.review.expanded` (0,3,0), so an
+   expanded review stays unclamped at every width. */
+@media (max-width: 900px) {
+  .movie-card__body .review { -webkit-line-clamp: 2; }
+}
+
 /* Ranked list, narrow viewports. Lives HERE, at the end of the section it
    modifies, like every other media query in this file (500px after search,
    620px after the footer CTA, 1040/850px inside the log table). It used to sit
@@ -694,11 +714,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Card mode centres the score row (align-items: center), so the desktop nudge
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
-  /* Back to two lines in card mode: the poster is only 102px here and the
-     column is far narrower, so three clamped lines would dominate the card.
-     Lower specificity than `.review.expanded` (0,3,0) on purpose — an expanded
-     review must stay unclamped in both modes. */
-  .movie-card__body .review { -webkit-line-clamp: 2; }
 }
 
 /* recommendations --------------------------------------------------- */
