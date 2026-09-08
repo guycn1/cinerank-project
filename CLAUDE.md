@@ -350,6 +350,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     consecutive bugs, one root cause:** this, the add button, and the ranked
     card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
     flex or grid item. When something will not shrink, look there first.
+    **Two sweep findings were examined and DELIBERATELY NOT FIXED.** They were
+    settled in conversation, so they are written here or a later session will
+    rediscover them, "fix" them, and undo a decision:
+    * **The Add button changes width across its four states** (68 / 104 / 85 /
+      95px, measured). Since it is `flex-shrink: 0`, the growth during
+      `⟳ Adding…` comes out of `.meta`, which can re-wrap the title mid-request.
+      Real, but transient (200–500ms), needs a title whose wrap point falls in
+      that window, and the user could not reproduce it. **Do not "fix" it by
+      reserving the widest label's width** — that costs every row width all the
+      time to remove a flicker nobody can see, and it makes the crushed-title
+      problem worse. The sub-500px grid layout also gives the button its own line
+      now, so there is slack where it used to matter.
+    * **`.search button .busy-label { display: none }` is scoped to the search
+      form only**, so the Add button keeps its full "Adding…" label at every
+      width. Cosmetic asymmetry, not a defect: its only consequence was the item
+      above. Fixing it needs a 500px threshold and leaves a bare spinner in a
+      pill, and there is a fair argument the SEARCH button is the odd one out,
+      since the ranked list's Remove button also goes spinner-only. Left alone.
     **The row's `year · TMDB score` line no longer breaks mid-value.** It is one
     text node, so the browser could break at ANY space in it — including the one
     inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
