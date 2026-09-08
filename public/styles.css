@@ -318,6 +318,45 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   .search-btn__label { display: none; }
   .search-btn__icon { display: inline-block; }
   .search button .busy-label { display: none; }
+
+  /* NARROW LAYOUT: the Add button sits under the year/TMDB line, in the title's
+     column, instead of out to the right. Three things across a phone width was
+     always the wrong shape — it is what squeezed the title in the first place.
+
+     Grid, not flex, because the button has to land in the SECOND column under
+     the meta, and flex can only push it onto a new line spanning the whole row,
+     which puts it under the poster with nothing tying it to the film. The poster
+     spans both rows so auto-placement drops meta at 2/1 and the button at 2/2.
+
+     This SUPERSEDES the flex stacking below 500px — that wrapping was tuned to
+     kick in at ~289-316px, entirely inside this query, so it no longer fires.
+     The flex rules are kept, not deleted: they are the 500px-and-up behaviour,
+     and they are the fallback if this breakpoint ever moves down. */
+  .result-row {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    column-gap: 0.9rem;
+    row-gap: 0.55rem;
+    align-items: start;
+  }
+  .result-row img,
+  .result-row .noposter { grid-row: 1 / span 2; }
+  /* margin-left: auto is what right-aligns it in the flex layout; in a grid cell
+     that would shove it to the far edge again, which is the thing being undone. */
+  .result-row .add-btn { justify-self: start; margin-left: 0; }
+
+  /* Separators, so it is unambiguous which button belongs to which film once
+     they are stacked. Scoped to this query on purpose rather than applied
+     globally: above 500px the button sits beside its film and proximity already
+     says so. `--line` over `--line-faint` — it has to survive the hover tint,
+     which lightens the row to --bg-raised. */
+  .result-row:not(:last-child) {
+    border-bottom: 1px solid var(--line);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-bottom: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
 }
 
 .search-results {

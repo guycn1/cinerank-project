@@ -367,6 +367,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     those the title column would be 53–79px — the crushed state this prevents.
     An earlier note here said 332/284px from estimated button widths; "In your
     list" is 95px, not the 111px guessed, so it stacks LATER than first written. Common widths (360/390/412px) are untouched.
+  - **Search results get their own layout under 500px** (user-designed,
+    2026-09-09). The Add button moves from the right-hand column to directly
+    UNDER the year/TMDB line, in the title's column, and subtle row separators
+    make it unambiguous which button belongs to which film.
+    **Grid, not flex.** The button has to land in the SECOND column beneath the
+    meta; flex can only push it onto a new line spanning the whole row, which
+    puts it under the POSTER with nothing tying it to the film — which is what
+    the user called sloppy. The poster spans both grid rows, so auto-placement
+    drops the meta at 2/1 and the button at 2/2. `margin-left: auto` has to be
+    cleared, or the grid cell shoves the button back to the far edge.
+    **This supersedes the flex stacking below 500px.** That wrapping was tuned to
+    fire at ~289–316px, entirely inside this query, so it no longer triggers. The
+    flex rules are KEPT rather than deleted: they are the behaviour at 500px and
+    up, and the fallback if this breakpoint ever moves down.
+    Separators are scoped to this query deliberately — above 500px the button
+    sits beside its film and proximity already says so. `--line` rather than
+    `--line-faint`, since it has to stay visible through the hover tint.
+
     **Follow-up the same day, on the user's "never break mid-word at >=250px":**
     once the row stacks the title column is the viewport minus the poster —
     124px at 250px, about 14 characters at 1rem, so a 15-letter word would still
