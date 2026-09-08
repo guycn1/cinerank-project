@@ -515,6 +515,22 @@ function renderRanked() {
         setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
       });
       body.append(r, toggle);
+    } else {
+      // Backlog #20, the inverse of #15: a RATED film with no review used to
+      // show nothing at all where a review would be, and since the body is
+      // top-aligned on desktop that left a visible void under the title.
+      // Correctly scoped by the `else` alone — this branch is reachable only
+      // when `isRated` is true and there is no review, because the two
+      // conditions above have already taken the other cases. An unrated card
+      // must NOT get this: it already says "Not rated yet", and stacking a
+      // second placeholder under the first reads as nagging.
+      // Class is `no-review`, deliberately NOT `review`: syncReviewToggles()
+      // selects `.review` to measure for clamping, and this line must never
+      // enter that pass.
+      const none = document.createElement('p');
+      none.className = 'no-review';
+      none.textContent = 'No review yet — edit to add one.';
+      body.append(none);
     }
 
     const score = document.createElement('div');

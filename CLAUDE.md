@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-08 (ranked-list backlog items **1-19 all done**, #20 is the last one; eleventh merge to main was bc67ff2; migrations 001-004 applied)
+**Last updated:** 2026-09-08 (ranked-list backlog **COMPLETE — all 20 done**; next block is the recommendations overhaul; eleventh merge to main was bc67ff2; migrations 001-004 applied)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -334,8 +334,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **19 of the 20 are done** and the canonical table with every
+* **Ranked list — DONE** (2026-09-08). Claude's audit produced items 1–17 and the user
+  added 18–20; **all 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -781,6 +781,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     phone cannot park a card in the grown state, and `prefers-reduced-motion`
     now drops the transform while keeping the colour response.
 
+  - **A rated film with no review says so** (#20, the last item, user-added).
+    `No review yet — edit to add one.`, italic and a step fainter than a real
+    review (`--ink-faint` against its `--ink-dim`) — the same vocabulary
+    `No TMDB rating` already uses, so an absence reads as an absence rather than
+    as content. It fills the void that top-aligning the body (2026-09-08) left
+    under a review-less card, which is why that entry says #20 became worth more,
+    not less.
+    **Scoped by the branch's structure, not by a new test.** It is the final
+    `else` after `if (!isRated)` and `else if (m.review)`, so it is reachable
+    only when the film IS rated and has no review. An unrated card must never
+    get it — that card already says "Not rated yet", and a second placeholder
+    beneath the first reads as nagging. This is the scoping #15 flagged in
+    advance.
+    **Class `no-review`, deliberately NOT a `.review` modifier:**
+    `syncReviewToggles()` selects `.review` to measure for clamping, and a
+    one-line placeholder has no business entering the pass item #5 took four
+    commits to settle.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -809,7 +827,7 @@ and do not renumber: the numbers are how the user refers to them.
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
 | 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
 | 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
-| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — **next**, and the last one; user-added |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
 ##### Agreed order of work from here (set by the user, 2026-09-08, session end)
 

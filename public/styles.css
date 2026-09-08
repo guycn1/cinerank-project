@@ -688,6 +688,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font-size: 1.15rem;
 }
 .movie-card__body .year { color: var(--ink-dim); font-weight: 400; }
+/* Backlog #20 — a rated film with no review. Same size and top margin as a real
+   review, so the line sits exactly where one would, but italic and a step
+   fainter (--ink-faint against a review's --ink-dim). That is the vocabulary
+   "No TMDB rating" already uses for an absent value: absence should read as
+   absence, not as content.
+   NOT a modifier on `.review`. syncReviewToggles() selects `.review` to measure
+   for clamping, so sharing the class would drag a one-line placeholder into the
+   pass that item #5 took four commits to settle — and it needs none of that
+   rule's `-webkit-box` clamping machinery anyway. */
+.movie-card__body .no-review {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
 .movie-card__body .review {
   color: var(--ink-dim);
   font-size: 0.9rem;
