@@ -211,7 +211,12 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   // icon-only Search button under 500px).
   const busy = document.createElement('span');
   busy.className = 'busy-label';
-  busy.textContent = ' ' + busyLabel;
+  // NON-BREAKING space, so the spinner can never be orphaned from its word.
+  // A spinner, a checkmark and a plus are GLYPHS, not words: a label may wrap
+  // between real words on a narrow screen, but "⟳ / Adding…" split across two
+  // lines is never acceptable. Done here rather than per button because every
+  // busy label in the app is built by this one line.
+  busy.textContent = '\u00A0' + busyLabel;
   btn.replaceChildren(spinnerNode(), busy);
   // Ends the busy state. With no argument the button goes back exactly as it
   // was, enabled. Pass text to settle on a new label instead and stay disabled —
@@ -790,7 +795,12 @@ function setAddButtonState(btn, owned) {
   // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
   // goes amber on hover and dims with the :disabled opacity, and it matches
   // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
-  btn.textContent = !owned ? '+ Add' : btn.dataset.justAdded ? '✓ Added' : 'In your list';
+  // The glyph is glued to its word with a non-breaking space. `.add-btn` is
+  // `white-space: nowrap` so the search row never wraps anyway — but the SAME
+  // strings are rendered on the recommendation card, whose button has no such
+  // rule, so the guard has to live in the string rather than in one stylesheet.
+  // "In your list" is left breakable on purpose: those are real words.
+  btn.textContent = !owned ? '+\u00A0Add' : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
@@ -885,7 +895,7 @@ async function addMovie(tmdbId, btn) {
     await loadMovies();
     // Marked before settling so every later sync keeps showing "✓ Added".
     if (btn) btn.dataset.justAdded = '1';
-    settle?.('✓ Added');
+    settle?.('✓\u00A0Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
     // impossible to ever see, and made syncSearchResultButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets

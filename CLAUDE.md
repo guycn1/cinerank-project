@@ -1021,7 +1021,13 @@ to it the moment anything else recs-related is noticed.**
    while still lacking `flex-shrink: 0`, so the parked defect would look solved
    and the real guard would never be added. **Reunite the two rules when this
    pass happens.**
-4. **The add label disagrees with Search.** The rec card's button reads
+4. **The resting label is exempt from the glyph/line-break rule.** See "Button
+   labels and line breaks" under Frontend Design Notes: a glyph must never split
+   from its word at any width, but `Get recommendations` is explicitly parked for
+   this pass. Its BUSY label ("⟳ Thinking…") is already covered, since that comes
+   from the shared `busyButton()`. Only the resting two-word label is outstanding,
+   and it is the same fix as item 2.
+5. **The add label disagrees with Search.** The rec card's button reads
    `Add to my list` (app.js:1128) where the search row's reads `+ Add`. One of
    them should move; the search row's three-state machine (`+ Add` → `⟳ Adding…`
    → `✓ Added` / `In your list`) is the more developed of the two.
@@ -1233,6 +1239,29 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 * Good-locking CSS effects and animations.
 * Poster images treated as the primary visual anchor of each card — layout should be built around the poster, not squeeze it in as an afterthought.
 * Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list."
+
+### Button labels and line breaks (the user's rule, 2026-09-09)
+
+**A glyph is not a word.** A checkmark, a plus, a spinner and the like must NEVER
+be separated from the word they belong to — a two-line `+ Add` or `✓ Added` is
+unacceptable at **any** viewport width, however narrow.
+
+**Real words may wrap on spaces** in exceptionally narrow viewports (roughly
+under 400px) and the user does not mind. `In your list` breaking across two lines
+is fine; `✓` on one line and `Added` on the next is not.
+
+**How it is enforced:** the glyph is glued to its word with a non-breaking space
+**in the string itself**, written as a ` ` escape, never as a literal
+character. In the string and not in CSS because the same labels are rendered on
+two surfaces — the search row and the recommendation card — and only one of them
+has `white-space: nowrap`. A guard that travels with the text cannot be missed by
+a stylesheet that was never updated. `busyButton()` does the same for every
+spinner label in one line, since every busy label in the app is built there.
+
+**One standing exception:** `Get recommendations` is out of scope for this rule
+by the user's instruction — it is parked for the recommendations overhaul. Its
+BUSY label is nonetheless covered, because that comes from the shared
+`busyButton()`; only its resting label is exempt.
 
 \---
 
