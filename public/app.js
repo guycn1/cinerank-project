@@ -45,6 +45,14 @@ const state = {
   movies: [],
   cfg: { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 },
   ownedTmdbIds: new Set(),
+  // Which reviews the user has expanded, by movie id (backlog #14). It lives
+  // here and NOT in the DOM because renderRanked() rebuilds every card on every
+  // render, and a class on a <p> cannot outlive that <p> — so expanding one
+  // review and then rating a DIFFERENT film silently collapsed it again.
+  // Lifting the state out is the fix; keeping the elements alive instead is the
+  // element-reuse rewrite D-031 rejected, and it stays rejected (D-040).
+  // Session-only by choice: a reading state is not worth persisting to storage.
+  expandedReviews: new Set(),
   editing: null,
   editingIsNew: false, // the rate dialog is for a film added seconds ago
 };
@@ -60,11 +68,61 @@ async function api(path, options) {
     // Chromium, "NetworkError when attempting to fetch resource" in Firefox)
     // and reads like a stack trace, so it never reaches the UI. An HTTP error
     // response is a different thing and keeps the server's own wording below.
-    throw new Error('Couldn’t reach CineRank. Check your connection and try again.');
+    const err = new Error('Couldn’t reach CineRank. Check your connection and try again.');
+    // A COMPOSABLE form of the same fact, for the sinks that put a context in
+    // front of it — see failureText(). The long form above is a complete
+    // sentence with its own subject AND its own advice, so prefixing it produced
+    // "Couldn’t load the log: Couldn’t reach CineRank. Check your connection…":
+    // two subjects and two "couldn’t"s for one failure.
+    err.short = 'CineRank is unreachable';
+    throw err;
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
+  if (!res.ok) {
+    const err = new Error(body.error || `Request failed (${res.status})`);
+    // Optional and absent from nearly every response: a route sends `short` only
+    // when its own message is too self-contained to sit after a context prefix.
+    // Purely additive — an endpoint that omits it behaves exactly as before,
+    // because failureText() falls back to the full message.
+    if (body.short) err.short = body.short;
+    throw err;
+  }
   return body;
+}
+
+/**
+ * Compose a failure message: what the user was trying to do, then why it failed.
+ *
+ * Backlog #16(c). The two action toasts used to show the cause ALONE, so a failed
+ * add or remove named no film — with three cards on screen, nothing said which
+ * one had not been removed. The obvious fix, pasting the context in front of
+ * whatever came back, breaks on causes that are already complete sentences:
+ * "Couldn’t load the log: Couldn’t reach CineRank. Check your connection and try
+ * again." That is not unpredictability to be defended against — there are two
+ * kinds of message here and the client knows which it has. It either fabricated
+ * the cause itself (api()'s transport failure) or the server told it, so the
+ * short form is attached at the source and this only has to prefer it.
+ *
+ * A cause with no `short` is passed through whole, which is right for the terse
+ * ones: "Couldn’t remove “Dune” — Something went wrong." reads correctly,
+ * because that message says nothing about WHAT failed and the context is the
+ * only specific thing in the sentence.
+ *
+ * Used by every sink that adds a context, so the rule cannot be applied four
+ * different ways — the same reason busyButton() and displayedRanking() exist.
+ * Sinks that are already surrounded by their own context (the search note, the
+ * verdict banner, the rate dialog's inline error) deliberately do NOT use this:
+ * there the operation is obvious from where the message appears.
+ */
+function failureText(context, err) {
+  const cause = err.short ?? err.message;
+  // Terminal punctuation is normalised HERE rather than trusted from the cause.
+  // The causes are inconsistent and most of them are not ours to edit: the 409
+  // reads "Already in your list" with no stop, the 500 reads "Something went
+  // wrong." with one. Left alone, the same toast would end with a full stop or
+  // without one depending on which failure produced it — the exact defect the
+  // verdict's missing "for details." was.
+  return `${context} — ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
 }
 
 let toastTimer;
@@ -80,12 +138,41 @@ function toast(message, isError = false) {
   }, 3200);
 }
 
-function posterNode(url, title) {
+/**
+ * How many ranked posters load eagerly (backlog #17).
+ *
+ * A JUDGEMENT CALL, not a measurement, and it must not be re-derived as one:
+ * there is nothing here to solve against the way D-030's numeral width was.
+ * A desktop fold fits roughly three or four cards below the header and search
+ * box; card mode fits fewer, but its posters are 68px rather than 92px and cost
+ * proportionally less. Three is inside the fold at every width, and the cost of
+ * being wrong is at most one image request that was not needed yet.
+ *
+ * Do NOT replace this with a measured fold. That means reading layout during the
+ * render — the very thing syncReviewToggles() is structured in three batched
+ * passes to avoid — to save a single request.
+ */
+const EAGER_POSTERS = 3;
+
+/**
+ * `eager` is opt-IN, so the two callers that render only after a click (search
+ * rows, recommendation cards) keep `lazy` without being touched: neither is ever
+ * part of the first paint, which is the only place the distinction matters.
+ */
+function posterNode(url, title, { eager = false } = {}) {
   if (url) {
     const img = document.createElement('img');
     img.src = url;
     img.alt = `${title} — poster`;
-    img.loading = 'lazy';
+    // `lazy` defers the request until the browser knows the image is near the
+    // viewport, which it cannot know before layout — so a poster that is ALREADY
+    // on screen at first paint is delayed for nothing. These images are built in
+    // JS after /api/movies returns, so the preload scanner was never going to
+    // see them either way; the win is a layout pass on the first few cards, not
+    // a dramatic one. It is worth having because the poster is this design's
+    // primary visual anchor (CLAUDE.md § Frontend Design Notes) and the top of
+    // the ranked list is what a reader looks at first.
+    img.loading = eager ? 'eager' : 'lazy';
     return img;
   }
   const ph = document.createElement('div');
@@ -124,7 +211,12 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   // icon-only Search button under 500px).
   const busy = document.createElement('span');
   busy.className = 'busy-label';
-  busy.textContent = ' ' + busyLabel;
+  // NON-BREAKING space, so the spinner can never be orphaned from its word.
+  // A spinner, a checkmark and a plus are GLYPHS, not words: a label may wrap
+  // between real words on a narrow screen, but "⟳ / Adding…" split across two
+  // lines is never acceptable. Done here rather than per button because every
+  // busy label in the app is built by this one line.
+  busy.textContent = '\u00A0' + busyLabel;
   btn.replaceChildren(spinnerNode(), busy);
   // Ends the busy state. With no argument the button goes back exactly as it
   // was, enabled. Pass text to settle on a new label instead and stay disabled —
@@ -142,6 +234,39 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 }
 
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
+
+/**
+ * The subtitle beside "Your ranking": the film count always, the outstanding
+ * work only when there is any.
+ *
+ * It used to be `N films · N rated` (backlog #16). Three things were wrong with
+ * that. It restated the first number in the app's STEADY state — once everything
+ * is rated, "5 films · 5 rated" is one fact wearing two hats — so it was longest
+ * exactly when it had least to say. It made the reader subtract to reach the one
+ * actionable fact, how many still need rating. And the `·` joined a set to its
+ * own SUBSET, where every other use of that separator in this app joins peer
+ * facts (`2023 · TMDB 7.2` in a search row, the AI meta footer, `Total · 3
+ * calls`) — which is why "5 films · 3 rated" reads as two tallies rather than
+ * "3 of the 5".
+ *
+ * Silence is the "all rated" signal. The clause exists to flag outstanding work,
+ * so nothing outstanding means nothing to say; unrated cards carry their own
+ * "Not rated yet" chip, so the fact is still on screen.
+ *
+ * `none rated yet` and not `N not rated yet` when nothing is rated at all —
+ * otherwise both numbers are equal again and the doubling is back. That branch
+ * is also what settled the wording against the shorter "N unrated", which reads
+ * better after a numeral but would need a SECOND vocabulary here, since
+ * "5 unrated" is the doubling this exists to remove. One phrasing covers both
+ * cases, and "yet" keeps the pending sense D-033 built the chip around.
+ */
+function rankedCountLabel(count, rated) {
+  const films = `${count} film${count === 1 ? '' : 's'}`;
+  const unrated = count - rated;
+  if (unrated === 0) return films;
+  if (unrated === count) return `${films} · none rated yet`;
+  return `${films} · ${unrated} not rated yet`;
+}
 
 /**
  * The ranking AS DISPLAYED: for every film, the number its card shows (null
@@ -259,7 +384,7 @@ function renderRanked() {
   rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
-  el.rankedCount.textContent = count ? `${count} film${count === 1 ? '' : 's'} · ${ratedCount()} rated` : '';
+  el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
 
   // Computed ONCE, by the same function rankSignature() uses, so what is drawn
@@ -331,7 +456,7 @@ function renderRanked() {
       rank.setAttribute('aria-hidden', 'true');
     }
 
-    const poster = posterNode(m.poster_url, m.title);
+    const poster = posterNode(m.poster_url, m.title, { eager: i < EAGER_POSTERS });
     poster.classList.add('movie-card__poster');
 
     const body = document.createElement('div');
@@ -359,21 +484,58 @@ function renderRanked() {
       hint.textContent = 'Rate it to place it in the ranking.';
       u.append(badge, hint);
       body.append(u);
+      // `else if`, and it is EXHAUSTIVE rather than merely convenient: the
+      // `review_requires_rating` constraint (migration 004, D-041) makes a
+      // review on an unrated film unwritable, so this branch cannot be hiding
+      // one. Backlog #15 was that it could — the fix was to forbid the state in
+      // the database, not to render it here, because the rating is the required
+      // part and the review the optional one. Do NOT "fix" this into two
+      // independent `if`s: that would add a branch for a state the schema
+      // guarantees cannot exist. If the constraint is ever dropped, this comment
+      // is the thing that stops being true.
     } else if (m.review) {
       const r = document.createElement('p');
       r.className = 'review';
       r.id = `review-${m.id}`;
+      // Set BEFORE the first setReviewExpanded() below, which reads it back out
+      // to record the state. `movies.id` is a uuid, so it is already a string
+      // and dataset's stringification cannot make the Set's keys disagree with
+      // the `m.id` looked up here — a numeric id would need String() at both
+      // ends to avoid has(5) missing "5".
+      r.dataset.movieId = m.id;
       r.textContent = m.review;
       const toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.className = 'review-toggle';
       toggle.hidden = true; // shown after layout only if the text actually clips
       toggle.setAttribute('aria-controls', r.id);
-      setReviewExpanded(r, toggle, false); // label + aria via the single writer
+      // Seeded from the Set, not hardcoded to false: this card may be a rebuild
+      // of one the user had already expanded. The toggle is still hidden here —
+      // the rAF'd syncReviewToggles() below reveals it if the text actually
+      // clips, and collapses this again if it no longer does. That pass reads
+      // the class we just set as its `wasExpanded`, so restoring here is exactly
+      // what makes it treat a rebuilt card like one that never went away.
+      setReviewExpanded(r, toggle, state.expandedReviews.has(m.id));
       toggle.addEventListener('click', () => {
         setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
       });
       body.append(r, toggle);
+    } else {
+      // Backlog #20, the inverse of #15: a RATED film with no review used to
+      // show nothing at all where a review would be, and since the body is
+      // top-aligned on desktop that left a visible void under the title.
+      // Correctly scoped by the `else` alone — this branch is reachable only
+      // when `isRated` is true and there is no review, because the two
+      // conditions above have already taken the other cases. An unrated card
+      // must NOT get this: it already says "Not rated yet", and stacking a
+      // second placeholder under the first reads as nagging.
+      // Class is `no-review`, deliberately NOT `review`: syncReviewToggles()
+      // selects `.review` to measure for clamping, and this line must never
+      // enter that pass.
+      const none = document.createElement('p');
+      none.className = 'no-review';
+      none.textContent = 'No review yet — edit to add one.';
+      body.append(none);
     }
 
     const score = document.createElement('div');
@@ -449,7 +611,11 @@ function renderRanked() {
 }
 
 /**
- * Show each review's "view more…" toggle only when the text is actually clipped.
+ * Show each review's "show more" toggle only when the text is actually clipped.
+ *
+ * (The two "view more…" mentions further down are PAST-TENSE and stay: the label
+ * really was that when those bugs happened. #18 renamed it — see
+ * setReviewExpanded().)
  *
  * `-webkit-line-clamp` hides the overflow silently and CSS has no "did this
  * overflow?" selector, so it has to be measured. The important part is that it
@@ -482,6 +648,12 @@ function syncReviewToggles() {
   // painted in between — the browser cannot render until this returns.
   for (const it of items) {
     it.wasExpanded = it.p.classList.contains('expanded');
+    // Deliberately a bare classList.remove() and NOT setReviewExpanded(): this
+    // collapse is a measuring fixture, not a state change. Routing it through
+    // the single writer would rewrite the label and aria-expanded on every
+    // resize frame, and would clear the movie's entry in state.expandedReviews
+    // before pass three has decided whether to put it back. Pass three is where
+    // this pass's one real decision gets written.
     if (it.wasExpanded) it.p.classList.remove('expanded');
   }
   for (const it of items) it.clips = it.p.scrollHeight - it.p.clientHeight > 4;
@@ -497,21 +669,45 @@ function syncReviewToggles() {
 }
 
 /**
- * The single writer for a review's expanded state. The class, the button label
- * and `aria-expanded` describe one fact and must never disagree — they drifted
- * once already, when the toggle's label was updated on click but never by the
- * resize pass.
+ * The single writer for a review's expanded state. The class, the button label,
+ * `aria-expanded` and the entry in `state.expandedReviews` describe one fact and
+ * must never disagree — the first three drifted once already, when the toggle's
+ * label was updated on click but never by the resize pass.
+ *
+ * The Set is written HERE and not in the click handler precisely because this is
+ * not the only place the state changes: syncReviewToggles() collapses a review
+ * that no longer clips, and if that collapse were not recorded, the DOM and the
+ * Set would disagree from the very next render onwards.
  */
 function setReviewExpanded(p, toggle, expanded) {
   p.classList.toggle('expanded', expanded);
-  toggle.textContent = expanded ? 'show less' : 'view more…';
+  // One verb, both directions (backlog #18). It was "view more…" / "show less":
+  // two verbs for one control, and an ellipsis on only one half. The ellipsis is
+  // gone rather than balanced, because the clamp draws its OWN — `.review` is a
+  // -webkit-box with -webkit-line-clamp, so the browser already ends the clipped
+  // line in "…" and the label repeated it one line below. "show", not "view",
+  // because within-control consistency beats matching the log's "view verdict"
+  // on another surface, and "view less" is the weaker half of that pair.
+  toggle.textContent = expanded ? 'show less' : 'show more';
   toggle.setAttribute('aria-expanded', String(expanded));
+  if (expanded) state.expandedReviews.add(p.dataset.movieId);
+  else state.expandedReviews.delete(p.dataset.movieId);
 }
 
 async function loadMovies() {
   const { movies } = await api('/api/movies');
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
+  // Forget expansion state for anything that no longer has a review to expand —
+  // the film was removed, or its review was cleared by an edit. Without this,
+  // clearing a review and later writing a new one would render the new text
+  // pre-expanded, having inherited a decision the user made about different
+  // text. Ids are uuids, so a re-added film gets a fresh one and cannot inherit
+  // a stale entry either way.
+  const withReview = new Set(movies.filter((m) => m.review).map((m) => m.id));
+  for (const id of state.expandedReviews) {
+    if (!withReview.has(id)) state.expandedReviews.delete(id);
+  }
   // The syncs run BEFORE the render, deliberately. A View Transition snapshots
   // the whole document, so anything these three touch (the recs hint, the
   // verdict placeholder, the search-result buttons) would cross-fade too.
@@ -599,7 +795,12 @@ function setAddButtonState(btn, owned) {
   // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
   // goes amber on hover and dims with the :disabled opacity, and it matches
   // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
-  btn.textContent = !owned ? '+ Add' : btn.dataset.justAdded ? '✓ Added' : 'In your list';
+  // The glyph is glued to its word with a non-breaking space. `.add-btn` is
+  // `white-space: nowrap` so the search row never wraps anyway — but the SAME
+  // strings are rendered on the recommendation card, whose button has no such
+  // rule, so the guard has to live in the string rather than in one stylesheet.
+  // "In your list" is left breakable on purpose: those are real words.
+  btn.textContent = !owned ? '+\u00A0Add' : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
@@ -653,7 +854,20 @@ function renderSearchResults(results, query) {
     // TMDB's "no votes" zero here while the ranked card showed it as "TMDB 0.0"
     // — the two surfaces disagreed about the same film. That zero is now null
     // at the source (shapeMovie), so both are absent for the same reason.
-    const tmdb = r.tmdb_rating != null ? `TMDB ${r.tmdb_rating.toFixed(1)}` : null;
+    // NON-BREAKING space between the label and the number, written as an escape
+    // rather than a literal so it cannot be mistaken for an ordinary space and
+    // "tidied" away. The whole line is ONE text node, so the browser may break
+    // it at any space in it — including the one inside "TMDB 7.0", which is the
+    // one place it must not. At ~340px and below that produced "2013 · TMDB"
+    // with a stranded "7.0" on the next line, reading as a rendering fault.
+    // Gluing only this pair leaves the break around " · " available, so a narrow
+    // row wraps as "2013 ·" / "TMDB 7.0" instead.
+    // Invisible on any width where the line already fits: U+00A0 renders
+    // identically to U+0020 and only removes a break OPPORTUNITY, so no layout
+    // that is not currently breaking here can change.
+    // The ranked card needs no equivalent — `.score-tmdb` is `white-space:
+    // nowrap`, which already forbids the break outright.
+    const tmdb = r.tmdb_rating != null ? `TMDB\u00A0${r.tmdb_rating.toFixed(1)}` : null;
     span.textContent = [r.year, tmdb].filter(Boolean).join(' · ');
     meta.append(strong, span);
     const btn = document.createElement('button');
@@ -681,7 +895,7 @@ async function addMovie(tmdbId, btn) {
     await loadMovies();
     // Marked before settling so every later sync keeps showing "✓ Added".
     if (btn) btn.dataset.justAdded = '1';
-    settle?.('✓ Added');
+    settle?.('✓\u00A0Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
     // impossible to ever see, and made syncSearchResultButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets
@@ -690,9 +904,19 @@ async function addMovie(tmdbId, btn) {
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
-    toast(err.message, true); // "Already in your list" surfaces here (SPEC § 3.4)
+    // The film's title comes off the BUTTON, not from `movie` — the add failed,
+    // so there is no saved row to read it from, and `movie` is not even in scope
+    // here. renderResults() stamps `dataset.title` on every add button for
+    // syncSearchResultButtons(), and it is the only title available at this
+    // point. `btn` is optional in this function's signature, hence the fallback.
+    const title = btn?.dataset.title;
+    // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
+    // after a context: 'Couldn’t add “Dune” — Already in your list.'
+    toast(failureText(title ? `Couldn’t add “${title}”` : 'Couldn’t add that film', err), true);
     // Already owned is not retryable, so settle there; anything else is, so
-    // restore the button as it was (enabled, reading "Add").
+    // restore the button as it was (enabled, reading "Add"). Reads err.message
+    // and NOT the composed text on purpose: the composed string carries a title
+    // that could itself contain the word "Already".
     settle?.(err.message.includes('Already') ? 'In your list' : undefined);
   }
 }
@@ -852,7 +1076,7 @@ async function removeMovie(movie, btn) {
     // No settle() on success — loadMovies() has already destroyed this button
     // along with its card.
   } catch (err) {
-    toast(err.message, true);
+    toast(failureText(`Couldn’t remove “${movie.title}”`, err), true);
     settle?.();
   }
 }
@@ -962,7 +1186,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdictText.replaceChildren(
       document.createTextNode('Couldn’t come up with a verdict right now. See the '),
       logLink('AI call log'),
-      document.createTextNode(' for details')
+      document.createTextNode(' for details.')
     );
   } finally {
     restoreRefresh();
@@ -1258,7 +1482,7 @@ async function renderAiLog() {
   } catch (err) {
     el.logBody.replaceChildren();
     const tr = document.createElement('tr');
-    const td = cell(`Couldn't load the log: ${err.message}`, 'log-empty');
+    const td = cell(failureText('Couldn’t load the log', err), 'log-empty');
     td.colSpan = 9;
     tr.append(td);
     el.logBody.append(tr);
@@ -1378,6 +1602,6 @@ document.addEventListener('click', (e) => {
   try {
     await loadMovies();
   } catch (err) {
-    toast('Could not load your movies: ' + err.message, true);
+    toast(failureText('Couldn’t load your movies', err), true);
   }
 })();

@@ -31,7 +31,15 @@ moviesRouter.get(
       res.json({ results: await searchMovies(q) });
     } catch (err) {
       if (err instanceof TmdbError) {
-        return res.status(502).json({ error: "Couldn't reach the movie database. Try again in a moment." });
+        // `short` is ADDITIVE: the `error` text is untouched, so every existing
+        // consumer behaves exactly as it did. It exists for the client's
+        // failureText(), which puts a context in front of the cause and cannot
+        // use the full sentence without doubling — 'Couldn’t add “Dune” —
+        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        return res.status(502).json({
+          error: "Couldn’t reach the movie database. Try again in a moment.",
+          short: 'TMDB is unreachable',
+        });
       }
       throw err;
     }
@@ -52,7 +60,15 @@ moviesRouter.post(
       details = await getMovieDetails(tmdbId);
     } catch (err) {
       if (err instanceof TmdbError) {
-        return res.status(502).json({ error: "Couldn't reach the movie database. Try again in a moment." });
+        // `short` is ADDITIVE: the `error` text is untouched, so every existing
+        // consumer behaves exactly as it did. It exists for the client's
+        // failureText(), which puts a context in front of the cause and cannot
+        // use the full sentence without doubling — 'Couldn’t add “Dune” —
+        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        return res.status(502).json({
+          error: "Couldn’t reach the movie database. Try again in a moment.",
+          short: 'TMDB is unreachable',
+        });
       }
       throw err;
     }
@@ -132,7 +148,17 @@ moviesRouter.patch(
     if (error?.code === 'PGRST116' || (!error && !data)) {
       return res
         .status(404)
-        .json({ error: "Couldn't find that film — it may have been removed. Refresh and try again." });
+        .json({ error: "Couldn’t find that film — it may have been removed. Refresh and try again." });
+    }
+    // Postgres check_violation. The `review_requires_rating` constraint added in
+    // migration 004 forbids a review on an unrated film (D-041), and without
+    // this it would reach the central handler as a generic 500 — blaming the
+    // server for a request that is simply invalid, which is the same fault the
+    // "on our side" wording pass existed to fix. Matched on the constraint NAME,
+    // not on 23514 alone: the table carries two range constraints as well, and
+    // this message must not be put in front of a violation of either.
+    if (error?.code === '23514' && error.message?.includes('review_requires_rating')) {
+      return res.status(400).json({ error: 'A review needs a rating — rate the film first.' });
     }
     if (error) throw new Error(error.message);
     res.json({ movie: data });

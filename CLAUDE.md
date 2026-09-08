@@ -24,18 +24,18 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog items **1-13 all done**, #14 is next; migrations 001-003 applied)
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; next up is the mobile-keypad fix, then the recommendations overhaul; eleventh merge to main was bc67ff2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + migrations `001`, `002` and `003`
+* Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "Ranked-list items
-  8-10 + the app own confirm dialog + one focus ring app-wide" (2026-09-08,
-  `d019509`). **Ten** merges so far;
+* `main` is at the latest settled UI milestone — currently "TMDB ratings
+  persisted (#11) + tied ranks made honest (#13)" (2026-09-08,
+  `bc67ff2`). **Eleven** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -46,7 +46,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
   user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
   Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
-  "view more…/show less" toggle (shown only when the text actually clips). The
+  "show more/show less" toggle (shown only when the text actually clips). The
   line count lives ONLY in CSS — the toggle is decided by measuring whether the
   text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
@@ -60,13 +60,17 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 35 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 38 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
   log row written), a row deleted mid-edit (404, not a 500), and the two
   `tmdb_rating` guards — that the value reaches the insert at all, and that
-  TMDB's no-votes `0` is stored as `null` (D-037). Supabase is swapped for an in-memory fake (`test/helpers.js`)
+  TMDB's no-votes `0` is stored as `null` (D-037) — plus the two
+  `review_requires_rating` guards (D-041): a check violation comes back as a
+  400 with a usable message rather than a generic 500, and a violation of one of
+  the table's OTHER check constraints is not dressed up as the review message.
+  Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
 * `GET /api/health` liveness probe for a future host.
@@ -75,7 +79,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
   film, not just the verb), live regions on search results / recs hint / verdict
   text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
-  `aria-controls` on the review "view more" toggle, dialogs `aria-labelledby`,
+  `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), decorative
   spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
@@ -286,7 +290,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
-* **Search section — DONE** (2026-09-07). Behaviour first, then chrome.
+* **Search section — overhauled 2026-09-07, then REOPENED and worked again on
+  2026-09-08/09**, so this is not a closed section. The 2026-09-07 pass below is
+  behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
+  and is recorded in the ranked-list bullets further down, since it came out of
+  the same whole-app sweep: the Add button breaking in two, the input refusing to
+  yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
+  mid-word, and the new sub-500px grid layout. **More is scheduled:** step 5 of
+  the agreed order is a complete overhaul of the portrait view under 500px, which
+  lands here again.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
@@ -315,6 +327,119 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
     `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
     is unreliable on a `<button>`, and shrinking is what clipped the label.
+    **The add button needed the identical fix and did not get it until
+    2026-09-08**, found by the user on an Android phone in portrait (and
+    reproducible on a narrowed desktop window). `.result-row .add-btn` could
+    shrink below its content, so a row with a LONG TITLE squeezed the button
+    instead and "+ Add" broke at its space into two lines. It looks like a width
+    bug and is not — it depends on the neighbouring title's length, which is why
+    narrowing the window spoils more rows one at a time rather than all at once,
+    and why almost every button breaks on a phone, where almost every title
+    wraps. Now `flex-shrink: 0` (the button keeps its content width; `.meta`
+    absorbs the pressure, which it can, since it wraps) plus
+    `white-space: nowrap`, because the longest label this button ever shows is
+    not "+ Add" but "In your list". **No width threshold anywhere**, per the
+    user's explicit ask.
+    **And the search INPUT needed `min-width: 0`** (2026-09-08, same user, same
+    phone): the Search button was clipped clean off the right edge at 311px.
+    `flex: 1` is not enough on an `<input>`, because a flex item's automatic
+    minimum size resolves to min-content and an input's min-content is its
+    INTRINSIC size — roughly the 20 characters of its default `size` attribute,
+    not its text. So the input refused to shrink, the row overflowed, and the
+    button (correctly `flex-shrink: 0`) was pushed out of view. **Three
+    consecutive bugs, one root cause:** this, the add button, and the ranked
+    card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
+    flex or grid item. When something will not shrink, look there first.
+    **The row's `year · TMDB score` line no longer breaks mid-value.** It is one
+    text node, so the browser could break at ANY space in it — including the one
+    inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
+    ~340px and under. A NON-BREAKING space now glues the label to its number,
+    written as a ` ` ESCAPE rather than a literal character so it cannot be
+    mistaken for an ordinary space and tidied away. The break around " · " is
+    deliberately left, so a narrow row wraps as "2013 ·" / "TMDB 7.0".
+    **Provably invisible at any width that is not already breaking there:** U+00A0
+    renders identically to U+0020 and only removes a break OPPORTUNITY. The
+    ranked card needs no equivalent — `.score-tmdb` is `white-space: nowrap`,
+    which forbids the break outright.
+    **And the row now STACKS rather than crushing its title column.** At 283px
+    the middle column was down to ~29px and a title fragmented into
+    "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
+    a column that should never have been that narrow. `.result-row` is
+    `flex-wrap: wrap` and `.meta` is `flex: 1 1 5rem`, so below a threshold the
+    button drops to its own line and the title gets the full row.
+    **No media query and no number encodes the threshold** — flex line breaking
+    compares hypothetical sizes, so the browser derives it from the button's REAL
+    width, and it self-adjusts per row. **Thresholds MEASURED, not estimated**
+    (the user ran the button widths in the console: 68 / 104 / 85 / 95px):
+    "+ Add" 289px, "✓ Added" 306px, "In your list" 316px, mid-add 325px. Below
+    those the title column would be 53–79px — the crushed state this prevents.
+    An earlier note here said 332/284px from estimated button widths; "In your
+    list" is 95px, not the 111px guessed, so it stacks LATER than first written. Common widths (360/390/412px) are untouched.
+  - **Search results get their own layout under 500px** (user-designed,
+    2026-09-09). The Add button moves from the right-hand column to directly
+    UNDER the year/TMDB line, in the title's column, and subtle row separators
+    make it unambiguous which button belongs to which film.
+    **Grid, not flex.** The button has to land in the SECOND column beneath the
+    meta; flex can only push it onto a new line spanning the whole row, which
+    puts it under the POSTER with nothing tying it to the film — which is what
+    the user called sloppy. The poster spans both grid rows, so auto-placement
+    drops the meta at 2/1 and the button at 2/2. `margin-left: auto` has to be
+    cleared, or the grid cell shoves the button back to the far edge.
+    **This supersedes the flex stacking below 500px.** That wrapping was tuned to
+    fire at ~289–316px, entirely inside this query, so it no longer triggers. The
+    flex rules are KEPT rather than deleted: they are the behaviour at 500px and
+    up, and the fallback if this breakpoint ever moves down.
+    Separators are scoped to this query deliberately — above 500px the button
+    sits beside its film and proximity already says so. `--line` rather than
+    `--line-faint`, since it has to stay visible through the hover tint.
+
+    **Follow-up the same day, on the user's "never break mid-word at >=250px":**
+    once the row stacks the title column is the viewport minus the poster —
+    124px at 250px, about 14 characters at 1rem, so a 15-letter word would still
+    have been broken by `overflow-wrap: anywhere`. A `@media (max-width: 300px)`
+    block drops `.result-row .meta strong` to 0.9rem, giving ~16 characters,
+    which covers every word length that occurs in real film titles. **A hard
+    cutoff, not a `clamp()`** — a fluid size would have to start shrinking
+    hundreds of pixels earlier to reach 0.9rem by 300px and would visibly touch
+    the wide views; 301px and up is provably unchanged.
+    `.result-row`'s `gap` was also split into `column-gap` / `row-gap`. The row
+    gap applies ONLY once the row has wrapped, and at 0.9rem it left the stacked
+    button floating clear of its film — the "sloppy" the user reported. Now
+    0.4rem; an unwrapped row has no second line, so nothing there can move.
+    **The `5rem` basis is load-bearing, not decoration.** Without it `.meta`
+    keeps `flex-basis: auto`, whose hypothetical size is MAX-CONTENT, and
+    `flex-wrap` would then push the button onto its own line at ANY width the
+    moment a title got long. Visually inert above the threshold: the free space
+    moves from the button's `margin-left: auto` to `.meta`'s `flex-grow`, and
+    since grow is resolved before auto margins see the space, the button still
+    ends at the right edge.
+    **The results panel's height cap is viewport-aware** (sweep finding E). It
+    was a bare `max-height: 340px` — the app's only fixed-pixel height cap, while
+    the AI log dialog already used `88vh`. On a short viewport (a phone in
+    landscape, a small desktop window) 340px is most of the screen, so the panel
+    buried the page. Now `min(340px, 60svh)` with a `60vh` line above it as the
+    fallback, since a lone unsupported `svh` would invalidate the declaration and
+    leave NO cap at all. `svh` and not `dvh` so it does not resize mid-scroll as
+    a mobile URL bar collapses.
+    **Strictly shrinking, so nothing comfortable today can change:** `min()`
+    cannot return more than 340px. Viewports 640px tall and up are byte-identical;
+    only 500px and below see a smaller panel (300px at 500 tall, 216px at 360).
+    **Two more one-line guards from the same sweep** (findings 7 and 8). The
+    rate dialog's heading shows a film title exactly as the confirm dialog's
+    does, but only the confirm dialog carried `overflow-wrap: anywhere` — the
+    reasoning had been written down once and applied to one of the two. The
+    declaration is now on the SHARED `.rate-dialog h3, .confirm-dialog h3` rule
+    and removed from the confirm-only block, rather than duplicated: the same
+    property in two rules is the shape that later gets changed in one of them.
+    Identical for the confirm dialog — both rules are (0,1,1) and nothing
+    competes, so the value just arrives from the shared rule instead. The toast
+    got the same guard: `max-width: 90vw` caps the BOX, so an unbreakable word
+    did not wrap, it spilled out of the rounded panel.
+    **Both are provably inert above ~300px**, which was the user's bar:
+    `overflow-wrap` only creates break opportunities that are used when a word
+    cannot fit a line by itself, and no realistic title or server message comes
+    near that. The only cases either can affect are ones already rendering
+    broken.
   - Browser's native `type="search"` clear × hidden (D-025): styling it would
     still leave Firefox (which draws none) different, and it only half-worked —
     it cleared the input but left the results panel populated.
@@ -330,8 +455,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
-* **Ranked list — in progress.** Claude's audit produced items 1–17 and the user
-  added 18–20; **13 of the 20 are done** and the canonical table with every
+* **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
+  NOT closed: the user is still raising off-backlog refinements and bugs found
+  by using it ("a few more things to settle before calling the whole ranked-list
+  overhaul a wrap"). Do not treat the empty backlog as the finish line.
+  Claude's audit produced items 1–17 and the user
+  added 18–20; **all 20 are done** and the canonical table with every
   status is further down this section. Done so far:
   - Only a rated film earns a rank number; unrated cards show a faint `?`, and
     the #1 crown moved off `:first-child` onto a class (D-029).
@@ -349,7 +478,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Off-list, found while testing: custom scrollbars ballooned under browser
     zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
     shrinks the viewport proportionally so `vw` holds a constant physical size).
-  - Review "view more…" toggles are re-measured on resize (and on zoom, and
+  - Review "show more" toggles are re-measured on resize (and on zoom, and
     after a late webfont swap), not once per render. They used to go stale in
     both directions — narrowing clipped a review whose toggle stayed hidden, so
     the text became unreachable. `hidden` is now assigned both ways. The pass
@@ -481,7 +610,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever
     disables — verified against every `disabled =` assignment in app.js.
 
-  - **Desktop card alignment** (2026-09-09, user-raised, off-backlog). The grid
+  - **Desktop card alignment** (2026-09-08, user-raised, off-backlog). The grid
     is `align-items: center`, so on >620px a short title floated in the middle
     of the 138px poster and the score column sat centred as one block. Now the
     body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
@@ -570,6 +699,255 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     BOTH films, which is correct — D-029 defines the crown as *your top-rated
     film*, and if two are scored the same then both are.
 
+  - **An expanded review stays expanded across a re-render** (#14, D-040).
+    `renderRanked()` rebuilds every card, so the `expanded` class died with the
+    node it was on: expanding one review and then rating a DIFFERENT film
+    collapsed it. The expansion is now a `Set` of movie ids on `state`, seeded
+    back into each rebuilt card.
+    **The backlog row for #14 claimed only D-031's element-reuse rewrite could
+    fix this. That was wrong** — it filed a state-persistence problem beside the
+    element-identity ones (animation churn, poster churn) that the rewrite was
+    designed for. The rewrite stays rejected, and its original argument is now
+    STRONGER: a missed field on a reused card yields a stale card that still
+    looks right, and `renderRanked()` has since taken on the tie logic (D-038)
+    and the TMDB score column (D-036/D-037), so there is more to get wrong.
+    **It adds no rule to item #5's machinery** — the trickiest code in this
+    section, settled over four commits. `syncReviewToggles()` already collapses,
+    measures and restores on a rAF after every render, so seeding the class at
+    build time makes it treat a rebuilt card exactly as it treats a resize; its
+    `it.clips && it.wasExpanded` rule then does the right thing unaided. The
+    three-pass measurement, the both-ways `hidden`, and the deliberate absence of
+    any line count in JS are byte-identical.
+    **The `Set` is written by `setReviewExpanded()`, never by the click handler**
+    — that function is already the single writer for the class, the label and
+    `aria-expanded`, and the `Set` is a fourth facet of the same fact. The click
+    handler is NOT the only thing that changes the state: the resize pass
+    collapses a review that no longer clips, and an unrecorded collapse would
+    desync the DOM and the `Set` on the next render. Its first pass still
+    collapses with a bare `classList.remove()` on purpose — that one is a
+    measuring fixture, not a state change; do not route it through the writer.
+
+  - **A rating-less review is now impossible, rather than invisible** (#15,
+    D-041, migration 004). `renderRanked()` branches `if (!isRated) … else if
+    (m.review)`, so an unrated film's review was never drawn — the text sat in
+    the table and no screen showed it. **Claude proposed splitting the branch so
+    both render; the user replaced that with the better question** — the UI
+    already refuses to create this state, so should the state exist at all? The
+    rating is the required part and the review the optional one, and that rule
+    was written down nowhere except in the shape of the rate dialog. It now
+    lives in the schema: `check (review is null or rating is not null)`.
+    **Enforced in the DB and not in the route because the rule is about the
+    RESULTING ROW, not the patch:** `PATCH {review}` alone is valid when the film
+    is already rated, so the route would need an extra read to judge it, while
+    Postgres already knows. The route's job is only to turn the resulting `23514`
+    into a 400 with a usable message instead of a generic 500 — matched on the
+    constraint NAME, since the table carries two range constraints as well.
+    Verified before shipping: the state was **unreachable from the UI** (POST
+    writes neither column; Save always sends a number from a range input), and a
+    pre-check found zero existing rows to migrate. So #15 was latent, not live.
+    **The `else if` is now provably exhaustive — do not split it into two
+    independent `if`s**, which would add a branch for a state the schema forbids.
+    One-directional on purpose: a rating with NO review stays valid, which is
+    what #20 labels.
+
+  - **The ranked-list subtitle stops restating itself** (#16 part b). `5 films ·
+    5 rated` said one fact twice in the app's steady state, was longest exactly
+    when it had least to say, and made the reader subtract to reach the only
+    actionable number. The `·` also joined a set to its own SUBSET, where every
+    other use of that separator in the app joins peer facts. Now `5 films` when
+    everything is rated (silence IS the all-rated signal — the clause exists to
+    flag outstanding work, and unrated cards still carry their own chip),
+    `5 films · 2 not rated yet` when some are, and `5 films · none rated yet`
+    when none are. That last branch is not cosmetic: `5 not rated yet` would put
+    both equal numbers back. It is also what settled the wording against the
+    shorter `2 unrated` — which reads better after a numeral, and the user asked
+    why not — because "unrated" would need a SECOND vocabulary for the
+    nothing-rated branch, and "yet" keeps the pending sense D-033 built the chip
+    around. Built as `rankedCountLabel()` so the three branches are readable.
+
+  - **A failure message is a context plus a cause** (#16(c), D-042). The add and
+    remove toasts showed the cause ALONE, so a failed add or remove named no
+    film. Prefixing the context was known to double — "Couldn’t remove “Dune” —
+    Couldn’t reach CineRank. Check your connection…" — and **the user's hand
+    testing of ten failure scenarios showed the doubling was already live** at
+    two sinks that do prefix (the boot toast and the AI log cell), not merely a
+    risk of the proposed fix as Claude had claimed.
+    Not unpredictable, though: there are exactly TWO kinds of message here and
+    the client always knows which it has, because it either fabricated the cause
+    (`api()`'s transport failure) or the server sent it. So a **`short` form is
+    attached at the source** and one `failureText(context, err)` prefers it —
+    used by all four context-adding sinks so the rule cannot be applied four
+    ways. Sinks that already sit inside their own context (search note, verdict
+    banner, rate dialog) deliberately do NOT compose; the user tested all three
+    and found them correct, and they are untouched.
+    **The server half is purely ADDITIVE, because the user capped the risk** ("as
+    long as it does not make this change noticeably riskier"): a new `short` key
+    beside `error`, and not one existing message edited. Nothing that reads
+    `body.error` can observe a new sibling key. That rule also parked a real
+    finding — the server carries the same straight-apostrophe inconsistency, but
+    a test asserts one of those messages verbatim, so the sweep would have broken
+    a test for a cosmetic gain. It was parked at the time and then **closed the
+    same day in its own commit** (`a124934`), together with the one test
+    assertion that quotes a message verbatim — which is exactly why it needed a
+    separate commit rather than being folded in here.
+    `failureText()` also normalises the terminal full stop, since the causes
+    disagree ("Already in your list" has none, "Something went wrong." does) and
+    most are not ours to edit. Two incidental fixes came out of the same testing:
+    the verdict fallback had **no full stop**, and "couldn’t" was spelled three
+    ways in app.js (curly, straight, and "Could not").
+
+  - **The first three ranked posters load eagerly** (#17). Every poster was
+    `loading="lazy"`, which is right for #20 and wrong for the cards already on
+    screen: the browser cannot decide "is this near the viewport" before layout,
+    so an in-view poster is deferred for nothing. `posterNode()` now takes an
+    opt-IN `{ eager }`, so the two callers that render only after a click (search
+    rows, rec cards) keep `lazy` untouched — neither is ever part of the first
+    paint, which is the only place the distinction matters.
+    **Honest about the size:** these images are built in JS after `/api/movies`
+    returns, so the preload scanner was never going to see them either way. The
+    win is a layout pass on the first few cards, not a dramatic one; it is worth
+    having because the poster is the design's primary visual anchor and the top
+    of the list is what a reader looks at first. **`EAGER_POSTERS = 3` is a
+    judgement call, not a measurement** — three is inside the fold at every
+    width, and being wrong costs one unneeded request. Do not "improve" it by
+    measuring the real fold: that reads layout during the render, which is
+    exactly what `syncReviewToggles()`'s three batched passes exist to avoid.
+
+  - **The review toggle uses one verb in both directions** (#18, user-raised).
+    It read `view more…` / `show less` — two verbs for one control, and an
+    ellipsis on only one half. **Not a considered pairing:** both strings landed
+    together in `93bd6d3`, whose message only narrates them, and no decision
+    entry ever discussed the wording. Now `show more` / `show less`.
+    **The ellipsis is dropped rather than balanced, for a checkable reason:**
+    `.review` is a `-webkit-box` with `-webkit-line-clamp`, so the browser
+    already ends the clipped line in "…" — the label repeated it one line below.
+    `show` and not `view`, even though the AI log's reveal summary says
+    `view verdict`: consistency WITHIN one control beats matching a different
+    surface, and "view less" is the weaker half of that pair. No accessibility
+    consequence — the toggle carries `aria-expanded`, so the state is announced
+    independently of the label.
+    Past-tense mentions of `view more…` in `syncReviewToggles()`'s JSDoc and in
+    `docs/DECISIONS.md` are LEFT ALONE: the label really was that when those
+    bugs happened, and rewriting them would be maintaining history rather than
+    preserving it.
+
+  - **Grow-on-hover — and the bug it uncovered** (#19, user-raised, D-043). The
+    user asked for something more pronounced, saying the old effect was "too
+    subtle - I can only notice it on the poster". That was literally true twice
+    over. The card never scaled at all (only `translateY(-3px)`) — **and even
+    that lift did nothing on a freshly loaded page.** `.movie-card.is-entering`
+    used `animation: … both`, the class is added on first paint and NEVER
+    removed, and a forwards-filling animation keeps applying its last keyframe —
+    which **outranks normal author declarations in the cascade.** `fade-slide`
+    ends at `transform: none`, so every first-paint card was pinned there for the
+    life of the page, silently beating `:hover`. It worked again after any
+    add/rate/remove, because those rebuild cards without the class — which is
+    what made it read as *subtle* rather than *broken*.
+    Fixed with `both` → `backwards`, not by removing the class in JS: `backwards`
+    keeps the half that is needed (holding the from-state through the stagger
+    delay) and drops the half that caused it, with no listener to leak and no
+    failure mode when the animation never runs. Provably no visual change at
+    rest — the final keyframe already equals the card's resting state.
+    `.rec-card` carried the same `both` and was fixed with it; nothing was
+    visibly broken there, but adding a hover transform later would have silently
+    done nothing.
+    The second half was that **`box-shadow` was neither transitioned nor changed
+    on hover**, so the card rose against a static shadow — a lift with no
+    elevation cue. Now it deepens, and the user chose the option that adds a
+    faint amber rim.
+    **The lift itself was then removed, same day, on the user's report.** A
+    `translateY(-5px)` is directional: it shrank the gap ABOVE the card by 5px
+    and opened the one below, so a hovered card drifted toward its upper
+    neighbour — measured at 10px above vs 20px below, a 2:1 split the user
+    spotted straight away. In a vertical list of identical siblings that
+    asymmetry is the most visible thing about the effect. The card now scales
+    only (`scale(1.02)`, raised from 1.012 to keep it pronounced), which grows
+    from the centre and opens both gaps equally — 14.3px each. Elevation is still
+    expressed, by the downward-offset shadow alone, which is what sells depth
+    anyway. **A lift cannot be made symmetric** — that is what `translateY`
+    means — so do not restore one without re-reading this.
+    **Then the shadow was rebuilt out of light, not black** (D-044, user-raised:
+    "barely visible against the dark background"). It led with a black drop
+    shadow, and the page is `--bg: #0b0b0f` — a black shadow darkens what is
+    behind it, and there was nothing left to darken, so that layer did almost no
+    work at any opacity. It is REMOVED rather than reduced, and the amber carries
+    the effect: a lit edge, an inner glow and a wide halo.
+    **All three layers have a zero Y-offset, and that is a rule.** The middle
+    one shipped as `0 16px …` — a downward "pool", the drop-shadow idiom — and
+    the user spotted within minutes that the glow was far bigger below the card
+    than above it. A shadow is CAST and pools away from the light; a glow is
+    EMITTED and radiates evenly, so any offset only makes it lopsided. That was
+    the **second** time in this one item that a drop-shadow habit produced an
+    asymmetry a glow should not have — the `translateY` lift was the first. Do
+    not give these layers a Y-offset.
+    **Spotlight (user-raised, same item): hovering one card dims every other**
+    (`opacity: 0.55`), so the list recedes and only the card under the pointer is
+    at full strength. Two things make it work and neither is obvious.
+    **`:has()`, not `.ranked__list:hover .movie-card:not(:hover)`** — the list
+    has a 1rem `gap` that belongs to the list but to no card, so the shorter form
+    dims EVERYTHING while the pointer crosses a gap, and sliding down the list
+    would strobe. **And `z-index: 1` on the hovered card is required, not
+    decoration:** `opacity < 1` creates a stacking context, promoting every
+    dimmed sibling into the same paint step as the transformed hovered card,
+    where DOM order decides — so the card below would paint over the hovered
+    card's glow and clip it. Grid items take `z-index` with no `position`.
+    It also **only works because D-043 changed the entrance fill to
+    `backwards`**: `fade-slide` ends at `opacity: 1`, and a forwards fill would
+    have pinned every first-paint card there and silently refused to dim — the
+    same bug as the hover transform, one property over.
+    **This supersedes D-043's own trap**, which said to hold the amber at
+    0.10–0.12 alpha so hover could not be mistaken for keyboard focus. Followed
+    literally, that is what made the effect invisible. What actually separates
+    them is SHAPE: `:focus-visible` is a crisp, fully opaque 2px solid outline
+    held 3px off the element, while the hover glow is translucent, diffuse and
+    attached to the edge. Those differ at any brightness. The revised rule: the
+    glow may be as bright as it likes, but must never become a hard-edged opaque
+    amber line at an offset — that, not brightness, is where the two converge.
+    Older note, still true of the OTHER amber uses: it must not be confusable with the
+    `:focus-visible` ring, which is the same colour but a crisp 2px solid. Hover
+    rules are gated on `@media (hover: hover)` (NOT a width query) so a tap on a
+    phone cannot park a card in the grown state, and `prefers-reduced-motion`
+    now drops the transform while keeping the colour response.
+
+  - **A rated film with no review says so** (#20, the last item, user-added).
+    `No review yet — edit to add one.`, italic and a step fainter than a real
+    review (`--ink-faint` against its `--ink-dim`) — the same vocabulary
+    `No TMDB rating` already uses, so an absence reads as an absence rather than
+    as content. It fills the void that top-aligning the body (2026-09-08) left
+    under a review-less card, which is why that entry says #20 became worth more,
+    not less.
+    **Scoped by the branch's structure, not by a new test.** It is the final
+    `else` after `if (!isRated)` and `else if (m.review)`, so it is reachable
+    only when the film IS rated and has no review. An unrated card must never
+    get it — that card already says "Not rated yet", and a second placeholder
+    beneath the first reads as nagging. This is the scoping #15 flagged in
+    advance.
+    **Class `no-review`, deliberately NOT a `.review` modifier:**
+    `syncReviewToggles()` selects `.review` to measure for clamping, and a
+    one-line placeholder has no business entering the pass item #5 took four
+    commits to settle.
+
+  - **No user text can widen a card** (off-backlog, user-found, D-045). A review
+    of ~400 unbroken `f`s widened the card, the section and then the whole page,
+    with no scrollbar to reveal what had been pushed off. The card's `1fr` track
+    is `minmax(auto, 1fr)`, and that `auto` minimum is the **min-content width** —
+    for one unbreakable word, the entire word. `.review`'s `overflow: hidden`
+    from the line clamp did nothing, because clipping governs PAINTING, not the
+    intrinsic size a track is measured from.
+    **`overflow-wrap: anywhere`, and `break-word` would NOT have fixed it.** The
+    two render identically — spaces first, mid-word only when a word cannot fit a
+    line alone — but `break-word`'s break opportunities are ignored when
+    min-content is calculated, so the track would still have been sized to the
+    unbroken word. `anywhere` counts them, so min-content collapses to about one
+    character. Same appearance, different arithmetic; do not simplify it.
+    It inherits, so one declaration covers the title, review, #20's placeholder
+    and the unrated hint. `min-width: 0` sits beside it as the structural half,
+    since `overflow-wrap` governs text only.
+    `.rec-card__body` and `.result-row` got the same guard **defensively** and are
+    labelled as such in the CSS — the recs grid has a FIXED `minmax(190px, …)`
+    minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
+    the ranked card was actually broken.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -592,55 +970,118 @@ and do not renumber: the numbers are how the user refers to them.
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
-| 14 | Expanded reviews collapse on any unrelated re-render | open — **next**; only the element-reuse rewrite **rejected in D-031** fixes it |
-| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | open |
-| 16 | Copy inconsistencies. **Toasts done** (2026-09-08, user-raised): all three confirmations now read `“Title” added/saved/removed`, one shape, film first — two of them named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **Still open:** `5 films · 5 rated` reads oddly, and the two error toasts pass the server's wording through unprefixed, so a failed add/remove names no film | open — partly done |
-| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | open |
-| 18 | Discuss the "view more…" vs "show less" wording discrepancy | open — user-added |
-| 19 | Add a grow-on-hover effect to each ranked-list item | open — user-added |
-| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | open — user-added |
+| 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
+| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-08): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-08): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
+| 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
-##### Agreed order of work from here (set by the user, 2026-09-08, session end)
+##### Agreed order of work from here (set by the user, 2026-09-09)
 
-Work this top to bottom. It is the user's own sequencing, not Claude's
-suggestion — do not re-prioritise it, and do not start further down because
-something looks quicker.
+Work this top to bottom. It is the user's own sequencing, not Claude's — do not
+re-prioritise it, and do not start further down because something looks quicker.
+This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-1. **#11** — the `tmdb_rating` scope call. The user flagged it as "big yet
-   important" and deliberately chose to start a fresh session on it rather than
-   begin it tired. It needs **migration 002** (a new column), so it is the only
-   remaining backlog item that touches the schema. Ship the migration as a
-   numbered, re-runnable file in `db/migrations/` AND fold it into
-   `db/schema.sql`, per the conventions above; it is applied by hand in the
-   Supabase SQL editor.
-2. **#13 → #20** in numeric order. Note **#12 is already done** (delivered by
-   #4 / D-031) — the user said "#12 through #20" at session end, so say so
-   rather than silently skipping it. **#16 is partly done**: only the two error
-   toasts and the `5 films · 5 rated` string remain.
-3. **"What to watch next" (recommendations) overhaul.** Carries the known
-   swallowed-error bug listed under Open issues — the handler writes
-   `err.message` into `#recs-hint` and its own `finally` overwrites it in the
-   same tick, so a failed run shows the user nothing — and a label inconsistent
-   with Search ("Add to my list" vs "+ Add").
-4. **Everything still open under Pre-submission blockers**, plus the leftovers
-   in Open issues.
+1. **Mobile keypad does not close when a search is submitted.** On a phone the
+   soft keyboard stays up over the results. Mechanism, already traced: the submit
+   handler calls `e.preventDefault()` so the form never navigates, and **nothing
+   in `app.js` ever calls `.blur()`** — so the input keeps focus and the keyboard
+   with it. Careful with the fix: the empty-query path deliberately calls
+   `el.searchInput.focus()`, and that must keep working.
 
+2. **Recommendations overhaul — a big one, with its own sub-backlog.** The items
+   below are the seed, NOT the whole list.
+   **Claude is expected to audit the section first and produce a large backlog of
+   its own**, the way the 17-item ranked-list audit was produced. The user's
+   words: "many more bug fixes, inconsistency fixes, and other enhancements that
+   I cannot remember right now". Do that audit before starting work, number the
+   items, and keep them here so a compact cannot lose them.
+   * **Error handling and visibility.** `renderRecommendations`'s handler writes
+     `err.message` into `#recs-hint` and sets `.err`, then its own `finally` calls
+     `syncRecommendationsAvailability()`, which unconditionally does
+     `classList.remove('err')` and overwrites `textContent`. Both run in the same
+     tick, so **a failed run shows the user nothing at all.** The server side is
+     correct and tested (422 + a `status='failed'` log row). This is the LAST
+     functional bug in the app and it is SPEC §7.1 evidence, so it must land
+     before the resilience screenshots are captured. The verdict side already
+     does this properly — it points at the AI call log; copy that shape.
+   * **Grow-on-hover**, matching what the ranked list got (D-043/D-044). Read
+     both entries first: elevation on this page is made of LIGHT not black, every
+     glow layer has a zero Y-offset, and the amber must not become a hard-edged
+     opaque line at an offset, which is where it converges with the focus ring.
+   * **A glittering ✨ AI icon on the recommendations button.** Prefer an inline
+     SVG, per D-027. **If mimicking a good-looking SVG proves problematic, this
+     one button is explicitly EXEMPT from the no-emoji rule** — the user has
+     granted that exemption in advance. Do not spend hours on the SVG.
+   * **Decide the "add to your list" label wording and glyph.** The rec card
+     reads `Add to my list` (app.js) while the search row reads `+ Add` with a
+     three-state machine (`+ Add` → `⟳ Adding…` → `✓ Added` / `In your list`).
+     One of them should move. Note the glyph/line-break rule under Frontend
+     Design Notes applies to whatever is chosen.
+   * **Verify that an already-added film is never recommended.** There is an
+     owned-titles filter; confirm it actually holds end to end.
+     * **Follow-up:** make sure the **UI, the API and the DB alike** safeguard
+       against duplicates in the ranked list. The DB has `unique(tmdb_id)` and
+       the route maps `23505` to a 409 — check the UI half and the recs path
+       against that, rather than assuming the constraint is doing all the work.
+   * **Two narrow-width defects found in the 2026-09-08 sweep and DELIBERATELY
+     left unfixed so they land here**, not scattered:
+     - `.recs__trigger` has **neither `flex-shrink: 0` nor `white-space: nowrap`**
+       (verified against all six of its rules), so "Get recommendations" can be
+       squeezed onto two lines. Mechanically identical to the `+ Add` bug already
+       fixed in Search. Its BUSY label is already safe — that comes from the
+       shared `busyButton()`.
+     - `.recs__head` has no `flex-wrap: wrap`, which is why the above bites
+       instead of resolving itself. `.ranked__head` was given the wrap on
+       2026-09-08 and `.recs__head` deliberately was not, so the two are
+       temporarily split in the stylesheet — **reunite them in this pass.**
 
-* Then: recommendations, then the rate dialog. The recs section carries a known
-  open bug (its error message is overwritten by its own `finally` — see Open
-  issues) and a label inconsistent with the Search one ("Add to my list" vs
-  "+ Add"). User is driving this.
+   **Already done in this section, do NOT redo:** `.rec-card__body` carries
+   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation
+   fill was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   gained its missing `:not(:disabled)` guard (#10), and the glyph-glued labels
+   (`+\u00A0Add`, `✓\u00A0Added`) reach this card too, since it shares
+   `addMovie()`.
+
+3. **Add GitHub link(s)** to the page — out to the public repo.
+
+4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
+   request. State verified 2026-09-08: there is **no `<link rel="icon">` in
+   `index.html`, no icon file in `public/`, and no server-side favicon route**,
+   so every browser auto-requests `/favicon.ico`, misses the static middleware
+   and lands on the 404 handler. That is the lone console error on a clean load,
+   and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
+   building.
+
+5. **Complete overhaul of the portrait view under 500px.**
+   **Plan and test against ~350px.** That is the target, not the floor.
+   **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
+   The user asked to be stopped, in advance, because the deadline is close:
+   * **Below ~350px: "good enough" only.** Actively talk the user out of tuning
+     these widths. The exceptions are narrow and specific — a fix that is safe,
+     straightforward and quick, or a case where the ~350px layout is itself
+     borderline and the narrow view is evidence of that. Anything else: say so
+     and move on.
+   * **Below ~290px: IGNORE COMPLETELY.** Do not investigate, do not measure, do
+     not fix, and **stop the user if they start**. This is not a judgement call
+     to re-litigate each time — it is a standing instruction, given deliberately
+     with the submission deadline in view.
+
+6. **All remaining documented pre-submission blockers**, plus the leftovers in
+   Open issues.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
-* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-09, backfill run.** It was
+* [x] **Migration 002 (`tmdb_rating`) applied 2026-09-08, backfill run.** It was
   a prerequisite rather than a follow-up: until the column existed PostgREST
   rejected the insert with PGRST204 and adding any film failed. A nullable
   column is backward compatible with the code on `main`, so applying it early
   was safe for the live site.
-* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-09.** TMDB
+* [x] **Migration 003 (`tmdb_rating = 0` → NULL) applied 2026-09-08.** TMDB
   reports `vote_average: 0` for a title nobody has voted on, so 002 + the
   backfill wrote a literal 0 for those and the card read "TMDB 0.0", i.e. worst
   film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
@@ -648,13 +1089,19 @@ below — this list is the smaller stuff.)
   **Both are applied to the single live Supabase project, which is the same
   database the deployed app uses — there is no separate prod DB to migrate at
   release time.**
+* [x] **Migration 004 (`review_requires_rating`) applied 2026-09-08.** A `check`
+  constraint forbidding a review on an unrated film (#15, D-041) — the rating is
+  the required part, the review the optional one, and until now only the UI knew
+  that. A pre-check confirmed **zero** existing rows violated it before it went
+  on. Adding it to a live DB is safe in a way 002 was not: it forbids a state
+  nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
-  TMDB/OpenRouter-down resilience, and the `tmdb_rating` guards all covered by
-  `npm test` (35).
+  TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
+  `review_requires_rating` guards all covered by `npm test` (38).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
-* [ ] **Recommendations swallow their error message.** `renderRecommendations`'s
+* [ ] **Recommendations swallow their error message.** (Also step 2 of the agreed order — that entry is the one being worked from; keep this checkbox as the tracker, not a second description.) `renderRecommendations`'s
   handler writes `err.message` into `#recs-hint` on failure, but its `finally`
   then calls `syncRecommendationsAvailability()`, which unconditionally does
   `classList.remove('err')` + overwrites `textContent` with the standard hint —
@@ -663,6 +1110,14 @@ below — this list is the smaller stuff.)
   purely the UI half of SPEC §7.1, and it would show up badly in the resilience
   screenshots. Fix when the recommendations section gets its overhaul pass; the
   verdict side already does this properly (points at the AI call log).
+* [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
+  The client's three offenders went with #16(c); the four server-side ones (the
+  two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
+  commit, together with the one test assertion that quotes a message verbatim —
+  which is why it was a separate change rather than folded into #16(c). Every
+  user-facing contraction in `server/`, `public/app.js` and `public/index.html`
+  now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
+  they are not UI copy.
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
@@ -689,7 +1144,7 @@ below — this list is the smaller stuff.)
   2. Rating spread: a couple high, one mid, one low "guilty pleasure /
      disappointment" outlier for contrast.
   3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
-     demos the "view more" toggle + injection-safe handling.
+     demos the "show more" toggle + injection-safe handling.
   4. Recommendation headroom: likely AI picks not already in the list, real
      enough to pass TMDB verification cleanly (no silently-dropped cards).
   5. Dry-run the verdict a few times pre-submission; adjust the seed set if the
@@ -698,6 +1153,12 @@ below — this list is the smaller stuff.)
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
   produces. Not started — user will kick this off later.
+  **One hard constraint on that helper, from migration 004 (D-041): rating and
+  review must go in the SAME `PATCH`.** A review-only patch on a film that is not
+  yet rated now violates `review_requires_rating` and comes back as a 400 ("A
+  review needs a rating"). This is deliberate — it fails loudly in the seed run
+  rather than silently storing a review no screen would ever display — but it
+  will look like a mystery if it is met without knowing why.
 
 ### Pre-submission blockers — DO NOT call the project a wrap until these are done
 
@@ -726,11 +1187,16 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   the first hit takes anywhere from a few seconds to a minute while the instance
   wakes — a minute is the observed worst case, not the typical one. Open the link
   shortly before demoing.
-  **Still to do:** put the URL on the lecturer's project sheet.
   Node resolves to whatever is newest (`engines` says `>=20`; the live build
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s
   `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
   ever breaks on a new Node.
+* [ ] **Put the live URL on the project sheet** —
+  https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
+  *inside* the ticked deploy item above, where it did not show up as an open
+  checkbox and could be missed on a skim. It is its own task: deploying and
+  submitting the address are two different things, and the second is what makes
+  the first count.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
 * [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
   search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
@@ -808,6 +1274,29 @@ The explicit goal is a genuinely polished, distinctive look — not a generic de
 * Good-locking CSS effects and animations.
 * Poster images treated as the primary visual anchor of each card — layout should be built around the poster, not squeeze it in as an afterthought.
 * Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list."
+
+### Button labels and line breaks (the user's rule, 2026-09-09)
+
+**A glyph is not a word.** A checkmark, a plus, a spinner and the like must NEVER
+be separated from the word they belong to — a two-line `+ Add` or `✓ Added` is
+unacceptable at **any** viewport width, however narrow.
+
+**Real words may wrap on spaces** in exceptionally narrow viewports (roughly
+under 400px) and the user does not mind. `In your list` breaking across two lines
+is fine; `✓` on one line and `Added` on the next is not.
+
+**How it is enforced:** the glyph is glued to its word with a non-breaking space
+**in the string itself**, written as a ` ` escape, never as a literal
+character. In the string and not in CSS because the same labels are rendered on
+two surfaces — the search row and the recommendation card — and only one of them
+has `white-space: nowrap`. A guard that travels with the text cannot be missed by
+a stylesheet that was never updated. `busyButton()` does the same for every
+spinner label in one line, since every busy label in the app is built there.
+
+**One standing exception:** `Get recommendations` is out of scope for this rule
+by the user's instruction — it is parked for the recommendations overhaul. Its
+BUSY label is nonetheless covered, because that comes from the shared
+`busyButton()`; only its resting label is exempt.
 
 \---
 

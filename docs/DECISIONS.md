@@ -6,6 +6,409 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
+Found by the user after the backlog closed, with a review consisting of ~400
+unbroken `f`s. The ranked list did not merely overflow: the card widened, the
+section widened, and the whole page layout broke, with no scrollbar to reveal
+what had been pushed off-screen.
+
+**Why one word can do that.** `.movie-card` is a grid with
+`grid-template-columns: 64px var(--poster-w) 1fr auto`. A `1fr` track is
+`minmax(auto, 1fr)`, and that `auto` minimum resolves to the item's **min-content
+width** — which, for a single unbreakable word, is the entire word. The track grew
+to fit it and everything downstream followed. `.review` already had
+`overflow: hidden` from its line clamp and it did not help at all, because
+clipping governs PAINTING, not the intrinsic size a track is measured from.
+
+### The obvious fix would not have worked
+`overflow-wrap: break-word` is what anyone reaches for, and on screen it wraps
+**identically**: normal breaks at spaces, mid-word only when a word cannot fit a
+line by itself — precisely the behaviour the user asked for. It would still have
+left the bug in place, because `break-word`'s break opportunities are **not
+counted when min-content is calculated**. The track would have been sized to the
+unbroken word exactly as before, and the page would have blown out exactly as
+before, while the review itself looked correctly wrapped — the most expensive
+kind of near-miss, since the visible symptom would have moved without the cause.
+
+`overflow-wrap: anywhere` is identical in rendering and different in
+**measurement**: its break opportunities DO count toward intrinsic sizes, so
+min-content collapses to roughly one character and the track can no longer be
+pushed open. Same appearance, different arithmetic. **Do not "simplify" it to
+`break-word`.**
+
+The property inherits, so one declaration on `.movie-card__body` covers the
+title, the review, #20's placeholder and the unrated hint. It is also the
+property `.log-error` already uses, for the same reason, in the AI call log.
+
+### `min-width: 0` alongside it
+`overflow-wrap` governs TEXT only. The user's requirement was categorical —
+"ensure no user input can ever widen a card's width" — so the grid item also gets
+`min-width: 0`, which makes the track structurally incapable of being pushed open
+by anything, including future non-text content with its own intrinsic width. The
+`overflow-wrap` line is what fixes the reported bug; this one closes the class.
+
+### Two surfaces guarded defensively, and labelled as such
+* `.rec-card__body` — the recs grid is `minmax(190px, 1fr)`, a FIXED minimum, so
+  it cannot be pushed open the way the ranked card was. But the reason text is
+  model output derived from the user's own reviews, which is the prompt-injection
+  surface, and the card title is not clipped the way `.reason` is.
+* `.result-row` — a flex container, and a flex item's automatic minimum size is
+  min-content, the same mechanism. Its text comes from TMDB, so nothing is known
+  to be broken.
+
+Both are marked in the CSS as defensive rather than corrective, so a later reader
+does not mistake them for evidence of bugs that happened.
+
+---
+## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
+Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
+pronounced, and more importantly - brighter. It's barely visible against the dark
+background."*
+
+**They were describing a real physical limit, not a preference.** The hover
+shadow led with `0 28px 55px -20px rgba(0, 0, 0, 0.95)`. The page is
+`--bg: #0b0b0f`. A black shadow works by darkening what is behind it, and there
+is essentially nothing left to darken — the layer was doing almost no work at
+any opacity. That is why the effect read as "barely visible" even after the
+scale was raised. On a dark UI, elevation cannot be a shadow; it has to be light.
+
+So the black layer is **removed rather than reduced** — it was not earning its
+place — and the amber glow carries the whole effect: a lit edge, a warm pool
+below the card, and a wide halo into the page.
+
+### This supersedes a trap D-043 recorded, and that is the point of the entry
+D-043 said, in its own Traps section: *"The amber must stay weak … diffuse at
+0.10–0.12 alpha specifically so 'the pointer is over this' cannot be confused
+with 'this has keyboard focus'."* Followed literally, that guidance is exactly
+what produced an invisible effect. **The instinct was right and the mechanism was
+wrong.**
+
+What actually separates hover from focus here is **shape, not dimness**:
+
+* `:focus-visible` draws a **crisp, fully opaque, 2px SOLID outline, held 3px off
+  the element** by `outline-offset` — a detached hard line with a visible gap.
+* The hover glow is **translucent, diffuse, and attached to the card's edge.**
+
+Those read as different things at any brightness, which is what makes a bright
+glow safe. Dimming was never the load-bearing property; it was a proxy for
+"don't make it look like an outline", and a bad one, because it also made it
+look like nothing.
+
+**The revised trap:** the glow may be as bright as it likes, but it must never
+become a hard-edged, opaque amber line sitting at an offset from the card. That
+is the state where the two genuinely converge — not brightness.
+
+### Note on process
+This is a case where a trap written in good faith made the next change worse, and
+it took a user report to catch it. The fix is a NEW entry rather than an edit to
+D-043, per the rule in CLAUDE.md: D-043 records what was decided and why at the
+time, including the reasoning that turned out to be too blunt, and that record is
+worth more intact than tidied.
+
+---
+## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
+Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
+existing one as "too subtle - I can only notice it on the poster". That sentence
+turned out to be literally, mechanically true, in two ways at once.
+
+**First, the card never grew.** `.movie-card:hover` set `translateY(-3px)` and a
+slightly lighter border. Nothing scaled except `.movie-card__poster`. So "I can
+only notice it on the poster" was an accurate description of the CSS.
+
+**Second, and worse: even the 3px lift did nothing on a freshly loaded page.**
+`.movie-card.is-entering` carried `animation: fade-slide 0.45s var(--ease)
+**both**`, and `is-entering` is added on first paint and **never removed**.
+`both` is `backwards` + `forwards`, and a *forwards*-filling animation keeps
+applying its final keyframe indefinitely — while **animation declarations outrank
+normal author declarations in the cascade**. `fade-slide` ends at
+`transform: none`. So every first-paint card was pinned to `transform: none` for
+the life of the page, silently beating the `:hover` rule's transform. Only the
+poster still moved, because the poster has no animation of its own.
+
+It came back after any add, rate or remove, because those re-renders rebuild the
+cards WITHOUT `is-entering` (D-031 restricted the entrance to first paint). An
+effect that works only after you interact with the list, and never on the page
+you first look at, reads exactly as "too subtle" rather than as broken. That is
+why it survived this long.
+
+### Two fixes, and why the JS one lost
+* **Remove `is-entering` on `animationend`.** The reflex answer, and rejected: it
+  adds a listener per card on every first render, needs its own teardown, and
+  re-couples a purely presentational concern to JS. It also has failure modes the
+  CSS fix does not — an animation that never runs or never completes (a
+  backgrounded tab, `prefers-reduced-motion` removing it entirely) leaves the
+  class attached forever, which is the very state being fixed.
+* **`both` → `backwards`** (chosen). One word, no JS. It keeps the half that is
+  actually needed — holding the from-state through this card's stagger delay (set
+  in JS, up to 400ms) so a card cannot flash at full opacity before its turn —
+  and drops the half that caused the bug. **Provably equivalent at rest:** the
+  final keyframe is `opacity: 1; transform: none`, which is identical to the
+  card's natural resting state, so removing the forwards fill changes nothing
+  visually.
+
+`.rec-card` had the same `both` and was fixed with it. No hover transform exists
+there today, so nothing was visibly broken — but it is the same latent trap, and
+adding one later would have silently done nothing.
+
+### The other half: a lift with no elevation cue
+`box-shadow` was set on `.movie-card` and **was not in its `transition` list, and
+was not changed on hover**. So the card rose against a completely static shadow.
+Elevation is sold by the shadow growing and softening; without that a 3px lift
+reads as nothing. The fix was never "make the 3px bigger" — the shadow had to
+join the transition and change on hover.
+
+### What shipped, and the choice the user made
+Three options were laid out: (A) elevation only, no scale, text stays crisp;
+(B) elevation plus a real scale; (C) elevation, scale, and a faint warm rim in
+the app's amber. **The user chose C.**
+
+### Traps
+* **Do not restore `both` on either entrance animation.** If a card ever flashes
+  before its stagger delay, `backwards` is already the fix for that; `both` adds
+  only the forwards fill, which is what broke the hover.
+* **The amber must stay weak.** `--amber` is already the `:focus-visible` ring (a
+  crisp 2px solid), the #1 crown and the "Not rated yet" chip. The hover glow is
+  diffuse at 0.10–0.12 alpha specifically so "the pointer is over this" cannot be
+  confused with "this has keyboard focus". Strengthening it breaks that.
+* **`@media (hover: hover)`, never a width query.** The gate exists because
+  `:hover` sticks on a touch screen after a tap — a card would stay parked in the
+  grown state after pressing Edit. Gating on input capability keeps the effect on
+  a narrow desktop window, which a `min-width` query would wrongly remove.
+* **`prefers-reduced-motion` suppresses the transform but keeps the colour.**
+  Killing the transition alone was not enough: the lift and scale still applied,
+  just instantly, which is precisely what a motion-sensitive user is asking to
+  avoid. The deepened shadow, warm rim and border still respond, so the card is
+  not left inert.
+
+---
+## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
+Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
+or remove named no film — with several cards on screen, nothing said which one
+had not been removed. The obvious fix, putting the context in front of whatever
+came back, was recorded months earlier as unsafe because it produces
+"Couldn’t remove “Dune” — Couldn’t reach CineRank. Check your connection and try
+again." Two subjects, two "couldn’t"s, one failure.
+
+**The user's field testing is what produced the design, and it corrected two
+things Claude had assumed.** They worked through ten scenarios by hand (offline
+via DevTools; a bogus `SUPABASE_ANON_KEY` for the DB-down case) and reported each
+sink's actual output. That established:
+
+* The doubling was **not hypothetical** — it already existed at two sinks that
+  DO prefix: the boot toast ("Could not load your movies: Couldn’t reach
+  CineRank…") and the AI log's cell ("Couldn't load the log: Couldn’t reach
+  CineRank…"). Claude had described it only as the failure mode of a proposed
+  fix, and had told the user it was not currently reproducible. It was.
+* It is **not limited to the transport error**. The TMDB 502 is also a
+  self-contained sentence starting with "Couldn't", so a naive prefix doubles
+  there too.
+* Two incidental bugs: the verdict fallback ended "See the AI call log for
+  details" with **no full stop**, and the app spelled the same word three ways —
+  `Couldn’t` (curly), `Couldn't` (straight), and `Could not`.
+
+### The reframing that made it tractable
+The user asked how to handle "the unpredictability of the exact error message".
+It is not unpredictable. There are exactly **two kinds** of message arriving at
+these sinks, and the client always knows which it holds: either it fabricated the
+cause itself (`api()`'s transport failure) or the server sent it. So the short
+form can be attached **at the source**, and the composer only has to prefer it.
+
+### Options
+* **A — prefix unconditionally.** Rejected: the doubling above.
+* **B — drop the context when the cause is self-contained.** Rejected, and this
+  is the interesting one. It reads fine in isolation, but it means the film is
+  named only *sometimes* — and the user cannot know that the omission is a
+  property of the error rather than of their action. Naming it inconsistently is
+  worse than never naming it.
+* **C — reorder: cause first, consequence appended** ("Couldn’t reach CineRank.
+  “Dune” was not removed."). Rejected: it makes every toast longer, and a toast
+  is on screen for 3.2 seconds.
+* **D — a `short` form attached at the source, one composer** (chosen).
+  `err.short ?? err.message`, prefixed with the context. An endpoint that sends
+  no `short` behaves exactly as it did.
+
+### The risk cap shaped the server half
+The user approved the server change **"as long as it does not make this change
+noticeably riskier — I do not have time to debug all error scenarios from
+scratch."** That turned into a hard rule: **add a key, never edit an existing
+`error` string.** The consequence is that adding `short` cannot change any
+existing behaviour, by the same argument the confirm dialog used for sharing
+selector lists — nothing that already reads `body.error` can observe a new
+sibling key.
+
+It also settled a temptation. The server carries the same straight-apostrophe
+inconsistency (three messages), but `test/routes.test.js` asserts one of them
+verbatim with a straight apostrophe, so a tidy-up sweep would have broken a test
+for a cosmetic gain. Left alone and reported instead.
+
+### Punctuation
+The composer normalises the terminal stop, rather than each cause being fixed by
+hand. The causes disagree — the 409 is "Already in your list" with no stop, the
+500 is "Something went wrong." with one — and most are not ours to edit. Without
+this the same toast would end with a full stop or not depending on which failure
+produced it, which is the defect the verdict's missing "for details." already
+was. Caught by running the composer over every scenario, not by eye.
+
+### Traps
+* **Do not lowercase or re-flow the cause to make it read as one sentence.** It
+  may start with a proper noun ("TMDB…", "Already…") and it is user-facing text
+  the server owns.
+* **The add handler's `settle()` must keep reading `err.message`, not the
+  composed string.** It tests for "Already" to decide whether the button is
+  retryable, and the composed text contains a film title that could itself
+  contain that word.
+* **`short` is optional on purpose.** Most endpoints will never need one —
+  "Something went wrong." composes correctly as it is. Do not "finish the job"
+  by adding one everywhere; the field exists only for causes too self-contained
+  to sit after a prefix.
+* Sinks that are already surrounded by their own context — the search note, the
+  verdict banner, the rate dialog's inline error — deliberately do NOT compose.
+  The user tested all three and found them correct; they were left untouched, and
+  the transport message they receive is byte-identical to before.
+
+### Verified, not assumed
+The shipped `failureText()` was extracted from `public/app.js` and run over all
+ten reported scenarios plus the no-title fallback: every result names the
+operation, names the film where one exists, says "couldn’t" exactly once and ends
+in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
+`short` **and** that its `error` text is unchanged.
+
+---
+## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
+Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
+film that is unrated but carries a review drew the "Not rated yet" chip and its
+review was never rendered at all — the text sat in the table and no screen ever
+showed it.
+
+**Claude proposed the wrong fix, and the user replaced it.** The proposal was to
+split the branch into two independent `if`s so an unrated card showed the chip
+AND the review. The user's question was better: the UI already refuses to create
+this state, so *should the state exist at all?* The rating is the required part
+and the review the optional one — that is the product rule, and it was written
+down nowhere except in the shape of the rate dialog.
+
+### What was verified first
+The backlog row said only "the PATCH endpoint permits that state", which is true
+but stops short. Tracing every writer showed the state is **unreachable from the
+UI**: `POST /api/movies` writes neither column, and the rate dialog's Save always
+sends `Number(el.rateRange.value)` from a range input that cannot be empty. So
+#15 was latent, not a live bug — worth saying, because the row read as though
+there might be hidden reviews already. A pre-check (`where review is not null and
+rating is null`) returned zero rows before anything was changed.
+
+### Three options
+* **A — render both** (Claude's). Rejected: it copes with data the product does
+  not want instead of preventing it, and adds a permanent branch to
+  `renderRanked()` for a state nothing should ever produce.
+* **B — validate in the PATCH route.** Rejected on a finding, not on taste: the
+  rule is about the **resulting row**, not about the patch. `PATCH {review}`
+  alone is perfectly valid when the film is already rated, so the route would
+  have to re-read the row to judge it. Postgres already knows the resulting row.
+* **C — a `check` constraint** (the user's). Chosen. `check (review is null or
+  rating is not null)`, migration 004, folded into `db/schema.sql`. It is the
+  only layer that can enforce the rule in one place at no cost, and it turns the
+  renderer's `else if` from accidentally correct into **provably exhaustive**.
+
+### The consequence, accepted deliberately
+This converts a silent hide into a loud failure. That is the right direction —
+fail at the boundary rather than accept-and-hide — but it has a concrete cost:
+**the demo seed helper must send rating and review in the same PATCH**, or it
+will error. That failure lands during seed development rather than silently in
+front of a reader, which is the good version of the problem, but it is a real
+constraint on code not yet written, so it is recorded here and under the
+pre-submission blockers.
+
+`PATCH` still accepts an explicit `rating: null`; after this that call fails for
+any film that has a review. No UI path sends it.
+
+### Traps
+* The `else if` in `renderRanked()` is exhaustive **because of this constraint**.
+  Do not "fix" it into two independent `if`s — that adds a branch for a state the
+  schema forbids. A comment at the branch says so; if the constraint is ever
+  dropped, that comment is what stops being true.
+* The route maps `23514` to a 400 **matched on the constraint name**, not on the
+  code alone: the table carries two range constraints as well, and the review
+  message must never be shown for a violation of either. Both halves have a test,
+  and both were verified to fail without their fix rather than assumed to work.
+* One-directional on purpose. A rating with **no** review stays valid — that is
+  the common case, and backlog #20 is about labelling it in the UI, not
+  forbidding it.
+
+---
+## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
+Backlog #14. Expand a review with "view more…", then rate, add or remove a
+*different* film, and it snapped shut. `renderRanked()` opens with
+`replaceChildren()`, and every rebuilt review was constructed with
+`setReviewExpanded(r, toggle, false)` — so the expanded state existed only as a
+class on a node that every render destroys.
+
+**The backlog row asserted for two days that "only the element-reuse rewrite
+rejected in D-031 fixes it". That claim was wrong, and Claude wrote it.** It was
+caught only because the user declined to take it at face value and asked for it
+to be re-assessed before any work started.
+
+Why it was wrong: it read #14 as a symptom of *elements being destroyed*, and
+filed it beside the animation churn and poster churn that D-031's option B was
+designed for. Those two genuinely are about element identity. #14 is not — it is
+a **state-persistence** problem wearing the same coat. The generic fix for "DOM
+state is lost on re-render" is to move the state somewhere the render cannot
+reach and re-apply it on the way out, not to stop re-rendering.
+
+Three options:
+
+* **A — reuse card elements keyed by movie id** (D-031's option B). Fixes #14 as
+  a side effect of never destroying the node. **Rejected again, for a reason that
+  has strengthened since:** D-031 rejected it because a missed field on a reused
+  card produces a *stale card that still looks correct*. `renderRanked()` has
+  since absorbed the competition-ranking and tie logic (D-038) and the whole
+  TMDB score column (D-036/D-037), so there is strictly more per-card state to
+  get silently wrong today than when it was first turned down.
+* **B — persist to `localStorage`.** Rejected: expansion is a transient reading
+  state, not a preference. The user confirmed the scope explicitly — it should
+  not survive a page reload.
+* **C — a `Set` of movie ids on `state`, seeded into each rebuilt card.** Chosen.
+  Eight lines of non-comment code, and no change to how often anything renders.
+
+**Why C composes instead of colliding with item #5.** `syncReviewToggles()`
+already runs on a `requestAnimationFrame` after every render, already captures
+`wasExpanded` from the class, and already collapses / measures / restores.
+Seeding the class at build time means that pass sees `wasExpanded = true` and its
+existing `it.clips && it.wasExpanded` rule treats a rebuilt card exactly as it
+already treats a resize: still clips, stays open; no longer clips, collapses. No
+new rule was introduced into the code that #5 took four commits (b59a893,
+59127cc, e0038a3, dd5ce2d) to settle — the three-pass measurement, the
+both-ways `hidden` assignment, and the deliberate absence of any line count in
+JS are all byte-identical.
+
+**The load-bearing detail: the `Set` is written by `setReviewExpanded()`, not by
+the click handler.** That function's docblock already declared it the single
+writer for the class, the label and `aria-expanded`, because those three had
+drifted once. The `Set` is a fourth facet of the same fact. Had the click handler
+owned it, `syncReviewToggles()`'s collapse of a no-longer-clipping review would
+have gone unrecorded, and the DOM and the `Set` would have disagreed from the
+very next render onward — the same drift, one layer down.
+
+### Traps
+* `syncReviewToggles()`'s first pass collapses with a bare `classList.remove()`
+  and **must not be tidied into a `setReviewExpanded()` call.** That collapse is
+  a measuring fixture, not a state change: routing it through the writer would
+  rewrite the label and `aria-expanded` on every resize frame, and would clear
+  the `Set` entry before pass three has decided whether to put it back.
+* `r.dataset.movieId` must stay **above** the first `setReviewExpanded()` call in
+  `renderRanked()`, which reads it back out.
+* `movies.id` is a `uuid`, so it is already a string and `dataset`'s
+  stringification cannot make the keys disagree. A numeric id would need
+  `String()` at both ends or `has(5)` would miss `"5"`.
+* Expansion is pruned in `loadMovies()` for any film that no longer has a review.
+  Without it, clearing a review and later writing a new one would render the new
+  text pre-expanded, inheriting a decision the user made about different text.
+
+The user's condition for approving the work was that it must not make the ranked
+list rebuild its HTML any more often than it already does. Verified rather than
+asserted: the diff touches no `replaceChildren`, `requestAnimationFrame`,
+`startViewTransition` or `refreshRanked` line.
+
+---
 
 ## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
 Reported by the user within minutes of D-038 shipping. Two films were tied at

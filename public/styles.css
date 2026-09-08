@@ -238,6 +238,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .search { display: flex; gap: 0.6rem; }
 .search input {
   flex: 1;
+  /* `flex: 1` alone is NOT enough, and this is the third appearance of one root
+     cause in as many fixes. A flex item's automatic minimum size is
+     `min-width: auto`, which resolves to min-content — and for an `<input>`
+     min-content is not its text but its intrinsic size, roughly the 20
+     characters of its default `size` attribute. So the input silently refused
+     to shrink past about 20ch + 2.5rem of padding, the row overflowed, and the
+     button beside it (correctly `flex-shrink: 0`) was pushed off the right edge
+     and clipped. At 311px the button was simply gone.
+     `min-width: 0` opts out of that automatic minimum so the input pays its
+     share. Nothing else needed: the button keeps its content width, and the
+     input has ~175px of text area left at 311px, which is ample.
+     Same family as `.result-row .add-btn`'s `flex-shrink: 0` and the ranked
+     card's `min-width: 0` — when a flex or grid item will not shrink, this
+     automatic minimum is almost always why. */
+  min-width: 0;
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -303,6 +318,45 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   .search-btn__label { display: none; }
   .search-btn__icon { display: inline-block; }
   .search button .busy-label { display: none; }
+
+  /* NARROW LAYOUT: the Add button sits under the year/TMDB line, in the title's
+     column, instead of out to the right. Three things across a phone width was
+     always the wrong shape — it is what squeezed the title in the first place.
+
+     Grid, not flex, because the button has to land in the SECOND column under
+     the meta, and flex can only push it onto a new line spanning the whole row,
+     which puts it under the poster with nothing tying it to the film. The poster
+     spans both rows so auto-placement drops meta at 2/1 and the button at 2/2.
+
+     This SUPERSEDES the flex stacking below 500px — that wrapping was tuned to
+     kick in at ~289-316px, entirely inside this query, so it no longer fires.
+     The flex rules are kept, not deleted: they are the 500px-and-up behaviour,
+     and they are the fallback if this breakpoint ever moves down. */
+  .result-row {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    column-gap: 0.9rem;
+    row-gap: 0.55rem;
+    align-items: start;
+  }
+  .result-row img,
+  .result-row .noposter { grid-row: 1 / span 2; }
+  /* margin-left: auto is what right-aligns it in the flex layout; in a grid cell
+     that would shove it to the far edge again, which is the thing being undone. */
+  .result-row .add-btn { justify-self: start; margin-left: 0; }
+
+  /* Separators, so it is unambiguous which button belongs to which film once
+     they are stacked. Scoped to this query on purpose rather than applied
+     globally: above 500px the button sits beside its film and proximity already
+     says so. `--line` over `--line-faint` — it has to survive the hover tint,
+     which lightens the row to --bg-raised. */
+  .result-row:not(:last-child) {
+    border-bottom: 1px solid var(--line);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-bottom: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
 }
 
 .search-results {
@@ -311,7 +365,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.5rem;
-  max-height: 340px;
+  /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
+     AI log dialog already caps itself at `88vh`. On a short viewport (a phone
+     in landscape, a small desktop window) 340px is most of the screen, so the
+     results panel buried the page behind it.
+     `min()` can only ever return something <= 340px, so this is a STRICTLY
+     SHRINKING change: no viewport that is comfortable today can get a taller
+     panel, and only viewports where 340px was already too much see any
+     difference at all.
+     Two declarations, and the order matters: the `vh` line is the fallback, and
+     the `svh` line overrides it wherever `svh` is understood. `svh` is the
+     SMALL viewport height, so it stays put while a mobile URL bar collapses,
+     where `dvh` would resize the panel mid-scroll. Written as a pair because a
+     lone unsupported `svh` would invalidate the whole declaration and leave the
+     panel with NO cap — worse than the fixed value it replaced. */
+  max-height: min(340px, 60vh);
+  max-height: min(340px, 60svh);
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
@@ -322,23 +391,101 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 .result-row {
   display: flex;
-  gap: 0.9rem;
+  /* NOT REACHED IN PRACTICE ANY MORE — read this before trusting it. Every
+     threshold below sits under 500px, and the `@media (max-width: 500px)` block
+     further down replaces this whole row with a grid, so the flex wrapping never
+     actually fires. It is kept as the 500px-and-up behaviour and as the fallback
+     if that breakpoint is ever moved down. The rest of this comment describes
+     what WOULD happen then.
+
+     The row STACKS instead of crushing its middle column (sweep finding C). At
+     283px the title column was down to ~29px and "Papa Obama" fragmented into
+     "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
+     a column that should never have been that narrow. Three columns simply do
+     not fit that width, so below a threshold the button drops to its own line
+     and the title gets the full row.
+     The threshold is NOT a media query and no number here encodes it: flex line
+     breaking compares the items' hypothetical sizes against the row, so the
+     browser works it out from the button's REAL rendered width. It therefore
+     self-adjusts per row — "In your list" (the widest label) stacks earlier than
+     "+ Add", which is exactly right, since that is the row with least room. */
+  flex-wrap: wrap;
+  /* Split, not one `gap`. The COLUMN gap is the spacing between poster, title
+     and button and is unchanged. The ROW gap only ever applies once the row has
+     wrapped, and 0.9rem there left the stacked button floating clear of the film
+     it belongs to — the user called it sloppy. Tightening it costs nothing on an
+     unwrapped row, where there is no second line for a row gap to sit in. */
+  column-gap: 0.9rem;
+  row-gap: 0.4rem;
   align-items: center;
   padding: 0.55rem;
   border-radius: 10px;
   /* Deliberately NOT cursor: pointer — the row itself does nothing, only its
      Add button does. The hover tint stays as a row-tracking cue. */
   transition: background 0.15s;
+  /* Also defensive. A flex item's automatic minimum size is min-content, the
+     same mechanism that blew the ranked card open, and this row is a flex
+     container whose text comes from TMDB. Real titles do not contain
+     400-character words, so nothing is known to be broken here — but the guard
+     is one declaration and the failure mode is the whole page. */
+  overflow-wrap: anywhere;
 }
 .result-row:hover { background: var(--bg-raised); }
 .result-row img, .result-row .noposter {
   width: 46px; height: 69px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
   background: var(--bg-raised);
 }
+/* `flex: 1 1 5rem` — the basis is load-bearing and this rule cannot be deleted
+   as redundant. Without it `.meta` keeps `flex-basis: auto`, whose hypothetical
+   size is MAX-CONTENT — the whole title on one line — so `flex-wrap` above would
+   push the button onto its own line at ANY width as soon as a title got long.
+   Pinning the basis to 5rem means the line only breaks when the title column
+   would fall under ~80px. MEASURED thresholds, from the real rendered button
+   widths (68 / 104 / 85 / 95px for "+ Add" / "Adding…" / "✓ Added" / "In your
+   list"), not estimated: 289px for "+ Add", 306px for "✓ Added", 316px for "In
+   your list", 325px mid-add. Below those the title column would be 53–79px,
+   which is the crushed state this exists to prevent. **All four are under 500px,
+   so the grid layout in that media query gets there first and none of them
+   actually fires today** — see the note above `flex-wrap`.
+   Visually inert above that: today the leftover space goes to the button's
+   `margin-left: auto`, and with `flex-grow: 1` it goes to `.meta` instead. The
+   button ends at the right edge either way and the text is left-aligned in both,
+   so nothing moves — flex-grow is resolved before auto margins see the free
+   space, so they simply get none. */
+.result-row .meta { flex: 1 1 5rem; }
+/* Below 300px the title drops a notch so words keep fitting WHOLE. Once the row
+   stacks, the title column is viewport minus the poster: 124px at 250px, about
+   14 characters at the inherited 1rem — so a 15-letter word ("Recommendations")
+   would be broken mid-word by `overflow-wrap: anywhere`, which is the last-resort
+   guard, not something a reader should ever meet. At 0.9rem the same column
+   holds ~16 characters, which covers every word length that occurs in real film
+   titles.
+   A hard `max-width` cutoff rather than a `clamp()`, deliberately: a fluid size
+   would have to start shrinking hundreds of pixels earlier to reach this value
+   by 300px, which would visibly touch the wide views that currently look right.
+   A media query cannot: 301px and up is provably unchanged. */
+@media (max-width: 300px) {
+  .result-row .meta strong { font-size: 0.9rem; }
+}
 .result-row .meta strong { display: block; font-weight: 600; }
 .result-row .meta span { color: var(--ink-dim); font-size: 0.85rem; }
 .result-row .add-btn {
   margin-left: auto;
+  /* THE SAME BUG `.search button` already documents twenty lines up, missed on
+     this button. A flex item may shrink below its content, so when the title
+     beside it is long the row squeezes THIS instead — and "+ Add" breaks at its
+     space into two lines, turning a pill into a lump. It looked width-related
+     but is not: it depends on how long the neighbouring TITLE is, which is why
+     narrowing the window makes more rows go wrong one at a time rather than all
+     at once. On a phone in portrait most titles wrap, so most buttons break.
+     `flex-shrink: 0` is the fix — the button keeps its content width and
+     `.meta` absorbs the pressure, which it can, since it wraps and now also
+     carries `overflow-wrap: anywhere`. `white-space: nowrap` makes it
+     unbreakable rather than merely unsqueezed, which matters because the longest
+     label this button ever shows is not "+ Add" but "In your list". No width
+     threshold is involved anywhere, deliberately. */
+  flex-shrink: 0;
+  white-space: nowrap;
   background: var(--bg-raised);
   border: 1px solid var(--line);
   color: var(--ink);
@@ -368,6 +515,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--line);
 }
+/* ONLY the ranked head, not the shared rule above — and the asymmetry is
+   deliberate, not an oversight. `.recs__head` holds the "Get recommendations"
+   button, whose two-word label can be squeezed onto two lines; adding the wrap
+   here would largely mask that without fixing it, and the user has parked it to
+   land with the recommendations overhaul. See "Recommendations overhaul — the
+   known issues" in CLAUDE.md. When that pass happens, this rule and
+   `.recs__head` should be reunited.
+   What it does: the film count drops below "Your ranking" instead of both
+   squeezing and wrapping internally. It only triggers when the count is long
+   AND the viewport is narrow — with the long form "5 films · 2 not rated yet"
+   at about 385px, and far narrower for the common short "5 films". Above that
+   nothing moves, since both items still fit on one line.
+   Note the lone item on the second line lands at the START, because
+   `justify-content: space-between` parks a single child at flex-start — the same
+   trap the 620px card-mode block documents. Here that is what we want: the count
+   reads as a subtitle under the heading. */
+.ranked__head { flex-wrap: wrap; }
 .ranked__head h2, .recs__head h2 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -396,7 +560,13 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   box-shadow: var(--shadow);
-  transition: transform 0.25s var(--ease), border-color 0.25s;
+  /* `box-shadow` is in this list deliberately (backlog #19). It was NOT, and the
+     hover rule did not change the shadow either — so the card rose 3px against a
+     completely static shadow. That is why the lift was almost invisible: a lift
+     is sold by its shadow growing and softening, and this one had no elevation
+     cue at all. The fix was never "make the 3px bigger". */
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
+    opacity 0.25s var(--ease);
 }
 /* The staggered entrance runs on the FIRST paint only (renderRanked adds the
    class). It used to sit on .movie-card itself, and since every re-render
@@ -404,8 +574,126 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    ~850ms of the page shimmering because one number changed. Later renders are
    animated by a View Transition instead; running both made cards fade-slide in
    while the transition cross-faded them, which looked muddy. */
-.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) both; }
-.movie-card:hover { transform: translateY(-3px); border-color: #34343f; }
+/* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
+   `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
+   animation keeps applying its final keyframe, and animations outrank normal
+   author declarations in the cascade. `fade-slide` ends at `transform: none`, so
+   every first-paint card went on being pinned to `transform: none` for the life
+   of the page — silently beating `.movie-card:hover`'s transform. The card lift
+   therefore did nothing on a freshly loaded page, and only the poster (which has
+   no animation of its own) still moved. That is exactly the symptom this item
+   was raised for: "too subtle - I can only notice it on the poster".
+   It came back after any add/rate/remove, because those rebuild the cards
+   WITHOUT `is-entering` — which is what made it read as subtle rather than
+   broken.
+   `backwards` keeps the half that is actually needed: holding the from-state
+   during this card's stagger delay (set in JS, up to 400ms), so a card does not
+   flash at full opacity before its turn. Nothing needs the forwards half — the
+   final keyframe is `opacity: 1; transform: none`, which is identical to the
+   card's natural resting state. Do NOT put `both` back. */
+.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) backwards; }
+/* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
+   notice it on the poster", which was literally true — the card never scaled).
+   Two cues: it grows a little, and the shadow deepens and picks up a faint warm
+   rim.
+
+   NO `translateY`, and that is the point rather than an omission. A lift is
+   directional: `translateY(-5px)` shrinks the gap above the card by 5px and
+   opens the one below by the same amount, so a hovered card visibly drifts
+   toward its upper neighbour. In a vertical LIST, where the card has an
+   identical sibling a fixed 1rem away on each side, that asymmetry is the most
+   noticeable thing about the effect — the user spotted it immediately, and it
+   read as the card being closer to the film above than the one below.
+   `scale()` grows from `transform-origin: 50% 50%`, so it opens both gaps
+   equally. Elevation is still expressed, just by the shadow alone, which is
+   offset downward and is what actually sells depth anyway (that was the whole
+   finding of D-043's second half). The scale was raised 1.012 → 1.02 to keep the
+   effect pronounced now that no vertical movement contributes to it.
+   If a lift is ever wanted back, it cannot be symmetric — that is what
+   `translateY` means — so do not "restore" it without re-reading this.
+
+   HOVER MUST STAY DISTINGUISHABLE FROM KEYBOARD FOCUS, and the thing keeping
+   them apart is SHAPE, not dimness (D-044 supersedes D-043's "keep the alpha at
+   0.10–0.12" — that guidance made the effect invisible, which is what the user
+   reported). `--amber` is also the `:focus-visible` ring, the #1 crown and the
+   "Not rated yet" chip. The ring is a crisp, fully opaque 2px SOLID outline
+   held 3px OFF the card by `outline-offset` — a detached hard line with a gap
+   you can see through. This is translucent, diffuse and attached to the edge.
+   Those read as different things at any brightness, which is why the glow can
+   be bright. What must NOT happen is this turning into a hard-edged, opaque
+   amber line at the same offset — then the two genuinely converge.
+
+   `@media (hover: hover)`, not a width query: on a touch screen `:hover` sticks
+   after a tap until you tap elsewhere, which would leave a card parked in the
+   grown state after pressing Edit. This gates on the INPUT having real hover, so
+   a narrow desktop window keeps the effect and card mode's LAYOUT is untouched.
+
+   The overlap is safe and not by luck: a transform makes the hovered card a
+   stacking context, so it paints ABOVE its non-transformed siblings and the
+   shadow spills over the next card instead of being covered by it. The scale
+   cannot produce a horizontal scrollbar either — `main` keeps a 16–40px gutter,
+   and 1.02 on the widest card (1000px inside the 1080px max-width) adds 10px per
+   side against a 40px gutter there. Re-check this arithmetic if the scale is
+   ever raised much beyond 1.02. */
+@media (hover: hover) {
+  .movie-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(245, 193, 91, 0.5);
+    /* REQUIRED once the siblings dim, not decoration. `opacity < 1` creates a
+       stacking context, which promotes every dimmed card into the same painting
+       step as this transformed one — and among equals, DOM order decides. The
+       card BELOW would then paint over this card's downward glow and clip it
+       ~16px down, reintroducing exactly the top/bottom asymmetry the zero
+       Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
+       is `display: grid`, and grid items take z-index directly. */
+    z-index: 1;
+    /* ALL LIGHT, NO BLACK — see D-044. The first version led with
+       `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is
+       `--bg: #0b0b0f`, so a black shadow has nothing left to darken. On a dark
+       UI, elevation is made of light. The black layer is gone rather than
+       reduced, because it was contributing nothing to earn its place.
+
+       EVERY LAYER HAS A ZERO Y-OFFSET, and that is a rule, not a coincidence.
+       A GLOW IS NOT A SHADOW: a shadow is cast, so it pools on the side away
+       from the light and a downward offset is correct for one. A glow is
+       EMITTED, so it radiates equally and any offset just makes it lopsided.
+       The middle layer was `0 16px 38px -10px` — described, in this very
+       comment, as "a warm pool below the card". With a 16px offset against an
+       ~9px reach, that layer contributed almost nothing ABOVE the card while
+       piling up below it, and it is the brightest of the three. The user saw it
+       immediately. This is the SECOND time in this item that a drop-shadow
+       idiom produced an asymmetry a glow should never have (the first was the
+       `translateY` lift). Do not give any of these layers a Y-offset. */
+    box-shadow:
+      0 0 0 1px rgba(245, 193, 91, 0.28),      /* lit edge, just outside the border */
+      0 0 40px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
+      0 0 60px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
+  }
+
+  /* Spotlight: hovering one card dims every OTHER card, so the list recedes and
+     the one under the pointer is the only thing at full strength.
+
+     `:has()` and NOT `.ranked__list:hover .movie-card:not(:hover)`, which is the
+     shorter and obvious form. The list has a 1rem `gap`, and that gap is part of
+     the list but part of no card — so crossing it with the pointer satisfies
+     `.ranked__list:hover` while NOTHING matches `:hover`, and every card dims at
+     once. Sliding down the list would strobe. `:has(.movie-card:hover)` fires
+     only when a card really is hovered. It is already relied on elsewhere in
+     this file (`body:has(dialog[open])`, the log's card view), so it costs no
+     new browser support.
+
+     This only works because D-043 changed the entrance animation's fill from
+     `both` to `backwards`. `fade-slide` animates opacity to 1, and a
+     forwards-filling animation keeps applying that final keyframe — which
+     outranks normal declarations. With `both`, every first-paint card would have
+     been pinned at `opacity: 1` and would simply have refused to dim, silently,
+     exactly as the hover transform did. Same bug, different property.
+
+     0.55 is the dial. Contrast is not a concern at rest: this state exists only
+     while a pointer is over the list, and `:hover` never fires for keyboard
+     users, so nothing a screen reader or a tabbing user encounters is dimmed. */
+  .ranked__list:has(.movie-card:hover) .movie-card:not(:hover) { opacity: 0.55; }
+}
 
 /* View Transition names for the two blocks that sit BELOW the ranked list.
    These exist only because of the list's transition, which is why they live
@@ -531,7 +819,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   box-shadow: 0 10px 24px -12px rgba(0,0,0,0.8);
   transition: transform 0.3s var(--ease);
 }
-.movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
+/* Same `hover: hover` gate as the card's own hover, for the same reason: on a
+   touch screen this would otherwise stay applied after a tap. Kept at 1.04 even
+   though the card now scales too — the two compound to ~1.055 on the poster,
+   which is the point. The poster is the design's primary visual anchor, so it
+   should still lead the effect rather than move in lockstep with its card. */
+@media (hover: hover) {
+  .movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
+}
 
 /* Top-aligned, overriding the grid's `align-items: center`. The poster is the
    tallest thing in the row (138px on desktop), so a short title + review used to
@@ -550,13 +845,57 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    as slightly too tight. It is deliberately on .movie-card__body ALONE — the
    score column must NOT move with it, so the rating stays pinned to the true
    top of the card. Tune this number freely; nothing is solved against it. */
-.movie-card__body { align-self: start; margin-top: 0.3rem; }
+/* `min-width` + `overflow-wrap` are the guard that stops user text widening the
+   card. A 400-character unbroken "ffff…" review blew the whole page open: the
+   card's `1fr` track is `minmax(auto, 1fr)`, and that `auto` minimum is the
+   MIN-CONTENT width — which for one unbreakable word is the whole word. The
+   track grew to fit it, the card grew with it, and the layout went with them.
+   `overflow: hidden` on `.review` did not help, because clipping affects
+   painting, not the intrinsic size the track is measured from.
+
+   `anywhere`, NOT `break-word`, and the difference is the entire fix. Both wrap
+   identically on screen — normal breaks at spaces, mid-word only when a single
+   word cannot fit a line on its own, which is exactly the wanted behaviour. But
+   `break-word` is ignored when min-content is CALCULATED, so the track would
+   still have been sized to the unbroken word and the card would still have blown
+   out. `anywhere` counts those break opportunities in intrinsic sizing, so
+   min-content collapses to about one character. Same rendering, different
+   measurement — do not "simplify" this to `break-word`.
+   It inherits, so the title, review, placeholder and unrated hint are all
+   covered by the one declaration. Same property the AI log's error cell already
+   uses for the same reason.
+
+   `min-width: 0` is the structural half: `overflow-wrap` only governs TEXT, so
+   any future non-text content in this column (something with `white-space:
+   nowrap`, a wide image) could size the track the same way. This makes the track
+   incapable of being pushed open regardless of what lands in it. */
+.movie-card__body {
+  align-self: start;
+  margin-top: 0.3rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
   font-size: 1.15rem;
 }
 .movie-card__body .year { color: var(--ink-dim); font-weight: 400; }
+/* Backlog #20 — a rated film with no review. Same size and top margin as a real
+   review, so the line sits exactly where one would, but italic and a step
+   fainter (--ink-faint against a review's --ink-dim). That is the vocabulary
+   "No TMDB rating" already uses for an absent value: absence should read as
+   absence, not as content.
+   NOT a modifier on `.review`. syncReviewToggles() selects `.review` to measure
+   for clamping, so sharing the class would drag a one-line placeholder into the
+   pass that item #5 took four commits to settle — and it needs none of that
+   rule's `-webkit-box` clamping machinery anyway. */
+.movie-card__body .no-review {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
 .movie-card__body .review {
   color: var(--ink-dim);
   font-size: 0.9rem;
@@ -568,7 +907,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      the text — but only where the card is wide enough that the title still fits
      on one line, which is what the 900px floor is protecting.
      **This number lives ONLY here.** syncReviewToggles() decides whether to show
-     a "view more…" toggle by measuring `scrollHeight - clientHeight`, which asks
+     a "show more" toggle by measuring `scrollHeight - clientHeight`, which asks
      the browser whether the text actually overflowed — it has no idea how many
      lines the clamp allows, and must never be given one. That is what makes this
      a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)
@@ -824,7 +1163,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  animation: fade-slide 0.5s var(--ease) both;
+  /* backwards, not both: same reason as .movie-card.is-entering (D-043). No
+     hover transform exists on .rec-card today, so the forwards fill pins
+     nothing visible — but it is the same latent trap, and adding one later
+     would silently do nothing. Zero visual change: the final keyframe already
+     equals this card resting state. */
+  animation: fade-slide 0.5s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -852,6 +1196,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   display: flex;
   flex-direction: column;
   flex: 1; /* fills the card; cards in a row stretch to equal height */
+  /* Defensive, unlike the ranked card's copy of this, which fixes a bug that
+     actually happened. This grid is `minmax(190px, 1fr)`, so its tracks have a
+     FIXED minimum and cannot be pushed open the way the ranked card's `auto`
+     minimum was — but the reason text is model output derived from the user's
+     own reviews, which is the prompt-injection surface, and the title is not
+     clipped the way `.reason` is. One inherited declaration removes the whole
+     question. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
@@ -1036,8 +1389,20 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .rate-dialog::backdrop,
 .confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+/* A film title goes inside BOTH of these headings ("Rate “X”", "Remove “X”?"),
+   and titles are arbitrary strings, so the guard belongs on the shared rule. It
+   used to sit on `.confirm-dialog h3` alone — the reasoning was written down
+   once and applied to one of the two headings that needed it.
+   Moved rather than duplicated: the same property in two rules is the shape that
+   gets changed in one of them later. Provably identical for the confirm dialog —
+   both rules are specificity (0,1,1), and with no competing declaration left, the
+   value simply comes from here instead of from below. */
 .rate-dialog h3,
-.confirm-dialog h3 { font-family: 'Fraunces', serif; margin-bottom: 1rem; }
+.confirm-dialog h3 {
+  font-family: 'Fraunces', serif;
+  margin-bottom: 1rem;
+  overflow-wrap: anywhere;
+}
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
@@ -1135,9 +1500,9 @@ body:has(dialog[open]) { overflow: hidden; }
    to the question rather than starting a new block the way a form field does. */
 .confirm-dialog h3 {
   margin-bottom: 0.55rem;
-  /* A film title goes inside this heading, and titles are arbitrary user-facing
-     strings — a long unbroken one would otherwise push past the panel edge. */
-  overflow-wrap: anywhere;
+  /* `overflow-wrap: anywhere` used to live here and now sits on the shared
+     `.rate-dialog h3, .confirm-dialog h3` rule above, because the rate dialog's
+     heading shows a film title too. Nothing changed for this dialog. */
   line-height: 1.3;
 }
 /* The consequence line. --ink-dim and small, like every other explanatory line
@@ -1707,6 +2072,10 @@ body:has(dialog[open]) { overflow: hidden; }
   transition: opacity 0.25s, transform 0.25s var(--ease);
   z-index: 10000;
   max-width: 90vw;
+  /* The toast prints film titles and server error text. `max-width` caps the
+     BOX, so without this an unbreakable word does not wrap — it spills straight
+     out of the rounded panel. Same one-line guard the dialogs and cards carry. */
+  overflow-wrap: anywhere;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
@@ -1751,6 +2120,13 @@ body:has(dialog[open]) { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
+  /* Killing the TRANSITION is not enough for the card hover (#19): without this
+     the lift and scale still applied, just instantly — and sudden movement is
+     precisely what a motion-sensitive user is asking not to have. The colour
+     cues stay, so the card still responds to the pointer: the deepened shadow,
+     the warm rim and the border are all untouched here. */
+  .movie-card:hover,
+  .movie-card:hover .movie-card__poster { transform: none; }
   .log-reveal::details-content,
   .rate-dialog, .confirm-dialog, .log-dialog,
   .rate-dialog::backdrop, .confirm-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }
