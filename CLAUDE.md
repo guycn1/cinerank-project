@@ -1709,33 +1709,81 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   submitting the address are two different things, and the second is what makes
   the first count.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
-* [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
-  search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
-  on the verdict (that fallback now links into the AI call log — the shot should
-  show it), **CineRank itself unreachable** (stop `npm start`, then search:
-  "Couldn't reach CineRank…"), and the *non*-error empty state ("No matches",
-  muted rather than crimson — worth one shot to show the two are distinguished).
-  All with the ranked list still working. Server side is tested (`npm test`);
-  the *visual* evidence for SPEC §7.1 is still missing. Put them in `docs/`.
-  How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
-  restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
-  request-blocking do not simulate them.
-  **Added 2026-09-08: the database being unreachable is a fifth state, and it
-  is the one nobody had tried.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY` in
-  `.env` + restart; the ranked list then fails to load and the toast reads
-  "Could not load your movies: …". Note this is the ONE resilience shot where
-  the ranked list is legitimately NOT working — it is the thing that broke — so
-  it does not belong in the "all with the ranked list still working" set above.
-  Finding it is what caught the central 500 handler claiming "on our side" for a
-  failure that was neither a bug nor on the server's side.
-* [ ] **One more resilience state, added 2026-09-09 (R28): TMDB unreachable
-  DURING a recommendation run.** Distinct from "TMDB down on search" and "on add",
-  and the only one where the AI call succeeds and is charged while the run still
-  produces nothing. Force it with a bogus `TMDB_API_KEY` and enough rated films
-  to trigger recs. Expect: "Couldn’t check any of the suggestions — the movie
-  database is unreachable", the metadata footer with its real cost, and a
-  `success` row in the AI call log whose `suggested_titles` is empty. Before R28
-  this same state claimed the model had only named films already in the list.
+* [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
+  missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
+  Put them in `docs/`.
+  **Every state has a stable `RS-n` marker, so `grep "RS-" CLAUDE.md` returns the
+  whole set and each line is self-contained enough to shoot from without reading
+  the history.** Add new ones with the next free number and never renumber.
+  **Tick each `RS-n` as it is captured** — the parent checkbox is done only when
+  all nine are.
+  **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
+  request blocking do NOT simulate them. Forcing means editing `.env` and
+  restarting, except where noted.
+  **The ranked list must still be working in every shot except RS-7** — that is
+  the point of most of them: one thing broke, the app did not.
+
+  - [ ] **RS-1 · TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
+    anything. Expect the crimson note inside the results panel:
+    "Couldn’t reach the movie database. Try again in a moment."
+  - [ ] **RS-2 · TMDB down on add.** **Order matters and is not obvious:** search
+    FIRST with a good key so rows render, THEN swap in a bogus key, restart, and
+    click Add on the rows still on screen. There is no other way in — with TMDB
+    down, search itself fails and there is nothing to click. This works only
+    because the results panel is persistent rather than a dropdown (D-024).
+    Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
+  - [ ] **RS-3 · TMDB unreachable DURING a recommendation run** (added by R28).
+    Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
+    Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
+    call succeeds and is charged while the run still produces nothing.** Expect
+    the hint "Couldn’t check any of the suggestions — the movie database is
+    unreachable. Try again in a moment.", the metadata footer showing the real
+    cost, and — in the AI call log — a green `success` row whose
+    `suggested_titles` is empty. Before R28 this state claimed the model had only
+    named films already in the list. Costs one real OpenRouter call.
+  - [ ] **RS-4 · OpenRouter down on recommendations.** Bogus
+    `OPENROUTER_API_KEY`, restart, 3+ rated films, click Get recommendations.
+    Expect "Couldn’t generate recommendations right now. See the AI call log for
+    details.", with **AI call log** as an amber link, and a red `failed` row in
+    the log whose `error_text` names the real cause (e.g. `OpenRouter responded
+    401`). The split is the point: calm sentence to the user, technical cause to
+    the audit trail (R8/R9, D-047).
+  - [ ] **RS-5 · OpenRouter down on the verdict.** Same key, 2+ rated films,
+    click New verdict. Expect "Couldn’t come up with a verdict right now. See the
+    AI call log for details." Shoot it beside RS-4 if possible — the two features
+    answering identically is what R23 was for.
+  - [ ] **RS-6 · CineRank itself unreachable.** **Load the page first, THEN stop
+    `npm start`**, then search. Stopping the server first means the document never
+    loads and there is no UI to photograph — this cost time once already. Expect
+    "Couldn’t reach CineRank. Check your connection and try again." The ranked
+    list keeps showing whatever it loaded before the server went away.
+  - [ ] **RS-7 · Database unreachable.** Bogus `SUPABASE_URL` /
+    `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
+    movies — Something went wrong."
+    **This is the ONE shot where the ranked list is legitimately empty** — it is
+    the thing that broke — so it does not belong in the set above.
+    Worth knowing why it earns a slot: finding this state is what caught the
+    central 500 handler claiming a failure was "on our side" when it was neither
+    a bug nor the server's fault.
+  - [ ] **RS-8 · The non-error empty state.** Everything working; search a
+    nonsense string. Expect the MUTED note (not crimson): "No matches for
+    “<query>”. Check the spelling, or try a different title." One shot, purely to
+    show that an empty result and a failure are visibly different — which is the
+    whole of D-033's argument, applied in Search.
+  - [ ] **RS-9 · A recommendation run that returns nothing.** Not a failure, and
+    included deliberately: it is the clearest single frame proving the app reports
+    an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
+    wrapper" evidence rather than §7.1 resilience.
+    **The only one of the nine that needs a temporary code change**, because the
+    state cannot be forced from `.env`. In `generateRecommendations()`, make every
+    verified film look owned:
+    `if (true || ownedTmdbIds.has(movie.tmdb_id)) { tally.owned += 1; continue; }`
+    Expect "No new suggestions this time — the model only named films already in
+    your list.", the metadata footer with its real cost and log link, and a
+    `success` row in the log with empty `suggested_titles`.
+    **Revert with `git checkout -- server/services/recommendations.js` the moment
+    the shot is taken.** Four route tests fail while it is in place, which is
+    expected and is not a reason to debug anything.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.
