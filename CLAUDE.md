@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into an R1–R22 sub-backlog under step 2, of which R1, R2 and R19 are done and R20 was withdrawn as incorrect; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R25, with eleven done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -986,6 +986,29 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     labelled as such in the CSS — the recs grid has a FIXED `minmax(190px, …)`
     minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
     the ranked card was actually broken.
+
+  - **Equal ratings now read oldest-first** (off-backlog, user-raised
+    2026-09-09). `GET /api/movies` broke ties with
+    `.order('created_at', { ascending: false })`, so a newly added film jumped
+    ABOVE everything it tied with: add two films and the second one appeared
+    above the first, rate two films 4.0 and the second sat above the first. Every
+    unrated film is tied with every other by definition, so the whole unrated
+    block was newest-first too. Now ascending — adding to a list appends to it.
+    **The tie-break carries no meaning either way, and that is exactly why it
+    should not surprise.** D-038 is the whole point: a tie draws ONE shared rank
+    number and a muted `tied` caption precisely because the order within it is
+    arbitrary. This changes which arbitrary order it is, not whether it means
+    anything.
+    Nothing else moves. `displayedRanking()` computes competition ranking from
+    RATINGS, so no rank number changes; the #1 crown still lands on the top-rated
+    (both films, when the top is tied); and `rankSignature()` compares id + rank +
+    tie state, none of which this touches. The client never re-sorts — verified,
+    `app.js` has no `.sort()` at all — so the API's order is the displayed order
+    and this is a one-line change in one place.
+    **Not covered by a test, and cannot be:** the fake Supabase builder's
+    `.order()` is a no-op like its `.not()` was (see the comment in
+    `test/helpers.js`), so a test asserting this order would pass no matter which
+    direction the route asked for.
 
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 

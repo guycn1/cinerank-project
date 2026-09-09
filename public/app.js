@@ -403,8 +403,8 @@ function renderRanked() {
   // Computed ONCE, by the same function rankSignature() uses, so what is drawn
   // and what counts as "the ranking changed" cannot drift apart. Films the user
   // scored identically must not be told apart by a number — the order between
-  // them is only `created_at`, i.e. which was added more recently, which has
-  // nothing to do with taste (backlog #13).
+  // them is only `created_at` ascending, i.e. the order they were added in,
+  // which has nothing to do with taste (backlog #13).
   const ranking = displayedRanking(state.movies);
 
   state.movies.forEach((m, i) => {
