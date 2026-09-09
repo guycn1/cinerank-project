@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -34,8 +34,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   all applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "recommendations
-  overhaul, first pass — sixteen R-items plus the mobile-keypad fix" (2026-09-09,
-  `4c31c85`). **Thirteen** merges so far;
+  overhaul, second pass — the rec-card motion, hover and balanced grid" (2026-09-09,
+  `8103f97`). **Fourteen** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
