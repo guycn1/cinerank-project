@@ -1302,11 +1302,13 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   position: relative;
   display: flex;
   flex-direction: column;
-  /* R14. Same properties, same 0.25s, same easing as .movie-card — the two card
-     types should answer a pointer identically. No `opacity` here, unlike the
-     ranked card, because the recs grid does NOT dim its siblings (see the hover
-     block below for why). */
-  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease);
+  /* R14. Same four properties, same 0.25s, same easing as .movie-card — the two
+     card types should answer a pointer identically. `opacity` is in the list for
+     the spotlight below: without it the other cards would snap to 0.75 and back
+     rather than easing, and at this subtlety a snap is the only thing you would
+     notice. */
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
+    opacity 0.25s var(--ease);
 }
 
 /* R27's exit. The previous run's cards fade and settle back rather than being
@@ -1383,22 +1385,43 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
       0 0 34px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
       0 0 50px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
-  /* The ranked list's spotlight — hovering one card dimming every other — is
-     deliberately NOT ported, having been considered and rejected.
-     Two reasons. (1) It reads differently in a grid: the ranked list is one
-     vertical column of peers you scan top to bottom, where the siblings receding
-     helps you keep your place, while the recs grid is a small gallery of six
-     whose whole job is side-by-side COMPARISON — dimming five of the six fights
-     the thing the section is for. (2) `.recs__grid` also contains the metadata
-     footer as a grid child, so "every other card" is not the whole rest of the
-     section; the footer would stay at full strength while the cards around it
-     faded, which reads as a glitch rather than as focus. Selecting the footer
-     too would then dim the AI-call-log link, which is the section's only route
-     into the audit trail.
-     If this is ever revisited, note the mechanism is not the obstacle: `:has()`
-     is already used elsewhere in this file, and the entrance fill is already
-     `backwards`, so the opacity would actually apply (with `both` it would have
-     been silently pinned at 1 — see D-043). */
+  /* Spotlight, ported from the ranked list on the user's instruction (D-049).
+     Claude argued against porting it at all and was overruled — the objection
+     was to the ranked list's STRENGTH, not to the idea, and the user's answer
+     was to bring it across at 0.75 instead of 0.55: enough that the section
+     recedes, little enough that the other five cards stay perfectly readable and
+     the grid still works as the side-by-side comparison it is for.
+
+     `:has()` and NOT `.recs__grid:hover > *:not(:hover)`, which is the shorter
+     and obvious form. The grid has a 1.1rem gap that belongs to the grid but to
+     no card, so the short form would fire while the pointer merely crosses a
+     gap, dimming EVERYTHING with nothing lit — and moving between cards would
+     strobe. `:has(.rec-card:hover)` fires only when a card really is hovered.
+
+     `> *` and not `> .rec-card`, so the metadata footer dims with the cards.
+     That was Claude's second objection to porting this and it turns out to be
+     one line, not a blocker: the footer is a grid CHILD, so dimming only cards
+     would leave it the single brightest thing on screen at the exact moment
+     attention is meant to be on one card. It carries the AI-call-log link, which
+     at 0.75 is still legible and still one pointer-move from full strength —
+     and hovering the FOOTER dims nothing at all, because the `:has()` tests for
+     a hovered card.
+
+     The transition lives on `.rec-card` (and just below, for the footer), never
+     here: a transition declared only in the hovered state eases in and snaps
+     back.
+
+     Two mechanisms this depends on, both already in place. The hovered card's
+     `z-index: 3` above: `opacity < 1` makes each dimmed sibling paint as though
+     it were positioned at `z-index: 0`, so without a positive z-index here the
+     card below would paint over this card's glow. And the entrance fill being
+     `backwards` — with `both`, `rec-enter`'s final `opacity: 1` would have been
+     pinned on every card and they would simply have refused to dim, silently
+     (D-043, same bug one property over from the transform). */
+  .recs__grid:has(.rec-card:hover) > *:not(:hover) { opacity: 0.75; }
+  /* Scoped to the grid: `.ai-meta` is shared with the verdict banner, which has
+     no spotlight and must not gain a stray transition. */
+  .recs__grid > .ai-meta { transition: opacity 0.25s var(--ease); }
 }
 
 .rec-card img, .rec-card .noposter {

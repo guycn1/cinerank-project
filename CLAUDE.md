@@ -1294,10 +1294,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
      badge carries `z-index: 2` and resolves in the same stacking context, so at
      `1` a NEIGHBOUR's badge would paint over this card's glow.
-     **The spotlight dimming was considered and NOT ported** — the reasoning is
-     in the CSS at the hover block and in D-048. Do not add it without reading
-     that: the recs grid is a comparison gallery, not a column being scanned, and
-     `.recs__grid` also holds the metadata footer as a grid child.
+     **The spotlight dimming IS ported, at `0.75` rather than the ranked list's
+     `0.55`** (D-049). Claude argued against porting it at all and the user
+     overruled that the same day — correctly: the objection was to the ranked
+     list's STRENGTH, not to the idea, and 0.75 leaves every unhovered card
+     perfectly readable while the section still recedes. `> *` and not
+     `> .rec-card`, so the metadata footer dims with them instead of being left
+     as the single brightest thing on screen; hovering the footer dims nothing,
+     because the `:has()` tests for a hovered card. Do not re-tune 0.75 by eye
+     without reading D-049 — the number is the whole of what was settled.
    * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
      D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
      fiddly — the user granted that in advance. Do not spend hours on it.**
