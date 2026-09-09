@@ -1645,11 +1645,41 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      is the same card and the same two rows as 4 + 2. So `balancedColumns()`'s
      deliberate `> 1` restraint (D-050) should be reconsidered as part of this —
      it exists only to avoid the growth that will no longer happen.
-     **One thing to decide while building it, not after:** `.ai-meta` is a grid
-     child spanning `1 / -1`, so with a centred, narrower track list the footer
-     and its dashed rule shrink to match — and with a single card it would be one
-     card wide. Either accept that, span it to the container, or move it out of
-     the grid.
+     **The `.ai-meta` footer MOVES OUT OF THE GRID — settled 2026-09-09, before
+     building.** It is a grid child spanning `1 / -1` today, so a centred,
+     narrower track list would shrink the footer and its dashed rule to match,
+     and a single-card run would leave it one card wide. The user ruled out
+     accepting that and left the choice between spanning it to the container and
+     taking it out of the grid to Claude, guessing the second was less risky.
+     It is, and the deciding fact is not obvious: **`grid-column: 1 / -1` spans
+     the TRACK LIST, not the container.** With `justify-content: center` the free
+     space sits OUTSIDE the tracks, so "span it to the container" is not a
+     one-liner at all — it needs a flexible gutter track at each end
+     (`1fr repeat(2k, …) 1fr`), which shifts every column index by one, adds two
+     more gaps to the width arithmetic, breaks the half-column offset that
+     centres a short last row, and puts an auto-placed card into a gutter unless
+     every card is explicitly positioned. That is a lot of new machinery in
+     exactly the place the user was worried about: six card counts times every
+     viewport width.
+     Out of the grid it is a plain block under it, full width, always, coupled to
+     nothing. Give it a stable slot in `index.html` (the way `#recs-hint` and
+     `#recs-grid` are stable) rather than appending it to `.recs` and querying it
+     back — an empty slot has no border, padding or content, so it costs no
+     layout.
+     **Four follow-on edits, so they are not discovered one at a time:**
+     (1) `renderRecommendations()` appends the footer in TWO places — the empty
+     branch and the success branch — and both move.
+     (2) `exitRecCards()` sweeps the grid's children and currently fades the
+     footer out with the cards, deliberately; it has to clear the new slot too.
+     (3) **The sneaky one.** The spotlight dims the footer only because it is a
+     grid child — that is the whole of D-049's `> *` rather than `> .rec-card`.
+     Moving it out silently undoes that decision and leaves the footer the
+     single brightest thing on screen. The `:has()` anchor has to move up to
+     `.recs`, scoped so the VERDICT banner's own `.ai-meta` is untouched.
+     (4) The grid's `gap` no longer separates the footer from the cards, so it
+     needs its own top margin — `1.1rem`, to match what it is replacing.
+     Fold this into the decision entry written when R29 lands; it is recorded
+     here now because it was settled before the work started.
    * **R30. The exit animation stutters, and should close like a book**
      (user-raised 2026-09-09). `rec-leave` ends at
      `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card
