@@ -1279,12 +1279,48 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    scroll stops, which only this head is ever the target of. */
 .recs__head { scroll-margin-top: 1rem; }
 
+/* The column count is decided in JS (`layoutRecsGrid`), not by `auto-fill`.
+   `auto-fill` packs every row as full as it will go and strands the remainder:
+   four cards in a three-column viewport render 3 + 1, with two thirds of the
+   second row empty, and five cards in a four-column one render 4 + 1, with four
+   fifths empty. Both are widths where a balanced split — 2 + 2 and 3 + 2 — fits
+   perfectly well and looks far better (user-raised, 2026-09-09).
+
+   TRACKS ARE DOUBLED AND EVERY CARD SPANS TWO. That is what buys a HALF-column
+   offset, which is the only way to centre a short last row: the two cards of a
+   3 + 2 grid sit on tracks 2–3 and 4–5 of six, leaving one sixth of a card's
+   width at each end instead of a third of a row hanging off the right.
+   The doubling costs nothing in width, and that is arithmetic rather than hope:
+   a card spans two tracks AND the gap between them, so three cards and their two
+   gaps come to 3(2t + g) + 2g = 6t + 5g — exactly what six tracks and five gaps
+   occupy. A doubled grid and a plain k-column grid produce identical cards.
+
+   The property is the already-DOUBLED track count rather than a column count
+   plus a `calc(… * 2)` here, because support for a math function in `repeat()`'s
+   first argument is not somewhere to be adventurous — a `var()` that substitutes
+   a plain integer is unambiguously valid everywhere. It has a fallback so the
+   declaration can never be invalid, but that is insurance, not a design
+   decision: JS sets the real value in the same synchronous task that appends the
+   cards, so no frame is ever painted with the fallback.
+   The exact rule for choosing the count — and the one case it deliberately
+   leaves alone — is in `balancedColumns()` in app.js. */
 .recs__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  /* The narrowest a card may be, and the single source of truth for it: JS reads
+     this property to work out how many columns actually fit. It no longer
+     appears in `grid-template-columns` — with the count decided ahead of time
+     there is no `minmax()` left to put it in — so do not delete it as unused. */
+  --rec-min: 190px;
+  grid-template-columns: repeat(var(--rec-tracks, 6), 1fr);
   gap: 1.1rem;
 }
 .rec-card {
+  /* `auto / span 2`, not the shorter `span 2`. One value would leave
+     `grid-column-end: auto`, and JS then writing a `grid-column-start` on the
+     first card of a short last row (to centre it) would collapse that card to a
+     single half-width track. Spelling the end out keeps the span whatever the
+     start becomes. */
+  grid-column: auto / span 2;
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);

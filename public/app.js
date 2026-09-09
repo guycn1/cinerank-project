@@ -1290,6 +1290,70 @@ const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
 const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 
 /**
+ * How many cards per row, so the last row is never left nearly empty.
+ *
+ * `auto-fill` fills each row as far as it will go and strands whatever is left:
+ * four cards where three fit render 3 + 1, five cards where four fit render
+ * 4 + 1. Both look broken at widths where 2 + 2 and 3 + 2 fit perfectly well
+ * (user-raised, 2026-09-09).
+ *
+ * The fix is the standard balanced-rows formula — how many rows does the widest
+ * layout need, then spread the cards evenly over exactly that many — but it is
+ * applied ONLY when the widest layout would strand a single card. That
+ * restraint is the user's rule, not a simplification of it: "avoid rows with
+ * only 1 card unless it really has no choice."
+ *
+ * The distinction bites in exactly one case, and it is the commonest one. Six
+ * cards where four fit is 4 + 2, which strands nothing; balancing it anyway
+ * would give 3 + 3, a tidier split but one that makes every card ~36% wider and
+ * the whole section markedly taller. That is a redesign, not a fix, so it is
+ * left alone. Change `> 1` here if a fuller row is ever wanted instead.
+ *
+ * It can never make the grid TALLER: the balanced count is derived from the row
+ * count the widest layout already needed. Where nothing better exists it changes
+ * nothing — 5 cards in a 2-column viewport stays 2 + 2 + 1, 3 cards in a
+ * 2-column one stays 2 + 1. Those are the "no choice" cases.
+ *
+ * Reads `--rec-min` and the real `column-gap` off the element instead of
+ * repeating them here. The stylesheet owns both numbers; a copy in JS is the
+ * shape that goes stale the first time someone changes the CSS.
+ */
+function balancedColumns(count, grid) {
+  const cs = getComputedStyle(grid);
+  const gap = parseFloat(cs.columnGap) || 0;
+  const min = parseFloat(cs.getPropertyValue('--rec-min')) || 190;
+  // The +gap on both sides is the standard "n items need n-1 gaps" rearrangement:
+  // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
+  const fit = Math.max(1, Math.floor((grid.clientWidth + gap) / (min + gap)));
+  const widest = Math.min(count, fit);
+  // `|| widest` because a remainder of 0 means the last row is full, not empty.
+  const stranded = count % widest || widest;
+  if (stranded > 1) return widest;
+  return Math.ceil(count / Math.ceil(count / widest));
+}
+
+/**
+ * Set the column count and centre a short last row. Safe to re-run: it clears
+ * its own previous placement first, which is what makes it usable from the
+ * resize pass as well as from a render.
+ */
+function layoutRecsGrid() {
+  const cards = [...el.recsGrid.querySelectorAll('.rec-card')];
+  if (!cards.length) return;
+  const cols = balancedColumns(cards.length, el.recsGrid);
+  el.recsGrid.style.setProperty('--rec-tracks', cols * 2);
+
+  // Tracks are doubled (see the CSS), so a card starting one track late is
+  // offset by HALF a card — which is exactly what centring a short row needs.
+  // A last row of m cards in a k-column grid has k - m columns spare, so it
+  // starts (k - m) half-columns in and ends with the same slack on the right.
+  // Placing only the FIRST card is enough: the rest auto-place after it.
+  cards.forEach((c) => { c.style.gridColumnStart = ''; });
+  const inLastRow = cards.length % cols || cols;
+  cards[cards.length - inLastRow].style.gridColumnStart = cols - inLastRow + 1;
+}
+
+/**
  * Phase one of the two-phase render: fade the previous run's cards out.
  *
  * An exit animation cannot run on a node that has already been removed, so the
@@ -1393,6 +1457,9 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     el.recsGrid.append(card);
   });
   el.recsGrid.append(aiMetaFooter(meta));
+  // Same synchronous task as the appends above, so the browser never paints a
+  // frame at the CSS fallback column count.
+  layoutRecsGrid();
   // Gated on there being cards, structurally: the empty branch returns above
   // this line, so a zero-result run can never yank the page to a section with
   // nothing new in it. Every placeholder and every failure gets no scroll and no
@@ -1560,6 +1627,11 @@ window.addEventListener('resize', () => {
     relayoutQueued = false;
     document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
     syncReviewToggles();
+    // How many cards fit is a function of the grid's width, so the balanced
+    // split has to be recomputed as the window changes — otherwise a layout
+    // chosen at 900px stays put at 400px. Returns immediately when the grid is
+    // empty, which is most of the time.
+    layoutRecsGrid();
     // An open AI-log reveal panel was positioned for the geometry it opened in,
     // so a resize leaves its side and caret stale. Guarded twice, deliberately:
     //   - only while the dialog is actually OPEN. A closed <dialog> is

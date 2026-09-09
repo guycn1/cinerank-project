@@ -6,6 +6,59 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-050 · The recs grid picks its own column count, and deliberately stops short
+
+`repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
+strands whatever is left over. The user brought two cases: **four cards where
+three fit** renders 3 + 1, with two thirds of the second row empty, and **five
+cards where four fit** renders 4 + 1, with four fifths empty. Both are widths
+where 2 + 2 and 3 + 2 fit perfectly well.
+
+**The column count moves into JS.** There is no CSS-only fix — `auto-fill` and
+`auto-fit` are the only two packing modes, and neither knows the item count. The
+standard balanced-rows formula is two lines: how many rows does the widest layout
+need, then spread the cards evenly over exactly that many. It can never add a
+row, so it can never make the section taller.
+
+**The interesting decision is not to apply it everywhere.** Ran unrestricted, it
+also rewrites the commonest case: six cards where four fit becomes 3 + 3 instead
+of 4 + 2. That is tidier, and it was rejected — 4 + 2 strands nothing, and
+balancing it makes every card ~36% wider and the whole section markedly taller.
+The user's rule was "avoid rows with only 1 card unless it really has no choice",
+which is narrower than "always even the rows out", and the narrower rule is the
+one implemented: the formula runs only when the natural layout would strand a
+single card. One `> 1` in `balancedColumns()` is the whole of the difference, and
+it is commented as such, because the temptation to "finish the job" is obvious.
+
+**Centring a short last row needs half-column granularity, so the tracks are
+doubled and every card spans two.** This is the part most likely to be
+"simplified" later. In a plain three-column grid the two cards of a 3 + 2 layout
+sit hard left with a third of the row hanging off the right; there is no grid
+property that centres a partial last row. The alternatives were worse:
+
+*`justify-content: center`* centres the track LIST, which does nothing when the
+tracks are `1fr` and already fill the width.
+
+*A `translateX` on the first card of the last row* was the near miss. It works
+geometrically, and it is unusable here: `.rec-card` already carries a hover
+`transform` and an entrance animation on the same property, so a layout offset
+expressed as a transform would be silently overwritten by both.
+
+*Doubling the tracks* costs nothing, and that is arithmetic rather than hope: a
+card spans two tracks **and the gap between them**, so three cards and their two
+gaps come to 3(2t + g) + 2g = 6t + 5g — exactly what six tracks and five gaps
+occupy. A doubled grid and a plain k-column grid produce identical cards. JS then
+places only the FIRST card of the last row, at column (k − m) + 1; the rest
+auto-place after it, which the spec's placement cursor guarantees.
+
+**Two smaller things worth not rediscovering.** The custom property holds the
+already-doubled track count rather than a column count multiplied by two in CSS,
+because a math function in `repeat()`'s first argument is not somewhere to be
+adventurous. And `.rec-card` is `grid-column: auto / span 2`, not the shorter
+`span 2` — one value leaves `grid-column-end: auto`, so the moment JS writes a
+`grid-column-start` the card would collapse to a single half-width track.
+
+---
 ## D-049 · The recs spotlight IS ported, at 0.70 — supersedes D-048's last section
 
 **D-048 records Claude rejecting the ranked list's spotlight dimming for the recs

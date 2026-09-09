@@ -55,6 +55,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
   cards in at 120ms apart; regenerating fades the previous set out first (R27,
   R14, D-048). Nothing animates or scrolls on an empty or failed run.
+  The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
+  never left holding one lonely card: four cards where three fit render 2 + 2
+  and five where four fit render 3 + 2, with a short last row centred on a
+  half-column offset (off-backlog, user-raised 2026-09-09; D-050). Deliberately
+  restrained — six cards where four fit stays 4 + 2, because nothing is
+  stranded there and evening it out would grow every card by a third.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
