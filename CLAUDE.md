@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED and its sub-backlog is R1–R22 under step 2, no code written yet; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into an R1–R22 sub-backlog under step 2, of which R1, R2 and R19 are done and R20 was withdrawn as incorrect; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1043,7 +1043,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below (R2 and R19 are now done; R20 was WITHDRAWN as
+   and produced R1–R22 below (R1, R2 and R19 are now done; R20 was WITHDRAWN as
    incorrect — every status is on the item itself). The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1051,19 +1051,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group A — functional bugs**
 
-   * **R1. Every recs message is wiped in the same tick it is written.** The
-     click handler's `finally` calls `syncRecommendationsAvailability()`, which
-     unconditionally does `classList.remove('err')` and reassigns
-     `el.recsHint.textContent`. `renderRecommendations()` and the `catch` both
-     write to that same element inside the `try`/`catch`, so `finally` overwrites
-     all three outcomes. **This is bigger than the Open-issues entry, which
-     describes only the error case.** Also dead, for the same reason: the
-     `Based on: …` line after a successful run — which the README demo script
-     tells the presenter to narrate — and `No new suggestions this time…`.
-     Net effect: **a failed run, a successful run and a never-run page are
-     visually identical apart from the cards.** Fix by making the sync not
-     clobber a message the run itself wrote; the verdict already solves this with
-     `el.verdict.dataset.generated`, so copy that shape rather than inventing one.
+   * **R1. DONE 2026-09-09 — recs messages survive the run that wrote them.**
+     `#recs-hint` has TWO owners: `syncRecommendationsAvailability()` writes the
+     availability text, and a run writes its progress, result or failure into the
+     same element. The sync reassigned it unconditionally, and the run's own
+     `finally` calls the sync — so every message a run wrote was wiped in the same
+     tick. **Not just the error, which is all the old Open-issues entry claimed:**
+     `Based on: …` (which the README demo script tells the presenter to narrate)
+     and `No new suggestions this time…` were dead too, so a failed run, a
+     successful run and a page that had never run all looked identical apart from
+     the cards.
+     Fixed with the guard `syncVerdictAvailability()` already uses, ported not
+     reinvented: `state.recsHintFromRun` is set when a run starts and the sync
+     writes the idle hint only when it is false. Below the threshold the
+     availability text still always wins and clears the flag — the section is
+     unavailable, so what a past run said about it is moot.
+     **A second, latent bug in the same function went with it:** the sync also
+     reassigned `el.recsTrigger.disabled` unconditionally, so adding a film from
+     the search panel WHILE a recs call was in flight handed the busy button back
+     to the user. It now skips that write when the button is `aria-busy`, the same
+     guard and the same reason as the skip in `syncSearchResultButtons()`.
+     **Not covered by a test — the client has no test harness at all**, so this one
+     was verified by reading and by tracing all eleven paths (boot above/below
+     threshold, success, failure, zero-suggestions, an unrelated add/rate/remove
+     after each, and both mid-flight races). Worth a browser pass before the
+     resilience screenshots, which this fix is what makes possible.
    * **R2. DONE 2026-09-09 (D-046) — the server half of the owned filter.** The
      answer to the user's "verify the owned filter holds end to end" was **no**:
      `generateRecommendations()` built `ownedTmdbIds` from the SAME query feeding
@@ -1294,7 +1306,7 @@ below — this list is the smaller stuff.)
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
-* [ ] **Recommendations swallow every message they write — now tracked as R1.**
+* [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
   under **R1**, which is the entry being worked from. **The 2026-09-08 wording
   here understated it and is corrected rather than preserved, because it was

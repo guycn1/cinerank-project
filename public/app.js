@@ -55,6 +55,15 @@ const state = {
   expandedReviews: new Set(),
   editing: null,
   editingIsNew: false, // the rate dialog is for a film added seconds ago
+  // Does #recs-hint currently belong to a RUN (busy / "Based on:" / no-picks /
+  // error) rather than to the availability sync? Without this,
+  // syncRecommendationsAvailability() reassigned that element unconditionally
+  // and wiped every one of those in the same tick they were written — the run's
+  // own `finally` calls the sync (backlog R1). The verdict solves the identical
+  // problem with `el.verdict.dataset.generated`; this is the same guard, kept on
+  // `state` because the hint is one long-lived element with two owners, not a
+  // node that gets rebuilt.
+  recsHintFromRun: false,
 };
 
 /* ---------- helpers ------------------------------------------------------- */
@@ -1107,19 +1116,47 @@ async function removeMovie(movie, btn) {
 }
 
 /* ---------- recommendations --------------------------------------- */
+/**
+ * Keep the trigger and the idle hint in step with how many films are rated.
+ *
+ * #recs-hint has TWO owners: this function writes the availability text, and a
+ * run writes its own progress, result or failure into the same element. This
+ * used to reassign it unconditionally — and since the run's `finally` calls this
+ * function, every message a run wrote was wiped in the same tick. Not just the
+ * error: `Based on: …` and the no-suggestions line were dead too, so a failed
+ * run, a successful run and a page that had never run looked identical apart
+ * from the cards (R1).
+ *
+ * The guard is the one `syncVerdictAvailability()` already uses, ported rather
+ * than reinvented: below the threshold the availability text always wins — the
+ * section is unavailable, so whatever a past run said about it is moot — and
+ * above it, the idle hint is only written when no run owns the element.
+ */
 function syncRecommendationsAvailability() {
   const need = state.cfg.minRatedForRecommendations;
   const have = ratedCount();
   const ok = have >= need;
-  el.recsTrigger.disabled = !ok;
-  el.recsHint.classList.remove('err');
-  el.recsHint.textContent = ok
-    ? `Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`
-    : `Rate at least ${need} movies to unlock recommendations (you have ${have}).`;
+  // Never re-enable a button mid-request. `loadMovies()` calls this function, and
+  // it can run DURING a recs call — add a film from the search panel while one is
+  // generating — which used to hand the busy trigger back to the user. Same
+  // guard, and the same reason, as the `aria-busy` skip in
+  // syncSearchResultButtons(). The run's own `finally` restores the button
+  // before calling this, so the correct state is never missed.
+  if (el.recsTrigger.getAttribute('aria-busy') !== 'true') el.recsTrigger.disabled = !ok;
+  if (!ok) {
+    state.recsHintFromRun = false; // availability takes the element back
+    el.recsHint.classList.remove('err');
+    el.recsHint.textContent = `Rate at least ${need} movies to unlock recommendations (you have ${have}).`;
+  } else if (!state.recsHintFromRun) {
+    el.recsHint.classList.remove('err');
+    el.recsHint.textContent = `Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`;
+  }
 }
 
 el.recsTrigger.addEventListener('click', async () => {
   const restoreTrigger = busyButton(el.recsTrigger);
+  // From here until the next availability change, the hint belongs to this run.
+  state.recsHintFromRun = true;
   el.recsHint.classList.remove('err');
   el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
   el.recsGrid.replaceChildren();
