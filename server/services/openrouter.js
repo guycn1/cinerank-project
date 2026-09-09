@@ -41,7 +41,18 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7 })
       signal: AbortSignal.timeout(20000),
     });
   } catch (err) {
-    throw new OpenRouterError(`OpenRouter unreachable (${err.name})`);
+    // `err.cause.code` first, because `err.name` is almost always the useless
+    // answer here: every connection-level failure in Node's fetch surfaces as
+    // TypeError("fetch failed") and puts the real reason — ECONNREFUSED,
+    // ENOTFOUND, UND_ERR_CONNECT_TIMEOUT — on `cause`. The user hit exactly this
+    // while testing a bogus key: a 401 and an "unreachable (TypeError)" appeared
+    // in the same log, and only the 401 had anything to do with the key.
+    // Falls back to `name`, which is what the 20s cap above produces: an
+    // AbortSignal.timeout aborts with a TimeoutError and no `cause` (both
+    // verified against this Node build, not assumed).
+    // Log-only either way — the route replaces all of this with a calm sentence
+    // before the user sees it (R8, D-047).
+    throw new OpenRouterError(`OpenRouter unreachable (${err.cause?.code ?? err.name})`);
   }
 
   if (!res.ok) {

@@ -6,6 +6,137 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
+
+The recommendations route answered every `RecommendationError` with
+`Couldn’t generate recommendations: ${err.message}`, under a code comment
+claiming "Calm, specific message — never a raw dump". It was a raw dump. The
+causes are internal — `OpenRouter unreachable (TimeoutError)`,
+`OpenRouter responded 401`, `Model did not return valid JSON`,
+`DB read failed: <postgres text>` — so an outage named our vendor and a
+JavaScript error class to somebody who wanted a film suggestion. The movie path,
+two files away, has said `Couldn’t reach the movie database. Try again in a
+moment.` since D-042.
+
+Nobody had seen it, because R1 wiped the message in the same tick it appeared.
+Fixing R1 is what made this visible, and the user confirmed it in the browser
+with a bogus OpenRouter key.
+
+**Where to draw the line between "show it" and "hide it".** One cause is not a
+fault report at all: *not enough rated films* is the answer to the user's
+question. Two ways to spare it:
+
+*Pattern-match in the route* — check the message, or the absence of "OpenRouter".
+Rejected outright: it makes the route's behaviour depend on the exact wording of
+a string thrown three files away, which is the same "second copy of a rule" shape
+D-039 deleted and D-046 refused to recreate.
+
+*Flag it at the throw site.* Chosen. `RecommendationError` takes
+`{ userFacing }`, set on exactly one of its six throw sites. The knowledge lives
+where the decision is made.
+
+**The part worth recording is R9, where the backlog's own instruction was
+wrong.** The seed item said the verdict "already does this properly (points at
+the AI call log); copy that shape". Reading it, the verdict's fallback offers the
+log **unconditionally** — so when CineRank itself is unreachable, it tells the
+user to go read a log that cannot load either, and swallows the real cause
+("Couldn’t reach CineRank…") entirely. Copying that shape would have propagated
+the bug into a second feature.
+
+So the offer became conditional, and the condition is a fact the server knows and
+the client cannot: *was a `recommendation_logs` row committed for this failure?*
+Of the six throw sites only one qualifies — the failure re-thrown after the log
+insert. A failed DB read happens before any AI call, an unmet threshold never
+reaches one, and a failed log write is by definition unlogged. All three now say
+"Try again in a moment" and offer nothing to read.
+
+That fact travels as `logged: true` beside `error`, which is **exactly D-042's
+`short` mechanism**: additive, absent from nearly every response, and invisible to
+any consumer reading only `body.error`. `api()` carries it onto the thrown error
+the same way it carries `short`.
+
+**Traps.**
+
+* **Do not make `logged` default to true**, and do not set it on the
+  `RecommendationError` constructor's other call sites. It is a claim that a row
+  exists; a wrong one sends the user to an empty log. Flipping the default fails
+  one test, by construction.
+* **Do not re-append `err.message` to the user-facing string.** The technical
+  cause is not lost — it is written to the log row's `error_text`, which a test
+  now asserts, and that is the only place it belongs.
+* **The route must not sniff the message text** to decide which branch to take.
+  Both flags are set at their throw sites for that reason.
+* **The verdict still has the unconditional-link bug** (recorded as R23). It was
+  left alone deliberately: this pass is R8/R9, and fixing the verdict is a change
+  to a second feature that the user has not looked at yet. Do not "unify" the two
+  by copying the verdict's version back over this one — that is backwards.
+
+---
+## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
+`generateRecommendations()` read the library with one query filtered
+`.not('rating', 'is', null)` and then built **two** things out of that one result:
+the taste profile (`topN`) and the owned-titles set used to drop picks the user
+already has. The taste profile was right. The owned set was not — it contained
+only RATED films, so a film the user had added and not yet rated was invisible to
+it, and the model could name it, TMDB would verify it, and it came back as a
+recommendation for something already in the list. The card's own
+`AI pick · not yet rated` badge would even have been accurate; the Add button
+under it would have returned a 409.
+
+**Two fixes were on the table.**
+
+*Add a second query* for `tmdb_id` with no filter, and keep the filtered one for
+the profile. Obvious, minimal, and the first thing I reached for. Rejected: it
+costs a second round trip, and it leaves the two sets sharing a subject but not a
+source — the exact shape that let them disagree in the first place.
+
+*One unfiltered read, split in JS.* Chosen. `rated` is
+`library.filter((m) => m.rating != null)` and the owned set is
+`library.map((m) => m.tmdb_id)`. One round trip, and the two derivations sit two
+lines apart where a reader can see that they answer different questions: the
+profile is "films you have scored", the owned set is "films you have, at all".
+
+**What actually settled it was a failed test, not the argument above.** The test
+was written first, as the R19 work had just established. It asserted that an
+unrated film in the library is never recommended back — and it **passed against
+the buggy code**. The reason is `test/helpers.js`: every filter method on the
+fake Supabase builder is a no-op (`not: () => b`), so the fake returned all rows
+regardless of the `.not()` that caused the bug. The test proved nothing, and
+would have gone on proving nothing.
+
+That left a real choice about where the truth should live. Teaching the fake to
+honour `.not('rating','is',null)` was possible, but it makes the fake a small
+query engine, and every future test then depends on that engine being right.
+Moving the filter out of SQL and into JS puts the rule somewhere the tests can
+actually observe, and makes the production path and the tested path the same
+path. The bug was in application logic, so application logic is where it should
+be visible.
+
+**Claude was wrong twice here and both are the point.** The first write-up of
+this item (R2, in CLAUDE.md) was correct. But the sibling item R20 — "the client
+hardcodes thresholds the server owns" — was **wrong and was withdrawn**: the
+client fetches `/api/config` at boot and the literals are a documented fallback.
+That claim came from grepping `state.cfg`, which shows the reads and the literals
+but not the assignment that overwrites them. And then the R2 test passed for the
+wrong reason, which would have shipped a green suite over an unfixed bug if it
+had been written after the fix instead of before it.
+
+**Traps.**
+
+* **Do not push the filter back into the query.** `.not('rating', 'is', null)`
+  on that read looks like free work for the database and would immediately make
+  the R2 test vacuous again, because the fake ignores it. The comment in
+  `helpers.js` says so at the no-op itself.
+* **The owned set must come from the unfiltered `library`, never from `rated`.**
+  Reverting that one word restores the bug and fails exactly one test — verified
+  by doing it.
+* `nullsFirst: false` is on the order to match `GET /api/movies`. The unrated
+  rows are filtered out of `rated` anyway, but a DESC sort puts NULLs first in
+  Postgres by default and `topN` should not depend on that being remembered.
+* This is the SERVER half only. The client half — rec cards never re-syncing
+  their Add button when ownership changes — is R3 and is still open.
+
+---
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400
 unbroken `f`s. The ranked list did not merely overflow: the card widened, the
@@ -468,6 +599,14 @@ Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
 order between them comes from `created_at desc` — which was added more recently —
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
+
+*(Signpost added 2026-09-09, and the paragraph above is deliberately NOT rewritten:
+it records the state that made #13 a bug. `created_at desc` was accurate then. The
+tie-break has since been flipped to ASCENDING at the user's request, so a new film
+appends below the ones it ties with instead of jumping above them. Nothing in this
+entry's reasoning changes — the whole point of D-038 is that the order within a tie
+is arbitrary and must not be asserted as a ranking, which is as true ascending as
+descending.)*
 
 **Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
 use, plus a small muted `tied` caption under the numeral. The skipped number is
@@ -1152,6 +1291,16 @@ state set moments earlier.
    `aria-busy`.
 3. This one.
 
+*(Two dated corrections, 2026-09-09, added rather than folded into the text above,
+which stays as written. **Item 1 is no longer open** — it was fixed as backlog R1,
+and it turned out to be bigger than described here: the same `finally` wiped the
+SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
+is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
+the whole document; the `aria-busy` skip described in item 2 is unchanged and is
+still the reason it exists. The pattern this entry names — an unconditional sync
+overwriting a deliberate transient state — went on to catch a fourth and fifth
+instance, so the entry's real content has aged well.)*
+
 Before adding a sync call, check which deliberate states it can reach.
 
 ## D-025 · Hide the browser's search clear button rather than theme it
@@ -1188,7 +1337,8 @@ Both auto-dismissals were built and then removed:
   query and another TMDB round-trip.
 - **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
-  it cancelled out `syncSearchResultButtons()`, which exists precisely to update
+  it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
+  2026-09-09's R3, and still existing precisely to update
   the OTHER open rows after an add. Keeping the panel open serves the real flow:
   search once, add two films.
 

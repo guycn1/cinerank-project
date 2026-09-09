@@ -15,7 +15,17 @@ moviesRouter.get(
       .from('movies')
       .select('*')
       .order('rating', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+      // ASCENDING, so films the user scored identically read oldest-first — and
+      // so do the unrated ones, which are all tied with each other by
+      // definition. It was descending, which put a newly added film ABOVE
+      // everything it tied with: add two films and the second one jumped over
+      // the first, and rate two films 4.0 and the second sat above the first.
+      // Adding to a list should append to it. The tie-break carries no meaning
+      // either way — D-038 is the whole point, and a tie shows one shared rank
+      // number and a "tied" caption precisely because the order within it is
+      // arbitrary — but ascending is the arbitrary order that does not surprise.
+      // (User-raised, 2026-09-09.)
+      .order('created_at', { ascending: true });
     if (error) throw new Error(error.message);
     res.json({ movies: data });
   })

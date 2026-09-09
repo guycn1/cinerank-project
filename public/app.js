@@ -55,6 +55,15 @@ const state = {
   expandedReviews: new Set(),
   editing: null,
   editingIsNew: false, // the rate dialog is for a film added seconds ago
+  // Does #recs-hint currently belong to a RUN (busy / "Based on:" / no-picks /
+  // error) rather than to the availability sync? Without this,
+  // syncRecommendationsAvailability() reassigned that element unconditionally
+  // and wiped every one of those in the same tick they were written — the run's
+  // own `finally` calls the sync (backlog R1). The verdict solves the identical
+  // problem with `el.verdict.dataset.generated`; this is the same guard, kept on
+  // `state` because the hint is one long-lived element with two owners, not a
+  // node that gets rebuilt.
+  recsHintFromRun: false,
 };
 
 /* ---------- helpers ------------------------------------------------------- */
@@ -85,6 +94,10 @@ async function api(path, options) {
     // Purely additive — an endpoint that omits it behaves exactly as before,
     // because failureText() falls back to the full message.
     if (body.short) err.short = body.short;
+    // Same shape, same reasons: optional, additive, and absent from nearly every
+    // response. It says a failure of ours was written to an AI log table, so a UI
+    // may offer the log without promising a row that does not exist (R9).
+    if (body.logged) err.logged = true;
     throw err;
   }
   return body;
@@ -390,8 +403,8 @@ function renderRanked() {
   // Computed ONCE, by the same function rankSignature() uses, so what is drawn
   // and what counts as "the ranking changed" cannot drift apart. Films the user
   // scored identically must not be told apart by a number — the order between
-  // them is only `created_at`, i.e. which was added more recently, which has
-  // nothing to do with taste (backlog #13).
+  // them is only `created_at` ascending, i.e. the order they were added in,
+  // which has nothing to do with taste (backlog #13).
   const ranking = displayedRanking(state.movies);
 
   state.movies.forEach((m, i) => {
@@ -714,7 +727,7 @@ async function loadMovies() {
   // Settling them first leaves the ranked list as the only difference between
   // the two snapshots. None of them reads DOM that renderRanked() builds — they
   // read `state`, which is already updated above — so the order is free.
-  syncSearchResultButtons();
+  syncAddButtons();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
   refreshRanked();
@@ -725,6 +738,30 @@ async function loadMovies() {
 function closeSearchResults() {
   el.searchResults.hidden = true;
   el.searchResults.replaceChildren();
+}
+
+/**
+ * Drop focus from the search input so a phone's soft keyboard closes.
+ *
+ * The form calls `preventDefault()`, so it never navigates and the input keeps
+ * focus — and with it the keyboard, which then covers the results the search
+ * just produced. Nothing else in the app blurs anything, so this was the whole
+ * mechanism. Pressing the keyboard's own Go/Search key is the case that needs
+ * it: tapping the Search BUTTON moves focus off the input by itself.
+ *
+ * Gated on `(hover: none)` — a capability query, exactly as the hover rules in
+ * styles.css are, never a width. On a pointer device there is no soft keyboard
+ * to close, so a blur would only cost the user their caret and reset the tab
+ * order to the top of the document; desktop is provably unchanged. A device
+ * with a real pointer AND a touch screen keeps focus, which is the right call
+ * for the pointer it reports as primary.
+ *
+ * The submit handler calls this only AFTER its empty-query early return. That
+ * path focuses the input on purpose: nothing was searched, so the caret belongs
+ * where the fix goes, and the keyboard is what the user still needs.
+ */
+function dismissSoftKeyboard() {
+  if (matchMedia('(hover: none)').matches) el.searchInput.blur();
 }
 
 el.searchForm.addEventListener('submit', async (e) => {
@@ -738,6 +775,7 @@ el.searchForm.addEventListener('submit', async (e) => {
     el.searchInput.focus();
     return;
   }
+  dismissSoftKeyboard();
   const settle = busyButton(el.searchBtn, 'Searching…');
   el.searchResults.replaceChildren(makeLoading('Searching…'));
   try {
@@ -800,7 +838,14 @@ function setAddButtonState(btn, owned) {
   // strings are rendered on the recommendation card, whose button has no such
   // rule, so the guard has to live in the string rather than in one stylesheet.
   // "In your list" is left breakable on purpose: those are real words.
-  btn.textContent = !owned ? '+\u00A0Add' : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
+  // The UNOWNED label is read off the button, because the two surfaces disagree
+  // about it: a search row rests at "+ Add", a recommendation card at "Add to my
+  // list". The owned labels are shared, so both surfaces settle identically.
+  // Which of the two resting labels should move is still an open decision (R7) —
+  // routing rec cards through this function must not silently make that decision
+  // by relabelling them, hence the override rather than one hardcoded string.
+  const addLabel = btn.dataset.addLabel || '+\u00A0Add';
+  btn.textContent = !owned ? addLabel : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
@@ -808,12 +853,30 @@ function setAddButtonState(btn, owned) {
   btn.disabled = owned;
 }
 
-// Results already on screen go stale the moment the list changes: adding one
-// film used to update only the button that was clicked, leaving every other
-// row still offering "Add" for something now owned. Called from loadMovies(),
-// so removals re-open the offer too. No-op when the panel is closed.
-function syncSearchResultButtons() {
-  el.searchResults.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
+/**
+ * Re-state every Add button on the page from `state.ownedTmdbIds`.
+ *
+ * Buttons already on screen go stale the moment the list changes: adding one
+ * film used to update only the button that was clicked, leaving every other one
+ * still offering "Add" for something now owned. Called from loadMovies(), so
+ * removals re-open the offer too.
+ *
+ * **It queries the whole document, not one panel.** It used to be
+ * `syncAddButtons()` and looked only inside `.search-results`, so the
+ * sync ran in exactly ONE direction: adding from a REC CARD refreshed the search
+ * rows, because they sat in the panel it swept — while adding the same film from
+ * a SEARCH ROW left the rec card still offering it, and removing a film left the
+ * rec card stuck on a disabled "Added" for something no longer in the list. Never
+ * a data bug: the duplicate add was refused correctly by the 409. The button
+ * simply lied about what it would do. Reported by the user, 2026-09-09 (R3).
+ *
+ * Both surfaces are found by ONE selector — `.add-btn[data-tmdb-id]` — rather
+ * than by sweeping two named containers, so a third surface that renders an Add
+ * button is covered the day it is written instead of the day somebody remembers
+ * this function exists.
+ */
+function syncAddButtons() {
+  document.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
     // Skip a button mid-request: addMovie() awaits loadMovies(), which calls
     // this, so writing textContent here would wipe the spinner out of the very
     // button that is still waiting on its own response.
@@ -873,7 +936,7 @@ function renderSearchResults(results, query) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'add-btn';
-    btn.dataset.tmdbId = r.tmdb_id; // so syncSearchResultButtons() can find it
+    btn.dataset.tmdbId = r.tmdb_id; // so syncAddButtons() can find it
     btn.dataset.title = r.title;
     setAddButtonState(btn, state.ownedTmdbIds.has(r.tmdb_id));
     btn.addEventListener('click', () => addMovie(r.tmdb_id, btn));
@@ -897,7 +960,7 @@ async function addMovie(tmdbId, btn) {
     if (btn) btn.dataset.justAdded = '1';
     settle?.('✓\u00A0Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
-    // impossible to ever see, and made syncSearchResultButtons() pointless —
+    // impossible to ever see, and made syncAddButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets
     // you add a second film from the same results instead of re-searching.
     // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
@@ -907,7 +970,7 @@ async function addMovie(tmdbId, btn) {
     // The film's title comes off the BUTTON, not from `movie` — the add failed,
     // so there is no saved row to read it from, and `movie` is not even in scope
     // here. renderResults() stamps `dataset.title` on every add button for
-    // syncSearchResultButtons(), and it is the only title available at this
+    // syncAddButtons(), and it is the only title available at this
     // point. `btn` is optional in this function's signature, hence the fallback.
     const title = btn?.dataset.title;
     // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
@@ -1082,41 +1145,145 @@ async function removeMovie(movie, btn) {
 }
 
 /* ---------- recommendations --------------------------------------- */
+/**
+ * Keep the trigger and the idle hint in step with how many films are rated.
+ *
+ * #recs-hint has TWO owners: this function writes the availability text, and a
+ * run writes its own progress, result or failure into the same element. This
+ * used to reassign it unconditionally — and since the run's `finally` calls this
+ * function, every message a run wrote was wiped in the same tick. Not just the
+ * error: `Based on: …` and the no-suggestions line were dead too, so a failed
+ * run, a successful run and a page that had never run looked identical apart
+ * from the cards (R1).
+ *
+ * The guard is the one `syncVerdictAvailability()` already uses, ported rather
+ * than reinvented: below the threshold the availability text always wins — the
+ * section is unavailable, so whatever a past run said about it is moot — and
+ * above it, the idle hint is only written when no run owns the element.
+ */
+/**
+ * Single writer for #recs-hint's content AND its weight.
+ *
+ * `caption: true` means this line INTRODUCES content that is on screen or about
+ * to be — the busy line, and "Based on: …" above the cards. Those are fine print
+ * over the real thing, so they stay --ink-faint. Everything else is the only
+ * thing the section is showing: the two availability sentences, a failure, and
+ * the zero-result line. Those read at full --ink-dim weight.
+ *
+ * **This supersedes R26's `.from-run` class**, which tied the weight to WHO wrote
+ * the line. That held until the user looked at a zero-result run: "No new
+ * suggestions this time…" is written by a run, yet it is persistent and it is the
+ * only thing in the section, so it belongs with the availability sentences and
+ * not with the two captions. Who wrote it was a good proxy for the real question
+ * and not the same question. `state.recsHintFromRun` still exists and still means
+ * exactly what R1 made it mean — may the sync overwrite this? — it just no longer
+ * pretends to answer this one too.
+ */
+function setRecsHint(content, { caption = false } = {}) {
+  el.recsHint.classList.toggle('is-caption', caption);
+  if (typeof content === 'string') el.recsHint.textContent = content;
+  else el.recsHint.replaceChildren(...content);
+}
+
 function syncRecommendationsAvailability() {
   const need = state.cfg.minRatedForRecommendations;
   const have = ratedCount();
   const ok = have >= need;
-  el.recsTrigger.disabled = !ok;
-  el.recsHint.classList.remove('err');
-  el.recsHint.textContent = ok
-    ? `Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`
-    : `Rate at least ${need} movies to unlock recommendations (you have ${have}).`;
+  // Never re-enable a button mid-request. `loadMovies()` calls this function, and
+  // it can run DURING a recs call — add a film from the search panel while one is
+  // generating — which used to hand the busy trigger back to the user. Same
+  // guard, and the same reason, as the `aria-busy` skip in
+  // syncAddButtons(). The run's own `finally` restores the button
+  // before calling this, so the correct state is never missed.
+  if (el.recsTrigger.getAttribute('aria-busy') !== 'true') el.recsTrigger.disabled = !ok;
+  if (!ok) {
+    state.recsHintFromRun = false; // availability takes the element back (R1)
+    el.recsHint.classList.remove('err');
+    setRecsHint(`Rate at least ${need} movies to unlock recommendations (you have ${have}).`);
+  } else if (!state.recsHintFromRun) {
+    el.recsHint.classList.remove('err');
+    setRecsHint(`Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`);
+  }
 }
 
 el.recsTrigger.addEventListener('click', async () => {
   const restoreTrigger = busyButton(el.recsTrigger);
+  // From here until the next availability change, the hint belongs to this run.
+  state.recsHintFromRun = true;
   el.recsHint.classList.remove('err');
-  el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
+  // caption: the cards this describes are coming, and it is replaced either way.
+  setRecsHint('Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…', { caption: true });
   el.recsGrid.replaceChildren();
   try {
     const data = await api('/api/recommendations', { method: 'POST' });
     renderRecommendations(data);
   } catch (err) {
     el.recsHint.classList.add('err');
-    el.recsHint.textContent = err.message; // calm inline message (SPEC § 3.4)
+    // Inline, never the toast — the same call the rate dialog makes (D-032): this
+    // message belongs beside the control that produced it.
+    //
+    // The log pointer is conditional, and that is the whole point. The verdict's
+    // fallback offers it unconditionally, so when CineRank itself is unreachable
+    // it sends the user to a log that cannot load either (recorded as R23, not
+    // fixed here). This only offers it when the server said a row was actually
+    // written — a failed DB read, an unmet threshold, and CineRank being down
+    // entirely all leave nothing to read.
+    if (err.logged) {
+      setRecsHint([
+        document.createTextNode(`${err.message} See the `),
+        logLink('AI call log'),
+        document.createTextNode(' for details.'),
+      ]);
+    } else {
+      setRecsHint(err.message);
+    }
   } finally {
     restoreTrigger();
     syncRecommendationsAvailability();
   }
 });
 
-function renderRecommendations({ suggestions, meta }) {
+/**
+ * Why a run came back with nothing, in the user's words. The server decides
+ * WHICH — only it knows — and this maps it to copy.
+ *
+ * There used to be one hardcoded sentence here claiming the model had named only
+ * films already in the list. That is one of four possible causes, and asserting
+ * it for all four was wrong three times out of four. The bad case is
+ * `tmdb-unreachable`: the AI call really did succeed and really was charged, so
+ * the run logs 'success' and nothing else in the app mentions TMDB — the false
+ * sentence was the only thing the user would ever see (user-raised, 2026-09-09).
+ *
+ * `mixed` is deliberately vague: several causes at once, and naming one would be
+ * the original mistake again. It also backstops an unknown value, so a server
+ * that learns a new reason before this map does degrades to something true.
+ */
+const EMPTY_REASON_TEXT = {
+  'all-owned': 'No new suggestions this time — the model only named films already in your list.',
+  'none-named': 'No suggestions this time — the model didn’t name any films. Try again.',
+  'tmdb-unreachable':
+    'Couldn’t check any of the suggestions — the movie database is unreachable. Try again in a moment.',
+  unverifiable: 'No new suggestions this time — none of the films it named could be verified.',
+  mixed: 'No new suggestions this time.',
+};
+
+function renderRecommendations({ suggestions, emptyReason, meta }) {
   el.recsGrid.replaceChildren();
   if (!suggestions.length) {
-    el.recsHint.textContent = 'No new suggestions this time — the model only named films already in your list.';
+    // NOT a caption: nothing follows it, so it is the whole of what this section
+    // is saying and reads at full weight (user-raised, 2026-09-09).
+    setRecsHint(EMPTY_REASON_TEXT[emptyReason] ?? EMPTY_REASON_TEXT.mixed);
+    // R10. The call was really made, really cost money and really is in the audit
+    // log, so its metadata belongs on screen exactly as it does after a run that
+    // produced cards. Returning before this was the one AI outcome in the app
+    // that showed no cost, tokens or duration anywhere.
+    // It also carries logLink() already, which is why the message above does NOT
+    // get a log link of its own — that would put two on one line.
+    el.recsGrid.append(aiMetaFooter(meta));
     return;
   }
-  el.recsHint.textContent = `Based on: ${meta.basedOn.join(', ')}.`;
+  // caption: the cards are right underneath it.
+  setRecsHint(`Based on: ${meta.basedOn.join(', ')}.`, { caption: true });
   suggestions.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'rec-card';
@@ -1135,8 +1302,19 @@ function renderRecommendations({ suggestions, meta }) {
     reason.textContent = s.reason;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = 'Add to my list';
-    btn.setAttribute('aria-label', `Add ${s.title} to my list`);
+    // The same three dataset stamps a search row carries, so this button is
+    // findable by syncAddButtons() (R3) and so a failed add can name its film in
+    // the toast (R4) — addMovie()'s catch reads dataset.title, and without it a
+    // rec-card failure fell back to "Couldn't add that film" while the identical
+    // failure from a search row named it. `.add-btn` carries no styling here:
+    // every rule for that class is scoped to `.result-row`.
+    btn.className = 'add-btn';
+    btn.dataset.tmdbId = s.tmdb_id;
+    btn.dataset.title = s.title;
+    btn.dataset.addLabel = 'Add to my list'; // R7 still owns this wording
+    // Not a hardcoded label: an owned film gets the owned state immediately, and
+    // the aria-label now comes from the one place that writes it.
+    setAddButtonState(btn, state.ownedTmdbIds.has(s.tmdb_id));
     btn.addEventListener('click', () => addMovie(s.tmdb_id, btn));
     body.append(h3, reason, btn);
     card.append(poster, body);
@@ -1181,13 +1359,21 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
-    // Quiet fallback (SPEC § 2.3) — but the failed call IS in the log, so say
-    // where to look. Built from nodes, never innerHTML (CLAUDE.md § Security 4).
-    el.verdictText.replaceChildren(
-      document.createTextNode('Couldn’t come up with a verdict right now. See the '),
-      logLink('AI call log'),
-      document.createTextNode(' for details.')
-    );
+    // Quiet fallback (SPEC § 2.3). The log is offered only when the server says a
+    // row was actually written — this used to be unconditional, and it also
+    // discarded `err.message`, so CineRank being unreachable produced "See the AI
+    // call log for details" pointing at a log that could not load either, with
+    // the real cause thrown away (R23, D-047).
+    // Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    if (err.logged) {
+      el.verdictText.replaceChildren(
+        document.createTextNode(`${err.message} See the `),
+        logLink('AI call log'),
+        document.createTextNode(' for details.')
+      );
+    } else {
+      el.verdictText.textContent = err.message;
+    }
   } finally {
     restoreRefresh();
   }

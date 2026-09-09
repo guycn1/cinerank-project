@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; next up is the mobile-keypad fix, then the recommendations overhaul; eleventh merge to main was bc67ff2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with SIXTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,9 +33,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "TMDB ratings
-  persisted (#11) + tied ranks made honest (#13)" (2026-09-08,
-  `bc67ff2`). **Eleven** merges so far;
+* `main` is at the latest settled UI milestone — currently "ranked-list
+  backlog complete (#14–#20) + a whole-app narrow-viewport pass" (2026-09-09,
+  `2526402`). **Twelve** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -60,7 +60,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 38 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 53 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -70,6 +70,21 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `review_requires_rating` guards (D-041): a check violation comes back as a
   400 with a usable message rather than a generic 500, and a violation of one of
   the table's OTHER check constraints is not dressed up as the review message.
+  **Plus, as of 2026-09-09, the recommendation SUCCESS path (R19)** — which had no
+  coverage at all, so every rule deciding what a user actually sees was unproven.
+  One run exercises all three: a pick TMDB cannot confirm is dropped, a pick the
+  user already owns is dropped, and two picks resolving to the same film collapse
+  to one. A second test asserts the success log row carries `status='success'`,
+  OpenRouter's own `usage.cost`, and exactly the titles that were SHOWN — not the
+  three the model named and lost. Both were verified load-bearing by deleting each
+  of the three service rules in turn: every deletion fails exactly these two tests.
+  Three more groups landed the same day, each probed the same way: **R2**'s guard
+  that an unrated film already in the list is never recommended back; **R23**'s
+  invariant, written as a loop over BOTH AI features so they cannot drift, that a
+  `status='failed'` row is always advertised to the UI and a failure with no row
+  never is; and **R28**'s five, one per reason a run can come back empty —
+  including the one that matters, that an unreachable TMDB is reported as such
+  rather than as "the model only named films already in your list".
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
@@ -302,9 +317,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
-    `setAddButtonState()` now renders the states and `syncSearchResultButtons()`
-    re-applies it to every row from `loadMovies()`, so removals re-open the
-    offer too); Search + Add gaining the shared `busyButton()` treatment; the
+    `setAddButtonState()` now renders the states and a sync pass re-applies it
+    from `loadMovies()`, so removals re-open the offer too — that pass was
+    `syncSearchResultButtons()` when this was written and is now the document-wide
+    `syncAddButtons()`, see R3); Search + Add gaining the shared `busyButton()` treatment; the
     last inline `element.style` writes in app.js replaced by `searchNote()` +
     `.search-note`; the panel gaining an Escape dismissal; and an empty query,
     which used to be a silent no-op, now saying so and focusing the input.
@@ -350,6 +366,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     consecutive bugs, one root cause:** this, the add button, and the ranked
     card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
     flex or grid item. When something will not shrink, look there first.
+    **Two sweep findings were examined and DELIBERATELY NOT FIXED.** They were
+    settled in conversation, so they are written here or a later session will
+    rediscover them, "fix" them, and undo a decision:
+    * **The Add button changes width across its four states** (68 / 104 / 85 /
+      95px, measured). Since it is `flex-shrink: 0`, the growth during
+      `⟳ Adding…` comes out of `.meta`, which can re-wrap the title mid-request.
+      Real, but transient (200–500ms), needs a title whose wrap point falls in
+      that window, and the user could not reproduce it. **Do not "fix" it by
+      reserving the widest label's width** — that costs every row width all the
+      time to remove a flicker nobody can see, and it makes the crushed-title
+      problem worse. The sub-500px grid layout also gives the button its own line
+      now, so there is slack where it used to matter.
+    * **`.search button .busy-label { display: none }` is scoped to the search
+      form only**, so the Add button keeps its full "Adding…" label at every
+      width. Cosmetic asymmetry, not a defect: its only consequence was the item
+      above. Fixing it needs a 500px threshold and leaves a bare spinner in a
+      pill, and there is a fair argument the SEARCH button is the odd one out,
+      since the ranked list's Remove button also goes spinner-only. Left alone.
     **The row's `year · TMDB score` line no longer breaks mid-value.** It is one
     text node, so the browser could break at ANY space in it — including the one
     inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
@@ -455,6 +489,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
+  - **Submitting a search closes a phone's soft keyboard** (2026-09-09, step 1
+    of the agreed order). It stayed up over the results because the handler
+    `preventDefault()`s — the form never navigates — and nothing in the app ever
+    called `.blur()`. `dismissSoftKeyboard()` now does, from the submit handler,
+    **after the empty-query early return** so that path's deliberate
+    `el.searchInput.focus()` still runs. Gated on `matchMedia('(hover: none)')`:
+    a capability query like the CSS hover gates, never a width. Blurring on a
+    pointer device would close no keyboard and would cost the caret plus the tab
+    order (focus lands on `<body>`, so the next Tab restarts from the top of the
+    document), so desktop is provably unchanged. The case it fixes is the
+    keyboard's own Go/Search key, which submits without moving focus — tapping
+    the Search button already blurred the input by itself.
 * **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
   NOT closed: the user is still raising off-backlog refinements and bugs found
   by using it ("a few more things to settle before calling the whole ranked-list
@@ -679,8 +725,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     line-height 1.3 starts flush against the card's top edge. Reset in card mode.
 
   - **Tied films share a rank number, and say so** (#13, D-038). Two films the
-    user scored 8.0 showed as #3 and #4, ordered by `created_at` — which was
-    added more recently — so the numbers asserted a ranking the data does not
+    user scored 8.0 showed as #3 and #4, ordered by `created_at` descending —
+    i.e. by which was added more recently, **the direction that has since been
+    flipped to ascending, see the tie-break bullet below** — so the numbers asserted a ranking the data does not
     contain. Now **competition ranking** (1, 2, 2, 4; the skipped number is the
     point) plus a muted `tied` caption under the numeral, because two adjacent
     identical numbers otherwise read as a rendering fault.
@@ -948,6 +995,29 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
     the ranked card was actually broken.
 
+  - **Equal ratings now read oldest-first** (off-backlog, user-raised
+    2026-09-09). `GET /api/movies` broke ties with
+    `.order('created_at', { ascending: false })`, so a newly added film jumped
+    ABOVE everything it tied with: add two films and the second one appeared
+    above the first, rate two films 4.0 and the second sat above the first. Every
+    unrated film is tied with every other by definition, so the whole unrated
+    block was newest-first too. Now ascending — adding to a list appends to it.
+    **The tie-break carries no meaning either way, and that is exactly why it
+    should not surprise.** D-038 is the whole point: a tie draws ONE shared rank
+    number and a muted `tied` caption precisely because the order within it is
+    arbitrary. This changes which arbitrary order it is, not whether it means
+    anything.
+    Nothing else moves. `displayedRanking()` computes competition ranking from
+    RATINGS, so no rank number changes; the #1 crown still lands on the top-rated
+    (both films, when the top is tied); and `rankSignature()` compares id + rank +
+    tie state, none of which this touches. The client never re-sorts — verified,
+    `app.js` has no `.sort()` at all — so the API's order is the displayed order
+    and this is a one-line change in one place.
+    **Not covered by a test, and cannot be:** the fake Supabase builder's
+    `.order()` is a no-op like its `.not()` was (see the comment in
+    `test/helpers.js`), so a test asserting this order would pass no matter which
+    direction the route asked for.
+
 #### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
@@ -984,66 +1054,506 @@ Work this top to bottom. It is the user's own sequencing, not Claude's — do no
 re-prioritise it, and do not start further down because something looks quicker.
 This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-1. **Mobile keypad does not close when a search is submitted.** On a phone the
-   soft keyboard stays up over the results. Mechanism, already traced: the submit
-   handler calls `e.preventDefault()` so the form never navigates, and **nothing
-   in `app.js` ever calls `.blur()`** — so the input keeps focus and the keyboard
-   with it. Careful with the fix: the empty-query path deliberately calls
-   `el.searchInput.focus()`, and that must keep working.
+1. **Mobile keypad does not close when a search is submitted — DONE
+   2026-09-09.** The mechanism was as traced: the submit handler calls
+   `e.preventDefault()` so the form never navigates, and nothing in `app.js` ever
+   called `.blur()`, so the input kept focus and the keyboard with it. A
+   `dismissSoftKeyboard()` helper now blurs the input, called from the submit
+   handler **after** its empty-query early return, so the deliberate
+   `el.searchInput.focus()` on that path is untouched.
+   **Gated on `matchMedia('(hover: none)')`, not applied unconditionally.** A
+   capability query, the same shape as the `@media (hover: hover)` gate on the
+   card hover rules and never a width. A pointer device has no soft keyboard to
+   close, so a blur there buys nothing and costs two things: the caret, and the
+   tab order — `blur()` moves focus to `<body>`, so the next Tab restarts from
+   the top of the document instead of continuing past the input. Desktop is
+   provably unchanged. A touch laptop reports `hover: hover` and keeps focus,
+   which is right for the pointer it calls primary.
+   The case that actually needed it is the keyboard's own **Go/Search** key,
+   which submits without moving focus; tapping the Search BUTTON already blurred
+   the input by itself.
 
-2. **Recommendations overhaul — a big one, with its own sub-backlog.** The items
-   below are the seed, NOT the whole list.
-   **Claude is expected to audit the section first and produce a large backlog of
-   its own**, the way the 17-item ranked-list audit was produced. The user's
-   words: "many more bug fixes, inconsistency fixes, and other enhancements that
-   I cannot remember right now". Do that audit before starting work, number the
-   items, and keep them here so a compact cannot lose them.
-   * **Error handling and visibility.** `renderRecommendations`'s handler writes
-     `err.message` into `#recs-hint` and sets `.err`, then its own `finally` calls
-     `syncRecommendationsAvailability()`, which unconditionally does
-     `classList.remove('err')` and overwrites `textContent`. Both run in the same
-     tick, so **a failed run shows the user nothing at all.** The server side is
-     correct and tested (422 + a `status='failed'` log row). This is the LAST
-     functional bug in the app and it is SPEC §7.1 evidence, so it must land
-     before the resilience screenshots are captured. The verdict side already
-     does this properly — it points at the AI call log; copy that shape.
-   * **Grow-on-hover**, matching what the ranked list got (D-043/D-044). Read
-     both entries first: elevation on this page is made of LIGHT not black, every
-     glow layer has a zero Y-offset, and the amber must not become a hard-edged
-     opaque line at an offset, which is where it converges with the focus ring.
-   * **A glittering ✨ AI icon on the recommendations button.** Prefer an inline
-     SVG, per D-027. **If mimicking a good-looking SVG proves problematic, this
-     one button is explicitly EXEMPT from the no-emoji rule** — the user has
-     granted that exemption in advance. Do not spend hours on the SVG.
-   * **Decide the "add to your list" label wording and glyph.** The rec card
-     reads `Add to my list` (app.js) while the search row reads `+ Add` with a
-     three-state machine (`+ Add` → `⟳ Adding…` → `✓ Added` / `In your list`).
-     One of them should move. Note the glyph/line-break rule under Frontend
-     Design Notes applies to whatever is chosen.
-   * **Verify that an already-added film is never recommended.** There is an
-     owned-titles filter; confirm it actually holds end to end.
-     * **Follow-up:** make sure the **UI, the API and the DB alike** safeguard
-       against duplicates in the ranked list. The DB has `unique(tmdb_id)` and
-       the route maps `23505` to a 409 — check the UI half and the recs path
-       against that, rather than assuming the constraint is doing all the work.
-   * **Two narrow-width defects found in the 2026-09-08 sweep and DELIBERATELY
-     left unfixed so they land here**, not scattered:
-     - `.recs__trigger` has **neither `flex-shrink: 0` nor `white-space: nowrap`**
-       (verified against all six of its rules), so "Get recommendations" can be
-       squeezed onto two lines. Mechanically identical to the `+ Add` bug already
-       fixed in Search. Its BUSY label is already safe — that comes from the
-       shared `busyButton()`.
-     - `.recs__head` has no `flex-wrap: wrap`, which is why the above bites
-       instead of resolving itself. `.ranked__head` was given the wrap on
-       2026-09-08 and `.recs__head` deliberately was not, so the two are
-       temporarily split in the stylesheet — **reunite them in this pass.**
+2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
+   whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
+   and produced R1–R22 below; R23–R25 were added later, from findings made while
+   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R13,
+   R19 and R23–R26 plus R28 are done and R20 was WITHDRAWN as incorrect — every
+   status is on the item itself. The user's original seed items are folded in and
+   marked **(user)**. The groups are ordered by severity. **Do not renumber** —
+   these are how the items get referred to. Keep the statuses current as they
+   land.
+
+   **Group A — functional bugs**
+
+   * **R1. DONE 2026-09-09 — recs messages survive the run that wrote them.**
+     `#recs-hint` has TWO owners: `syncRecommendationsAvailability()` writes the
+     availability text, and a run writes its progress, result or failure into the
+     same element. The sync reassigned it unconditionally, and the run's own
+     `finally` calls the sync — so every message a run wrote was wiped in the same
+     tick. **Not just the error, which is all the old Open-issues entry claimed:**
+     `Based on: …` (which the README demo script tells the presenter to narrate)
+     and `No new suggestions this time…` were dead too, so a failed run, a
+     successful run and a page that had never run all looked identical apart from
+     the cards.
+     Fixed with the guard `syncVerdictAvailability()` already uses, ported not
+     reinvented: `state.recsHintFromRun` is set when a run starts and the sync
+     writes the idle hint only when it is false. Below the threshold the
+     availability text still always wins and clears the flag — the section is
+     unavailable, so what a past run said about it is moot.
+     **A second, latent bug in the same function went with it:** the sync also
+     reassigned `el.recsTrigger.disabled` unconditionally, so adding a film from
+     the search panel WHILE a recs call was in flight handed the busy button back
+     to the user. It now skips that write when the button is `aria-busy`, the same
+     guard and the same reason as the skip in `syncAddButtons()`.
+     **Not covered by a test — the client has no test harness at all**, so this one
+     was verified by reading and by tracing all eleven paths (boot above/below
+     threshold, success, failure, zero-suggestions, an unrelated add/rate/remove
+     after each, and both mid-flight races). Worth a browser pass before the
+     resilience screenshots, which this fix is what makes possible.
+   * **R2. DONE 2026-09-09 (D-046) — the server half of the owned filter.** The
+     answer to the user's "verify the owned filter holds end to end" was **no**:
+     `generateRecommendations()` built `ownedTmdbIds` from the SAME query feeding
+     the taste profile, which was filtered `.not('rating', 'is', null)`, so the
+     owned set held only RATED films and anything added-but-not-yet-rated was
+     invisible to it.
+     Fixed by dropping the SQL filter entirely: ONE unfiltered read, then `rated`
+     and the owned set derived from it two lines apart. **Not** the second query
+     the audit first proposed — see D-046 for why, and for the trap that settled
+     it: the first version of the test PASSED against the buggy code, because
+     every filter method on the fake Supabase builder is a no-op, so the fake
+     ignored the very `.not()` that caused the bug. That no-op is now commented at
+     itself in `test/helpers.js`.
+     **Do not push the filter back into the query** and **do not rebuild the owned
+     set from `rated`** — either one restores the bug, and the second fails
+     exactly one test (verified by doing it).
+     **R3 is the still-open client half**: rec cards never re-sync their Add
+     button, so the UI can still offer a film the list already has.
+   * **R3. DONE 2026-09-09 — the Add-button sync now runs in every direction.**
+     Reported live by the user, who found BOTH directions of it. The sync swept
+     only `.search-results`, so: adding from a REC CARD refreshed the search rows
+     (they were in the panel it swept), but adding the same film from a SEARCH ROW
+     left the rec card still offering it, **and** removing a film from the ranked
+     list left the rec card stuck on a disabled "✓ Added" for something no longer
+     in the list. Never a data bug — the duplicate add was refused correctly by
+     the 409, as the user confirmed — the button just lied about what it would do.
+     `syncSearchResultButtons()` is now `syncAddButtons()` and queries the whole
+     document for `.add-btn[data-tmdb-id]`, so a THIRD surface with an Add button
+     is covered the day it is written rather than the day someone remembers the
+     function exists. Rec-card buttons gained the class and the `tmdbId` stamp
+     that make them findable.
+     **The shared `setAddButtonState()` did not get to decide R7 on the way
+     through.** Its unowned label is now read from `btn.dataset.addLabel` (default
+     `+ Add`), so the rec card keeps `Add to my list` until the wording is
+     actually settled. The OWNED labels are shared, which is right: both surfaces
+     should settle identically. Note the rec card's `aria-label` moved from "to my
+     list" to the shared "to your list" — the voice inconsistency is R7's to fix.
+     This was the UI half of the user's duplicate-safeguard item **(user)**; the DB
+     (`unique(tmdb_id)`) and API (23505 → 409) halves were already correct.
+   * **R4. DONE 2026-09-09, with R3.** `addMovie()`'s catch reads
+     `btn?.dataset.title`, which search rows stamped and rec-card buttons did not,
+     so a failed add from a rec card said `Couldn’t add that film — …` while the
+     identical failure from a search row said `Couldn’t add “Dune” — …`. The rec
+     card now carries the same three stamps a search row does, which is what R3
+     needed anyway.
+   * **R5. A log-write failure destroys the real error.** In
+     `generateRecommendations()`, if the `recommendation_logs` insert fails the
+     function throws `Recommendation log write failed: …`, discarding the
+     `errorText` already captured from an AI failure. Related and DELIBERATE, but
+     written down so it is not "fixed" by accident: a SUCCESSFUL, already-paid-for
+     run is also discarded if its log write fails. That is the right call for a
+     course that grades the audit trail — the log is the point — but the user
+     should see something better than a bare 422.
+
+   **Group B — the strength of the "verified against TMDB" claim**
+
+   * **R6. `verifyTitle()` falls back to `results[0]`, so almost nothing is ever
+     actually dropped.** It looks for a case-insensitive exact match and, failing
+     that, returns TMDB's first result for the query. TMDB search is fuzzy, so a
+     hallucinated title usually resolves to SOME real film, which is then shown
+     with the model's reason still describing the film that does not exist.
+     SPEC §2.2 #4 and the README both say unverifiable titles are dropped; in
+     practice that drop path is nearly unreachable.
+     **Do not simply tighten it to exact-match-only** — that would silently drop
+     legitimate picks over punctuation and diacritics (`Amelie` vs `Amélie`,
+     `The Lord of the Rings: Fellowship…` vs `…: The Fellowship…`) and shrink
+     every run. Decide the matching rule deliberately (normalise case, accents and
+     punctuation, then require equality or strong containment) and state what it
+     costs. The blast-radius claim in CLAUDE.md § Security 5 is NOT affected: the
+     output still only ever drives a title lookup.
+
+   **Group C — copy and consistency**
+
+   * **R7. Decide the add-button label and glyph (user).** The rec card rests at
+     `Add to my list`, the search row at `+ Add`. Worse, they CONVERGE after
+     action: both settle to the glyph-glued labels via the shared `addMovie()`, so
+     the rec card's one button speaks three vocabularies. One of the two resting
+     labels should move. **Note CLAUDE.md's Frontend Design Notes overstated
+     this**: the glued `✓ Added` does reach the rec card (through `settle()`), but
+     `+ Add` does NOT — the card's resting label is built inline in
+     `renderRecommendations()` and never passes through `setAddButtonState()`.
+   * **R8. DONE 2026-09-09 (D-047).** The route wrapped every cause as
+     `Couldn’t generate recommendations: ${err.message}` under a comment claiming
+     "never a raw dump" — and the causes are `OpenRouter unreachable
+     (TimeoutError)`, `OpenRouter responded 401`, `DB read failed: <postgres
+     text>`. Now a calm sentence, with the technical cause going only to the log
+     row's `error_text` (asserted by a test). **One cause survives verbatim:**
+     "Need at least 3 rated movies" is the answer to the user's question, not a
+     fault report — flagged `userFacing` at its throw site rather than
+     pattern-matched in the route, so the two cannot drift.
+   * **R9. DONE 2026-09-09 (D-047) — but NOT by copying the verdict, and that is
+     the point.** This item told the next session to copy the verdict's shape.
+     Reading it first showed the verdict offers the log **unconditionally**, so
+     when CineRank itself is unreachable it sends the user to a log that cannot
+     load either. Copying it would have propagated the bug.
+     The offer is now conditional on a fact only the server knows: was a
+     `recommendation_logs` row actually committed? Of six throw sites only one
+     qualifies. It travels as `logged: true` beside `error` — exactly D-042's
+     `short` mechanism, additive and invisible to anything reading only
+     `body.error` — and `api()` carries it onto the thrown error the same way.
+     **The verdict's own version of this is still wrong: see R23.**
+   * **R10. DONE 2026-09-09.** The empty branch returned before `aiMetaFooter`,
+     so a call that really was made, really cost money and really was logged
+     showed no cost, tokens or duration anywhere on the page — the only AI outcome
+     in the app that did not. It now appends the footer before returning. That
+     footer already ends in `logLink()`, which is why the message beside it does
+     NOT get a log link of its own; two on one line.
+     Found and fixed live, with a deliberate temporary "return zero
+     recommendations" line in the service so the state could actually be looked
+     at — reverted before commit.
+
+   **Group D — visual, and narrow viewports**
+
+   * **R11. DONE 2026-09-09.** `.recs__trigger` had neither `flex-shrink: 0` nor
+     `white-space: nowrap`, so a flex item's automatic minimum size let it shrink
+     below its content and `Get recommendations` broke at its space onto two
+     lines. Now both. The HEADING absorbs the pressure instead, which it can,
+     because it wraps.
+     **Fourth appearance of one root cause** — this, the add button, the search
+     input, and the ranked card's blown-out `1fr` track (D-045). When something
+     will not shrink, or shrinks when it should not, look at the automatic minimum
+     size first.
+     Note this is NOT the glyph/line-break rule being enforced: `Get
+     recommendations` is that rule's one standing exemption. It is a separate fix
+     that happens to make the exemption moot.
+   * **R12. DONE 2026-09-09, with R11 — the two section heads are reunited.**
+     `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule and
+     the `.ranked__head`-only rule is gone, along with the comment explaining the
+     split. The split existed so that wrapping the head could not mask R11; R11 is
+     fixed, so it has served its purpose.
+     The trigger now drops below "What to watch next" rather than both items
+     squeezing. **No threshold is encoded, and the comment says not to add one:**
+     flex line breaking compares HYPOTHETICAL sizes, so the browser derives the
+     break point from the heading's real max-content width plus the button's real
+     width, and re-derives it if either string or the type changes. The old
+     comment's "~385px" came from an estimate and was removed rather than
+     recomputed — estimated widths in this file have been wrong before.
+   * **R13. DONE 2026-09-09 — the disabled rec-card button stopped looking
+     clickable.** It dimmed a FILLED amber button with `opacity: 0.5`, which is
+     the exact bug `.search button:disabled` exists to fix, and WORSE here: on the
+     search button the wrong state lasted the second it said "Searching…", while
+     on a rec card `✓ Added` / `In your list` is a PERMANENT resting state.
+     Measured: amber at 0.5 over the card composites to **#876d3e** and still
+     contrasts **3.57** against it — an unmistakably amber button that does
+     nothing.
+     **The search button's fix could not be copied verbatim**, which is the part
+     worth remembering: its disabled fill is `--bg-card`, and `--bg-card` IS the
+     rec card's own background, so the button would have vanished into the card
+     completely. `--line` instead — a hair lighter than the card (1.16) so the
+     button keeps its own edges, with `--ink-dim` at 5.56, clear of AA for
+     16px/600 text. Those two figures are almost exactly the search button's own
+     (1.12 shape, 6.48 label), so this MATCHES the established answer rather than
+     inventing a second one: a disabled fill nearly dissolves and the label
+     carries the readability. `cursor` also went `default` → `not-allowed`, which
+     is what both `.result-row .add-btn:disabled` and `.search button:disabled`
+     use for the identical labels.
+     **The false comment that caused it is corrected.** `.search button:disabled`
+     claimed "This is the only FILLED button" — never true, and it is why this one
+     was left on opacity when that rule was written. Audited against every
+     `disabled =` assignment in `app.js`: THREE amber-filled buttons can be
+     disabled — the search button, `.rate-dialog button.primary` and this one —
+     and all three now swap the fill. `.log-cta__btn` is amber-filled too but
+     nothing ever disables it.
+   * **R14. No grow-on-hover on `.rec-card` (user).** Read D-043 AND D-044 first:
+     elevation on this page is made of LIGHT, not black; every glow layer takes a
+     ZERO Y-offset (a Y-offset is what makes a glow lopsided, and that mistake was
+     made twice in one item); and the amber must never become a hard-edged opaque
+     line at an offset, which is where it converges with the `:focus-visible`
+     ring. The entrance-animation fill is already `backwards` here, so a hover
+     transform will actually apply — that trap is pre-cleared. Also decide whether
+     the ranked list's spotlight dimming (`.ranked__list:has(…)`) should port, or
+     whether it belongs only to a vertical list of peers.
+   * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
+     D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
+     fiddly — the user granted that in advance. Do not spend hours on it.**
+   * **R16. Stale cards outlive their own precondition.** Remove films until the
+     rated count drops below 3 and the trigger correctly disables — but the grid
+     of previously generated cards stays on screen, now unreachable and
+     unrefreshable. Decide: clear it, or caption it as a past run.
+   * **R17. The `AI pick · not yet rated` badge can become false.** Adding from a
+     rec card opens the rate dialog; rate the film and the card behind it still
+     asserts "not yet rated". Small, but it is a factual claim in the UI.
+   * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
+     that run to three or four on a phone**, so the grid jumps as the hint
+     changes. Low severity: the busy string and the resting string are close in
+     length, so the shift is real but small. Check it during the step-5 portrait
+     pass rather than guessing at a number now.
+
+   **Group E — structure and tests**
+
+   * **R19. DONE 2026-09-09 — the success path is now covered.** It had none: the
+     only recommendation tests were the below-threshold 422 and the OpenRouter-down
+     422, so the owned-titles filter, the intra-run dedup and the TMDB
+     verification drop — everything R2 and R6 are about — were unproven. Two tests
+     now sit in `test/routes.test.js`: one asserts that of four model picks only
+     the verified, unowned, non-duplicate one reaches the user (and that its year
+     and tmdb_id come from TMDB, not the model), the other that the log row carries
+     `status='success'` and exactly the SHOWN titles.
+     **Verified load-bearing, not just green:** each of the three `continue` guards
+     in `generateRecommendations()` was deleted in turn, and every deletion failed
+     exactly these two tests. Deliberately written against CURRENT behaviour, so
+     R2's unrated-owner case is NOT yet asserted — that assertion is what should
+     fail before the R2 fix and pass after it.
+   * **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
+     the others do not shift.** It claimed the client hardcodes the thresholds the
+     server owns. It does not: `init()` in `app.js` does
+     `state.cfg = await api('/api/config')` at boot, `server/index.js` serves those
+     three numbers straight out of `server/config.js`, and a route test already
+     asserts the endpoint's shape. The literals in `state.cfg` are a documented
+     FALLBACK for that one request failing (`catch { /* keep defaults */ }`), not a
+     second source of truth — and when it fails, `loadMovies()` has failed too and
+     the user is already looking at an error toast. The server is the single
+     source of truth. **Found by grepping for `api/config` after writing the
+     item** — the original claim came from grepping only `state.cfg`, which showed
+     the reads and the literals but not the assignment that overwrites them.
+   * **R21. The recs grid is a `<div>` of `<div>`s** while the ranked list is a
+     proper `<ol>`. Six cards announce as unstructured content to a screen reader.
+     Cheap, and it matches the section it sits beside.
+   * **R22. `#recs-hint` is the section's only live region** (`role="status"`), and
+     R1 means what it announces after a run is the generic idle hint. Once R1 is
+     fixed, re-check what a screen reader actually hears for all three outcomes —
+     that is the entire point of the live region.
+
+   **Group F — found while fixing the above (added 2026-09-09)**
+
+   * **R28. DONE 2026-09-09 — the zero-result message told the user a specific
+     lie.** It read "No new suggestions this time — the model only named films
+     already in your list" for EVERY empty run, and the user asked the right
+     question: is that necessarily what happened? No. There are four causes, and
+     that sentence describes one:
+     the model named nothing (`parseModelJson` returned `[]`); TMDB answered and
+     had no such film; **TMDB was unreachable** (the per-pick `catch` set
+     `movie = null`, indistinguishable from the previous case); or everything it
+     named was already owned. The intra-run duplicate guard cannot empty the list
+     on its own — the first occurrence always survives.
+     **The third one is why this mattered.** A TMDB outage during verification
+     leaves the run logging `status: 'success'` (the AI call did succeed and was
+     charged), so nothing else in the app mentions TMDB — that false sentence was
+     the only thing the user would ever see, and it hid an outage. It is also a
+     state on the resilience-screenshot list.
+     Fixed at the source: the service keeps a per-title tally
+     (`named / tmdbErrors / unmatched / owned / duplicate`), `emptyReasonFor()`
+     resolves it to one of `none-named | tmdb-unreachable | all-owned |
+     unverifiable | mixed`, and it travels as a top-level `emptyReason` — null
+     whenever there are cards, so it can never be read as a warning. The client
+     maps it to copy, with `mixed` backstopping an unknown value so a server that
+     learns a new reason first degrades to something true.
+     **Order is load-bearing in `emptyReasonFor()`:** `tmdb-unreachable` outranks
+     everything because it is the only cause the user can neither see nor act on
+     otherwise. The tally is also written into the log row's `raw_model_output`
+     (jsonb, and nothing reads that column — checked against `routes/aiLog.js`),
+     so an empty `suggested_titles` now records whose fault it was.
+     Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
+     fails one, and hardcoding `all-owned` fails three.
+
+   * **R27. Rec cards need an EXIT animation; the entrance already exists**
+     (user-raised, 2026-09-09). The request was "a smooth entering animation…
+     one by one", and **that half is already built** — `.rec-card` carries
+     `animation: fade-slide 0.5s var(--ease) backwards` and
+     `renderRecommendations()` sets `animationDelay = i * 60ms`, the same keyframe
+     and the same staggering idea the ranked list uses. Written down explicitly so
+     nobody builds it twice.
+     So the real work is two things. **(a) Find out why it does not read as an
+     entrance.** Likely because the whole stagger is only ~360ms for six cards and
+     it lands at the end of a multi-second AI call, when the eye has already
+     wandered; the 10px travel is also small for a card this size. Tune the
+     duration, the per-card delay and the distance — do not add a second
+     animation. **(b) Build the exit, which genuinely does not exist:**
+     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so
+     regenerating removes the old cards in one frame with no transition at all.
+     **Traps.** The fill must stay `backwards`, never `both` — a forwards fill
+     pins the final keyframe forever and outranks normal author declarations,
+     which is what silently cancelled the ranked card's hover (D-043); R14's
+     grow-on-hover lands on this same element and would be killed by it.
+     An exit animation cannot run on a node that is already removed, so
+     `replaceChildren()` has to become a two-phase render (animate out, then
+     swap) — or use a View Transition, which the ranked list already does for its
+     re-sort (D-031) and which `.recs` already carries a
+     `view-transition-name` for. Prefer the View Transition route: it is the
+     mechanism this codebase already chose for exactly this problem.
+
+     **The user's spec for (a), given 2026-09-09 after watching it run:**
+     * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
+       is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
+       bounded: at 120ms it would be lead-in + 5x120ms + the 0.5s card duration,
+       about 1.3s.
+     * **Scroll the section into view**, because the cards land below the fold and
+       the user has to scroll down mid-animation and misses most of it.
+       `scrollIntoView({ block: 'start' })`.
+     * **THE EXACT SEQUENCE, and it is not negotiable** (user, 2026-09-09):
+       cards arrive → **scroll** → wait **~200ms** → **entrance animation**. In
+       that order, all of it after the response has landed.
+     * **Gated on `suggestions.length`. Nothing else animates or scrolls.** The
+       "No new suggestions this time…" line, the error line and every placeholder
+       get no entrance animation and no scroll at all — the user's words: they
+       "shall have no business with any entrance animation". Today that falls out
+       for free (those paths append no cards), but the SCROLL must be gated
+       explicitly, or a zero-result run would yank the page to a section with
+       nothing new in it.
+
+     **Four things already checked, so the implementation does not rediscover
+     them:**
+     * `html { scroll-behavior: smooth }` **already exists** (styles.css, near the
+       top). So `scrollIntoView({ block: 'start' })` is smooth WITHOUT passing
+       `behavior: 'smooth'` — and passing the CSS property is what makes the
+       reduced-motion fix below expressible in CSS rather than in JS.
+     * **REQUIRED, and currently missing:** the `prefers-reduced-motion` block
+       kills `animation` and `transition` only, so a motion-sensitive user would
+       still get a smoothly animated page scroll. Add `html { scroll-behavior:
+       auto; }` to that block in the same commit. It is latent today — nothing in
+       the app scrolls programmatically and there are no in-page anchors — and it
+       goes live the moment this feature lands.
+     * **The scroll target is `.recs__head`** — the user's call, and it is the
+       right one. It is the first child of `.recs`, so `block: 'start'` lands the
+       heading AND the trigger at the top of the viewport, with the hint and then
+       the animating grid flowing in below. `el.recsGrid` would have pushed both
+       the heading and the "Based on: …" line off-screen. `.recs` itself resolves
+       to nearly the same place, but only via margin-collapse reasoning
+       (`.recs__head` carries `margin: 3rem 0 1.25rem` that collapses through the
+       section) — `.recs__head` says it outright and cannot drift if the section
+       ever gains padding or a border.
+       `start` is also the robust ALIGNMENT here, independently: the content below
+       the target grows as cards render, and top alignment is unaffected by growth
+       below it, where `center` or `nearest` would drift mid-animation.
+       One small thing to check when building it: `block: 'start'` pins the
+       element's top flush to the viewport top with no breathing room. If that
+       reads too tight, `scroll-margin-top` on `.recs__head` is the one-line
+       answer — it is exactly what `scrollIntoView` honours, unlike `margin`.
+     * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
+       leak or cancel if a second run starts. This works only because the fill is
+       `backwards`: during the delay each card holds the from-state (opacity 0,
+       `translateY(10px)`). With any other fill it would sit fully visible through
+       the lead-in and then jump. That is D-043's mechanism doing real work here —
+       one more reason it must never go back to `both`.
+
+     **Firing the scroll on CLICK was considered and REJECTED by the user** — do
+     not revisit it. At click time the app knows none of the three things that
+     make the scroll worth doing: how long the call will take, how many
+     recommendations will come back, or whether it will succeed at all. Scrolling
+     then would move the page for a run that is about to fail, or that returns
+     nothing, or that leaves the user staring at a spinner for ten seconds in a
+     newly-scrolled position. The scroll is a reward for a result, so it waits for
+     one.
+
+   * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
+     borderless** (user-raised, and correctly diagnosed by them). Settled over
+     three rounds of the user looking at it; the hover fill landed at 0.25. `border: 1px solid var(--line)`
+     measures **1.22** contrast on the banner's `--bg-raised` ground — a border
+     that is not, in practice, drawn. R24 had just made the prose beside it
+     brighter, so the button receded further.
+     Three changes: the border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
+     WARM, so it foreshadows the amber hover — chosen over `--line-strong` at 1.85
+     for near-identical weight with more meaning); the label went `--ink-dim` →
+     `--ink` (**6.80 → 16.26**), which is where most of the visibility comes from,
+     because a control must not be quieter than the sentence beside it; and
+     `font-size` 0.85 → 0.88rem, as the user suggested.
+     **Deliberately still far short of `.recs__trigger`'s full amber border
+     (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
+     hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
+     not by intensity alone. Do not "finish the job" by making this one amber too.
+     **Hover, revised by the user after seeing it:** the border lights to amber,
+     the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
+     `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
+     change; it is already `--ink` at rest, so there is nowhere brighter to go,
+     and amber text inside an amber border flattened the button into one colour.
+     The glow is made of light, not black, and takes a ZERO Y-offset (D-044) —
+     the user flagged the dark-theme trap in the request itself.
+     **The translucent BLACK fill is not a contradiction of D-044, and the CSS
+     says so at the declaration.** D-044 is about SHADOWS, which darken what lies
+     BEHIND an element — and on a `#0b0b0f` page there is nothing left to darken.
+     A background darkens the button's OWN interior, a real surface at
+     `--bg-raised` (#14141b → about #0f0f14). There is something to darken, so
+     black works here and light would not. Do not "correct" it to a light fill by
+     analogy with the shadow rule.
+     **`.search button:hover` DOES use an offset amber pool and that is not an
+     inconsistency either:** it is a FILLED button reading as a lit object casting
+     light downward, which is a different thing from an outline lighting up. Do
+     not unify them.
+
+   * **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
+     was revised the same day. The two sentences
+     `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films as
+     taste signal…" and "Rate at least 3 movies to unlock…" — are `--ink-dim`.
+     **As first built, the rule was "who wrote the line": a `.from-run` class
+     paired with `state.recsHintFromRun`, so a run's messages were all
+     `--ink-faint`. R28 disproved that** — the user looked at a zero-result run and
+     pointed out that "No new suggestions this time…" is written by a run yet is
+     persistent and is the ONLY thing the section shows, so it belongs with the
+     availability sentences. Who wrote a line was a good proxy for the real
+     question and not the same question.
+     **The rule now in force:** does the line INTRODUCE content that is present or
+     imminent, or is it the only thing on screen? `.recs__hint.is-caption`
+     (`--ink-faint`) is set on exactly two messages, the busy line and
+     "Based on: …"; everything else takes the base `--ink-dim` — both availability
+     sentences, a failure, and all five zero-result variants.
+     `setRecsHint(content, { caption })` is the single writer for the element's
+     content and its weight; `.from-run` and `setRecsHintOwner()` are GONE.
+     `state.recsHintFromRun` survives, meaning only what R1 made it mean — may the
+     sync overwrite this?
+     `.recs__hint.err` restates the base value on purpose: it is a pin, so an
+     error can never become fine print whatever `.is-caption` is later applied to.
+     R24's comment was corrected in the same pass: it claimed `--ink-dim` made the
+     error brighter than the resting hint, true when written and not once the base
+     moved.
+
+   * **R24. DONE 2026-09-09 — the recs error line is `--ink-dim`, not
+     `--crimson`** (user-raised, after seeing R9's link land inside it). Not taste — measured: the
+     amber link was **2.48x brighter** than the crimson around it (relative
+     luminance 0.583 vs 0.235), so the pointer to details shouted louder than the
+     statement of what broke; and the two hues sit **36 degrees** apart, close
+     enough to read as almost-the-same rather than as a deliberate pair, while
+     contrasting only 2.22 against each other. Claude proposed instead making the
+     link inherit the crimson with an underline; **the user chose recolouring the
+     line, which is better** — it reuses the verdict banner's proven amber-on-grey
+     rather than inventing a second link treatment. `.verdict__text.is-muted` moved
+     `--ink-faint` → `--ink-dim` in the same pass. Note the verdict's muted state
+     is now one step brighter than the other muted-italic absences
+     (`.score-tmdb.is-muted`, `.no-review`), which stay `--ink-faint`: the shared
+     vocabulary is muted + italic, not one exact token.
+
+   * **R23. DONE 2026-09-09, on the user's instruction, the same day it was
+     found.** The verdict's catch offered the AI call log for EVERY failure —
+     including CineRank being unreachable, where the log cannot load either — and
+     discarded `err.message`, so the real cause was thrown away. It now carries
+     the same `userFacing`/`logged` treatment as the recommendations route, so the
+     two features answer a failure identically instead of in two dialects.
+     **The user's requirement was zero FALSE NEGATIVES: a `failed` row must never
+     be written without the message advertising the log.** That holds by
+     construction, not just by test — in both services `status = 'failed'` is
+     assigned in exactly ONE place, and between the successful log insert and the
+     `{ logged: true }` throw there is no other exit. The three no-row cases (DB
+     read failed, threshold unmet, log write failed) correctly advertise nothing.
+     Five tests cover it, written as a loop over BOTH features so they cannot
+     drift again, and probed three ways: dropping either service's flag, or making
+     the verdict route advertise unconditionally, all fail.
+     **One residual false negative is unfixable and is not a bug:** if the HTTP
+     response never reaches the browser, the row exists and the client cannot know.
+     It shows the transport message instead.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
-   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation
-   fill was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
-   gained its missing `:not(:disabled)` guard (#10), and the glyph-glued labels
-   (`+\u00A0Add`, `✓\u00A0Added`) reach this card too, since it shares
-   `addMovie()`.
+   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
+   was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
+   shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
 3. **Add GitHub link(s)** to the page — out to the public repo.
 
@@ -1097,19 +1607,20 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (38).
+  `review_requires_rating` guards all covered by `npm test` (53).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
-* [ ] **Recommendations swallow their error message.** (Also step 2 of the agreed order — that entry is the one being worked from; keep this checkbox as the tracker, not a second description.) `renderRecommendations`'s
-  handler writes `err.message` into `#recs-hint` on failure, but its `finally`
-  then calls `syncRecommendationsAvailability()`, which unconditionally does
-  `classList.remove('err')` + overwrites `textContent` with the standard hint —
-  so the error is wiped in the same tick and the user sees nothing at all. The
-  server side is correct and tested (422 + a `status='failed'` log row); this is
-  purely the UI half of SPEC §7.1, and it would show up badly in the resilience
-  screenshots. Fix when the recommendations section gets its overhaul pass; the
-  verdict side already does this properly (points at the AI call log).
+* [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
+  This checkbox is the tracker; the description lives in step 2's sub-backlog
+  under **R1**, which is the entry being worked from. **The 2026-09-08 wording
+  here understated it and is corrected rather than preserved, because it was
+  wrong when written:** it said only the ERROR is wiped. The `finally` reassigns
+  `#recs-hint` unconditionally, so the SUCCESS line (`Based on: …`) and the
+  zero-result line are wiped by the same statement — a failed run, a successful
+  run and a never-run page all look alike. The server side is correct and tested
+  (422 + a `status='failed'` log row); this is purely the UI half of SPEC §7.1,
+  and it would show up badly in the resilience screenshots.
 * [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
   The client's three offenders went with #16(c); the four server-side ones (the
   two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
@@ -1217,6 +1728,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   it does not belong in the "all with the ranked list still working" set above.
   Finding it is what caught the central 500 handler claiming "on our side" for a
   failure that was neither a bug nor on the server's side.
+* [ ] **One more resilience state, added 2026-09-09 (R28): TMDB unreachable
+  DURING a recommendation run.** Distinct from "TMDB down on search" and "on add",
+  and the only one where the AI call succeeds and is charged while the run still
+  produces nothing. Force it with a bogus `TMDB_API_KEY` and enough rated films
+  to trigger recs. Expect: "Couldn’t check any of the suggestions — the movie
+  database is unreachable", the metadata footer with its real cost, and a
+  `success` row in the AI call log whose `suggested_titles` is empty. Before R28
+  this same state claimed the model had only named films already in the list.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.

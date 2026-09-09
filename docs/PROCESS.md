@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Eleven merges to `main` so far (verify with
+  human sign-off.** Twelve merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
@@ -120,7 +120,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 38 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 53 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -134,6 +134,18 @@ of the practice.
   fail without its fix: a film deleted in another tab returning 404 rather than a
   500, TMDB's own rating actually reaching the insert, and TMDB's "no votes"
   `vote_average: 0` being stored as `null` instead of as a real score of zero.
+- **The recommendation SUCCESS path**, added 2026-09-09 — until then the only
+  recommendation tests were its two failure paths, so every rule deciding what a
+  user actually sees was unproven. One run now asserts that of four model picks
+  only the verified, unowned, non-duplicate one survives; another that an unrated
+  film already in the list is never recommended back; five more that a run which
+  returns nothing reports WHY truthfully, rather than always blaming the model for
+  naming films the user already had.
+- **One invariant written as a loop over BOTH AI features**, so they cannot drift
+  into two answers: whenever a `status='failed'` row reaches a log table the
+  response must advertise the AI call log, and whenever no row was written it must
+  not. Each of these was verified by breaking the code it guards and confirming
+  the intended test — and only that test — fails.
 
 To keep the live database untouched (§5), the Supabase client is swapped for a
 small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through

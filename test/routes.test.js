@@ -286,10 +286,362 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
   try {
     const res = await client.post('/api/recommendations');
     assert.equal(res.status, 422);
-    assert.match((await res.json()).error, /Couldn’t generate recommendations/);
+    const body = await res.json();
+    assert.match(body.error, /Couldn’t generate recommendations/);
+    // R8: the technical cause must not reach the user. It used to be appended
+    // straight onto the message, so an outage read "Couldn’t generate
+    // recommendations: OpenRouter unreachable (TimeoutError)" — our vendor's name
+    // and a JS error class, to someone who wanted a film suggestion.
+    assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
+    // R9: an AI call was made and its row committed, so the UI may point at the
+    // AI call log for this one.
+    assert.equal(body.logged, true);
     const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
     assert.ok(logged, 'a recommendation_logs row should be written even on failure');
     assert.equal(logged.payload.status, 'failed');
+    // ...and the cause is still recorded in full, where it belongs.
+    assert.match(logged.payload.error_text, /OpenRouter/);
+  } finally {
+    restore();
+  }
+});
+
+/* ---------- the SUCCESS path: which picks survive verification -------- */
+
+// Until now the only recommendation tests were the two failure paths (the
+// below-threshold 422 and the OpenRouter-down 422), so every rule that decides
+// what a user actually SEES was unproven (backlog R19). There are three, and one
+// run exercises all of them: a pick TMDB cannot confirm is dropped, a pick the
+// user already owns is dropped, and two picks that resolve to the SAME film
+// collapse to one.
+//
+// The stub answers each TMDB lookup by its `query=` fragment, so the four picks
+// are deliberately titles whose first query word is distinct — `url.includes()`
+// would otherwise let one fragment match another film's URL.
+const RECS_LIBRARY = {
+  data: [
+    { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+    { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+    { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+    { id: '4', tmdb_id: 4, title: 'Sicario', year: 2015, rating: 8, review: '' },
+  ],
+  error: null,
+};
+
+const HEAT_TMDB = {
+  id: 949,
+  title: 'Heat',
+  release_date: '1995-12-15',
+  overview: 'A crew of professional robbers and the detective hunting them.',
+  poster_path: '/heat.jpg',
+  vote_average: 8.3,
+  vote_count: 7000,
+};
+
+// The model names four films; exactly one should reach the user.
+const FOUR_PICKS = JSON.stringify([
+  { title: 'Heat', reason: 'You rated Sicario highly, so its patient dread will land.' },
+  { title: 'Whiplash', reason: 'Already yours — must be dropped as owned.' },
+  { title: 'Zzyzx Road', reason: 'TMDB knows nothing about this one.' },
+  { title: 'Collateral', reason: 'Resolves to the same film as Heat.' },
+]);
+
+function openRouterReply(content) {
+  return {
+    choices: [{ message: { content } }],
+    usage: { total_tokens: 900, prompt_tokens: 700, completion_tokens: 200, cost: 0.0012 },
+    model: 'anthropic/claude-haiku-4.5',
+  };
+}
+
+function stubRecsRun() {
+  return stubFetch({
+    'openrouter.ai': openRouterReply(FOUR_PICKS),
+    // Fragment order is not load-bearing here (no `query=` value is a prefix of
+    // another), but each is pinned to `query=` so a fragment cannot match some
+    // other film's URL.
+    'query=Heat': { results: [HEAT_TMDB] },
+    'query=Whiplash': { results: [{ ...MATRIX_TMDB, id: 1, title: 'Whiplash' }] },
+    'query=Zzyzx': { results: [] }, // TMDB has never heard of it
+    'query=Collateral': { results: [HEAT_TMDB] }, // same tmdb_id as the Heat pick
+  });
+}
+
+test('POST /api/recommendations drops unverifiable, already-owned and duplicate picks', async () => {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200);
+    const { suggestions } = await res.json();
+
+    assert.deepEqual(
+      suggestions.map((s) => s.title),
+      ['Heat'],
+      'only the verified, unowned, non-duplicate pick should survive'
+    );
+    // Every fact on the card comes from TMDB, never from the model (SPEC § 2.2).
+    // The model supplied only the title string and the reason.
+    assert.equal(suggestions[0].tmdb_id, 949);
+    assert.equal(suggestions[0].year, 1995);
+    assert.match(suggestions[0].reason, /Sicario/);
+  } finally {
+    restore();
+  }
+});
+
+test('POST /api/recommendations logs a success row holding exactly the shown titles', async () => {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    await client.post('/api/recommendations');
+    const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
+    assert.ok(logged, 'a successful run must be logged too, not only a failure');
+    assert.equal(logged.payload.status, 'success');
+    assert.equal(logged.payload.error_text, null);
+    // The audit row records what the user was SHOWN, not what the model said —
+    // the three dropped titles must not appear here.
+    assert.deepEqual(logged.payload.suggested_titles, ['Heat']);
+    // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions), and
+    // OpenRouter's own usage.cost is preferred over the estimate table.
+    assert.equal(logged.payload.estimated_cost_usd, 0.0012);
+    assert.equal(logged.payload.tokens_used, 900);
+    assert.equal(logged.payload.prompt_version, 'recommend_v3');
+  } finally {
+    restore();
+  }
+});
+
+// R2: the owned-titles filter used to be built from the SAME query that feeds
+// the taste profile, and that query is filtered to rated films — so a film the
+// user had added but not yet rated was invisible to it and could be recommended
+// straight back at them. The card would even have been right that it was "not
+// yet rated"; the Add button under it would have 409'd.
+test('POST /api/recommendations never suggests a film already in the list but UNRATED', async () => {
+  db.results['movies:select'] = {
+    data: [
+      { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+      { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+      { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+      // Added, never rated. Absent from the taste profile by design — and it must
+      // still be absent from the suggestions.
+      { id: '5', tmdb_id: 5, title: 'Tenet', year: 2020, rating: null, review: null },
+    ],
+    error: null,
+  };
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubFetch({
+    'openrouter.ai': openRouterReply(
+      JSON.stringify([
+        { title: 'Heat', reason: 'You rated Arrival highly, so its patient dread will land.' },
+        { title: 'Tenet', reason: 'Already yours, just unrated — must still be dropped.' },
+      ])
+    ),
+    'query=Heat': { results: [HEAT_TMDB] },
+    'query=Tenet': {
+      results: [{ ...HEAT_TMDB, id: 5, title: 'Tenet', release_date: '2020-08-26' }],
+    },
+  });
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200);
+    const { suggestions } = await res.json();
+    assert.deepEqual(
+      suggestions.map((s) => s.title),
+      ['Heat'],
+      'an unrated film already in the list must not be recommended back'
+    );
+  } finally {
+    restore();
+  }
+});
+
+// R9's other half. Not every failure has something to read: this one dies on the
+// library read, before any AI call, so no recommendation_logs row exists. The
+// response must therefore NOT carry `logged`, or the UI would send the user to
+// an empty log. The below-threshold test above covers the third no-row case.
+test('POST /api/recommendations failing BEFORE the AI call offers no log link', async () => {
+  db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
+  const res = await client.post('/api/recommendations');
+  assert.equal(res.status, 422);
+  const body = await res.json();
+  assert.equal(body.logged, undefined, 'nothing was logged, so nothing to point at');
+  assert.doesNotMatch(body.error, /connection refused|DB read/i);
+  assert.equal(db.calls.filter((c) => c.table === 'recommendation_logs').length, 0);
+});
+
+// The one cause that IS the user's answer survives verbatim — flagged
+// `userFacing` at the throw site, not pattern-matched in the route.
+test('POST /api/recommendations below the threshold keeps its specific message', async () => {
+  db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
+  const res = await client.post('/api/recommendations');
+  const body = await res.json();
+  assert.match(body.error, /Need at least 3 rated movies/);
+  assert.equal(body.logged, undefined);
+});
+
+/* ---------- WHY a run came back empty ---------------------------------- */
+
+// The UI used to assert one cause for all of them — "the model only named films
+// already in your list" — which is wrong three times out of four. One test per
+// reason, so the wrong sentence cannot come back by accident.
+function emptyRun(picks, tmdbStubs) {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  return stubFetch({ 'openrouter.ai': openRouterReply(JSON.stringify(picks)), ...tmdbStubs });
+}
+
+test('empty run: every pick already owned → all-owned', async () => {
+  const restore = emptyRun(
+    [{ title: 'Whiplash', reason: 'Already yours.' }],
+    { 'query=Whiplash': { results: [{ ...MATRIX_TMDB, id: 1, title: 'Whiplash' }] } }
+  );
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.deepEqual(body.suggestions, []);
+    assert.equal(body.emptyReason, 'all-owned');
+  } finally {
+    restore();
+  }
+});
+
+test('empty run: the model named nothing → none-named', async () => {
+  const restore = emptyRun([], {});
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.emptyReason, 'none-named');
+  } finally {
+    restore();
+  }
+});
+
+// The one that matters most. TMDB being down produced a run that logs 'success'
+// and told the user the model had named only films they already had — a
+// confident false statement that also hid the outage.
+test('empty run: TMDB unreachable → tmdb-unreachable, not all-owned', async () => {
+  const restore = emptyRun([{ title: 'Heat', reason: 'A real pick.' }], {
+    '/search/movie': 'throw',
+  });
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200, 'one TMDB outage must not fail the whole run');
+    const body = await res.json();
+    assert.equal(body.emptyReason, 'tmdb-unreachable');
+    assert.notEqual(body.emptyReason, 'all-owned');
+    // The audit row explains itself: empty suggested_titles, and a tally saying
+    // whose fault that was.
+    const row = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
+    assert.deepEqual(row.payload.suggested_titles, []);
+    assert.equal(row.payload.raw_model_output.verification.tmdbErrors, 1);
+    assert.equal(row.payload.raw_model_output.verification.owned, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('empty run: TMDB answered but knows no such film → unverifiable', async () => {
+  const restore = emptyRun([{ title: 'Zzyzx Road', reason: 'Not a real film.' }], {
+    'query=Zzyzx': { results: [] },
+  });
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.emptyReason, 'unverifiable');
+  } finally {
+    restore();
+  }
+});
+
+test('a run WITH suggestions carries no emptyReason at all', async () => {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.suggestions.length, 1);
+    assert.equal(body.emptyReason, null, 'a value here invites it to be read as a warning');
+  } finally {
+    restore();
+  }
+});
+
+/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+
+// The user's requirement for R23, stated as a rule rather than a scenario: if a
+// row with status 'failed' reaches an AI log table, the response MUST carry
+// `logged` so the UI can point at it. A false negative here is a failure the
+// user is told nothing about while its full cause sits in the log.
+//
+// Both features are asserted the same way and in the same place, because the
+// whole point of R23 was that they had drifted into two different answers to one
+// question.
+const RATED_FOUR = {
+  data: [
+    { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+    { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+    { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+    { id: '4', tmdb_id: 4, title: 'Sicario', year: 2015, rating: 8, review: '' },
+  ],
+  error: null,
+};
+
+for (const feature of [
+  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs' },
+  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs' },
+]) {
+  test(`POST ${feature.path}: a logged 'failed' row is always advertised to the UI`, async () => {
+    db.results['movies:select'] = RATED_FOUR;
+    db.results[`${feature.table}:insert`] = { data: null, error: null };
+    const restore = stubFetch({ 'openrouter.ai': 'throw' });
+    try {
+      const res = await client.post(feature.path);
+      assert.equal(res.status, 422);
+      const body = await res.json();
+      const row = db.calls.find((c) => c.table === feature.table && c.op === 'insert');
+
+      assert.ok(row, `${feature.name}: a failure must still be logged`);
+      assert.equal(row.payload.status, 'failed');
+      // The invariant. Written as an implication so the failure message says
+      // which half broke rather than just "expected true".
+      assert.equal(
+        body.logged,
+        true,
+        `${feature.name}: a 'failed' row was written but the response did not advertise the log`
+      );
+      // R8's half of the same change: the cause belongs in the row, not the UI.
+      assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
+      assert.match(row.payload.error_text, /OpenRouter/);
+    } finally {
+      restore();
+    }
+  });
+
+  test(`POST ${feature.path}: a failure with NO log row advertises nothing`, async () => {
+    // Dies on the library read, before any AI call — so there is no row, and
+    // offering the log would send the user to an empty page.
+    db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
+    const res = await client.post(feature.path);
+    assert.equal(res.status, 422);
+    const body = await res.json();
+    assert.equal(body.logged, undefined, `${feature.name}: nothing logged, nothing to point at`);
+    assert.doesNotMatch(body.error, /connection refused|DB read/i);
+    assert.equal(db.calls.filter((c) => c.table === feature.table).length, 0);
+  });
+}
+
+// The third no-row case, and the one most likely to be broken by reordering: the
+// AI call failed AND the log write failed, so there is genuinely nothing to read.
+test('POST /api/taste-verdict when the log write itself fails advertises nothing', async () => {
+  db.results['movies:select'] = RATED_FOUR;
+  db.results['taste_verdict_logs:insert'] = { data: null, error: { message: 'insert refused' } };
+  const restore = stubFetch({ 'openrouter.ai': 'throw' });
+  try {
+    const res = await client.post('/api/taste-verdict');
+    assert.equal(res.status, 422);
+    const body = await res.json();
+    assert.equal(body.logged, undefined);
+    assert.doesNotMatch(body.error, /insert refused|log write/i);
   } finally {
     restore();
   }
