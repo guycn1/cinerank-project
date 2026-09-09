@@ -52,7 +52,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
-  scrolls `.recs__head` to the top of the viewport, waits 200ms, then plays the
+  scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
   cards in at 120ms apart; regenerating fades the previous set out first (R27,
   R14, D-048). Nothing animates or scrolls on an empty or failed run.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
@@ -1294,14 +1294,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
      badge carries `z-index: 2` and resolves in the same stacking context, so at
      `1` a NEIGHBOUR's badge would paint over this card's glow.
-     **The spotlight dimming IS ported, at `0.75` rather than the ranked list's
+     **The spotlight dimming IS ported, at `0.7` rather than the ranked list's
      `0.55`** (D-049). Claude argued against porting it at all and the user
      overruled that the same day — correctly: the objection was to the ranked
-     list's STRENGTH, not to the idea, and 0.75 leaves every unhovered card
+     list's STRENGTH, not to the idea, and 0.7 leaves every unhovered card
      perfectly readable while the section still recedes. `> *` and not
      `> .rec-card`, so the metadata footer dims with them instead of being left
      as the single brightest thing on screen; hovering the footer dims nothing,
-     because the `:has()` tests for a hovered card. Do not re-tune 0.75 by eye
+     because the `:has()` tests for a hovered card. Do not re-tune 0.7 by eye
      without reading D-049 — the number is the whole of what was settled.
    * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
      D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
@@ -1390,7 +1390,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (user-raised, 2026-09-09.) The entrance half already existed and was tuned
      rather than rebuilt: `.rec-card` now carries its own
      `animation: rec-enter 0.5s var(--ease) backwards`, and the stagger went from
-     `i * 60ms` to `200ms + i * 120ms` — a lead-in plus the slower per-card step
+     `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card step
      the user asked for. Its own keyframe, not the shared `fade-slide`, because
      10px of travel under a ~300px poster card is a twitch and tuning it must not
      move the ranked list.
@@ -1418,14 +1418,20 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **The user's spec for (a), given 2026-09-09 after watching it run:**
      * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
        is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
-       bounded: at 120ms it would be lead-in + 5x120ms + the 0.5s card duration,
-       about 1.3s.
+       bounded: at 120ms it is lead-in + 5x120ms + the 0.5s card duration, which
+       came to about 1.3s as first estimated against a 200ms lead-in and is
+       **1.5s as shipped**, the lead-in having been doubled to 400ms.
      * **Scroll the section into view**, because the cards land below the fold and
        the user has to scroll down mid-animation and misses most of it.
        `scrollIntoView({ block: 'start' })`.
      * **THE EXACT SEQUENCE, and it is not negotiable** (user, 2026-09-09):
        cards arrive → **scroll** → wait **~200ms** → **entrance animation**. In
        that order, all of it after the response has landed.
+       The ORDER is the non-negotiable part, not the figure: the user doubled the
+       beat to **400ms** after watching it, which is the value in
+       `RECS_LEAD_IN_MS`. A side effect worth knowing before it is tuned again —
+       at 400ms a browser's smooth scroll has typically finished before the first
+       card moves, so the sequence now reads literally rather than overlapping.
      * **Gated on `suggestions.length`. Nothing else animates or scrolls.** The
        "No new suggestions this time…" line, the error line and every placeholder
        get no entrance animation and no scroll at all — the user's words: they

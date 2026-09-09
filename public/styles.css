@@ -1304,7 +1304,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   flex-direction: column;
   /* R14. Same four properties, same 0.25s, same easing as .movie-card — the two
      card types should answer a pointer identically. `opacity` is in the list for
-     the spotlight below: without it the other cards would snap to 0.75 and back
+     the spotlight below: without it the other cards would snap to 0.7 and back
      rather than easing, and at this subtlety a snap is the only thing you would
      notice. */
   transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
@@ -1388,7 +1388,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Spotlight, ported from the ranked list on the user's instruction (D-049).
      Claude argued against porting it at all and was overruled — the objection
      was to the ranked list's STRENGTH, not to the idea, and the user's answer
-     was to bring it across at 0.75 instead of 0.55: enough that the section
+     was to bring it across far lighter — tried at 0.75, settled at 0.7 minutes
+     later — instead of the ranked list's 0.55: enough that the section
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
 
@@ -1403,7 +1404,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      one line, not a blocker: the footer is a grid CHILD, so dimming only cards
      would leave it the single brightest thing on screen at the exact moment
      attention is meant to be on one card. It carries the AI-call-log link, which
-     at 0.75 is still legible and still one pointer-move from full strength —
+     at 0.7 is still legible and still one pointer-move from full strength —
      and hovering the FOOTER dims nothing at all, because the `:has()` tests for
      a hovered card.
 
@@ -1418,7 +1419,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      `backwards` — with `both`, `rec-enter`'s final `opacity: 1` would have been
      pinned on every card and they would simply have refused to dim, silently
      (D-043, same bug one property over from the transform). */
-  .recs__grid:has(.rec-card:hover) > *:not(:hover) { opacity: 0.75; }
+  .recs__grid:has(.rec-card:hover) > *:not(:hover) { opacity: 0.7; }
   /* Scoped to the grid: `.ai-meta` is shared with the verdict banner, which has
      no spotlight and must not gain a stray transition. */
   .recs__grid > .ai-meta { transition: opacity 0.25s var(--ease); }

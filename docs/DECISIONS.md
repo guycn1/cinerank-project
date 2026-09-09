@@ -6,7 +6,7 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
-## D-049 · The recs spotlight IS ported, at 0.75 — supersedes D-048's last section
+## D-049 · The recs spotlight IS ported, at 0.70 — supersedes D-048's last section
 
 **D-048 records Claude rejecting the ranked list's spotlight dimming for the recs
 grid. The user overruled that the same day, and was right.** This entry exists
@@ -19,16 +19,18 @@ Claude's two objections, and what happened to each:
 real objection was to the **strength**, not to the idea. The ranked list dims to
 `0.55`, which is heavy enough to take the other cards out of play — fine in a
 column you are scanning top to bottom, too much in a gallery. The user's answer
-was to port it at **0.75**: the section still recedes, and every unhovered card
-stays perfectly readable. Claude had treated the ranked list's number as part of
-the pattern rather than as a dial.
+was to port it far lighter — tried at **0.75**, settled at **0.70** minutes
+later: the section still recedes, and every unhovered card stays perfectly
+readable. Claude had treated the ranked list's number as part of the pattern
+rather than as a dial, which is the actual error here; the exact figure was
+always going to be found by looking at it.
 
 *"`.recs__grid` also holds the metadata footer as a grid child, so dimming only
 the cards leaves it the single brightest thing on screen."* True, and it turned
 out to be one character rather than a blocker: the selector is `> *`, not
 `> .rec-card`, so the footer dims with them. The residual worry — that this dims
 the AI-call-log link, the section's only route into the audit trail — does not
-survive contact with 0.75, where the link is plainly legible and one
+survive contact with 0.70, where the link is plainly legible and one
 pointer-move from full strength. Hovering the footer itself dims nothing, since
 the `:has()` tests for a hovered **card**.
 

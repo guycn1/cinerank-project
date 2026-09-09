@@ -1273,7 +1273,10 @@ const EMPTY_REASON_TEXT = {
 
 /* ---------- rec-card enter / exit (R27) ----------------------------------
  * The user's sequence, given after watching a run and stated as
- * non-negotiable: cards arrive → SCROLL → wait ~200ms → entrance animation.
+ * non-negotiable: cards arrive → SCROLL → wait a beat → entrance animation.
+ * The beat was specified as ~200ms and doubled to 400ms after the user watched
+ * it, which also means a browser's smooth scroll has typically finished before
+ * the first card moves — closer to the literal reading of the sequence.
  * All of it AFTER the response has landed, and none of it on a run that
  * produced no cards.
  *
@@ -1283,7 +1286,7 @@ const EMPTY_REASON_TEXT = {
  * back, or whether it will succeed at all. The scroll is a reward for a result,
  * so it waits for one.
  */
-const RECS_LEAD_IN_MS = 200; // the beat between the scroll and the first card
+const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
 const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 
 /**
