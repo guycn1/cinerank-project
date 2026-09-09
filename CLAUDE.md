@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with SIXTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with EIGHTEEN done, R20 withdrawn as incorrect and nine open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -51,7 +51,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
-  owned-titles filter. Card `.reason` clamps at 5 lines.
+  owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
+  scrolls `.recs__head` to the top of the viewport, waits 200ms, then plays the
+  cards in at 120ms apart; regenerating fades the previous set out first (R27,
+  R14, D-048). Nothing animates or scrolls on an empty or failed run.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
@@ -1076,8 +1079,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
-   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R13,
-   R19 and R23–R26 plus R28 are done and R20 was WITHDRAWN as incorrect — every
+   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R14,
+   R19 and R23–R28 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1273,15 +1276,28 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      disabled — the search button, `.rate-dialog button.primary` and this one —
      and all three now swap the fill. `.log-cta__btn` is amber-filled too but
      nothing ever disables it.
-   * **R14. No grow-on-hover on `.rec-card` (user).** Read D-043 AND D-044 first:
-     elevation on this page is made of LIGHT, not black; every glow layer takes a
-     ZERO Y-offset (a Y-offset is what makes a glow lopsided, and that mistake was
-     made twice in one item); and the amber must never become a hard-edged opaque
-     line at an offset, which is where it converges with the `:focus-visible`
-     ring. The entrance-animation fill is already `backwards` here, so a hover
-     transform will actually apply — that trap is pre-cleared. Also decide whether
-     the ranked list's spotlight dimming (`.ranked__list:has(…)`) should port, or
-     whether it belongs only to a vertical list of peers.
+   * **R14. DONE 2026-09-09, with R27 (D-048) — grow-on-hover on `.rec-card`.**
+     Done in the same pass as R27 on purpose: both land on this element, and both
+     depend on the entrance fill staying `backwards`. A forwards fill pins
+     `transform: none` from the final keyframe and outranks normal author
+     declarations, which is exactly how the ranked card's hover was silently
+     cancelled (D-043) — so a hover added here without R27 alongside it would
+     have been one edit away from the same invisible bug.
+     The ranked card's vocabulary ported verbatim: `scale(1.02)` and NO
+     `translateY` (a lift is directional and drifts the card toward one
+     neighbour — worse in a grid, where it has row-mates too), an amber border,
+     and three glow layers at a **zero Y-offset** with no black layer, because on
+     `--bg: #0b0b0f` a black shadow has nothing left to darken (D-044).
+     Two deliberate differences, both with a reason: the halo is tighter
+     (34/50px against 40/60px) because a wide halo crossing the grid's 17.6px
+     horizontal gap reads as two cards sharing one glow; and `z-index: 3` rather
+     than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
+     badge carries `z-index: 2` and resolves in the same stacking context, so at
+     `1` a NEIGHBOUR's badge would paint over this card's glow.
+     **The spotlight dimming was considered and NOT ported** — the reasoning is
+     in the CSS at the hover block and in D-048. Do not add it without reading
+     that: the recs grid is a comparison gallery, not a column being scanned, and
+     `.recs__grid` also holds the metadata footer as a grid child.
    * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
      D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
      fiddly — the user granted that in advance. Do not spend hours on it.**
@@ -1365,31 +1381,34 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
      fails one, and hardcoding `all-owned` fails three.
 
-   * **R27. Rec cards need an EXIT animation; the entrance already exists**
-     (user-raised, 2026-09-09). The request was "a smooth entering animation…
-     one by one", and **that half is already built** — `.rec-card` carries
-     `animation: fade-slide 0.5s var(--ease) backwards` and
-     `renderRecommendations()` sets `animationDelay = i * 60ms`, the same keyframe
-     and the same staggering idea the ranked list uses. Written down explicitly so
-     nobody builds it twice.
-     So the real work is two things. **(a) Find out why it does not read as an
-     entrance.** Likely because the whole stagger is only ~360ms for six cards and
-     it lands at the end of a multi-second AI call, when the eye has already
-     wandered; the 10px travel is also small for a card this size. Tune the
-     duration, the per-card delay and the distance — do not add a second
-     animation. **(b) Build the exit, which genuinely does not exist:**
-     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so
-     regenerating removes the old cards in one frame with no transition at all.
-     **Traps.** The fill must stay `backwards`, never `both` — a forwards fill
-     pins the final keyframe forever and outranks normal author declarations,
-     which is what silently cancelled the ranked card's hover (D-043); R14's
-     grow-on-hover lands on this same element and would be killed by it.
-     An exit animation cannot run on a node that is already removed, so
-     `replaceChildren()` has to become a two-phase render (animate out, then
-     swap) — or use a View Transition, which the ranked list already does for its
-     re-sort (D-031) and which `.recs` already carries a
-     `view-transition-name` for. Prefer the View Transition route: it is the
-     mechanism this codebase already chose for exactly this problem.
+   * **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
+     (user-raised, 2026-09-09.) The entrance half already existed and was tuned
+     rather than rebuilt: `.rec-card` now carries its own
+     `animation: rec-enter 0.5s var(--ease) backwards`, and the stagger went from
+     `i * 60ms` to `200ms + i * 120ms` — a lead-in plus the slower per-card step
+     the user asked for. Its own keyframe, not the shared `fade-slide`, because
+     10px of travel under a ~300px poster card is a twitch and tuning it must not
+     move the ranked list.
+     The exit did not exist at all — `replaceChildren()` dropped six cards in one
+     frame — and is now `exitRecCards()`: `.is-leaving` on every grid child (the
+     metadata footer included, since it describes the run being replaced), each
+     removed on its own `animationend`.
+     **Built as two CSS phases, NOT as a View Transition, and this entry used to
+     say the opposite.** It read "Prefer the View Transition route: it is the
+     mechanism this codebase already chose for exactly this problem." That was
+     wrong: a View Transition animates ONE atomic old→new swap, and here the two
+     halves are seconds apart on opposite sides of an AI call. Wrapping the gap
+     would hold a frozen snapshot of the whole page for the length of the
+     request, and it can express neither the stagger, the lead-in, nor the scroll
+     between them. Corrected rather than preserved, because it was advice about
+     what to do next, not a record of a past state. Full reasoning in D-048.
+     **The reduced-motion trap that reasoning turned up:** that block sets
+     `animation: none !important`, so no animation runs and `animationend` never
+     fires — a listener-driven removal would have left the old cards on screen
+     permanently for exactly the users least able to tolerate it.
+     `exitRecCards()` checks the media query first and clears instantly.
+     `html { scroll-behavior: auto }` was added to the same block, as this entry
+     already required below.
 
      **The user's spec for (a), given 2026-09-09 after watching it run:**
      * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
@@ -1416,12 +1435,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        top). So `scrollIntoView({ block: 'start' })` is smooth WITHOUT passing
        `behavior: 'smooth'` — and passing the CSS property is what makes the
        reduced-motion fix below expressible in CSS rather than in JS.
-     * **REQUIRED, and currently missing:** the `prefers-reduced-motion` block
-       kills `animation` and `transition` only, so a motion-sensitive user would
-       still get a smoothly animated page scroll. Add `html { scroll-behavior:
-       auto; }` to that block in the same commit. It is latent today — nothing in
-       the app scrolls programmatically and there are no in-page anchors — and it
-       goes live the moment this feature lands.
+     * **Was REQUIRED and missing; ADDED with this item.** The
+       `prefers-reduced-motion` block kills `animation` and `transition` only, so
+       a motion-sensitive user would still have got a smoothly animated page
+       scroll. `html { scroll-behavior: auto; }` is now in that block. It had
+       been latent — nothing in the app scrolled programmatically and there are
+       no in-page anchors — and went live the moment this feature landed.
      * **The scroll target is `.recs__head`** — the user's call, and it is the
        right one. It is the first child of `.recs`, so `block: 'start'` lands the
        heading AND the trigger at the top of the viewport, with the hint and then
@@ -1434,10 +1453,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        `start` is also the robust ALIGNMENT here, independently: the content below
        the target grows as cards render, and top alignment is unaffected by growth
        below it, where `center` or `nearest` would drift mid-animation.
-       One small thing to check when building it: `block: 'start'` pins the
-       element's top flush to the viewport top with no breathing room. If that
-       reads too tight, `scroll-margin-top` on `.recs__head` is the one-line
-       answer — it is exactly what `scrollIntoView` honours, unlike `margin`.
+       `block: 'start'` pins the element's top flush to the viewport top with no
+       breathing room, so `.recs__head` carries `scroll-margin-top: 1rem` — that
+       property is exactly what `scrollIntoView` honours, unlike `margin`. It is
+       the one dial if the landing ever reads too tight or too loose. Not a
+       reopening of the R12 head split: the layout rules stay on the shared
+       `.ranked__head, .recs__head` rule.
      * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
        leak or cancel if a second run starts. This works only because the fill is
        `backwards`: during the delay each card holds the from-state (opacity 0,
@@ -1551,7 +1572,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
-   was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   was corrected `both` → `backwards` (D-043) and must STAY that way now that a
+   hover transform (R14) and a delayed entrance (R27) both depend on it,
+   `.rec-card__body button:hover`
    gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
    shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 

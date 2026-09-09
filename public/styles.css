@@ -1271,6 +1271,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    the places a failure really is red (D-033). */
 .recs__hint.err { color: var(--ink-dim); }
 
+/* R27's scroll target. `scrollIntoView({ block: 'start' })` pins the element's
+   top flush against the viewport top, which reads as cropped; this is the one
+   property that offsets it, and it is what scrollIntoView honours — a `margin`
+   would not be. NOT a reopening of the R12 head split: the layout rules stay on
+   the shared `.ranked__head, .recs__head` rule above, and this is about where a
+   scroll stops, which only this head is ever the target of. */
+.recs__head { scroll-margin-top: 1rem; }
+
 .recs__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -1281,15 +1289,39 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  /* backwards, not both: same reason as .movie-card.is-entering (D-043). No
-     hover transform exists on .rec-card today, so the forwards fill pins
-     nothing visible — but it is the same latent trap, and adding one later
-     would silently do nothing. Zero visual change: the final keyframe already
-     equals this card resting state. */
-  animation: fade-slide 0.5s var(--ease) backwards;
+  /* backwards, not both: same reason as .movie-card.is-entering (D-043). That
+     trap is no longer latent here — R14 put a hover transform on this very
+     element, and `both` would pin `transform: none` from the final keyframe and
+     silently beat it, exactly as it did to the ranked card. Zero visual change
+     at rest: the final keyframe already equals this card's resting state.
+     Its own keyframe, not the shared `fade-slide`: a rec card is roughly three
+     times the height of a ranked one and 10px of travel read as a flicker
+     rather than an arrival (R27). Separate names mean tuning one can never
+     move the other. */
+  animation: rec-enter 0.5s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
+  /* R14. Same properties, same 0.25s, same easing as .movie-card — the two card
+     types should answer a pointer identically. No `opacity` here, unlike the
+     ranked card, because the recs grid does NOT dim its siblings (see the hover
+     block below for why). */
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease);
+}
+
+/* R27's exit. The previous run's cards fade and settle back rather than being
+   dropped in one frame. Applied to any grid CHILD, not just `.rec-card`: the
+   metadata footer describes the run being replaced and is equally stale.
+   `forwards` is correct HERE and is not the D-043 trap: the fill has to hold the
+   invisible end state for the frame between the animation finishing and the JS
+   removing the node, and the node is gone immediately afterwards, so there is
+   nothing left for it to pin. Do not copy this fill onto `.rec-card` itself.
+   `pointer-events: none` because the footer's AI-call-log link stays clickable
+   through the fade otherwise, and a click on something on its way out is never
+   what was meant. */
+.recs__grid > .is-leaving {
+  animation: rec-leave 0.28s var(--ease) forwards;
+  pointer-events: none;
 }
 .rec-card::before {
   content: 'AI pick · not yet rated';
@@ -1305,6 +1337,70 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: 999px;
   z-index: 2;
 }
+
+/* R14 — grow-on-hover, ported from the ranked card (D-043 + D-044) rather than
+   invented a second time. Identical vocabulary on purpose: scale only, an amber
+   border, and elevation made of LIGHT.
+
+   NO `translateY`. A lift is directional — it shrinks the gap on one side and
+   opens the other — and the user spotted that asymmetry on the ranked card
+   within minutes. `scale()` grows from the centre and opens every gap equally,
+   which matters more in a GRID than in a column: a lifted card here would drift
+   away from its row-mates as well as toward its upper neighbour.
+
+   EVERY SHADOW LAYER TAKES A ZERO Y-OFFSET. A shadow is cast and pools away from
+   the light; a glow is EMITTED and radiates evenly, so any offset only makes it
+   lopsided. D-044 records that mistake being made twice in one item. The black
+   layer that would normally lead a drop shadow is absent for the same reason it
+   was deleted there: the page is `--bg: #0b0b0f`, so a black shadow has nothing
+   left to darken. Values are one notch tighter than the ranked card's (34/50px
+   against 40/60px) because these cards sit ~17.6px apart in a grid rather than
+   16px apart in a single column, and a wide halo crossing a horizontal gap reads
+   as two cards sharing one glow.
+
+   z-index 3, NOT the ranked card's 1, and the number is arithmetic rather than
+   taste. Every `.rec-card::before` badge carries `z-index: 2`, and a card is
+   `position: relative` with `z-index: auto`, so those badges resolve in the same
+   stacking context as the cards themselves. A transform makes THIS card a
+   stacking context, but at `auto` it still paints in the positioned-descendant
+   step — below anything at a positive z-index. At 1 a neighbouring card's badge
+   would paint over this card's glow; 3 clears it.
+
+   No horizontal scrollbar: the widest this card gets is ~237px (a 1000px content
+   column at 4 auto-fill tracks), so 1.02 adds ~2.4px per side against a 17.6px
+   gap and `main`'s 16–40px gutter. Re-check if the scale is ever raised much.
+
+   `@media (hover: hover)`, never a width query: on a touch screen `:hover`
+   sticks after a tap until you tap elsewhere, which would park a card in the
+   grown state after pressing its Add button. */
+@media (hover: hover) {
+  .rec-card:hover {
+    transform: scale(1.02);
+    border-color: rgba(245, 193, 91, 0.5);
+    z-index: 3;
+    box-shadow:
+      0 0 0 1px rgba(245, 193, 91, 0.28),      /* lit edge, just outside the border */
+      0 0 34px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
+      0 0 50px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
+  }
+  /* The ranked list's spotlight — hovering one card dimming every other — is
+     deliberately NOT ported, having been considered and rejected.
+     Two reasons. (1) It reads differently in a grid: the ranked list is one
+     vertical column of peers you scan top to bottom, where the siblings receding
+     helps you keep your place, while the recs grid is a small gallery of six
+     whose whole job is side-by-side COMPARISON — dimming five of the six fights
+     the thing the section is for. (2) `.recs__grid` also contains the metadata
+     footer as a grid child, so "every other card" is not the whole rest of the
+     section; the footer would stay at full strength while the cards around it
+     faded, which reads as a glitch rather than as focus. Selecting the footer
+     too would then dim the AI-call-log link, which is the section's only route
+     into the audit trail.
+     If this is ever revisited, note the mechanism is not the obstacle: `:has()`
+     is already used elsewhere in this file, and the entrance fill is already
+     `backwards`, so the opacity would actually apply (with `both` it would have
+     been silently pinned at 1 — see D-043). */
+}
+
 .rec-card img, .rec-card .noposter {
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
   background: var(--bg-raised);
@@ -2231,6 +2327,21 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
+/* R27. A rec card's own entrance and exit, deliberately not shared with the
+   ranked list's `fade-slide`.
+   The travel is 18px rather than 10: `fade-slide` was written for a ranked card,
+   and 10px under a ~300px-tall poster card is a twitch, not an arrival. Both end
+   at `transform: none` so they compose cleanly with the hover scale (R14) —
+   neither ever leaves a transform behind, because the entrance fills `backwards`
+   and the exit's node is removed.
+   The exit is shorter than the entrance (0.28s vs 0.5s) and is NOT staggered: it
+   is clearing the decks while a request is already in flight, so it should read
+   as one gesture and get out of the way. The ENTRANCE is the one the user asked
+   to be able to watch. It also shrinks slightly, which the entrance does not —
+   leaving is a retreat, arriving is a rise. */
+@keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes rec-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(6px) scale(0.97); } }
+
 /* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
    posterNode), replacing a 🎬 emoji that could not take a colour, sat off the
    baseline, and rendered differently on every platform — D-027.
@@ -2259,13 +2370,23 @@ body:has(dialog[open]) { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before { animation: none !important; transition: none !important; }
+  /* REQUIRED by R27, and it was missing. This block kills `animation` and
+     `transition`, but a programmatic `scrollIntoView()` is neither — it obeys
+     `html { scroll-behavior: smooth }` near the top of this file, so without
+     this line a motion-sensitive user would get a smoothly animated page scroll
+     after every recommendation run. It was latent until R27 landed: nothing in
+     the app scrolled programmatically and there are no in-page anchors. The jump
+     still happens, instantly, which is the point — the scroll is functional, the
+     smoothness is the decoration. */
+  html { scroll-behavior: auto; }
   /* Killing the TRANSITION is not enough for the card hover (#19): without this
      the lift and scale still applied, just instantly — and sudden movement is
      precisely what a motion-sensitive user is asking not to have. The colour
      cues stay, so the card still responds to the pointer: the deepened shadow,
      the warm rim and the border are all untouched here. */
   .movie-card:hover,
-  .movie-card:hover .movie-card__poster { transform: none; }
+  .movie-card:hover .movie-card__poster,
+  .rec-card:hover { transform: none; }
   .log-reveal::details-content,
   .rate-dialog, .confirm-dialog, .log-dialog,
   .rate-dialog::backdrop, .confirm-dialog::backdrop, .log-dialog::backdrop { transition: none !important; }

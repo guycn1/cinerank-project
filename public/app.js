@@ -19,6 +19,7 @@ const el = {
   recsTrigger: $('#recs-trigger'),
   recsHint: $('#recs-hint'),
   recsGrid: $('#recs-grid'),
+  recsHead: $('#recs-head'), // R27's scroll target — see renderRecommendations
   rateDialog: $('#rate-dialog'),
   rateForm: $('#rate-form'),
   rateTitle: $('#rate-title'),
@@ -1213,7 +1214,10 @@ el.recsTrigger.addEventListener('click', async () => {
   el.recsHint.classList.remove('err');
   // caption: the cards this describes are coming, and it is replaced either way.
   setRecsHint('Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…', { caption: true });
-  el.recsGrid.replaceChildren();
+  // Phase one of R27's two-phase render. This used to be a bare
+  // `el.recsGrid.replaceChildren()`, which dropped the previous run's cards in a
+  // single frame with no transition at all.
+  exitRecCards();
   try {
     const data = await api('/api/recommendations', { method: 'POST' });
     renderRecommendations(data);
@@ -1267,6 +1271,65 @@ const EMPTY_REASON_TEXT = {
   mixed: 'No new suggestions this time.',
 };
 
+/* ---------- rec-card enter / exit (R27) ----------------------------------
+ * The user's sequence, given after watching a run and stated as
+ * non-negotiable: cards arrive → SCROLL → wait ~200ms → entrance animation.
+ * All of it AFTER the response has landed, and none of it on a run that
+ * produced no cards.
+ *
+ * Firing the scroll on the click instead was considered and rejected by the
+ * user: at click time the app knows none of the three things that make the
+ * scroll worth doing — how long the call will take, how many cards will come
+ * back, or whether it will succeed at all. The scroll is a reward for a result,
+ * so it waits for one.
+ */
+const RECS_LEAD_IN_MS = 200; // the beat between the scroll and the first card
+const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
+
+/**
+ * Phase one of the two-phase render: fade the previous run's cards out.
+ *
+ * An exit animation cannot run on a node that has already been removed, so the
+ * swap has to happen in two steps rather than one `replaceChildren()`.
+ *
+ * Deliberately NOT a View Transition, though the backlog entry suggested one and
+ * the ranked list uses one for its re-sort (D-031). A View Transition animates
+ * ONE atomic old→new swap; here the old cards leave on the click and the new
+ * ones arrive seconds later, on the far side of an AI call. Wrapping that gap
+ * would hold a snapshot of the whole page frozen for the length of the request,
+ * and it could express neither the scroll, the lead-in nor the per-card stagger
+ * the user asked for. See D-048.
+ *
+ * Every child leaves, not only `.rec-card`: the metadata footer describes the
+ * run that is being replaced, so it is just as stale.
+ */
+function exitRecCards() {
+  const leaving = [...el.recsGrid.children];
+  if (!leaving.length) return;
+  // The reduced-motion block sets `animation: none !important`, so no animation
+  // runs and `animationend` NEVER fires — a listener-driven removal would leave
+  // the old cards on screen for good. These users get the instant clear that
+  // everyone got before this function existed, which is the honest answer
+  // anyway: no motion asked for, no motion given.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.recsGrid.replaceChildren();
+    return;
+  }
+  for (const node of leaving) {
+    node.classList.add('is-leaving');
+    node.addEventListener('animationend', (e) => {
+      // `animationend` bubbles. Nothing inside a card fires one today (an Add
+      // button's spinner is `infinite`, and infinite animations never end), but
+      // a child animation added later must not take the whole card with it.
+      if (e.target === node) node.remove();
+    });
+  }
+  // No timeout backstop, and none is needed: if the response lands before these
+  // finish, renderRecommendations' own replaceChildren() detaches them and the
+  // listeners go with them. New content winning over a half-faded old card is
+  // the correct outcome, not a leak.
+}
+
 function renderRecommendations({ suggestions, emptyReason, meta }) {
   el.recsGrid.replaceChildren();
   if (!suggestions.length) {
@@ -1287,7 +1350,13 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
   suggestions.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'rec-card';
-    card.style.animationDelay = `${i * 60}ms`;
+    // The lead-in lives in `animationDelay`, NOT in a setTimeout — there is no
+    // timer to leak or cancel if a second run starts. This works only because
+    // the CSS fill is `backwards`: each card holds the from-state (invisible,
+    // offset) through its whole delay instead of sitting at full opacity and
+    // then jumping. That is D-043's mechanism doing real work here, and one more
+    // reason the fill must never go back to `both`.
+    card.style.animationDelay = `${RECS_LEAD_IN_MS + i * RECS_STAGGER_MS}ms`;
     const poster = posterNode(s.poster_url, s.title);
     const body = document.createElement('div');
     body.className = 'rec-card__body';
@@ -1321,6 +1390,25 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     el.recsGrid.append(card);
   });
   el.recsGrid.append(aiMetaFooter(meta));
+  // Gated on there being cards, structurally: the empty branch returns above
+  // this line, so a zero-result run can never yank the page to a section with
+  // nothing new in it. Every placeholder and every failure gets no scroll and no
+  // entrance animation — the user's words, they "shall have no business with any
+  // entrance animation".
+  //
+  // `.recs__head` and not `.recs` or the grid: it is the first thing in the
+  // section, so `block: 'start'` lands the heading AND the trigger at the top of
+  // the viewport with the hint and the animating cards flowing in below. The
+  // grid as a target would push both off-screen. `.recs` resolves to nearly the
+  // same place, but only via margin-collapse reasoning — the head says it
+  // outright and cannot drift if the section ever gains padding or a border.
+  // `start` is also the robust alignment: the content below the target GROWS as
+  // the cards render, and a top alignment is unaffected by growth below it,
+  // where `center` or `nearest` would drift mid-animation.
+  //
+  // No `behavior: 'smooth'` — `html { scroll-behavior: smooth }` already says so
+  // in CSS, which is precisely what lets the reduced-motion block turn it off.
+  el.recsHead.scrollIntoView({ block: 'start' });
 }
 
 /* ---------- taste verdict ---------------------------------------- */

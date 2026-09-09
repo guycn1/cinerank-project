@@ -6,6 +6,87 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-048 · The rec-card enter/exit is two CSS phases, not a View Transition (R27, R14)
+
+The user asked for "a smooth entering animation to recs-cards as they're being
+added to the page — one by one, like cards", and then, after watching it run,
+wrote a precise sequence: **cards arrive → scroll the section into view → wait
+~200ms → entrance animation**, all of it after the response has landed and none
+of it on a run that produced no cards. That sequence is theirs and was recorded
+as non-negotiable; what follows is only about the mechanism underneath it.
+
+**The backlog told the next session to use a View Transition, and that was the
+wrong instruction.** The R27 entry says so in as many words — "Prefer the View
+Transition route: it is the mechanism this codebase already chose for exactly
+this problem" — and the ranked list really does use one for its re-sort (D-031).
+Reading it against the actual shape of this feature is what killed it:
+
+*A View Transition animates one atomic old→new swap.* Here the two halves are
+**seconds apart and on opposite sides of an AI call**. The old cards become
+stale the moment the trigger is clicked; the new ones exist only after
+OpenRouter and six TMDB lookups have answered. `startViewTransition()` accepts an
+async callback and will wait for it — which is precisely the problem, because it
+holds a frozen snapshot of the whole page for the length of the request. The
+busy spinner would stop spinning, and nothing else on the page could move.
+
+*It also cannot express any of the three things the user asked for.* A View
+Transition cross-fades a group; it has no per-card stagger, no lead-in, and no
+place to put a scroll in the middle. Getting the stagger back would mean naming
+each card and writing keyframes per pseudo-element — more machinery than the
+two-phase version, to reach the same picture.
+
+So: **a CSS animation each way, and a two-phase render**. The click applies
+`.is-leaving` and removes each node on its own `animationend`; the response
+renders fresh cards whose `animationDelay` carries the lead-in and the stagger.
+
+**Two things about that are not obvious.**
+
+*The exit removal cannot be driven by `animationend` alone.* The
+`prefers-reduced-motion` block sets `animation: none !important`, so for those
+users no animation runs and **the event never fires** — the old cards would sit
+on screen for good, replaced only by the next render. `exitRecCards()` therefore
+checks the media query first and clears instantly. Found by reasoning about the
+reduced-motion block, not by testing, and it is the kind of bug that would only
+ever have been reported by the one user least able to tolerate it.
+
+*The lead-in is an `animationDelay`, not a `setTimeout`.* No timer to leak or
+cancel if a second run starts. This only works because the fill is `backwards`:
+during the delay each card holds the from-state instead of sitting fully visible
+and then jumping. That is D-043's mechanism doing real work, and one more reason
+the fill must never go back to `both`.
+
+**`html { scroll-behavior: auto }` was missing from the reduced-motion block and
+is added here.** The block kills `animation` and `transition`; a programmatic
+`scrollIntoView()` is neither, and obeys `scroll-behavior` instead. It was latent
+— nothing in the app scrolled programmatically and there are no in-page anchors —
+and went live the moment this feature landed.
+
+**R14 (grow-on-hover on `.rec-card`) rode along**, because it lands on the same
+element and shares the `backwards` constraint: a forwards fill would have pinned
+`transform: none` and silently cancelled the hover, which is exactly what D-043
+found on the ranked card. The effect is the ranked card's vocabulary ported
+verbatim — scale only, no `translateY`, three glow layers at a **zero Y-offset**,
+no black layer — with two deliberate differences:
+
+*The halo is tighter* (34/50px against 40/60px), because these cards sit in a
+grid with a 17.6px horizontal gap rather than a column with a 16px vertical one,
+and a halo that crosses the gap reads as two cards sharing one glow.
+
+*`z-index: 3`, not the ranked card's `1`.* Arithmetic, not taste: every
+`.rec-card::before` badge carries `z-index: 2` and resolves in the same stacking
+context as the cards, so a hovered card at `1` would have a NEIGHBOUR's badge
+painting over its glow.
+
+**The spotlight dimming was considered and rejected**, which is the part most
+likely to be "fixed" later. On the ranked list, dimming every card but the
+hovered one helps you keep your place in a vertical column you are scanning. The
+recs grid is a gallery of six whose job is side-by-side comparison, and dimming
+five of them fights that. Worse, `.recs__grid` also holds the metadata footer as
+a grid child: `:not(:hover)` over cards alone would leave the footer at full
+strength in the middle of a dimmed grid, and including it would dim the
+AI-call-log link, which is the section's only route into the audit trail.
+
+---
 ## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
 
 The recommendations route answered every `RecommendationError` with
