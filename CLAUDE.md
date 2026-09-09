@@ -1371,13 +1371,22 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        auto; }` to that block in the same commit. It is latent today — nothing in
        the app scrolls programmatically and there are no in-page anchors — and it
        goes live the moment this feature lands.
-     * **Which element to scroll is the open decision.** `block: 'start'` on
-       `el.recsGrid` puts the GRID at the viewport top and pushes the heading and
-       the "Based on: …" line off-screen; the `.recs` section keeps both visible.
-       The section is almost certainly right. Note `start` is also the robust
-       choice because the target GROWS as cards render — top alignment is
-       unaffected by growth below it, where `center` or `nearest` would drift
-       mid-animation.
+     * **The scroll target is `.recs__head`** — the user's call, and it is the
+       right one. It is the first child of `.recs`, so `block: 'start'` lands the
+       heading AND the trigger at the top of the viewport, with the hint and then
+       the animating grid flowing in below. `el.recsGrid` would have pushed both
+       the heading and the "Based on: …" line off-screen. `.recs` itself resolves
+       to nearly the same place, but only via margin-collapse reasoning
+       (`.recs__head` carries `margin: 3rem 0 1.25rem` that collapses through the
+       section) — `.recs__head` says it outright and cannot drift if the section
+       ever gains padding or a border.
+       `start` is also the robust ALIGNMENT here, independently: the content below
+       the target grows as cards render, and top alignment is unaffected by growth
+       below it, where `center` or `nearest` would drift mid-animation.
+       One small thing to check when building it: `block: 'start'` pins the
+       element's top flush to the viewport top with no breathing room. If that
+       reads too tight, `scroll-margin-top` on `.recs__head` is the one-line
+       answer — it is exactly what `scrollIntoView` honours, unlike `margin`.
      * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
        leak or cancel if a second run starts. This works only because the fill is
        `backwards`: during the delay each card holds the from-state (opacity 0,
