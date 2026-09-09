@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R26, with twelve done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R27, with fourteen done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1069,7 +1069,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R1–R4,
-   R8, R9, R13, R19 and R23–R25 are done and R20 was WITHDRAWN as incorrect — every
+   R8, R9, R11–R13, R19 and R23–R26 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1210,18 +1210,30 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group D — visual, and narrow viewports**
 
-   * **R11. `.recs__trigger` has neither `flex-shrink: 0` nor `white-space:
-     nowrap` (user)**, so `Get recommendations` can be squeezed onto two lines —
-     mechanically identical to the `+ Add` bug already fixed in Search. Its BUSY
-     label is already safe (shared `busyButton()`). NOTE: an earlier CLAUDE.md
-     line said this was "verified against all six of its rules"; there are
-     **three** rules (styles.css 1140, 1151, 1152) — the other three grep hits are
-     comments. Wrong when written, corrected here.
-   * **R12. `.recs__head` has no `flex-wrap: wrap` (user)**, which is why R11
-     bites instead of resolving itself. `.ranked__head` was given the wrap on
-     2026-09-08 and this one deliberately was not, so the shared "section headers"
-     rule is temporarily split. **Reunite them in this pass** and delete the
-     comment explaining the split.
+   * **R11. DONE 2026-09-09.** `.recs__trigger` had neither `flex-shrink: 0` nor
+     `white-space: nowrap`, so a flex item's automatic minimum size let it shrink
+     below its content and `Get recommendations` broke at its space onto two
+     lines. Now both. The HEADING absorbs the pressure instead, which it can,
+     because it wraps.
+     **Fourth appearance of one root cause** — this, the add button, the search
+     input, and the ranked card's blown-out `1fr` track (D-045). When something
+     will not shrink, or shrinks when it should not, look at the automatic minimum
+     size first.
+     Note this is NOT the glyph/line-break rule being enforced: `Get
+     recommendations` is that rule's one standing exemption. It is a separate fix
+     that happens to make the exemption moot.
+   * **R12. DONE 2026-09-09, with R11 — the two section heads are reunited.**
+     `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule and
+     the `.ranked__head`-only rule is gone, along with the comment explaining the
+     split. The split existed so that wrapping the head could not mask R11; R11 is
+     fixed, so it has served its purpose.
+     The trigger now drops below "What to watch next" rather than both items
+     squeezing. **No threshold is encoded, and the comment says not to add one:**
+     flex line breaking compares HYPOTHETICAL sizes, so the browser derives the
+     break point from the heading's real max-content width plus the button's real
+     width, and re-derives it if either string or the type changes. The old
+     comment's "~385px" came from an estimate and was removed rather than
+     recomputed — estimated widths in this file have been wrong before.
    * **R13. DONE 2026-09-09 — the disabled rec-card button stopped looking
      clickable.** It dimmed a FILLED amber button with `opacity: 0.5`, which is
      the exact bug `.search button:disabled` exists to fix, and WORSE here: on the
@@ -1309,6 +1321,32 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that is the entire point of the live region.
 
    **Group F — found while fixing the above (added 2026-09-09)**
+
+   * **R27. Rec cards need an EXIT animation; the entrance already exists**
+     (user-raised, 2026-09-09). The request was "a smooth entering animation…
+     one by one", and **that half is already built** — `.rec-card` carries
+     `animation: fade-slide 0.5s var(--ease) backwards` and
+     `renderRecommendations()` sets `animationDelay = i * 60ms`, the same keyframe
+     and the same staggering idea the ranked list uses. Written down explicitly so
+     nobody builds it twice.
+     So the real work is two things. **(a) Find out why it does not read as an
+     entrance.** Likely because the whole stagger is only ~360ms for six cards and
+     it lands at the end of a multi-second AI call, when the eye has already
+     wandered; the 10px travel is also small for a card this size. Tune the
+     duration, the per-card delay and the distance — do not add a second
+     animation. **(b) Build the exit, which genuinely does not exist:**
+     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so
+     regenerating removes the old cards in one frame with no transition at all.
+     **Traps.** The fill must stay `backwards`, never `both` — a forwards fill
+     pins the final keyframe forever and outranks normal author declarations,
+     which is what silently cancelled the ranked card's hover (D-043); R14's
+     grow-on-hover lands on this same element and would be killed by it.
+     An exit animation cannot run on a node that is already removed, so
+     `replaceChildren()` has to become a two-phase render (animate out, then
+     swap) — or use a View Transition, which the ranked list already does for its
+     re-sort (D-031) and which `.recs` already carries a
+     `view-transition-name` for. Prefer the View Transition route: it is the
+     mechanism this codebase already chose for exactly this problem.
 
    * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
      borderless** (user-raised, and correctly diagnosed by them). Settled over

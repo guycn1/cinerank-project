@@ -567,6 +567,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* section headers ----------------------------------------------------- */
 .ranked__head, .recs__head {
   display: flex;
+  flex-wrap: wrap; /* R12 — see the note below */
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
@@ -574,23 +575,27 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--line);
 }
-/* ONLY the ranked head, not the shared rule above — and the asymmetry is
-   deliberate, not an oversight. `.recs__head` holds the "Get recommendations"
-   button, whose two-word label can be squeezed onto two lines; adding the wrap
-   here would largely mask that without fixing it, and the user has parked it to
-   land with the recommendations overhaul. See "Recommendations overhaul — the
-   known issues" in CLAUDE.md. When that pass happens, this rule and
-   `.recs__head` should be reunited.
-   What it does: the film count drops below "Your ranking" instead of both
-   squeezing and wrapping internally. It only triggers when the count is long
-   AND the viewport is narrow — with the long form "5 films · 2 not rated yet"
-   at about 385px, and far narrower for the common short "5 films". Above that
-   nothing moves, since both items still fit on one line.
+/* REUNITED 2026-09-09 (R12). This lived on `.ranked__head` alone from
+   2026-09-08, deliberately: `.recs__head` holds the "Get recommendations"
+   button, and wrapping the head would have largely masked that the BUTTON
+   could be squeezed onto two lines rather than fixing it. R11 fixed the button
+   in the same pass, so the split has served its purpose and the two heads
+   answer to one rule again.
+   What it does: the second item drops onto its own line instead of both items
+   squeezing — the film count below "Your ranking", the trigger below "What to
+   watch next".
+   NO THRESHOLD IS ENCODED HERE, and none should be. Flex line breaking compares
+   HYPOTHETICAL sizes, so the browser derives the break point from the heading’s
+   real max-content width plus the button’s real width in the current font, and
+   it re-derives itself if either string or the type changes. An earlier version
+   of this comment carried a "~385px" figure from an ESTIMATE; estimated widths
+   in this file have been wrong before (the search row records "In your list" as
+   95px, not the 111px guessed). Do not re-add a number.
    Note the lone item on the second line lands at the START, because
    `justify-content: space-between` parks a single child at flex-start — the same
    trap the 620px card-mode block documents. Here that is what we want: the count
-   reads as a subtitle under the heading. */
-.ranked__head { flex-wrap: wrap; }
+   reads as a subtitle under its heading, and the trigger as an action under its
+   own. */
 .ranked__head h2, .recs__head h2 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -1197,6 +1202,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 /* recommendations --------------------------------------------------- */
 .recs__trigger {
+  /* R11. Mechanically the identical bug to `.result-row .add-btn`: a flex item’s
+     automatic minimum size let this button shrink below its content, so
+     "Get recommendations" broke at its space onto two lines instead of the head
+     wrapping. `flex-shrink: 0` makes the HEADING absorb the pressure — it can,
+     because it wraps — and `white-space: nowrap` stops the label breaking even if
+     some later layout does squeeze it.
+     Fourth appearance of one root cause: this, the add button, the search input,
+     and the ranked card’s blown-out `1fr` track (D-045). When something will not
+     shrink, or shrinks when it should not, look at the automatic minimum size.
+     "Get recommendations" is the one label EXEMPT from the glyph/line-break rule
+     in CLAUDE.md § Frontend Design Notes — the user granted that explicitly — so
+     this is not that rule being enforced. It is a separate fix that happens to
+     make the exemption moot. */
+  flex-shrink: 0;
+  white-space: nowrap;
   background: transparent;
   border: 1px solid var(--amber);
   color: var(--amber);
