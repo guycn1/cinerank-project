@@ -97,6 +97,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
+* **`scripts/debug-recs.js` — a console harness for the recommendations UI**
+  (2026-09-09, user-asked). The client has no test harness, so every judgement
+  about the recs grid, the entrance stagger, the scroll or the hover glow costs a
+  real OpenRouter call, and the user ran their paid quota down doing exactly
+  that. Paste the file into the browser console, then `debugRecs(4)` makes "Get
+  recommendations" render four dummy cards. 1–6 (`parseModelJson` slices at 6);
+  `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
+  latency.
+  **It patches `window.fetch` and answers `POST /api/recommendations` in the
+  browser** — so no OpenRouter call, no TMDB verification and NO
+  `recommendation_logs` row, while everything downstream (busy button, exit
+  animation, `renderRecommendations`, column balancing, stagger, scroll, meta
+  footer) runs unmodified. Intercepting the transport rather than reaching into
+  the render is the point: a harness that called the renderer directly would be
+  testing itself. Dummy `tmdb_id`s are NEGATIVE, so they can never collide with a
+  real film, and `POST /api/movies` for one is refused in the browser — pressing
+  Add on a dummy card cannot reach the database. Reload to stop; nothing is
+  persisted. It is never loaded by the app and never run by Node.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
