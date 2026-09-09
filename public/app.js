@@ -94,6 +94,10 @@ async function api(path, options) {
     // Purely additive — an endpoint that omits it behaves exactly as before,
     // because failureText() falls back to the full message.
     if (body.short) err.short = body.short;
+    // Same shape, same reasons: optional, additive, and absent from nearly every
+    // response. It says a failure of ours was written to an AI log table, so a UI
+    // may offer the log without promising a row that does not exist (R9).
+    if (body.logged) err.logged = true;
     throw err;
   }
   return body;
@@ -1190,7 +1194,24 @@ el.recsTrigger.addEventListener('click', async () => {
     renderRecommendations(data);
   } catch (err) {
     el.recsHint.classList.add('err');
-    el.recsHint.textContent = err.message; // calm inline message (SPEC § 3.4)
+    // Inline, never the toast — the same call the rate dialog makes (D-032): this
+    // message belongs beside the control that produced it.
+    //
+    // The log pointer is conditional, and that is the whole point. The verdict's
+    // fallback offers it unconditionally, so when CineRank itself is unreachable
+    // it sends the user to a log that cannot load either (recorded as R23, not
+    // fixed here). This only offers it when the server said a row was actually
+    // written — a failed DB read, an unmet threshold, and CineRank being down
+    // entirely all leave nothing to read.
+    if (err.logged) {
+      el.recsHint.replaceChildren(
+        document.createTextNode(`${err.message} See the `),
+        logLink('AI call log'),
+        document.createTextNode(' for details.')
+      );
+    } else {
+      el.recsHint.textContent = err.message;
+    }
   } finally {
     restoreTrigger();
     syncRecommendationsAvailability();

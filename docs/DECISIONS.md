@@ -6,6 +6,72 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
+
+The recommendations route answered every `RecommendationError` with
+`Couldn’t generate recommendations: ${err.message}`, under a code comment
+claiming "Calm, specific message — never a raw dump". It was a raw dump. The
+causes are internal — `OpenRouter unreachable (TimeoutError)`,
+`OpenRouter responded 401`, `Model did not return valid JSON`,
+`DB read failed: <postgres text>` — so an outage named our vendor and a
+JavaScript error class to somebody who wanted a film suggestion. The movie path,
+two files away, has said `Couldn’t reach the movie database. Try again in a
+moment.` since D-042.
+
+Nobody had seen it, because R1 wiped the message in the same tick it appeared.
+Fixing R1 is what made this visible, and the user confirmed it in the browser
+with a bogus OpenRouter key.
+
+**Where to draw the line between "show it" and "hide it".** One cause is not a
+fault report at all: *not enough rated films* is the answer to the user's
+question. Two ways to spare it:
+
+*Pattern-match in the route* — check the message, or the absence of "OpenRouter".
+Rejected outright: it makes the route's behaviour depend on the exact wording of
+a string thrown three files away, which is the same "second copy of a rule" shape
+D-039 deleted and D-046 refused to recreate.
+
+*Flag it at the throw site.* Chosen. `RecommendationError` takes
+`{ userFacing }`, set on exactly one of its six throw sites. The knowledge lives
+where the decision is made.
+
+**The part worth recording is R9, where the backlog's own instruction was
+wrong.** The seed item said the verdict "already does this properly (points at
+the AI call log); copy that shape". Reading it, the verdict's fallback offers the
+log **unconditionally** — so when CineRank itself is unreachable, it tells the
+user to go read a log that cannot load either, and swallows the real cause
+("Couldn’t reach CineRank…") entirely. Copying that shape would have propagated
+the bug into a second feature.
+
+So the offer became conditional, and the condition is a fact the server knows and
+the client cannot: *was a `recommendation_logs` row committed for this failure?*
+Of the six throw sites only one qualifies — the failure re-thrown after the log
+insert. A failed DB read happens before any AI call, an unmet threshold never
+reaches one, and a failed log write is by definition unlogged. All three now say
+"Try again in a moment" and offer nothing to read.
+
+That fact travels as `logged: true` beside `error`, which is **exactly D-042's
+`short` mechanism**: additive, absent from nearly every response, and invisible to
+any consumer reading only `body.error`. `api()` carries it onto the thrown error
+the same way it carries `short`.
+
+**Traps.**
+
+* **Do not make `logged` default to true**, and do not set it on the
+  `RecommendationError` constructor's other call sites. It is a claim that a row
+  exists; a wrong one sends the user to an empty log. Flipping the default fails
+  one test, by construction.
+* **Do not re-append `err.message` to the user-facing string.** The technical
+  cause is not lost — it is written to the log row's `error_text`, which a test
+  now asserts, and that is the only place it belongs.
+* **The route must not sniff the message text** to decide which branch to take.
+  Both flags are set at their throw sites for that reason.
+* **The verdict still has the unconditional-link bug** (recorded as R23). It was
+  left alone deliberately: this pass is R8/R9, and fixing the verdict is a change
+  to a second feature that the user has not looked at yet. Do not "unify" the two
+  by copying the verdict's version back over this one — that is backwards.
+
+---
 ## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
 `generateRecommendations()` read the library with one query filtered
 `.not('rating', 'is', null)` and then built **two** things out of that one result:

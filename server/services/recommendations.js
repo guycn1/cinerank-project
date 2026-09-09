@@ -8,9 +8,26 @@ const PROMPT_VERSION = 'recommend_v3';
 const REASON_MAX = 130; // safety ceiling; the prompt asks for 8–16 words
 
 class RecommendationError extends Error {
-  constructor(message) {
+  /**
+   * Two flags, both additive and both about what the ROUTE may do with the
+   * message — the service keeps writing the same technical text either way, and
+   * that text keeps going to the log row's error_text where it belongs.
+   *
+   * @param userFacing  This message IS the answer, so show it verbatim. True for
+   *   exactly one case: not enough rated films. Everything else here names an
+   *   internal cause ("OpenRouter responded 401", "DB read failed: ...") that a
+   *   user can neither act on nor should have to read.
+   * @param logged  A recommendation_logs row was written for this failure, so a
+   *   UI may point at the AI call log. Only true once an AI call has actually
+   *   been made and its row committed: a failed DB read, an unmet threshold and
+   *   a failed log write all produce NO row, and telling the user to go read one
+   *   would send them to an empty page.
+   */
+  constructor(message, { userFacing = false, logged = false } = {}) {
     super(message);
     this.name = 'RecommendationError';
+    this.userFacing = userFacing;
+    this.logged = logged;
   }
 }
 export { RecommendationError };
@@ -86,7 +103,9 @@ export async function generateRecommendations() {
   const rated = library.filter((m) => m.rating != null);
   if (rated.length < config.recommendations.minRatedMovies) {
     throw new RecommendationError(
-      `Need at least ${config.recommendations.minRatedMovies} rated movies`
+      `Need at least ${config.recommendations.minRatedMovies} rated movies`,
+      // The one cause a user can act on, so it reaches them word for word.
+      { userFacing: true }
     );
   }
 
@@ -158,7 +177,11 @@ export async function generateRecommendations() {
     throw new RecommendationError(`Recommendation log write failed: ${logError.message}`);
   }
 
-  if (status === 'failed') throw new RecommendationError(errorText);
+  // The log row is committed by this point, so this is the only failure the UI
+  // may point at the AI call log for. `errorText` is the technical cause and is
+  // NOT what the user sees — the route replaces it (R8) — but it stays the
+  // message so a server-side caller and the log agree on what happened.
+  if (status === 'failed') throw new RecommendationError(errorText, { logged: true });
 
   return {
     suggestions: verified,

@@ -286,10 +286,21 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
   try {
     const res = await client.post('/api/recommendations');
     assert.equal(res.status, 422);
-    assert.match((await res.json()).error, /Couldn’t generate recommendations/);
+    const body = await res.json();
+    assert.match(body.error, /Couldn’t generate recommendations/);
+    // R8: the technical cause must not reach the user. It used to be appended
+    // straight onto the message, so an outage read "Couldn’t generate
+    // recommendations: OpenRouter unreachable (TimeoutError)" — our vendor's name
+    // and a JS error class, to someone who wanted a film suggestion.
+    assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
+    // R9: an AI call was made and its row committed, so the UI may point at the
+    // AI call log for this one.
+    assert.equal(body.logged, true);
     const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
     assert.ok(logged, 'a recommendation_logs row should be written even on failure');
     assert.equal(logged.payload.status, 'failed');
+    // ...and the cause is still recorded in full, where it belongs.
+    assert.match(logged.payload.error_text, /OpenRouter/);
   } finally {
     restore();
   }
@@ -445,6 +456,30 @@ test('POST /api/recommendations never suggests a film already in the list but UN
   } finally {
     restore();
   }
+});
+
+// R9's other half. Not every failure has something to read: this one dies on the
+// library read, before any AI call, so no recommendation_logs row exists. The
+// response must therefore NOT carry `logged`, or the UI would send the user to
+// an empty log. The below-threshold test above covers the third no-row case.
+test('POST /api/recommendations failing BEFORE the AI call offers no log link', async () => {
+  db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
+  const res = await client.post('/api/recommendations');
+  assert.equal(res.status, 422);
+  const body = await res.json();
+  assert.equal(body.logged, undefined, 'nothing was logged, so nothing to point at');
+  assert.doesNotMatch(body.error, /connection refused|DB read/i);
+  assert.equal(db.calls.filter((c) => c.table === 'recommendation_logs').length, 0);
+});
+
+// The one cause that IS the user's answer survives verbatim — flagged
+// `userFacing` at the throw site, not pattern-matched in the route.
+test('POST /api/recommendations below the threshold keeps its specific message', async () => {
+  db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
+  const res = await client.post('/api/recommendations');
+  const body = await res.json();
+  assert.match(body.error, /Need at least 3 rated movies/);
+  assert.equal(body.logged, undefined);
 });
 
 /* ---------- /api/ai-log shape ---------------------------------------- */
