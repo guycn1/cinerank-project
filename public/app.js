@@ -723,7 +723,7 @@ async function loadMovies() {
   // Settling them first leaves the ranked list as the only difference between
   // the two snapshots. None of them reads DOM that renderRanked() builds — they
   // read `state`, which is already updated above — so the order is free.
-  syncSearchResultButtons();
+  syncAddButtons();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
   refreshRanked();
@@ -834,7 +834,14 @@ function setAddButtonState(btn, owned) {
   // strings are rendered on the recommendation card, whose button has no such
   // rule, so the guard has to live in the string rather than in one stylesheet.
   // "In your list" is left breakable on purpose: those are real words.
-  btn.textContent = !owned ? '+\u00A0Add' : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
+  // The UNOWNED label is read off the button, because the two surfaces disagree
+  // about it: a search row rests at "+ Add", a recommendation card at "Add to my
+  // list". The owned labels are shared, so both surfaces settle identically.
+  // Which of the two resting labels should move is still an open decision (R7) —
+  // routing rec cards through this function must not silently make that decision
+  // by relabelling them, hence the override rather than one hardcoded string.
+  const addLabel = btn.dataset.addLabel || '+\u00A0Add';
+  btn.textContent = !owned ? addLabel : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
   btn.setAttribute(
     'aria-label',
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
@@ -842,12 +849,30 @@ function setAddButtonState(btn, owned) {
   btn.disabled = owned;
 }
 
-// Results already on screen go stale the moment the list changes: adding one
-// film used to update only the button that was clicked, leaving every other
-// row still offering "Add" for something now owned. Called from loadMovies(),
-// so removals re-open the offer too. No-op when the panel is closed.
-function syncSearchResultButtons() {
-  el.searchResults.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
+/**
+ * Re-state every Add button on the page from `state.ownedTmdbIds`.
+ *
+ * Buttons already on screen go stale the moment the list changes: adding one
+ * film used to update only the button that was clicked, leaving every other one
+ * still offering "Add" for something now owned. Called from loadMovies(), so
+ * removals re-open the offer too.
+ *
+ * **It queries the whole document, not one panel.** It used to be
+ * `syncAddButtons()` and looked only inside `.search-results`, so the
+ * sync ran in exactly ONE direction: adding from a REC CARD refreshed the search
+ * rows, because they sat in the panel it swept — while adding the same film from
+ * a SEARCH ROW left the rec card still offering it, and removing a film left the
+ * rec card stuck on a disabled "Added" for something no longer in the list. Never
+ * a data bug: the duplicate add was refused correctly by the 409. The button
+ * simply lied about what it would do. Reported by the user, 2026-09-09 (R3).
+ *
+ * Both surfaces are found by ONE selector — `.add-btn[data-tmdb-id]` — rather
+ * than by sweeping two named containers, so a third surface that renders an Add
+ * button is covered the day it is written instead of the day somebody remembers
+ * this function exists.
+ */
+function syncAddButtons() {
+  document.querySelectorAll('.add-btn[data-tmdb-id]').forEach((btn) => {
     // Skip a button mid-request: addMovie() awaits loadMovies(), which calls
     // this, so writing textContent here would wipe the spinner out of the very
     // button that is still waiting on its own response.
@@ -907,7 +932,7 @@ function renderSearchResults(results, query) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'add-btn';
-    btn.dataset.tmdbId = r.tmdb_id; // so syncSearchResultButtons() can find it
+    btn.dataset.tmdbId = r.tmdb_id; // so syncAddButtons() can find it
     btn.dataset.title = r.title;
     setAddButtonState(btn, state.ownedTmdbIds.has(r.tmdb_id));
     btn.addEventListener('click', () => addMovie(r.tmdb_id, btn));
@@ -931,7 +956,7 @@ async function addMovie(tmdbId, btn) {
     if (btn) btn.dataset.justAdded = '1';
     settle?.('✓\u00A0Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
-    // impossible to ever see, and made syncSearchResultButtons() pointless —
+    // impossible to ever see, and made syncAddButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets
     // you add a second film from the same results instead of re-searching.
     // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
@@ -941,7 +966,7 @@ async function addMovie(tmdbId, btn) {
     // The film's title comes off the BUTTON, not from `movie` — the add failed,
     // so there is no saved row to read it from, and `movie` is not even in scope
     // here. renderResults() stamps `dataset.title` on every add button for
-    // syncSearchResultButtons(), and it is the only title available at this
+    // syncAddButtons(), and it is the only title available at this
     // point. `btn` is optional in this function's signature, hence the fallback.
     const title = btn?.dataset.title;
     // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
@@ -1140,7 +1165,7 @@ function syncRecommendationsAvailability() {
   // it can run DURING a recs call — add a film from the search panel while one is
   // generating — which used to hand the busy trigger back to the user. Same
   // guard, and the same reason, as the `aria-busy` skip in
-  // syncSearchResultButtons(). The run's own `finally` restores the button
+  // syncAddButtons(). The run's own `finally` restores the button
   // before calling this, so the correct state is never missed.
   if (el.recsTrigger.getAttribute('aria-busy') !== 'true') el.recsTrigger.disabled = !ok;
   if (!ok) {
@@ -1197,8 +1222,19 @@ function renderRecommendations({ suggestions, meta }) {
     reason.textContent = s.reason;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = 'Add to my list';
-    btn.setAttribute('aria-label', `Add ${s.title} to my list`);
+    // The same three dataset stamps a search row carries, so this button is
+    // findable by syncAddButtons() (R3) and so a failed add can name its film in
+    // the toast (R4) — addMovie()'s catch reads dataset.title, and without it a
+    // rec-card failure fell back to "Couldn't add that film" while the identical
+    // failure from a search row named it. `.add-btn` carries no styling here:
+    // every rule for that class is scoped to `.result-row`.
+    btn.className = 'add-btn';
+    btn.dataset.tmdbId = s.tmdb_id;
+    btn.dataset.title = s.title;
+    btn.dataset.addLabel = 'Add to my list'; // R7 still owns this wording
+    // Not a hardcoded label: an owned film gets the owned state immediately, and
+    // the aria-label now comes from the one place that writes it.
+    setAddButtonState(btn, state.ownedTmdbIds.has(s.tmdb_id));
     btn.addEventListener('click', () => addMovie(s.tmdb_id, btn));
     body.append(h3, reason, btn);
     card.append(poster, body);

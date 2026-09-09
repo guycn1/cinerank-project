@@ -310,9 +310,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
-    `setAddButtonState()` now renders the states and `syncSearchResultButtons()`
-    re-applies it to every row from `loadMovies()`, so removals re-open the
-    offer too); Search + Add gaining the shared `busyButton()` treatment; the
+    `setAddButtonState()` now renders the states and a sync pass re-applies it
+    from `loadMovies()`, so removals re-open the offer too — that pass was
+    `syncSearchResultButtons()` when this was written and is now the document-wide
+    `syncAddButtons()`, see R3); Search + Add gaining the shared `busyButton()` treatment; the
     last inline `element.style` writes in app.js replaced by `searchNote()` +
     `.search-note`; the panel gaining an Escape dismissal; and an empty query,
     which used to be a silent no-op, now saying so and focusing the input.
@@ -1043,7 +1044,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below (R1, R2 and R19 are now done; R20 was WITHDRAWN as
+   and produced R1–R22 below (R1–R4 and R19 are now done; R20 was WITHDRAWN as
    incorrect — every status is on the item itself). The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1070,7 +1071,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      reassigned `el.recsTrigger.disabled` unconditionally, so adding a film from
      the search panel WHILE a recs call was in flight handed the busy button back
      to the user. It now skips that write when the button is `aria-busy`, the same
-     guard and the same reason as the skip in `syncSearchResultButtons()`.
+     guard and the same reason as the skip in `syncAddButtons()`.
      **Not covered by a test — the client has no test harness at all**, so this one
      was verified by reading and by tracing all eleven paths (boot above/below
      threshold, success, failure, zero-suggestions, an unrelated add/rate/remove
@@ -1094,19 +1095,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      exactly one test (verified by doing it).
      **R3 is the still-open client half**: rec cards never re-sync their Add
      button, so the UI can still offer a film the list already has.
-   * **R3. Rec cards never react to ownership changes.** There is no equivalent of
-     `syncSearchResultButtons()` for the grid. Add a film from the SEARCH panel
-     while rec cards are on screen and the card for that film still offers
-     `Add to my list`; clicking it produces a 409 and an error toast. This is the
-     UI half of the user's duplicate-safeguard item **(user)**. The DB
-     (`unique(tmdb_id)`) and API (23505 → 409) halves are both verified present
-     and correct — the UI is the only gap.
-   * **R4. A failed add from a rec card does not name the film.** `addMovie()`'s
-     catch reads `btn?.dataset.title`, which search rows stamp on and rec-card
-     buttons do not, so the toast falls back to `Couldn’t add that film — …`
-     while the identical failure from a search row reads `Couldn’t add “Dune” — …`.
-     One `dataset.title` assignment, and it makes R3 cheaper too: a
-     `dataset.tmdbId` stamp is exactly what a sync pass needs to find the buttons.
+   * **R3. DONE 2026-09-09 — the Add-button sync now runs in every direction.**
+     Reported live by the user, who found BOTH directions of it. The sync swept
+     only `.search-results`, so: adding from a REC CARD refreshed the search rows
+     (they were in the panel it swept), but adding the same film from a SEARCH ROW
+     left the rec card still offering it, **and** removing a film from the ranked
+     list left the rec card stuck on a disabled "✓ Added" for something no longer
+     in the list. Never a data bug — the duplicate add was refused correctly by
+     the 409, as the user confirmed — the button just lied about what it would do.
+     `syncSearchResultButtons()` is now `syncAddButtons()` and queries the whole
+     document for `.add-btn[data-tmdb-id]`, so a THIRD surface with an Add button
+     is covered the day it is written rather than the day someone remembers the
+     function exists. Rec-card buttons gained the class and the `tmdbId` stamp
+     that make them findable.
+     **The shared `setAddButtonState()` did not get to decide R7 on the way
+     through.** Its unowned label is now read from `btn.dataset.addLabel` (default
+     `+ Add`), so the rec card keeps `Add to my list` until the wording is
+     actually settled. The OWNED labels are shared, which is right: both surfaces
+     should settle identically. Note the rec card's `aria-label` moved from "to my
+     list" to the shared "to your list" — the voice inconsistency is R7's to fix.
+     This was the UI half of the user's duplicate-safeguard item **(user)**; the DB
+     (`unique(tmdb_id)`) and API (23505 → 409) halves were already correct.
+   * **R4. DONE 2026-09-09, with R3.** `addMovie()`'s catch reads
+     `btn?.dataset.title`, which search rows stamped and rec-card buttons did not,
+     so a failed add from a rec card said `Couldn’t add that film — …` while the
+     identical failure from a search row said `Couldn’t add “Dune” — …`. The rec
+     card now carries the same three stamps a search row does, which is what R3
+     needed anyway.
    * **R5. A log-write failure destroys the real error.** In
      `generateRecommendations()`, if the `recommendation_logs` insert fails the
      function throws `Recommendation log write failed: …`, discarding the
