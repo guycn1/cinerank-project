@@ -365,6 +365,13 @@ by anything, including future non-text content with its own intrinsic width. The
   it cannot be pushed open the way the ranked card was. But the reason text is
   model output derived from the user's own reviews, which is the prompt-injection
   surface, and the card title is not clipped the way `.reason` is.
+  > **2026-09-09:** this premise expired. D-050 replaced those tracks with plain
+  > `1fr` — i.e. `minmax(auto, 1fr)` — so the automatic minimum is back in play
+  > and the guard above is now load-bearing rather than defensive. The sweep that
+  > noticed also found the gap it left: `.rec-card` ITSELF, which is the grid
+  > item, never carried `min-width: 0`, so a poster's intrinsic width could push
+  > the track open on a phone. Fixed there. The paragraph stands as the reasoning
+  > at the time.
 * `.result-row` — a flex container, and a flex item's automatic minimum size is
   min-content, the same mechanism. Its text comes from TMDB, so nothing is known
   to be broken.
@@ -462,6 +469,10 @@ why it survived this long.
 `.rec-card` had the same `both` and was fixed with it. No hover transform exists
 there today, so nothing was visibly broken — but it is the same latent trap, and
 adding one later would have silently done nothing.
+> **2026-09-09, later the same day:** "later" arrived — R14 put a grow-on-hover
+> on `.rec-card`, and it works precisely because this fix had already landed.
+> The sentence above stands as the reasoning at the time; the card does have a
+> hover transform now.
 
 ### The other half: a lift with no elevation cue
 `box-shadow` was set on `.movie-card` and **was not in its `transition` list, and

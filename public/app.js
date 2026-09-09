@@ -1610,9 +1610,10 @@ function syncMetaSeparator(foot) {
 }
 
 // One listener for every layout-dependent measurement on the page, rather than
-// an observer per element. Both of these read geometry (getBoundingClientRect /
-// scrollHeight), which forces layout, and `resize` fires continuously while a
-// window is dragged — so the work is throttled to at most once per frame. rAF
+// an observer per element. All of them read geometry (getBoundingClientRect /
+// scrollHeight / clientWidth), which forces layout, and `resize` fires
+// continuously while a window is dragged — so the work is throttled to at most
+// once per frame. rAF
 // rather than a debounce on purpose: a debounce would leave both measurements
 // visibly stale for the whole drag, where this keeps them live and still does
 // the reads only once per painted frame.

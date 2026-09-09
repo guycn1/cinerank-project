@@ -1026,9 +1026,19 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     and the unrated hint. `min-width: 0` sits beside it as the structural half,
     since `overflow-wrap` governs text only.
     `.rec-card__body` and `.result-row` got the same guard **defensively** and are
-    labelled as such in the CSS — the recs grid has a FIXED `minmax(190px, …)`
-    minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
-    the ranked card was actually broken.
+    labelled as such in the CSS; only the ranked card was actually broken at the
+    time. `.result-row` still carries TMDB titles and is still defensive.
+    **`.rec-card__body`'s is no longer defensive** (corrected 2026-09-09): its
+    justification was that the recs grid had a FIXED `minmax(190px, …)` minimum
+    and so could not be pushed open, and D-050 replaced those tracks with plain
+    `1fr` — `minmax(auto, 1fr)` — which puts the automatic minimum back in play.
+    The same sweep found the gap that left: **`.rec-card` itself is the grid item
+    and never carried `min-width: 0`**, so a poster's intrinsic width (TMDB
+    serves w342) could push the track open and give a phone a horizontal
+    scrollbar. Fixed. **Fifth appearance of one root cause** — the search input,
+    the add button, the ranked card's `1fr` track, `.recs__trigger`, and now
+    this. When something will not shrink, look at the automatic minimum size
+    first.
 
   - **Equal ratings now read oldest-first** (off-backlog, user-raised
     2026-09-09). `GET /api/movies` broke ties with
@@ -1275,7 +1285,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule and
      the `.ranked__head`-only rule is gone, along with the comment explaining the
      split. The split existed so that wrapping the head could not mask R11; R11 is
-     fixed, so it has served its purpose.
+     fixed, so it has served its purpose. **One LAYOUT rule, to be exact:**
+     `.recs__head` picked up a selector of its own again with R27, for the
+     `scroll-margin-top` its scroll target needs. Different concern, not this
+     split creeping back — both places say so.
      The trigger now drops below "What to watch next" rather than both items
      squeezing. **No threshold is encoded, and the comment says not to add one:**
      flex line breaking compares HYPOTHETICAL sizes, so the browser derives the

@@ -60,6 +60,8 @@ server/
 public/             the cinematic frontend
 scripts/scan-secrets.js         run before every commit
 scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
+scripts/debug-recs.js           dev only — fakes a recommendation response in the
+                                browser so UI work costs no OpenRouter credit
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 docs/DECISIONS.md   why the choices are what they are
