@@ -60,21 +60,38 @@ export function tidyReason(raw) {
  * (SPEC § 2.2) — the audit record is the point, not a nice-to-have.
  */
 export async function generateRecommendations() {
-  const { data: rated, error } = await supabase
+  // ONE unfiltered read, then split in JS. This used to be a single query
+  // filtered `.not('rating', 'is', null)`, and the owned-titles set was built
+  // from its result — so the set contained only RATED films and a film the user
+  // had added but not yet rated was invisible to it. The model could then name
+  // it, TMDB would happily verify it, and it came back as a recommendation for
+  // something already in the list; the card's own "not yet rated" badge would
+  // have been correct, and its Add button would have 409'd (backlog R2).
+  //
+  // The two sets are genuinely different questions and must not share a filter:
+  // the TASTE PROFILE is "films you have scored", the OWNED set is "films you
+  // have, at all". Reading everything once and deriving both is cheaper than two
+  // round trips and leaves no filter for the two to drift apart on.
+  // `nullsFirst: false` matches GET /api/movies so the sort is the app's one
+  // ordering rule; the unrated rows are filtered out of `rated` anyway, but a
+  // DESC sort puts NULLs first in Postgres by default and that is worth not
+  // relying on.
+  const { data: all, error } = await supabase
     .from('movies')
     .select('id, tmdb_id, title, year, rating, review')
-    .not('rating', 'is', null)
-    .order('rating', { ascending: false });
+    .order('rating', { ascending: false, nullsFirst: false });
 
   if (error) throw new RecommendationError(`DB read failed: ${error.message}`);
-  if (!rated || rated.length < config.recommendations.minRatedMovies) {
+  const library = all ?? [];
+  const rated = library.filter((m) => m.rating != null);
+  if (rated.length < config.recommendations.minRatedMovies) {
     throw new RecommendationError(
       `Need at least ${config.recommendations.minRatedMovies} rated movies`
     );
   }
 
   const topN = rated.slice(0, config.recommendations.topN);
-  const ownedTmdbIds = new Set(rated.map((m) => m.tmdb_id));
+  const ownedTmdbIds = new Set(library.map((m) => m.tmdb_id));
 
   const { system, user, version } = await loadPrompt(PROMPT_VERSION, {
     TASTE_PROFILE: topN.map(line).join('\n'),

@@ -1043,8 +1043,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below (R19 is now done; R20 was WITHDRAWN as incorrect —
-   both statuses are on the items themselves). The user's original seed items are folded in and
+   and produced R1–R22 below (R2 and R19 are now done; R20 was WITHDRAWN as
+   incorrect — every status is on the item itself). The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
    land.
@@ -1064,15 +1064,24 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      visually identical apart from the cards.** Fix by making the sync not
      clobber a message the run itself wrote; the verdict already solves this with
      `el.verdict.dataset.generated`, so copy that shape rather than inventing one.
-   * **R2. An unrated film in your list CAN be recommended back to you** — so the
-     answer to the user's "verify the owned filter holds end to end" is **no**.
-     `generateRecommendations()` builds `ownedTmdbIds` from the SAME query it uses
-     for the taste profile, which is filtered `.not('rating', 'is', null)`. The
-     owned set therefore contains only RATED films, and anything
-     added-but-not-yet-rated is invisible to it. The client has the correct set
-     (`state.ownedTmdbIds` is built from ALL movies) and never consults it. Fix on
-     the server with a second, unfiltered `tmdb_id` read; the client-side check in
-     R3 is a second line of defence, not the fix.
+   * **R2. DONE 2026-09-09 (D-046) — the server half of the owned filter.** The
+     answer to the user's "verify the owned filter holds end to end" was **no**:
+     `generateRecommendations()` built `ownedTmdbIds` from the SAME query feeding
+     the taste profile, which was filtered `.not('rating', 'is', null)`, so the
+     owned set held only RATED films and anything added-but-not-yet-rated was
+     invisible to it.
+     Fixed by dropping the SQL filter entirely: ONE unfiltered read, then `rated`
+     and the owned set derived from it two lines apart. **Not** the second query
+     the audit first proposed — see D-046 for why, and for the trap that settled
+     it: the first version of the test PASSED against the buggy code, because
+     every filter method on the fake Supabase builder is a no-op, so the fake
+     ignored the very `.not()` that caused the bug. That no-op is now commented at
+     itself in `test/helpers.js`.
+     **Do not push the filter back into the query** and **do not rebuild the owned
+     set from `rated`** — either one restores the bug, and the second fails
+     exactly one test (verified by doing it).
+     **R3 is the still-open client half**: rec cards never re-sync their Add
+     button, so the UI can still offer a film the list already has.
    * **R3. Rec cards never react to ownership changes.** There is no equivalent of
      `syncSearchResultButtons()` for the grid. Add a film from the SEARCH panel
      while rec cards are on screen and the card for that film still offers

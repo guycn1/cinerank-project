@@ -6,6 +6,71 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
+`generateRecommendations()` read the library with one query filtered
+`.not('rating', 'is', null)` and then built **two** things out of that one result:
+the taste profile (`topN`) and the owned-titles set used to drop picks the user
+already has. The taste profile was right. The owned set was not — it contained
+only RATED films, so a film the user had added and not yet rated was invisible to
+it, and the model could name it, TMDB would verify it, and it came back as a
+recommendation for something already in the list. The card's own
+`AI pick · not yet rated` badge would even have been accurate; the Add button
+under it would have returned a 409.
+
+**Two fixes were on the table.**
+
+*Add a second query* for `tmdb_id` with no filter, and keep the filtered one for
+the profile. Obvious, minimal, and the first thing I reached for. Rejected: it
+costs a second round trip, and it leaves the two sets sharing a subject but not a
+source — the exact shape that let them disagree in the first place.
+
+*One unfiltered read, split in JS.* Chosen. `rated` is
+`library.filter((m) => m.rating != null)` and the owned set is
+`library.map((m) => m.tmdb_id)`. One round trip, and the two derivations sit two
+lines apart where a reader can see that they answer different questions: the
+profile is "films you have scored", the owned set is "films you have, at all".
+
+**What actually settled it was a failed test, not the argument above.** The test
+was written first, as the R19 work had just established. It asserted that an
+unrated film in the library is never recommended back — and it **passed against
+the buggy code**. The reason is `test/helpers.js`: every filter method on the
+fake Supabase builder is a no-op (`not: () => b`), so the fake returned all rows
+regardless of the `.not()` that caused the bug. The test proved nothing, and
+would have gone on proving nothing.
+
+That left a real choice about where the truth should live. Teaching the fake to
+honour `.not('rating','is',null)` was possible, but it makes the fake a small
+query engine, and every future test then depends on that engine being right.
+Moving the filter out of SQL and into JS puts the rule somewhere the tests can
+actually observe, and makes the production path and the tested path the same
+path. The bug was in application logic, so application logic is where it should
+be visible.
+
+**Claude was wrong twice here and both are the point.** The first write-up of
+this item (R2, in CLAUDE.md) was correct. But the sibling item R20 — "the client
+hardcodes thresholds the server owns" — was **wrong and was withdrawn**: the
+client fetches `/api/config` at boot and the literals are a documented fallback.
+That claim came from grepping `state.cfg`, which shows the reads and the literals
+but not the assignment that overwrites them. And then the R2 test passed for the
+wrong reason, which would have shipped a green suite over an unfixed bug if it
+had been written after the fix instead of before it.
+
+**Traps.**
+
+* **Do not push the filter back into the query.** `.not('rating', 'is', null)`
+  on that read looks like free work for the database and would immediately make
+  the R2 test vacuous again, because the fake ignores it. The comment in
+  `helpers.js` says so at the no-op itself.
+* **The owned set must come from the unfiltered `library`, never from `rated`.**
+  Reverting that one word restores the bug and fails exactly one test — verified
+  by doing it.
+* `nullsFirst: false` is on the order to match `GET /api/movies`. The unrated
+  rows are filtered out of `rated` anyway, but a DESC sort puts NULLs first in
+  Postgres by default and `topN` should not depend on that being remembered.
+* This is the SERVER half only. The client half — rec cards never re-syncing
+  their Add button when ownership changes — is R3 and is still open.
+
+---
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400
 unbroken `f`s. The ranked list did not merely overflow: the card widened, the

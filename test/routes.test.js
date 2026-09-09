@@ -307,7 +307,7 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
 // The stub answers each TMDB lookup by its `query=` fragment, so the four picks
 // are deliberately titles whose first query word is distinct — `url.includes()`
 // would otherwise let one fragment match another film's URL.
-const RECS_RATED_LIBRARY = {
+const RECS_LIBRARY = {
   data: [
     { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
     { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
@@ -357,7 +357,7 @@ function stubRecsRun() {
 }
 
 test('POST /api/recommendations drops unverifiable, already-owned and duplicate picks', async () => {
-  db.results['movies:select'] = RECS_RATED_LIBRARY;
+  db.results['movies:select'] = RECS_LIBRARY;
   db.results['recommendation_logs:insert'] = { data: null, error: null };
   const restore = stubRecsRun();
   try {
@@ -381,7 +381,7 @@ test('POST /api/recommendations drops unverifiable, already-owned and duplicate 
 });
 
 test('POST /api/recommendations logs a success row holding exactly the shown titles', async () => {
-  db.results['movies:select'] = RECS_RATED_LIBRARY;
+  db.results['movies:select'] = RECS_LIBRARY;
   db.results['recommendation_logs:insert'] = { data: null, error: null };
   const restore = stubRecsRun();
   try {
@@ -398,6 +398,50 @@ test('POST /api/recommendations logs a success row holding exactly the shown tit
     assert.equal(logged.payload.estimated_cost_usd, 0.0012);
     assert.equal(logged.payload.tokens_used, 900);
     assert.equal(logged.payload.prompt_version, 'recommend_v3');
+  } finally {
+    restore();
+  }
+});
+
+// R2: the owned-titles filter used to be built from the SAME query that feeds
+// the taste profile, and that query is filtered to rated films — so a film the
+// user had added but not yet rated was invisible to it and could be recommended
+// straight back at them. The card would even have been right that it was "not
+// yet rated"; the Add button under it would have 409'd.
+test('POST /api/recommendations never suggests a film already in the list but UNRATED', async () => {
+  db.results['movies:select'] = {
+    data: [
+      { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+      { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+      { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+      // Added, never rated. Absent from the taste profile by design — and it must
+      // still be absent from the suggestions.
+      { id: '5', tmdb_id: 5, title: 'Tenet', year: 2020, rating: null, review: null },
+    ],
+    error: null,
+  };
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubFetch({
+    'openrouter.ai': openRouterReply(
+      JSON.stringify([
+        { title: 'Heat', reason: 'You rated Arrival highly, so its patient dread will land.' },
+        { title: 'Tenet', reason: 'Already yours, just unrated — must still be dropped.' },
+      ])
+    ),
+    'query=Heat': { results: [HEAT_TMDB] },
+    'query=Tenet': {
+      results: [{ ...HEAT_TMDB, id: 5, title: 'Tenet', release_date: '2020-08-26' }],
+    },
+  });
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200);
+    const { suggestions } = await res.json();
+    assert.deepEqual(
+      suggestions.map((s) => s.title),
+      ['Heat'],
+      'an unrated film already in the list must not be recommended back'
+    );
   } finally {
     restore();
   }
