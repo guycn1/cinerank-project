@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done, so the recommendations overhaul is next; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED and its sub-backlog is R1–R22 under step 2, no code written yet; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1033,59 +1033,180 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    which submits without moving focus; tapping the Search BUTTON already blurred
    the input by itself.
 
-2. **Recommendations overhaul — a big one, with its own sub-backlog.** The items
-   below are the seed, NOT the whole list.
-   **Claude is expected to audit the section first and produce a large backlog of
-   its own**, the way the 17-item ranked-list audit was produced. The user's
-   words: "many more bug fixes, inconsistency fixes, and other enhancements that
-   I cannot remember right now". Do that audit before starting work, number the
-   items, and keep them here so a compact cannot lose them.
-   * **Error handling and visibility.** `renderRecommendations`'s handler writes
-     `err.message` into `#recs-hint` and sets `.err`, then its own `finally` calls
-     `syncRecommendationsAvailability()`, which unconditionally does
-     `classList.remove('err')` and overwrites `textContent`. Both run in the same
-     tick, so **a failed run shows the user nothing at all.** The server side is
-     correct and tested (422 + a `status='failed'` log row). This is the LAST
-     functional bug in the app and it is SPEC §7.1 evidence, so it must land
-     before the resilience screenshots are captured. The verdict side already
-     does this properly — it points at the AI call log; copy that shape.
-   * **Grow-on-hover**, matching what the ranked list got (D-043/D-044). Read
-     both entries first: elevation on this page is made of LIGHT not black, every
-     glow layer has a zero Y-offset, and the amber must not become a hard-edged
-     opaque line at an offset, which is where it converges with the focus ring.
-   * **A glittering ✨ AI icon on the recommendations button.** Prefer an inline
-     SVG, per D-027. **If mimicking a good-looking SVG proves problematic, this
-     one button is explicitly EXEMPT from the no-emoji rule** — the user has
-     granted that exemption in advance. Do not spend hours on the SVG.
-   * **Decide the "add to your list" label wording and glyph.** The rec card
-     reads `Add to my list` (app.js) while the search row reads `+ Add` with a
-     three-state machine (`+ Add` → `⟳ Adding…` → `✓ Added` / `In your list`).
-     One of them should move. Note the glyph/line-break rule under Frontend
-     Design Notes applies to whatever is chosen.
-   * **Verify that an already-added film is never recommended.** There is an
-     owned-titles filter; confirm it actually holds end to end.
-     * **Follow-up:** make sure the **UI, the API and the DB alike** safeguard
-       against duplicates in the ranked list. The DB has `unique(tmdb_id)` and
-       the route maps `23505` to a 409 — check the UI half and the recs path
-       against that, rather than assuming the constraint is doing all the work.
-   * **Two narrow-width defects found in the 2026-09-08 sweep and DELIBERATELY
-     left unfixed so they land here**, not scattered:
-     - `.recs__trigger` has **neither `flex-shrink: 0` nor `white-space: nowrap`**
-       (verified against all six of its rules), so "Get recommendations" can be
-       squeezed onto two lines. Mechanically identical to the `+ Add` bug already
-       fixed in Search. Its BUSY label is already safe — that comes from the
-       shared `busyButton()`.
-     - `.recs__head` has no `flex-wrap: wrap`, which is why the above bites
-       instead of resolving itself. `.ranked__head` was given the wrap on
-       2026-09-08 and `.recs__head` deliberately was not, so the two are
-       temporarily split in the stylesheet — **reunite them in this pass.**
+2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
+   whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
+   and produced R1–R22 below. The user's original seed items are folded in and
+   marked **(user)**. The groups are ordered by severity. **Do not renumber** —
+   these are how the items get referred to. Keep the statuses current as they
+   land.
+
+   **Group A — functional bugs**
+
+   * **R1. Every recs message is wiped in the same tick it is written.** The
+     click handler's `finally` calls `syncRecommendationsAvailability()`, which
+     unconditionally does `classList.remove('err')` and reassigns
+     `el.recsHint.textContent`. `renderRecommendations()` and the `catch` both
+     write to that same element inside the `try`/`catch`, so `finally` overwrites
+     all three outcomes. **This is bigger than the Open-issues entry, which
+     describes only the error case.** Also dead, for the same reason: the
+     `Based on: …` line after a successful run — which the README demo script
+     tells the presenter to narrate — and `No new suggestions this time…`.
+     Net effect: **a failed run, a successful run and a never-run page are
+     visually identical apart from the cards.** Fix by making the sync not
+     clobber a message the run itself wrote; the verdict already solves this with
+     `el.verdict.dataset.generated`, so copy that shape rather than inventing one.
+   * **R2. An unrated film in your list CAN be recommended back to you** — so the
+     answer to the user's "verify the owned filter holds end to end" is **no**.
+     `generateRecommendations()` builds `ownedTmdbIds` from the SAME query it uses
+     for the taste profile, which is filtered `.not('rating', 'is', null)`. The
+     owned set therefore contains only RATED films, and anything
+     added-but-not-yet-rated is invisible to it. The client has the correct set
+     (`state.ownedTmdbIds` is built from ALL movies) and never consults it. Fix on
+     the server with a second, unfiltered `tmdb_id` read; the client-side check in
+     R3 is a second line of defence, not the fix.
+   * **R3. Rec cards never react to ownership changes.** There is no equivalent of
+     `syncSearchResultButtons()` for the grid. Add a film from the SEARCH panel
+     while rec cards are on screen and the card for that film still offers
+     `Add to my list`; clicking it produces a 409 and an error toast. This is the
+     UI half of the user's duplicate-safeguard item **(user)**. The DB
+     (`unique(tmdb_id)`) and API (23505 → 409) halves are both verified present
+     and correct — the UI is the only gap.
+   * **R4. A failed add from a rec card does not name the film.** `addMovie()`'s
+     catch reads `btn?.dataset.title`, which search rows stamp on and rec-card
+     buttons do not, so the toast falls back to `Couldn’t add that film — …`
+     while the identical failure from a search row reads `Couldn’t add “Dune” — …`.
+     One `dataset.title` assignment, and it makes R3 cheaper too: a
+     `dataset.tmdbId` stamp is exactly what a sync pass needs to find the buttons.
+   * **R5. A log-write failure destroys the real error.** In
+     `generateRecommendations()`, if the `recommendation_logs` insert fails the
+     function throws `Recommendation log write failed: …`, discarding the
+     `errorText` already captured from an AI failure. Related and DELIBERATE, but
+     written down so it is not "fixed" by accident: a SUCCESSFUL, already-paid-for
+     run is also discarded if its log write fails. That is the right call for a
+     course that grades the audit trail — the log is the point — but the user
+     should see something better than a bare 422.
+
+   **Group B — the strength of the "verified against TMDB" claim**
+
+   * **R6. `verifyTitle()` falls back to `results[0]`, so almost nothing is ever
+     actually dropped.** It looks for a case-insensitive exact match and, failing
+     that, returns TMDB's first result for the query. TMDB search is fuzzy, so a
+     hallucinated title usually resolves to SOME real film, which is then shown
+     with the model's reason still describing the film that does not exist.
+     SPEC §2.2 #4 and the README both say unverifiable titles are dropped; in
+     practice that drop path is nearly unreachable.
+     **Do not simply tighten it to exact-match-only** — that would silently drop
+     legitimate picks over punctuation and diacritics (`Amelie` vs `Amélie`,
+     `The Lord of the Rings: Fellowship…` vs `…: The Fellowship…`) and shrink
+     every run. Decide the matching rule deliberately (normalise case, accents and
+     punctuation, then require equality or strong containment) and state what it
+     costs. The blast-radius claim in CLAUDE.md § Security 5 is NOT affected: the
+     output still only ever drives a title lookup.
+
+   **Group C — copy and consistency**
+
+   * **R7. Decide the add-button label and glyph (user).** The rec card rests at
+     `Add to my list`, the search row at `+ Add`. Worse, they CONVERGE after
+     action: both settle to the glyph-glued labels via the shared `addMovie()`, so
+     the rec card's one button speaks three vocabularies. One of the two resting
+     labels should move. **Note CLAUDE.md's Frontend Design Notes overstated
+     this**: the glued `✓ Added` does reach the rec card (through `settle()`), but
+     `+ Add` does NOT — the card's resting label is built inline in
+     `renderRecommendations()` and never passes through `setAddButtonState()`.
+   * **R8. The failure message is a raw dump that names the vendor.** The route
+     wraps the cause as `Couldn’t generate recommendations: ${err.message}`, and
+     the causes are `OpenRouter unreachable (TimeoutError)`, `OpenRouter responded
+     503`, `Model did not return valid JSON`. Its own code comment claims "never a
+     raw dump". Compare the movie path: `Couldn’t reach the movie database. Try
+     again in a moment.` — calm, no vendor, no JS error class. The technical text
+     should keep going to `error_text` in the log, where it belongs.
+   * **R9. A failed run does not point at the AI call log.** The verdict's
+     fallback builds `Couldn’t come up with a verdict right now. See the [AI call
+     log] for details.` with the shared `logLink()`. Recs should do the same — it
+     is the SPEC §7.2 "not a wrapper" proof, and with R1 in place a failed run
+     currently says nothing at all.
+   * **R10. A zero-suggestion run appends no `aiMetaFooter`.** The empty branch
+     returns before the footer, so a call that really was made, really cost money
+     and really was logged shows no cost, tokens or duration. Every other AI
+     outcome in the app surfaces that line.
+
+   **Group D — visual, and narrow viewports**
+
+   * **R11. `.recs__trigger` has neither `flex-shrink: 0` nor `white-space:
+     nowrap` (user)**, so `Get recommendations` can be squeezed onto two lines —
+     mechanically identical to the `+ Add` bug already fixed in Search. Its BUSY
+     label is already safe (shared `busyButton()`). NOTE: an earlier CLAUDE.md
+     line said this was "verified against all six of its rules"; there are
+     **three** rules (styles.css 1140, 1151, 1152) — the other three grep hits are
+     comments. Wrong when written, corrected here.
+   * **R12. `.recs__head` has no `flex-wrap: wrap` (user)**, which is why R11
+     bites instead of resolving itself. `.ranked__head` was given the wrap on
+     2026-09-08 and this one deliberately was not, so the shared "section headers"
+     rule is temporarily split. **Reunite them in this pass** and delete the
+     comment explaining the split.
+   * **R13. `.rec-card__body button:disabled` dims a FILLED amber button with
+     `opacity: 0.5` — the exact bug the Search button's `:disabled` fix existed to
+     correct.** Amber at 50% still composites to an unmistakably amber fill, so
+     the settled labels read as live buttons. It is WORSE here than it was there:
+     on the search button the wrong state lasted about a second; on a rec card it
+     is a permanent resting state. Same fix as already written — take the fill out
+     of the amber family (`--bg-card` / `--ink-dim`) rather than making it
+     translucent. **Also correct the comment above `.search button:disabled`,
+     which asserts "This is the only FILLED button": `.rec-card__body button` has
+     the identical `background: var(--amber); color: #1a1205`, and always did.**
+   * **R14. No grow-on-hover on `.rec-card` (user).** Read D-043 AND D-044 first:
+     elevation on this page is made of LIGHT, not black; every glow layer takes a
+     ZERO Y-offset (a Y-offset is what makes a glow lopsided, and that mistake was
+     made twice in one item); and the amber must never become a hard-edged opaque
+     line at an offset, which is where it converges with the `:focus-visible`
+     ring. The entrance-animation fill is already `backwards` here, so a hover
+     transform will actually apply — that trap is pre-cleared. Also decide whether
+     the ranked list's spotlight dimming (`.ranked__list:has(…)`) should port, or
+     whether it belongs only to a vertical list of peers.
+   * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
+     D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
+     fiddly — the user granted that in advance. Do not spend hours on it.**
+   * **R16. Stale cards outlive their own precondition.** Remove films until the
+     rated count drops below 3 and the trigger correctly disables — but the grid
+     of previously generated cards stays on screen, now unreachable and
+     unrefreshable. Decide: clear it, or caption it as a past run.
+   * **R17. The `AI pick · not yet rated` badge can become false.** Adding from a
+     rec card opens the rate dialog; rate the film and the card behind it still
+     asserts "not yet rated". Small, but it is a factual claim in the UI.
+   * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
+     that run to three or four on a phone**, so the grid jumps as the hint
+     changes. Low severity: the busy string and the resting string are close in
+     length, so the shift is real but small. Check it during the step-5 portrait
+     pass rather than guessing at a number now.
+
+   **Group E — structure and tests**
+
+   * **R19. No test covers a SUCCESSFUL recommendation run.** The two existing
+     route tests are the below-threshold 422 and the OpenRouter-down 422. The
+     owned-titles filter, the intra-run dedup and the TMDB verification drop —
+     i.e. everything R2 and R6 are about — have no coverage at all. Add one
+     BEFORE touching R2/R6, so the fix is provable.
+   * **R20. The client hardcodes thresholds the server owns.** `state.cfg =
+     { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 }` duplicates
+     `config.recommendations` / `config.tasteVerdict` in `server/config.js`. Change
+     the server and the client's hint text lies ("Rate at least 3 movies…",
+     "Uses your top 5 rated films…") while the button enables at the wrong count.
+     Same failure mode as the second copy of the ranking rule D-039 deleted.
+     Cheapest honest fix: serve the three numbers from an endpoint the client
+     already calls, or accept the duplication and comment BOTH sides.
+   * **R21. The recs grid is a `<div>` of `<div>`s** while the ranked list is a
+     proper `<ol>`. Six cards announce as unstructured content to a screen reader.
+     Cheap, and it matches the section it sits beside.
+   * **R22. `#recs-hint` is the section's only live region** (`role="status"`), and
+     R1 means what it announces after a run is the generic idle hint. Once R1 is
+     fixed, re-check what a screen reader actually hears for all three outcomes —
+     that is the entire point of the live region.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
-   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation
-   fill was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
-   gained its missing `:not(:disabled)` guard (#10), and the glyph-glued labels
-   (`+\u00A0Add`, `✓\u00A0Added`) reach this card too, since it shares
-   `addMovie()`.
+   `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
+   was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
+   shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
 3. **Add GitHub link(s)** to the page — out to the public repo.
 
@@ -1143,15 +1264,16 @@ below — this list is the smaller stuff.)
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
-* [ ] **Recommendations swallow their error message.** (Also step 2 of the agreed order — that entry is the one being worked from; keep this checkbox as the tracker, not a second description.) `renderRecommendations`'s
-  handler writes `err.message` into `#recs-hint` on failure, but its `finally`
-  then calls `syncRecommendationsAvailability()`, which unconditionally does
-  `classList.remove('err')` + overwrites `textContent` with the standard hint —
-  so the error is wiped in the same tick and the user sees nothing at all. The
-  server side is correct and tested (422 + a `status='failed'` log row); this is
-  purely the UI half of SPEC §7.1, and it would show up badly in the resilience
-  screenshots. Fix when the recommendations section gets its overhaul pass; the
-  verdict side already does this properly (points at the AI call log).
+* [ ] **Recommendations swallow every message they write — now tracked as R1.**
+  This checkbox is the tracker; the description lives in step 2's sub-backlog
+  under **R1**, which is the entry being worked from. **The 2026-09-08 wording
+  here understated it and is corrected rather than preserved, because it was
+  wrong when written:** it said only the ERROR is wiped. The `finally` reassigns
+  `#recs-hint` unconditionally, so the SUCCESS line (`Based on: …`) and the
+  zero-result line are wiped by the same statement — a failed run, a successful
+  run and a never-run page all look alike. The server side is correct and tested
+  (422 + a `status='failed'` log row); this is purely the UI half of SPEC §7.1,
+  and it would show up badly in the resilience screenshots.
 * [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
   The client's three offenders went with #16(c); the four server-side ones (the
   two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
