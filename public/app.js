@@ -1161,6 +1161,19 @@ async function removeMovie(movie, btn) {
  * section is unavailable, so whatever a past run said about it is moot — and
  * above it, the idle hint is only written when no run owns the element.
  */
+/**
+ * Single writer for WHO owns #recs-hint — a run, or the availability sync.
+ *
+ * Two facets of one fact: state.recsHintFromRun decides whether the sync may
+ * overwrite the element (R1), and the .from-run class decides how it is
+ * coloured. They must never disagree, so nothing else assigns either. Same
+ * reason setReviewExpanded() is the single writer for its four facets (D-040).
+ */
+function setRecsHintOwner(fromRun) {
+  state.recsHintFromRun = fromRun;
+  el.recsHint.classList.toggle('from-run', fromRun);
+}
+
 function syncRecommendationsAvailability() {
   const need = state.cfg.minRatedForRecommendations;
   const have = ratedCount();
@@ -1173,7 +1186,7 @@ function syncRecommendationsAvailability() {
   // before calling this, so the correct state is never missed.
   if (el.recsTrigger.getAttribute('aria-busy') !== 'true') el.recsTrigger.disabled = !ok;
   if (!ok) {
-    state.recsHintFromRun = false; // availability takes the element back
+    setRecsHintOwner(false); // availability takes the element back
     el.recsHint.classList.remove('err');
     el.recsHint.textContent = `Rate at least ${need} movies to unlock recommendations (you have ${have}).`;
   } else if (!state.recsHintFromRun) {
@@ -1185,7 +1198,7 @@ function syncRecommendationsAvailability() {
 el.recsTrigger.addEventListener('click', async () => {
   const restoreTrigger = busyButton(el.recsTrigger);
   // From here until the next availability change, the hint belongs to this run.
-  state.recsHintFromRun = true;
+  setRecsHintOwner(true);
   el.recsHint.classList.remove('err');
   el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
   el.recsGrid.replaceChildren();

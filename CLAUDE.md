@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R25, with eleven done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R26, with twelve done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1344,6 +1344,27 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      inconsistency either:** it is a FILLED button reading as a lit object casting
      light downward, which is a different thing from an outline lighting up. Do
      not unify them.
+
+   * **R26. `#recs-hint` is coloured by WHO wrote it** (user-raised,
+     2026-09-09). The two sentences `syncRecommendationsAvailability()` writes —
+     "Uses your top 5 rated films as taste signal…" and "Rate at least 3 movies to
+     unlock…" — are now `--ink-dim`. They describe what the section IS, so they
+     should read as prose rather than fine print. Everything a RUN writes into the
+     same element stays `--ink-faint`: the busy line, "Based on: …" and "No new
+     suggestions this time…", which are transient commentary on one request.
+     **No second source of truth.** R1 already put that exact distinction on
+     `state.recsHintFromRun`, so the CSS keys off the same fact via a `.from-run`
+     class, and a new `setRecsHintOwner()` is the single writer for both facets —
+     the same shape as `setReviewExpanded()` (D-040). Verified: `recsHintFromRun`
+     is assigned in exactly one place.
+     The run rule is `.recs__hint.from-run:not(.err)`, guarded rather than relying
+     on source order, because a failed run carries BOTH classes and an error keeps
+     the brighter colour (R24). `.recs__hint.err` now restates the base value and
+     is KEPT rather than deleted as redundant — without it, `.from-run` would drag
+     the error down to `--ink-faint` with the rest.
+     R24's comment was corrected in the same pass: it claimed `--ink-dim` made the
+     error brighter than the resting hint, which was true when written and is not
+     now that the base moved.
 
    * **R24. The recs error line is `--ink-dim`, not `--crimson`** (user-raised,
      2026-09-09, after seeing R9's link land inside it). Not taste — measured: the

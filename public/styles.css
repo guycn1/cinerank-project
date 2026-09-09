@@ -1209,7 +1209,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
-.recs__hint { color: var(--ink-faint); font-size: 0.9rem; margin-bottom: 1rem; min-height: 1.2em; }
+/* --ink-dim is the STANDING information about the feature: "Uses your top 5
+   rated films as taste signal..." and "Rate at least 3 movies to unlock...".
+   Those two are the only sentences syncRecommendationsAvailability() writes,
+   and they describe what the section IS, so they should read as ordinary prose
+   rather than as fine print. */
+.recs__hint { color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 1rem; min-height: 1.2em; }
+/* A RUN's own messages sit one step back, where they were: the busy line,
+   "Based on: ..." and "No new suggestions this time...". Those are transient
+   commentary on one request, not a description of the feature.
+   The from-run class is written by setRecsHintOwner() in app.js, the single
+   writer that also owns state.recsHintFromRun — so this selector and R1
+   overwrite guard are driven by ONE fact and cannot disagree about what kind
+   of message is on screen.
+   :not(.err) rather than relying on source order: a failed run carries BOTH
+   classes, and an error keeps the brighter colour (R24). With the guard these
+   two rules cannot conflict wherever either is later moved to. */
+.recs__hint.from-run:not(.err) { color: var(--ink-faint); }
 /* NOT --crimson, which this was until the R9 log link landed inside it. Two
    measured problems, neither of them taste: the amber link is 2.48x brighter
    than crimson (relative luminance 0.583 vs 0.235), so the pointer to details
@@ -1217,9 +1233,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    degrees apart, close enough to read as almost-the-same rather than as a
    deliberate pair, while contrasting only 2.22 against each other.
    --ink-dim is the verdict banner's own failure colour, where amber-on-grey is a
-   clean temperature contrast that has never had this problem. It is also a step
-   BRIGHTER than .recs__hint's resting --ink-faint, so the error still gains
-   weight over the idle hint — it just stops competing with its own link.
+   clean temperature contrast that has never had this problem, and it stops the
+   message competing with its own link.
+   NOTE this declaration is now the same value as the .recs__hint base rule, and
+   is kept anyway rather than deleted as redundant: an error is a message from a
+   RUN, and every other run message is deliberately a step back at --ink-faint.
+   Without this rule the .from-run selector would drag the error back there too.
+   (An earlier version of this comment said --ink-dim made the error brighter
+   than the resting hint. True when written; the base moved to --ink-dim when the
+   two availability sentences were promoted, so the error now MATCHES the resting
+   hint and outranks only the other run messages.)
    The message carries the failure now, not the colour. That is the same quiet
    fallback SPEC 2.3/2.4 asks of the AI features, and it leaves --crimson for
    the places a failure really is red (D-033). */
