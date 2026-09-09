@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R27, with fourteen done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with seventeen done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -60,7 +60,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 48 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 53 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -1068,8 +1068,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
-   fixing R9 and from the user working the verdict banner alongside it. R1–R4,
-   R8, R9, R11–R13, R19 and R23–R26 are done and R20 was WITHDRAWN as incorrect — every
+   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R13,
+   R19 and R23–R26 plus R28 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1203,10 +1203,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `short` mechanism, additive and invisible to anything reading only
      `body.error` — and `api()` carries it onto the thrown error the same way.
      **The verdict's own version of this is still wrong: see R23.**
-   * **R10. A zero-suggestion run appends no `aiMetaFooter`.** The empty branch
-     returns before the footer, so a call that really was made, really cost money
-     and really was logged shows no cost, tokens or duration. Every other AI
-     outcome in the app surfaces that line.
+   * **R10. DONE 2026-09-09.** The empty branch returned before `aiMetaFooter`,
+     so a call that really was made, really cost money and really was logged
+     showed no cost, tokens or duration anywhere on the page — the only AI outcome
+     in the app that did not. It now appends the footer before returning. That
+     footer already ends in `logLink()`, which is why the message beside it does
+     NOT get a log link of its own; two on one line.
+     Found and fixed live, with a deliberate temporary "return zero
+     recommendations" line in the service so the state could actually be looked
+     at — reverted before commit.
 
    **Group D — visual, and narrow viewports**
 
@@ -1321,6 +1326,36 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that is the entire point of the live region.
 
    **Group F — found while fixing the above (added 2026-09-09)**
+
+   * **R28. DONE 2026-09-09 — the zero-result message told the user a specific
+     lie.** It read "No new suggestions this time — the model only named films
+     already in your list" for EVERY empty run, and the user asked the right
+     question: is that necessarily what happened? No. There are four causes, and
+     that sentence describes one:
+     the model named nothing (`parseModelJson` returned `[]`); TMDB answered and
+     had no such film; **TMDB was unreachable** (the per-pick `catch` set
+     `movie = null`, indistinguishable from the previous case); or everything it
+     named was already owned. The intra-run duplicate guard cannot empty the list
+     on its own — the first occurrence always survives.
+     **The third one is why this mattered.** A TMDB outage during verification
+     leaves the run logging `status: 'success'` (the AI call did succeed and was
+     charged), so nothing else in the app mentions TMDB — that false sentence was
+     the only thing the user would ever see, and it hid an outage. It is also a
+     state on the resilience-screenshot list.
+     Fixed at the source: the service keeps a per-title tally
+     (`named / tmdbErrors / unmatched / owned / duplicate`), `emptyReasonFor()`
+     resolves it to one of `none-named | tmdb-unreachable | all-owned |
+     unverifiable | mixed`, and it travels as a top-level `emptyReason` — null
+     whenever there are cards, so it can never be read as a warning. The client
+     maps it to copy, with `mixed` backstopping an unknown value so a server that
+     learns a new reason first degrades to something true.
+     **Order is load-bearing in `emptyReasonFor()`:** `tmdb-unreachable` outranks
+     everything because it is the only cause the user can neither see nor act on
+     otherwise. The tally is also written into the log row's `raw_model_output`
+     (jsonb, and nothing reads that column — checked against `routes/aiLog.js`),
+     so an empty `suggested_titles` now records whose fault it was.
+     Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
+     fails one, and hardcoding `all-owned` fails three.
 
    * **R27. Rec cards need an EXIT animation; the entrance already exists**
      (user-raised, 2026-09-09). The request was "a smooth entering animation…
@@ -1559,7 +1594,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (48).
+  `review_requires_rating` guards all covered by `npm test` (53).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.

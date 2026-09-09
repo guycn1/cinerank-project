@@ -482,6 +482,90 @@ test('POST /api/recommendations below the threshold keeps its specific message',
   assert.equal(body.logged, undefined);
 });
 
+/* ---------- WHY a run came back empty ---------------------------------- */
+
+// The UI used to assert one cause for all of them — "the model only named films
+// already in your list" — which is wrong three times out of four. One test per
+// reason, so the wrong sentence cannot come back by accident.
+function emptyRun(picks, tmdbStubs) {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  return stubFetch({ 'openrouter.ai': openRouterReply(JSON.stringify(picks)), ...tmdbStubs });
+}
+
+test('empty run: every pick already owned → all-owned', async () => {
+  const restore = emptyRun(
+    [{ title: 'Whiplash', reason: 'Already yours.' }],
+    { 'query=Whiplash': { results: [{ ...MATRIX_TMDB, id: 1, title: 'Whiplash' }] } }
+  );
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.deepEqual(body.suggestions, []);
+    assert.equal(body.emptyReason, 'all-owned');
+  } finally {
+    restore();
+  }
+});
+
+test('empty run: the model named nothing → none-named', async () => {
+  const restore = emptyRun([], {});
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.emptyReason, 'none-named');
+  } finally {
+    restore();
+  }
+});
+
+// The one that matters most. TMDB being down produced a run that logs 'success'
+// and told the user the model had named only films they already had — a
+// confident false statement that also hid the outage.
+test('empty run: TMDB unreachable → tmdb-unreachable, not all-owned', async () => {
+  const restore = emptyRun([{ title: 'Heat', reason: 'A real pick.' }], {
+    '/search/movie': 'throw',
+  });
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200, 'one TMDB outage must not fail the whole run');
+    const body = await res.json();
+    assert.equal(body.emptyReason, 'tmdb-unreachable');
+    assert.notEqual(body.emptyReason, 'all-owned');
+    // The audit row explains itself: empty suggested_titles, and a tally saying
+    // whose fault that was.
+    const row = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
+    assert.deepEqual(row.payload.suggested_titles, []);
+    assert.equal(row.payload.raw_model_output.verification.tmdbErrors, 1);
+    assert.equal(row.payload.raw_model_output.verification.owned, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('empty run: TMDB answered but knows no such film → unverifiable', async () => {
+  const restore = emptyRun([{ title: 'Zzyzx Road', reason: 'Not a real film.' }], {
+    'query=Zzyzx': { results: [] },
+  });
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.emptyReason, 'unverifiable');
+  } finally {
+    restore();
+  }
+});
+
+test('a run WITH suggestions carries no emptyReason at all', async () => {
+  db.results['movies:select'] = RECS_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    const body = await (await client.post('/api/recommendations')).json();
+    assert.equal(body.suggestions.length, 1);
+    assert.equal(body.emptyReason, null, 'a value here invites it to be read as a warning');
+  } finally {
+    restore();
+  }
+});
+
 /* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
 
 // The user's requirement for R23, stated as a rule rather than a scenario: if a

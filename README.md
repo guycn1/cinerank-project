@@ -37,7 +37,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 48 tests — helpers, prompt loader, routes, resilience
+   npm test         # 53 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
 

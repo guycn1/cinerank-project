@@ -1162,16 +1162,27 @@ async function removeMovie(movie, btn) {
  * above it, the idle hint is only written when no run owns the element.
  */
 /**
- * Single writer for WHO owns #recs-hint — a run, or the availability sync.
+ * Single writer for #recs-hint's content AND its weight.
  *
- * Two facets of one fact: state.recsHintFromRun decides whether the sync may
- * overwrite the element (R1), and the .from-run class decides how it is
- * coloured. They must never disagree, so nothing else assigns either. Same
- * reason setReviewExpanded() is the single writer for its four facets (D-040).
+ * `caption: true` means this line INTRODUCES content that is on screen or about
+ * to be — the busy line, and "Based on: …" above the cards. Those are fine print
+ * over the real thing, so they stay --ink-faint. Everything else is the only
+ * thing the section is showing: the two availability sentences, a failure, and
+ * the zero-result line. Those read at full --ink-dim weight.
+ *
+ * **This supersedes R26's `.from-run` class**, which tied the weight to WHO wrote
+ * the line. That held until the user looked at a zero-result run: "No new
+ * suggestions this time…" is written by a run, yet it is persistent and it is the
+ * only thing in the section, so it belongs with the availability sentences and
+ * not with the two captions. Who wrote it was a good proxy for the real question
+ * and not the same question. `state.recsHintFromRun` still exists and still means
+ * exactly what R1 made it mean — may the sync overwrite this? — it just no longer
+ * pretends to answer this one too.
  */
-function setRecsHintOwner(fromRun) {
-  state.recsHintFromRun = fromRun;
-  el.recsHint.classList.toggle('from-run', fromRun);
+function setRecsHint(content, { caption = false } = {}) {
+  el.recsHint.classList.toggle('is-caption', caption);
+  if (typeof content === 'string') el.recsHint.textContent = content;
+  else el.recsHint.replaceChildren(...content);
 }
 
 function syncRecommendationsAvailability() {
@@ -1186,21 +1197,22 @@ function syncRecommendationsAvailability() {
   // before calling this, so the correct state is never missed.
   if (el.recsTrigger.getAttribute('aria-busy') !== 'true') el.recsTrigger.disabled = !ok;
   if (!ok) {
-    setRecsHintOwner(false); // availability takes the element back
+    state.recsHintFromRun = false; // availability takes the element back (R1)
     el.recsHint.classList.remove('err');
-    el.recsHint.textContent = `Rate at least ${need} movies to unlock recommendations (you have ${have}).`;
+    setRecsHint(`Rate at least ${need} movies to unlock recommendations (you have ${have}).`);
   } else if (!state.recsHintFromRun) {
     el.recsHint.classList.remove('err');
-    el.recsHint.textContent = `Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`;
+    setRecsHint(`Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`);
   }
 }
 
 el.recsTrigger.addEventListener('click', async () => {
   const restoreTrigger = busyButton(el.recsTrigger);
   // From here until the next availability change, the hint belongs to this run.
-  setRecsHintOwner(true);
+  state.recsHintFromRun = true;
   el.recsHint.classList.remove('err');
-  el.recsHint.textContent = 'Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…';
+  // caption: the cards this describes are coming, and it is replaced either way.
+  setRecsHint('Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…', { caption: true });
   el.recsGrid.replaceChildren();
   try {
     const data = await api('/api/recommendations', { method: 'POST' });
@@ -1217,13 +1229,13 @@ el.recsTrigger.addEventListener('click', async () => {
     // written — a failed DB read, an unmet threshold, and CineRank being down
     // entirely all leave nothing to read.
     if (err.logged) {
-      el.recsHint.replaceChildren(
+      setRecsHint([
         document.createTextNode(`${err.message} See the `),
         logLink('AI call log'),
-        document.createTextNode(' for details.')
-      );
+        document.createTextNode(' for details.'),
+      ]);
     } else {
-      el.recsHint.textContent = err.message;
+      setRecsHint(err.message);
     }
   } finally {
     restoreTrigger();
@@ -1231,13 +1243,47 @@ el.recsTrigger.addEventListener('click', async () => {
   }
 });
 
-function renderRecommendations({ suggestions, meta }) {
+/**
+ * Why a run came back with nothing, in the user's words. The server decides
+ * WHICH — only it knows — and this maps it to copy.
+ *
+ * There used to be one hardcoded sentence here claiming the model had named only
+ * films already in the list. That is one of four possible causes, and asserting
+ * it for all four was wrong three times out of four. The bad case is
+ * `tmdb-unreachable`: the AI call really did succeed and really was charged, so
+ * the run logs 'success' and nothing else in the app mentions TMDB — the false
+ * sentence was the only thing the user would ever see (user-raised, 2026-09-09).
+ *
+ * `mixed` is deliberately vague: several causes at once, and naming one would be
+ * the original mistake again. It also backstops an unknown value, so a server
+ * that learns a new reason before this map does degrades to something true.
+ */
+const EMPTY_REASON_TEXT = {
+  'all-owned': 'No new suggestions this time — the model only named films already in your list.',
+  'none-named': 'No suggestions this time — the model didn’t name any films. Try again.',
+  'tmdb-unreachable':
+    'Couldn’t check any of the suggestions — the movie database is unreachable. Try again in a moment.',
+  unverifiable: 'No new suggestions this time — none of the films it named could be verified.',
+  mixed: 'No new suggestions this time.',
+};
+
+function renderRecommendations({ suggestions, emptyReason, meta }) {
   el.recsGrid.replaceChildren();
   if (!suggestions.length) {
-    el.recsHint.textContent = 'No new suggestions this time — the model only named films already in your list.';
+    // NOT a caption: nothing follows it, so it is the whole of what this section
+    // is saying and reads at full weight (user-raised, 2026-09-09).
+    setRecsHint(EMPTY_REASON_TEXT[emptyReason] ?? EMPTY_REASON_TEXT.mixed);
+    // R10. The call was really made, really cost money and really is in the audit
+    // log, so its metadata belongs on screen exactly as it does after a run that
+    // produced cards. Returning before this was the one AI outcome in the app
+    // that showed no cost, tokens or duration anywhere.
+    // It also carries logLink() already, which is why the message above does NOT
+    // get a log link of its own — that would put two on one line.
+    el.recsGrid.append(aiMetaFooter(meta));
     return;
   }
-  el.recsHint.textContent = `Based on: ${meta.basedOn.join(', ')}.`;
+  // caption: the cards are right underneath it.
+  setRecsHint(`Based on: ${meta.basedOn.join(', ')}.`, { caption: true });
   suggestions.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'rec-card';
