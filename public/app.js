@@ -727,6 +727,30 @@ function closeSearchResults() {
   el.searchResults.replaceChildren();
 }
 
+/**
+ * Drop focus from the search input so a phone's soft keyboard closes.
+ *
+ * The form calls `preventDefault()`, so it never navigates and the input keeps
+ * focus — and with it the keyboard, which then covers the results the search
+ * just produced. Nothing else in the app blurs anything, so this was the whole
+ * mechanism. Pressing the keyboard's own Go/Search key is the case that needs
+ * it: tapping the Search BUTTON moves focus off the input by itself.
+ *
+ * Gated on `(hover: none)` — a capability query, exactly as the hover rules in
+ * styles.css are, never a width. On a pointer device there is no soft keyboard
+ * to close, so a blur would only cost the user their caret and reset the tab
+ * order to the top of the document; desktop is provably unchanged. A device
+ * with a real pointer AND a touch screen keeps focus, which is the right call
+ * for the pointer it reports as primary.
+ *
+ * The submit handler calls this only AFTER its empty-query early return. That
+ * path focuses the input on purpose: nothing was searched, so the caret belongs
+ * where the fix goes, and the keyboard is what the user still needs.
+ */
+function dismissSoftKeyboard() {
+  if (matchMedia('(hover: none)').matches) el.searchInput.blur();
+}
+
 el.searchForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const q = el.searchInput.value.trim();
@@ -738,6 +762,7 @@ el.searchForm.addEventListener('submit', async (e) => {
     el.searchInput.focus();
     return;
   }
+  dismissSoftKeyboard();
   const settle = busyButton(el.searchBtn, 'Searching…');
   el.searchResults.replaceChildren(makeLoading('Searching…'));
   try {

@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; next up is the mobile-keypad fix, then the recommendations overhaul; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done, so the recommendations overhaul is next; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -473,6 +473,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
+  - **Submitting a search closes a phone's soft keyboard** (2026-09-09, step 1
+    of the agreed order). It stayed up over the results because the handler
+    `preventDefault()`s — the form never navigates — and nothing in the app ever
+    called `.blur()`. `dismissSoftKeyboard()` now does, from the submit handler,
+    **after the empty-query early return** so that path's deliberate
+    `el.searchInput.focus()` still runs. Gated on `matchMedia('(hover: none)')`:
+    a capability query like the CSS hover gates, never a width. Blurring on a
+    pointer device would close no keyboard and would cost the caret plus the tab
+    order (focus lands on `<body>`, so the next Tab restarts from the top of the
+    document), so desktop is provably unchanged. The case it fixes is the
+    keyboard's own Go/Search key, which submits without moving focus — tapping
+    the Search button already blurred the input by itself.
 * **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
   NOT closed: the user is still raising off-backlog refinements and bugs found
   by using it ("a few more things to settle before calling the whole ranked-list
@@ -1002,12 +1014,24 @@ Work this top to bottom. It is the user's own sequencing, not Claude's — do no
 re-prioritise it, and do not start further down because something looks quicker.
 This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-1. **Mobile keypad does not close when a search is submitted.** On a phone the
-   soft keyboard stays up over the results. Mechanism, already traced: the submit
-   handler calls `e.preventDefault()` so the form never navigates, and **nothing
-   in `app.js` ever calls `.blur()`** — so the input keeps focus and the keyboard
-   with it. Careful with the fix: the empty-query path deliberately calls
-   `el.searchInput.focus()`, and that must keep working.
+1. **Mobile keypad does not close when a search is submitted — DONE
+   2026-09-09.** The mechanism was as traced: the submit handler calls
+   `e.preventDefault()` so the form never navigates, and nothing in `app.js` ever
+   called `.blur()`, so the input kept focus and the keyboard with it. A
+   `dismissSoftKeyboard()` helper now blurs the input, called from the submit
+   handler **after** its empty-query early return, so the deliberate
+   `el.searchInput.focus()` on that path is untouched.
+   **Gated on `matchMedia('(hover: none)')`, not applied unconditionally.** A
+   capability query, the same shape as the `@media (hover: hover)` gate on the
+   card hover rules and never a width. A pointer device has no soft keyboard to
+   close, so a blur there buys nothing and costs two things: the caret, and the
+   tab order — `blur()` moves focus to `<body>`, so the next Tab restarts from
+   the top of the document instead of continuing past the input. Desktop is
+   provably unchanged. A touch laptop reports `hover: hover` and keeps focus,
+   which is right for the pointer it calls primary.
+   The case that actually needed it is the keyboard's own **Go/Search** key,
+   which submits without moving focus; tapping the Search BUTTON already blurred
+   the input by itself.
 
 2. **Recommendations overhaul — a big one, with its own sub-backlog.** The items
    below are the seed, NOT the whole list.
