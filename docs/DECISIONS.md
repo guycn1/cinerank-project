@@ -6,6 +6,188 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-050 · The recs grid picks its own column count, and deliberately stops short
+
+`repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
+strands whatever is left over. The user brought two cases: **four cards where
+three fit** renders 3 + 1, with two thirds of the second row empty, and **five
+cards where four fit** renders 4 + 1, with four fifths empty. Both are widths
+where 2 + 2 and 3 + 2 fit perfectly well.
+
+**The column count moves into JS.** There is no CSS-only fix — `auto-fill` and
+`auto-fit` are the only two packing modes, and neither knows the item count. The
+standard balanced-rows formula is two lines: how many rows does the widest layout
+need, then spread the cards evenly over exactly that many. It can never add a
+row, so it can never make the section taller.
+
+**The interesting decision is not to apply it everywhere.** Ran unrestricted, it
+also rewrites the commonest case: six cards where four fit becomes 3 + 3 instead
+of 4 + 2. That is tidier, and it was rejected — 4 + 2 strands nothing, and
+balancing it makes every card ~36% wider and the whole section markedly taller.
+The user's rule was "avoid rows with only 1 card unless it really has no choice",
+which is narrower than "always even the rows out", and the narrower rule is the
+one implemented: the formula runs only when the natural layout would strand a
+single card. One `> 1` in `balancedColumns()` is the whole of the difference, and
+it is commented as such, because the temptation to "finish the job" is obvious.
+
+**Centring a short last row needs half-column granularity, so the tracks are
+doubled and every card spans two.** This is the part most likely to be
+"simplified" later. In a plain three-column grid the two cards of a 3 + 2 layout
+sit hard left with a third of the row hanging off the right; there is no grid
+property that centres a partial last row. The alternatives were worse:
+
+*`justify-content: center`* centres the track LIST, which does nothing when the
+tracks are `1fr` and already fill the width.
+
+*A `translateX` on the first card of the last row* was the near miss. It works
+geometrically, and it is unusable here: `.rec-card` already carries a hover
+`transform` and an entrance animation on the same property, so a layout offset
+expressed as a transform would be silently overwritten by both.
+
+*Doubling the tracks* costs nothing, and that is arithmetic rather than hope: a
+card spans two tracks **and the gap between them**, so three cards and their two
+gaps come to 3(2t + g) + 2g = 6t + 5g — exactly what six tracks and five gaps
+occupy. A doubled grid and a plain k-column grid produce identical cards. JS then
+places only the FIRST card of the last row, at column (k − m) + 1; the rest
+auto-place after it, which the spec's placement cursor guarantees.
+
+**Two smaller things worth not rediscovering.** The custom property holds the
+already-doubled track count rather than a column count multiplied by two in CSS,
+because a math function in `repeat()`'s first argument is not somewhere to be
+adventurous. And `.rec-card` is `grid-column: auto / span 2`, not the shorter
+`span 2` — one value leaves `grid-column-end: auto`, so the moment JS writes a
+`grid-column-start` the card would collapse to a single half-width track.
+
+---
+## D-049 · The recs spotlight IS ported, at 0.70 — supersedes D-048's last section
+
+**D-048 records Claude rejecting the ranked list's spotlight dimming for the recs
+grid. The user overruled that the same day, and was right.** This entry exists
+because a future session reading D-048 alone would find a confident argument for
+removing a feature that is now deliberately there.
+
+Claude's two objections, and what happened to each:
+
+*"A grid is for side-by-side comparison; dimming five of six fights that."* The
+real objection was to the **strength**, not to the idea. The ranked list dims to
+`0.55`, which is heavy enough to take the other cards out of play — fine in a
+column you are scanning top to bottom, too much in a gallery. The user's answer
+was to port it far lighter — tried at **0.75**, settled at **0.70** minutes
+later: the section still recedes, and every unhovered card stays perfectly
+readable. Claude had treated the ranked list's number as part of the pattern
+rather than as a dial, which is the actual error here; the exact figure was
+always going to be found by looking at it.
+
+*"`.recs__grid` also holds the metadata footer as a grid child, so dimming only
+the cards leaves it the single brightest thing on screen."* True, and it turned
+out to be one character rather than a blocker: the selector is `> *`, not
+`> .rec-card`, so the footer dims with them. The residual worry — that this dims
+the AI-call-log link, the section's only route into the audit trail — does not
+survive contact with 0.70, where the link is plainly legible and one
+pointer-move from full strength. Hovering the footer itself dims nothing, since
+the `:has()` tests for a hovered **card**.
+
+**The lesson worth keeping is about how the objection was framed.** Both
+arguments were about the effect at a strength nobody had proposed. Rejecting a
+port on the grounds of a value that came with it, without asking whether the
+value should travel, is how a pattern stops being a pattern and becomes a rule.
+
+Nothing else changed: `:has()` for the same gap-strobe reason as the ranked list,
+`opacity` added to `.rec-card`'s existing transition (declared in the base state,
+or it would ease in and snap back), and the footer's transition scoped to the
+grid because `.ai-meta` is shared with the verdict banner. The hovered card's
+`z-index: 3` — added for the badge arithmetic in D-048 — now also does the job
+the ranked list needed `z-index: 1` for: `opacity < 1` makes each dimmed sibling
+paint as though positioned at `z-index: 0`, which would otherwise clip the
+hovered card's glow.
+
+---
+## D-048 · The rec-card enter/exit is two CSS phases, not a View Transition (R27, R14)
+
+The user asked for "a smooth entering animation to recs-cards as they're being
+added to the page — one by one, like cards", and then, after watching it run,
+wrote a precise sequence: **cards arrive → scroll the section into view → wait
+~200ms → entrance animation**, all of it after the response has landed and none
+of it on a run that produced no cards. That sequence is theirs and was recorded
+as non-negotiable; what follows is only about the mechanism underneath it.
+
+**The backlog told the next session to use a View Transition, and that was the
+wrong instruction.** The R27 entry says so in as many words — "Prefer the View
+Transition route: it is the mechanism this codebase already chose for exactly
+this problem" — and the ranked list really does use one for its re-sort (D-031).
+Reading it against the actual shape of this feature is what killed it:
+
+*A View Transition animates one atomic old→new swap.* Here the two halves are
+**seconds apart and on opposite sides of an AI call**. The old cards become
+stale the moment the trigger is clicked; the new ones exist only after
+OpenRouter and six TMDB lookups have answered. `startViewTransition()` accepts an
+async callback and will wait for it — which is precisely the problem, because it
+holds a frozen snapshot of the whole page for the length of the request. The
+busy spinner would stop spinning, and nothing else on the page could move.
+
+*It also cannot express any of the three things the user asked for.* A View
+Transition cross-fades a group; it has no per-card stagger, no lead-in, and no
+place to put a scroll in the middle. Getting the stagger back would mean naming
+each card and writing keyframes per pseudo-element — more machinery than the
+two-phase version, to reach the same picture.
+
+So: **a CSS animation each way, and a two-phase render**. The click applies
+`.is-leaving` and removes each node on its own `animationend`; the response
+renders fresh cards whose `animationDelay` carries the lead-in and the stagger.
+
+**Two things about that are not obvious.**
+
+*The exit removal cannot be driven by `animationend` alone.* The
+`prefers-reduced-motion` block sets `animation: none !important`, so for those
+users no animation runs and **the event never fires** — the old cards would sit
+on screen for good, replaced only by the next render. `exitRecCards()` therefore
+checks the media query first and clears instantly. Found by reasoning about the
+reduced-motion block, not by testing, and it is the kind of bug that would only
+ever have been reported by the one user least able to tolerate it.
+
+*The lead-in is an `animationDelay`, not a `setTimeout`.* No timer to leak or
+cancel if a second run starts. This only works because the fill is `backwards`:
+during the delay each card holds the from-state instead of sitting fully visible
+and then jumping. That is D-043's mechanism doing real work, and one more reason
+the fill must never go back to `both`.
+
+**`html { scroll-behavior: auto }` was missing from the reduced-motion block and
+is added here.** The block kills `animation` and `transition`; a programmatic
+`scrollIntoView()` is neither, and obeys `scroll-behavior` instead. It was latent
+— nothing in the app scrolled programmatically and there are no in-page anchors —
+and went live the moment this feature landed.
+
+**R14 (grow-on-hover on `.rec-card`) rode along**, because it lands on the same
+element and shares the `backwards` constraint: a forwards fill would have pinned
+`transform: none` and silently cancelled the hover, which is exactly what D-043
+found on the ranked card. The effect is the ranked card's vocabulary ported
+verbatim — scale only, no `translateY`, three glow layers at a **zero Y-offset**,
+no black layer — with two deliberate differences:
+
+*The halo is tighter* (34/50px against 40/60px), because these cards sit in a
+grid with a 17.6px horizontal gap rather than a column with a 16px vertical one,
+and a halo that crosses the gap reads as two cards sharing one glow.
+> **2026-09-09, later the same day:** the user widened these by eye to 40/100px
+> — looser than the ranked card, not tighter — and the reasoning above did not
+> survive the spotlight added in D-049 between the two edits: with every other
+> card at 0.7, a halo crossing the gap falls on something already receding. The
+> paragraph stands as written; the live values are in `styles.css`.
+
+*`z-index: 3`, not the ranked card's `1`.* Arithmetic, not taste: every
+`.rec-card::before` badge carries `z-index: 2` and resolves in the same stacking
+context as the cards, so a hovered card at `1` would have a NEIGHBOUR's badge
+painting over its glow.
+
+**The spotlight dimming was considered and rejected**, which is the part most
+likely to be "fixed" later. On the ranked list, dimming every card but the
+hovered one helps you keep your place in a vertical column you are scanning. The
+recs grid is a gallery of six whose job is side-by-side comparison, and dimming
+five of them fights that. Worse, `.recs__grid` also holds the metadata footer as
+a grid child: `:not(:hover)` over cards alone would leave the footer at full
+strength in the middle of a dimmed grid, and including it would dim the
+AI-call-log link, which is the section's only route into the audit trail.
+
+---
 ## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
 
 The recommendations route answered every `RecommendationError` with
@@ -183,6 +365,13 @@ by anything, including future non-text content with its own intrinsic width. The
   it cannot be pushed open the way the ranked card was. But the reason text is
   model output derived from the user's own reviews, which is the prompt-injection
   surface, and the card title is not clipped the way `.reason` is.
+  > **2026-09-09:** this premise expired. D-050 replaced those tracks with plain
+  > `1fr` — i.e. `minmax(auto, 1fr)` — so the automatic minimum is back in play
+  > and the guard above is now load-bearing rather than defensive. The sweep that
+  > noticed also found the gap it left: `.rec-card` ITSELF, which is the grid
+  > item, never carried `min-width: 0`, so a poster's intrinsic width could push
+  > the track open on a phone. Fixed there. The paragraph stands as the reasoning
+  > at the time.
 * `.result-row` — a flex container, and a flex item's automatic minimum size is
   min-content, the same mechanism. Its text comes from TMDB, so nothing is known
   to be broken.
@@ -280,6 +469,10 @@ why it survived this long.
 `.rec-card` had the same `both` and was fixed with it. No hover transform exists
 there today, so nothing was visibly broken — but it is the same latent trap, and
 adding one later would have silently done nothing.
+> **2026-09-09, later the same day:** "later" arrived — R14 put a grow-on-hover
+> on `.rec-card`, and it works precisely because this fix had already landed.
+> The sentence above stands as the reasoning at the time; the card does have a
+> hover transform now.
 
 ### The other half: a lift with no elevation cue
 `box-shadow` was set on `.movie-card` and **was not in its `transition` list, and

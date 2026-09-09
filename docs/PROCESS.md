@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Twelve merges to `main` so far (verify with
+  human sign-off.** Thirteen merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
@@ -170,11 +170,20 @@ screenshots for the submission even though the server side is now tested.
   screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a
   mid-overhaul one.
-- **The recommendations error state is written and then immediately overwritten**
-  by the availability-sync that runs in the same `finally`, so a failed run shows
-  the user nothing. The server side is correct and under test (422 plus a
-  `status='failed'` log row); this is the UI half of SPEC §7.1 and is fixed when
-  that section gets its overhaul pass. The verdict side already does it properly
-  — its fallback links straight into the AI call log.
+- ~~**The recommendations error state is written and then immediately
+  overwritten** by the availability-sync that runs in the same `finally`, so a
+  failed run shows the user nothing. The verdict side already does it properly —
+  its fallback links straight into the AI call log.~~
+  **Fixed 2026-09-09, and it was worse than written on both counts.** It was
+  filed as an error-message bug; the `finally` reassigns the element
+  unconditionally, so the SUCCESS line and the zero-result line died with it —
+  a failed run, a successful run and a page that had never run were
+  indistinguishable apart from the cards. And the verdict was *not* the model to
+  copy: its fallback offered the AI call log for every failure, including
+  CineRank itself being unreachable, where that log cannot load either. Reading
+  the "good" implementation before copying it is what turned one fix into three
+  (a guarded single-writer for the hint; a `logged` flag the server sets only
+  when a row was really committed; the same treatment applied back to the
+  verdict). D-047 has the reasoning.
 - The prompt-injection defense should be shown with a concrete demo movie whose
   review is an injection attempt.

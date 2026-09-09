@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with SIXTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,9 +33,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "ranked-list
-  backlog complete (#14–#20) + a whole-app narrow-viewport pass" (2026-09-09,
-  `2526402`). **Twelve** merges so far;
+* `main` is at the latest settled UI milestone — currently "recommendations
+  overhaul, first pass — sixteen R-items plus the mobile-keypad fix" (2026-09-09,
+  `4c31c85`). **Thirteen** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -51,7 +51,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3` (second-person
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
-  owned-titles filter. Card `.reason` clamps at 5 lines.
+  owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
+  scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
+  cards in at 120ms apart; regenerating fades the previous set out first (R27,
+  R14, D-048). Nothing animates or scrolls on an empty or failed run.
+  The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
+  never left holding one lonely card: four cards where three fit render 2 + 2
+  and five where four fit render 3 + 2, with a short last row centred on a
+  half-column offset (off-backlog, user-raised 2026-09-09; D-050). Deliberately
+  restrained — six cards where four fit stays 4 + 2, because nothing is
+  stranded there and evening it out would grow every card by a third.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
@@ -88,6 +97,32 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
+* **`scripts/debug-recs.js` — a console harness for the recommendations UI**
+  (2026-09-09, user-asked). The client has no test harness, so every judgement
+  about the recs grid, the entrance stagger, the scroll or the hover glow costs a
+  real OpenRouter call, and the user ran their paid quota down doing exactly
+  that. **The page loads it temporarily**, so `debugRecs(4)` is available in the
+  console straight away and makes "Get recommendations" render four dummy cards.
+  1–6 (`parseModelJson` slices at 6);
+  `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
+  latency.
+  **It patches `window.fetch` and answers `POST /api/recommendations` in the
+  browser** — so no OpenRouter call, no TMDB verification and NO
+  `recommendation_logs` row, while everything downstream (busy button, exit
+  animation, `renderRecommendations`, column balancing, stagger, scroll, meta
+  footer) runs unmodified. Intercepting the transport rather than reaching into
+  the render is the point: a harness that called the renderer directly would be
+  testing itself. Dummy `tmdb_id`s are NEGATIVE, so they can never collide with a
+  real film, and `POST /api/movies` for one is refused in the browser — pressing
+  Add on a dummy card cannot reach the database. Reload to stop; nothing is
+  persisted. Never run by Node.
+  **Two lines make it load, and both are temporary** — the
+  `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
+  route serving it in `server/index.js` (the file lives in `scripts/`, which is
+  deliberately outside the static root). The FILE stays; only those two go. See
+  the checkbox under Pre-submission blockers. The harness also refuses to install
+  itself when the hostname ends in `onrender.com`, so the live site is protected
+  even if the removal is forgotten — a belt to that braces, not a substitute.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -991,9 +1026,19 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     and the unrated hint. `min-width: 0` sits beside it as the structural half,
     since `overflow-wrap` governs text only.
     `.rec-card__body` and `.result-row` got the same guard **defensively** and are
-    labelled as such in the CSS — the recs grid has a FIXED `minmax(190px, …)`
-    minimum so it cannot be pushed open, and search rows carry TMDB titles. Only
-    the ranked card was actually broken.
+    labelled as such in the CSS; only the ranked card was actually broken at the
+    time. `.result-row` still carries TMDB titles and is still defensive.
+    **`.rec-card__body`'s is no longer defensive** (corrected 2026-09-09): its
+    justification was that the recs grid had a FIXED `minmax(190px, …)` minimum
+    and so could not be pushed open, and D-050 replaced those tracks with plain
+    `1fr` — `minmax(auto, 1fr)` — which puts the automatic minimum back in play.
+    The same sweep found the gap that left: **`.rec-card` itself is the grid item
+    and never carried `min-width: 0`**, so a poster's intrinsic width (TMDB
+    serves w342) could push the track open and give a phone a horizontal
+    scrollbar. Fixed. **Fifth appearance of one root cause** — the search input,
+    the add button, the ranked card's `1fr` track, `.recs__trigger`, and now
+    this. When something will not shrink, look at the automatic minimum size
+    first.
 
   - **Equal ratings now read oldest-first** (off-backlog, user-raised
     2026-09-09). `GET /api/movies` broke ties with
@@ -1076,8 +1121,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
-   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R13,
-   R19 and R23–R26 plus R28 are done and R20 was WITHDRAWN as incorrect — every
+   fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
+   seeing R27 and D-050 run. R1–R4, R8–R14,
+   R19 and R23–R28 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1239,7 +1285,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule and
      the `.ranked__head`-only rule is gone, along with the comment explaining the
      split. The split existed so that wrapping the head could not mask R11; R11 is
-     fixed, so it has served its purpose.
+     fixed, so it has served its purpose. **One LAYOUT rule, to be exact:**
+     `.recs__head` picked up a selector of its own again with R27, for the
+     `scroll-margin-top` its scroll target needs. Different concern, not this
+     split creeping back — both places say so.
      The trigger now drops below "What to watch next" rather than both items
      squeezing. **No threshold is encoded, and the comment says not to add one:**
      flex line breaking compares HYPOTHETICAL sizes, so the browser derives the
@@ -1273,15 +1322,39 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      disabled — the search button, `.rate-dialog button.primary` and this one —
      and all three now swap the fill. `.log-cta__btn` is amber-filled too but
      nothing ever disables it.
-   * **R14. No grow-on-hover on `.rec-card` (user).** Read D-043 AND D-044 first:
-     elevation on this page is made of LIGHT, not black; every glow layer takes a
-     ZERO Y-offset (a Y-offset is what makes a glow lopsided, and that mistake was
-     made twice in one item); and the amber must never become a hard-edged opaque
-     line at an offset, which is where it converges with the `:focus-visible`
-     ring. The entrance-animation fill is already `backwards` here, so a hover
-     transform will actually apply — that trap is pre-cleared. Also decide whether
-     the ranked list's spotlight dimming (`.ranked__list:has(…)`) should port, or
-     whether it belongs only to a vertical list of peers.
+   * **R14. DONE 2026-09-09, with R27 (D-048) — grow-on-hover on `.rec-card`.**
+     Done in the same pass as R27 on purpose: both land on this element, and both
+     depend on the entrance fill staying `backwards`. A forwards fill pins
+     `transform: none` from the final keyframe and outranks normal author
+     declarations, which is exactly how the ranked card's hover was silently
+     cancelled (D-043) — so a hover added here without R27 alongside it would
+     have been one edit away from the same invisible bug.
+     The ranked card's vocabulary ported verbatim: `scale(1.02)` and NO
+     `translateY` (a lift is directional and drifts the card toward one
+     neighbour — worse in a grid, where it has row-mates too), an amber border,
+     and three glow layers at a **zero Y-offset** with no black layer, because on
+     `--bg: #0b0b0f` a black shadow has nothing left to darken (D-044).
+     Two deliberate differences. The glow is **wider** than the ranked card's
+     (40/100px against 40/60px, plus a 1.5px lit edge and `scale(1.018)`) — those
+     magnitudes were tuned by the user by eye, reversing Claude's first pass,
+     which had gone one notch TIGHTER on the theory that a halo crossing the
+     grid's 17.6px gap would read as two cards sharing one glow. The spotlight
+     (D-049) landed between the two edits and settles it: with every other card
+     at 0.7, a halo spilling across the gap falls on something already receding.
+     A box-shadow is ink overflow, so no size here can produce a scrollbar.
+     Second difference: `z-index: 3` rather
+     than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
+     badge carries `z-index: 2` and resolves in the same stacking context, so at
+     `1` a NEIGHBOUR's badge would paint over this card's glow.
+     **The spotlight dimming IS ported, at `0.7` rather than the ranked list's
+     `0.55`** (D-049). Claude argued against porting it at all and the user
+     overruled that the same day — correctly: the objection was to the ranked
+     list's STRENGTH, not to the idea, and 0.7 leaves every unhovered card
+     perfectly readable while the section still recedes. `> *` and not
+     `> .rec-card`, so the metadata footer dims with them instead of being left
+     as the single brightest thing on screen; hovering the footer dims nothing,
+     because the `:has()` tests for a hovered card. Do not re-tune 0.7 by eye
+     without reading D-049 — the number is the whole of what was settled.
    * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
      D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
      fiddly — the user granted that in advance. Do not spend hours on it.**
@@ -1365,43 +1438,52 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
      fails one, and hardcoding `all-owned` fails three.
 
-   * **R27. Rec cards need an EXIT animation; the entrance already exists**
-     (user-raised, 2026-09-09). The request was "a smooth entering animation…
-     one by one", and **that half is already built** — `.rec-card` carries
-     `animation: fade-slide 0.5s var(--ease) backwards` and
-     `renderRecommendations()` sets `animationDelay = i * 60ms`, the same keyframe
-     and the same staggering idea the ranked list uses. Written down explicitly so
-     nobody builds it twice.
-     So the real work is two things. **(a) Find out why it does not read as an
-     entrance.** Likely because the whole stagger is only ~360ms for six cards and
-     it lands at the end of a multi-second AI call, when the eye has already
-     wandered; the 10px travel is also small for a card this size. Tune the
-     duration, the per-card delay and the distance — do not add a second
-     animation. **(b) Build the exit, which genuinely does not exist:**
-     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so
-     regenerating removes the old cards in one frame with no transition at all.
-     **Traps.** The fill must stay `backwards`, never `both` — a forwards fill
-     pins the final keyframe forever and outranks normal author declarations,
-     which is what silently cancelled the ranked card's hover (D-043); R14's
-     grow-on-hover lands on this same element and would be killed by it.
-     An exit animation cannot run on a node that is already removed, so
-     `replaceChildren()` has to become a two-phase render (animate out, then
-     swap) — or use a View Transition, which the ranked list already does for its
-     re-sort (D-031) and which `.recs` already carries a
-     `view-transition-name` for. Prefer the View Transition route: it is the
-     mechanism this codebase already chose for exactly this problem.
+   * **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
+     (user-raised, 2026-09-09.) The entrance half already existed and was tuned
+     rather than rebuilt: `.rec-card` now carries its own
+     `animation: rec-enter 0.5s var(--ease) backwards`, and the stagger went from
+     `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card step
+     the user asked for. Its own keyframe, not the shared `fade-slide`, because
+     10px of travel under a ~300px poster card is a twitch and tuning it must not
+     move the ranked list.
+     The exit did not exist at all — `replaceChildren()` dropped six cards in one
+     frame — and is now `exitRecCards()`: `.is-leaving` on every grid child (the
+     metadata footer included, since it describes the run being replaced), each
+     removed on its own `animationend`.
+     **Built as two CSS phases, NOT as a View Transition, and this entry used to
+     say the opposite.** It read "Prefer the View Transition route: it is the
+     mechanism this codebase already chose for exactly this problem." That was
+     wrong: a View Transition animates ONE atomic old→new swap, and here the two
+     halves are seconds apart on opposite sides of an AI call. Wrapping the gap
+     would hold a frozen snapshot of the whole page for the length of the
+     request, and it can express neither the stagger, the lead-in, nor the scroll
+     between them. Corrected rather than preserved, because it was advice about
+     what to do next, not a record of a past state. Full reasoning in D-048.
+     **The reduced-motion trap that reasoning turned up:** that block sets
+     `animation: none !important`, so no animation runs and `animationend` never
+     fires — a listener-driven removal would have left the old cards on screen
+     permanently for exactly the users least able to tolerate it.
+     `exitRecCards()` checks the media query first and clears instantly.
+     `html { scroll-behavior: auto }` was added to the same block, as this entry
+     already required below.
 
      **The user's spec for (a), given 2026-09-09 after watching it run:**
      * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
        is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
-       bounded: at 120ms it would be lead-in + 5x120ms + the 0.5s card duration,
-       about 1.3s.
+       bounded: at 120ms it is lead-in + 5x120ms + the 0.5s card duration, which
+       came to about 1.3s as first estimated against a 200ms lead-in and is
+       **1.5s as shipped**, the lead-in having been doubled to 400ms.
      * **Scroll the section into view**, because the cards land below the fold and
        the user has to scroll down mid-animation and misses most of it.
        `scrollIntoView({ block: 'start' })`.
      * **THE EXACT SEQUENCE, and it is not negotiable** (user, 2026-09-09):
        cards arrive → **scroll** → wait **~200ms** → **entrance animation**. In
        that order, all of it after the response has landed.
+       The ORDER is the non-negotiable part, not the figure: the user doubled the
+       beat to **400ms** after watching it, which is the value in
+       `RECS_LEAD_IN_MS`. A side effect worth knowing before it is tuned again —
+       at 400ms a browser's smooth scroll has typically finished before the first
+       card moves, so the sequence now reads literally rather than overlapping.
      * **Gated on `suggestions.length`. Nothing else animates or scrolls.** The
        "No new suggestions this time…" line, the error line and every placeholder
        get no entrance animation and no scroll at all — the user's words: they
@@ -1416,12 +1498,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        top). So `scrollIntoView({ block: 'start' })` is smooth WITHOUT passing
        `behavior: 'smooth'` — and passing the CSS property is what makes the
        reduced-motion fix below expressible in CSS rather than in JS.
-     * **REQUIRED, and currently missing:** the `prefers-reduced-motion` block
-       kills `animation` and `transition` only, so a motion-sensitive user would
-       still get a smoothly animated page scroll. Add `html { scroll-behavior:
-       auto; }` to that block in the same commit. It is latent today — nothing in
-       the app scrolls programmatically and there are no in-page anchors — and it
-       goes live the moment this feature lands.
+     * **Was REQUIRED and missing; ADDED with this item.** The
+       `prefers-reduced-motion` block kills `animation` and `transition` only, so
+       a motion-sensitive user would still have got a smoothly animated page
+       scroll. `html { scroll-behavior: auto; }` is now in that block. It had
+       been latent — nothing in the app scrolled programmatically and there are
+       no in-page anchors — and went live the moment this feature landed.
      * **The scroll target is `.recs__head`** — the user's call, and it is the
        right one. It is the first child of `.recs`, so `block: 'start'` lands the
        heading AND the trigger at the top of the viewport, with the hint and then
@@ -1434,10 +1516,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        `start` is also the robust ALIGNMENT here, independently: the content below
        the target grows as cards render, and top alignment is unaffected by growth
        below it, where `center` or `nearest` would drift mid-animation.
-       One small thing to check when building it: `block: 'start'` pins the
-       element's top flush to the viewport top with no breathing room. If that
-       reads too tight, `scroll-margin-top` on `.recs__head` is the one-line
-       answer — it is exactly what `scrollIntoView` honours, unlike `margin`.
+       `block: 'start'` pins the element's top flush to the viewport top with no
+       breathing room, so `.recs__head` carries `scroll-margin-top: 1rem` — that
+       property is exactly what `scrollIntoView` honours, unlike `margin`. It is
+       the one dial if the landing ever reads too tight or too loose. Not a
+       reopening of the R12 head split: the layout rules stay on the shared
+       `.ranked__head, .recs__head` rule.
      * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
        leak or cancel if a second run starts. This works only because the fill is
        `backwards`: during the delay each card holds the from-state (opacity 0,
@@ -1549,9 +1633,88 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      response never reaches the browser, the row exists and the client cannot know.
      It shows the transport message instead.
 
+   * **R29. A CARD'S SIZE MUST NEVER DEPEND ON HOW MANY CAME BACK** (user-raised
+     2026-09-09, with a screenshot). One recommendation on a viewport wide enough
+     for four currently renders as a single full-width card with a poster taller
+     than the window. Two is the same fault, less dramatically. The tracks are
+     `1fr` and `balancedColumns()` returns `min(count, fit)` when everything fits
+     on one row, so the count decides the width. That is backwards.
+     **The user's rule, in their words: "I do not believe that a card's size
+     should ever depend on how many cards returned. A better fix for the ugly
+     unoccupied space in a row is to just center it all — and screw the spaces in
+     the side edges: an evenly distributed space to the right of the row AND to
+     the [left] of it looks far less hideous than having all that space in one
+     side, trust me."** So: side margins are ACCEPTED, and the alignment
+     objection Claude raised against this shape earlier (that the grid would sit
+     narrower than the heading above it) is overruled. Do not re-litigate it.
+     **Shape of the fix.** Size the track from `fit` — the widest packing the
+     viewport allows — not from the count: one fixed card width per viewport,
+     the balanced count for the rows, and `justify-content: center` on the grid.
+     The half-column offset that centres a short last row (D-050) still applies
+     on top and is unaffected.
+     **This also settles the 4 + 2 versus 3 + 3 question the user asked on the
+     same day, and settles it as free.** The only cost of 3 + 3 was that filling
+     tracks made every card ~36% wider; once the width is fixed by `fit`, 3 + 3
+     is the same card and the same two rows as 4 + 2. So `balancedColumns()`'s
+     deliberate `> 1` restraint (D-050) should be reconsidered as part of this —
+     it exists only to avoid the growth that will no longer happen.
+     **The `.ai-meta` footer MOVES OUT OF THE GRID — settled 2026-09-09, before
+     building.** It is a grid child spanning `1 / -1` today, so a centred,
+     narrower track list would shrink the footer and its dashed rule to match,
+     and a single-card run would leave it one card wide. The user ruled out
+     accepting that and left the choice between spanning it to the container and
+     taking it out of the grid to Claude, guessing the second was less risky.
+     It is, and the deciding fact is not obvious: **`grid-column: 1 / -1` spans
+     the TRACK LIST, not the container.** With `justify-content: center` the free
+     space sits OUTSIDE the tracks, so "span it to the container" is not a
+     one-liner at all — it needs a flexible gutter track at each end
+     (`1fr repeat(2k, …) 1fr`), which shifts every column index by one, adds two
+     more gaps to the width arithmetic, breaks the half-column offset that
+     centres a short last row, and puts an auto-placed card into a gutter unless
+     every card is explicitly positioned. That is a lot of new machinery in
+     exactly the place the user was worried about: six card counts times every
+     viewport width.
+     Out of the grid it is a plain block under it, full width, always, coupled to
+     nothing. Give it a stable slot in `index.html` (the way `#recs-hint` and
+     `#recs-grid` are stable) rather than appending it to `.recs` and querying it
+     back — an empty slot has no border, padding or content, so it costs no
+     layout.
+     **Four follow-on edits, so they are not discovered one at a time:**
+     (1) `renderRecommendations()` appends the footer in TWO places — the empty
+     branch and the success branch — and both move.
+     (2) `exitRecCards()` sweeps the grid's children and currently fades the
+     footer out with the cards, deliberately; it has to clear the new slot too.
+     (3) **The sneaky one.** The spotlight dims the footer only because it is a
+     grid child — that is the whole of D-049's `> *` rather than `> .rec-card`.
+     Moving it out silently undoes that decision and leaves the footer the
+     single brightest thing on screen. The `:has()` anchor has to move up to
+     `.recs`, scoped so the VERDICT banner's own `.ai-meta` is untouched.
+     (4) The grid's `gap` no longer separates the footer from the cards, so it
+     needs its own top margin — `1.1rem`, to match what it is replacing.
+     Fold this into the decision entry written when R29 lands; it is recorded
+     here now because it was settled before the work started.
+   * **R30. The exit animation stutters, and should close like a book**
+     (user-raised 2026-09-09). `rec-leave` ends at
+     `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card
+     sliding SIDEWAYS as it goes — the user's word for the result was
+     "stuttering". Two changes wanted: **stagger the exit one by one** (it is
+     deliberately uniform today — see the `@keyframes` comment, which will need
+     rewriting rather than amending), and replace the shrink with a
+     **"book-closing" effect — `transform: scaleX()` and the like** rather than
+     any vertical or diagonal movement.
+     **Traps.** `scaleX` needs a deliberate `transform-origin` — the default
+     centre collapses the card inward from both edges, which is a different
+     effect from a cover closing; a left or right origin is what reads as a
+     hinge. The exit runs while the request is IN FLIGHT, so its total length
+     (stagger + duration) has real headroom but is not free — keep it well under
+     a second for six cards. And the removal is driven by each node's own
+     `animationend`, which a per-card `animationDelay` does not disturb.
+
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
-   was corrected `both` → `backwards` (D-043), `.rec-card__body button:hover`
+   was corrected `both` → `backwards` (D-043) and must STAY that way now that a
+   hover transform (R14) and a delayed entrance (R27) both depend on it,
+   `.rec-card__body button:hover`
    gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
    shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
@@ -1709,38 +1872,97 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   submitting the address are two different things, and the second is what makes
   the first count.
 * [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
-* [ ] **Resilience screenshots** — the calm inline UI states for: TMDB down on
-  search, TMDB down on add, OpenRouter down on recommendations, OpenRouter down
-  on the verdict (that fallback now links into the AI call log — the shot should
-  show it), **CineRank itself unreachable** (stop `npm start`, then search:
-  "Couldn't reach CineRank…"), and the *non*-error empty state ("No matches",
-  muted rather than crimson — worth one shot to show the two are distinguished).
-  All with the ranked list still working. Server side is tested (`npm test`);
-  the *visual* evidence for SPEC §7.1 is still missing. Put them in `docs/`.
-  How to force each: bogus `TMDB_API_KEY` / `OPENROUTER_API_KEY` in `.env` +
-  restart. TMDB and OpenRouter are called SERVER-side, so DevTools offline and
-  request-blocking do not simulate them.
-  **Added 2026-09-08: the database being unreachable is a fifth state, and it
-  is the one nobody had tried.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY` in
-  `.env` + restart; the ranked list then fails to load and the toast reads
-  "Could not load your movies: …". Note this is the ONE resilience shot where
-  the ranked list is legitimately NOT working — it is the thing that broke — so
-  it does not belong in the "all with the ranked list still working" set above.
-  Finding it is what caught the central 500 handler claiming "on our side" for a
-  failure that was neither a bug nor on the server's side.
-* [ ] **One more resilience state, added 2026-09-09 (R28): TMDB unreachable
-  DURING a recommendation run.** Distinct from "TMDB down on search" and "on add",
-  and the only one where the AI call succeeds and is charged while the run still
-  produces nothing. Force it with a bogus `TMDB_API_KEY` and enough rated films
-  to trigger recs. Expect: "Couldn’t check any of the suggestions — the movie
-  database is unreachable", the metadata footer with its real cost, and a
-  `success` row in the AI call log whose `suggested_titles` is empty. Before R28
-  this same state claimed the model had only named films already in the list.
+* [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
+  missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
+  Put them in `docs/`.
+  **Every state has a stable `RS-n` marker, so `grep "RS-" CLAUDE.md` returns the
+  whole set and each line is self-contained enough to shoot from without reading
+  the history.** Add new ones with the next free number and never renumber.
+  **Tick each `RS-n` as it is captured** — the parent checkbox is done only when
+  all nine are.
+  **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
+  request blocking do NOT simulate them. Forcing means editing `.env` and
+  restarting, except where noted.
+  **The ranked list must still be working in every shot except RS-7** — that is
+  the point of most of them: one thing broke, the app did not.
+
+  - [ ] **RS-1 · TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
+    anything. Expect the crimson note inside the results panel:
+    "Couldn’t reach the movie database. Try again in a moment."
+  - [ ] **RS-2 · TMDB down on add.** **Order matters and is not obvious:** search
+    FIRST with a good key so rows render, THEN swap in a bogus key, restart, and
+    click Add on the rows still on screen. There is no other way in — with TMDB
+    down, search itself fails and there is nothing to click. This works only
+    because the results panel is persistent rather than a dropdown (D-024).
+    Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
+  - [ ] **RS-3 · TMDB unreachable DURING a recommendation run** (added by R28).
+    Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
+    Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
+    call succeeds and is charged while the run still produces nothing.** Expect
+    the hint "Couldn’t check any of the suggestions — the movie database is
+    unreachable. Try again in a moment.", the metadata footer showing the real
+    cost, and — in the AI call log — a green `success` row whose
+    `suggested_titles` is empty. Before R28 this state claimed the model had only
+    named films already in the list. Costs one real OpenRouter call.
+  - [ ] **RS-4 · OpenRouter down on recommendations.** Bogus
+    `OPENROUTER_API_KEY`, restart, 3+ rated films, click Get recommendations.
+    Expect "Couldn’t generate recommendations right now. See the AI call log for
+    details.", with **AI call log** as an amber link, and a red `failed` row in
+    the log whose `error_text` names the real cause (e.g. `OpenRouter responded
+    401`). The split is the point: calm sentence to the user, technical cause to
+    the audit trail (R8/R9, D-047).
+  - [ ] **RS-5 · OpenRouter down on the verdict.** Same key, 2+ rated films,
+    click New verdict. Expect "Couldn’t come up with a verdict right now. See the
+    AI call log for details." Shoot it beside RS-4 if possible — the two features
+    answering identically is what R23 was for.
+  - [ ] **RS-6 · CineRank itself unreachable.** **Load the page first, THEN stop
+    `npm start`**, then search. Stopping the server first means the document never
+    loads and there is no UI to photograph — this cost time once already. Expect
+    "Couldn’t reach CineRank. Check your connection and try again." The ranked
+    list keeps showing whatever it loaded before the server went away.
+  - [ ] **RS-7 · Database unreachable.** Bogus `SUPABASE_URL` /
+    `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
+    movies — Something went wrong."
+    **This is the ONE shot where the ranked list is legitimately empty** — it is
+    the thing that broke — so it does not belong in the set above.
+    Worth knowing why it earns a slot: finding this state is what caught the
+    central 500 handler claiming a failure was "on our side" when it was neither
+    a bug nor the server's fault.
+  - [ ] **RS-8 · The non-error empty state.** Everything working; search a
+    nonsense string. Expect the MUTED note (not crimson): "No matches for
+    “<query>”. Check the spelling, or try a different title." One shot, purely to
+    show that an empty result and a failure are visibly different — which is the
+    whole of D-033's argument, applied in Search.
+  - [ ] **RS-9 · A recommendation run that returns nothing.** Not a failure, and
+    included deliberately: it is the clearest single frame proving the app reports
+    an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
+    wrapper" evidence rather than §7.1 resilience.
+    **The only one of the nine that needs a temporary code change**, because the
+    state cannot be forced from `.env`. In `generateRecommendations()`, make every
+    verified film look owned:
+    `if (true || ownedTmdbIds.has(movie.tmdb_id)) { tally.owned += 1; continue; }`
+    Expect "No new suggestions this time — the model only named films already in
+    your list.", the metadata footer with its real cost and log link, and a
+    `success` row in the log with empty `suggested_titles`.
+    **Revert with `git checkout -- server/services/recommendations.js` the moment
+    the shot is taken.** Four route tests fail while it is in place, which is
+    expected and is not a reason to debug anything.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.
 * [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
   names) and both add cross-referencing comments to the project sheet.
+* [ ] **Unload the recommendations debug harness.** Delete TWO lines and nothing
+  else: the `<script src="/debug-recs.js">` tag at the bottom of
+  `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
+  `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
+  tool and still works by pasting it into the console, which is how it was
+  written. Added 2026-09-09 at the user's request as a temporary but open-ended
+  convenience while the recommendations UI is being worked; the user asked for
+  the loading to be removed when that work is done, not the file.
+  Both lines are commented as temporary and both name this checkbox. Low risk if
+  missed — the harness declines to install on the `onrender.com` host — but a
+  debug tool wired into a submitted build is its own kind of wrong.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log

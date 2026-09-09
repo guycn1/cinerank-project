@@ -49,7 +49,10 @@
           aria-label="Search for a movie by title"
         />
         <!-- aria-label because the word is display:none under 500px, where the
-             magnifier is all that shows; the emoji itself is aria-hidden. -->
+             magnifier is all that shows; the icon itself is aria-hidden.
+             ("the emoji" until this 2026-09-09 sweep — a leftover from before
+             D-027 replaced it with the inline SVG below, and it contradicted
+             the very next comment.) -->
         <button type="submit" id="search-btn" aria-label="Search">
           <span class="search-btn__label">Search</span>
           <!-- Inline SVG, not 🔎 and not U+2315 ⌕. The emoji is a fixed
@@ -86,7 +89,7 @@
 
     <!-- Recommendations — deliberately secondary (SPEC § 3.2) -->
     <section class="recs">
-      <div class="recs__head">
+      <div class="recs__head" id="recs-head">
         <h2>What to watch next</h2>
         <button class="recs__trigger" id="recs-trigger" type="button">
           Get recommendations
@@ -210,6 +213,16 @@
       <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
     </svg>
   </template>
+
+  <!-- TEMPORARY — remove this tag before the final merge to main, together with
+       the /debug-recs.js route in server/index.js. Tracked as a checkbox under
+       Pre-submission blockers in CLAUDE.md.
+       Loads the recommendations debug harness so debugRecs(n) is available in
+       the console without pasting the file each time. It only defines that one
+       function; nothing changes until it is called, and it declines to install
+       itself on the deployed host. Deliberately BEFORE app.js so window.fetch is
+       already patched by the time anything can click. -->
+  <script src="/debug-recs.js"></script>
 
   <script type="module" src="app.js"></script>
 </body>

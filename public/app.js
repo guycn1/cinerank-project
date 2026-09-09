@@ -19,6 +19,7 @@ const el = {
   recsTrigger: $('#recs-trigger'),
   recsHint: $('#recs-hint'),
   recsGrid: $('#recs-grid'),
+  recsHead: $('#recs-head'), // R27's scroll target — see renderRecommendations
   rateDialog: $('#rate-dialog'),
   rateForm: $('#rate-form'),
   rateTitle: $('#rate-title'),
@@ -1213,7 +1214,10 @@ el.recsTrigger.addEventListener('click', async () => {
   el.recsHint.classList.remove('err');
   // caption: the cards this describes are coming, and it is replaced either way.
   setRecsHint('Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…', { caption: true });
-  el.recsGrid.replaceChildren();
+  // Phase one of R27's two-phase render. This used to be a bare
+  // `el.recsGrid.replaceChildren()`, which dropped the previous run's cards in a
+  // single frame with no transition at all.
+  exitRecCards();
   try {
     const data = await api('/api/recommendations', { method: 'POST' });
     renderRecommendations(data);
@@ -1267,6 +1271,132 @@ const EMPTY_REASON_TEXT = {
   mixed: 'No new suggestions this time.',
 };
 
+/* ---------- rec-card enter / exit (R27) ----------------------------------
+ * The user's sequence, given after watching a run and stated as
+ * non-negotiable: cards arrive → SCROLL → wait a beat → entrance animation.
+ * The beat was specified as ~200ms and doubled to 400ms after the user watched
+ * it, which also means a browser's smooth scroll has typically finished before
+ * the first card moves — closer to the literal reading of the sequence.
+ * All of it AFTER the response has landed, and none of it on a run that
+ * produced no cards.
+ *
+ * Firing the scroll on the click instead was considered and rejected by the
+ * user: at click time the app knows none of the three things that make the
+ * scroll worth doing — how long the call will take, how many cards will come
+ * back, or whether it will succeed at all. The scroll is a reward for a result,
+ * so it waits for one.
+ */
+const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
+const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
+
+/**
+ * How many cards per row, so the last row is never left nearly empty.
+ *
+ * `auto-fill` fills each row as far as it will go and strands whatever is left:
+ * four cards where three fit render 3 + 1, five cards where four fit render
+ * 4 + 1. Both look broken at widths where 2 + 2 and 3 + 2 fit perfectly well
+ * (user-raised, 2026-09-09).
+ *
+ * The fix is the standard balanced-rows formula — how many rows does the widest
+ * layout need, then spread the cards evenly over exactly that many — but it is
+ * applied ONLY when the widest layout would strand a single card. That
+ * restraint is the user's rule, not a simplification of it: "avoid rows with
+ * only 1 card unless it really has no choice."
+ *
+ * The distinction bites in exactly one case, and it is the commonest one. Six
+ * cards where four fit is 4 + 2, which strands nothing; balancing it anyway
+ * would give 3 + 3, a tidier split but one that makes every card ~36% wider and
+ * the whole section markedly taller. That is a redesign, not a fix, so it is
+ * left alone. Change `> 1` here if a fuller row is ever wanted instead.
+ *
+ * It can never make the grid TALLER: the balanced count is derived from the row
+ * count the widest layout already needed. Where nothing better exists it changes
+ * nothing — 5 cards in a 2-column viewport stays 2 + 2 + 1, 3 cards in a
+ * 2-column one stays 2 + 1. Those are the "no choice" cases.
+ *
+ * Reads `--rec-min` and the real `column-gap` off the element instead of
+ * repeating them here. The stylesheet owns both numbers; a copy in JS is the
+ * shape that goes stale the first time someone changes the CSS.
+ */
+function balancedColumns(count, grid) {
+  const cs = getComputedStyle(grid);
+  const gap = parseFloat(cs.columnGap) || 0;
+  const min = parseFloat(cs.getPropertyValue('--rec-min')) || 190;
+  // The +gap on both sides is the standard "n items need n-1 gaps" rearrangement:
+  // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
+  const fit = Math.max(1, Math.floor((grid.clientWidth + gap) / (min + gap)));
+  const widest = Math.min(count, fit);
+  // `|| widest` because a remainder of 0 means the last row is full, not empty.
+  const stranded = count % widest || widest;
+  if (stranded > 1) return widest;
+  return Math.ceil(count / Math.ceil(count / widest));
+}
+
+/**
+ * Set the column count and centre a short last row. Safe to re-run: it clears
+ * its own previous placement first, which is what makes it usable from the
+ * resize pass as well as from a render.
+ */
+function layoutRecsGrid() {
+  const cards = [...el.recsGrid.querySelectorAll('.rec-card')];
+  if (!cards.length) return;
+  const cols = balancedColumns(cards.length, el.recsGrid);
+  el.recsGrid.style.setProperty('--rec-tracks', cols * 2);
+
+  // Tracks are doubled (see the CSS), so a card starting one track late is
+  // offset by HALF a card — which is exactly what centring a short row needs.
+  // A last row of m cards in a k-column grid has k - m columns spare, so it
+  // starts (k - m) half-columns in and ends with the same slack on the right.
+  // Placing only the FIRST card is enough: the rest auto-place after it.
+  cards.forEach((c) => { c.style.gridColumnStart = ''; });
+  const inLastRow = cards.length % cols || cols;
+  cards[cards.length - inLastRow].style.gridColumnStart = cols - inLastRow + 1;
+}
+
+/**
+ * Phase one of the two-phase render: fade the previous run's cards out.
+ *
+ * An exit animation cannot run on a node that has already been removed, so the
+ * swap has to happen in two steps rather than one `replaceChildren()`.
+ *
+ * Deliberately NOT a View Transition, though the backlog entry suggested one and
+ * the ranked list uses one for its re-sort (D-031). A View Transition animates
+ * ONE atomic old→new swap; here the old cards leave on the click and the new
+ * ones arrive seconds later, on the far side of an AI call. Wrapping that gap
+ * would hold a snapshot of the whole page frozen for the length of the request,
+ * and it could express neither the scroll, the lead-in nor the per-card stagger
+ * the user asked for. See D-048.
+ *
+ * Every child leaves, not only `.rec-card`: the metadata footer describes the
+ * run that is being replaced, so it is just as stale.
+ */
+function exitRecCards() {
+  const leaving = [...el.recsGrid.children];
+  if (!leaving.length) return;
+  // The reduced-motion block sets `animation: none !important`, so no animation
+  // runs and `animationend` NEVER fires — a listener-driven removal would leave
+  // the old cards on screen for good. These users get the instant clear that
+  // everyone got before this function existed, which is the honest answer
+  // anyway: no motion asked for, no motion given.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.recsGrid.replaceChildren();
+    return;
+  }
+  for (const node of leaving) {
+    node.classList.add('is-leaving');
+    node.addEventListener('animationend', (e) => {
+      // `animationend` bubbles. Nothing inside a card fires one today (an Add
+      // button's spinner is `infinite`, and infinite animations never end), but
+      // a child animation added later must not take the whole card with it.
+      if (e.target === node) node.remove();
+    });
+  }
+  // No timeout backstop, and none is needed: if the response lands before these
+  // finish, renderRecommendations' own replaceChildren() detaches them and the
+  // listeners go with them. New content winning over a half-faded old card is
+  // the correct outcome, not a leak.
+}
+
 function renderRecommendations({ suggestions, emptyReason, meta }) {
   el.recsGrid.replaceChildren();
   if (!suggestions.length) {
@@ -1287,7 +1417,13 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
   suggestions.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'rec-card';
-    card.style.animationDelay = `${i * 60}ms`;
+    // The lead-in lives in `animationDelay`, NOT in a setTimeout — there is no
+    // timer to leak or cancel if a second run starts. This works only because
+    // the CSS fill is `backwards`: each card holds the from-state (invisible,
+    // offset) through its whole delay instead of sitting at full opacity and
+    // then jumping. That is D-043's mechanism doing real work here, and one more
+    // reason the fill must never go back to `both`.
+    card.style.animationDelay = `${RECS_LEAD_IN_MS + i * RECS_STAGGER_MS}ms`;
     const poster = posterNode(s.poster_url, s.title);
     const body = document.createElement('div');
     body.className = 'rec-card__body';
@@ -1321,6 +1457,28 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     el.recsGrid.append(card);
   });
   el.recsGrid.append(aiMetaFooter(meta));
+  // Same synchronous task as the appends above, so the browser never paints a
+  // frame at the CSS fallback column count.
+  layoutRecsGrid();
+  // Gated on there being cards, structurally: the empty branch returns above
+  // this line, so a zero-result run can never yank the page to a section with
+  // nothing new in it. Every placeholder and every failure gets no scroll and no
+  // entrance animation — the user's words, they "shall have no business with any
+  // entrance animation".
+  //
+  // `.recs__head` and not `.recs` or the grid: it is the first thing in the
+  // section, so `block: 'start'` lands the heading AND the trigger at the top of
+  // the viewport with the hint and the animating cards flowing in below. The
+  // grid as a target would push both off-screen. `.recs` resolves to nearly the
+  // same place, but only via margin-collapse reasoning — the head says it
+  // outright and cannot drift if the section ever gains padding or a border.
+  // `start` is also the robust alignment: the content below the target GROWS as
+  // the cards render, and a top alignment is unaffected by growth below it,
+  // where `center` or `nearest` would drift mid-animation.
+  //
+  // No `behavior: 'smooth'` — `html { scroll-behavior: smooth }` already says so
+  // in CSS, which is precisely what lets the reduced-motion block turn it off.
+  el.recsHead.scrollIntoView({ block: 'start' });
 }
 
 /* ---------- taste verdict ---------------------------------------- */
@@ -1452,9 +1610,10 @@ function syncMetaSeparator(foot) {
 }
 
 // One listener for every layout-dependent measurement on the page, rather than
-// an observer per element. Both of these read geometry (getBoundingClientRect /
-// scrollHeight), which forces layout, and `resize` fires continuously while a
-// window is dragged — so the work is throttled to at most once per frame. rAF
+// an observer per element. All of them read geometry (getBoundingClientRect /
+// scrollHeight / clientWidth), which forces layout, and `resize` fires
+// continuously while a window is dragged — so the work is throttled to at most
+// once per frame. rAF
 // rather than a debounce on purpose: a debounce would leave both measurements
 // visibly stale for the whole drag, where this keeps them live and still does
 // the reads only once per painted frame.
@@ -1469,6 +1628,11 @@ window.addEventListener('resize', () => {
     relayoutQueued = false;
     document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
     syncReviewToggles();
+    // How many cards fit is a function of the grid's width, so the balanced
+    // split has to be recomputed as the window changes — otherwise a layout
+    // chosen at 900px stays put at 400px. Returns immediately when the grid is
+    // empty, which is most of the time.
+    layoutRecsGrid();
     // An open AI-log reveal panel was positioned for the geometry it opened in,
     // so a resize leaves its side and caret stale. Guarded twice, deliberately:
     //   - only while the dialog is actually OPEN. A closed <dialog> is
