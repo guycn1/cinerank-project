@@ -1271,8 +1271,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group F — found while fixing the above (added 2026-09-09)**
 
-   * **R25. The "New verdict" button was effectively borderless** (user-raised,
-     2026-09-09, and correctly diagnosed by them). `border: 1px solid var(--line)`
+   * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
+     borderless** (user-raised, and correctly diagnosed by them). Settled over
+     three rounds of the user looking at it; the hover fill landed at 0.25. `border: 1px solid var(--line)`
      measures **1.22** contrast on the banner's `--bg-raised` ground — a border
      that is not, in practice, drawn. R24 had just made the prose beside it
      brighter, so the button receded further.
@@ -1287,7 +1288,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
      not by intensity alone. Do not "finish the job" by making this one amber too.
      **Hover, revised by the user after seeing it:** the border lights to amber,
-     the interior takes `background: rgba(0, 0, 0, 0.2)`, and a glow appears —
+     the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
      `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
      change; it is already `--ink` at rest, so there is nowhere brighter to go,
      and amber text inside an amber border flattened the button into one colour.
@@ -1297,7 +1298,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      says so at the declaration.** D-044 is about SHADOWS, which darken what lies
      BEHIND an element — and on a `#0b0b0f` page there is nothing left to darken.
      A background darkens the button's OWN interior, a real surface at
-     `--bg-raised` (#14141b → about #101016). There is something to darken, so
+     `--bg-raised` (#14141b → about #0f0f14). There is something to darken, so
      black works here and light would not. Do not "correct" it to a light fill by
      analogy with the shadow rule.
      **`.search button:hover` DOES use an offset amber pool and that is not an
