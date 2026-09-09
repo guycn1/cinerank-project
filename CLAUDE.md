@@ -1286,12 +1286,24 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
      hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
      not by intensity alone. Do not "finish the job" by making this one amber too.
-     Hover gains a glow: `0 0 16px -4px rgba(245, 193, 91, 0.4)`. Made of light,
-     not black, and at ZERO Y-offset (D-044) — the user flagged the dark-theme
-     trap in the request itself. **`.search button:hover` DOES use an offset amber
-     pool and that is not an inconsistency:** it is a FILLED button reading as a
-     lit object casting light downward, which is a different thing from an outline
-     lighting up. Do not unify them.
+     **Hover, revised by the user after seeing it:** the border lights to amber,
+     the interior takes `background: rgba(0, 0, 0, 0.2)`, and a glow appears —
+     `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
+     change; it is already `--ink` at rest, so there is nowhere brighter to go,
+     and amber text inside an amber border flattened the button into one colour.
+     The glow is made of light, not black, and takes a ZERO Y-offset (D-044) —
+     the user flagged the dark-theme trap in the request itself.
+     **The translucent BLACK fill is not a contradiction of D-044, and the CSS
+     says so at the declaration.** D-044 is about SHADOWS, which darken what lies
+     BEHIND an element — and on a `#0b0b0f` page there is nothing left to darken.
+     A background darkens the button's OWN interior, a real surface at
+     `--bg-raised` (#14141b → about #101016). There is something to darken, so
+     black works here and light would not. Do not "correct" it to a light fill by
+     analogy with the shadow rule.
+     **`.search button:hover` DOES use an offset amber pool and that is not an
+     inconsistency either:** it is a FILLED button reading as a lit object casting
+     light downward, which is a different thing from an outline lighting up. Do
+     not unify them.
 
    * **R24. The recs error line is `--ink-dim`, not `--crimson`** (user-raised,
      2026-09-09, after seeing R9's link land inside it). Not taste — measured: the

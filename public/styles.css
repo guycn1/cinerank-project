@@ -249,13 +249,27 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 /* :not(:disabled) so the amber hover doesn't fight the busy state — same as
    .recs__trigger below, which this button's busy treatment mirrors. */
 .verdict__refresh:hover:not(:disabled) {
   border-color: var(--amber);
-  color: var(--amber);
+  /* The LABEL deliberately does not change (user's call). It is already --ink at
+     rest, so there is nowhere brighter for it to go, and amber text inside an
+     amber border made the whole button one flat colour. Hover is expressed by
+     the three things around the label instead: the border lights (2.08 -> 11.05
+     contrast), the interior recedes, and the glow appears.
+
+     A translucent BLACK fill here is not a contradiction of D-044, and the
+     distinction matters enough to write down. D-044 is about SHADOWS: a shadow
+     darkens whatever lies behind the element, and on a #0b0b0f page there is
+     nothing left to darken, so it does no work. This is a BACKGROUND — it
+     darkens the button's own interior, which is a real surface at --bg-raised
+     (#14141b) and takes it to about #101016. There is something to darken, so
+     black works here and light would not. Do not "correct" this to a light fill
+     by analogy with the shadow rule. */
+  background: rgba(0, 0, 0, 0.2);
   /* Made of LIGHT, not black (D-044): the page is #0b0b0f and the banner
      #14141b, so a black shadow has nothing left to darken and would be
      invisible at any opacity — the user flagged this in the request.
