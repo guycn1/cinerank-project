@@ -1353,11 +1353,19 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
        bounded: at 120ms it would be lead-in + 5x120ms + the 0.5s card duration,
        about 1.3s.
-     * **Scroll the section into view as the entrance starts**, because the cards
-       land below the fold and the user has to scroll down mid-animation and
-       misses most of it. `scrollIntoView({ block: 'start' })`.
-     * **Possibly a ~200ms lead-in** before the first card begins, so the scroll
-       is underway when the animation starts.
+     * **Scroll the section into view**, because the cards land below the fold and
+       the user has to scroll down mid-animation and misses most of it.
+       `scrollIntoView({ block: 'start' })`.
+     * **THE EXACT SEQUENCE, and it is not negotiable** (user, 2026-09-09):
+       cards arrive → **scroll** → wait **~200ms** → **entrance animation**. In
+       that order, all of it after the response has landed.
+     * **Gated on `suggestions.length`. Nothing else animates or scrolls.** The
+       "No new suggestions this time…" line, the error line and every placeholder
+       get no entrance animation and no scroll at all — the user's words: they
+       "shall have no business with any entrance animation". Today that falls out
+       for free (those paths append no cards), but the SCROLL must be gated
+       explicitly, or a zero-result run would yank the page to a section with
+       nothing new in it.
 
      **Four things already checked, so the implementation does not rediscover
      them:**
@@ -1394,10 +1402,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        the lead-in and then jump. That is D-043's mechanism doing real work here —
        one more reason it must never go back to `both`.
 
-     One judgement call left open: the scroll could fire on CLICK instead, so the
-     user watches the busy state scroll into place and the cards then animate in
-     already-visible. The user asked for it on arrival; worth one look at both
-     before settling.
+     **Firing the scroll on CLICK was considered and REJECTED by the user** — do
+     not revisit it. At click time the app knows none of the three things that
+     make the scroll worth doing: how long the call will take, how many
+     recommendations will come back, or whether it will succeed at all. Scrolling
+     then would move the page for a run that is about to fail, or that returns
+     nothing, or that leaves the user staring at a spinner for ten seconds in a
+     newly-scrolled position. The scroll is a reward for a result, so it waits for
+     one.
 
    * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
      borderless** (user-raised, and correctly diagnosed by them). Settled over
