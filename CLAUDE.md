@@ -60,7 +60,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 38 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 40 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -70,6 +70,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `review_requires_rating` guards (D-041): a check violation comes back as a
   400 with a usable message rather than a generic 500, and a violation of one of
   the table's OTHER check constraints is not dressed up as the review message.
+  **Plus, as of 2026-09-09, the recommendation SUCCESS path (R19)** — which had no
+  coverage at all, so every rule deciding what a user actually sees was unproven.
+  One run exercises all three: a pick TMDB cannot confirm is dropped, a pick the
+  user already owns is dropped, and two picks resolving to the same film collapse
+  to one. A second test asserts the success log row carries `status='success'`,
+  OpenRouter's own `usage.cost`, and exactly the titles that were SHOWN — not the
+  three the model named and lost. Both were verified load-bearing by deleting each
+  of the three service rules in turn: every deletion fails exactly these two tests.
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
@@ -1035,7 +1043,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below. The user's original seed items are folded in and
+   and produced R1–R22 below (R19 is now done; R20 was WITHDRAWN as incorrect —
+   both statuses are on the items themselves). The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
    land.
@@ -1181,19 +1190,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group E — structure and tests**
 
-   * **R19. No test covers a SUCCESSFUL recommendation run.** The two existing
-     route tests are the below-threshold 422 and the OpenRouter-down 422. The
-     owned-titles filter, the intra-run dedup and the TMDB verification drop —
-     i.e. everything R2 and R6 are about — have no coverage at all. Add one
-     BEFORE touching R2/R6, so the fix is provable.
-   * **R20. The client hardcodes thresholds the server owns.** `state.cfg =
-     { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 }` duplicates
-     `config.recommendations` / `config.tasteVerdict` in `server/config.js`. Change
-     the server and the client's hint text lies ("Rate at least 3 movies…",
-     "Uses your top 5 rated films…") while the button enables at the wrong count.
-     Same failure mode as the second copy of the ranking rule D-039 deleted.
-     Cheapest honest fix: serve the three numbers from an endpoint the client
-     already calls, or accept the duplication and comment BOTH sides.
+   * **R19. DONE 2026-09-09 — the success path is now covered.** It had none: the
+     only recommendation tests were the below-threshold 422 and the OpenRouter-down
+     422, so the owned-titles filter, the intra-run dedup and the TMDB
+     verification drop — everything R2 and R6 are about — were unproven. Two tests
+     now sit in `test/routes.test.js`: one asserts that of four model picks only
+     the verified, unowned, non-duplicate one reaches the user (and that its year
+     and tmdb_id come from TMDB, not the model), the other that the log row carries
+     `status='success'` and exactly the SHOWN titles.
+     **Verified load-bearing, not just green:** each of the three `continue` guards
+     in `generateRecommendations()` was deleted in turn, and every deletion failed
+     exactly these two tests. Deliberately written against CURRENT behaviour, so
+     R2's unrated-owner case is NOT yet asserted — that assertion is what should
+     fail before the R2 fix and pass after it.
+   * **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
+     the others do not shift.** It claimed the client hardcodes the thresholds the
+     server owns. It does not: `init()` in `app.js` does
+     `state.cfg = await api('/api/config')` at boot, `server/index.js` serves those
+     three numbers straight out of `server/config.js`, and a route test already
+     asserts the endpoint's shape. The literals in `state.cfg` are a documented
+     FALLBACK for that one request failing (`catch { /* keep defaults */ }`), not a
+     second source of truth — and when it fails, `loadMovies()` has failed too and
+     the user is already looking at an error toast. The server is the single
+     source of truth. **Found by grepping for `api/config` after writing the
+     item** — the original claim came from grepping only `state.cfg`, which showed
+     the reads and the literals but not the assignment that overwrites them.
    * **R21. The recs grid is a `<div>` of `<div>`s** while the ranked list is a
      proper `<ol>`. Six cards announce as unstructured content to a screen reader.
      Cheap, and it matches the section it sits beside.
@@ -1260,7 +1281,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (38).
+  `review_requires_rating` guards all covered by `npm test` (40).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.

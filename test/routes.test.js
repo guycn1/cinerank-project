@@ -295,6 +295,114 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
   }
 });
 
+/* ---------- the SUCCESS path: which picks survive verification -------- */
+
+// Until now the only recommendation tests were the two failure paths (the
+// below-threshold 422 and the OpenRouter-down 422), so every rule that decides
+// what a user actually SEES was unproven (backlog R19). There are three, and one
+// run exercises all of them: a pick TMDB cannot confirm is dropped, a pick the
+// user already owns is dropped, and two picks that resolve to the SAME film
+// collapse to one.
+//
+// The stub answers each TMDB lookup by its `query=` fragment, so the four picks
+// are deliberately titles whose first query word is distinct — `url.includes()`
+// would otherwise let one fragment match another film's URL.
+const RECS_RATED_LIBRARY = {
+  data: [
+    { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+    { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+    { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+    { id: '4', tmdb_id: 4, title: 'Sicario', year: 2015, rating: 8, review: '' },
+  ],
+  error: null,
+};
+
+const HEAT_TMDB = {
+  id: 949,
+  title: 'Heat',
+  release_date: '1995-12-15',
+  overview: 'A crew of professional robbers and the detective hunting them.',
+  poster_path: '/heat.jpg',
+  vote_average: 8.3,
+  vote_count: 7000,
+};
+
+// The model names four films; exactly one should reach the user.
+const FOUR_PICKS = JSON.stringify([
+  { title: 'Heat', reason: 'You rated Sicario highly, so its patient dread will land.' },
+  { title: 'Whiplash', reason: 'Already yours — must be dropped as owned.' },
+  { title: 'Zzyzx Road', reason: 'TMDB knows nothing about this one.' },
+  { title: 'Collateral', reason: 'Resolves to the same film as Heat.' },
+]);
+
+function openRouterReply(content) {
+  return {
+    choices: [{ message: { content } }],
+    usage: { total_tokens: 900, prompt_tokens: 700, completion_tokens: 200, cost: 0.0012 },
+    model: 'anthropic/claude-haiku-4.5',
+  };
+}
+
+function stubRecsRun() {
+  return stubFetch({
+    'openrouter.ai': openRouterReply(FOUR_PICKS),
+    // Fragment order is not load-bearing here (no `query=` value is a prefix of
+    // another), but each is pinned to `query=` so a fragment cannot match some
+    // other film's URL.
+    'query=Heat': { results: [HEAT_TMDB] },
+    'query=Whiplash': { results: [{ ...MATRIX_TMDB, id: 1, title: 'Whiplash' }] },
+    'query=Zzyzx': { results: [] }, // TMDB has never heard of it
+    'query=Collateral': { results: [HEAT_TMDB] }, // same tmdb_id as the Heat pick
+  });
+}
+
+test('POST /api/recommendations drops unverifiable, already-owned and duplicate picks', async () => {
+  db.results['movies:select'] = RECS_RATED_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    const res = await client.post('/api/recommendations');
+    assert.equal(res.status, 200);
+    const { suggestions } = await res.json();
+
+    assert.deepEqual(
+      suggestions.map((s) => s.title),
+      ['Heat'],
+      'only the verified, unowned, non-duplicate pick should survive'
+    );
+    // Every fact on the card comes from TMDB, never from the model (SPEC § 2.2).
+    // The model supplied only the title string and the reason.
+    assert.equal(suggestions[0].tmdb_id, 949);
+    assert.equal(suggestions[0].year, 1995);
+    assert.match(suggestions[0].reason, /Sicario/);
+  } finally {
+    restore();
+  }
+});
+
+test('POST /api/recommendations logs a success row holding exactly the shown titles', async () => {
+  db.results['movies:select'] = RECS_RATED_LIBRARY;
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  const restore = stubRecsRun();
+  try {
+    await client.post('/api/recommendations');
+    const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
+    assert.ok(logged, 'a successful run must be logged too, not only a failure');
+    assert.equal(logged.payload.status, 'success');
+    assert.equal(logged.payload.error_text, null);
+    // The audit row records what the user was SHOWN, not what the model said —
+    // the three dropped titles must not appear here.
+    assert.deepEqual(logged.payload.suggested_titles, ['Heat']);
+    // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions), and
+    // OpenRouter's own usage.cost is preferred over the estimate table.
+    assert.equal(logged.payload.estimated_cost_usd, 0.0012);
+    assert.equal(logged.payload.tokens_used, 900);
+    assert.equal(logged.payload.prompt_version, 'recommend_v3');
+  } finally {
+    restore();
+  }
+});
+
 /* ---------- /api/ai-log shape ---------------------------------------- */
 
 test('GET /api/ai-log returns structured result data per row', async () => {
