@@ -114,6 +114,11 @@ no black layer — with two deliberate differences:
 *The halo is tighter* (34/50px against 40/60px), because these cards sit in a
 grid with a 17.6px horizontal gap rather than a column with a 16px vertical one,
 and a halo that crosses the gap reads as two cards sharing one glow.
+> **2026-09-09, later the same day:** the user widened these by eye to 40/100px
+> — looser than the ranked card, not tighter — and the reasoning above did not
+> survive the spotlight added in D-049 between the two edits: with every other
+> card at 0.7, a halo crossing the gap falls on something already receding. The
+> paragraph stands as written; the live values are in `styles.css`.
 
 *`z-index: 3`, not the ranked card's `1`.* Arithmetic, not taste: every
 `.rec-card::before` badge carries `z-index: 2` and resolves in the same stacking

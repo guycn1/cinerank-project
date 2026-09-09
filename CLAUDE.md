@@ -1288,9 +1288,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      neighbour — worse in a grid, where it has row-mates too), an amber border,
      and three glow layers at a **zero Y-offset** with no black layer, because on
      `--bg: #0b0b0f` a black shadow has nothing left to darken (D-044).
-     Two deliberate differences, both with a reason: the halo is tighter
-     (34/50px against 40/60px) because a wide halo crossing the grid's 17.6px
-     horizontal gap reads as two cards sharing one glow; and `z-index: 3` rather
+     Two deliberate differences. The glow is **wider** than the ranked card's
+     (40/100px against 40/60px, plus a 1.5px lit edge and `scale(1.018)`) — those
+     magnitudes were tuned by the user by eye, reversing Claude's first pass,
+     which had gone one notch TIGHTER on the theory that a halo crossing the
+     grid's 17.6px gap would read as two cards sharing one glow. The spotlight
+     (D-049) landed between the two edits and settles it: with every other card
+     at 0.7, a halo spilling across the gap falls on something already receding.
+     A box-shadow is ink overflow, so no size here can produce a scrollbar.
+     Second difference: `z-index: 3` rather
      than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
      badge carries `z-index: 2` and resolves in the same stacking context, so at
      `1` a NEIGHBOUR's badge would paint over this card's glow.

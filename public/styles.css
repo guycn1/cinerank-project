@@ -1355,10 +1355,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    lopsided. D-044 records that mistake being made twice in one item. The black
    layer that would normally lead a drop shadow is absent for the same reason it
    was deleted there: the page is `--bg: #0b0b0f`, so a black shadow has nothing
-   left to darken. Values are one notch tighter than the ranked card's (34/50px
-   against 40/60px) because these cards sit ~17.6px apart in a grid rather than
-   16px apart in a single column, and a wide halo crossing a horizontal gap reads
-   as two cards sharing one glow.
+   left to darken.
+   The magnitudes were first set one notch TIGHTER than the ranked card's
+   (34/50px against its 40/60px), reasoning that these cards sit ~17.6px apart in
+   a grid rather than 16px apart in a column, so a halo crossing a horizontal gap
+   would read as two cards sharing one glow. The user then widened them by eye to
+   40/100px — looser than the ranked card, not tighter — and that is the value
+   here. The original worry does not survive the spotlight that landed between
+   the two edits (D-049): with every other card at 0.7, a halo spilling across
+   the gap falls on something already receding, so it reinforces the focus
+   instead of muddling two cards together. Do not "restore" the tighter figures
+   from this paragraph; it is here to explain why they moved, not to argue for
+   them. The lit edge went 1px → 1.5px and the scale 1.02 → 1.018 in the same
+   pass.
 
    z-index 3, NOT the ranked card's 1, and the number is arithmetic rather than
    taste. Every `.rec-card::before` badge carries `z-index: 2`, and a card is
@@ -1369,21 +1378,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    would paint over this card's glow; 3 clears it.
 
    No horizontal scrollbar: the widest this card gets is ~237px (a 1000px content
-   column at 4 auto-fill tracks), so 1.02 adds ~2.4px per side against a 17.6px
+   column at 4 auto-fill tracks), so 1.018 adds ~2.1px per side against a 17.6px
    gap and `main`'s 16–40px gutter. Re-check if the scale is ever raised much.
+   The glow's own size is not part of that arithmetic however far it is pushed —
+   a box-shadow is ink overflow, which never contributes scrollable overflow.
 
    `@media (hover: hover)`, never a width query: on a touch screen `:hover`
    sticks after a tap until you tap elsewhere, which would park a card in the
    grown state after pressing its Add button. */
 @media (hover: hover) {
   .rec-card:hover {
-    transform: scale(1.02);
+    transform: scale(1.018);
     border-color: rgba(245, 193, 91, 0.5);
     z-index: 3;
     box-shadow:
-      0 0 0 1px rgba(245, 193, 91, 0.28),      /* lit edge, just outside the border */
-      0 0 34px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
-      0 0 50px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
+      0 0 0 1.5px rgba(245, 193, 91, 0.28),      /* lit edge, just outside the border */
+      0 0 40px -6px rgba(245, 193, 91, 0.34),  /* inner glow, tight to the card */
+      0 0 100px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
   /* Spotlight, ported from the ranked list on the user's instruction (D-049).
      Claude argued against porting it at all and was overruled — the objection
