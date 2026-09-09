@@ -1348,6 +1348,48 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `view-transition-name` for. Prefer the View Transition route: it is the
      mechanism this codebase already chose for exactly this problem.
 
+     **The user's spec for (a), given 2026-09-09 after watching it run:**
+     * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
+       is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
+       bounded: at 120ms it would be lead-in + 5x120ms + the 0.5s card duration,
+       about 1.3s.
+     * **Scroll the section into view as the entrance starts**, because the cards
+       land below the fold and the user has to scroll down mid-animation and
+       misses most of it. `scrollIntoView({ block: 'start' })`.
+     * **Possibly a ~200ms lead-in** before the first card begins, so the scroll
+       is underway when the animation starts.
+
+     **Four things already checked, so the implementation does not rediscover
+     them:**
+     * `html { scroll-behavior: smooth }` **already exists** (styles.css, near the
+       top). So `scrollIntoView({ block: 'start' })` is smooth WITHOUT passing
+       `behavior: 'smooth'` — and passing the CSS property is what makes the
+       reduced-motion fix below expressible in CSS rather than in JS.
+     * **REQUIRED, and currently missing:** the `prefers-reduced-motion` block
+       kills `animation` and `transition` only, so a motion-sensitive user would
+       still get a smoothly animated page scroll. Add `html { scroll-behavior:
+       auto; }` to that block in the same commit. It is latent today — nothing in
+       the app scrolls programmatically and there are no in-page anchors — and it
+       goes live the moment this feature lands.
+     * **Which element to scroll is the open decision.** `block: 'start'` on
+       `el.recsGrid` puts the GRID at the viewport top and pushes the heading and
+       the "Based on: …" line off-screen; the `.recs` section keeps both visible.
+       The section is almost certainly right. Note `start` is also the robust
+       choice because the target GROWS as cards render — top alignment is
+       unaffected by growth below it, where `center` or `nearest` would drift
+       mid-animation.
+     * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
+       leak or cancel if a second run starts. This works only because the fill is
+       `backwards`: during the delay each card holds the from-state (opacity 0,
+       `translateY(10px)`). With any other fill it would sit fully visible through
+       the lead-in and then jump. That is D-043's mechanism doing real work here —
+       one more reason it must never go back to `both`.
+
+     One judgement call left open: the scroll could fire on CLICK instead, so the
+     user watches the busy state scroll into place and the cards then animate in
+     already-visible. The user asked for it on arrival; worth one look at both
+     before settling.
+
    * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
      borderless** (user-raised, and correctly diagnosed by them). Settled over
      three rounds of the user looking at it; the hover fill landed at 0.25. `border: 1px solid var(--line)`
