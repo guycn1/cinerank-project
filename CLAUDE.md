@@ -1044,9 +1044,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below; R23 and R24 were added later, from findings made
-   while fixing R9. R1–R4, R8, R9, R19, R23 and R24 are done and R20 was
-   WITHDRAWN as incorrect — every status is on the item itself. The user's original seed items are folded in and
+   and produced R1–R22 below; R23–R25 were added later, from findings made while
+   fixing R9 and from the user working the verdict banner alongside it. R1–R4,
+   R8, R9, R19 and R23–R25 are done and R20 was WITHDRAWN as incorrect — every
+   status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
    land.
@@ -1269,6 +1270,28 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that is the entire point of the live region.
 
    **Group F — found while fixing the above (added 2026-09-09)**
+
+   * **R25. The "New verdict" button was effectively borderless** (user-raised,
+     2026-09-09, and correctly diagnosed by them). `border: 1px solid var(--line)`
+     measures **1.22** contrast on the banner's `--bg-raised` ground — a border
+     that is not, in practice, drawn. R24 had just made the prose beside it
+     brighter, so the button receded further.
+     Three changes: the border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
+     WARM, so it foreshadows the amber hover — chosen over `--line-strong` at 1.85
+     for near-identical weight with more meaning); the label went `--ink-dim` →
+     `--ink` (**6.80 → 16.26**), which is where most of the visibility comes from,
+     because a control must not be quieter than the sentence beside it; and
+     `font-size` 0.85 → 0.88rem, as the user suggested.
+     **Deliberately still far short of `.recs__trigger`'s full amber border
+     (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
+     hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
+     not by intensity alone. Do not "finish the job" by making this one amber too.
+     Hover gains a glow: `0 0 16px -4px rgba(245, 193, 91, 0.4)`. Made of light,
+     not black, and at ZERO Y-offset (D-044) — the user flagged the dark-theme
+     trap in the request itself. **`.search button:hover` DOES use an offset amber
+     pool and that is not an inconsistency:** it is a FILLED button reading as a
+     lit object casting light downward, which is a different thing from an outline
+     lighting up. Do not unify them.
 
    * **R24. The recs error line is `--ink-dim`, not `--crimson`** (user-raised,
      2026-09-09, after seeing R9's link land inside it). Not taste — measured: the

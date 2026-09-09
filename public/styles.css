@@ -226,18 +226,49 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
 .verdict__refresh {
   background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink-dim);
+  /* NOT --line, which this was: at #26262f on the banner's --bg-raised ground it
+     measures 1.22 contrast — a border that is, in practice, not drawn. The user
+     reported the button as "too subtle and missable" and diagnosed the border
+     correctly.
+     A translucent amber at 0.3 measures 2.08, so it is present without being
+     loud, and it is WARM — it foreshadows the amber this button becomes on
+     hover, which a neutral grey cannot. Chosen over --line-strong (1.85) for
+     exactly that reason: near-identical weight, more meaning. Deliberately a
+     long way short of .recs__trigger's full amber border (11.05), because the
+     verdict is the lowest-stakes feature (SPEC 2.3) and the hierarchy between
+     the two triggers is carried by COLOUR, not just intensity. */
+  border: 1px solid rgba(245, 193, 91, 0.3);
+  /* The label does most of the work: --ink-dim measured 6.80 and now measures
+     16.26. It also has to beat the prose beside it, and that prose moved
+     --ink-faint -> --ink-dim in the same session (R24), which is what made this
+     button recede further. A control should not be quieter than the sentence
+     next to it. */
+  color: var(--ink);
   border-radius: 999px;
   padding: 0.35rem 0.9rem;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 /* :not(:disabled) so the amber hover doesn't fight the busy state — same as
    .recs__trigger below, which this button's busy treatment mirrors. */
-.verdict__refresh:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+.verdict__refresh:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+  /* Made of LIGHT, not black (D-044): the page is #0b0b0f and the banner
+     #14141b, so a black shadow has nothing left to darken and would be
+     invisible at any opacity — the user flagged this in the request.
+     ZERO Y-offset, also D-044: this is a GLOW, emitted by a button that has
+     just lit up, and a glow radiates evenly. Any Y-offset would make it
+     lopsided, which is the mistake that was made twice in one item on the movie
+     card. Note .search button:hover DOES use an offset amber pool — that one is
+     a FILLED button reading as a lit object casting light downward, which is a
+     different thing from an outline lighting up. Do not unify them.
+     One layer, tight radius, negative spread: the whole request was "very
+     subtle", and this element is ~32px tall. */
+  box-shadow: 0 0 16px -4px rgba(245, 193, 91, 0.4);
+}
 .verdict__refresh:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* add / search --------------------------------------------------------- */
