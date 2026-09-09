@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with seventeen done and R20 withdrawn as incorrect; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with SIXTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; twelfth merge to main was 2526402; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -78,6 +78,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   OpenRouter's own `usage.cost`, and exactly the titles that were SHOWN — not the
   three the model named and lost. Both were verified load-bearing by deleting each
   of the three service rules in turn: every deletion fails exactly these two tests.
+  Three more groups landed the same day, each probed the same way: **R2**'s guard
+  that an unrated film already in the list is never recommended back; **R23**'s
+  invariant, written as a loop over BOTH AI features so they cannot drift, that a
+  `status='failed'` row is always advertised to the UI and a failure with no row
+  never is; and **R28**'s five, one per reason a run can come back empty —
+  including the one that matters, that an unreachable TMDB is reported as such
+  rather than as "the model only named films already in your list".
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
@@ -718,8 +725,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     line-height 1.3 starts flush against the card's top edge. Reset in card mode.
 
   - **Tied films share a rank number, and say so** (#13, D-038). Two films the
-    user scored 8.0 showed as #3 and #4, ordered by `created_at` — which was
-    added more recently — so the numbers asserted a ranking the data does not
+    user scored 8.0 showed as #3 and #4, ordered by `created_at` descending —
+    i.e. by which was added more recently, **the direction that has since been
+    flipped to ascending, see the tie-break bullet below** — so the numbers asserted a ranking the data does not
     contain. Now **competition ranking** (1, 2, 2, 4; the skipped number is the
     point) plus a muted `tied` caption under the numeral, because two adjacent
     identical numbers otherwise read as a rendering fault.
@@ -1481,29 +1489,34 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      light downward, which is a different thing from an outline lighting up. Do
      not unify them.
 
-   * **R26. `#recs-hint` is coloured by WHO wrote it** (user-raised,
-     2026-09-09). The two sentences `syncRecommendationsAvailability()` writes —
-     "Uses your top 5 rated films as taste signal…" and "Rate at least 3 movies to
-     unlock…" — are now `--ink-dim`. They describe what the section IS, so they
-     should read as prose rather than fine print. Everything a RUN writes into the
-     same element stays `--ink-faint`: the busy line, "Based on: …" and "No new
-     suggestions this time…", which are transient commentary on one request.
-     **No second source of truth.** R1 already put that exact distinction on
-     `state.recsHintFromRun`, so the CSS keys off the same fact via a `.from-run`
-     class, and a new `setRecsHintOwner()` is the single writer for both facets —
-     the same shape as `setReviewExpanded()` (D-040). Verified: `recsHintFromRun`
-     is assigned in exactly one place.
-     The run rule is `.recs__hint.from-run:not(.err)`, guarded rather than relying
-     on source order, because a failed run carries BOTH classes and an error keeps
-     the brighter colour (R24). `.recs__hint.err` now restates the base value and
-     is KEPT rather than deleted as redundant — without it, `.from-run` would drag
-     the error down to `--ink-faint` with the rest.
+   * **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
+     was revised the same day. The two sentences
+     `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films as
+     taste signal…" and "Rate at least 3 movies to unlock…" — are `--ink-dim`.
+     **As first built, the rule was "who wrote the line": a `.from-run` class
+     paired with `state.recsHintFromRun`, so a run's messages were all
+     `--ink-faint`. R28 disproved that** — the user looked at a zero-result run and
+     pointed out that "No new suggestions this time…" is written by a run yet is
+     persistent and is the ONLY thing the section shows, so it belongs with the
+     availability sentences. Who wrote a line was a good proxy for the real
+     question and not the same question.
+     **The rule now in force:** does the line INTRODUCE content that is present or
+     imminent, or is it the only thing on screen? `.recs__hint.is-caption`
+     (`--ink-faint`) is set on exactly two messages, the busy line and
+     "Based on: …"; everything else takes the base `--ink-dim` — both availability
+     sentences, a failure, and all five zero-result variants.
+     `setRecsHint(content, { caption })` is the single writer for the element's
+     content and its weight; `.from-run` and `setRecsHintOwner()` are GONE.
+     `state.recsHintFromRun` survives, meaning only what R1 made it mean — may the
+     sync overwrite this?
+     `.recs__hint.err` restates the base value on purpose: it is a pin, so an
+     error can never become fine print whatever `.is-caption` is later applied to.
      R24's comment was corrected in the same pass: it claimed `--ink-dim` made the
-     error brighter than the resting hint, which was true when written and is not
-     now that the base moved.
+     error brighter than the resting hint, true when written and not once the base
+     moved.
 
-   * **R24. The recs error line is `--ink-dim`, not `--crimson`** (user-raised,
-     2026-09-09, after seeing R9's link land inside it). Not taste — measured: the
+   * **R24. DONE 2026-09-09 — the recs error line is `--ink-dim`, not
+     `--crimson`** (user-raised, after seeing R9's link land inside it). Not taste — measured: the
      amber link was **2.48x brighter** than the crimson around it (relative
      luminance 0.583 vs 0.235), so the pointer to details shouted louder than the
      statement of what broke; and the two hues sit **36 degrees** apart, close
@@ -1715,6 +1728,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   it does not belong in the "all with the ranked list still working" set above.
   Finding it is what caught the central 500 handler claiming "on our side" for a
   failure that was neither a bug nor on the server's side.
+* [ ] **One more resilience state, added 2026-09-09 (R28): TMDB unreachable
+  DURING a recommendation run.** Distinct from "TMDB down on search" and "on add",
+  and the only one where the AI call succeeds and is charged while the run still
+  produces nothing. Force it with a bogus `TMDB_API_KEY` and enough rated films
+  to trigger recs. Expect: "Couldn’t check any of the suggestions — the movie
+  database is unreachable", the metadata footer with its real cost, and a
+  `success` row in the AI call log whose `suggested_titles` is empty. Before R28
+  this same state claimed the model had only named films already in the list.
 * [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
   attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
 * [ ] **README screenshots + architecture diagram** — currently text-only.

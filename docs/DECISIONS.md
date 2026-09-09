@@ -600,6 +600,14 @@ order between them comes from `created_at desc` — which was added more recentl
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
 
+*(Signpost added 2026-09-09, and the paragraph above is deliberately NOT rewritten:
+it records the state that made #13 a bug. `created_at desc` was accurate then. The
+tie-break has since been flipped to ASCENDING at the user's request, so a new film
+appends below the ones it ties with instead of jumping above them. Nothing in this
+entry's reasoning changes — the whole point of D-038 is that the order within a tie
+is arbitrary and must not be asserted as a ranking, which is as true ascending as
+descending.)*
+
 **Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
 use, plus a small muted `tied` caption under the numeral. The skipped number is
 the point: two films are jointly 2nd, so nothing is 3rd.
@@ -1283,6 +1291,16 @@ state set moments earlier.
    `aria-busy`.
 3. This one.
 
+*(Two dated corrections, 2026-09-09, added rather than folded into the text above,
+which stays as written. **Item 1 is no longer open** — it was fixed as backlog R1,
+and it turned out to be bigger than described here: the same `finally` wiped the
+SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
+is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
+the whole document; the `aria-busy` skip described in item 2 is unchanged and is
+still the reason it exists. The pattern this entry names — an unconditional sync
+overwriting a deliberate transient state — went on to catch a fourth and fifth
+instance, so the entry's real content has aged well.)*
+
 Before adding a sync call, check which deliberate states it can reach.
 
 ## D-025 · Hide the browser's search clear button rather than theme it
@@ -1319,7 +1337,8 @@ Both auto-dismissals were built and then removed:
   query and another TMDB round-trip.
 - **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
-  it cancelled out `syncSearchResultButtons()`, which exists precisely to update
+  it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
+  2026-09-09's R3, and still existing precisely to update
   the OTHER open rows after an add. Keeping the panel open serves the real flow:
   search once, add two films.
 
