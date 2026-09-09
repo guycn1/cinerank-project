@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R28, with EIGHTEEN done, R20 withdrawn as incorrect and nine open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1111,7 +1111,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
-   fixing R9 and from the user working the verdict banner alongside it. R1–R4, R8–R14,
+   fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
+   seeing R27 and D-050 run. R1–R4, R8–R14,
    R19 and R23–R28 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
@@ -1618,6 +1619,53 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **One residual false negative is unfixable and is not a bug:** if the HTTP
      response never reaches the browser, the row exists and the client cannot know.
      It shows the transport message instead.
+
+   * **R29. A CARD'S SIZE MUST NEVER DEPEND ON HOW MANY CAME BACK** (user-raised
+     2026-09-09, with a screenshot). One recommendation on a viewport wide enough
+     for four currently renders as a single full-width card with a poster taller
+     than the window. Two is the same fault, less dramatically. The tracks are
+     `1fr` and `balancedColumns()` returns `min(count, fit)` when everything fits
+     on one row, so the count decides the width. That is backwards.
+     **The user's rule, in their words: "I do not believe that a card's size
+     should ever depend on how many cards returned. A better fix for the ugly
+     unoccupied space in a row is to just center it all — and screw the spaces in
+     the side edges: an evenly distributed space to the right of the row AND to
+     the [left] of it looks far less hideous than having all that space in one
+     side, trust me."** So: side margins are ACCEPTED, and the alignment
+     objection Claude raised against this shape earlier (that the grid would sit
+     narrower than the heading above it) is overruled. Do not re-litigate it.
+     **Shape of the fix.** Size the track from `fit` — the widest packing the
+     viewport allows — not from the count: one fixed card width per viewport,
+     the balanced count for the rows, and `justify-content: center` on the grid.
+     The half-column offset that centres a short last row (D-050) still applies
+     on top and is unaffected.
+     **This also settles the 4 + 2 versus 3 + 3 question the user asked on the
+     same day, and settles it as free.** The only cost of 3 + 3 was that filling
+     tracks made every card ~36% wider; once the width is fixed by `fit`, 3 + 3
+     is the same card and the same two rows as 4 + 2. So `balancedColumns()`'s
+     deliberate `> 1` restraint (D-050) should be reconsidered as part of this —
+     it exists only to avoid the growth that will no longer happen.
+     **One thing to decide while building it, not after:** `.ai-meta` is a grid
+     child spanning `1 / -1`, so with a centred, narrower track list the footer
+     and its dashed rule shrink to match — and with a single card it would be one
+     card wide. Either accept that, span it to the container, or move it out of
+     the grid.
+   * **R30. The exit animation stutters, and should close like a book**
+     (user-raised 2026-09-09). `rec-leave` ends at
+     `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card
+     sliding SIDEWAYS as it goes — the user's word for the result was
+     "stuttering". Two changes wanted: **stagger the exit one by one** (it is
+     deliberately uniform today — see the `@keyframes` comment, which will need
+     rewriting rather than amending), and replace the shrink with a
+     **"book-closing" effect — `transform: scaleX()` and the like** rather than
+     any vertical or diagonal movement.
+     **Traps.** `scaleX` needs a deliberate `transform-origin` — the default
+     centre collapses the card inward from both edges, which is a different
+     effect from a cover closing; a left or right origin is what reads as a
+     hinge. The exit runs while the request is IN FLIGHT, so its total length
+     (stagger + duration) has real headroom but is not free — keep it well under
+     a second for six cards. And the removal is driven by each node's own
+     `animationend`, which a per-card `animationDelay` does not disturb.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
