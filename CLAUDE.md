@@ -101,8 +101,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs a
   real OpenRouter call, and the user ran their paid quota down doing exactly
-  that. Paste the file into the browser console, then `debugRecs(4)` makes "Get
-  recommendations" render four dummy cards. 1–6 (`parseModelJson` slices at 6);
+  that. **The page loads it temporarily**, so `debugRecs(4)` is available in the
+  console straight away and makes "Get recommendations" render four dummy cards.
+  1–6 (`parseModelJson` slices at 6);
   `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
   latency.
   **It patches `window.fetch` and answers `POST /api/recommendations` in the
@@ -114,7 +115,14 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   testing itself. Dummy `tmdb_id`s are NEGATIVE, so they can never collide with a
   real film, and `POST /api/movies` for one is refused in the browser — pressing
   Add on a dummy card cannot reach the database. Reload to stop; nothing is
-  persisted. It is never loaded by the app and never run by Node.
+  persisted. Never run by Node.
+  **Two lines make it load, and both are temporary** — the
+  `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
+  route serving it in `server/index.js` (the file lives in `scripts/`, which is
+  deliberately outside the static root). The FILE stays; only those two go. See
+  the checkbox under Pre-submission blockers. The harness also refuses to install
+  itself when the hostname ends in `onrender.com`, so the live site is protected
+  even if the removal is forgotten — a belt to that braces, not a substitute.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -1853,6 +1861,17 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * [ ] **README screenshots + architecture diagram** — currently text-only.
 * [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
   names) and both add cross-referencing comments to the project sheet.
+* [ ] **Unload the recommendations debug harness.** Delete TWO lines and nothing
+  else: the `<script src="/debug-recs.js">` tag at the bottom of
+  `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
+  `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
+  tool and still works by pasting it into the console, which is how it was
+  written. Added 2026-09-09 at the user's request as a temporary but open-ended
+  convenience while the recommendations UI is being worked; the user asked for
+  the loading to be removed when that work is done, not the file.
+  Both lines are commented as temporary and both name this checkbox. Low risk if
+  missed — the harness declines to install on the `onrender.com` host — but a
+  debug tool wired into a submitted build is its own kind of wrong.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log

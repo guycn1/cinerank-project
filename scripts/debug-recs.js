@@ -1,8 +1,16 @@
 /**
  * CineRank — recommendation UI debug harness. DEV ONLY.
  *
- * This file is never loaded by the app. Open the CineRank page, paste the whole
- * file into the browser console, then:
+ * TEMPORARILY LOADED BY THE PAGE, so `debugRecs` is already defined in the
+ * console — no pasting needed. Two lines make that happen and BOTH come out
+ * before the final merge to main: the `<script src="/debug-recs.js">` tag at the
+ * bottom of public/index.html, and the route that serves this file in
+ * server/index.js (scripts/ is not inside the static root). The file itself
+ * stays. Tracked as a checkbox under Pre-submission blockers in CLAUDE.md.
+ * Once those two are gone it still works by pasting the whole file into the
+ * console, which is how it was built.
+ *
+ * Either way, use it like this:
  *
  *     debugRecs(4)                     // "Get recommendations" renders 4 dummy cards
  *     debugRecs(6)                     // ...or 6. Valid range is 1–6.
@@ -34,6 +42,18 @@
  * browser console, so package.json's "type": "module" never applies to it.
  */
 (() => {
+  // The one host this must never run on is the public Render deployment. Every
+  // other origin installs normally — localhost, 127.0.0.1, and a LAN IP opened
+  // from a phone, which matters because testing on a real Android phone is what
+  // found two of this project's layout bugs.
+  // A belt to the braces of removing the <script> tag, not a replacement for it:
+  // one condition, and one line to delete if a deployed run is ever genuinely
+  // wanted.
+  if (location.hostname.endsWith('onrender.com')) {
+    console.info('debug-recs: not installing on the deployed host.');
+    return;
+  }
+
   // Survives a second paste: capture the ORIGINAL fetch once, so re-pasting
   // cannot wrap an already-wrapped one.
   window.__debugRecsRealFetch = window.__debugRecsRealFetch || window.fetch.bind(window);

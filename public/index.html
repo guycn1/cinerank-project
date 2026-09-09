@@ -211,6 +211,16 @@
     </svg>
   </template>
 
+  <!-- TEMPORARY — remove this tag before the final merge to main, together with
+       the /debug-recs.js route in server/index.js. Tracked as a checkbox under
+       Pre-submission blockers in CLAUDE.md.
+       Loads the recommendations debug harness so debugRecs(n) is available in
+       the console without pasting the file each time. It only defines that one
+       function; nothing changes until it is called, and it declines to install
+       itself on the deployed host. Deliberately BEFORE app.js so window.fetch is
+       already patched by the time anything can click. -->
+  <script src="/debug-recs.js"></script>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>

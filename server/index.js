@@ -15,6 +15,25 @@ app.use(express.json());
 // Static frontend (vanilla HTML/CSS/JS — SPEC § 4.1)
 app.use(express.static(join(__dirname, '..', 'public')));
 
+// ---------------------------------------------------------------------------
+// TEMPORARY — remove before the final merge to main, together with the matching
+// <script> tag in public/index.html. Tracked as a checkbox under Pre-submission
+// blockers in CLAUDE.md.
+//
+// The recommendations debug harness lives in scripts/, which is deliberately NOT
+// inside the static root — so it needs this one explicit route to be loadable by
+// the page at all. Serving the whole scripts/ directory would have been shorter
+// and is not the same thing: this exposes exactly one known file.
+//
+// It is inert until debugRecs() is called from the console, and the file refuses
+// to install itself on the deployed host regardless (see its hostname guard), so
+// forgetting this line is not a live-site hazard on its own. Remove it anyway —
+// a debug harness in a submitted build is its own kind of wrong.
+// ---------------------------------------------------------------------------
+app.get('/debug-recs.js', (_req, res) => {
+  res.sendFile(join(__dirname, '..', 'scripts', 'debug-recs.js'));
+});
+
 // Liveness probe — most hosts (Render/Railway/Fly) want a cheap endpoint to poll.
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
