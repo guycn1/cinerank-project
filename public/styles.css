@@ -344,14 +344,21 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .search button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
 /* Opacity alone is enough for the OUTLINE buttons (.verdict__refresh,
    .recs__trigger): dimming those lets the dark page through their border and
-   they visibly switch off. This is the only FILLED button, and a saturated
-   amber at 55% still composites to ~#8c6f39 over --bg — measurably dimmer, but
-   unmistakably still an amber button. It read as active for the whole second it
+   they visibly switch off. A FILLED button cannot switch off that way, and a
+   saturated amber at 55% still composites to ~#8c6f39 over --bg — measurably
+   dimmer, but unmistakably still an amber button. It read as active for the whole second it
    spent saying "Searching…". A filled button's identity IS its fill, so take
    the fill out of the amber family rather than making it translucent. The label
    stays --ink-dim: "Searching…" is information, and should still be readable.
    Eased via the transition above, since a hard flash each way over a ~1s state
-   would be worse than the problem. */
+   would be worse than the problem.
+   This comment used to say "this is the only FILLED button", which was never
+   true, and it is why .rec-card__body button was left on the opacity treatment
+   when this rule was written (R13). THREE amber-filled buttons can be disabled
+   — this one, .rate-dialog button.primary and .rec-card__body button — and all
+   three now
+   swap the fill. (.log-cta__btn is amber-filled too but nothing ever disables
+   it: checked against every `disabled =` assignment in app.js.) */
 .search button:disabled {
   background: var(--bg-card);
   color: var(--ink-dim);
@@ -1296,7 +1303,28 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
 }
 .rec-card__body button:hover:not(:disabled) { background: var(--amber-deep); }
-.rec-card__body button:disabled { opacity: 0.5; cursor: default; }
+/* NOT opacity, which this was. It is the same bug .search button:disabled above
+   exists to fix, and WORSE here: on the search button the wrong state lasted the
+   second it said "Searching…", while on a rec card "✓ Added" / "In your list" is
+   a permanent resting state. Amber at 0.5 over the card composites to #876d3e
+   and still contrasts 3.57 against it — an unmistakably amber, unmistakably
+   clickable-looking button that does nothing.
+   The fill leaves the amber family, per the rule the search button settled. It
+   canNOT reuse that rule's --bg-card value, though: --bg-card IS the rec card's
+   own background, so the button would vanish into it entirely. --line is a hair
+   LIGHTER than the card (1.16), so the button still reads as its own element,
+   and --ink-dim on it measures 5.56 — clear of AA for 16px/600 text.
+   Those two figures are almost exactly the search button's own (1.12 shape,
+   6.48 label): the established design already says a disabled fill nearly
+   dissolves and the LABEL carries the readability. This matches it rather than
+   inventing a second answer.
+   cursor: not-allowed, not default — the identical labels on
+   .result-row .add-btn:disabled and .search button:disabled both use it. */
+.rec-card__body button:disabled {
+  background: var(--line);
+  color: var(--ink-dim);
+  cursor: not-allowed;
+}
 
 /* Footer under a generated AI result — the call's metadata plus a link into the
    full log. One block shared by the recommendations grid and the verdict banner

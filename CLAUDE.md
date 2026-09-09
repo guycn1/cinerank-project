@@ -1046,7 +1046,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R1–R4,
-   R8, R9, R19 and R23–R25 are done and R20 was WITHDRAWN as incorrect — every
+   R8, R9, R13, R19 and R23–R25 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1199,16 +1199,32 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      2026-09-08 and this one deliberately was not, so the shared "section headers"
      rule is temporarily split. **Reunite them in this pass** and delete the
      comment explaining the split.
-   * **R13. `.rec-card__body button:disabled` dims a FILLED amber button with
-     `opacity: 0.5` — the exact bug the Search button's `:disabled` fix existed to
-     correct.** Amber at 50% still composites to an unmistakably amber fill, so
-     the settled labels read as live buttons. It is WORSE here than it was there:
-     on the search button the wrong state lasted about a second; on a rec card it
-     is a permanent resting state. Same fix as already written — take the fill out
-     of the amber family (`--bg-card` / `--ink-dim`) rather than making it
-     translucent. **Also correct the comment above `.search button:disabled`,
-     which asserts "This is the only FILLED button": `.rec-card__body button` has
-     the identical `background: var(--amber); color: #1a1205`, and always did.**
+   * **R13. DONE 2026-09-09 — the disabled rec-card button stopped looking
+     clickable.** It dimmed a FILLED amber button with `opacity: 0.5`, which is
+     the exact bug `.search button:disabled` exists to fix, and WORSE here: on the
+     search button the wrong state lasted the second it said "Searching…", while
+     on a rec card `✓ Added` / `In your list` is a PERMANENT resting state.
+     Measured: amber at 0.5 over the card composites to **#876d3e** and still
+     contrasts **3.57** against it — an unmistakably amber button that does
+     nothing.
+     **The search button's fix could not be copied verbatim**, which is the part
+     worth remembering: its disabled fill is `--bg-card`, and `--bg-card` IS the
+     rec card's own background, so the button would have vanished into the card
+     completely. `--line` instead — a hair lighter than the card (1.16) so the
+     button keeps its own edges, with `--ink-dim` at 5.56, clear of AA for
+     16px/600 text. Those two figures are almost exactly the search button's own
+     (1.12 shape, 6.48 label), so this MATCHES the established answer rather than
+     inventing a second one: a disabled fill nearly dissolves and the label
+     carries the readability. `cursor` also went `default` → `not-allowed`, which
+     is what both `.result-row .add-btn:disabled` and `.search button:disabled`
+     use for the identical labels.
+     **The false comment that caused it is corrected.** `.search button:disabled`
+     claimed "This is the only FILLED button" — never true, and it is why this one
+     was left on opacity when that rule was written. Audited against every
+     `disabled =` assignment in `app.js`: THREE amber-filled buttons can be
+     disabled — the search button, `.rate-dialog button.primary` and this one —
+     and all three now swap the fill. `.log-cta__btn` is amber-filled too but
+     nothing ever disables it.
    * **R14. No grow-on-hover on `.rec-card` (user).** Read D-043 AND D-044 first:
      elevation on this page is made of LIGHT, not black; every glow layer takes a
      ZERO Y-offset (a Y-offset is what makes a glow lopsided, and that mistake was
