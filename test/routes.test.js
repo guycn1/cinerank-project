@@ -482,6 +482,87 @@ test('POST /api/recommendations below the threshold keeps its specific message',
   assert.equal(body.logged, undefined);
 });
 
+/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+
+// The user's requirement for R23, stated as a rule rather than a scenario: if a
+// row with status 'failed' reaches an AI log table, the response MUST carry
+// `logged` so the UI can point at it. A false negative here is a failure the
+// user is told nothing about while its full cause sits in the log.
+//
+// Both features are asserted the same way and in the same place, because the
+// whole point of R23 was that they had drifted into two different answers to one
+// question.
+const RATED_FOUR = {
+  data: [
+    { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
+    { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
+    { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
+    { id: '4', tmdb_id: 4, title: 'Sicario', year: 2015, rating: 8, review: '' },
+  ],
+  error: null,
+};
+
+for (const feature of [
+  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs' },
+  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs' },
+]) {
+  test(`POST ${feature.path}: a logged 'failed' row is always advertised to the UI`, async () => {
+    db.results['movies:select'] = RATED_FOUR;
+    db.results[`${feature.table}:insert`] = { data: null, error: null };
+    const restore = stubFetch({ 'openrouter.ai': 'throw' });
+    try {
+      const res = await client.post(feature.path);
+      assert.equal(res.status, 422);
+      const body = await res.json();
+      const row = db.calls.find((c) => c.table === feature.table && c.op === 'insert');
+
+      assert.ok(row, `${feature.name}: a failure must still be logged`);
+      assert.equal(row.payload.status, 'failed');
+      // The invariant. Written as an implication so the failure message says
+      // which half broke rather than just "expected true".
+      assert.equal(
+        body.logged,
+        true,
+        `${feature.name}: a 'failed' row was written but the response did not advertise the log`
+      );
+      // R8's half of the same change: the cause belongs in the row, not the UI.
+      assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
+      assert.match(row.payload.error_text, /OpenRouter/);
+    } finally {
+      restore();
+    }
+  });
+
+  test(`POST ${feature.path}: a failure with NO log row advertises nothing`, async () => {
+    // Dies on the library read, before any AI call — so there is no row, and
+    // offering the log would send the user to an empty page.
+    db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
+    const res = await client.post(feature.path);
+    assert.equal(res.status, 422);
+    const body = await res.json();
+    assert.equal(body.logged, undefined, `${feature.name}: nothing logged, nothing to point at`);
+    assert.doesNotMatch(body.error, /connection refused|DB read/i);
+    assert.equal(db.calls.filter((c) => c.table === feature.table).length, 0);
+  });
+}
+
+// The third no-row case, and the one most likely to be broken by reordering: the
+// AI call failed AND the log write failed, so there is genuinely nothing to read.
+test('POST /api/taste-verdict when the log write itself fails advertises nothing', async () => {
+  db.results['movies:select'] = RATED_FOUR;
+  db.results['taste_verdict_logs:insert'] = { data: null, error: { message: 'insert refused' } };
+  const restore = stubFetch({ 'openrouter.ai': 'throw' });
+  try {
+    const res = await client.post('/api/taste-verdict');
+    assert.equal(res.status, 422);
+    const body = await res.json();
+    assert.equal(body.logged, undefined);
+    assert.doesNotMatch(body.error, /insert refused|log write/i);
+  } finally {
+    restore();
+  }
+});
+
 /* ---------- /api/ai-log shape ---------------------------------------- */
 
 test('GET /api/ai-log returns structured result data per row', async () => {

@@ -21,9 +21,24 @@ export function tidyVerdict(raw) {
 }
 
 class TasteVerdictError extends Error {
-  constructor(message) {
+  /**
+   * Same two flags, same meanings, as RecommendationError — the two features
+   * must answer a failure identically or the app has two error dialects (R23,
+   * D-047).
+   *
+   * @param userFacing  This message IS the answer, so show it verbatim. True for
+   *   exactly one case: not enough rated films.
+   * @param logged  A taste_verdict_logs row was written for this failure, so a
+   *   UI may point at the AI call log. **The invariant: every 'failed' row that
+   *   reaches the table must arrive with this true.** Below, that holds because
+   *   status only ever becomes 'failed' in one place and the throw that follows
+   *   the successful insert is the only exit from it.
+   */
+  constructor(message, { userFacing = false, logged = false } = {}) {
     super(message);
     this.name = 'TasteVerdictError';
+    this.userFacing = userFacing;
+    this.logged = logged;
   }
 }
 export { TasteVerdictError };
@@ -49,7 +64,10 @@ export async function generateTasteVerdict() {
   if (error) throw new TasteVerdictError(`DB read failed: ${error.message}`);
   if (!rated || rated.length < config.tasteVerdict.minRatedMovies) {
     throw new TasteVerdictError(
-      `Need at least ${config.tasteVerdict.minRatedMovies} rated movies`
+      `Need at least ${config.tasteVerdict.minRatedMovies} rated movies`,
+      // The one cause a user can act on. No AI call was made, so nothing is
+      // logged and nothing may be advertised.
+      { userFacing: true }
     );
   }
 
@@ -95,9 +113,16 @@ export async function generateTasteVerdict() {
     estimated_cost_usd: estCost,
   };
   const { error: logError } = await supabase.from('taste_verdict_logs').insert(logRow);
+  // The row did NOT land, so there is nothing to advertise — `logged` stays
+  // false. This is the one branch that could produce a false NEGATIVE if it were
+  // reordered below the throw beneath it, so leave the order alone.
   if (logError) throw new TasteVerdictError(`Taste verdict log write failed: ${logError.message}`);
 
-  if (status === 'failed') throw new TasteVerdictError(errorText);
+  // The row is committed and its status is 'failed', so this is the ONLY exit
+  // that may advertise the AI call log — and, just as importantly, the only exit
+  // reachable once a failed row exists. That is what makes "a failed row is
+  // always advertised" true rather than merely usually true.
+  if (status === 'failed') throw new TasteVerdictError(errorText, { logged: true });
 
   return {
     verdict,

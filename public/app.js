@@ -1300,13 +1300,21 @@ el.verdictRefresh.addEventListener('click', async () => {
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
-    // Quiet fallback (SPEC § 2.3) — but the failed call IS in the log, so say
-    // where to look. Built from nodes, never innerHTML (CLAUDE.md § Security 4).
-    el.verdictText.replaceChildren(
-      document.createTextNode('Couldn’t come up with a verdict right now. See the '),
-      logLink('AI call log'),
-      document.createTextNode(' for details.')
-    );
+    // Quiet fallback (SPEC § 2.3). The log is offered only when the server says a
+    // row was actually written — this used to be unconditional, and it also
+    // discarded `err.message`, so CineRank being unreachable produced "See the AI
+    // call log for details" pointing at a log that could not load either, with
+    // the real cause thrown away (R23, D-047).
+    // Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    if (err.logged) {
+      el.verdictText.replaceChildren(
+        document.createTextNode(`${err.message} See the `),
+        logLink('AI call log'),
+        document.createTextNode(' for details.')
+      );
+    } else {
+      el.verdictText.textContent = err.message;
+    }
   } finally {
     restoreRefresh();
   }

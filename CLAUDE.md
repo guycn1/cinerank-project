@@ -60,7 +60,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 43 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 48 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -1044,9 +1044,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
-   and produced R1–R22 below; R23 was added later, from a finding made while
-   fixing R9. R1–R4, R8, R9 and R19 are done and R20 was WITHDRAWN as incorrect —
-   every status is on the item itself. The user's original seed items are folded in and
+   and produced R1–R22 below; R23 and R24 were added later, from findings made
+   while fixing R9. R1–R4, R8, R9, R19, R23 and R24 are done and R20 was
+   WITHDRAWN as incorrect — every status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
    land.
@@ -1270,18 +1270,39 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group F — found while fixing the above (added 2026-09-09)**
 
-   * **R23. The taste verdict offers the AI call log unconditionally.** Its catch
-     builds `Couldn’t come up with a verdict right now. See the [AI call log] for
-     details.` for EVERY failure — including CineRank being unreachable, where the
-     log dialog cannot load either and the real cause ("Couldn’t reach CineRank…")
-     is swallowed entirely. Found while doing R9, and deliberately NOT fixed with
-     it: this is the verdict section, which the user has not opened yet, and R8/R9
-     were the agreed scope. The fix is the one recs now has — the server sends
-     `logged` and the client only offers the link when it is set. `api()` already
-     carries the flag, so the client half is a few lines; the verdict route needs
-     the same `userFacing`/`logged` treatment its sibling got.
-     **Do not "unify" the two by copying the verdict's version over the recs one
-     — that is backwards** (D-047).
+   * **R24. The recs error line is `--ink-dim`, not `--crimson`** (user-raised,
+     2026-09-09, after seeing R9's link land inside it). Not taste — measured: the
+     amber link was **2.48x brighter** than the crimson around it (relative
+     luminance 0.583 vs 0.235), so the pointer to details shouted louder than the
+     statement of what broke; and the two hues sit **36 degrees** apart, close
+     enough to read as almost-the-same rather than as a deliberate pair, while
+     contrasting only 2.22 against each other. Claude proposed instead making the
+     link inherit the crimson with an underline; **the user chose recolouring the
+     line, which is better** — it reuses the verdict banner's proven amber-on-grey
+     rather than inventing a second link treatment. `.verdict__text.is-muted` moved
+     `--ink-faint` → `--ink-dim` in the same pass. Note the verdict's muted state
+     is now one step brighter than the other muted-italic absences
+     (`.score-tmdb.is-muted`, `.no-review`), which stay `--ink-faint`: the shared
+     vocabulary is muted + italic, not one exact token.
+
+   * **R23. DONE 2026-09-09, on the user's instruction, the same day it was
+     found.** The verdict's catch offered the AI call log for EVERY failure —
+     including CineRank being unreachable, where the log cannot load either — and
+     discarded `err.message`, so the real cause was thrown away. It now carries
+     the same `userFacing`/`logged` treatment as the recommendations route, so the
+     two features answer a failure identically instead of in two dialects.
+     **The user's requirement was zero FALSE NEGATIVES: a `failed` row must never
+     be written without the message advertising the log.** That holds by
+     construction, not just by test — in both services `status = 'failed'` is
+     assigned in exactly ONE place, and between the successful log insert and the
+     `{ logged: true }` throw there is no other exit. The three no-row cases (DB
+     read failed, threshold unmet, log write failed) correctly advertise nothing.
+     Five tests cover it, written as a loop over BOTH features so they cannot
+     drift again, and probed three ways: dropping either service's flag, or making
+     the verdict route advertise unconditionally, all fail.
+     **One residual false negative is unfixable and is not a bug:** if the HTTP
+     response never reaches the browser, the row exists and the client cannot know.
+     It shows the transport message instead.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
@@ -1341,7 +1362,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (43).
+  `review_requires_rating` guards all covered by `npm test` (48).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.

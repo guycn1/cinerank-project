@@ -216,7 +216,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   color: var(--ink-soft);
   letter-spacing: 0.1px;
 }
-.verdict__text.is-muted { color: var(--ink-faint); font-style: italic; }
+/* --ink-dim, not --ink-faint: the faintest token was too quiet for text that is
+   often the only thing in the banner (a placeholder, or a failure). Note this
+   makes the verdict's muted state one step brighter than the OTHER muted-italic
+   absences in the app (.score-tmdb.is-muted, .no-review), which stay
+   --ink-faint. The shared vocabulary is muted + italic, not one exact token —
+   those two sit beside real content on a card and should stay quieter than it,
+   while this one has nothing to be quieter than. */
+.verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
 .verdict__refresh {
   background: transparent;
   border: 1px solid var(--line);
@@ -1151,7 +1158,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 .recs__hint { color: var(--ink-faint); font-size: 0.9rem; margin-bottom: 1rem; min-height: 1.2em; }
-.recs__hint.err { color: var(--crimson); }
+/* NOT --crimson, which this was until the R9 log link landed inside it. Two
+   measured problems, neither of them taste: the amber link is 2.48x brighter
+   than crimson (relative luminance 0.583 vs 0.235), so the pointer to details
+   shouted louder than the statement of what broke; and the two hues sit 36
+   degrees apart, close enough to read as almost-the-same rather than as a
+   deliberate pair, while contrasting only 2.22 against each other.
+   --ink-dim is the verdict banner's own failure colour, where amber-on-grey is a
+   clean temperature contrast that has never had this problem. It is also a step
+   BRIGHTER than .recs__hint's resting --ink-faint, so the error still gains
+   weight over the idle hint — it just stops competing with its own link.
+   The message carries the failure now, not the colour. That is the same quiet
+   fallback SPEC 2.3/2.4 asks of the AI features, and it leaves --crimson for
+   the places a failure really is red (D-033). */
+.recs__hint.err { color: var(--ink-dim); }
 
 .recs__grid {
   display: grid;
