@@ -366,6 +366,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the error fallback; the initial "Reading the room…" now ships with it too.
   - Copy: "(probably unflattering)" → "a candid read" — the old parenthetical
     contradicted `taste_verdict_v4.md`, which says "never mean-spirited".
+    **Then "a candid read" → "an AI-generated read" (2026-09-11, user-raised.)**
+    Recorded as a chain rather than an overwrite, because the user asked the
+    right question before requesting it: does this undo the earlier decision?
+    Checked — no. There is no `docs/DECISIONS.md` entry for it, only the line
+    above, and its reasoning is entirely about REMOVING the parenthetical for
+    contradicting the prompt. Nothing weighed "candid" against alternatives, and
+    "AI-generated" was never one of them. It also does not reintroduce the
+    contradiction it was chosen to end — it is neutral, so the original motive
+    still holds. A different outcome, not a reversal.
+    It is also the better label on its own terms: this line sits directly above
+    machine-written text, and saying so is the same transparency the AI call log
+    exists for.
   - **Shared meta footer** under both a generated verdict AND the recs:
     `Prompt: … · Model: … · N tokens · C¢ · N ms` then a link into the log.
     One `aiMetaFooter()` builder + one `.ai-meta` CSS block; only placement
