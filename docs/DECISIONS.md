@@ -63,7 +63,30 @@ index, adding two gaps to the width arithmetic, breaking the half-column offset,
 and dropping auto-placed cards into gutters. Out of the grid it is a plain block
 underneath, full width, coupled to nothing.
 
-**The consequence of that move which was easiest to miss:** the spotlight (D-049)
+**Added hours later, once the user looked at it: a card also needs a MAXIMUM
+width, and the reason is height.** Decoupling width from the count fixed the
+one-card case only in the sense that the count no longer chose the width — the
+width still came from `fit`, so each time one fewer column fitted, the survivors
+inherited the space. The poster is `aspect-ratio: 2/3`, so a pixel of width
+costs 1.5 of height, and at one card per row that was a 390px card carrying a
+**585px poster on an 869px window**. The user sent screenshots from either side
+of all three column boundaries, which is what made the pattern legible: the
+symptom is not "one card is too wide", it is "the card gets taller every time a
+column drops out".
+
+`--rec-max: 250px`, alongside the existing `--rec-min: 190px`, so the two are the
+card's allowed width band and both live in the stylesheet. Chosen against the
+user's own evidence rather than picked: they called 258px (the 4→3 boundary)
+"slightly" too tall and 291px and 390px clearly too tall, so the cap sits just
+under the mildest case they objected to. Wide layouts are untouched — a
+four-column card is 237px and already under it.
+
+**Capping only ever shrinks, which is why it does not disturb the arithmetic
+above.** `fit` is still "how many `--rec-min` cards fit", and a capped card is
+narrower than an uncapped one, so no cap can ever let more cards fit. The
+centring machinery R29 had just built absorbs the leftover space for free.
+
+**The consequence of the footer move which was easiest to miss:** the spotlight (D-049)
 dimmed the footer only because it was a grid child — that is the whole of its
 `> *` rather than `> .rec-card`. Moving the footer out would have silently undone
 that and left it the single brightest thing on screen at the moment attention is

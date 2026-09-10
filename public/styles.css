@@ -14,7 +14,17 @@
   --ink: #f4f1ea;
   --ink-soft: #e8e5de; /* a half-step below --ink — the taste verdict */
   --ink-dim: #a29d94;
-  --ink-faint: #6b6760;
+  /* Brightened from #6b6760 on 2026-09-10, measured rather than eyeballed. The
+     old value was 3.49:1 on --bg and 3.11:1 on a card — under WCAG AA (4.5) on
+     both, which mattered because `.no-review` and `.score-tmdb.is-muted` are
+     normal-size text on a card. This clears AA on both grounds (5.07 / 4.51).
+     The user's constraint was that it stay recognisably FAINT: its luminance is
+     0.2212 against the old 0.1367 and --ink-dim's 0.3393, so it sits at 42% of
+     the way between them — nearer where it was, with the two tiers still a
+     clear step apart (5.07 vs 7.28 on --bg). Do not push it further without
+     re-running that arithmetic; past ~#8b867d it is closer to dim than to
+     faint and the two-tier vocabulary R26 depends on starts to collapse. */
+  --ink-faint: #868178;
   --amber: #f5c15b;
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
@@ -606,7 +616,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   letter-spacing: -0.01em;
 }
 .ranked__count { color: var(--ink-faint); font-size: 0.9rem; }
-.ranked__empty { color: var(--ink-faint); font-style: italic; padding: 2rem 0; }
+/* `--ink-dim`, not `--ink-faint`, and the padding is top-only (2026-09-10,
+   user-raised). Three reasons for the colour, and none of them is taste: faint
+   measures 3.49:1 on this ground, under WCAG AA for normal text; R26's rule says
+   a line that IS the only thing its section shows takes the base weight, where
+   the faint tier is for absences sitting BESIDE content (`No TMDB rating`,
+   `No review yet` both have a card around them); and this is the first thing a
+   first-time visitor sees.
+   The padding was `2rem 0`, which gave 32px above the line and 80px below it,
+   because `.recs__head` brings its own 3rem. The bottom half was doing no work
+   and the asymmetry read as adrift. Top-only is also correct grouping: the line
+   belongs to the section above it, so it should sit nearer that heading. */
+.ranked__empty { color: var(--ink-dim); font-style: italic; padding: 1.5rem 0 0; }
 
 /* ranked list ------------------------------------------------------- */
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
@@ -1315,6 +1336,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      appears in `grid-template-columns` — with the count decided ahead of time
      there is no `minmax()` left to put it in — so do not delete it as unused. */
   --rec-min: 190px;
+  /* The WIDEST a card may be, and the reason is height rather than width: the
+     poster is `aspect-ratio: 2/3`, so every pixel of extra width costs 1.5 of
+     height. Without a cap, each time one fewer column fits the survivors
+     inherit all the space — at one card per row that meant a ~585px poster on
+     an 869px window. Read by `balancedLayout()` exactly as `--rec-min` is; the
+     two together are the card's allowed width band, and both live here so the
+     stylesheet stays the single source of truth for them. */
+  --rec-max: 250px;
   grid-template-columns: repeat(var(--rec-tracks, 6), 1fr);
   gap: 1.1rem;
   /* R29 — A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK.
@@ -1367,7 +1396,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      times the height of a ranked one and 10px of travel read as a flicker
      rather than an arrival (R27). Separate names mean tuning one can never
      move the other. */
-  animation: rec-enter 0.5s var(--ease) backwards;
+  animation: rec-enter 0.75s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;

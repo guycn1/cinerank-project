@@ -53,8 +53,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
   scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
-  cards in at 120ms apart; regenerating fades the previous set out first (R27,
-  R14, D-048). Nothing animates or scrolls on an empty or failed run.
+  cards in 0.75s each, 120ms apart; regenerating fades the previous set out
+  first (R27, R14, D-048). Nothing animates or scrolls on an empty or failed
+  run.
   The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
   never left holding one lonely card: four cards where three fit render 2 + 2,
   five where four fit render 3 + 2, and six where four fit render 3 + 3, with a
@@ -1446,7 +1447,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    * **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
      (user-raised, 2026-09-09.) The entrance half already existed and was tuned
      rather than rebuilt: `.rec-card` now carries its own
-     `animation: rec-enter 0.5s var(--ease) backwards`, and the stagger went from
+     `animation: rec-enter 0.75s var(--ease) backwards`, and the stagger went from
      `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card step
      the user asked for. Its own keyframe, not the shared `fade-slide`, because
      10px of travel under a ~300px poster card is a twitch and tuning it must not
@@ -1475,9 +1476,16 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **The user's spec for (a), given 2026-09-09 after watching it run:**
      * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
        is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
-       bounded: at 120ms it is lead-in + 5x120ms + the 0.5s card duration, which
-       came to about 1.3s as first estimated against a 200ms lead-in and is
-       **1.5s as shipped**, the lead-in having been doubled to 400ms.
+       bounded: at 120ms it is lead-in + 5x120ms + the per-card duration, which
+       came to about 1.3s as first estimated against a 200ms lead-in and a 0.5s
+       card, and is **1.75s as shipped** — the lead-in was doubled to 400ms and
+       the card duration raised to 0.75s.
+       **Three separate dials, and the user has tuned each one by watching it:**
+       `RECS_LEAD_IN_MS` (the beat before the first card), `RECS_STAGGER_MS`
+       (the gap between cards) and the DURATION on `.rec-card`'s `animation`
+       (how fast one card drops). The third is the one that gets misattributed —
+       "the cards appear too fast" is almost never the stagger, which the user
+       explicitly confirmed was fine while asking for this.
      * **Scroll the section into view**, because the cards land below the fold and
        the user has to scroll down mid-animation and misses most of it.
        `scrollIntoView({ block: 'start' })`.
@@ -1676,6 +1684,20 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Verified by simulating every count from one to six across 288/500/700/812/
      1000px: the card width is now constant per viewport in every column, and no
      layout gained a row.
+     **A CARD ALSO HAS A MAXIMUM WIDTH, and the reason is HEIGHT** (`--rec-max`,
+     250px; user-raised the same day with screenshots either side of all three
+     column boundaries). Decoupling width from the count was not enough on its
+     own: the width still comes from `fit`, so every time one fewer column fits,
+     the survivors inherit the space — and the poster is `aspect-ratio: 2/3`, so
+     a pixel of width costs 1.5 of height. At one card per row that was a 390px
+     card with a **585px poster on an 869px window**. Capped, the poster never
+     exceeds 375px. Measured at the three boundaries the user photographed:
+     4→3 columns 258px → 250px (the "slightly reduced" they asked for), 3→2
+     291px → 250px, 2→1 390px → 250px. Wide layouts are untouched, because a
+     four-column card is 237px and already under the cap.
+     `--rec-min` and `--rec-max` together are the card's allowed width band, both
+     in the stylesheet, both read by `balancedLayout()`. Capping only ever
+     shrinks, so it can never let more cards fit and `fit` stays correct.
      **The `.ai-meta` footer MOVED OUT OF THE GRID — settled 2026-09-09 before
      building, done 2026-09-10.** It was a grid child spanning `1 / -1`, so a centred,
      narrower track list would shrink the footer and its dashed rule to match,

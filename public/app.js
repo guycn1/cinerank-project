@@ -1326,6 +1326,7 @@ function balancedLayout(count, grid) {
   const cs = getComputedStyle(grid);
   const gap = parseFloat(cs.columnGap) || 0;
   const min = parseFloat(cs.getPropertyValue('--rec-min')) || 190;
+  const max = parseFloat(cs.getPropertyValue('--rec-max')) || 250;
   const avail = grid.parentElement.clientWidth;
   // The +gap on both sides is the standard "n items need n-1 gaps" rearrangement:
   // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
@@ -1334,7 +1335,15 @@ function balancedLayout(count, grid) {
   // off the grid itself: the grid's own width is what this function sets, so
   // reading it back would feed the last answer into the next one and ratchet the
   // cards smaller on every resize frame.
-  const width = (avail - (fit - 1) * gap) / fit;
+  //
+  // The cap is what stops a card growing TALL, which is the form the problem
+  // actually takes: the poster is `aspect-ratio: 2/3`, so every pixel of extra
+  // width costs 1.5 of height. Each time `fit` drops by one the surviving cards
+  // inherit the space, and at one-per-row that put a ~585px poster on an 869px
+  // window (user-raised, with screenshots either side of all three boundaries).
+  // Capping only ever SHRINKS a card, so it can never let more of them fit and
+  // `fit` above stays correct.
+  const width = Math.min((avail - (fit - 1) * gap) / fit, max);
   const cols = Math.ceil(count / Math.ceil(count / Math.min(count, fit)));
   return { cols, width };
 }
