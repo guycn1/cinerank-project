@@ -23,8 +23,8 @@ test('loadPrompt: substitutes every placeholder occurrence', async () => {
   assert.ok(!user.includes('{{TASTE_PROFILE}}'), 'no placeholder left unsubstituted');
 });
 
-test('loadPrompt: taste_verdict_v4 keeps its RATED_MOVIES slot and injection markers', async () => {
-  const { user } = await loadPrompt('taste_verdict_v4', { RATED_MOVIES: 'SEED_LIST' });
+test('loadPrompt: taste_verdict_v5 keeps its RATED_MOVIES slot and injection markers', async () => {
+  const { user } = await loadPrompt('taste_verdict_v5', { RATED_MOVIES: 'SEED_LIST' });
   assert.ok(user.includes('SEED_LIST'));
   assert.match(user, /BEGIN RATED MOVIES/);
   assert.match(user, /END RATED MOVIES/);

@@ -67,8 +67,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   so one recommendation is one normal-sized card with the slack split evenly
   either side. The AI metadata footer sits in its own slot BELOW the grid, not
   inside it, so it stays full width whatever the cards do.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
-  sentences, ~35–60 words, characterise the viewer — not recite ratings),
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v5` (2–3
+  sentences, ~35–60 words, characterise the viewer — not recite ratings — in
+  plain spoken English rather than review prose; v5 changed the REGISTER only),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
@@ -2184,7 +2185,7 @@ BUSY label is nonetheless covered, because that comes from the shared
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v4` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v5` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
