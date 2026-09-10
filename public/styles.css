@@ -16,21 +16,20 @@
   --ink-dim: #a29d94;
   /* Nudged up from #6b6760 on 2026-09-10, and DELIBERATELY LEFT SHORT OF WCAG AA
      — do not "fix" that, read D-052 first.
-     It went to #868178 first, chosen to clear AA (4.5) on both grounds. The user
-     looked at it and said faint had become almost indistinguishable from dim,
-     and the measurement agreed: the number that decides whether two tiers read
-     as two tiers is their contrast with EACH OTHER, and #868178 against
-     --ink-dim is 1.44, down from the original 2.09 — a 31% collapse of the very
-     distinction this token exists to draw. AA had been measured against the
-     backgrounds and the real cost was somewhere else entirely.
-     #76716a keeps 1.79 of that 2.09 separation while still lifting the floor:
-     3.49 → 4.06 on --bg and 3.11 → 3.61 on a card, at 15% of the distance to
-     --ink-dim. Both still under AA, knowingly. The tier ABOVE it is the mitigation
-     — R26 and D-051 moved every line that is the only thing on its surface to
-     --ink-dim, so what is left on --ink-faint sits beside content that carries
-     the meaning (`No TMDB rating` next to a title and poster, `Based on: …`
-     immediately above the cards it introduces). */
-  --ink-faint: #76716a;
+     Settled at 30% of the way between two values that were each tried and
+     rejected. #868178 was built first, to clear AA (4.5) on both grounds, and
+     sits too close to --ink-dim; #76716a was the correction and went a shade too
+     dark. The number that decides whether two tiers read as two tiers is their
+     contrast with EACH OTHER, not with the background AA is defined against:
+     the original #6b6760 gave 2.09 against --ink-dim, #868178 gave 1.44, and
+     this keeps 1.67 — 80% of the separation the token exists to draw, with the
+     floor still lifted (3.49 → 4.36 on --bg, 3.11 → 3.87 on a card).
+     Both are under AA, knowingly. The tier ABOVE is the mitigation: R26 and
+     D-051 moved every line that is the only thing on its surface to --ink-dim,
+     so what is left on --ink-faint sits beside content that carries the meaning
+     (`No TMDB rating` next to a title and poster, `Based on: …` immediately
+     above the cards it introduces). */
+  --ink-faint: #7b766e;
   --amber: #f5c15b;
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */

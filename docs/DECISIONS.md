@@ -15,44 +15,68 @@ be brightened, with one constraint: *"its brightness should still be closer to
 how it is right now than to `--ink-dim`; the difference between 'faint' and 'dim'
 should remain noticeable."*
 
-**Claude picked the brightest value satisfying that constraint — #868178, AA
-clear on both grounds at 5.07 / 4.51 — and the user rejected it on sight:**
-*"as I feared, 'faint' is now almost indistinguishable from 'dim'."*
+Claude picked the brightest value satisfying that constraint — **#868178**, AA
+clear on both grounds at 5.07 / 4.51.
 
-**They were right, and the measurement says why Claude missed it.** Every ratio
-in the first pass was taken against a BACKGROUND, because that is what AA is
-defined against. But the thing at risk was never legibility against the page —
-it was the distinction between two type tiers, and that is decided by their
-contrast with **each other**:
+### The false alarm, which is worth recording on its own
 
-| | vs `--ink-dim` | on `--bg` | on a card |
-|---|---|---|---|
-| `#6b6760` original | **2.09** | 3.49 | 3.11 |
-| `#868178` AA-clearing | **1.44** | 5.07 | 4.51 |
-| `#76716a` shipped | **1.79** | 4.06 | 3.61 |
+The user reported back that faint was now *"almost indistinguishable"* from dim.
+**That report was mistaken, and they caught it themselves.** They had compared
+"No movies yet — search for one above to get started." against "Rate at least 3
+movies to unlock recommendations (you have 0).", expecting the first to be faint
+and the second dim. But the empty-list line had been moved to `--ink-dim` in the
+*same commit*, so they were looking at dim against dim and correctly concluding
+the two were identical.
 
-Clearing AA cost **31% of the separation** the token exists to draw. Claude had
-optimised a number it was measuring and damaged one it was not.
+**The mechanism is the lesson: two changes to the same visual question shipped
+together, and one of them silently destroyed the test for the other.** Nothing
+was wrong with either change. Worth remembering when a token and one of its
+consumers move in one commit — say what is left to compare against, or the next
+comparison is meaningless.
 
-**So the app knowingly ships two tokens below AA.** `#76716a` keeps 1.79 of the
-original 2.09 while still lifting the floor (3.49 → 4.06, 3.11 → 3.61). Not a
-shrug at accessibility, and not a decision to re-open with a contrast audit:
+Claude did not catch it either, and acted on the report at face value.
 
-*The mitigation is the tier above it.* R26 and D-051 moved every line that is
-the **only thing on its surface** up to `--ink-dim` (7.28:1) — the availability
+### What re-testing actually found
+
+The user then tried candidates in devtools and reported precisely: #868178 *was*
+too close to dim, though not indistinguishable, and the #76716a correction had
+gone a shade too dark. Settled at 30% of the way back: **#7b766e**.
+
+**The metric that decides this is not the one AA is defined against.** Whether
+two type tiers read as two tiers depends on their contrast with *each other*:
+
+| | vs `--ink-dim` | on `--bg` | on a card | separation kept |
+|---|---|---|---|---|
+| `#6b6760` original | **2.09** | 3.49 | 3.11 | 100% |
+| `#868178` AA-clearing | **1.44** | 5.07 | 4.51 | 69% |
+| `#76716a` over-correction | **1.79** | 4.06 | 3.61 | 86% |
+| `#7b766e` shipped | **1.67** | 4.36 | 3.87 | 80% |
+
+Clearing AA would have cost nearly a third of the separation this token exists
+to draw. Claude had optimised a number it was measuring and damaged one it was
+not — that part of the original finding survives the false alarm intact, because
+it is arithmetic rather than an observation.
+
+### So the app knowingly ships two tokens below AA
+
+`#7b766e` is 4.36 on the page and 3.87 on a card — closer to the line than
+before, still short of it. Not a shrug at accessibility, and not something to
+re-open with a contrast audit:
+
+*The mitigation is the tier above it.* R26 and D-051 moved every line that is the
+**only thing on its surface** up to `--ink-dim` (7.28:1) — the availability
 sentences, all five zero-result messages, the failure line, the empty ranked
-list. What remains on `--ink-faint` sits beside content that carries the
-meaning: `No TMDB rating` next to a title, a poster and a score; `Based on: …`
-directly above the cards it introduces; the metadata footer under the result it
-describes. None of it is the sole carrier of anything.
+list. What remains on `--ink-faint` sits beside content that carries the meaning:
+`No TMDB rating` next to a title, a poster and a score; `Based on: …` directly
+above the cards it introduces; the metadata footer under the result it describes.
+None of it is the sole carrier of anything.
 
-*And the alternative was worse for the same users.* Two tiers that read as one
-is not an accessibility win — it removes a signal from everybody, including the
-people the contrast rule is written for.
+*And two tiers that read as one is not an accessibility win either* — it removes
+a signal from everybody, including the people the contrast rule is written for.
 
-**The transferable lesson, which is the reason this is logged at all:** when a
-token's job is to be *quieter than another token*, contrast against the
-background is not the whole specification. Measure the pair.
+**The transferable lesson:** when a token's job is to be *quieter than another
+token*, contrast against the background is not the whole specification. Measure
+the pair.
 
 ---
 ## D-051 · Card size comes from the viewport, never from the result count (R29)

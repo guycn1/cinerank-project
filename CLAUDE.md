@@ -1834,15 +1834,20 @@ below — this list is the smaller stuff.)
   now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
   they are not UI copy.
 * [x] **`--ink-faint` sits below WCAG AA deliberately — do NOT "fix" it** (D-052,
-  2026-09-10). It was nudged #6b6760 → #76716a, which lifts it to 4.06:1 on the
-  page and 3.61:1 on a card, both still short of 4.5. The AA-clearing value was
-  built first (#868178) and the user rejected it: faint became almost
-  indistinguishable from dim. The measurement agreed — what decides whether two
-  type tiers read as two tiers is their contrast with EACH OTHER, and clearing
-  AA cost 31% of it (2.09 → 1.44). The mitigation is that R26 and D-051 moved
-  every line that is the ONLY thing on its surface up to `--ink-dim` (7.28:1);
-  what is left on faint always sits beside content that carries the meaning.
-  A contrast audit will flag this. It is a decision, not an oversight.
+  2026-09-10). Settled at #7b766e (from #6b6760), which lifts it to 4.36:1 on the
+  page and 3.87:1 on a card — both still short of 4.5. The AA-clearing value was
+  built first (#868178) and sits too close to `--ink-dim`: what decides whether
+  two type tiers read as two tiers is their contrast with EACH OTHER, and
+  clearing AA cost nearly a third of it (2.09 → 1.44). This keeps 1.67.
+  The mitigation is that R26 and D-051 moved every line that is the ONLY thing on
+  its surface up to `--ink-dim` (7.28:1); what is left on faint always sits
+  beside content that carries the meaning. A contrast audit will flag this. It is
+  a decision, not an oversight.
+  **One process note from the same exchange, in D-052:** the token and one of its
+  consumers (the empty-list line, moved to `--ink-dim`) changed in the SAME
+  commit, which destroyed the obvious way to eyeball the token and produced a
+  confident false report that the two tiers were identical. When a token and one
+  of its consumers move together, say what is left to compare against.
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
