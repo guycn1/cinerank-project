@@ -1740,11 +1740,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sliding SIDEWAYS rather than leaving — the user's word was "stuttering".
      Both halves of the ask landed: the exit is staggered in arrival order, and
      the shrink is gone.
-     `rec-close` runs `scale(1, 1)` → `scale(0, 0.5)` from `transform-origin:
+     `rec-close` runs `scale(1, 1)` → `scale(0, 0.1)` from `transform-origin:
      left center`, so the card swings shut on a spine instead of collapsing
-     inward from both edges, and loses half its height on the way — the user's
-     call, and it reads as falling away from the reader rather than being
-     deleted. The opacity runs straight from 1 to 0 across the whole duration,
+     inward from both edges, and collapses toward a horizontal line on the way —
+     the user's call, tried at 0.5 first and taken further. Not to 0 on that
+     axis: something still has to be visibly closing rather than already gone. The opacity runs straight from 1 to 0 across the whole duration,
      so the fade and the close happen together.
      **Both of those were revised the same day, and the reason is one finding.**
      The first version staggered by 55ms, eased on `--ease`, and held the opacity
@@ -1781,6 +1781,25 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      legible. The footer is a line of TEXT, not a card, so it
      gets a plain `rec-fade` with no delay rather than a book-close that would
      just squash the words.
+     **THE EXIT REMOVES EVERY NODE TOGETHER, WHEN THE LAST ANIMATION ENDS — never
+     one at a time as each finishes.** That was the first shape, and it is what
+     the user then reported as "blinking/flashing". A `transform` does not affect
+     layout, so a card mid-close still occupies its grid cell and nothing moves;
+     REMOVING it does. The grid re-flows, every surviving card slides into the
+     cell before it, and when the count crosses a row boundary the grid loses a
+     row and everything below jumps a whole card height. With a stagger that
+     happens five times in under a second. A screenshot taken mid-exit is what
+     showed it: card 3 alone in the top row while 4, 5 and 6 sat a full row
+     lower, every one of them at a different scale — the animation was fine, the
+     layout underneath it would not hold still. Batching makes the exit
+     layout-static from first frame to last.
+     One `setTimeout` backstop came with the batching and is worth keeping: while
+     each node removed itself, an animation that never ended stranded that node
+     alone; now it would strand the whole set, since the count would never reach
+     zero. It is not cancelled and does not need to be — `remove()` on a detached
+     node is a no-op. `RECS_EXIT_MS` exists only so that backstop knows the
+     duration, and **must stay in step with the `animation` on
+     `.rec-card.is-leaving`**; both places say so.
      Also fixed in passing: the reduced-motion branch of `exitRecCards()` cleared
      the grid but not `#recs-meta`, so a motion-sensitive user kept the previous
      run's metadata footer on screen. That gap arrived with R29 an hour earlier.

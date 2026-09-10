@@ -1435,9 +1435,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    sides — that is a shrink, and it is the very thing that read as sideways
    movement. `left center` pins the spine and swings the rest shut.
 
-   `scaleY` shrinks to 0.5 alongside it rather than to 0 (user's call): the card
-   loses half its height as it swings shut, which reads as it falling away from
-   the reader rather than simply being deleted. `left center` gives each axis
+   `scaleY` shrinks alongside it — to 0.1, tried at 0.5 first and taken further
+   by the user — so the card collapses toward a horizontal line as it swings
+   shut, rather than simply being deleted at full height. Not to 0: something
+   still has to be visibly closing rather than already gone. `left center` gives each axis
    what it needs from one declaration — X hinged at the spine, Y closing evenly
    on the middle.
 
@@ -1471,6 +1472,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    flight, and an AI call is seconds. */
 .recs .is-leaving { pointer-events: none; }
 .rec-card.is-leaving {
+  /* 0.34s — kept in step with `RECS_EXIT_MS` in app.js, which the removal
+     backstop reads. Change both or the backstop fires early. */
   animation: rec-close 0.34s ease-in forwards;
   transform-origin: left center;
 }
@@ -2560,7 +2563,7 @@ body:has(dialog[open]) { overflow: hidden; }
    duration, which is what the hold was reaching for anyway. */
 @keyframes rec-close {
   from { opacity: 1; transform: scale(1, 1); }
-  to { opacity: 0; transform: scale(0, 0.5); }
+  to { opacity: 0; transform: scale(0, 0.1); }
 }
 @keyframes rec-fade { from { opacity: 1; } to { opacity: 0; } }
 

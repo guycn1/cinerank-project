@@ -1299,6 +1299,10 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 // able to watch and the exit only has to be legible.
 // Six cards come to 0.34s + 5x120ms = 0.94s, still inside any real AI call.
 const RECS_EXIT_STAGGER_MS = 120;
+// Must match the `animation` duration on `.rec-card.is-leaving`. Read only by
+// the removal backstop below, which needs to know when the last card is done —
+// the animation itself is driven entirely by CSS.
+const RECS_EXIT_MS = 340;
 
 /**
  * How many cards per row, so the last row is never left nearly empty.
@@ -1418,13 +1422,30 @@ function exitRecCards() {
     el.recsMeta.replaceChildren();
     return;
   }
+  // EVERY NODE IS REMOVED TOGETHER, WHEN THE LAST ANIMATION ENDS — never one at
+  // a time as each finishes, which is what this did first and what made the
+  // whole thing read as flashing.
+  //
+  // A `transform` does not affect layout, so a card that is mid-close still
+  // occupies its grid cell and nothing moves. Removing it DOES: the grid
+  // re-flows, every surviving card slides into the cell before it, and when the
+  // count crosses a row boundary the grid loses a row and everything below jumps
+  // up by a whole card height. With a stagger that happens five times in under a
+  // second, so the cards still closing are being yanked between positions while
+  // they close. A screenshot mid-exit showed card 3 alone in the top row while 4,
+  // 5 and 6 sat a full row lower, all at different scales — six cards animating
+  // in place, on a layout that would not hold still underneath them.
+  // Batching the removal makes the exit layout-static from first frame to last.
+  let pending = leaving.length;
+  const removeAll = () => { for (const n of leaving) n.remove(); };
   for (const node of leaving) {
     node.classList.add('is-leaving');
     node.addEventListener('animationend', (e) => {
       // `animationend` bubbles. Nothing inside a card fires one today (an Add
       // button's spinner is `infinite`, and infinite animations never end), but
       // a child animation added later must not take the whole card with it.
-      if (e.target === node) node.remove();
+      if (e.target !== node) return;
+      if (--pending === 0) removeAll();
     });
   }
   // The cards close one after another, in the order they arrived (R30).
@@ -1443,10 +1464,15 @@ function exitRecCards() {
     card.style.animationDelay = `${i * RECS_EXIT_STAGGER_MS}ms`;
   });
   el.recsMeta.querySelectorAll('.ai-meta').forEach((f) => { f.style.animationDelay = '0ms'; });
-  // No timeout backstop, and none is needed: if the response lands before these
-  // finish, renderRecommendations' own replaceChildren() detaches them and the
-  // listeners go with them. New content winning over a half-faded old card is
-  // the correct outcome, not a leak.
+  // ONE backstop, and batching is what earns it. While each node removed itself,
+  // an animation that never ended stranded that node alone; now it would strand
+  // the whole set, because the count would never reach zero. This is a safety
+  // net rather than the mechanism — it is not cancelled and does not need to be,
+  // since `remove()` on an already-detached node is a no-op, which is also what
+  // happens when the response lands first and renderRecommendations'
+  // `replaceChildren()` gets there before the animations do.
+  const longest = (leaving.length - 1) * RECS_EXIT_STAGGER_MS + RECS_EXIT_MS;
+  setTimeout(removeAll, longest + 250);
 }
 
 function renderRecommendations({ suggestions, emptyReason, meta }) {
