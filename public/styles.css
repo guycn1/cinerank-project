@@ -621,18 +621,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   letter-spacing: -0.01em;
 }
 .ranked__count { color: var(--ink-faint); font-size: 0.9rem; }
-/* `--ink-dim`, not `--ink-faint`, and the padding is top-only (2026-09-10,
-   user-raised). Three reasons for the colour, and none of them is taste: faint
-   measures 3.49:1 on this ground, under WCAG AA for normal text; R26's rule says
-   a line that IS the only thing its section shows takes the base weight, where
-   the faint tier is for absences sitting BESIDE content (`No TMDB rating`,
-   `No review yet` both have a card around them); and this is the first thing a
-   first-time visitor sees.
-   The padding was `2rem 0`, which gave 32px above the line and 80px below it,
-   because `.recs__head` brings its own 3rem. The bottom half was doing no work
-   and the asymmetry read as adrift. Top-only is also correct grouping: the line
-   belongs to the section above it, so it should sit nearer that heading. */
-.ranked__empty { color: var(--ink-dim); font-style: italic; padding: 1.5rem 0 0; }
+/* `--ink-dim`, not `--ink-faint` (2026-09-10, user-raised). Three reasons for
+   the colour, none of them taste: faint measured 3.49:1 on this ground at the
+   time and 4.36 now, under WCAG AA for normal text either way (it moved in the
+   same session — D-052); R26's rule says a line that IS the only thing its
+   section shows takes the base weight, where the faint tier is for absences
+   sitting BESIDE content (`No TMDB rating`, `No review yet` both have a card
+   around them); and this is the first thing a first-time visitor sees.
+   The padding was `2rem 0`, which put 32px above the line and 80px below it,
+   since `.recs__head` brings its own 3rem — real space doing no work, and the
+   line read as adrift in it. Claude cut the bottom to zero on the argument that
+   the line belongs to the heading above it and should sit nearer that; the user
+   tuned it in devtools and put a smaller asymmetry back, which does look
+   better. So: tight to its own heading, with just enough beneath the line that
+   it does not sit flush on nothing. Tuned by eye, and there is nothing to
+   re-derive here — if it is ever changed again, change it by looking at it. */
+.ranked__empty { color: var(--ink-dim); font-style: italic; padding: 0.8rem 0 1rem; }
 
 /* ranked list ------------------------------------------------------- */
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
