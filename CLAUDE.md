@@ -1434,6 +1434,24 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      centre, a tip radius and a waist offset rather than hand-tuned, so
      re-generate rather than nudging a number. `vertical-align` scales with the
      size (-0.16em → -0.28em) or a taller icon rides high against the text.
+     **The big star twinkles** (user-raised, "a tiny bit more shiny /
+     glittering"): a 3s `scale(0.97)`→`scale(1.05)` and `opacity 0.85`→`1` loop
+     on that path alone. The SMALL one deliberately holds still — both moving
+     reads as a throbbing icon, one moving reads as a catch of light, which is
+     the difference between shiny and distracting on an element that is on screen
+     all session. **A gradient fill was the obvious way and was rejected:**
+     `fill="currentColor"` is what makes the icon invert on the amber hover and
+     dim with the label when disabled (D-027), and a gradient follows none of it.
+     Two traps: `transform-box: fill-box` is REQUIRED, since an SVG element's
+     `transform-origin` otherwise resolves against the SVG viewport corner and
+     `scale()` swings the star toward the top-left instead of breathing in place;
+     and the animation is switched OFF on a disabled trigger, because a locked
+     section twinkling at the user invites a click that does nothing.
+     `ease-in-out` rather than `--ease` — a symmetric loop, where `--ease` would
+     snap bright and drift back. That makes two animations deliberately off
+     `--ease` (this and the rec-card exit); both say why at the declaration, and
+     at two it is now worth naming the pair as `--ease-out`/`--ease-in` if a
+     third ever appears.
      **Inline, NOT a flex container, and that is the non-obvious part.** The
      obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
      wrong here because `busyButton()` swaps the contents for a spinner plus a
@@ -1992,8 +2010,16 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      character at a time would announce it one character at a time; set the final
      text for assistive tech and animate the visible layer, or the accessibility
      work already done here is undone. `prefers-reduced-motion` must skip it.
-   * **The verdict banner's amber/crimson border should drift slowly.** Currently
-     a static gradient border. Note the banner already carries a
+   * **The verdict banner's amber/crimson border should drift slowly. IT ALREADY
+     DOES — check before building** (found 2026-09-11 while working R15).
+     `.verdict` carries `animation: sheen 9s var(--ease) infinite`, which moves a
+     220%-sized `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
+     `background-position: 0%` to `100%` and back; `.verdict__inner` covers the
+     middle, so the 2px ring IS that gradient and it is already drifting. This is
+     the same shape as the logo-spin item below: the mechanism is there and the
+     effect is too subtle to notice. So the real work is making it VISIBLE —
+     a shorter cycle, a wider colour spread, or more gradient travel — not
+     writing an animation. Measure what it does now before changing it. Note the banner already carries a
      `view-transition-name`-free static treatment; an animated gradient usually
      means animating a `background-position` on a `border-image` or a masked
      pseudo-element, since `border-color` cannot hold a gradient. Keep it SLOW —

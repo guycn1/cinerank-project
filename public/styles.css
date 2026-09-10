@@ -1279,6 +1279,34 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    where the arms were thickened at the waist). The `vertical-align` scales with
    it, -0.16em to -0.28em, or a taller icon sits high against the text. */
 .recs__trigger-icon { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
+/* The big star twinkles; the small one holds still. Both moving reads as a
+   throbbing icon, one moving reads as a catch of light — which is the whole
+   difference between "shiny" and "distracting" on an element that is on screen
+   for the entire session.
+   NOT a gradient fill, which is the obvious way to make something look shiny and
+   would have cost more than it gave: `fill="currentColor"` is what makes this
+   icon invert on the amber hover and dim with the label when the button is
+   disabled (D-027), and a gradient cannot follow any of that.
+   `transform-box: fill-box` is required, not tidiness — without it an SVG
+   element's transform-origin resolves against the SVG's own viewport corner, so
+   `scale()` would swing the star toward the top-left instead of breathing in
+   place.
+   `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
+   strong ease-OUT that would snap bright and drift back. The app now has two
+   animations deliberately off `--ease` — this and the rec-card exit — and both
+   say why at the declaration. */
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0.85; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.recs__trigger-icon .sparkle-major {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+/* A disabled button should not be catching the eye — the section is locked and
+   the icon twinkling at the user would be inviting a click that does nothing. */
+.recs__trigger:disabled .sparkle-major { animation: none; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is
