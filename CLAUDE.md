@@ -1436,7 +1436,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      size (-0.16em → -0.28em) or a taller icon rides high against the text.
      **The big star twinkles AND the icon glows** (user-raised over two rounds:
      "a tiny bit more shiny / glittering", then "still isn't visible enough…
-     like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.1)` and
+     like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.07)` and
      `opacity 0.8`→`1` loop on that path, plus a pulsing white
      `drop-shadow` on the icon. **Motion alone was not enough** — the first pass
      was scale and opacity only, and at 21px on a button the user could barely
@@ -1448,7 +1448,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      also lets the halo paint OUTSIDE the box — an outer `<svg>` clips its own
      viewport, so a glow drawn inside would be cut off at the edge.
      White rather than `currentColor`: a glow the same colour as the thing
-     glowing is just a blur. Checked at peak scale, the star spans 0.7–18.3 of
+     glowing is just a blur. Checked at peak scale, the star spans 0.9–18.1 of
      the 0–24 viewBox, so nothing clips.
      **The one state to look at is HOVER**, where the icon inverts to `#1a1205`
      on an amber fill and the glow stays white — a light halo around a dark glyph.

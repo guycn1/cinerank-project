@@ -1297,7 +1297,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    say why at the declaration. */
 @keyframes sparkle-twinkle {
   0%, 100% { opacity: 0.8; transform: scale(0.94); }
-  50% { opacity: 1; transform: scale(1.1); }
+  50% { opacity: 1; transform: scale(1.07); }
 }
 /* The glow the scale alone could not deliver — the user could still barely see
    the twinkle, so the shine is now light rather than only motion.
