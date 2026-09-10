@@ -67,7 +67,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   so one recommendation is one normal-sized card with the slack split evenly
   either side. The AI metadata footer sits in its own slot BELOW the grid, not
   inside it, so it stays full width whatever the cards do.
-* Taste verdict: `POST /api/taste-verdict`, prompt **`taste_verdict_v6` — v7 exists on disk and was ROLLED BACK** (2–3
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` **on `anthropic/claude-sonnet-5` — the one feature not
+  on the cheap tier (D-053)** (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings — in
   plain spoken English rather than review prose; v5–v7 changed the REGISTER
   only. **v7 is the one that matters as a lesson: v5 and v6 tried to get there
@@ -87,14 +88,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   examples' clipped rhythm by adding a sentence. Rolled back to v6, which at
   least keeps its own rules.
   **THREE STRUCTURALLY DIFFERENT PROMPTS — bans, more bans, examples — PRODUCED
-  THE SAME REGISTER. The prompt is not the lever.** Do not write v8. The
-  remaining levers are the model (`anthropic/claude-haiku-4.5` is the cheapest
-  tier and register control is where small models are weakest; it is one shared
-  `OPENROUTER_MODEL` for both features, so a verdict-only change needs a
-  per-feature override) and `temperature: 0.85` in `tasteVerdict.js`. A third
-  option is real few-shot — example turns in the messages array rather than
-  prose inside the system prompt — which is a different MECHANISM and would need
-  a small change in `openrouter.js`.),
+  THE SAME REGISTER, so the prompt was never the lever. THE MODEL WAS**, and it
+  worked first try on the same v7 prompt: the register landed AND the sentence
+  count came back into bounds, the second symptom resolving with the first.
+  Do not write v8; if the verdict ever reads wrong again, look at the model
+  before the wording. **Trap: v7 is the version that FAILED on Haiku** — if the
+  verdict is ever moved back down a tier, move the prompt back to v6 with it,
+  because v7's four examples dilute the rules underneath them on a small model.
+  `temperature: 0.85` and real few-shot (example TURNS rather than prose) were
+  never needed and stay untried.),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
@@ -1880,6 +1882,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
    building.
 
+4b. **Three visual-polish items on the verdict banner and the logo** (user-raised
+   2026-09-10). Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
+   user asked for these "after the recs overhaul, before the narrow-portrait
+   overhaul", and renumbering would silently break every reference to "step 5",
+   including the enforcement rules in the memory file
+   `recs-overhaul-known-issues.md`. Step 5 stays the portrait overhaul.
+
+   * **A typing effect on the verdict as it appears**, like early ChatGPT.
+     Read D-040's single-writer lesson before starting: `.verdict__text` is
+     written by `syncVerdictAvailability()` (placeholders, threshold text) AND by
+     a run, so a typewriter that animates into the same element needs to lose
+     cleanly when the sync takes the element back mid-type — the exact shape of
+     bug R1 was. Also: the element is `aria-live="polite"`, so typing it one
+     character at a time would announce it one character at a time; set the final
+     text for assistive tech and animate the visible layer, or the accessibility
+     work already done here is undone. `prefers-reduced-motion` must skip it.
+   * **The verdict banner's amber/crimson border should drift slowly.** Currently
+     a static gradient border. Note the banner already carries a
+     `view-transition-name`-free static treatment; an animated gradient usually
+     means animating a `background-position` on a `border-image` or a masked
+     pseudo-element, since `border-color` cannot hold a gradient. Keep it SLOW —
+     this sits near the top of the page on every load, and D-044's rule about
+     amber not becoming a hard-edged focus-ring lookalike still applies.
+   * **Does the logo circle actually spin? — ANSWERED 2026-09-11, no
+     investigation needed.** Yes, `animation: spin 8s linear infinite` is on
+     `.mark__reel` and runs. It is invisible because **every part of it that you
+     can see is rotationally symmetric**: the 3px amber border ring, and a
+     `radial-gradient` that draws a concentric amber ring. The one asymmetric
+     feature is a `conic-gradient` wedge covering the first 20% of the circle —
+     and it is painted in `var(--bg)`, the page's own background colour, so it
+     is invisible against the page behind it. The fix is not to the animation; it
+     is to give that wedge a colour that differs from the page (a film-reel notch
+     needs to be visible to read as one). Cheap, and it is the whole of this item.
+
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
@@ -1896,6 +1932,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
+
+**Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
+rather than renumbered because "step 5" is referenced by name outside this file —
+including the two enforcement rules a memory file points at — and a silent
+renumber would send a future session to the wrong list.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -2160,7 +2201,15 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * **Database:** Supabase (Postgres) — see SPEC.md §5 for schema
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
 * **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB\_API\_KEY` in `.env`.
-* **External API #2 (AI):** OpenRouter, using the existing account/`.env` key. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
+* **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
+  **Two models, on purpose (D-053):** recommendations run on the cheap
+  `anthropic/claude-haiku-4.5`, the taste verdict alone on
+  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheap tier
+  to write in a plain spoken register, and the model turned out to be the
+  constraint rather than the wording. `chat()` takes an optional `model`
+  defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
+  overrides it. Overridable per feature via `OPENROUTER_MODEL` and
+  `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
 
 \---
 

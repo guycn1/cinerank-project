@@ -6,6 +6,69 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-053 · The taste verdict alone runs on a stronger model
+
+The user asked for the verdict to sound less formal. **Four prompt versions
+later it still didn't**, and the useful part of this entry is how long it took to
+stop blaming the prompt.
+
+| version | strategy | result |
+|---|---|---|
+| v5 | ask for plain spoken English, 17 banned phrases | fixed sentence SHAPE, kept critic vocabulary |
+| v6 | 22 banned phrases + a rewrite table | "no improvement" |
+| v7 | delete the bans, 4 worked examples of the voice | worst of the chain — and broke the 2–3 sentence rule |
+
+Counting the chain is what broke the loop: the file went 2405 → 4963 chars,
+banned phrases went 1 → 17 → 22, and **worked examples of the target voice
+stayed at exactly one until v7**. Two separate lessons fell out, and both are
+worth more than the fix:
+
+*A structural ban lands; a vocabulary ban does not.* v6 said "no semicolons,
+ever" and the semicolon was gone from the very next verdict. Every vocabulary
+ban in the same file did nothing. A ban removes one option and supplies no
+replacement, so the model obeys it and falls back to its own default voice for
+the words it does choose. **Register is a sample, not a rule.**
+
+*And when three structurally different prompts produce the same output, the
+prompt is not the variable.* v7 was written as a falsifiable test — examples
+instead of bans — with the prediction stated in its commit that if it failed,
+the lever was elsewhere. It failed. Haiku 4.5 on the same v7 prompt also broke a
+rule it had held since v4 (four sentences against a stated 2–3), which is
+plain instruction-following rather than taste, and pointed the same way.
+
+**So the fix was the model, and it worked on the first try.** Same prompt (v7),
+`anthropic/claude-sonnet-5`: the register landed, and the sentence count came
+back into bounds — the second symptom resolving with the first is what makes
+"the tier was the constraint" more than a story that fits.
+
+**Cheapest real-time Sonnet, checked rather than remembered.** OpenRouter's
+public model list (free, no key, no quota) prices sonnet-5 at **$2/$10 per Mtok**
+against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict**.
+The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
+variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
+break a live request.
+
+**Per-FEATURE, not app-wide, because the user is short on quota.** `chat()` takes
+an optional `model` defaulting to the app-wide one; only `tasteVerdict.js`
+overrides it. Recommendations stay on Haiku deliberately: that task is "name some
+films", nothing about it depends on voice, and it is the feature that burns
+tokens. The AI call log already renders model per row, so the split is visible in
+the audit trail rather than buried in config — which turns a cost decision into
+demonstrable evidence.
+
+**The honest cost of getting here:** four real OpenRouter calls spent on prompt
+versions that moved nothing, and a wrong conclusion published in v6's commit
+message ("concrete sentences to steer away from have moved this prompt further
+than any adjective") that v7 disproved a day later. `docs/PROCESS.md` records the
+wrong turns alongside the fix, because a prompt chain showing only successful
+iterations would misrepresent what this work is actually like.
+
+**Trap for later:** v7 is live and it is the version that FAILED on Haiku. If the
+verdict model is ever moved back down a tier, move the prompt back to v6 with
+it — v7's four examples dilute the rules underneath them on a small model, which
+is exactly how the four-sentence break happened.
+
+---
 ## D-052 · `--ink-faint` stays below WCAG AA, on purpose
 
 Claude flagged that `--ink-faint` (#6b6760) measured **3.49:1** on the page and

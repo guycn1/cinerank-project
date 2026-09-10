@@ -16,7 +16,11 @@ export { OpenRouterError };
 /**
  * @returns {{ text, tokensUsed, promptTokens, completionTokens, costUsd, model, durationMs }}
  */
-export async function chat({ system, user, maxTokens = 500, temperature = 0.7 }) {
+/**
+ * One OpenRouter call. `model` defaults to the app-wide model and is overridden
+ * per FEATURE, not per call site whim — see config.tasteVerdict.model and D-053.
+ */
+export async function chat({ system, user, maxTokens = 500, temperature = 0.7, model = config.openrouter.model }) {
   const startedAt = Date.now();
   let res;
   try {
@@ -28,7 +32,7 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7 })
         'X-Title': 'CineRank',
       },
       body: JSON.stringify({
-        model: config.openrouter.model,
+        model,
         max_tokens: maxTokens,
         temperature,
         // Ask OpenRouter to return the exact USD cost of this call in usage.cost.

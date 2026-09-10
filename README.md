@@ -22,6 +22,13 @@ A personal movie-ranking app where the database and the AI each earn their place
 
 Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
 
+Two models are routed through OpenRouter on purpose: recommendations use the cheap
+`claude-haiku-4.5` (the task is "name some films"), while the taste verdict uses
+`claude-sonnet-5` — four prompt versions could not get the cheap tier to write in a
+plain spoken voice, and the model turned out to be the constraint, not the wording
+(`docs/DECISIONS.md` D-053). The call log shows the model per row, so the split is
+visible in the audit trail.
+
 ## Setup
 
 1. **Install**
@@ -45,7 +52,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
-                    taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v6 — v7 written and rolled back)
+                    taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
 db/schema.sql       Supabase schema + RLS — fresh installs
 db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
