@@ -67,11 +67,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   so one recommendation is one normal-sized card with the slack split evenly
   either side. The AI metadata footer sits in its own slot BELOW the grid, not
   inside it, so it stays full width whatever the cards do.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v6` (2–3
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings — in
-  plain spoken English rather than review prose; v5 and v6 changed the REGISTER
-  only, v6 after v5 fixed the sentence shape and left critic vocabulary inside
-  it),
+  plain spoken English rather than review prose; v5–v7 changed the REGISTER
+  only. **v7 is the one that matters as a lesson: v5 and v6 tried to get there
+  by BANNING phrases and the register did not move — negative instructions went
+  16 → 30 → 37 across the chain while worked examples of the target voice stayed
+  at exactly ONE. v7 deletes the bans and carries four examples instead.** The
+  split v6 proved by accident: a STRUCTURAL ban lands at once (it said "no
+  semicolons, ever" and the semicolon vanished from the next verdict), a
+  VOCABULARY ban does nearly nothing — it removes an option and supplies no
+  replacement, so the model obeys it and falls back to its own default voice for
+  the words it does pick. Register is a sample, not a rule.),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
@@ -2187,7 +2194,7 @@ BUSY label is nonetheless covered, because that comes from the shared
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v6` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.

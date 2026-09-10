@@ -45,7 +45,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
-                    taste_verdict_v1..v6 (live: recommend_v3, taste_verdict_v6)
+                    taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
 db/schema.sql       Supabase schema + RLS — fresh installs
 db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
