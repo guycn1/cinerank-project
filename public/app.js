@@ -1289,6 +1289,11 @@ const EMPTY_REASON_TEXT = {
  */
 const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
 const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
+// Tighter than the entrance on purpose (R30). The entrance is the thing the user
+// asked to be able to watch; the exit is clearing the decks while a request is
+// already in flight, so it has to read as deliberate without becoming a wait.
+// Six cards come to 0.34s + 5x55ms = 0.615s, well inside even a fast AI call.
+const RECS_EXIT_STAGGER_MS = 55;
 
 /**
  * How many cards per row, so the last row is never left nearly empty.
@@ -1405,6 +1410,7 @@ function exitRecCards() {
   // anyway: no motion asked for, no motion given.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     el.recsGrid.replaceChildren();
+    el.recsMeta.replaceChildren();
     return;
   }
   for (const node of leaving) {
@@ -1416,6 +1422,22 @@ function exitRecCards() {
       if (e.target === node) node.remove();
     });
   }
+  // The cards close one after another, in the order they arrived (R30).
+  //
+  // WRITING THIS DELAY IS NOT OPTIONAL, even for a zero stagger. Every card is
+  // still carrying the INLINE `animationDelay` its entrance was given — up to
+  // 400 + 5x120 = 1000ms — and `animation-delay` is one property shared by
+  // whichever animation is running. Leave it alone and the last card sits
+  // untouched for a second before it starts to close, which looks like a hang
+  // rather than a bug and would be miserable to track down.
+  //
+  // Only the cards are staggered. The footer fades from the same instant, so
+  // the section's metadata is already going while the first card is still
+  // closing — it describes the run being replaced, not any one card.
+  el.recsGrid.querySelectorAll('.rec-card').forEach((card, i) => {
+    card.style.animationDelay = `${i * RECS_EXIT_STAGGER_MS}ms`;
+  });
+  el.recsMeta.querySelectorAll('.ai-meta').forEach((f) => { f.style.animationDelay = '0ms'; });
   // No timeout backstop, and none is needed: if the response lands before these
   // finish, renderRecommendations' own replaceChildren() detaches them and the
   // listeners go with them. New content winning over a half-faded old card is

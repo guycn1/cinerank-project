@@ -1418,22 +1418,49 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
     opacity 0.25s var(--ease);
 }
 
-/* R27's exit. The previous run's cards fade and settle back rather than being
-   dropped in one frame. Applied to any grid CHILD, not just `.rec-card`: the
-   metadata footer describes the run being replaced and is equally stale.
-   `forwards` is correct HERE and is not the D-043 trap: the fill has to hold the
-   invisible end state for the frame between the animation finishing and the JS
-   removing the node, and the node is gone immediately afterwards, so there is
-   nothing left for it to pin. Do not copy this fill onto `.rec-card` itself.
+/* The exit (R27, rebuilt by R30). The previous run's cards close one after
+   another like pages of a book, then the footer that described them fades.
+
+   R27 shipped this as a single uniform `translateY(6px) scale(0.97)` fade, on
+   the argument that the exit is clearing the decks while a request is already
+   in flight and should read as one gesture. The user watched it and disagreed
+   on both counts: the uniform `scale()` pulls both edges inward at once, which
+   reads as the card sliding SIDEWAYS rather than leaving — they called the
+   result "stuttering" — and they wanted the cards to go one by one, as they
+   arrive. Both are fixed here; that paragraph is not preserved because it was
+   describing live behaviour, not a past decision.
+
+   `scaleX` toward ONE edge is what makes it a hinge. The default
+   `transform-origin` is the centre, which collapses the card inward from both
+   sides — that is a shrink, and it is the very thing that read as sideways
+   movement. `left center` pins the spine and swings the rest shut.
+
+   TRANSFORM-ORIGIN IS SCOPED TO `.is-leaving`, DELIBERATELY. Putting it on
+   `.rec-card` would silently move the hover `scale(1.02)` off centre, and that
+   effect depends on growing from the middle so it opens the gaps on both sides
+   equally — the whole finding of D-043's lift removal. One property, two
+   effects, and only one of them wants an offset origin.
+
    `pointer-events: none` because the footer's AI-call-log link stays clickable
    through the fade otherwise, and a click on something on its way out is never
-   what was meant. */
-/* Scoped to `.recs` rather than to the grid, since R29 moved the metadata footer
-   out of the grid and it still has to leave with the cards it describes. */
-.recs .is-leaving {
-  animation: rec-leave 0.28s var(--ease) forwards;
-  pointer-events: none;
+   what was meant.
+
+   `forwards` is correct HERE and is not the D-043 trap: the fill holds the
+   closed state for the frame between the animation ending and the JS removing
+   the node, and the node is gone immediately after. Do not copy this fill onto
+   `.rec-card` itself.
+
+   Total for a full six cards is 0.34s + 5x55ms = 0.615s — comfortably inside
+   even a fast AI call, which is the budget this has to fit. */
+.recs .is-leaving { pointer-events: none; }
+.rec-card.is-leaving {
+  animation: rec-close 0.34s var(--ease) forwards;
+  transform-origin: left center;
 }
+/* The footer is a line of text, not a card, and a book-close on it just squashes
+   the words. It fades instead, undelayed, so it is already going while the first
+   card is still closing. */
+.recs__meta .is-leaving { animation: rec-fade 0.34s var(--ease) forwards; }
 .rec-card::before {
   content: 'AI pick · not yet rated';
   position: absolute;
@@ -2507,7 +2534,16 @@ body:has(dialog[open]) { overflow: hidden; }
    to be able to watch. It also shrinks slightly, which the entrance does not —
    leaving is a retreat, arriving is a rise. */
 @keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-@keyframes rec-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(6px) scale(0.97); } }
+/* The opacity is deliberately BEHIND the transform: at a linear fade the card is
+   already half gone before the hinge has visibly moved, and the effect reads as
+   a plain fade with something odd happening inside it. Holding most of the
+   opacity until 60% lets the close be the thing you actually see. */
+@keyframes rec-close {
+  from { opacity: 1; transform: scaleX(1); }
+  60% { opacity: 0.72; }
+  to { opacity: 0; transform: scaleX(0); }
+}
+@keyframes rec-fade { from { opacity: 1; } to { opacity: 0; } }
 
 /* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
    posterNode), replacing a 🎬 emoji that could not take a colour, sat off the

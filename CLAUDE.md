@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with NINETEEN done, R20 withdrawn as incorrect and ten open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY done, R20 withdrawn as incorrect and nine open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -53,9 +53,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
   scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
-  cards in 0.75s each, 120ms apart; regenerating fades the previous set out
-  first (R27, R14, D-048). Nothing animates or scrolls on an empty or failed
-  run.
+  cards in 0.75s each, 120ms apart; regenerating closes the previous set first,
+  one card at a time, like pages of a book (R27, R14, R30, D-048). Nothing
+  animates or scrolls on an empty or failed run.
   The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
   never left holding one lonely card: four cards where three fit render 2 + 2,
   five where four fit render 3 + 2, and six where four fit render 3 + 3, with a
@@ -1129,7 +1129,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R19, R23–R28 and R29 are done and R20 was WITHDRAWN as incorrect — every
+   R19 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1734,22 +1734,39 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (4) The grid's `gap` no longer separates the footer from the cards, so
      `.recs__meta .ai-meta` carries `margin-top: 1.1rem` — on the FOOTER, not on
      the slot, so an empty slot still contributes nothing.
-   * **R30. The exit animation stutters, and should close like a book**
-     (user-raised 2026-09-09). `rec-leave` ends at
-     `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card
-     sliding SIDEWAYS as it goes — the user's word for the result was
-     "stuttering". Two changes wanted: **stagger the exit one by one** (it is
-     deliberately uniform today — see the `@keyframes` comment, which will need
-     rewriting rather than amending), and replace the shrink with a
-     **"book-closing" effect — `transform: scaleX()` and the like** rather than
-     any vertical or diagonal movement.
-     **Traps.** `scaleX` needs a deliberate `transform-origin` — the default
-     centre collapses the card inward from both edges, which is a different
-     effect from a cover closing; a left or right origin is what reads as a
-     hinge. The exit runs while the request is IN FLIGHT, so its total length
-     (stagger + duration) has real headroom but is not free — keep it well under
-     a second for six cards. And the removal is driven by each node's own
-     `animationend`, which a per-card `animationDelay` does not disturb.
+   * **R30. DONE 2026-09-10 — the cards now close like a book, one by one**
+     (user-raised 2026-09-09). `rec-leave` ended at
+     `translateY(6px) scale(0.97)`, and the uniform `scale()` read as the card
+     sliding SIDEWAYS rather than leaving — the user's word was "stuttering".
+     Both halves of the ask landed: the exit is staggered in arrival order, and
+     the shrink is gone.
+     `rec-close` runs `scaleX(1)` → `scaleX(0)` from `transform-origin: left
+     center`, so the card swings shut on a spine instead of collapsing inward
+     from both edges. The opacity is deliberately held BEHIND the transform (72%
+     at the 60% mark): on a linear fade the card is half gone before the hinge
+     has visibly moved, and it reads as a plain fade with something odd
+     happening inside it.
+     **`transform-origin` is scoped to `.is-leaving`, and that is load-bearing.**
+     On `.rec-card` it would silently move the hover `scale(1.02)` off centre —
+     and that effect exists in its current form precisely because growing from
+     the middle opens the gaps on both sides equally, which is the whole finding
+     of D-043's lift removal. One property, two effects, only one wanting an
+     offset origin.
+     **The trap that would have cost real time, found while building it:** every
+     card is still carrying the INLINE `animationDelay` its ENTRANCE was given —
+     up to 400 + 5x120 = 1000ms — and `animation-delay` is one property shared by
+     whichever animation is running. Writing the exit's own delay is therefore
+     not optional even at a zero stagger; without it the last card sits untouched
+     for a second before starting to close, which looks like a hang rather than
+     a bug.
+     Timing: 0.34s per card, `RECS_EXIT_STAGGER_MS` 55ms, so six cards come to
+     0.615s — deliberately tighter than the entrance, which is the half the user
+     asked to be able to watch. The footer is a line of TEXT, not a card, so it
+     gets a plain `rec-fade` with no delay rather than a book-close that would
+     just squash the words.
+     Also fixed in passing: the reduced-motion branch of `exitRecCards()` cleared
+     the grid but not `#recs-meta`, so a motion-sensitive user kept the previous
+     run's metadata footer on screen. That gap arrived with R29 an hour earlier.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
