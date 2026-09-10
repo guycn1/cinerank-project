@@ -1485,7 +1485,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `aria-hidden="true"` + `focusable="false"`: the button already says "Get
      recommendations" in text, so a decorative mark would only add noise.
      **It rides on BOTH AI triggers** (user-raised follow-up): "New verdict" gets
-     the same sparkle at `1.15em` against the trigger's `1.3em`. That button's
+     the same sparkle at `1.15em` against the trigger's `1.3em`, **and in amber
+     rather than the button's `--ink`** — the user noticed the white one "doesn't
+     scream AI enough" and was right for a reason worth keeping: amber is this
+     app's AI marker, so the same glyph was reading as a signal on one button and
+     as decoration on the other. Set via `color`, not `fill`, so the paths keep
+     resolving `currentColor`. See R25 for why this does not undo its
+     "do not make this button amber" rule — that is about chrome, not about a
+     semantic mark. That button's
      `font-size: 0.88rem` already shrinks an em-sized icon by 12%; the smaller
      value takes it to ~22% in absolute terms, so it reads as the smaller
      button's icon rather than the same icon crammed in — which also matches R25,
@@ -1752,6 +1759,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
      hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
      not by intensity alone. Do not "finish the job" by making this one amber too.
+     **That means the button's CHROME — its border and its label — and it still
+     stands** (2026-09-11). The sparkle icon R15 later put on this button IS
+     amber, and that is not this rule being eroded: amber is the app's AI marker
+     (the "AI pick" badge, the recs trigger, the call-log link), so a white
+     sparkle read as decoration while the identical mark two sections down read
+     as a signal. A ~15px semantic mark is a different thing from an amber
+     border and an amber label. The border stays at 0.3 alpha and the label stays
+     `--ink`.
      **Hover, revised by the user after seeing it:** the border lights to amber,
      the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
      `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT

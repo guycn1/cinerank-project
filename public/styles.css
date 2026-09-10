@@ -1292,7 +1292,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    icon crammed in. `vertical-align` scales with each, or a taller icon rides
    high against its text. */
 .recs__trigger .ai-sparkle { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
-.verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; }
+/* AMBER, not the button's `--ink`, even though the icon is `fill="currentColor"`
+   and would otherwise inherit it. In this app amber IS the AI marker — the rec
+   card's "AI pick" badge, the fully-amber recs trigger, the AI-call-log link —
+   so a white sparkle here read as decoration while the identical mark two
+   sections down read as a signal. The user spotted it: same glyph, same job,
+   two meanings.
+   THIS IS NOT R25 BEING UNDONE, and the line matters. R25 says the verdict
+   button must stay quieter than `.recs__trigger` and warns against "finishing
+   the job" by making it amber — that is about the button's CHROME, its border
+   and its label, which both stay exactly as R25 left them (`--ink` label, a
+   0.3-alpha amber border against the trigger's solid one). What changes is a
+   ~15px semantic mark. The hierarchy still reads: one button is amber, the other
+   has an amber icon on it.
+   Setting `color` rather than `fill` so the paths keep resolving `currentColor`
+   — a `fill` here would work today and would silently stop following anything
+   the icon is later asked to inherit. */
+.verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; color: var(--amber); }
 /* The big star twinkles; the small one holds still. Both moving reads as a
    throbbing icon, one moving reads as a catch of light — which is the whole
    difference between "shiny" and "distracting" on an element that is on screen
