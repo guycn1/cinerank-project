@@ -1289,11 +1289,16 @@ const EMPTY_REASON_TEXT = {
  */
 const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
 const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
-// Tighter than the entrance on purpose (R30). The entrance is the thing the user
-// asked to be able to watch; the exit is clearing the decks while a request is
-// already in flight, so it has to read as deliberate without becoming a wait.
-// Six cards come to 0.34s + 5x55ms = 0.615s, well inside even a fast AI call.
-const RECS_EXIT_STAGGER_MS = 55;
+// Raised 55ms -> 120ms after the user reported the cards were "exiting at the
+// same time". The stagger was real; it was just too small to see against a
+// 340ms animation, and the easing was hiding the rest of it (see the
+// `.rec-card.is-leaving` comment — `--ease` front-loads 67% of the move into
+// the first fifth). Now the same value as the entrance's stagger, which is not
+// a coincidence worth collapsing into one constant: the two should stay
+// independently tunable, because the entrance is the half the user asked to be
+// able to watch and the exit only has to be legible.
+// Six cards come to 0.34s + 5x120ms = 0.94s, still inside any real AI call.
+const RECS_EXIT_STAGGER_MS = 120;
 
 /**
  * How many cards per row, so the last row is never left nearly empty.

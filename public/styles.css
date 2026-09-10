@@ -1435,6 +1435,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    sides — that is a shrink, and it is the very thing that read as sideways
    movement. `left center` pins the spine and swings the rest shut.
 
+   `scaleY` shrinks to 0.5 alongside it rather than to 0 (user's call): the card
+   loses half its height as it swings shut, which reads as it falling away from
+   the reader rather than simply being deleted. `left center` gives each axis
+   what it needs from one declaration — X hinged at the spine, Y closing evenly
+   on the middle.
+
    TRANSFORM-ORIGIN IS SCOPED TO `.is-leaving`, DELIBERATELY. Putting it on
    `.rec-card` would silently move the hover `scale(1.02)` off centre, and that
    effect depends on growing from the middle so it opens the gaps on both sides
@@ -1450,11 +1456,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    the node, and the node is gone immediately after. Do not copy this fill onto
    `.rec-card` itself.
 
-   Total for a full six cards is 0.34s + 5x55ms = 0.615s — comfortably inside
-   even a fast AI call, which is the budget this has to fit. */
+   `ease-in`, NOT the `--ease` every other animation here uses, and this is the
+   larger half of why the first version read as unstaggered. `--ease` is
+   cubic-bezier(0.22, 1, 0.36, 1), a strong ease-OUT built for arrivals: 40% of
+   the way by t=0.1 and 67% by t=0.2. Each card therefore did its whole visible
+   move in the first ~70ms of a 340ms animation, so six cards 55ms apart flashed
+   through their moves inside a few hundred milliseconds and looked simultaneous
+   — the stagger was real and had nothing left to separate. `ease-in` inverts
+   that (2% at t=0.1, 32% at t=0.5): the card holds, then leaves, which is what
+   makes each departure a discrete event. It is also the right shape for a
+   departure on its own terms — things accelerate away, they decelerate in.
+   Total for a full six cards is 0.34s + 5x120ms = 0.94s. That is the budget's
+   ceiling and it is deliberate: the exit only ever runs while a request is in
+   flight, and an AI call is seconds. */
 .recs .is-leaving { pointer-events: none; }
 .rec-card.is-leaving {
-  animation: rec-close 0.34s var(--ease) forwards;
+  animation: rec-close 0.34s ease-in forwards;
   transform-origin: left center;
 }
 /* The footer is a line of text, not a card, and a book-close on it just squashes
@@ -2534,14 +2551,16 @@ body:has(dialog[open]) { overflow: hidden; }
    to be able to watch. It also shrinks slightly, which the entrance does not —
    leaving is a retreat, arriving is a rise. */
 @keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-/* The opacity is deliberately BEHIND the transform: at a linear fade the card is
-   already half gone before the hinge has visibly moved, and the effect reads as
-   a plain fade with something odd happening inside it. Holding most of the
-   opacity until 60% lets the close be the thing you actually see. */
+/* One straight run from full to gone, so the card fades THROUGHOUT the close
+   rather than in a stage of its own (user's call). It first shipped with the
+   opacity held back to 72% at the 60% mark, on the theory that the hinge should
+   be the visible event; that was written against `--ease`, which put the whole
+   hinge movement in the first fifth of the animation and left the fade with
+   nothing to overlap. Under `ease-in` the two now run together for the whole
+   duration, which is what the hold was reaching for anyway. */
 @keyframes rec-close {
-  from { opacity: 1; transform: scaleX(1); }
-  60% { opacity: 0.72; }
-  to { opacity: 0; transform: scaleX(0); }
+  from { opacity: 1; transform: scale(1, 1); }
+  to { opacity: 0; transform: scale(0, 0.5); }
 }
 @keyframes rec-fade { from { opacity: 1; } to { opacity: 0; } }
 

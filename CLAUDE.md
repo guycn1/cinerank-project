@@ -1740,12 +1740,25 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sliding SIDEWAYS rather than leaving — the user's word was "stuttering".
      Both halves of the ask landed: the exit is staggered in arrival order, and
      the shrink is gone.
-     `rec-close` runs `scaleX(1)` → `scaleX(0)` from `transform-origin: left
-     center`, so the card swings shut on a spine instead of collapsing inward
-     from both edges. The opacity is deliberately held BEHIND the transform (72%
-     at the 60% mark): on a linear fade the card is half gone before the hinge
-     has visibly moved, and it reads as a plain fade with something odd
-     happening inside it.
+     `rec-close` runs `scale(1, 1)` → `scale(0, 0.5)` from `transform-origin:
+     left center`, so the card swings shut on a spine instead of collapsing
+     inward from both edges, and loses half its height on the way — the user's
+     call, and it reads as falling away from the reader rather than being
+     deleted. The opacity runs straight from 1 to 0 across the whole duration,
+     so the fade and the close happen together.
+     **Both of those were revised the same day, and the reason is one finding.**
+     The first version staggered by 55ms, eased on `--ease`, and held the opacity
+     back to 72% until the 60% mark — and the user reported the cards were
+     "exiting at the same time". The stagger was real. `--ease` is
+     `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT built for arrivals: 40%
+     of the way by t=0.1 and **67% by t=0.2**, so each card did its entire
+     visible move in the first ~70ms of a 340ms animation and six cards 55ms
+     apart flashed through inside a few hundred milliseconds. The stagger had
+     nothing left to separate, and the opacity hold had nothing to overlap.
+     Fixed on both axes: stagger 55ms → 120ms, and `--ease` → **`ease-in`** (2%
+     at t=0.1, 32% at t=0.5), which is the right shape for a departure anyway —
+     things accelerate away and decelerate in. **This is the one animation in the
+     app that does not use `--ease`, and that is deliberate.**
      **`transform-origin` is scoped to `.is-leaving`, and that is load-bearing.**
      On `.rec-card` it would silently move the hover `scale(1.02)` off centre —
      and that effect exists in its current form precisely because growing from
@@ -1759,9 +1772,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      not optional even at a zero stagger; without it the last card sits untouched
      for a second before starting to close, which looks like a hang rather than
      a bug.
-     Timing: 0.34s per card, `RECS_EXIT_STAGGER_MS` 55ms, so six cards come to
-     0.615s — deliberately tighter than the entrance, which is the half the user
-     asked to be able to watch. The footer is a line of TEXT, not a card, so it
+     Timing: 0.34s per card, `RECS_EXIT_STAGGER_MS` 120ms, so six cards come to
+     0.94s. That is the ceiling of the budget and it is fine: the exit only ever
+     runs while a request is in flight, and an AI call is seconds. The stagger
+     now matches the entrance's, which is NOT a reason to collapse the two into
+     one constant — they should stay independently tunable, since the entrance is
+     the half the user asked to be able to watch and the exit only has to be
+     legible. The footer is a line of TEXT, not a card, so it
      gets a plain `rec-fade` with no delay rather than a book-close that would
      just squash the words.
      Also fixed in passing: the reduced-motion branch of `exitRecCards()` cleared
