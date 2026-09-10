@@ -1247,7 +1247,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      "Get recommendations" is the one label EXEMPT from the glyph/line-break rule
      in CLAUDE.md § Frontend Design Notes — the user granted that explicitly — so
      this is not that rule being enforced. It is a separate fix that happens to
-     make the exemption moot. */
+     make the exemption moot.
+     AND `white-space: nowrap` now does a SECOND job, added by R15: this button
+     carries a sparkle icon, and the rule that a glyph must never be separated
+     from its word applies to it. Everywhere else that glue is a non-breaking
+     space inside the string — but an icon is an ELEMENT, not a character, so no
+     string can hold it to the words beside it. The nowrap is the only mechanism
+     available here, which makes this declaration load-bearing for two separate
+     reasons. Do not remove it because R11 looks settled. */
   flex-shrink: 0;
   white-space: nowrap;
   background: transparent;
@@ -1260,6 +1267,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+/* Sized in `em` so it tracks the button's font, and nudged onto the text
+   baseline the same way `.spinner` and `.search-btn__icon` are — this button is
+   inline, NOT a flex container, and that is deliberate: `busyButton()` swaps the
+   contents for a spinner plus a label that already begins with a non-breaking
+   space, so a flex `gap` would sit on top of that space and make the busy state
+   wider than the resting one. Following the search button's pattern keeps both
+   states spaced identically. */
+.recs__trigger-icon { width: 1.05em; height: 1.05em; vertical-align: -0.16em; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is

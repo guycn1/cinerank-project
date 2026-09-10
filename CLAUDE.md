@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-FIVE done, R20 withdrawn as incorrect and four open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-SIX done, R20 withdrawn as incorrect and three open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1168,7 +1168,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R7, R16, R17, R19, R21, R22 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
+   R7, R15, R16, R17, R19, R21, R22 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1417,9 +1417,29 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      as the single brightest thing on screen; hovering the footer dims nothing,
      because the `:has()` tests for a hovered card. Do not re-tune 0.7 by eye
      without reading D-049 — the number is the whole of what was settled.
-   * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
-     D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
-     fiddly — the user granted that in advance. Do not spend hours on it.**
+   * **R15. DONE 2026-09-11 — a sparkle on the trigger, and the emoji exemption
+     went unused.** Two four-point stars as an inline SVG with
+     `fill="currentColor"`, so the icon follows all three of the button's states
+     for free: amber at rest, inverting to `#1a1205` on the amber hover fill, and
+     dimming with the label at `opacity: 0.45` when disabled. The emoji would
+     have done none of that — it is a fixed full-colour image (D-027), so it
+     would have stayed bright while the label dimmed. The exemption the user
+     granted in advance was not needed, and **"no emoji remain in rendered output
+     anywhere" still holds**.
+     **Inline, NOT a flex container, and that is the non-obvious part.** The
+     obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
+     wrong here because `busyButton()` swaps the contents for a spinner plus a
+     label that ALREADY begins with a non-breaking space — a flex `gap` would sit
+     on top of that and make the busy state wider than the resting one. The
+     search button solved this before and this follows it: an inline icon sized
+     in `em` with a `vertical-align` nudge.
+     **`white-space: nowrap` on `.recs__trigger` is now load-bearing for a second
+     reason.** R11 added it so the label could not break; the glyph rule now also
+     depends on it, because everywhere else the glue is a non-breaking space
+     inside the string, and an icon is an ELEMENT — no string can hold it to the
+     words beside it. Both places say so.
+     `aria-hidden="true"` + `focusable="false"`: the button already says "Get
+     recommendations" in text, so a decorative mark would only add noise.
    * **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
      Remove rated films until the count falls under the threshold: the trigger
      correctly disabled and the hint correctly said "Rate at least 3 movies to
@@ -2320,6 +2340,15 @@ spinner label in one line, since every busy label in the app is built there.
 by the user's instruction — it is parked for the recommendations overhaul. Its
 BUSY label is nonetheless covered, because that comes from the shared
 `busyButton()`; only its resting label is exempt.
+
+**And one case the in-string technique cannot cover at all** (found by R15, which
+put a sparkle icon on that same trigger): an ICON is an element, not a character,
+so no string can glue it to the words beside it. `white-space: nowrap` on the
+button is the only mechanism available, which is why that declaration on
+`.recs__trigger` is load-bearing for two independent reasons — R11's label break
+and R15's glyph. The same applies to any future icon button: reach for nowrap,
+not for a non-breaking space, and do not assume an unrelated cleanup can remove
+it.
 
 \---
 

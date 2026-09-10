@@ -97,6 +97,19 @@
       <div class="recs__head" id="recs-head">
         <h2>What to watch next</h2>
         <button class="recs__trigger" id="recs-trigger" type="button">
+          <!-- R15. The AI sparkle, as an inline SVG rather than the emoji the
+               item asked for (D-027: an emoji is a fixed full-colour image that
+               ignores the button's colour, so it would stay bright while the
+               label dims at 0.45 opacity when disabled, and would not invert
+               with the amber fill on hover). `fill="currentColor"` follows all
+               three states for free. The emoji exemption granted for this one
+               button was not needed.
+               aria-hidden: the button already says "Get recommendations" in
+               text, so announcing a decorative mark would only add noise. -->
+          <svg class="recs__trigger-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M10 2 Q11.2 8.4 17 10 Q11.2 11.6 10 18 Q8.8 11.6 3 10 Q8.8 8.4 10 2 Z" fill="currentColor"/>
+            <path d="M18.4 13 Q18.9 15.4 21.4 16 Q18.9 16.6 18.4 19 Q17.9 16.6 15.4 16 Q17.9 15.4 18.4 13 Z" fill="currentColor"/>
+          </svg>
           Get recommendations
         </button>
       </div>
