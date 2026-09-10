@@ -2084,12 +2084,17 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      the same shape as the logo-spin item below: the mechanism is there and the
      effect is too subtle to notice. So the real work is making it VISIBLE —
      a shorter cycle, a wider colour spread, or more gradient travel — not
-     writing an animation. Measure what it does now before changing it. Note the banner already carries a
-     `view-transition-name`-free static treatment; an animated gradient usually
-     means animating a `background-position` on a `border-image` or a masked
-     pseudo-element, since `border-color` cannot hold a gradient. Keep it SLOW —
-     this sits near the top of the page on every load, and D-044's rule about
-     amber not becoming a hard-edged focus-ring lookalike still applies.
+     writing an animation. Measure what it does now before changing it.
+     **The rest of this item as first written is DELETED, not preserved, because
+     it was wrong:** it called the banner "a static treatment" and went on to
+     suggest a `border-image` or a masked pseudo-element, since "`border-color`
+     cannot hold a gradient". All of that was written before the `sheen`
+     animation was found, and following it would have meant rebuilding a
+     mechanism that already exists — the banner does it with `padding: 2px`, a
+     gradient background, and `.verdict__inner` covering the middle.
+     Two constraints that DO still apply: keep it SLOW, since this sits near the
+     top of the page on every load; and D-044's rule that amber must never become
+     a hard-edged focus-ring lookalike.
    * **Does the logo circle actually spin? — ANSWERED 2026-09-11, no
      investigation needed.** Yes, `animation: spin 8s linear infinite` is on
      `.mark__reel` and runs. It is invisible because **every part of it that you
