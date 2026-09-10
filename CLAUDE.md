@@ -2059,8 +2059,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
    building.
 
-4b. **Three visual-polish items on the verdict banner and the logo** (user-raised
-   2026-09-10). Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
+4b. **Four visual-polish items on the verdict banner, the ranked list and the
+   logo** (user-raised 2026-09-10 and 2026-09-11). **THREE OF THE FOUR are the
+   same shape — the mechanism already exists and the effect is simply too subtle
+   to see — so read each item before building anything.** Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
    user asked for these "after the recs overhaul, before the narrow-portrait
    overhaul", and renumbering would silently break every reference to "step 5",
    including the enforcement rules in the memory file
@@ -2095,6 +2097,30 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Two constraints that DO still apply: keep it SLOW, since this sits near the
      top of the page on every load; and D-044's rule that amber must never become
      a hard-edged focus-ring lookalike.
+   * **The ranked list's first-paint entrance is barely visible** (user-raised
+     2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
+     (D-031) and is not in scope. Same family as the two items above, and
+     measured rather than guessed, so this starts from evidence:
+     `.movie-card.is-entering` is `fade-slide 0.45s var(--ease) backwards`, a
+     10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`.
+     **`--ease` is the main culprit, exactly as it was for the rec-card exit.**
+     It is `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 is
+     already gone by 45ms, and the card is within 1px of home after **168ms of a
+     450ms animation**. So a 10px move effectively happens in a sixth of a
+     second, and the remaining 280ms is the card sitting still.
+     **The stagger also collapses.** `min(i * 45, 400)` caps at card 9, so on a
+     list of twenty the last dozen all start within the same frame — there is no
+     cascade to see at exactly the length where one would read best.
+     **R27 is the worked precedent for this on the rec cards**, and its numbers
+     are a starting point rather than a template: `rec-enter` at 0.75s over 18px,
+     120ms apart, after a 400ms lead-in. **What does NOT transfer is the
+     stagger**, because a ranked list is unbounded where the recs grid is capped
+     at six — 120ms across twenty cards is 2.4 seconds of the page assembling
+     itself on every load. Keep a cap, but raise where it sits.
+     Cheap and self-contained: a duration, a travel distance, an easing and a
+     cap, all in two places (`.movie-card.is-entering` and one line of
+     `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
+     spotlight both depend on it.
    * **Does the logo circle actually spin? — ANSWERED 2026-09-11, no
      investigation needed.** Yes, `animation: spin 8s linear infinite` is on
      `.mark__reel` and runs. It is invisible because **every part of it that you
