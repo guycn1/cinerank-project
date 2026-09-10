@@ -1296,17 +1296,40 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    animations deliberately off `--ease` — this and the rec-card exit — and both
    say why at the declaration. */
 @keyframes sparkle-twinkle {
-  0%, 100% { opacity: 0.85; transform: scale(0.97); }
-  50% { opacity: 1; transform: scale(1.05); }
+  0%, 100% { opacity: 0.8; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
+/* The glow the scale alone could not deliver — the user could still barely see
+   the twinkle, so the shine is now light rather than only motion.
+   ON THE `<svg>` ROOT, NOT ON THE PATH, and that is the load-bearing bit. A CSS
+   `filter` on an SVG child resolves its lengths in the local user coordinate
+   system (viewBox units), where `3px` would mean 3/24ths of the icon and vary
+   with the rendered size; on the root it is plain CSS pixels. It also means the
+   halo is not clipped: an outer `<svg>` clips its own viewport, so a glow drawn
+   inside would be cut off at the box edge, while a CSS filter on the element
+   paints outside it freely.
+   White rather than `currentColor`: a glow the same colour as the thing glowing
+   is just a blur. The white is what reads as a glint. It is safe from the
+   disabled state — `.recs__trigger:disabled` sets `opacity` on the BUTTON, so
+   everything inside dims together regardless of colour; only the hover, which
+   inverts the icon to `#1a1205` on an amber fill, shows white against amber.
+   Same 3s and same easing as the twinkle so the two stay in phase; they are
+   separate animations only because they sit on different elements. */
+@keyframes sparkle-glow {
+  0%, 100% { filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85)); }
+}
+.recs__trigger-icon { animation: sparkle-glow 3s ease-in-out infinite; }
 .recs__trigger-icon .sparkle-major {
   transform-box: fill-box;
   transform-origin: center;
   animation: sparkle-twinkle 3s ease-in-out infinite;
 }
 /* A disabled button should not be catching the eye — the section is locked and
-   the icon twinkling at the user would be inviting a click that does nothing. */
-.recs__trigger:disabled .sparkle-major { animation: none; }
+   the icon twinkling at the user would be inviting a click that does nothing.
+   Both animations stop, or the glow would keep pulsing on a dead control. */
+.recs__trigger:disabled .sparkle-major,
+.recs__trigger:disabled .recs__trigger-icon { animation: none; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is

@@ -1434,9 +1434,27 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      centre, a tip radius and a waist offset rather than hand-tuned, so
      re-generate rather than nudging a number. `vertical-align` scales with the
      size (-0.16em → -0.28em) or a taller icon rides high against the text.
-     **The big star twinkles** (user-raised, "a tiny bit more shiny /
-     glittering"): a 3s `scale(0.97)`→`scale(1.05)` and `opacity 0.85`→`1` loop
-     on that path alone. The SMALL one deliberately holds still — both moving
+     **The big star twinkles AND the icon glows** (user-raised over two rounds:
+     "a tiny bit more shiny / glittering", then "still isn't visible enough…
+     like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.1)` and
+     `opacity 0.8`→`1` loop on that path, plus a pulsing white
+     `drop-shadow` on the icon. **Motion alone was not enough** — the first pass
+     was scale and opacity only, and at 21px on a button the user could barely
+     see it. Shine needs light, not just movement.
+     **The glow is on the `<svg>` ROOT, not on the path, and that is
+     load-bearing.** A CSS `filter` on an SVG CHILD resolves its lengths in the
+     local user coordinate system, where `3px` means 3/24ths of the icon and
+     changes with the rendered size; on the root it is plain CSS pixels. The root
+     also lets the halo paint OUTSIDE the box — an outer `<svg>` clips its own
+     viewport, so a glow drawn inside would be cut off at the edge.
+     White rather than `currentColor`: a glow the same colour as the thing
+     glowing is just a blur. Checked at peak scale, the star spans 0.7–18.3 of
+     the 0–24 viewBox, so nothing clips.
+     **The one state to look at is HOVER**, where the icon inverts to `#1a1205`
+     on an amber fill and the glow stays white — a light halo around a dark glyph.
+     The disabled state is safe by construction: `.recs__trigger:disabled` sets
+     `opacity` on the BUTTON, so everything inside dims together whatever colour
+     it is, and both animations are switched off there anyway. The SMALL one deliberately holds still — both moving
      reads as a throbbing icon, one moving reads as a catch of light, which is
      the difference between shiny and distracting on an element that is on screen
      all session. **A gradient fill was the obvious way and was rejected:**
