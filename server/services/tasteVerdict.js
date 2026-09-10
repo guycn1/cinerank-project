@@ -3,7 +3,7 @@ import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 
-const PROMPT_VERSION = 'taste_verdict_v5';
+const PROMPT_VERSION = 'taste_verdict_v6';
 const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35–60 words)
 
 // Belt-and-suspenders cleanup of the model's plain-text output:
