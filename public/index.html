@@ -97,25 +97,6 @@
       <div class="recs__head" id="recs-head">
         <h2>What to watch next</h2>
         <button class="recs__trigger" id="recs-trigger" type="button">
-          <!-- R15. The AI sparkle, as an inline SVG rather than the emoji the
-               item asked for (D-027: an emoji is a fixed full-colour image that
-               ignores the button's colour, so it would stay bright while the
-               label dims at 0.45 opacity when disabled, and would not invert
-               with the amber fill on hover). `fill="currentColor"` follows all
-               three states for free. The emoji exemption granted for this one
-               button was not needed.
-               aria-hidden: the button already says "Get recommendations" in
-               text, so announcing a decorative mark would only add noise.
-               Both paths are GENERATED, not hand-tuned: a four-point star from
-               a centre, a tip radius and a waist offset, rounded to one decimal.
-               The waist is what decides whether it reads as a sparkle or as a
-               thin cross at button size — pushing the control points out from
-               1.9 to 2.6 thickened the arms without changing the silhouette.
-               Re-generate rather than nudging a number by hand. -->
-          <svg class="recs__trigger-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path class="sparkle-major" d="M9.5 1.5 Q12.1 6.9 17.5 9.5 Q12.1 12.1 9.5 17.5 Q6.9 12.1 1.5 9.5 Q6.9 6.9 9.5 1.5 Z" fill="currentColor"/>
-            <path d="M18.4 12.8 Q20 15.8 23 17.4 Q20 19 18.4 22 Q16.8 19 13.8 17.4 Q16.8 15.8 18.4 12.8 Z" fill="currentColor"/>
-          </svg>
           Get recommendations
         </button>
       </div>
@@ -244,6 +225,31 @@
        metrics, and looks different on every platform (D-027). The parent
        .noposter carries role="img" and an aria-label naming the film, so this is
        aria-hidden. -->
+  <!-- R15. The AI sparkle, cloned into BOTH AI trigger buttons by sparkleNode().
+       A template rather than the SVG written into each button, for the same
+       reason `.noposter` is one: two copies of a generated path is the shape
+       that gets regenerated in one place and not the other.
+       NOT `<use href>` either, which is the usual sprite answer — `<use>` puts
+       its content in a shadow tree that document CSS cannot select into, and
+       only the LARGE star is meant to twinkle. A clone is real DOM, so
+       `.sparkle-major` still matches.
+       Inline SVG, not the emoji the item asked for (D-027): an emoji is a fixed
+       full-colour image that ignores the button's colour, so it would stay
+       bright while the label dims at 0.45 opacity on a disabled trigger, and
+       would not invert with the amber fill on hover. `fill="currentColor"`
+       follows all of it for free.
+       aria-hidden: both buttons already carry their own text.
+       Both paths are GENERATED — a four-point star from a centre, a tip radius
+       and a waist offset, rounded to one decimal. The waist is what decides
+       whether it reads as a sparkle or a thin cross at button size. Re-generate
+       rather than nudging a number by hand. -->
+  <template id="ai-sparkle">
+    <svg class="ai-sparkle" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path class="sparkle-major" d="M9.5 1.5 Q12.1 6.9 17.5 9.5 Q12.1 12.1 9.5 17.5 Q6.9 12.1 1.5 9.5 Q6.9 6.9 9.5 1.5 Z" fill="currentColor"/>
+      <path d="M18.4 12.8 Q20 15.8 23 17.4 Q20 19 18.4 22 Q16.8 19 13.8 17.4 Q16.8 15.8 18.4 12.8 Z" fill="currentColor"/>
+    </svg>
+  </template>
+
   <template id="noposter-icon">
     <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">

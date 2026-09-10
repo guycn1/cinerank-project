@@ -264,6 +264,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
+  /* Required by the glyph rule once this button carries an icon (R15): a glyph
+     must never be separated from the word it belongs to, and everywhere else in
+     the app that glue is a non-breaking space inside the string. An icon is an
+     ELEMENT, so no string can hold it — nowrap is the only mechanism, exactly as
+     on `.recs__trigger`. Do not remove it as redundant on a two-word label. */
+  white-space: nowrap;
   transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 /* :not(:disabled) so the amber hover doesn't fight the busy state — same as
@@ -1278,7 +1284,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    halves matter: the size is here, the WEIGHT is in the paths (see index.html,
    where the arms were thickened at the waist). The `vertical-align` scales with
    it, -0.16em to -0.28em, or a taller icon sits high against the text. */
-.recs__trigger-icon { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
+/* Sized per BUTTON, not once on the icon: it rides on two triggers of different
+   weights, and the verdict's is the lower-stakes control (SPEC 2.3, and R25 kept
+   its border deliberately quieter for the same reason). Its `font-size: 0.88rem`
+   already shrinks an `em`-sized icon by 12%; 1.15em takes it to ~22% smaller in
+   absolute terms, so it reads as the smaller button's icon rather than the same
+   icon crammed in. `vertical-align` scales with each, or a taller icon rides
+   high against its text. */
+.recs__trigger .ai-sparkle { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
+.verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; }
 /* The big star twinkles; the small one holds still. Both moving reads as a
    throbbing icon, one moving reads as a catch of light — which is the whole
    difference between "shiny" and "distracting" on an element that is on screen
@@ -1319,8 +1333,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   0%, 100% { filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3)); }
   50% { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85)); }
 }
-.recs__trigger-icon { animation: sparkle-glow 3s ease-in-out infinite; }
-.recs__trigger-icon .sparkle-major {
+.ai-sparkle { animation: sparkle-glow 3s ease-in-out infinite; }
+.ai-sparkle .sparkle-major {
   transform-box: fill-box;
   transform-origin: center;
   animation: sparkle-twinkle 3s ease-in-out infinite;
@@ -1328,8 +1342,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* A disabled button should not be catching the eye — the section is locked and
    the icon twinkling at the user would be inviting a click that does nothing.
    Both animations stop, or the glow would keep pulsing on a dead control. */
-.recs__trigger:disabled .sparkle-major,
-.recs__trigger:disabled .recs__trigger-icon { animation: none; }
+button:disabled .ai-sparkle,
+button:disabled .sparkle-major { animation: none; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is

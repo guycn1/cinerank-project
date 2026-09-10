@@ -1484,6 +1484,26 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      words beside it. Both places say so.
      `aria-hidden="true"` + `focusable="false"`: the button already says "Get
      recommendations" in text, so a decorative mark would only add noise.
+     **It rides on BOTH AI triggers** (user-raised follow-up): "New verdict" gets
+     the same sparkle at `1.15em` against the trigger's `1.3em`. That button's
+     `font-size: 0.88rem` already shrinks an em-sized icon by 12%; the smaller
+     value takes it to ~22% in absolute terms, so it reads as the smaller
+     button's icon rather than the same icon crammed in — which also matches R25,
+     where the verdict's border was kept deliberately quieter because it is the
+     lowest-stakes control (SPEC § 2.3).
+     **The second surface is why the SVG moved into a `<template>` and is cloned
+     by `sparkleNode()`.** Two copies of a GENERATED path is the shape that gets
+     regenerated in one place and not the other — the same reasoning that made
+     `.noposter` a template. **`<use href>`, the usual sprite answer, was
+     rejected:** it puts its content in a shadow tree that document CSS cannot
+     select into, and only the LARGE star twinkles, so `.sparkle-major` would
+     stop matching. A clone is real DOM.
+     Injected in `init()` **before anything can go busy**, since `busyButton()`
+     snapshots `childNodes` and restores them on settle — the icon has to be
+     there when that snapshot is taken or it would not come back.
+     `.verdict__refresh` needed `white-space: nowrap` for the same reason
+     `.recs__trigger` did: an icon is an element, so no in-string non-breaking
+     space can hold it to its label.
    * **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
      Remove rated films until the count falls under the threshold: the trigger
      correctly disabled and the hint correctly said "Rate at least 3 movies to

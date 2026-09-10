@@ -174,6 +174,21 @@ const EAGER_POSTERS = 3;
  * rows, recommendation cards) keep `lazy` without being touched: neither is ever
  * part of the first paint, which is the only place the distinction matters.
  */
+/**
+ * The AI sparkle, cloned from its `<template>` (see index.html).
+ *
+ * Cloned rather than written into each button, because it now appears on BOTH
+ * AI triggers and two copies of a generated path is the shape that gets
+ * regenerated in one place and not the other. Same reason `.noposter` is a
+ * template — and the same reason `<use href>`, the usual sprite answer, is not
+ * used here: `<use>` puts its content in a shadow tree that document CSS cannot
+ * select into, and only the LARGE star is meant to twinkle. A clone is real DOM,
+ * so `.sparkle-major` still matches.
+ */
+function sparkleNode() {
+  return $('#ai-sparkle').content.firstElementChild.cloneNode(true);
+}
+
 function posterNode(url, title, { eager = false } = {}) {
   if (url) {
     const img = document.createElement('img');
@@ -2105,6 +2120,12 @@ document.addEventListener('click', (e) => {
 
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
+  // Both AI triggers get the sparkle. Injected here, before anything can put a
+  // button into its busy state: `busyButton()` snapshots `childNodes` and
+  // restores them on settle, so the icon has to already be there when that
+  // snapshot is taken or it would not come back.
+  el.recsTrigger.prepend(sparkleNode());
+  el.verdictRefresh.prepend(sparkleNode());
   try {
     state.cfg = await api('/api/config');
   } catch { /* keep defaults */ }
