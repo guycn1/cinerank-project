@@ -97,6 +97,16 @@
       </div>
       <p class="recs__hint" id="recs-hint" role="status" aria-live="polite"></p>
       <div class="recs__grid" id="recs-grid"></div>
+      <!-- The AI metadata footer's own slot, deliberately OUTSIDE the grid (R29).
+           It used to be a grid child spanning `1 / -1`, which was fine while the
+           tracks filled the section. They no longer do — the grid is capped to
+           the cards' natural width and centred — and `grid-column: 1 / -1` spans
+           the TRACK LIST, not the container, so the footer would have shrunk to
+           match and a single-card run would have left it one card wide.
+           A stable empty slot rather than appending to `.recs` and querying it
+           back: it has no border, padding or content of its own, so it costs no
+           layout while empty. -->
+      <div class="recs__meta" id="recs-meta"></div>
     </section>
   </main>
 

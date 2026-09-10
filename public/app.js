@@ -20,6 +20,7 @@ const el = {
   recsHint: $('#recs-hint'),
   recsGrid: $('#recs-grid'),
   recsHead: $('#recs-head'), // R27's scroll target — see renderRecommendations
+  recsMeta: $('#recs-meta'), // the AI meta footer's slot, outside the grid (R29)
   rateDialog: $('#rate-dialog'),
   rateForm: $('#rate-form'),
   rateTitle: $('#rate-title'),
@@ -1297,39 +1298,45 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
  * 4 + 1. Both look broken at widths where 2 + 2 and 3 + 2 fit perfectly well
  * (user-raised, 2026-09-09).
  *
- * The fix is the standard balanced-rows formula — how many rows does the widest
- * layout need, then spread the cards evenly over exactly that many — but it is
- * applied ONLY when the widest layout would strand a single card. That
- * restraint is the user's rule, not a simplification of it: "avoid rows with
- * only 1 card unless it really has no choice."
+ * The fix is the standard balanced-rows formula: how many rows does the widest
+ * layout need, then spread the cards evenly over exactly that many. It can never
+ * make the grid TALLER, since the row count comes from the widest layout. Where
+ * nothing better exists it changes nothing — 5 cards in a 2-column viewport
+ * stays 2 + 2 + 1, 3 cards in a 2-column one stays 2 + 1.
  *
- * The distinction bites in exactly one case, and it is the commonest one. Six
- * cards where four fit is 4 + 2, which strands nothing; balancing it anyway
- * would give 3 + 3, a tidier split but one that makes every card ~36% wider and
- * the whole section markedly taller. That is a redesign, not a fix, so it is
- * left alone. Change `> 1` here if a fuller row is ever wanted instead.
+ * A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK (R29). That is why this
+ * returns a width as well as a count: the width comes from `fit`, the widest
+ * packing the viewport allows, and the count comes from the balancing. One
+ * recommendation on a four-wide viewport is one card of the SAME size as any
+ * other, centred, with the slack split evenly either side — not one card
+ * stretched across the whole column with a poster taller than the window, which
+ * is what filling the tracks produced (user-raised, with a screenshot).
  *
- * It can never make the grid TALLER: the balanced count is derived from the row
- * count the widest layout already needed. Where nothing better exists it changes
- * nothing — 5 cards in a 2-column viewport stays 2 + 2 + 1, 3 cards in a
- * 2-column one stays 2 + 1. Those are the "no choice" cases.
+ * That decoupling is also what let the balancing lose an earlier restraint.
+ * It used to run only when the widest layout would strand a SINGLE card, so
+ * six cards where four fit stayed 4 + 2 rather than 3 + 3 — because balancing
+ * it then made every card ~36% wider. It no longer can, so 3 + 3 is free and
+ * the restraint is gone. See D-051.
  *
  * Reads `--rec-min` and the real `column-gap` off the element instead of
  * repeating them here. The stylesheet owns both numbers; a copy in JS is the
  * shape that goes stale the first time someone changes the CSS.
  */
-function balancedColumns(count, grid) {
+function balancedLayout(count, grid) {
   const cs = getComputedStyle(grid);
   const gap = parseFloat(cs.columnGap) || 0;
   const min = parseFloat(cs.getPropertyValue('--rec-min')) || 190;
+  const avail = grid.parentElement.clientWidth;
   // The +gap on both sides is the standard "n items need n-1 gaps" rearrangement:
   // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
-  const fit = Math.max(1, Math.floor((grid.clientWidth + gap) / (min + gap)));
-  const widest = Math.min(count, fit);
-  // `|| widest` because a remainder of 0 means the last row is full, not empty.
-  const stranded = count % widest || widest;
-  if (stranded > 1) return widest;
-  return Math.ceil(count / Math.ceil(count / widest));
+  const fit = Math.max(1, Math.floor((avail + gap) / (min + gap)));
+  // The card size, fixed by the viewport alone. Measured off the PARENT, never
+  // off the grid itself: the grid's own width is what this function sets, so
+  // reading it back would feed the last answer into the next one and ratchet the
+  // cards smaller on every resize frame.
+  const width = (avail - (fit - 1) * gap) / fit;
+  const cols = Math.ceil(count / Math.ceil(count / Math.min(count, fit)));
+  return { cols, width };
 }
 
 /**
@@ -1340,8 +1347,14 @@ function balancedColumns(count, grid) {
 function layoutRecsGrid() {
   const cards = [...el.recsGrid.querySelectorAll('.rec-card')];
   if (!cards.length) return;
-  const cols = balancedColumns(cards.length, el.recsGrid);
+  const { cols, width } = balancedLayout(cards.length, el.recsGrid);
+  const gap = parseFloat(getComputedStyle(el.recsGrid).columnGap) || 0;
   el.recsGrid.style.setProperty('--rec-tracks', cols * 2);
+  // Cap the grid to exactly the room `cols` cards need, and let its auto margins
+  // centre what is left over. Capping the CONTAINER rather than sizing each
+  // track keeps `1fr` doing the arithmetic: the tracks divide a width that is
+  // already correct, so the doubled-track/half-column machinery is untouched.
+  el.recsGrid.style.setProperty('--rec-width', `${cols * width + (cols - 1) * gap}px`);
 
   // Tracks are doubled (see the CSS), so a card starting one track late is
   // offset by HALF a card — which is exactly what centring a short row needs.
@@ -1371,7 +1384,10 @@ function layoutRecsGrid() {
  * run that is being replaced, so it is just as stale.
  */
 function exitRecCards() {
-  const leaving = [...el.recsGrid.children];
+  // The metadata footer leaves with the cards — it describes the run being
+  // replaced — but it no longer lives in the grid (R29), so it is swept from its
+  // own slot rather than falling out of `el.recsGrid.children` for free.
+  const leaving = [...el.recsGrid.children, ...el.recsMeta.children];
   if (!leaving.length) return;
   // The reduced-motion block sets `animation: none !important`, so no animation
   // runs and `animationend` NEVER fires — a listener-driven removal would leave
@@ -1409,7 +1425,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     // that showed no cost, tokens or duration anywhere.
     // It also carries logLink() already, which is why the message above does NOT
     // get a log link of its own — that would put two on one line.
-    el.recsGrid.append(aiMetaFooter(meta));
+    el.recsMeta.replaceChildren(aiMetaFooter(meta));
     return;
   }
   // caption: the cards are right underneath it.
@@ -1456,7 +1472,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     card.append(poster, body);
     el.recsGrid.append(card);
   });
-  el.recsGrid.append(aiMetaFooter(meta));
+  el.recsMeta.replaceChildren(aiMetaFooter(meta));
   // Same synchronous task as the appends above, so the browser never paints a
   // frame at the CSS fallback column count.
   layoutRecsGrid();

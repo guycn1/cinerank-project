@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with NINETEEN done, R20 withdrawn as incorrect and ten open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -56,11 +56,16 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   cards in at 120ms apart; regenerating fades the previous set out first (R27,
   R14, D-048). Nothing animates or scrolls on an empty or failed run.
   The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
-  never left holding one lonely card: four cards where three fit render 2 + 2
-  and five where four fit render 3 + 2, with a short last row centred on a
-  half-column offset (off-backlog, user-raised 2026-09-09; D-050). Deliberately
-  restrained — six cards where four fit stays 4 + 2, because nothing is
-  stranded there and evening it out would grow every card by a third.
+  never left holding one lonely card: four cards where three fit render 2 + 2,
+  five where four fit render 3 + 2, and six where four fit render 3 + 3, with a
+  short last row centred on a half-column offset (off-backlog, user-raised
+  2026-09-09; D-050 and D-051).
+  **A card's size never depends on how many came back** (R29, D-051): the width
+  comes from the widest packing the viewport allows, the count from the
+  balancing, and the grid is capped to what that many cards need and centred —
+  so one recommendation is one normal-sized card with the slack split evenly
+  either side. The AI metadata footer sits in its own slot BELOW the grid, not
+  inside it, so it stays full width whatever the cards do.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
@@ -1123,7 +1128,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R19 and R23–R28 are done and R20 was WITHDRAWN as incorrect — every
+   R19, R23–R28 and R29 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1633,12 +1638,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      response never reaches the browser, the row exists and the client cannot know.
      It shows the transport message instead.
 
-   * **R29. A CARD'S SIZE MUST NEVER DEPEND ON HOW MANY CAME BACK** (user-raised
-     2026-09-09, with a screenshot). One recommendation on a viewport wide enough
-     for four currently renders as a single full-width card with a poster taller
-     than the window. Two is the same fault, less dramatically. The tracks are
-     `1fr` and `balancedColumns()` returns `min(count, fit)` when everything fits
-     on one row, so the count decides the width. That is backwards.
+   * **R29. DONE 2026-09-10 (D-051) — a card's size no longer depends on how many
+     came back** (user-raised 2026-09-09, with a screenshot). One recommendation
+     on a viewport wide enough for four rendered as a single full-width card with
+     a poster taller than the window; two was the same fault, less dramatically.
+     The tracks are `1fr` and `balancedColumns()` returned `min(count, fit)` when
+     everything fitted on one row, so the count decided the width. That was
+     backwards.
      **The user's rule, in their words: "I do not believe that a card's size
      should ever depend on how many cards returned. A better fix for the ugly
      unoccupied space in a row is to just center it all — and screw the spaces in
@@ -1647,19 +1653,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      side, trust me."** So: side margins are ACCEPTED, and the alignment
      objection Claude raised against this shape earlier (that the grid would sit
      narrower than the heading above it) is overruled. Do not re-litigate it.
-     **Shape of the fix.** Size the track from `fit` — the widest packing the
-     viewport allows — not from the count: one fixed card width per viewport,
-     the balanced count for the rows, and `justify-content: center` on the grid.
-     The half-column offset that centres a short last row (D-050) still applies
-     on top and is unaffected.
-     **This also settles the 4 + 2 versus 3 + 3 question the user asked on the
-     same day, and settles it as free.** The only cost of 3 + 3 was that filling
-     tracks made every card ~36% wider; once the width is fixed by `fit`, 3 + 3
-     is the same card and the same two rows as 4 + 2. So `balancedColumns()`'s
-     deliberate `> 1` restraint (D-050) should be reconsidered as part of this —
-     it exists only to avoid the growth that will no longer happen.
-     **The `.ai-meta` footer MOVES OUT OF THE GRID — settled 2026-09-09, before
-     building.** It is a grid child spanning `1 / -1` today, so a centred,
+     **As built.** `balancedColumns()` is now `balancedLayout()` and returns a
+     WIDTH as well as a count. The width comes from `fit`, the widest packing the
+     viewport allows; the count comes from the balancing. The grid is then capped
+     to exactly the room that many cards need (`--rec-width`) with
+     `margin-inline: auto` doing the centring.
+     **Capping the CONTAINER rather than sizing each track is what kept this
+     small** — the `1fr` tracks divide a width that is already correct, so D-050's
+     doubled-track/half-column machinery is untouched, and when the balanced count
+     equals what fits, `--rec-width` IS the container width and the two new
+     declarations do nothing at all.
+     **One trap, and it would have been silent:** `balancedLayout()` measures
+     `grid.parentElement.clientWidth`, never the grid's own. The grid's width is
+     what this function SETS, so reading it back would feed each answer into the
+     next and ratchet the cards smaller on every resize frame.
+     **This also settled the 4 + 2 versus 3 + 3 question, as free.** The only cost
+     of 3 + 3 was that filling tracks made every card ~36% wider; with the width
+     fixed by `fit` it is the same card and the same two rows as 4 + 2. So
+     `balancedColumns()`'s deliberate `> 1` restraint (D-050) is GONE — it existed
+     only to avoid growth that can no longer happen. Six cards where four fit now
+     render 3 + 3.
+     Verified by simulating every count from one to six across 288/500/700/812/
+     1000px: the card width is now constant per viewport in every column, and no
+     layout gained a row.
+     **The `.ai-meta` footer MOVED OUT OF THE GRID — settled 2026-09-09 before
+     building, done 2026-09-10.** It was a grid child spanning `1 / -1`, so a centred,
      narrower track list would shrink the footer and its dashed rule to match,
      and a single-card run would leave it one card wide. The user ruled out
      accepting that and left the choice between spanning it to the container and
@@ -1679,20 +1697,21 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `#recs-grid` are stable) rather than appending it to `.recs` and querying it
      back — an empty slot has no border, padding or content, so it costs no
      layout.
-     **Four follow-on edits, so they are not discovered one at a time:**
-     (1) `renderRecommendations()` appends the footer in TWO places — the empty
-     branch and the success branch — and both move.
-     (2) `exitRecCards()` sweeps the grid's children and currently fades the
-     footer out with the cards, deliberately; it has to clear the new slot too.
-     (3) **The sneaky one.** The spotlight dims the footer only because it is a
-     grid child — that is the whole of D-049's `> *` rather than `> .rec-card`.
-     Moving it out silently undoes that decision and leaves the footer the
-     single brightest thing on screen. The `:has()` anchor has to move up to
-     `.recs`, scoped so the VERDICT banner's own `.ai-meta` is untouched.
-     (4) The grid's `gap` no longer separates the footer from the cards, so it
-     needs its own top margin — `1.1rem`, to match what it is replacing.
-     Fold this into the decision entry written when R29 lands; it is recorded
-     here now because it was settled before the work started.
+     **All four follow-on edits landed, and they were the whole of the work:**
+     (1) `renderRecommendations()` appended the footer in TWO places — the empty
+     branch and the success branch — and both now write to `#recs-meta`.
+     (2) `exitRecCards()` swept the grid's children, which used to include the
+     footer for free; it now sweeps both the grid and the slot, and the
+     `.is-leaving` rule is anchored on `.recs` rather than on the grid.
+     (3) **The sneaky one, and it was real.** The spotlight dimmed the footer
+     ONLY because it was a grid child — that is the whole of D-049's `> *`
+     rather than `> .rec-card`. The `:has()` anchor moved up to `.recs` and the
+     rule is now two selectors, scoped so the VERDICT banner's own `.ai-meta` is
+     untouched. Without that the footer would have been left the single
+     brightest thing on screen at the moment attention is meant to be on a card.
+     (4) The grid's `gap` no longer separates the footer from the cards, so
+     `.recs__meta .ai-meta` carries `margin-top: 1.1rem` — on the FOOTER, not on
+     the slot, so an empty slot still contributes nothing.
    * **R30. The exit animation stutters, and should close like a book**
      (user-raised 2026-09-09). `rec-leave` ends at
      `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card

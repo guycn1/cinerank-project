@@ -1305,8 +1305,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    declaration can never be invalid, but that is insurance, not a design
    decision: JS sets the real value in the same synchronous task that appends the
    cards, so no frame is ever painted with the fallback.
-   The exact rule for choosing the count — and the one case it deliberately
-   leaves alone — is in `balancedColumns()` in app.js. */
+   The exact rule for choosing the count, and the card width that goes with it,
+   is in `balancedLayout()` in app.js. (It was `balancedColumns()`, returning a
+   count alone, until R29 made the width its business too.) */
 .recs__grid {
   display: grid;
   /* The narrowest a card may be, and the single source of truth for it: JS reads
@@ -1316,6 +1317,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   --rec-min: 190px;
   grid-template-columns: repeat(var(--rec-tracks, 6), 1fr);
   gap: 1.1rem;
+  /* R29 — A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK.
+     `--rec-width` is exactly the room `--rec-tracks` cards need at the width the
+     VIEWPORT allows, so the auto margins centre whatever is left over. One
+     returned card is therefore one normal-sized card with the slack split evenly
+     either side, instead of a single card stretched across the whole column with
+     a poster taller than the window (user-raised, with a screenshot).
+     Capping the CONTAINER rather than sizing each track is what keeps this
+     small: the `1fr` tracks divide a width that is already correct, so the
+     doubled-track/half-column machinery below is untouched. When the balanced
+     count equals what fits, `--rec-width` IS the container width and these two
+     declarations do nothing at all. */
+  max-width: var(--rec-width, 100%);
+  margin-inline: auto;
 }
 .rec-card {
   /* `auto / span 2`, not the shorter `span 2`. One value would leave
@@ -1376,7 +1390,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    `pointer-events: none` because the footer's AI-call-log link stays clickable
    through the fade otherwise, and a click on something on its way out is never
    what was meant. */
-.recs__grid > .is-leaving {
+/* Scoped to `.recs` rather than to the grid, since R29 moved the metadata footer
+   out of the grid and it still has to leave with the cards it describes. */
+.recs .is-leaving {
   animation: rec-leave 0.28s var(--ease) forwards;
   pointer-events: none;
 }
@@ -1493,10 +1509,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      `backwards` — with `both`, `rec-enter`'s final `opacity: 1` would have been
      pinned on every card and they would simply have refused to dim, silently
      (D-043, same bug one property over from the transform). */
-  .recs__grid:has(.rec-card:hover) > *:not(:hover) { opacity: 0.7; }
-  /* Scoped to the grid: `.ai-meta` is shared with the verdict banner, which has
-     no spotlight and must not gain a stray transition. */
-  .recs__grid > .ai-meta { transition: opacity 0.25s var(--ease); }
+  /* The anchor is `.recs`, not `.recs__grid`, and that is R29's doing rather
+     than a tidy-up: the metadata footer moved OUT of the grid, and dimming only
+     what is left inside would leave it the single brightest thing on screen at
+     the exact moment attention is meant to be on one card — which is the whole
+     of D-049's `> *`. Two selectors now, because the footer is no longer a
+     sibling of the cards.
+     Hovering the FOOTER still dims nothing: the `:has()` tests for a hovered
+     card. */
+  .recs:has(.rec-card:hover) .rec-card:not(:hover),
+  .recs:has(.rec-card:hover) .recs__meta .ai-meta { opacity: 0.7; }
+  /* Scoped through `.recs__meta`: `.ai-meta` is shared with the verdict banner,
+     which has no spotlight and must not gain a stray transition. */
+  .recs__meta .ai-meta { transition: opacity 0.25s var(--ease); }
 }
 
 .rec-card img, .rec-card .noposter {
@@ -1599,7 +1624,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .log-link:hover { color: var(--amber-bright); }
 
 /* Placement: the recs grid is a grid, so span every column. */
-.recs__grid .ai-meta { grid-column: 1 / -1; }
+/* Was `.recs__grid .ai-meta { grid-column: 1 / -1 }` until R29 moved the footer
+   into its own slot below the grid. The grid's `gap` used to separate the two,
+   so the margin here replaces it at the same 1.1rem — put on the FOOTER and not
+   on the empty slot, so a run that produced no footer contributes nothing. */
+.recs__meta .ai-meta { margin-top: 1.1rem; }
 /* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
 .verdict__inner .ai-meta { flex: 1 0 100%; }
 

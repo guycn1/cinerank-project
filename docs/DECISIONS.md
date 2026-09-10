@@ -6,6 +6,72 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-051 · Card size comes from the viewport, never from the result count (R29)
+
+D-050 moved the recs grid's column count into JS but left the tracks filling the
+section, so the COUNT still decided the width. The user sent a screenshot of the
+consequence: one recommendation on a four-wide viewport rendered as a single
+card spanning the whole column, with a poster taller than the window. Two cards
+was the same fault, milder.
+
+**The user's rule, in their words:** *"I do not believe that a card's size should
+ever depend on how many cards returned. A better fix for the ugly unoccupied
+space in a row is to just center it all — and screw the spaces in the side
+edges: an evenly distributed space to the right of the row AND to the [left] of
+it looks far less hideous than having all that space in one side, trust me."*
+
+**That overruled Claude, and the record should say so.** Two turns earlier Claude
+had argued against exactly this shape, on the grounds that a centred grid sits
+narrower than the heading, the hint and the ranked list above it, breaking the
+page's single left margin. The user weighed that against a card stretched to
+1000px and chose the margins. They were right: the misalignment is a static
+quality of the layout, while the stretched card is a defect that gets worse the
+wider the window.
+
+**How, and the alternative that was rejected.** `balancedColumns()` became
+`balancedLayout()` and returns a width beside the count: the width from `fit`
+(the widest packing the viewport allows), the count from the balancing. The
+obvious implementation was to size each track — `repeat(2k, <half-track>)` plus
+`justify-content: center`. Rejected: it puts a computed pixel length into
+`grid-template-columns`, where D-050's doubled-track arithmetic lives, so the
+half-column offset that centres a short last row would have to be re-derived
+against it. Capping the CONTAINER instead (`max-width: var(--rec-width)` +
+`margin-inline: auto`) leaves the `1fr` tracks dividing a width that is already
+correct, so every piece of D-050 is untouched — and when the balanced count
+equals what fits, the cap IS the container width and both declarations are
+inert.
+
+**The trap, and it would have been silent.** `balancedLayout()` measures
+`grid.parentElement.clientWidth`, never `grid.clientWidth`. The grid's own width
+is what this function sets; reading it back would feed each answer into the next
+and ratchet the cards smaller on every frame of a window drag. Nothing about the
+rendered result would look wrong on the first run — it would only degrade while
+resizing, which is exactly the kind of bug that gets reported as "sometimes the
+cards go tiny".
+
+**This retires D-050's `> 1` restraint.** That restraint kept six cards at 4 + 2
+rather than 3 + 3, because balancing then made every card ~36% wider. With the
+width fixed by `fit` it cannot, so 3 + 3 is the same card and the same two rows,
+and the restraint is deleted rather than kept as dead weight.
+
+**The metadata footer moved out of the grid**, settled before building. The
+deciding fact is not obvious: `grid-column: 1 / -1` spans the TRACK LIST, not
+the container, so with the tracks capped and centred the footer would have
+shrunk to match — one card wide on a single-card run. Spanning it to the
+container would need a flexible gutter track at each end, shifting every column
+index, adding two gaps to the width arithmetic, breaking the half-column offset,
+and dropping auto-placed cards into gutters. Out of the grid it is a plain block
+underneath, full width, coupled to nothing.
+
+**The consequence of that move which was easiest to miss:** the spotlight (D-049)
+dimmed the footer only because it was a grid child — that is the whole of its
+`> *` rather than `> .rec-card`. Moving the footer out would have silently undone
+that and left it the single brightest thing on screen at the moment attention is
+meant to be on one card. The `:has()` anchor moved up to `.recs`, and the rule is
+now two selectors, scoped through `.recs__meta` so the verdict banner's own
+`.ai-meta` is untouched.
+
+---
 ## D-050 · The recs grid picks its own column count, and deliberately stops short
 
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
@@ -29,6 +95,11 @@ which is narrower than "always even the rows out", and the narrower rule is the
 one implemented: the formula runs only when the natural layout would strand a
 single card. One `> 1` in `balancedColumns()` is the whole of the difference, and
 it is commented as such, because the temptation to "finish the job" is obvious.
+> **2026-09-10:** the restraint is gone, and not because anyone finished the job
+> — its premise expired. It existed solely because balancing made every card
+> ~36% wider; R29 (D-051) decoupled card width from the count, so it cannot any
+> more, and six cards where four fit now render 3 + 3. `balancedColumns()` is
+> also now `balancedLayout()`. The paragraph stands as the reasoning at the time.
 
 **Centring a short last row needs half-column granularity, so the tracks are
 doubled and every card spans two.** This is the part most likely to be
