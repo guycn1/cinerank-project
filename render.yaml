@@ -43,9 +43,16 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
 
-      # Not a secret, so it can live here: the model both AI features route to.
+      # Not secrets, so they can live here. TWO models on purpose (D-053):
+      # recommendations run on the cheap tier, the taste verdict alone on a
+      # stronger one, after four prompt versions failed to move its register and
+      # the model turned out to be the constraint rather than the wording.
+      # Both are optional — server/config.js carries these exact defaults — and
+      # are declared here so the split is visible to anyone reading the deploy.
       - key: OPENROUTER_MODEL
         value: anthropic/claude-haiku-4.5
+      - key: OPENROUTER_VERDICT_MODEL
+        value: anthropic/claude-sonnet-5
 
       # package.json only asks for ">=20". Pinning it here means a Render-side
       # default bump can't change the runtime under us mid-submission.
