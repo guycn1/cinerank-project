@@ -36,10 +36,12 @@
  * into the render would be testing itself rather than the app. Nothing else is
  * intercepted, so the ranked list, search and the AI call log stay live.
  *
- * TO STOP: reload the page. Nothing is written to localStorage or anywhere else.
+ * TO STOP: reload the page. Nothing is written to localStorage or anywhere else,
+ * and the harness starts every page load DISARMED — loading the file only defines
+ * `debugRecs`; nothing is intercepted until you call it.
  *
- * Not a Node script despite living beside one — it is only ever pasted into a
- * browser console, so package.json's "type": "module" never applies to it.
+ * Not a Node script despite living beside one — it only ever runs in a browser,
+ * so package.json's "type": "module" never applies to it.
  */
 (() => {
   // The one host this must never run on is the public Render deployment. Every
@@ -97,7 +99,17 @@
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   };
 
-  const state = { count: 6, posters: true, delayMs: 900 };
+  // `on` is the whole difference between a tool and a trap. The fetch patch below
+  // is installed as soon as this file runs, which was harmless while the only way
+  // to run it was to paste it into a console — you paste it when you want it. It
+  // became a trap the moment the page started loading it with a <script> tag:
+  // every reload re-installed the patch, and with nothing gating it the app was
+  // permanently answering its own recommendation requests with six dummy cards.
+  // Hard refreshes and a cleared cache do not help, because nothing is cached
+  // wrongly — the tag is doing exactly what it says on every load.
+  // ARMED ONLY BY debugRecs(), so a reload really does restore normal behaviour,
+  // which is what the docs have always promised.
+  const state = { on: false, count: 6, posters: true, delayMs: 900 };
 
   function body() {
     return {
@@ -137,7 +149,7 @@
     const url = String(input && input.url ? input.url : input);
     const method = ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
 
-    if (method === 'POST' && url.includes('/api/recommendations')) {
+    if (state.on && method === 'POST' && url.includes('/api/recommendations')) {
       // A real run takes seconds. Answering instantly would hide the busy button,
       // the spinner, the progress hint and the exit animation — all of which
       // happen while the request is in flight.
@@ -157,7 +169,7 @@
     // would go looking for it on TMDB. Refused here instead, with a message that
     // says why — the button's busy → error path still runs, and the database is
     // never touched.
-    if (method === 'POST' && url.includes('/api/movies')) {
+    if (state.on && method === 'POST' && url.includes('/api/movies')) {
       let payload = {};
       try { payload = JSON.parse((init && init.body) || '{}'); } catch { /* not ours */ }
       if (Number(payload.tmdb_id) < 0) {
@@ -174,6 +186,7 @@
       console.error('debugRecs(n): n must be 1–6 (parseModelJson slices at 6).');
       return;
     }
+    state.on = true;
     state.count = count;
     if (options.posters !== undefined) state.posters = !!options.posters;
     if (options.delayMs !== undefined) state.delayMs = Number(options.delayMs) || 0;
@@ -188,5 +201,5 @@
     );
   };
 
-  console.log('debugRecs installed. Try debugRecs(4), then resize the window.');
+  console.log('debugRecs available (idle — nothing is intercepted yet). Try debugRecs(4).');
 })();

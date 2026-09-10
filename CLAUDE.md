@@ -122,6 +122,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   real film, and `POST /api/movies` for one is refused in the browser — pressing
   Add on a dummy card cannot reach the database. Reload to stop; nothing is
   persisted. Never run by Node.
+  **It starts every page load DISARMED and is armed only by calling
+  `debugRecs()`.** That flag is not decoration: the fetch patch installs the
+  moment the file runs, which was harmless while pasting into a console WAS the
+  arming, and became a trap the day the page started loading the file on every
+  request — the app spent a day answering its own recommendation calls with six
+  dummy cards, through hard refreshes and a cleared cache, because nothing was
+  cached wrongly and the tag was doing exactly what it said.
   **Two lines make it load, and both are temporary** — the
   `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
   route serving it in `server/index.js` (the file lives in `scripts/`, which is

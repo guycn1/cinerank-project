@@ -229,8 +229,13 @@
        Pre-submission blockers in CLAUDE.md.
        Loads the recommendations debug harness so debugRecs(n) is available in
        the console without pasting the file each time. It only defines that one
-       function; nothing changes until it is called, and it declines to install
-       itself on the deployed host. Deliberately BEFORE app.js so window.fetch is
+       function; nothing is intercepted until it is called, and it declines to
+       install itself on the deployed host.
+       That "until it is called" is guarded by a flag INSIDE the harness, and it
+       had to be added — for a day this tag left the app permanently serving
+       itself dummy recommendations on every load, because the file arms its
+       fetch patch the moment it runs and pasting it into a console had always
+       been the arming. Deliberately BEFORE app.js so window.fetch is
        already patched by the time anything can click. -->
   <script src="/debug-recs.js"></script>
 
