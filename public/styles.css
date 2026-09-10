@@ -1644,7 +1644,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .rec-card__body button {
   width: 100%;
-  margin-top: auto; /* pin every 'Add to my list' to the card's bottom edge */
+  margin-top: auto; /* pin every '+ Add to my list' to the card's bottom edge */
   background: var(--amber);
   color: #1a1205;
   border: none;

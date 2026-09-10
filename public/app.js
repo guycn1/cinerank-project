@@ -1525,7 +1525,17 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     btn.className = 'add-btn';
     btn.dataset.tmdbId = s.tmdb_id;
     btn.dataset.title = s.title;
-    btn.dataset.addLabel = 'Add to my list'; // R7 still owns this wording
+    // R7, settled by the user: keep the longer wording and prepend the glyph, so
+    // the rec card reads "+ Add to my list" against the search row's "+ Add".
+    // The two surfaces now share a vocabulary instead of speaking three — rest
+    // "+ Add…", busy "⟳ Adding…", settled "✓ Added" / "In your list".
+    // THE NBSP IS THE RULE, NOT A DETAIL (CLAUDE.md § Button labels): the plus is
+    // glued to "Add" with \u00A0 as an ESCAPE, never a literal character, so it
+    // cannot be mistaken for an ordinary space and tidied away. Written in the
+    // STRING because the same label renders on two surfaces and only one of them
+    // is `white-space: nowrap`. "to my list" may wrap on its spaces — that is
+    // explicitly allowed; "+" leaving "Add" is not.
+    btn.dataset.addLabel = '+\u00A0Add to my list';
     // Not a hardcoded label: an owned film gets the owned state immediately, and
     // the aria-label now comes from the one place that writes it.
     setAddButtonState(btn, state.ownedTmdbIds.has(s.tmdb_id));

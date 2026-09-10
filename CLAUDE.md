@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY done, R20 withdrawn as incorrect and nine open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-ONE done, R20 withdrawn as incorrect and eight open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1164,7 +1164,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R19 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
+   R7, R19 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1230,10 +1230,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that make them findable.
      **The shared `setAddButtonState()` did not get to decide R7 on the way
      through.** Its unowned label is now read from `btn.dataset.addLabel` (default
-     `+ Add`), so the rec card keeps `Add to my list` until the wording is
-     actually settled. The OWNED labels are shared, which is right: both surfaces
+     `+ Add`), so the rec card kept `Add to my list` until the wording was
+     settled — R7 has since done that, as `+ Add to my list`. The OWNED labels are shared, which is right: both surfaces
      should settle identically. Note the rec card's `aria-label` moved from "to my
-     list" to the shared "to your list" — the voice inconsistency is R7's to fix.
+     list" to the shared "to your list". R7 looked at that and LEFT it: each voice is
+     right where it appears — "my list" on a button the user presses, "your list"
+     when the app addresses them.
      This was the UI half of the user's duplicate-safeguard item **(user)**; the DB
      (`unique(tmdb_id)`) and API (23505 → 409) halves were already correct.
    * **R4. DONE 2026-09-09, with R3.** `addMovie()`'s catch reads
@@ -1270,14 +1272,29 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group C — copy and consistency**
 
-   * **R7. Decide the add-button label and glyph (user).** The rec card rests at
-     `Add to my list`, the search row at `+ Add`. Worse, they CONVERGE after
-     action: both settle to the glyph-glued labels via the shared `addMovie()`, so
-     the rec card's one button speaks three vocabularies. One of the two resting
-     labels should move. **Note CLAUDE.md's Frontend Design Notes overstated
-     this**: the glued `✓ Added` does reach the rec card (through `settle()`), but
-     `+ Add` does NOT — the card's resting label is built inline in
-     `renderRecommendations()` and never passes through `setAddButtonState()`.
+   * **R7. DONE 2026-09-11 — the rec card now reads `+ Add to my list`.** It
+     rested at `Add to my list` against the search row's `+ Add`, and the two
+     CONVERGED after action — both settle to the glyph-glued labels via the
+     shared `addMovie()` — so the card's one button spoke three vocabularies.
+     **The user settled it by keeping the longer wording and prepending the
+     glyph**, rather than shortening the card to match the row. Both surfaces now
+     share one vocabulary at every stage: rest `+ Add…`, busy `⟳ Adding…`,
+     settled `✓ Added` / `In your list`.
+     **The non-breaking space is the rule, not a detail** (§ Button labels): the
+     plus is glued to "Add" with a `u00A0` ESCAPE (backslash-u), never a literal
+     character, and in the STRING rather than in CSS because the label renders on
+     two surfaces and only one is `white-space: nowrap`. "to my list" may wrap on
+     its spaces — explicitly allowed; "+" leaving "Add" is not.
+     **That escape was collapsed into a literal NBSP on the first attempt and had
+     to be rebuilt without typing a backslash at all** — the tooling trap under
+     § Environment traps, now hit twice. Verified after: zero literal U+00A0
+     codepoints in `app.js`, and the label's second codepoint reads `A0` at
+     runtime.
+     **The my/your split is deliberate and stays.** The visible label says "my
+     list" (the user's voice, on a button they press); the `aria-label`, written
+     separately by `setAddButtonState()`, says `Add {title} to your list` (the
+     app addressing them). Each is right for where it appears, and the glyph
+     never reaches a screen reader.
    * **R8. DONE 2026-09-09 (D-047).** The route wrapped every cause as
      `Couldn’t generate recommendations: ${err.message}` under a comment claiming
      "never a raw dump" — and the causes are `OpenRouter unreachable
