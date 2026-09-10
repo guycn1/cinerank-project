@@ -1669,20 +1669,19 @@ button:disabled .sparkle-major { animation: none; }
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
 
-     `:has()` and NOT `.recs__grid:hover > *:not(:hover)`, which is the shorter
-     and obvious form. The grid has a 1.1rem gap that belongs to the grid but to
-     no card, so the short form would fire while the pointer merely crosses a
-     gap, dimming EVERYTHING with nothing lit — and moving between cards would
-     strobe. `:has(.rec-card:hover)` fires only when a card really is hovered.
+     `:has()` and NOT a plain `:hover` on the container, which is the shorter and
+     obvious form. The grid has a 1.1rem gap that belongs to the grid but to no
+     card, so the short form would fire while the pointer merely crosses a gap,
+     dimming EVERYTHING with nothing lit — and moving between cards would strobe.
+     `:has(.rec-card:hover)` fires only when a card really is hovered, and
+     hovering the FOOTER dims nothing at all for the same reason.
 
-     `> *` and not `> .rec-card`, so the metadata footer dims with the cards.
-     That was Claude's second objection to porting this and it turns out to be
-     one line, not a blocker: the footer is a grid CHILD, so dimming only cards
-     would leave it the single brightest thing on screen at the exact moment
-     attention is meant to be on one card. It carries the AI-call-log link, which
-     at 0.7 is still legible and still one pointer-move from full strength —
-     and hovering the FOOTER dims nothing at all, because the `:has()` tests for
-     a hovered card.
+     The footer dims WITH the cards, which was Claude's second objection to
+     porting this at all and turned out to be trivial. It carries the
+     AI-call-log link, which at 0.7 is still legible and one pointer-move from
+     full strength. (This originally read `> *` rather than `> .rec-card` on the
+     grid, because the footer was then a grid child. R29 moved it out, so it is
+     two selectors now — see the rule below.)
 
      The transition lives on `.rec-card` (and just below, for the footer), never
      here: a transition declared only in the hovered state eases in and snaps

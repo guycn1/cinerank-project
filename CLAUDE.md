@@ -1657,9 +1657,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      10px of travel under a ~300px poster card is a twitch and tuning it must not
      move the ranked list.
      The exit did not exist at all — `replaceChildren()` dropped six cards in one
-     frame — and is now `exitRecCards()`: `.is-leaving` on every grid child (the
-     metadata footer included, since it describes the run being replaced), each
-     removed on its own `animationend`.
+     frame — and is now `exitRecCards()`: `.is-leaving` on the cards and on the
+     metadata footer, since that describes the run being replaced.
+     **Two details here have moved since and are described where they changed,
+     not here:** the footer left the grid with R29, so it is swept from its own
+     slot rather than falling out of the grid's children; and R30 replaced
+     per-node removal with a single batched removal after the LAST animation
+     ends, because removing them one at a time re-flowed the grid mid-exit.
      **Built as two CSS phases, NOT as a View Transition, and this entry used to
      say the opposite.** It read "Prefer the View Transition route: it is the
      mechanism this codebase already chose for exactly this problem." That was
@@ -2384,9 +2388,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   written. Added 2026-09-09 at the user's request as a temporary but open-ended
   convenience while the recommendations UI is being worked; the user asked for
   the loading to be removed when that work is done, not the file.
-  Both lines are commented as temporary and both name this checkbox. Low risk if
-  missed — the harness declines to install on the `onrender.com` host — but a
-  debug tool wired into a submitted build is its own kind of wrong.
+  Both lines are commented as temporary and both name this checkbox. **Two
+  independent protections if it is missed, added 2026-09-11 after the tag left
+  the app permanently serving itself dummy recommendations for a day:** the
+  harness now starts every page load DISARMED and intercepts nothing until
+  `debugRecs()` is called, and it declines to install at all on the
+  `onrender.com` host. So forgetting this ships an idle function rather than a
+  hijacked app — but a debug tool wired into a submitted build is still its own
+  kind of wrong.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
@@ -2488,7 +2497,7 @@ it.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
-* The taste-verdict prompt must instruct the model to return **short plain text only** (one or two sentences, with an explicit length cap) — this is intentionally the lighter-weight of the two prompts.
+* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; this bullet said "one or two" until 2026-09-11 and would have sent a future session to shorten it back) — this is intentionally the lighter-weight of the two prompts.
 * The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 \---
