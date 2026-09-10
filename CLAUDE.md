@@ -1426,6 +1426,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      would have stayed bright while the label dimmed. The exemption the user
      granted in advance was not needed, and **"no emoji remain in rendered output
      anywhere" still holds**.
+     **Tuned once on the user's "slightly bigger and more pronounced":** `1.05em`
+     → `1.3em`, and separately the star ARMS were thickened — the waist control
+     points moved from 1.9 out to 2.6 from centre, which is what decides whether
+     it reads as a sparkle or as a thin cross at button size. Size and weight are
+     two dials and the request needed both. The paths are GENERATED from a
+     centre, a tip radius and a waist offset rather than hand-tuned, so
+     re-generate rather than nudging a number. `vertical-align` scales with the
+     size (-0.16em → -0.28em) or a taller icon rides high against the text.
      **Inline, NOT a flex container, and that is the non-obvious part.** The
      obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
      wrong here because `busyButton()` swaps the contents for a spinner plus a

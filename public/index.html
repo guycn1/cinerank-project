@@ -105,10 +105,16 @@
                three states for free. The emoji exemption granted for this one
                button was not needed.
                aria-hidden: the button already says "Get recommendations" in
-               text, so announcing a decorative mark would only add noise. -->
+               text, so announcing a decorative mark would only add noise.
+               Both paths are GENERATED, not hand-tuned: a four-point star from
+               a centre, a tip radius and a waist offset, rounded to one decimal.
+               The waist is what decides whether it reads as a sparkle or as a
+               thin cross at button size — pushing the control points out from
+               1.9 to 2.6 thickened the arms without changing the silhouette.
+               Re-generate rather than nudging a number by hand. -->
           <svg class="recs__trigger-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M10 2 Q11.2 8.4 17 10 Q11.2 11.6 10 18 Q8.8 11.6 3 10 Q8.8 8.4 10 2 Z" fill="currentColor"/>
-            <path d="M18.4 13 Q18.9 15.4 21.4 16 Q18.9 16.6 18.4 19 Q17.9 16.6 15.4 16 Q17.9 15.4 18.4 13 Z" fill="currentColor"/>
+            <path d="M9.5 1.5 Q12.1 6.9 17.5 9.5 Q12.1 12.1 9.5 17.5 Q6.9 12.1 1.5 9.5 Q6.9 6.9 9.5 1.5 Z" fill="currentColor"/>
+            <path d="M18.4 12.8 Q20 15.8 23 17.4 Q20 19 18.4 22 Q16.8 19 13.8 17.4 Q16.8 15.8 18.4 12.8 Z" fill="currentColor"/>
           </svg>
           Get recommendations
         </button>

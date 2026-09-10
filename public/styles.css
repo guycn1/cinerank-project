@@ -1273,8 +1273,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    contents for a spinner plus a label that already begins with a non-breaking
    space, so a flex `gap` would sit on top of that space and make the busy state
    wider than the resting one. Following the search button's pattern keeps both
-   states spaced identically. */
-.recs__trigger-icon { width: 1.05em; height: 1.05em; vertical-align: -0.16em; }
+   states spaced identically.
+   1.3em, up from 1.05 — the user asked for bigger and more pronounced, and both
+   halves matter: the size is here, the WEIGHT is in the paths (see index.html,
+   where the arms were thickened at the waist). The `vertical-align` scales with
+   it, -0.16em to -0.28em, or a taller icon sits high against the text. */
+.recs__trigger-icon { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is
