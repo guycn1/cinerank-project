@@ -6,6 +6,55 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-052 · `--ink-faint` stays below WCAG AA, on purpose
+
+Claude flagged that `--ink-faint` (#6b6760) measured **3.49:1** on the page and
+**3.11:1** on a card — under AA's 4.5 for normal text, and `.no-review` and
+`.score-tmdb.is-muted` are normal-size text on a card. The user asked for it to
+be brightened, with one constraint: *"its brightness should still be closer to
+how it is right now than to `--ink-dim`; the difference between 'faint' and 'dim'
+should remain noticeable."*
+
+**Claude picked the brightest value satisfying that constraint — #868178, AA
+clear on both grounds at 5.07 / 4.51 — and the user rejected it on sight:**
+*"as I feared, 'faint' is now almost indistinguishable from 'dim'."*
+
+**They were right, and the measurement says why Claude missed it.** Every ratio
+in the first pass was taken against a BACKGROUND, because that is what AA is
+defined against. But the thing at risk was never legibility against the page —
+it was the distinction between two type tiers, and that is decided by their
+contrast with **each other**:
+
+| | vs `--ink-dim` | on `--bg` | on a card |
+|---|---|---|---|
+| `#6b6760` original | **2.09** | 3.49 | 3.11 |
+| `#868178` AA-clearing | **1.44** | 5.07 | 4.51 |
+| `#76716a` shipped | **1.79** | 4.06 | 3.61 |
+
+Clearing AA cost **31% of the separation** the token exists to draw. Claude had
+optimised a number it was measuring and damaged one it was not.
+
+**So the app knowingly ships two tokens below AA.** `#76716a` keeps 1.79 of the
+original 2.09 while still lifting the floor (3.49 → 4.06, 3.11 → 3.61). Not a
+shrug at accessibility, and not a decision to re-open with a contrast audit:
+
+*The mitigation is the tier above it.* R26 and D-051 moved every line that is
+the **only thing on its surface** up to `--ink-dim` (7.28:1) — the availability
+sentences, all five zero-result messages, the failure line, the empty ranked
+list. What remains on `--ink-faint` sits beside content that carries the
+meaning: `No TMDB rating` next to a title, a poster and a score; `Based on: …`
+directly above the cards it introduces; the metadata footer under the result it
+describes. None of it is the sole carrier of anything.
+
+*And the alternative was worse for the same users.* Two tiers that read as one
+is not an accessibility win — it removes a signal from everybody, including the
+people the contrast rule is written for.
+
+**The transferable lesson, which is the reason this is logged at all:** when a
+token's job is to be *quieter than another token*, contrast against the
+background is not the whole specification. Measure the pair.
+
+---
 ## D-051 · Card size comes from the viewport, never from the result count (R29)
 
 D-050 moved the recs grid's column count into JS but left the tracks filling the
