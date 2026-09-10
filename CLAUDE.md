@@ -1800,6 +1800,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      node is a no-op. `RECS_EXIT_MS` exists only so that backstop knows the
      duration, and **must stay in step with the `animation` on
      `.rec-card.is-leaving`**; both places say so.
+     **What happens when a response beats the exit — analysed 2026-09-10, and
+     deliberately NOT changed.** The exit starts on the click and takes 0.94s for
+     six cards; the request runs concurrently. If it comes back sooner,
+     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so the
+     cards still closing are detached mid-animation. Traced rather than guessed:
+     * **Nothing is corrupted.** `leaving` is a snapshot array, so the batched
+       removal and its backstop can only ever touch the OLD nodes — a stale
+       backstop firing after the new cards exist calls `remove()` on detached
+       nodes, which is a no-op. A detached element's animation stops, so
+       `pending` never reaches zero and the backstop is what cleans up. No leak.
+     * **Only a fast SUCCESS cuts anything.** The catch branch never touches the
+       grid (verified), so a failure — including a fast one like the
+       below-threshold 422 — leaves the cards to finish closing properly.
+     * **The cost is visual and it is real.** At a 400ms response the first two
+       cards are 100% and 73% closed, but cards 4–6 have barely started and blink
+       out at full size in a single frame.
+     **Left alone on purpose.** The alternative is making the render wait for the
+     exit, and that inverts R27's own priority — the scroll and the entrance are
+     the reward for a RESULT, so delaying a result to finish an animation about
+     the previous one is the wrong trade. It also puts an await in front of the
+     `finally` that restores the busy button. In production this is close to
+     unreachable: the run is an AI call plus six TMDB verifications, seconds not
+     milliseconds. It IS trivially reproducible with `debugRecs(6, { delayMs:
+     300 })`, so if it is ever seen it will be seen there first, and this
+     paragraph is why it is not a bug report.
      Also fixed in passing: the reduced-motion branch of `exitRecCards()` cleared
      the grid but not `#recs-meta`, so a motion-sensitive user kept the previous
      run's metadata footer on screen. That gap arrived with R29 an hour earlier.
