@@ -730,6 +730,7 @@ async function loadMovies() {
   // the two snapshots. None of them reads DOM that renderRanked() builds — they
   // read `state`, which is already updated above — so the order is free.
   syncAddButtons();
+  syncRecCardBadges();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
   refreshRanked();
@@ -853,6 +854,29 @@ function setAddButtonState(btn, owned) {
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
   );
   btn.disabled = owned;
+}
+
+/**
+ * Keep every rec card's badge true (R17).
+ *
+ * `.rec-card::before` reads "AI pick · not yet rated", and the second half stops
+ * being true as soon as the user acts on the card: adding from a rec card opens
+ * the rate dialog, so the very flow the button invites is the one that falsifies
+ * the badge behind it. The card then contradicted the ranked list, where the
+ * same film now showed a score.
+ *
+ * Rated-ness is read from `state.movies`, not from `state.ownedTmdbIds` — owned
+ * and rated are different questions, and conflating them is exactly the bug R2
+ * fixed on the server. A film can be added and left unrated indefinitely
+ * ("Skip for now"), and the badge is correct for that whole time.
+ */
+function syncRecCardBadges() {
+  const rated = new Set(
+    state.movies.filter((m) => m.rating != null).map((m) => m.tmdb_id),
+  );
+  el.recsGrid.querySelectorAll('.rec-card').forEach((card) => {
+    card.classList.toggle('is-rated', rated.has(Number(card.dataset.tmdbId)));
+  });
 }
 
 /**
@@ -1202,6 +1226,22 @@ function syncRecommendationsAvailability() {
     state.recsHintFromRun = false; // availability takes the element back (R1)
     el.recsHint.classList.remove('err');
     setRecsHint(`Rate at least ${need} movies to unlock recommendations (you have ${have}).`);
+    // R16. Remove rated films until the count falls under the threshold and the
+    // section locks — but the previous run's cards used to stay on screen, so
+    // "Rate at least 3 movies to unlock recommendations" sat directly above six
+    // recommendations. The section has exactly ONE message channel (this hint),
+    // and the availability text has just taken it, so there is no room to
+    // caption the cards as a past run without either overloading the single
+    // writer or inventing a second element. Clearing them is what makes the
+    // locked section look locked, which is the state a first-time user sees.
+    //
+    // NOT because they went stale — that would be a different rule and a wrong
+    // one. Recs go stale on ANY rating change, and we deliberately leave them
+    // alone then; what is being fixed here is a section contradicting itself.
+    // The metadata footer goes too: it describes a run whose inputs no longer
+    // clear the bar.
+    el.recsGrid.replaceChildren();
+    el.recsMeta.replaceChildren();
   } else if (!state.recsHintFromRun) {
     el.recsHint.classList.remove('err');
     setRecsHint(`Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`);
@@ -1491,10 +1531,36 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     return;
   }
   // caption: the cards are right underneath it.
-  setRecsHint(`Based on: ${meta.basedOn.join(', ')}.`, { caption: true });
+  //
+  // R22. `#recs-hint` is this section's only live region, so it is the whole of
+  // what a screen reader hears about a run. Re-checked once R1 stopped the
+  // availability sync wiping it, and the three outcomes were not equal: a
+  // FAILURE announces its message and an EMPTY run announces why it was empty,
+  // but a SUCCESS announced "Based on: Dune, Heat, Arrival." and never mentioned
+  // that six recommendations had arrived. The one outcome that produced content
+  // was the one that described only its input.
+  // The count goes in a visually-hidden span rather than into the visible copy,
+  // which the user settled and which reads correctly for someone who can see the
+  // cards. Announcing the CARDS instead was rejected: six live-region updates
+  // per run is noise, and the hint is already the established channel.
+  const shown = suggestions.length;
+  const heard = document.createElement('span');
+  heard.className = 'sr-only';
+  heard.textContent = ` ${shown} recommendation${shown === 1 ? '' : 's'} below.`;
+  setRecsHint(
+    [document.createTextNode(`Based on: ${meta.basedOn.join(', ')}.`), heard],
+    { caption: true },
+  );
   suggestions.forEach((s, i) => {
-    const card = document.createElement('div');
+    // `li`, not `div` (R21) — the grid is a `ul` now. Nothing else about the
+    // card changes: a list item is still a grid item, and every rule targets
+    // `.rec-card` rather than the tag.
+    const card = document.createElement('li');
     card.className = 'rec-card';
+    // Stamped on the CARD as well as its button, so syncRecCardBadges() can tell
+    // whether this film is rated without depending on the button still being
+    // there or still carrying the id (R17).
+    card.dataset.tmdbId = s.tmdb_id;
     // The lead-in lives in `animationDelay`, NOT in a setTimeout — there is no
     // timer to leak or cancel if a second run starts. This works only because
     // the CSS fill is `backwards`: each card holds the from-state (invisible,
@@ -1545,6 +1611,11 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     el.recsGrid.append(card);
   });
   el.recsMeta.replaceChildren(aiMetaFooter(meta));
+  // Cards are built in the not-yet-rated state, which is correct by construction
+  // today — R2's owned filter means a film already in the list can never be
+  // recommended back, rated or not. Called anyway so the badge's accuracy rests
+  // on `state.movies` alone rather than on a server-side filter staying correct.
+  syncRecCardBadges();
   // Same synchronous task as the appends above, so the browser never paints a
   // frame at the CSS fallback column count.
   layoutRecsGrid();

@@ -81,7 +81,12 @@
         <h2>Your ranking</h2>
         <span class="ranked__count" id="ranked-count"></span>
       </div>
-      <ol class="ranked__list" id="ranked-list"></ol>
+      <!-- role="list" for the same reason as the recs grid: `.ranked__list` is
+           `list-style: none`, so Safari/VoiceOver drops the list semantics this
+           element was chosen for. Found while doing R21 next door — fixing the
+           semantics on one list and leaving the identical gap on the other
+           would have been worse than not looking. -->
+      <ol class="ranked__list" id="ranked-list" role="list"></ol>
       <p class="ranked__empty" id="ranked-empty" hidden>
         No movies yet — search for one above to get started.
       </p>
@@ -96,7 +101,12 @@
         </button>
       </div>
       <p class="recs__hint" id="recs-hint" role="status" aria-live="polite"></p>
-      <div class="recs__grid" id="recs-grid"></div>
+      <!-- R21. A `ul` of `li`, not a div of divs: six cards used to announce as
+           unstructured content, where the ranked list beside it has always been
+           a proper list. `role="list"` is NOT redundant — `list-style: none`
+           strips list semantics in Safari/VoiceOver, which is precisely the
+           browser a user would hit this in. -->
+      <ul class="recs__grid" id="recs-grid" role="list"></ul>
       <!-- The AI metadata footer's own slot, deliberately OUTSIDE the grid (R29).
            It used to be a grid child spanning `1 / -1`, which was fine while the
            tracks filled the section. They no longer do — the grid is capped to

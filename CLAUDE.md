@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-ONE done, R20 withdrawn as incorrect and eight open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-FIVE done, R20 withdrawn as incorrect and four open; the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -172,7 +172,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
   `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
-  heading fixed h4→h3 (correct nesting under the section's h2), decorative
+  heading fixed h4→h3 (correct nesting under the section's h2), the recs grid a
+  `<ul>` of `<li>`s with an explicit `role="list"` on it and on the ranked `<ol>`
+  (R21 — `list-style: none` makes Safari/VoiceOver drop list semantics), a
+  `.sr-only` span in the recs hint naming how many recommendations arrived, since
+  that live region is all a screen reader hears about a run (R22), decorative
   spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
   backlog #10 — a bare selector, so anything focusable added later is covered
   without being remembered; `.search input` is the one deliberate exception, see
@@ -1164,7 +1168,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R7, R19 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
+   R7, R16, R17, R19, R21, R22 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1416,13 +1420,38 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
      D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
      fiddly — the user granted that in advance. Do not spend hours on it.**
-   * **R16. Stale cards outlive their own precondition.** Remove films until the
-     rated count drops below 3 and the trigger correctly disables — but the grid
-     of previously generated cards stays on screen, now unreachable and
-     unrefreshable. Decide: clear it, or caption it as a past run.
-   * **R17. The `AI pick · not yet rated` badge can become false.** Adding from a
-     rec card opens the rate dialog; rate the film and the card behind it still
-     asserts "not yet rated". Small, but it is a factual claim in the UI.
+   * **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
+     Remove rated films until the count falls under the threshold: the trigger
+     correctly disabled and the hint correctly said "Rate at least 3 movies to
+     unlock recommendations", directly above six recommendations. The grid and
+     the metadata footer are now cleared in the same branch that writes that
+     text.
+     **Cleared rather than captioned as a past run, and the reason is
+     structural:** the section has exactly ONE message channel — `#recs-hint` —
+     and the availability text has just taken it (R1), so captioning would mean
+     either overloading the single writer or inventing a second element, which is
+     disproportionate for a state reached only by removing films below the bar.
+     **NOT because the cards went stale — that would be a different rule and a
+     wrong one.** Recs go stale on ANY rating change and we deliberately leave
+     them alone then. What is fixed here is a section contradicting itself.
+   * **R17. DONE 2026-09-11 — the badge stops asserting something it can no
+     longer know.** `.rec-card::before` claims two things and only one survives
+     being acted on: "AI pick" is true forever, "not yet rated" stops being true
+     the moment the film is added and rated — and adding from a rec card OPENS
+     the rate dialog, so the flow the button invites is the one that falsifies
+     the badge behind it.
+     The false half is dropped, not the whole badge: `.rec-card.is-rated::before`
+     reads `AI pick`. The provenance marker is why the element exists (SPEC § 3.2
+     asks for one) and it is still accurate.
+     **Rated-ness is read from `state.movies`, never from `state.ownedTmdbIds`** —
+     owned and rated are different questions, and conflating them is precisely
+     the bug R2 fixed on the server. A film can sit added-but-unrated
+     indefinitely via "Skip for now", and the badge is correct for all of it.
+     `syncRecCardBadges()` runs from `loadMovies()` and again at the end of
+     `renderRecommendations()` — the second call is redundant today, since R2's
+     owned filter means a rated film can never be recommended back, and it is
+     there so the badge rests on `state.movies` alone rather than on a
+     server-side filter staying correct.
    * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
      that run to three or four on a phone**, so the grid jumps as the hint
      changes. Low severity: the busy string and the resting string are close in
@@ -1456,13 +1485,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      source of truth. **Found by grepping for `api/config` after writing the
      item** — the original claim came from grepping only `state.cfg`, which showed
      the reads and the literals but not the assignment that overwrites them.
-   * **R21. The recs grid is a `<div>` of `<div>`s** while the ranked list is a
-     proper `<ol>`. Six cards announce as unstructured content to a screen reader.
-     Cheap, and it matches the section it sits beside.
-   * **R22. `#recs-hint` is the section's only live region** (`role="status"`), and
-     R1 means what it announces after a run is the generic idle hint. Once R1 is
-     fixed, re-check what a screen reader actually hears for all three outcomes —
-     that is the entire point of the live region.
+   * **R21. DONE 2026-09-11 — the recs grid is a `<ul>` of `<li>`s.** It was a
+     div of divs, so six cards announced as unstructured content while the ranked
+     list beside it had always been a proper `<ol>`. Nothing else changed: a list
+     item is still a grid item, and every rule targets `.rec-card` rather than
+     the tag (checked — no selector in the stylesheet names a tag here).
+     **`role="list"` is not redundant belt-and-braces.** `list-style: none` makes
+     Safari/VoiceOver drop list semantics entirely, which is the exact
+     combination this fix would otherwise land in.
+     **The ranked list had the same latent gap and got the same attribute.** It
+     is `list-style: none` too, so its `<ol>` was already losing the semantics it
+     was chosen for. Out of scope on paper, but fixing one list and leaving the
+     identical hole in the one next door would have been worse than not
+     looking.
+   * **R22. DONE 2026-09-11 — the one outcome that produced content was the one
+     that described only its input.** Re-checked all three now that R1 has stopped
+     the availability sync wiping the hint in the same tick. A FAILURE announces
+     its message and an EMPTY run announces why it was empty — both fine. A
+     SUCCESS announced `Based on: Dune, Heat, Arrival.` and never mentioned that
+     six recommendations had arrived.
+     Fixed by appending a `.sr-only` span to that hint: `N recommendation(s)
+     below.` The visible copy is untouched, because it is what the user settled
+     and it reads correctly for anyone who can see the cards.
+     **Announcing the CARDS instead was rejected** — six live-region updates per
+     run is noise, and the hint is the channel this section already has. A new
+     `.sr-only` utility came with it (the app had none), using
+     `clip-path: inset(50%)` and `white-space: nowrap` so no engine reads it a
+     letter per line.
 
    **Group F — found while fixing the above (added 2026-09-09)**
 

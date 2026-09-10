@@ -1339,6 +1339,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    is in `balancedLayout()` in app.js. (It was `balancedColumns()`, returning a
    count alone, until R29 made the width its business too.) */
 .recs__grid {
+  list-style: none; /* R21 — it is a `ul` now; `role="list"` keeps the semantics */
   display: grid;
   /* The narrowest a card may be, and the single source of truth for it: JS reads
      this property to work out how many columns actually fit. It no longer
@@ -1608,6 +1609,17 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      which has no spotlight and must not gain a stray transition. */
   .recs__meta .ai-meta { transition: opacity 0.25s var(--ease); }
 }
+
+/* R17. The badge asserts two things and only one of them survives being acted
+   on: "AI pick" stays true forever, "not yet rated" stops being true the moment
+   the user adds the film and rates it — which is the FIRST thing the card
+   invites them to do, since adding opens the rate dialog. The card behind the
+   dialog then sat there contradicting the ranked list.
+   The false half is dropped rather than the whole badge: the provenance marker
+   is the reason this element exists (SPEC § 3.2 asks for a marker distinguishing
+   AI-suggested cards), and it is still accurate. `.is-rated` is toggled by
+   syncRecCardBadges(). */
+.rec-card.is-rated::before { content: 'AI pick'; }
 
 .rec-card img, .rec-card .noposter {
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
@@ -2539,6 +2551,24 @@ body:has(dialog[open]) { overflow: hidden; }
   animation: spin 0.7s linear infinite;
   vertical-align: -0.15em;
 }
+/* Announced, never seen (R22). The recs hint is the section's only live region,
+   so anything a screen reader needs to hear about a run has to reach THAT
+   element — the cards themselves are not announced and should not be, six at a
+   time. `clip-path: inset(50%)` rather than the older `clip: rect(...)`, and
+   `white-space: nowrap` so a long string cannot be collapsed to a single
+   character column and read out one letter per line by some engines. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
