@@ -20,6 +20,7 @@ const el = {
   recsHint: $('#recs-hint'),
   recsGrid: $('#recs-grid'),
   recsHead: $('#recs-head'), // R27's scroll target — see renderRecommendations
+  recsMeta: $('#recs-meta'), // the AI meta footer's slot, outside the grid (R29)
   rateDialog: $('#rate-dialog'),
   rateForm: $('#rate-form'),
   rateTitle: $('#rate-title'),
@@ -173,6 +174,21 @@ const EAGER_POSTERS = 3;
  * rows, recommendation cards) keep `lazy` without being touched: neither is ever
  * part of the first paint, which is the only place the distinction matters.
  */
+/**
+ * The AI sparkle, cloned from its `<template>` (see index.html).
+ *
+ * Cloned rather than written into each button, because it now appears on BOTH
+ * AI triggers and two copies of a generated path is the shape that gets
+ * regenerated in one place and not the other. Same reason `.noposter` is a
+ * template — and the same reason `<use href>`, the usual sprite answer, is not
+ * used here: `<use>` puts its content in a shadow tree that document CSS cannot
+ * select into, and only the LARGE star is meant to twinkle. A clone is real DOM,
+ * so `.sparkle-major` still matches.
+ */
+function sparkleNode() {
+  return $('#ai-sparkle').content.firstElementChild.cloneNode(true);
+}
+
 function posterNode(url, title, { eager = false } = {}) {
   if (url) {
     const img = document.createElement('img');
@@ -729,6 +745,7 @@ async function loadMovies() {
   // the two snapshots. None of them reads DOM that renderRanked() builds — they
   // read `state`, which is already updated above — so the order is free.
   syncAddButtons();
+  syncRecCardBadges();
   syncRecommendationsAvailability();
   syncVerdictAvailability();
   refreshRanked();
@@ -852,6 +869,29 @@ function setAddButtonState(btn, owned) {
     owned ? `${title} is already in your list` : `Add ${title} to your list`,
   );
   btn.disabled = owned;
+}
+
+/**
+ * Keep every rec card's badge true (R17).
+ *
+ * `.rec-card::before` reads "AI pick · not yet rated", and the second half stops
+ * being true as soon as the user acts on the card: adding from a rec card opens
+ * the rate dialog, so the very flow the button invites is the one that falsifies
+ * the badge behind it. The card then contradicted the ranked list, where the
+ * same film now showed a score.
+ *
+ * Rated-ness is read from `state.movies`, not from `state.ownedTmdbIds` — owned
+ * and rated are different questions, and conflating them is exactly the bug R2
+ * fixed on the server. A film can be added and left unrated indefinitely
+ * ("Skip for now"), and the badge is correct for that whole time.
+ */
+function syncRecCardBadges() {
+  const rated = new Set(
+    state.movies.filter((m) => m.rating != null).map((m) => m.tmdb_id),
+  );
+  el.recsGrid.querySelectorAll('.rec-card').forEach((card) => {
+    card.classList.toggle('is-rated', rated.has(Number(card.dataset.tmdbId)));
+  });
 }
 
 /**
@@ -1201,6 +1241,22 @@ function syncRecommendationsAvailability() {
     state.recsHintFromRun = false; // availability takes the element back (R1)
     el.recsHint.classList.remove('err');
     setRecsHint(`Rate at least ${need} movies to unlock recommendations (you have ${have}).`);
+    // R16. Remove rated films until the count falls under the threshold and the
+    // section locks — but the previous run's cards used to stay on screen, so
+    // "Rate at least 3 movies to unlock recommendations" sat directly above six
+    // recommendations. The section has exactly ONE message channel (this hint),
+    // and the availability text has just taken it, so there is no room to
+    // caption the cards as a past run without either overloading the single
+    // writer or inventing a second element. Clearing them is what makes the
+    // locked section look locked, which is the state a first-time user sees.
+    //
+    // NOT because they went stale — that would be a different rule and a wrong
+    // one. Recs go stale on ANY rating change, and we deliberately leave them
+    // alone then; what is being fixed here is a section contradicting itself.
+    // The metadata footer goes too: it describes a run whose inputs no longer
+    // clear the bar.
+    el.recsGrid.replaceChildren();
+    el.recsMeta.replaceChildren();
   } else if (!state.recsHintFromRun) {
     el.recsHint.classList.remove('err');
     setRecsHint(`Uses your top ${state.cfg.topN} rated films as taste signal. Every pick is verified against TMDB.`);
@@ -1288,6 +1344,20 @@ const EMPTY_REASON_TEXT = {
  */
 const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
 const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
+// Raised 55ms -> 120ms after the user reported the cards were "exiting at the
+// same time". The stagger was real; it was just too small to see against a
+// 340ms animation, and the easing was hiding the rest of it (see the
+// `.rec-card.is-leaving` comment — `--ease` front-loads 67% of the move into
+// the first fifth). Now the same value as the entrance's stagger, which is not
+// a coincidence worth collapsing into one constant: the two should stay
+// independently tunable, because the entrance is the half the user asked to be
+// able to watch and the exit only has to be legible.
+// Six cards come to 0.34s + 5x120ms = 0.94s, still inside any real AI call.
+const RECS_EXIT_STAGGER_MS = 120;
+// Must match the `animation` duration on `.rec-card.is-leaving`. Read only by
+// the removal backstop below, which needs to know when the last card is done —
+// the animation itself is driven entirely by CSS.
+const RECS_EXIT_MS = 340;
 
 /**
  * How many cards per row, so the last row is never left nearly empty.
@@ -1297,39 +1367,54 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
  * 4 + 1. Both look broken at widths where 2 + 2 and 3 + 2 fit perfectly well
  * (user-raised, 2026-09-09).
  *
- * The fix is the standard balanced-rows formula — how many rows does the widest
- * layout need, then spread the cards evenly over exactly that many — but it is
- * applied ONLY when the widest layout would strand a single card. That
- * restraint is the user's rule, not a simplification of it: "avoid rows with
- * only 1 card unless it really has no choice."
+ * The fix is the standard balanced-rows formula: how many rows does the widest
+ * layout need, then spread the cards evenly over exactly that many. It can never
+ * make the grid TALLER, since the row count comes from the widest layout. Where
+ * nothing better exists it changes nothing — 5 cards in a 2-column viewport
+ * stays 2 + 2 + 1, 3 cards in a 2-column one stays 2 + 1.
  *
- * The distinction bites in exactly one case, and it is the commonest one. Six
- * cards where four fit is 4 + 2, which strands nothing; balancing it anyway
- * would give 3 + 3, a tidier split but one that makes every card ~36% wider and
- * the whole section markedly taller. That is a redesign, not a fix, so it is
- * left alone. Change `> 1` here if a fuller row is ever wanted instead.
+ * A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK (R29). That is why this
+ * returns a width as well as a count: the width comes from `fit`, the widest
+ * packing the viewport allows, and the count comes from the balancing. One
+ * recommendation on a four-wide viewport is one card of the SAME size as any
+ * other, centred, with the slack split evenly either side — not one card
+ * stretched across the whole column with a poster taller than the window, which
+ * is what filling the tracks produced (user-raised, with a screenshot).
  *
- * It can never make the grid TALLER: the balanced count is derived from the row
- * count the widest layout already needed. Where nothing better exists it changes
- * nothing — 5 cards in a 2-column viewport stays 2 + 2 + 1, 3 cards in a
- * 2-column one stays 2 + 1. Those are the "no choice" cases.
+ * That decoupling is also what let the balancing lose an earlier restraint.
+ * It used to run only when the widest layout would strand a SINGLE card, so
+ * six cards where four fit stayed 4 + 2 rather than 3 + 3 — because balancing
+ * it then made every card ~36% wider. It no longer can, so 3 + 3 is free and
+ * the restraint is gone. See D-051.
  *
  * Reads `--rec-min` and the real `column-gap` off the element instead of
  * repeating them here. The stylesheet owns both numbers; a copy in JS is the
  * shape that goes stale the first time someone changes the CSS.
  */
-function balancedColumns(count, grid) {
+function balancedLayout(count, grid) {
   const cs = getComputedStyle(grid);
   const gap = parseFloat(cs.columnGap) || 0;
   const min = parseFloat(cs.getPropertyValue('--rec-min')) || 190;
+  const max = parseFloat(cs.getPropertyValue('--rec-max')) || 250;
+  const avail = grid.parentElement.clientWidth;
   // The +gap on both sides is the standard "n items need n-1 gaps" rearrangement:
   // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
-  const fit = Math.max(1, Math.floor((grid.clientWidth + gap) / (min + gap)));
-  const widest = Math.min(count, fit);
-  // `|| widest` because a remainder of 0 means the last row is full, not empty.
-  const stranded = count % widest || widest;
-  if (stranded > 1) return widest;
-  return Math.ceil(count / Math.ceil(count / widest));
+  const fit = Math.max(1, Math.floor((avail + gap) / (min + gap)));
+  // The card size, fixed by the viewport alone. Measured off the PARENT, never
+  // off the grid itself: the grid's own width is what this function sets, so
+  // reading it back would feed the last answer into the next one and ratchet the
+  // cards smaller on every resize frame.
+  //
+  // The cap is what stops a card growing TALL, which is the form the problem
+  // actually takes: the poster is `aspect-ratio: 2/3`, so every pixel of extra
+  // width costs 1.5 of height. Each time `fit` drops by one the surviving cards
+  // inherit the space, and at one-per-row that put a ~585px poster on an 869px
+  // window (user-raised, with screenshots either side of all three boundaries).
+  // Capping only ever SHRINKS a card, so it can never let more of them fit and
+  // `fit` above stays correct.
+  const width = Math.min((avail - (fit - 1) * gap) / fit, max);
+  const cols = Math.ceil(count / Math.ceil(count / Math.min(count, fit)));
+  return { cols, width };
 }
 
 /**
@@ -1340,8 +1425,14 @@ function balancedColumns(count, grid) {
 function layoutRecsGrid() {
   const cards = [...el.recsGrid.querySelectorAll('.rec-card')];
   if (!cards.length) return;
-  const cols = balancedColumns(cards.length, el.recsGrid);
+  const { cols, width } = balancedLayout(cards.length, el.recsGrid);
+  const gap = parseFloat(getComputedStyle(el.recsGrid).columnGap) || 0;
   el.recsGrid.style.setProperty('--rec-tracks', cols * 2);
+  // Cap the grid to exactly the room `cols` cards need, and let its auto margins
+  // centre what is left over. Capping the CONTAINER rather than sizing each
+  // track keeps `1fr` doing the arithmetic: the tracks divide a width that is
+  // already correct, so the doubled-track/half-column machinery is untouched.
+  el.recsGrid.style.setProperty('--rec-width', `${cols * width + (cols - 1) * gap}px`);
 
   // Tracks are doubled (see the CSS), so a card starting one track late is
   // offset by HALF a card — which is exactly what centring a short row needs.
@@ -1371,7 +1462,10 @@ function layoutRecsGrid() {
  * run that is being replaced, so it is just as stale.
  */
 function exitRecCards() {
-  const leaving = [...el.recsGrid.children];
+  // The metadata footer leaves with the cards — it describes the run being
+  // replaced — but it no longer lives in the grid (R29), so it is swept from its
+  // own slot rather than falling out of `el.recsGrid.children` for free.
+  const leaving = [...el.recsGrid.children, ...el.recsMeta.children];
   if (!leaving.length) return;
   // The reduced-motion block sets `animation: none !important`, so no animation
   // runs and `animationend` NEVER fires — a listener-driven removal would leave
@@ -1380,21 +1474,60 @@ function exitRecCards() {
   // anyway: no motion asked for, no motion given.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     el.recsGrid.replaceChildren();
+    el.recsMeta.replaceChildren();
     return;
   }
+  // EVERY NODE IS REMOVED TOGETHER, WHEN THE LAST ANIMATION ENDS — never one at
+  // a time as each finishes, which is what this did first and what made the
+  // whole thing read as flashing.
+  //
+  // A `transform` does not affect layout, so a card that is mid-close still
+  // occupies its grid cell and nothing moves. Removing it DOES: the grid
+  // re-flows, every surviving card slides into the cell before it, and when the
+  // count crosses a row boundary the grid loses a row and everything below jumps
+  // up by a whole card height. With a stagger that happens five times in under a
+  // second, so the cards still closing are being yanked between positions while
+  // they close. A screenshot mid-exit showed card 3 alone in the top row while 4,
+  // 5 and 6 sat a full row lower, all at different scales — six cards animating
+  // in place, on a layout that would not hold still underneath them.
+  // Batching the removal makes the exit layout-static from first frame to last.
+  let pending = leaving.length;
+  const removeAll = () => { for (const n of leaving) n.remove(); };
   for (const node of leaving) {
     node.classList.add('is-leaving');
     node.addEventListener('animationend', (e) => {
       // `animationend` bubbles. Nothing inside a card fires one today (an Add
       // button's spinner is `infinite`, and infinite animations never end), but
       // a child animation added later must not take the whole card with it.
-      if (e.target === node) node.remove();
+      if (e.target !== node) return;
+      if (--pending === 0) removeAll();
     });
   }
-  // No timeout backstop, and none is needed: if the response lands before these
-  // finish, renderRecommendations' own replaceChildren() detaches them and the
-  // listeners go with them. New content winning over a half-faded old card is
-  // the correct outcome, not a leak.
+  // The cards close one after another, in the order they arrived (R30).
+  //
+  // WRITING THIS DELAY IS NOT OPTIONAL, even for a zero stagger. Every card is
+  // still carrying the INLINE `animationDelay` its entrance was given — up to
+  // 400 + 5x120 = 1000ms — and `animation-delay` is one property shared by
+  // whichever animation is running. Leave it alone and the last card sits
+  // untouched for a second before it starts to close, which looks like a hang
+  // rather than a bug and would be miserable to track down.
+  //
+  // Only the cards are staggered. The footer fades from the same instant, so
+  // the section's metadata is already going while the first card is still
+  // closing — it describes the run being replaced, not any one card.
+  el.recsGrid.querySelectorAll('.rec-card').forEach((card, i) => {
+    card.style.animationDelay = `${i * RECS_EXIT_STAGGER_MS}ms`;
+  });
+  el.recsMeta.querySelectorAll('.ai-meta').forEach((f) => { f.style.animationDelay = '0ms'; });
+  // ONE backstop, and batching is what earns it. While each node removed itself,
+  // an animation that never ended stranded that node alone; now it would strand
+  // the whole set, because the count would never reach zero. This is a safety
+  // net rather than the mechanism — it is not cancelled and does not need to be,
+  // since `remove()` on an already-detached node is a no-op, which is also what
+  // happens when the response lands first and renderRecommendations'
+  // `replaceChildren()` gets there before the animations do.
+  const longest = (leaving.length - 1) * RECS_EXIT_STAGGER_MS + RECS_EXIT_MS;
+  setTimeout(removeAll, longest + 250);
 }
 
 function renderRecommendations({ suggestions, emptyReason, meta }) {
@@ -1409,14 +1542,40 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     // that showed no cost, tokens or duration anywhere.
     // It also carries logLink() already, which is why the message above does NOT
     // get a log link of its own — that would put two on one line.
-    el.recsGrid.append(aiMetaFooter(meta));
+    el.recsMeta.replaceChildren(aiMetaFooter(meta));
     return;
   }
   // caption: the cards are right underneath it.
-  setRecsHint(`Based on: ${meta.basedOn.join(', ')}.`, { caption: true });
+  //
+  // R22. `#recs-hint` is this section's only live region, so it is the whole of
+  // what a screen reader hears about a run. Re-checked once R1 stopped the
+  // availability sync wiping it, and the three outcomes were not equal: a
+  // FAILURE announces its message and an EMPTY run announces why it was empty,
+  // but a SUCCESS announced "Based on: Dune, Heat, Arrival." and never mentioned
+  // that six recommendations had arrived. The one outcome that produced content
+  // was the one that described only its input.
+  // The count goes in a visually-hidden span rather than into the visible copy,
+  // which the user settled and which reads correctly for someone who can see the
+  // cards. Announcing the CARDS instead was rejected: six live-region updates
+  // per run is noise, and the hint is already the established channel.
+  const shown = suggestions.length;
+  const heard = document.createElement('span');
+  heard.className = 'sr-only';
+  heard.textContent = ` ${shown} recommendation${shown === 1 ? '' : 's'} below.`;
+  setRecsHint(
+    [document.createTextNode(`Based on: ${meta.basedOn.join(', ')}.`), heard],
+    { caption: true },
+  );
   suggestions.forEach((s, i) => {
-    const card = document.createElement('div');
+    // `li`, not `div` (R21) — the grid is a `ul` now. Nothing else about the
+    // card changes: a list item is still a grid item, and every rule targets
+    // `.rec-card` rather than the tag.
+    const card = document.createElement('li');
     card.className = 'rec-card';
+    // Stamped on the CARD as well as its button, so syncRecCardBadges() can tell
+    // whether this film is rated without depending on the button still being
+    // there or still carrying the id (R17).
+    card.dataset.tmdbId = s.tmdb_id;
     // The lead-in lives in `animationDelay`, NOT in a setTimeout — there is no
     // timer to leak or cancel if a second run starts. This works only because
     // the CSS fill is `backwards`: each card holds the from-state (invisible,
@@ -1447,7 +1606,17 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     btn.className = 'add-btn';
     btn.dataset.tmdbId = s.tmdb_id;
     btn.dataset.title = s.title;
-    btn.dataset.addLabel = 'Add to my list'; // R7 still owns this wording
+    // R7, settled by the user: keep the longer wording and prepend the glyph, so
+    // the rec card reads "+ Add to my list" against the search row's "+ Add".
+    // The two surfaces now share a vocabulary instead of speaking three — rest
+    // "+ Add…", busy "⟳ Adding…", settled "✓ Added" / "In your list".
+    // THE NBSP IS THE RULE, NOT A DETAIL (CLAUDE.md § Button labels): the plus is
+    // glued to "Add" with \u00A0 as an ESCAPE, never a literal character, so it
+    // cannot be mistaken for an ordinary space and tidied away. Written in the
+    // STRING because the same label renders on two surfaces and only one of them
+    // is `white-space: nowrap`. "to my list" may wrap on its spaces — that is
+    // explicitly allowed; "+" leaving "Add" is not.
+    btn.dataset.addLabel = '+\u00A0Add to my list';
     // Not a hardcoded label: an owned film gets the owned state immediately, and
     // the aria-label now comes from the one place that writes it.
     setAddButtonState(btn, state.ownedTmdbIds.has(s.tmdb_id));
@@ -1456,7 +1625,12 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     card.append(poster, body);
     el.recsGrid.append(card);
   });
-  el.recsGrid.append(aiMetaFooter(meta));
+  el.recsMeta.replaceChildren(aiMetaFooter(meta));
+  // Cards are built in the not-yet-rated state, which is correct by construction
+  // today — R2's owned filter means a film already in the list can never be
+  // recommended back, rated or not. Called anyway so the badge's accuracy rests
+  // on `state.movies` alone rather than on a server-side filter staying correct.
+  syncRecCardBadges();
   // Same synchronous task as the appends above, so the browser never paints a
   // frame at the CSS fallback column count.
   layoutRecsGrid();
@@ -1499,7 +1673,7 @@ function syncVerdictAvailability() {
     el.verdictRefresh.hidden = false;
     if (!el.verdict.dataset.generated) {
       el.verdictText.classList.add('is-muted');
-      el.verdictText.textContent = 'Tap “New verdict” for a candid read on your taste.';
+      el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
     }
   }
 }
@@ -1946,6 +2120,12 @@ document.addEventListener('click', (e) => {
 
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
+  // Both AI triggers get the sparkle. Injected here, before anything can put a
+  // button into its busy state: `busyButton()` snapshots `childNodes` and
+  // restores them on settle, so the icon has to already be there when that
+  // snapshot is taken or it would not come back.
+  el.recsTrigger.prepend(sparkleNode());
+  el.verdictRefresh.prepend(sparkleNode());
   try {
     state.cfg = await api('/api/config');
   } catch { /* keep defaults */ }

@@ -17,10 +17,17 @@ A personal movie-ranking app where the database and the AI each earn their place
   similar ones you haven't added — and it is **never trusted for facts**. Every
   suggested title is cross-checked against TMDB, which supplies the real poster,
   year and overview.
-- **A Taste Verdict banner** gives a short, teasing one-liner about your taste — the
-  low-stakes, fun AI touch, logged with the same discipline.
+- **A Taste Verdict banner** sizes you up as a moviegoer in two or three teasing
+  sentences — the low-stakes, fun AI touch, logged with the same discipline.
 
 Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
+
+Two models are routed through OpenRouter on purpose: recommendations use the cheap
+`claude-haiku-4.5` (the task is "name some films"), while the taste verdict uses
+`claude-sonnet-5` — four prompt versions could not get the cheap tier to write in a
+plain spoken voice, and the model turned out to be the constraint, not the wording
+(`docs/DECISIONS.md` D-053). The call log shows the model per row, so the split is
+visible in the audit trail.
 
 ## Setup
 
@@ -45,7 +52,7 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
-                    taste_verdict_v1..v4 (live: recommend_v3, taste_verdict_v4)
+                    taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
 db/schema.sql       Supabase schema + RLS — fresh installs
 db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
@@ -72,7 +79,7 @@ docs/PROCESS.md     how it was built with an LLM in the loop
 
 1. Start from an empty list → add 3–4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change; hit **New verdict** for
-   a fresh taste one-liner.
+   a fresh read on your taste.
 3. Trigger a recommendation run, narrating: top-N pulled → versioned prompt sent →
    each returned title cross-checked against TMDB → row written to
    `recommendation_logs`.

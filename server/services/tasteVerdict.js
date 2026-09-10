@@ -3,7 +3,7 @@ import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 
-const PROMPT_VERSION = 'taste_verdict_v4';
+const PROMPT_VERSION = 'taste_verdict_v7';
 const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35–60 words)
 
 // Belt-and-suspenders cleanup of the model's plain-text output:
@@ -83,7 +83,14 @@ export async function generateTasteVerdict() {
   let errorText = null;
 
   try {
-    result = await chat({ system, user, maxTokens: 180, temperature: 0.85 });
+    result = await chat({
+      system,
+      user,
+      maxTokens: 180,
+      temperature: 0.85,
+      // The only call in the app that does not use the app-wide model (D-053).
+      model: config.tasteVerdict.model,
+    });
     // Plain text only — the frontend renders this via textContent, never innerHTML.
     verdict = tidyVerdict(result.text);
   } catch (err) {

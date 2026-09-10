@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-09 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with EIGHTEEN done, R20 withdrawn as incorrect and eleven open; the per-item statuses there are the source of truth, do not summarise them from memory; thirteenth merge to main was 4c31c85; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-SIX done, R20 withdrawn as incorrect and **three open: R5, R6 and R18**, the first two being the only remaining items that are not design/UI tweaks and R18 being parked for step 5 by design; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fourteenth merge to main was 8103f97; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -34,8 +34,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   all applied.
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled UI milestone — currently "recommendations
-  overhaul, first pass — sixteen R-items plus the mobile-keypad fix" (2026-09-09,
-  `4c31c85`). **Thirteen** merges so far;
+  overhaul, second pass — the rec-card motion, hover and balanced grid" (2026-09-09,
+  `8103f97`). **Fourteen** merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
   a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
@@ -53,16 +53,50 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   reason voice, 8–16 words), server-side reason tidy, per-title TMDB verification,
   owned-titles filter. Card `.reason` clamps at 5 lines. A run that returns cards
   scrolls `.recs__head` to the top of the viewport, waits 400ms, then plays the
-  cards in at 120ms apart; regenerating fades the previous set out first (R27,
-  R14, D-048). Nothing animates or scrolls on an empty or failed run.
+  cards in 0.75s each, 120ms apart; regenerating closes the previous set first,
+  one card at a time, like pages of a book (R27, R14, R30, D-048). Nothing
+  animates or scrolls on an empty or failed run.
   The grid's column count is chosen in JS rather than by `auto-fill`, so a row is
-  never left holding one lonely card: four cards where three fit render 2 + 2
-  and five where four fit render 3 + 2, with a short last row centred on a
-  half-column offset (off-backlog, user-raised 2026-09-09; D-050). Deliberately
-  restrained — six cards where four fit stays 4 + 2, because nothing is
-  stranded there and evening it out would grow every card by a third.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v4` (2–3
-  sentences, ~35–60 words, characterise the viewer — not recite ratings),
+  never left holding one lonely card: four cards where three fit render 2 + 2,
+  five where four fit render 3 + 2, and six where four fit render 3 + 3, with a
+  short last row centred on a half-column offset (off-backlog, user-raised
+  2026-09-09; D-050 and D-051).
+  **A card's size never depends on how many came back** (R29, D-051): the width
+  comes from the widest packing the viewport allows, the count from the
+  balancing, and the grid is capped to what that many cards need and centred —
+  so one recommendation is one normal-sized card with the slack split evenly
+  either side. The AI metadata footer sits in its own slot BELOW the grid, not
+  inside it, so it stays full width whatever the cards do.
+* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` **on `anthropic/claude-sonnet-5` — the one feature not
+  on the cheap tier (D-053)** (2–3
+  sentences, ~35–60 words, characterise the viewer — not recite ratings — in
+  plain spoken English rather than review prose; v5–v7 changed the REGISTER
+  only. **v7 is the one that matters as a lesson: v5 and v6 tried to get there
+  by BANNING phrases and the register did not move — negative instructions went
+  16 → 30 → 37 across the chain while worked examples of the target voice stayed
+  at exactly ONE. v7 deletes the bans and carries four examples instead.** The
+  split v6 proved by accident: a STRUCTURAL ban lands at once (it said "no
+  semicolons, ever" and the semicolon vanished from the next verdict), a
+  VOCABULARY ban does nearly nothing — it removes an option and supplies no
+  replacement, so the model obeys it and falls back to its own default voice for
+  the words it does pick. Register is a sample, not a rule.
+  **And then v7 failed too, which is the actual finding.** Four worked examples
+  in place of the bans produced the worst verdict of the chain: still
+  "gratuitous", plus 4 sentences where every version since v4 has said 2–3 — a
+  measurable rule break, not a matter of taste, and probably caused by four
+  blockquotes pushing the Rules section down and the model matching the
+  examples' clipped rhythm by adding a sentence. Rolled back to v6, which at
+  least keeps its own rules.
+  **THREE STRUCTURALLY DIFFERENT PROMPTS — bans, more bans, examples — PRODUCED
+  THE SAME REGISTER, so the prompt was never the lever. THE MODEL WAS**, and it
+  worked first try on the same v7 prompt: the register landed AND the sentence
+  count came back into bounds, the second symptom resolving with the first.
+  Do not write v8; if the verdict ever reads wrong again, look at the model
+  before the wording. **Trap: v7 is the version that FAILED on Haiku** — if the
+  verdict is ever moved back down a tier, move the prompt back to v6 with it,
+  because v7's four examples dilute the rules underneath them on a small model.
+  `temperature: 0.85` and real few-shot (example TURNS rather than prose) were
+  never needed and stay untried.),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
@@ -116,6 +150,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   real film, and `POST /api/movies` for one is refused in the browser — pressing
   Add on a dummy card cannot reach the database. Reload to stop; nothing is
   persisted. Never run by Node.
+  **It starts every page load DISARMED and is armed only by calling
+  `debugRecs()`.** That flag is not decoration: the fetch patch installs the
+  moment the file runs, which was harmless while pasting into a console WAS the
+  arming, and became a trap the day the page started loading the file on every
+  request — the app spent a day answering its own recommendation calls with six
+  dummy cards, through hard refreshes and a cleared cache, because nothing was
+  cached wrongly and the tag was doing exactly what it said.
   **Two lines make it load, and both are temporary** — the
   `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
   route serving it in `server/index.js` (the file lives in `scripts/`, which is
@@ -131,7 +172,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
   `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
-  heading fixed h4→h3 (correct nesting under the section's h2), decorative
+  heading fixed h4→h3 (correct nesting under the section's h2), the recs grid a
+  `<ul>` of `<li>`s with an explicit `role="list"` on it and on the ranked `<ol>`
+  (R21 — `list-style: none` makes Safari/VoiceOver drop list semantics), a
+  `.sr-only` span in the recs hint naming how many recommendations arrived, since
+  that live region is all a screen reader hears about a run (R22), decorative
   spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
   backlog #10 — a bare selector, so anything focusable added later is covered
   without being remembered; `.search input` is the one deliberate exception, see
@@ -321,6 +366,18 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     the error fallback; the initial "Reading the room…" now ships with it too.
   - Copy: "(probably unflattering)" → "a candid read" — the old parenthetical
     contradicted `taste_verdict_v4.md`, which says "never mean-spirited".
+    **Then "a candid read" → "an AI-generated read" (2026-09-11, user-raised.)**
+    Recorded as a chain rather than an overwrite, because the user asked the
+    right question before requesting it: does this undo the earlier decision?
+    Checked — no. There is no `docs/DECISIONS.md` entry for it, only the line
+    above, and its reasoning is entirely about REMOVING the parenthetical for
+    contradicting the prompt. Nothing weighed "candid" against alternatives, and
+    "AI-generated" was never one of them. It also does not reintroduce the
+    contradiction it was chosen to end — it is neutral, so the original motive
+    still holds. A different outcome, not a reversal.
+    It is also the better label on its own terms: this line sits directly above
+    machine-written text, and saying so is the same transparency the AI call log
+    exists for.
   - **Shared meta footer** under both a generated verdict AND the recs:
     `Prompt: … · Model: … · N tokens · C¢ · N ms` then a link into the log.
     One `aiMetaFooter()` builder + one `.ai-meta` CSS block; only placement
@@ -1123,7 +1180,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
    seeing R27 and D-050 run. R1–R4, R8–R14,
-   R19 and R23–R28 are done and R20 was WITHDRAWN as incorrect — every
+   R7, R15, R16, R17, R19, R21, R22 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1189,10 +1246,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that make them findable.
      **The shared `setAddButtonState()` did not get to decide R7 on the way
      through.** Its unowned label is now read from `btn.dataset.addLabel` (default
-     `+ Add`), so the rec card keeps `Add to my list` until the wording is
-     actually settled. The OWNED labels are shared, which is right: both surfaces
+     `+ Add`), so the rec card kept `Add to my list` until the wording was
+     settled — R7 has since done that, as `+ Add to my list`. The OWNED labels are shared, which is right: both surfaces
      should settle identically. Note the rec card's `aria-label` moved from "to my
-     list" to the shared "to your list" — the voice inconsistency is R7's to fix.
+     list" to the shared "to your list". R7 looked at that and LEFT it: each voice is
+     right where it appears — "my list" on a button the user presses, "your list"
+     when the app addresses them.
      This was the UI half of the user's duplicate-safeguard item **(user)**; the DB
      (`unique(tmdb_id)`) and API (23505 → 409) halves were already correct.
    * **R4. DONE 2026-09-09, with R3.** `addMovie()`'s catch reads
@@ -1229,14 +1288,29 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group C — copy and consistency**
 
-   * **R7. Decide the add-button label and glyph (user).** The rec card rests at
-     `Add to my list`, the search row at `+ Add`. Worse, they CONVERGE after
-     action: both settle to the glyph-glued labels via the shared `addMovie()`, so
-     the rec card's one button speaks three vocabularies. One of the two resting
-     labels should move. **Note CLAUDE.md's Frontend Design Notes overstated
-     this**: the glued `✓ Added` does reach the rec card (through `settle()`), but
-     `+ Add` does NOT — the card's resting label is built inline in
-     `renderRecommendations()` and never passes through `setAddButtonState()`.
+   * **R7. DONE 2026-09-11 — the rec card now reads `+ Add to my list`.** It
+     rested at `Add to my list` against the search row's `+ Add`, and the two
+     CONVERGED after action — both settle to the glyph-glued labels via the
+     shared `addMovie()` — so the card's one button spoke three vocabularies.
+     **The user settled it by keeping the longer wording and prepending the
+     glyph**, rather than shortening the card to match the row. Both surfaces now
+     share one vocabulary at every stage: rest `+ Add…`, busy `⟳ Adding…`,
+     settled `✓ Added` / `In your list`.
+     **The non-breaking space is the rule, not a detail** (§ Button labels): the
+     plus is glued to "Add" with a `u00A0` ESCAPE (backslash-u), never a literal
+     character, and in the STRING rather than in CSS because the label renders on
+     two surfaces and only one is `white-space: nowrap`. "to my list" may wrap on
+     its spaces — explicitly allowed; "+" leaving "Add" is not.
+     **That escape was collapsed into a literal NBSP on the first attempt and had
+     to be rebuilt without typing a backslash at all** — the tooling trap under
+     § Environment traps, now hit twice. Verified after: zero literal U+00A0
+     codepoints in `app.js`, and the label's second codepoint reads `A0` at
+     runtime.
+     **The my/your split is deliberate and stays.** The visible label says "my
+     list" (the user's voice, on a button they press); the `aria-label`, written
+     separately by `setAddButtonState()`, says `Add {title} to your list` (the
+     app addressing them). Each is right for where it appears, and the glyph
+     never reaches a screen reader.
    * **R8. DONE 2026-09-09 (D-047).** The route wrapped every cause as
      `Couldn’t generate recommendations: ${err.message}` under a comment claiming
      "never a raw dump" — and the causes are `OpenRouter unreachable
@@ -1355,16 +1429,132 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      as the single brightest thing on screen; hovering the footer dims nothing,
      because the `:has()` tests for a hovered card. Do not re-tune 0.7 by eye
      without reading D-049 — the number is the whole of what was settled.
-   * **R15. A sparkle ✨ AI icon on the trigger (user).** Prefer an inline SVG per
-     D-027. **This one button is EXEMPT from the no-emoji rule if the SVG proves
-     fiddly — the user granted that in advance. Do not spend hours on it.**
-   * **R16. Stale cards outlive their own precondition.** Remove films until the
-     rated count drops below 3 and the trigger correctly disables — but the grid
-     of previously generated cards stays on screen, now unreachable and
-     unrefreshable. Decide: clear it, or caption it as a past run.
-   * **R17. The `AI pick · not yet rated` badge can become false.** Adding from a
-     rec card opens the rate dialog; rate the film and the card behind it still
-     asserts "not yet rated". Small, but it is a factual claim in the UI.
+   * **R15. DONE 2026-09-11 — a sparkle on the trigger, and the emoji exemption
+     went unused.** Two four-point stars as an inline SVG with
+     `fill="currentColor"`, so the icon follows all three of the button's states
+     for free: amber at rest, inverting to `#1a1205` on the amber hover fill, and
+     dimming with the label at `opacity: 0.45` when disabled. The emoji would
+     have done none of that — it is a fixed full-colour image (D-027), so it
+     would have stayed bright while the label dimmed. The exemption the user
+     granted in advance was not needed, and **"no emoji remain in rendered output
+     anywhere" still holds**.
+     **Tuned once on the user's "slightly bigger and more pronounced":** `1.05em`
+     → `1.3em`, and separately the star ARMS were thickened — the waist control
+     points moved from 1.9 out to 2.6 from centre, which is what decides whether
+     it reads as a sparkle or as a thin cross at button size. Size and weight are
+     two dials and the request needed both. The paths are GENERATED from a
+     centre, a tip radius and a waist offset rather than hand-tuned, so
+     re-generate rather than nudging a number. `vertical-align` scales with the
+     size (-0.16em → -0.28em) or a taller icon rides high against the text.
+     **The big star twinkles AND the icon glows** (user-raised over two rounds:
+     "a tiny bit more shiny / glittering", then "still isn't visible enough…
+     like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.07)` and
+     `opacity 0.8`→`1` loop on that path, plus a pulsing white
+     `drop-shadow` on the icon. **Motion alone was not enough** — the first pass
+     was scale and opacity only, and at 21px on a button the user could barely
+     see it. Shine needs light, not just movement.
+     **The glow is on the `<svg>` ROOT, not on the path, and that is
+     load-bearing.** A CSS `filter` on an SVG CHILD resolves its lengths in the
+     local user coordinate system, where `3px` means 3/24ths of the icon and
+     changes with the rendered size; on the root it is plain CSS pixels. The root
+     also lets the halo paint OUTSIDE the box — an outer `<svg>` clips its own
+     viewport, so a glow drawn inside would be cut off at the edge.
+     White rather than `currentColor`: a glow the same colour as the thing
+     glowing is just a blur. Checked at peak scale, the star spans 0.9–18.1 of
+     the 0–24 viewBox, so nothing clips.
+     **The one state to look at is HOVER**, where the icon inverts to `#1a1205`
+     on an amber fill and the glow stays white — a light halo around a dark glyph.
+     The disabled state is safe by construction: `.recs__trigger:disabled` sets
+     `opacity` on the BUTTON, so everything inside dims together whatever colour
+     it is, and both animations are switched off there anyway. The SMALL one deliberately holds still — both moving
+     reads as a throbbing icon, one moving reads as a catch of light, which is
+     the difference between shiny and distracting on an element that is on screen
+     all session. **A gradient fill was the obvious way and was rejected:**
+     `fill="currentColor"` is what makes the icon invert on the amber hover and
+     dim with the label when disabled (D-027), and a gradient follows none of it.
+     Two traps: `transform-box: fill-box` is REQUIRED, since an SVG element's
+     `transform-origin` otherwise resolves against the SVG viewport corner and
+     `scale()` swings the star toward the top-left instead of breathing in place;
+     and the animation is switched OFF on a disabled trigger, because a locked
+     section twinkling at the user invites a click that does nothing.
+     `ease-in-out` rather than `--ease` — a symmetric loop, where `--ease` would
+     snap bright and drift back. That makes two animations deliberately off
+     `--ease` (this and the rec-card exit); both say why at the declaration, and
+     at two it is now worth naming the pair as `--ease-out`/`--ease-in` if a
+     third ever appears.
+     **Inline, NOT a flex container, and that is the non-obvious part.** The
+     obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
+     wrong here because `busyButton()` swaps the contents for a spinner plus a
+     label that ALREADY begins with a non-breaking space — a flex `gap` would sit
+     on top of that and make the busy state wider than the resting one. The
+     search button solved this before and this follows it: an inline icon sized
+     in `em` with a `vertical-align` nudge.
+     **`white-space: nowrap` on `.recs__trigger` is now load-bearing for a second
+     reason.** R11 added it so the label could not break; the glyph rule now also
+     depends on it, because everywhere else the glue is a non-breaking space
+     inside the string, and an icon is an ELEMENT — no string can hold it to the
+     words beside it. Both places say so.
+     `aria-hidden="true"` + `focusable="false"`: the button already says "Get
+     recommendations" in text, so a decorative mark would only add noise.
+     **It rides on BOTH AI triggers** (user-raised follow-up): "New verdict" gets
+     the same sparkle at `1.15em` against the trigger's `1.3em`, **and in amber
+     rather than the button's `--ink`** — the user noticed the white one "doesn't
+     scream AI enough" and was right for a reason worth keeping: amber is this
+     app's AI marker, so the same glyph was reading as a signal on one button and
+     as decoration on the other. Set via `color`, not `fill`, so the paths keep
+     resolving `currentColor`. See R25 for why this does not undo its
+     "do not make this button amber" rule — that is about chrome, not about a
+     semantic mark. That button's
+     `font-size: 0.88rem` already shrinks an em-sized icon by 12%; the smaller
+     value takes it to ~22% in absolute terms, so it reads as the smaller
+     button's icon rather than the same icon crammed in — which also matches R25,
+     where the verdict's border was kept deliberately quieter because it is the
+     lowest-stakes control (SPEC § 2.3).
+     **The second surface is why the SVG moved into a `<template>` and is cloned
+     by `sparkleNode()`.** Two copies of a GENERATED path is the shape that gets
+     regenerated in one place and not the other — the same reasoning that made
+     `.noposter` a template. **`<use href>`, the usual sprite answer, was
+     rejected:** it puts its content in a shadow tree that document CSS cannot
+     select into, and only the LARGE star twinkles, so `.sparkle-major` would
+     stop matching. A clone is real DOM.
+     Injected in `init()` **before anything can go busy**, since `busyButton()`
+     snapshots `childNodes` and restores them on settle — the icon has to be
+     there when that snapshot is taken or it would not come back.
+     `.verdict__refresh` needed `white-space: nowrap` for the same reason
+     `.recs__trigger` did: an icon is an element, so no in-string non-breaking
+     space can hold it to its label.
+   * **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
+     Remove rated films until the count falls under the threshold: the trigger
+     correctly disabled and the hint correctly said "Rate at least 3 movies to
+     unlock recommendations", directly above six recommendations. The grid and
+     the metadata footer are now cleared in the same branch that writes that
+     text.
+     **Cleared rather than captioned as a past run, and the reason is
+     structural:** the section has exactly ONE message channel — `#recs-hint` —
+     and the availability text has just taken it (R1), so captioning would mean
+     either overloading the single writer or inventing a second element, which is
+     disproportionate for a state reached only by removing films below the bar.
+     **NOT because the cards went stale — that would be a different rule and a
+     wrong one.** Recs go stale on ANY rating change and we deliberately leave
+     them alone then. What is fixed here is a section contradicting itself.
+   * **R17. DONE 2026-09-11 — the badge stops asserting something it can no
+     longer know.** `.rec-card::before` claims two things and only one survives
+     being acted on: "AI pick" is true forever, "not yet rated" stops being true
+     the moment the film is added and rated — and adding from a rec card OPENS
+     the rate dialog, so the flow the button invites is the one that falsifies
+     the badge behind it.
+     The false half is dropped, not the whole badge: `.rec-card.is-rated::before`
+     reads `AI pick`. The provenance marker is why the element exists (SPEC § 3.2
+     asks for one) and it is still accurate.
+     **Rated-ness is read from `state.movies`, never from `state.ownedTmdbIds`** —
+     owned and rated are different questions, and conflating them is precisely
+     the bug R2 fixed on the server. A film can sit added-but-unrated
+     indefinitely via "Skip for now", and the badge is correct for all of it.
+     `syncRecCardBadges()` runs from `loadMovies()` and again at the end of
+     `renderRecommendations()` — the second call is redundant today, since R2's
+     owned filter means a rated film can never be recommended back, and it is
+     there so the badge rests on `state.movies` alone rather than on a
+     server-side filter staying correct.
    * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
      that run to three or four on a phone**, so the grid jumps as the hint
      changes. Low severity: the busy string and the resting string are close in
@@ -1398,13 +1588,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      source of truth. **Found by grepping for `api/config` after writing the
      item** — the original claim came from grepping only `state.cfg`, which showed
      the reads and the literals but not the assignment that overwrites them.
-   * **R21. The recs grid is a `<div>` of `<div>`s** while the ranked list is a
-     proper `<ol>`. Six cards announce as unstructured content to a screen reader.
-     Cheap, and it matches the section it sits beside.
-   * **R22. `#recs-hint` is the section's only live region** (`role="status"`), and
-     R1 means what it announces after a run is the generic idle hint. Once R1 is
-     fixed, re-check what a screen reader actually hears for all three outcomes —
-     that is the entire point of the live region.
+   * **R21. DONE 2026-09-11 — the recs grid is a `<ul>` of `<li>`s.** It was a
+     div of divs, so six cards announced as unstructured content while the ranked
+     list beside it had always been a proper `<ol>`. Nothing else changed: a list
+     item is still a grid item, and every rule targets `.rec-card` rather than
+     the tag (checked — no selector in the stylesheet names a tag here).
+     **`role="list"` is not redundant belt-and-braces.** `list-style: none` makes
+     Safari/VoiceOver drop list semantics entirely, which is the exact
+     combination this fix would otherwise land in.
+     **The ranked list had the same latent gap and got the same attribute.** It
+     is `list-style: none` too, so its `<ol>` was already losing the semantics it
+     was chosen for. Out of scope on paper, but fixing one list and leaving the
+     identical hole in the one next door would have been worse than not
+     looking.
+   * **R22. DONE 2026-09-11 — the one outcome that produced content was the one
+     that described only its input.** Re-checked all three now that R1 has stopped
+     the availability sync wiping the hint in the same tick. A FAILURE announces
+     its message and an EMPTY run announces why it was empty — both fine. A
+     SUCCESS announced `Based on: Dune, Heat, Arrival.` and never mentioned that
+     six recommendations had arrived.
+     Fixed by appending a `.sr-only` span to that hint: `N recommendation(s)
+     below.` The visible copy is untouched, because it is what the user settled
+     and it reads correctly for anyone who can see the cards.
+     **Announcing the CARDS instead was rejected** — six live-region updates per
+     run is noise, and the hint is the channel this section already has. A new
+     `.sr-only` utility came with it (the app had none), using
+     `clip-path: inset(50%)` and `white-space: nowrap` so no engine reads it a
+     letter per line.
 
    **Group F — found while fixing the above (added 2026-09-09)**
 
@@ -1441,15 +1651,19 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    * **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
      (user-raised, 2026-09-09.) The entrance half already existed and was tuned
      rather than rebuilt: `.rec-card` now carries its own
-     `animation: rec-enter 0.5s var(--ease) backwards`, and the stagger went from
+     `animation: rec-enter 0.75s var(--ease) backwards`, and the stagger went from
      `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card step
      the user asked for. Its own keyframe, not the shared `fade-slide`, because
      10px of travel under a ~300px poster card is a twitch and tuning it must not
      move the ranked list.
      The exit did not exist at all — `replaceChildren()` dropped six cards in one
-     frame — and is now `exitRecCards()`: `.is-leaving` on every grid child (the
-     metadata footer included, since it describes the run being replaced), each
-     removed on its own `animationend`.
+     frame — and is now `exitRecCards()`: `.is-leaving` on the cards and on the
+     metadata footer, since that describes the run being replaced.
+     **Two details here have moved since and are described where they changed,
+     not here:** the footer left the grid with R29, so it is swept from its own
+     slot rather than falling out of the grid's children; and R30 replaced
+     per-node removal with a single batched removal after the LAST animation
+     ends, because removing them one at a time re-flowed the grid mid-exit.
      **Built as two CSS phases, NOT as a View Transition, and this entry used to
      say the opposite.** It read "Prefer the View Transition route: it is the
      mechanism this codebase already chose for exactly this problem." That was
@@ -1470,9 +1684,16 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **The user's spec for (a), given 2026-09-09 after watching it run:**
      * **60ms per card is far too fast.** Lengthen the per-card stagger. Six cards
        is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
-       bounded: at 120ms it is lead-in + 5x120ms + the 0.5s card duration, which
-       came to about 1.3s as first estimated against a 200ms lead-in and is
-       **1.5s as shipped**, the lead-in having been doubled to 400ms.
+       bounded: at 120ms it is lead-in + 5x120ms + the per-card duration, which
+       came to about 1.3s as first estimated against a 200ms lead-in and a 0.5s
+       card, and is **1.75s as shipped** — the lead-in was doubled to 400ms and
+       the card duration raised to 0.75s.
+       **Three separate dials, and the user has tuned each one by watching it:**
+       `RECS_LEAD_IN_MS` (the beat before the first card), `RECS_STAGGER_MS`
+       (the gap between cards) and the DURATION on `.rec-card`'s `animation`
+       (how fast one card drops). The third is the one that gets misattributed —
+       "the cards appear too fast" is almost never the stagger, which the user
+       explicitly confirmed was fine while asking for this.
      * **Scroll the section into view**, because the cards land below the fold and
        the user has to scroll down mid-animation and misses most of it.
        `scrollIntoView({ block: 'start' })`.
@@ -1554,6 +1775,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
      hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
      not by intensity alone. Do not "finish the job" by making this one amber too.
+     **That means the button's CHROME — its border and its label — and it still
+     stands** (2026-09-11). The sparkle icon R15 later put on this button IS
+     amber, and that is not this rule being eroded: amber is the app's AI marker
+     (the "AI pick" badge, the recs trigger, the call-log link), so a white
+     sparkle read as decoration while the identical mark two sections down read
+     as a signal. A ~15px semantic mark is a different thing from an amber
+     border and an amber label. The border stays at 0.3 alpha and the label stays
+     `--ink`.
      **Hover, revised by the user after seeing it:** the border lights to amber,
      the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
      `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
@@ -1633,12 +1862,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      response never reaches the browser, the row exists and the client cannot know.
      It shows the transport message instead.
 
-   * **R29. A CARD'S SIZE MUST NEVER DEPEND ON HOW MANY CAME BACK** (user-raised
-     2026-09-09, with a screenshot). One recommendation on a viewport wide enough
-     for four currently renders as a single full-width card with a poster taller
-     than the window. Two is the same fault, less dramatically. The tracks are
-     `1fr` and `balancedColumns()` returns `min(count, fit)` when everything fits
-     on one row, so the count decides the width. That is backwards.
+   * **R29. DONE 2026-09-10 (D-051) — a card's size no longer depends on how many
+     came back** (user-raised 2026-09-09, with a screenshot). One recommendation
+     on a viewport wide enough for four rendered as a single full-width card with
+     a poster taller than the window; two was the same fault, less dramatically.
+     The tracks are `1fr` and `balancedColumns()` returned `min(count, fit)` when
+     everything fitted on one row, so the count decided the width. That was
+     backwards.
      **The user's rule, in their words: "I do not believe that a card's size
      should ever depend on how many cards returned. A better fix for the ugly
      unoccupied space in a row is to just center it all — and screw the spaces in
@@ -1647,19 +1877,45 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      side, trust me."** So: side margins are ACCEPTED, and the alignment
      objection Claude raised against this shape earlier (that the grid would sit
      narrower than the heading above it) is overruled. Do not re-litigate it.
-     **Shape of the fix.** Size the track from `fit` — the widest packing the
-     viewport allows — not from the count: one fixed card width per viewport,
-     the balanced count for the rows, and `justify-content: center` on the grid.
-     The half-column offset that centres a short last row (D-050) still applies
-     on top and is unaffected.
-     **This also settles the 4 + 2 versus 3 + 3 question the user asked on the
-     same day, and settles it as free.** The only cost of 3 + 3 was that filling
-     tracks made every card ~36% wider; once the width is fixed by `fit`, 3 + 3
-     is the same card and the same two rows as 4 + 2. So `balancedColumns()`'s
-     deliberate `> 1` restraint (D-050) should be reconsidered as part of this —
-     it exists only to avoid the growth that will no longer happen.
-     **The `.ai-meta` footer MOVES OUT OF THE GRID — settled 2026-09-09, before
-     building.** It is a grid child spanning `1 / -1` today, so a centred,
+     **As built.** `balancedColumns()` is now `balancedLayout()` and returns a
+     WIDTH as well as a count. The width comes from `fit`, the widest packing the
+     viewport allows; the count comes from the balancing. The grid is then capped
+     to exactly the room that many cards need (`--rec-width`) with
+     `margin-inline: auto` doing the centring.
+     **Capping the CONTAINER rather than sizing each track is what kept this
+     small** — the `1fr` tracks divide a width that is already correct, so D-050's
+     doubled-track/half-column machinery is untouched, and when the balanced count
+     equals what fits, `--rec-width` IS the container width and the two new
+     declarations do nothing at all.
+     **One trap, and it would have been silent:** `balancedLayout()` measures
+     `grid.parentElement.clientWidth`, never the grid's own. The grid's width is
+     what this function SETS, so reading it back would feed each answer into the
+     next and ratchet the cards smaller on every resize frame.
+     **This also settled the 4 + 2 versus 3 + 3 question, as free.** The only cost
+     of 3 + 3 was that filling tracks made every card ~36% wider; with the width
+     fixed by `fit` it is the same card and the same two rows as 4 + 2. So
+     `balancedColumns()`'s deliberate `> 1` restraint (D-050) is GONE — it existed
+     only to avoid growth that can no longer happen. Six cards where four fit now
+     render 3 + 3.
+     Verified by simulating every count from one to six across 288/500/700/812/
+     1000px: the card width is now constant per viewport in every column, and no
+     layout gained a row.
+     **A CARD ALSO HAS A MAXIMUM WIDTH, and the reason is HEIGHT** (`--rec-max`,
+     250px; user-raised the same day with screenshots either side of all three
+     column boundaries). Decoupling width from the count was not enough on its
+     own: the width still comes from `fit`, so every time one fewer column fits,
+     the survivors inherit the space — and the poster is `aspect-ratio: 2/3`, so
+     a pixel of width costs 1.5 of height. At one card per row that was a 390px
+     card with a **585px poster on an 869px window**. Capped, the poster never
+     exceeds 375px. Measured at the three boundaries the user photographed:
+     4→3 columns 258px → 250px (the "slightly reduced" they asked for), 3→2
+     291px → 250px, 2→1 390px → 250px. Wide layouts are untouched, because a
+     four-column card is 237px and already under the cap.
+     `--rec-min` and `--rec-max` together are the card's allowed width band, both
+     in the stylesheet, both read by `balancedLayout()`. Capping only ever
+     shrinks, so it can never let more cards fit and `fit` stays correct.
+     **The `.ai-meta` footer MOVED OUT OF THE GRID — settled 2026-09-09 before
+     building, done 2026-09-10.** It was a grid child spanning `1 / -1`, so a centred,
      narrower track list would shrink the footer and its dashed rule to match,
      and a single-card run would leave it one card wide. The user ruled out
      accepting that and left the choice between spanning it to the container and
@@ -1679,36 +1935,115 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `#recs-grid` are stable) rather than appending it to `.recs` and querying it
      back — an empty slot has no border, padding or content, so it costs no
      layout.
-     **Four follow-on edits, so they are not discovered one at a time:**
-     (1) `renderRecommendations()` appends the footer in TWO places — the empty
-     branch and the success branch — and both move.
-     (2) `exitRecCards()` sweeps the grid's children and currently fades the
-     footer out with the cards, deliberately; it has to clear the new slot too.
-     (3) **The sneaky one.** The spotlight dims the footer only because it is a
-     grid child — that is the whole of D-049's `> *` rather than `> .rec-card`.
-     Moving it out silently undoes that decision and leaves the footer the
-     single brightest thing on screen. The `:has()` anchor has to move up to
-     `.recs`, scoped so the VERDICT banner's own `.ai-meta` is untouched.
-     (4) The grid's `gap` no longer separates the footer from the cards, so it
-     needs its own top margin — `1.1rem`, to match what it is replacing.
-     Fold this into the decision entry written when R29 lands; it is recorded
-     here now because it was settled before the work started.
-   * **R30. The exit animation stutters, and should close like a book**
-     (user-raised 2026-09-09). `rec-leave` ends at
-     `translateY(6px) scale(0.97)`, and the uniform `scale()` reads as the card
-     sliding SIDEWAYS as it goes — the user's word for the result was
-     "stuttering". Two changes wanted: **stagger the exit one by one** (it is
-     deliberately uniform today — see the `@keyframes` comment, which will need
-     rewriting rather than amending), and replace the shrink with a
-     **"book-closing" effect — `transform: scaleX()` and the like** rather than
-     any vertical or diagonal movement.
-     **Traps.** `scaleX` needs a deliberate `transform-origin` — the default
-     centre collapses the card inward from both edges, which is a different
-     effect from a cover closing; a left or right origin is what reads as a
-     hinge. The exit runs while the request is IN FLIGHT, so its total length
-     (stagger + duration) has real headroom but is not free — keep it well under
-     a second for six cards. And the removal is driven by each node's own
-     `animationend`, which a per-card `animationDelay` does not disturb.
+     **All four follow-on edits landed, and they were the whole of the work:**
+     (1) `renderRecommendations()` appended the footer in TWO places — the empty
+     branch and the success branch — and both now write to `#recs-meta`.
+     (2) `exitRecCards()` swept the grid's children, which used to include the
+     footer for free; it now sweeps both the grid and the slot, and the
+     `.is-leaving` rule is anchored on `.recs` rather than on the grid.
+     (3) **The sneaky one, and it was real.** The spotlight dimmed the footer
+     ONLY because it was a grid child — that is the whole of D-049's `> *`
+     rather than `> .rec-card`. The `:has()` anchor moved up to `.recs` and the
+     rule is now two selectors, scoped so the VERDICT banner's own `.ai-meta` is
+     untouched. Without that the footer would have been left the single
+     brightest thing on screen at the moment attention is meant to be on a card.
+     (4) The grid's `gap` no longer separates the footer from the cards, so
+     `.recs__meta .ai-meta` carries `margin-top: 1.1rem` — on the FOOTER, not on
+     the slot, so an empty slot still contributes nothing.
+   * **R30. DONE 2026-09-10 — the cards now close like a book, one by one**
+     (user-raised 2026-09-09). `rec-leave` ended at
+     `translateY(6px) scale(0.97)`, and the uniform `scale()` read as the card
+     sliding SIDEWAYS rather than leaving — the user's word was "stuttering".
+     Both halves of the ask landed: the exit is staggered in arrival order, and
+     the shrink is gone.
+     `rec-close` runs `scale(1, 1)` → `scale(0, 0.1)` from `transform-origin:
+     left center`, so the card swings shut on a spine instead of collapsing
+     inward from both edges, and collapses toward a horizontal line on the way —
+     the user's call, tried at 0.5 first and taken further. Not to 0 on that
+     axis: something still has to be visibly closing rather than already gone. The opacity runs straight from 1 to 0 across the whole duration,
+     so the fade and the close happen together.
+     **Both of those were revised the same day, and the reason is one finding.**
+     The first version staggered by 55ms, eased on `--ease`, and held the opacity
+     back to 72% until the 60% mark — and the user reported the cards were
+     "exiting at the same time". The stagger was real. `--ease` is
+     `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT built for arrivals: 40%
+     of the way by t=0.1 and **67% by t=0.2**, so each card did its entire
+     visible move in the first ~70ms of a 340ms animation and six cards 55ms
+     apart flashed through inside a few hundred milliseconds. The stagger had
+     nothing left to separate, and the opacity hold had nothing to overlap.
+     Fixed on both axes: stagger 55ms → 120ms, and `--ease` → **`ease-in`** (2%
+     at t=0.1, 32% at t=0.5), which is the right shape for a departure anyway —
+     things accelerate away and decelerate in. **This is the one animation in the
+     app that does not use `--ease`, and that is deliberate.**
+     **`transform-origin` is scoped to `.is-leaving`, and that is load-bearing.**
+     On `.rec-card` it would silently move the hover `scale(1.02)` off centre —
+     and that effect exists in its current form precisely because growing from
+     the middle opens the gaps on both sides equally, which is the whole finding
+     of D-043's lift removal. One property, two effects, only one wanting an
+     offset origin.
+     **The trap that would have cost real time, found while building it:** every
+     card is still carrying the INLINE `animationDelay` its ENTRANCE was given —
+     up to 400 + 5x120 = 1000ms — and `animation-delay` is one property shared by
+     whichever animation is running. Writing the exit's own delay is therefore
+     not optional even at a zero stagger; without it the last card sits untouched
+     for a second before starting to close, which looks like a hang rather than
+     a bug.
+     Timing: 0.34s per card, `RECS_EXIT_STAGGER_MS` 120ms, so six cards come to
+     0.94s. That is the ceiling of the budget and it is fine: the exit only ever
+     runs while a request is in flight, and an AI call is seconds. The stagger
+     now matches the entrance's, which is NOT a reason to collapse the two into
+     one constant — they should stay independently tunable, since the entrance is
+     the half the user asked to be able to watch and the exit only has to be
+     legible. The footer is a line of TEXT, not a card, so it
+     gets a plain `rec-fade` with no delay rather than a book-close that would
+     just squash the words.
+     **THE EXIT REMOVES EVERY NODE TOGETHER, WHEN THE LAST ANIMATION ENDS — never
+     one at a time as each finishes.** That was the first shape, and it is what
+     the user then reported as "blinking/flashing". A `transform` does not affect
+     layout, so a card mid-close still occupies its grid cell and nothing moves;
+     REMOVING it does. The grid re-flows, every surviving card slides into the
+     cell before it, and when the count crosses a row boundary the grid loses a
+     row and everything below jumps a whole card height. With a stagger that
+     happens five times in under a second. A screenshot taken mid-exit is what
+     showed it: card 3 alone in the top row while 4, 5 and 6 sat a full row
+     lower, every one of them at a different scale — the animation was fine, the
+     layout underneath it would not hold still. Batching makes the exit
+     layout-static from first frame to last.
+     One `setTimeout` backstop came with the batching and is worth keeping: while
+     each node removed itself, an animation that never ended stranded that node
+     alone; now it would strand the whole set, since the count would never reach
+     zero. It is not cancelled and does not need to be — `remove()` on a detached
+     node is a no-op. `RECS_EXIT_MS` exists only so that backstop knows the
+     duration, and **must stay in step with the `animation` on
+     `.rec-card.is-leaving`**; both places say so.
+     **What happens when a response beats the exit — analysed 2026-09-10, and
+     deliberately NOT changed.** The exit starts on the click and takes 0.94s for
+     six cards; the request runs concurrently. If it comes back sooner,
+     `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so the
+     cards still closing are detached mid-animation. Traced rather than guessed:
+     * **Nothing is corrupted.** `leaving` is a snapshot array, so the batched
+       removal and its backstop can only ever touch the OLD nodes — a stale
+       backstop firing after the new cards exist calls `remove()` on detached
+       nodes, which is a no-op. A detached element's animation stops, so
+       `pending` never reaches zero and the backstop is what cleans up. No leak.
+     * **Only a fast SUCCESS cuts anything.** The catch branch never touches the
+       grid (verified), so a failure — including a fast one like the
+       below-threshold 422 — leaves the cards to finish closing properly.
+     * **The cost is visual and it is real.** At a 400ms response the first two
+       cards are 100% and 73% closed, but cards 4–6 have barely started and blink
+       out at full size in a single frame.
+     **Left alone on purpose.** The alternative is making the render wait for the
+     exit, and that inverts R27's own priority — the scroll and the entrance are
+     the reward for a RESULT, so delaying a result to finish an animation about
+     the previous one is the wrong trade. It also puts an await in front of the
+     `finally` that restores the busy button. In production this is close to
+     unreachable: the run is an AI call plus six TMDB verifications, seconds not
+     milliseconds. It IS trivially reproducible with `debugRecs(6, { delayMs:
+     300 })`, so if it is ever seen it will be seen there first, and this
+     paragraph is why it is not a bug report.
+     Also fixed in passing: the reduced-motion branch of `exitRecCards()` cleared
+     the grid but not `#recs-meta`, so a motion-sensitive user kept the previous
+     run's metadata footer on screen. That gap arrived with R29 an hour earlier.
 
    **Already done in this section, do NOT redo:** `.rec-card__body` carries
    `min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
@@ -1728,6 +2063,79 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
    building.
 
+4b. **Four visual-polish items on the verdict banner, the ranked list and the
+   logo** (user-raised 2026-09-10 and 2026-09-11). **THREE OF THE FOUR are the
+   same shape — the mechanism already exists and the effect is simply too subtle
+   to see — so read each item before building anything.** Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
+   user asked for these "after the recs overhaul, before the narrow-portrait
+   overhaul", and renumbering would silently break every reference to "step 5",
+   including the enforcement rules in the memory file
+   `recs-overhaul-known-issues.md`. Step 5 stays the portrait overhaul.
+
+   * **A typing effect on the verdict as it appears**, like early ChatGPT.
+     Read D-040's single-writer lesson before starting: `.verdict__text` is
+     written by `syncVerdictAvailability()` (placeholders, threshold text) AND by
+     a run, so a typewriter that animates into the same element needs to lose
+     cleanly when the sync takes the element back mid-type — the exact shape of
+     bug R1 was. Also: the element is `aria-live="polite"`, so typing it one
+     character at a time would announce it one character at a time; set the final
+     text for assistive tech and animate the visible layer, or the accessibility
+     work already done here is undone. `prefers-reduced-motion` must skip it.
+   * **The verdict banner's amber/crimson border should drift slowly. IT ALREADY
+     DOES — check before building** (found 2026-09-11 while working R15).
+     `.verdict` carries `animation: sheen 9s var(--ease) infinite`, which moves a
+     220%-sized `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
+     `background-position: 0%` to `100%` and back; `.verdict__inner` covers the
+     middle, so the 2px ring IS that gradient and it is already drifting. This is
+     the same shape as the logo-spin item below: the mechanism is there and the
+     effect is too subtle to notice. So the real work is making it VISIBLE —
+     a shorter cycle, a wider colour spread, or more gradient travel — not
+     writing an animation. Measure what it does now before changing it.
+     **The rest of this item as first written is DELETED, not preserved, because
+     it was wrong:** it called the banner "a static treatment" and went on to
+     suggest a `border-image` or a masked pseudo-element, since "`border-color`
+     cannot hold a gradient". All of that was written before the `sheen`
+     animation was found, and following it would have meant rebuilding a
+     mechanism that already exists — the banner does it with `padding: 2px`, a
+     gradient background, and `.verdict__inner` covering the middle.
+     Two constraints that DO still apply: keep it SLOW, since this sits near the
+     top of the page on every load; and D-044's rule that amber must never become
+     a hard-edged focus-ring lookalike.
+   * **The ranked list's first-paint entrance is barely visible** (user-raised
+     2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
+     (D-031) and is not in scope. Same family as the two items above, and
+     measured rather than guessed, so this starts from evidence:
+     `.movie-card.is-entering` is `fade-slide 0.45s var(--ease) backwards`, a
+     10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`.
+     **`--ease` is the main culprit, exactly as it was for the rec-card exit.**
+     It is `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 is
+     already gone by 45ms, and the card is within 1px of home after **168ms of a
+     450ms animation**. So a 10px move effectively happens in a sixth of a
+     second, and the remaining 280ms is the card sitting still.
+     **The stagger also collapses.** `min(i * 45, 400)` caps at card 9, so on a
+     list of twenty the last dozen all start within the same frame — there is no
+     cascade to see at exactly the length where one would read best.
+     **R27 is the worked precedent for this on the rec cards**, and its numbers
+     are a starting point rather than a template: `rec-enter` at 0.75s over 18px,
+     120ms apart, after a 400ms lead-in. **What does NOT transfer is the
+     stagger**, because a ranked list is unbounded where the recs grid is capped
+     at six — 120ms across twenty cards is 2.4 seconds of the page assembling
+     itself on every load. Keep a cap, but raise where it sits.
+     Cheap and self-contained: a duration, a travel distance, an easing and a
+     cap, all in two places (`.movie-card.is-entering` and one line of
+     `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
+     spotlight both depend on it.
+   * **Does the logo circle actually spin? — ANSWERED 2026-09-11, no
+     investigation needed.** Yes, `animation: spin 8s linear infinite` is on
+     `.mark__reel` and runs. It is invisible because **every part of it that you
+     can see is rotationally symmetric**: the 3px amber border ring, and a
+     `radial-gradient` that draws a concentric amber ring. The one asymmetric
+     feature is a `conic-gradient` wedge covering the first 20% of the circle —
+     and it is painted in `var(--bg)`, the page's own background colour, so it
+     is invisible against the page behind it. The fix is not to the animation; it
+     is to give that wedge a colour that differs from the page (a film-reel notch
+     needs to be visible to read as one). Cheap, and it is the whole of this item.
+
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
@@ -1744,6 +2152,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
+
+**Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
+rather than renumbered because "step 5" is referenced by name outside this file —
+including the two enforcement rules a memory file points at — and a silent
+renumber would send a future session to the wrong list.
 
 ### Open issues / TODO
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
@@ -1792,6 +2205,21 @@ below — this list is the smaller stuff.)
   user-facing contraction in `server/`, `public/app.js` and `public/index.html`
   now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
   they are not UI copy.
+* [x] **`--ink-faint` sits below WCAG AA deliberately — do NOT "fix" it** (D-052,
+  2026-09-10). Settled at #7b766e (from #6b6760), which lifts it to 4.36:1 on the
+  page and 3.87:1 on a card — both still short of 4.5. The AA-clearing value was
+  built first (#868178) and sits too close to `--ink-dim`: what decides whether
+  two type tiers read as two tiers is their contrast with EACH OTHER, and
+  clearing AA cost nearly a third of it (2.09 → 1.44). This keeps 1.67.
+  The mitigation is that R26 and D-051 moved every line that is the ONLY thing on
+  its surface up to `--ink-dim` (7.28:1); what is left on faint always sits
+  beside content that carries the meaning. A contrast audit will flag this. It is
+  a decision, not an oversight.
+  **One process note from the same exchange, in D-052:** the token and one of its
+  consumers (the empty-list line, moved to `--ink-dim`) changed in the SAME
+  commit, which destroyed the obvious way to eyeball the token and produced a
+  confident false report that the two tiers were identical. When a token and one
+  of its consumers move together, say what is left to compare against.
 * [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
   exists.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
@@ -1960,9 +2388,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   written. Added 2026-09-09 at the user's request as a temporary but open-ended
   convenience while the recommendations UI is being worked; the user asked for
   the loading to be removed when that work is done, not the file.
-  Both lines are commented as temporary and both name this checkbox. Low risk if
-  missed — the harness declines to install on the `onrender.com` host — but a
-  debug tool wired into a submitted build is its own kind of wrong.
+  Both lines are commented as temporary and both name this checkbox. **Two
+  independent protections if it is missed, added 2026-09-11 after the tag left
+  the app permanently serving itself dummy recommendations for a day:** the
+  harness now starts every page load DISARMED and intercepts nothing until
+  `debugRecs()` is called, and it declines to install at all on the
+  `onrender.com` host. So forgetting this ships an idle function rather than a
+  hijacked app — but a debug tool wired into a submitted build is still its own
+  kind of wrong.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
@@ -1993,7 +2426,15 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * **Database:** Supabase (Postgres) — see SPEC.md §5 for schema
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
 * **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB\_API\_KEY` in `.env`.
-* **External API #2 (AI):** OpenRouter, using the existing account/`.env` key. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
+* **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
+  **Two models, on purpose (D-053):** recommendations run on the cheap
+  `anthropic/claude-haiku-4.5`, the taste verdict alone on
+  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheap tier
+  to write in a plain spoken register, and the model turned out to be the
+  constraint rather than the wording. `chat()` takes an optional `model`
+  defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
+  overrides it. Overridable per feature via `OPENROUTER_MODEL` and
+  `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
 
 \---
 
@@ -2039,15 +2480,24 @@ by the user's instruction — it is parked for the recommendations overhaul. Its
 BUSY label is nonetheless covered, because that comes from the shared
 `busyButton()`; only its resting label is exempt.
 
+**And one case the in-string technique cannot cover at all** (found by R15, which
+put a sparkle icon on that same trigger): an ICON is an element, not a character,
+so no string can glue it to the words beside it. `white-space: nowrap` on the
+button is the only mechanism available, which is why that declaration on
+`.recs__trigger` is load-bearing for two independent reasons — R11's label break
+and R15's glyph. The same applies to any future icon button: reach for nowrap,
+not for a non-breaking space, and do not assume an unrelated cleanup can remove
+it.
+
 \---
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v4` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
-* The taste-verdict prompt must instruct the model to return **short plain text only** (one or two sentences, with an explicit length cap) — this is intentionally the lighter-weight of the two prompts.
+* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; this bullet said "one or two" until 2026-09-11 and would have sent a future session to shorten it back) — this is intentionally the lighter-weight of the two prompts.
 * The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 \---

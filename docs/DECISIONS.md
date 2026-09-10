@@ -6,6 +6,231 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-053 · The taste verdict alone runs on a stronger model
+
+The user asked for the verdict to sound less formal. **Four prompt versions
+later it still didn't**, and the useful part of this entry is how long it took to
+stop blaming the prompt.
+
+| version | strategy | result |
+|---|---|---|
+| v5 | ask for plain spoken English, 17 banned phrases | fixed sentence SHAPE, kept critic vocabulary |
+| v6 | 22 banned phrases + a rewrite table | "no improvement" |
+| v7 | delete the bans, 4 worked examples of the voice | worst of the chain — and broke the 2–3 sentence rule |
+
+Counting the chain is what broke the loop: the file went 2405 → 4963 chars,
+banned phrases went 1 → 17 → 22, and **worked examples of the target voice
+stayed at exactly one until v7**. Two separate lessons fell out, and both are
+worth more than the fix:
+
+*A structural ban lands; a vocabulary ban does not.* v6 said "no semicolons,
+ever" and the semicolon was gone from the very next verdict. Every vocabulary
+ban in the same file did nothing. A ban removes one option and supplies no
+replacement, so the model obeys it and falls back to its own default voice for
+the words it does choose. **Register is a sample, not a rule.**
+
+*And when three structurally different prompts produce the same output, the
+prompt is not the variable.* v7 was written as a falsifiable test — examples
+instead of bans — with the prediction stated in its commit that if it failed,
+the lever was elsewhere. It failed. Haiku 4.5 on the same v7 prompt also broke a
+rule it had held since v4 (four sentences against a stated 2–3), which is
+plain instruction-following rather than taste, and pointed the same way.
+
+**So the fix was the model, and it worked on the first try.** Same prompt (v7),
+`anthropic/claude-sonnet-5`: the register landed, and the sentence count came
+back into bounds — the second symptom resolving with the first is what makes
+"the tier was the constraint" more than a story that fits.
+
+**Cheapest real-time Sonnet, checked rather than remembered.** OpenRouter's
+public model list (free, no key, no quota) prices sonnet-5 at **$2/$10 per Mtok**
+against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict**.
+The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
+variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
+break a live request.
+
+**Per-FEATURE, not app-wide, because the user is short on quota.** `chat()` takes
+an optional `model` defaulting to the app-wide one; only `tasteVerdict.js`
+overrides it. Recommendations stay on Haiku deliberately: that task is "name some
+films", nothing about it depends on voice, and it is the feature that burns
+tokens. The AI call log already renders model per row, so the split is visible in
+the audit trail rather than buried in config — which turns a cost decision into
+demonstrable evidence.
+
+**The honest cost of getting here:** four real OpenRouter calls spent on prompt
+versions that moved nothing, and a wrong conclusion published in v6's commit
+message ("concrete sentences to steer away from have moved this prompt further
+than any adjective") that v7 disproved a day later. `docs/PROCESS.md` records the
+wrong turns alongside the fix, because a prompt chain showing only successful
+iterations would misrepresent what this work is actually like.
+
+**Trap for later:** v7 is live and it is the version that FAILED on Haiku. If the
+verdict model is ever moved back down a tier, move the prompt back to v6 with
+it — v7's four examples dilute the rules underneath them on a small model, which
+is exactly how the four-sentence break happened.
+
+---
+## D-052 · `--ink-faint` stays below WCAG AA, on purpose
+
+Claude flagged that `--ink-faint` (#6b6760) measured **3.49:1** on the page and
+**3.11:1** on a card — under AA's 4.5 for normal text, and `.no-review` and
+`.score-tmdb.is-muted` are normal-size text on a card. The user asked for it to
+be brightened, with one constraint: *"its brightness should still be closer to
+how it is right now than to `--ink-dim`; the difference between 'faint' and 'dim'
+should remain noticeable."*
+
+Claude picked the brightest value satisfying that constraint — **#868178**, AA
+clear on both grounds at 5.07 / 4.51.
+
+### The false alarm, which is worth recording on its own
+
+The user reported back that faint was now *"almost indistinguishable"* from dim.
+**That report was mistaken, and they caught it themselves.** They had compared
+"No movies yet — search for one above to get started." against "Rate at least 3
+movies to unlock recommendations (you have 0).", expecting the first to be faint
+and the second dim. But the empty-list line had been moved to `--ink-dim` in the
+*same commit*, so they were looking at dim against dim and correctly concluding
+the two were identical.
+
+**The mechanism is the lesson: two changes to the same visual question shipped
+together, and one of them silently destroyed the test for the other.** Nothing
+was wrong with either change. Worth remembering when a token and one of its
+consumers move in one commit — say what is left to compare against, or the next
+comparison is meaningless.
+
+Claude did not catch it either, and acted on the report at face value.
+
+### What re-testing actually found
+
+The user then tried candidates in devtools and reported precisely: #868178 *was*
+too close to dim, though not indistinguishable, and the #76716a correction had
+gone a shade too dark. Settled at 30% of the way back: **#7b766e**.
+
+**The metric that decides this is not the one AA is defined against.** Whether
+two type tiers read as two tiers depends on their contrast with *each other*:
+
+| | vs `--ink-dim` | on `--bg` | on a card | separation kept |
+|---|---|---|---|---|
+| `#6b6760` original | **2.09** | 3.49 | 3.11 | 100% |
+| `#868178` AA-clearing | **1.44** | 5.07 | 4.51 | 69% |
+| `#76716a` over-correction | **1.79** | 4.06 | 3.61 | 86% |
+| `#7b766e` shipped | **1.67** | 4.36 | 3.87 | 80% |
+
+Clearing AA would have cost nearly a third of the separation this token exists
+to draw. Claude had optimised a number it was measuring and damaged one it was
+not — that part of the original finding survives the false alarm intact, because
+it is arithmetic rather than an observation.
+
+### So the app knowingly ships two tokens below AA
+
+`#7b766e` is 4.36 on the page and 3.87 on a card — closer to the line than
+before, still short of it. Not a shrug at accessibility, and not something to
+re-open with a contrast audit:
+
+*The mitigation is the tier above it.* R26 and D-051 moved every line that is the
+**only thing on its surface** up to `--ink-dim` (7.28:1) — the availability
+sentences, all five zero-result messages, the failure line, the empty ranked
+list. What remains on `--ink-faint` sits beside content that carries the meaning:
+`No TMDB rating` next to a title, a poster and a score; `Based on: …` directly
+above the cards it introduces; the metadata footer under the result it describes.
+None of it is the sole carrier of anything.
+
+*And two tiers that read as one is not an accessibility win either* — it removes
+a signal from everybody, including the people the contrast rule is written for.
+
+**The transferable lesson:** when a token's job is to be *quieter than another
+token*, contrast against the background is not the whole specification. Measure
+the pair.
+
+---
+## D-051 · Card size comes from the viewport, never from the result count (R29)
+
+D-050 moved the recs grid's column count into JS but left the tracks filling the
+section, so the COUNT still decided the width. The user sent a screenshot of the
+consequence: one recommendation on a four-wide viewport rendered as a single
+card spanning the whole column, with a poster taller than the window. Two cards
+was the same fault, milder.
+
+**The user's rule, in their words:** *"I do not believe that a card's size should
+ever depend on how many cards returned. A better fix for the ugly unoccupied
+space in a row is to just center it all — and screw the spaces in the side
+edges: an evenly distributed space to the right of the row AND to the [left] of
+it looks far less hideous than having all that space in one side, trust me."*
+
+**That overruled Claude, and the record should say so.** Two turns earlier Claude
+had argued against exactly this shape, on the grounds that a centred grid sits
+narrower than the heading, the hint and the ranked list above it, breaking the
+page's single left margin. The user weighed that against a card stretched to
+1000px and chose the margins. They were right: the misalignment is a static
+quality of the layout, while the stretched card is a defect that gets worse the
+wider the window.
+
+**How, and the alternative that was rejected.** `balancedColumns()` became
+`balancedLayout()` and returns a width beside the count: the width from `fit`
+(the widest packing the viewport allows), the count from the balancing. The
+obvious implementation was to size each track — `repeat(2k, <half-track>)` plus
+`justify-content: center`. Rejected: it puts a computed pixel length into
+`grid-template-columns`, where D-050's doubled-track arithmetic lives, so the
+half-column offset that centres a short last row would have to be re-derived
+against it. Capping the CONTAINER instead (`max-width: var(--rec-width)` +
+`margin-inline: auto`) leaves the `1fr` tracks dividing a width that is already
+correct, so every piece of D-050 is untouched — and when the balanced count
+equals what fits, the cap IS the container width and both declarations are
+inert.
+
+**The trap, and it would have been silent.** `balancedLayout()` measures
+`grid.parentElement.clientWidth`, never `grid.clientWidth`. The grid's own width
+is what this function sets; reading it back would feed each answer into the next
+and ratchet the cards smaller on every frame of a window drag. Nothing about the
+rendered result would look wrong on the first run — it would only degrade while
+resizing, which is exactly the kind of bug that gets reported as "sometimes the
+cards go tiny".
+
+**This retires D-050's `> 1` restraint.** That restraint kept six cards at 4 + 2
+rather than 3 + 3, because balancing then made every card ~36% wider. With the
+width fixed by `fit` it cannot, so 3 + 3 is the same card and the same two rows,
+and the restraint is deleted rather than kept as dead weight.
+
+**The metadata footer moved out of the grid**, settled before building. The
+deciding fact is not obvious: `grid-column: 1 / -1` spans the TRACK LIST, not
+the container, so with the tracks capped and centred the footer would have
+shrunk to match — one card wide on a single-card run. Spanning it to the
+container would need a flexible gutter track at each end, shifting every column
+index, adding two gaps to the width arithmetic, breaking the half-column offset,
+and dropping auto-placed cards into gutters. Out of the grid it is a plain block
+underneath, full width, coupled to nothing.
+
+**Added hours later, once the user looked at it: a card also needs a MAXIMUM
+width, and the reason is height.** Decoupling width from the count fixed the
+one-card case only in the sense that the count no longer chose the width — the
+width still came from `fit`, so each time one fewer column fitted, the survivors
+inherited the space. The poster is `aspect-ratio: 2/3`, so a pixel of width
+costs 1.5 of height, and at one card per row that was a 390px card carrying a
+**585px poster on an 869px window**. The user sent screenshots from either side
+of all three column boundaries, which is what made the pattern legible: the
+symptom is not "one card is too wide", it is "the card gets taller every time a
+column drops out".
+
+`--rec-max: 250px`, alongside the existing `--rec-min: 190px`, so the two are the
+card's allowed width band and both live in the stylesheet. Chosen against the
+user's own evidence rather than picked: they called 258px (the 4→3 boundary)
+"slightly" too tall and 291px and 390px clearly too tall, so the cap sits just
+under the mildest case they objected to. Wide layouts are untouched — a
+four-column card is 237px and already under it.
+
+**Capping only ever shrinks, which is why it does not disturb the arithmetic
+above.** `fit` is still "how many `--rec-min` cards fit", and a capped card is
+narrower than an uncapped one, so no cap can ever let more cards fit. The
+centring machinery R29 had just built absorbs the leftover space for free.
+
+**The consequence of the footer move which was easiest to miss:** the spotlight (D-049)
+dimmed the footer only because it was a grid child — that is the whole of its
+`> *` rather than `> .rec-card`. Moving the footer out would have silently undone
+that and left it the single brightest thing on screen at the moment attention is
+meant to be on one card. The `:has()` anchor moved up to `.recs`, and the rule is
+now two selectors, scoped through `.recs__meta` so the verdict banner's own
+`.ai-meta` is untouched.
+
+---
 ## D-050 · The recs grid picks its own column count, and deliberately stops short
 
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
@@ -29,6 +254,11 @@ which is narrower than "always even the rows out", and the narrower rule is the
 one implemented: the formula runs only when the natural layout would strand a
 single card. One `> 1` in `balancedColumns()` is the whole of the difference, and
 it is commented as such, because the temptation to "finish the job" is obvious.
+> **2026-09-10:** the restraint is gone, and not because anyone finished the job
+> — its premise expired. It existed solely because balancing made every card
+> ~36% wider; R29 (D-051) decoupled card width from the count, so it cannot any
+> more, and six cards where four fit now render 3 + 3. `balancedColumns()` is
+> also now `balancedLayout()`. The paragraph stands as the reasoning at the time.
 
 **Centring a short last row needs half-column granularity, so the tracks are
 doubled and every card spans two.** This is the part most likely to be

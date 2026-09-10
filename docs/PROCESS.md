@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Thirteen merges to `main` so far (verify with
+  human sign-off.** Fourteen merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
@@ -60,7 +60,7 @@ it. The iteration history *is* the evidence of prompt engineering:
 | Feature | Versions | What each change fixed |
 |---|---|---|
 | Recommendations | `recommend_v1` → `v2` → `v3` | v1 read like a plot blurb → v2 second-person voice tied to the user's own ratings → v3 tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
-| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings |
+| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the honest finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheapest tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheap tier (D-053) |
 
 Each prompt file carries a "Change from vN" header explaining the delta. Server
 -side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
@@ -79,6 +79,14 @@ it reaches the DOM.
   model the block is data. Worst case for recommendations is a weird title (then
   TMDB-filtered); worst case for the verdict is an off-tone banner line, rendered
   via `textContent`, never `innerHTML`.
+- **Model choice is per feature, and it is a cost decision made in the open.**
+  Recommendations run on `claude-haiku-4.5`; the taste verdict alone runs on
+  `claude-sonnet-5`, after four prompt versions failed to move its register and
+  the model turned out to be the constraint rather than the wording (D-053).
+  OpenRouter's public model list was queried for the actual prices rather than
+  guessed — $2/$10 per Mtok against Haiku's $1/$5, about 0.29¢ a verdict — and
+  the call log renders the model per row, so the split is auditable rather than
+  buried in config.
 - **Cost is logged, not estimated away.** `openrouter.js` sends
   `usage.include=true` and stores the exact `usage.cost`; a per-model price table
   in `config.js` is only the fallback. Unknown model → `null`, never a guess.

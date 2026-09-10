@@ -81,7 +81,12 @@
         <h2>Your ranking</h2>
         <span class="ranked__count" id="ranked-count"></span>
       </div>
-      <ol class="ranked__list" id="ranked-list"></ol>
+      <!-- role="list" for the same reason as the recs grid: `.ranked__list` is
+           `list-style: none`, so Safari/VoiceOver drops the list semantics this
+           element was chosen for. Found while doing R21 next door — fixing the
+           semantics on one list and leaving the identical gap on the other
+           would have been worse than not looking. -->
+      <ol class="ranked__list" id="ranked-list" role="list"></ol>
       <p class="ranked__empty" id="ranked-empty" hidden>
         No movies yet — search for one above to get started.
       </p>
@@ -96,7 +101,22 @@
         </button>
       </div>
       <p class="recs__hint" id="recs-hint" role="status" aria-live="polite"></p>
-      <div class="recs__grid" id="recs-grid"></div>
+      <!-- R21. A `ul` of `li`, not a div of divs: six cards used to announce as
+           unstructured content, where the ranked list beside it has always been
+           a proper list. `role="list"` is NOT redundant — `list-style: none`
+           strips list semantics in Safari/VoiceOver, which is precisely the
+           browser a user would hit this in. -->
+      <ul class="recs__grid" id="recs-grid" role="list"></ul>
+      <!-- The AI metadata footer's own slot, deliberately OUTSIDE the grid (R29).
+           It used to be a grid child spanning `1 / -1`, which was fine while the
+           tracks filled the section. They no longer do — the grid is capped to
+           the cards' natural width and centred — and `grid-column: 1 / -1` spans
+           the TRACK LIST, not the container, so the footer would have shrunk to
+           match and a single-card run would have left it one card wide.
+           A stable empty slot rather than appending to `.recs` and querying it
+           back: it has no border, padding or content of its own, so it costs no
+           layout while empty. -->
+      <div class="recs__meta" id="recs-meta"></div>
     </section>
   </main>
 
@@ -205,6 +225,31 @@
        metrics, and looks different on every platform (D-027). The parent
        .noposter carries role="img" and an aria-label naming the film, so this is
        aria-hidden. -->
+  <!-- R15. The AI sparkle, cloned into BOTH AI trigger buttons by sparkleNode().
+       A template rather than the SVG written into each button, for the same
+       reason `.noposter` is one: two copies of a generated path is the shape
+       that gets regenerated in one place and not the other.
+       NOT `<use href>` either, which is the usual sprite answer — `<use>` puts
+       its content in a shadow tree that document CSS cannot select into, and
+       only the LARGE star is meant to twinkle. A clone is real DOM, so
+       `.sparkle-major` still matches.
+       Inline SVG, not the emoji the item asked for (D-027): an emoji is a fixed
+       full-colour image that ignores the button's colour, so it would stay
+       bright while the label dims at 0.45 opacity on a disabled trigger, and
+       would not invert with the amber fill on hover. `fill="currentColor"`
+       follows all of it for free.
+       aria-hidden: both buttons already carry their own text.
+       Both paths are GENERATED — a four-point star from a centre, a tip radius
+       and a waist offset, rounded to one decimal. The waist is what decides
+       whether it reads as a sparkle or a thin cross at button size. Re-generate
+       rather than nudging a number by hand. -->
+  <template id="ai-sparkle">
+    <svg class="ai-sparkle" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path class="sparkle-major" d="M9.5 1.5 Q12.1 6.9 17.5 9.5 Q12.1 12.1 9.5 17.5 Q6.9 12.1 1.5 9.5 Q6.9 6.9 9.5 1.5 Z" fill="currentColor"/>
+      <path d="M18.4 12.8 Q20 15.8 23 17.4 Q20 19 18.4 22 Q16.8 19 13.8 17.4 Q16.8 15.8 18.4 12.8 Z" fill="currentColor"/>
+    </svg>
+  </template>
+
   <template id="noposter-icon">
     <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
          fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
@@ -219,8 +264,13 @@
        Pre-submission blockers in CLAUDE.md.
        Loads the recommendations debug harness so debugRecs(n) is available in
        the console without pasting the file each time. It only defines that one
-       function; nothing changes until it is called, and it declines to install
-       itself on the deployed host. Deliberately BEFORE app.js so window.fetch is
+       function; nothing is intercepted until it is called, and it declines to
+       install itself on the deployed host.
+       That "until it is called" is guarded by a flag INSIDE the harness, and it
+       had to be added — for a day this tag left the app permanently serving
+       itself dummy recommendations on every load, because the file arms its
+       fetch patch the moment it runs and pasting it into a console had always
+       been the arming. Deliberately BEFORE app.js so window.fetch is
        already patched by the time anything can click. -->
   <script src="/debug-recs.js"></script>
 

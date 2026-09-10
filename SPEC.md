@@ -48,7 +48,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 
 ### 2.3 Taste Verdict Banner (the fun, low-stakes AI touch)
 
-* A banner on the Home view where an AI agent gives a short, playful one-or-two-sentence "verdict" on the user's movie taste, based on their currently rated movies (titles + ratings, and optionally review text).
+* A banner on the Home view where an AI agent gives a short, playful one-or-two-sentence "verdict" on the user's movie taste *(as built this settled at **2–3 sentences, ~35–60 words** — `taste_verdict_v3` followed this line literally and produced a terse paraphrase of the ratings, so v4 gave the room back; see `docs/DECISIONS.md` D-014. The requirement as written stays, annotated, rather than being quietly rewritten to match the code)*, based on their currently rated movies (titles + ratings, and optionally review text).
 * Distinct from the recommendation feature in § 2.2 — this is commentary, not suggestions. Tone should be light/teasing, not generic praise ("Five 10/10 action movies and zero dramas — you watch films to turn your brain off, and honestly? Respect.").
 * Available once **at least 2 movies are rated** (lower bar than recommendations — this is just banter, it doesn't need much signal).
 * Regenerated only on explicit user action (a small "New verdict" refresh button on the banner) — never silently regenerated on every page load, to avoid burning OpenRouter credit on an unrequested repeat call.
@@ -191,7 +191,7 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 
 * Each feature has its **own versioned prompt file** — `prompts/recommend\_v1.md` and `prompts/taste\_verdict\_v1.md` — never inlined as strings in application code, never sharing one file.
 * The recommendation prompt requires **structured JSON output** (array of `{title, reason}` objects) — the app must not depend on regex-parsing free-form prose.
-* The taste verdict prompt requires a **short plain-text output** (one or two sentences) — no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
+* The taste verdict prompt requires a **short plain-text output** (one or two sentences as specified; 2–3 as shipped, see § 2.3) — no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
 * The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown (§ 2.2, step 4). This is the concrete guard against the model hallucinating a title that doesn't exist. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
 * See CLAUDE.md § Prompt Injection for how user-supplied review text (which feeds into *both* prompts) is handled safely.
 

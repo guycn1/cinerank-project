@@ -14,7 +14,22 @@
   --ink: #f4f1ea;
   --ink-soft: #e8e5de; /* a half-step below --ink — the taste verdict */
   --ink-dim: #a29d94;
-  --ink-faint: #6b6760;
+  /* Nudged up from #6b6760 on 2026-09-10, and DELIBERATELY LEFT SHORT OF WCAG AA
+     — do not "fix" that, read D-052 first.
+     Settled at 30% of the way between two values that were each tried and
+     rejected. #868178 was built first, to clear AA (4.5) on both grounds, and
+     sits too close to --ink-dim; #76716a was the correction and went a shade too
+     dark. The number that decides whether two tiers read as two tiers is their
+     contrast with EACH OTHER, not with the background AA is defined against:
+     the original #6b6760 gave 2.09 against --ink-dim, #868178 gave 1.44, and
+     this keeps 1.67 — 80% of the separation the token exists to draw, with the
+     floor still lifted (3.49 → 4.36 on --bg, 3.11 → 3.87 on a card).
+     Both are under AA, knowingly. The tier ABOVE is the mitigation: R26 and
+     D-051 moved every line that is the only thing on its surface to --ink-dim,
+     so what is left on --ink-faint sits beside content that carries the meaning
+     (`No TMDB rating` next to a title and poster, `Based on: …` immediately
+     above the cards it introduces). */
+  --ink-faint: #7b766e;
   --amber: #f5c15b;
   --amber-deep: #d99b2f;
   --amber-bright: #ffd98f; /* the AI-log reveal trigger whose panel is open */
@@ -249,6 +264,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
+  /* Required by the glyph rule once this button carries an icon (R15): a glyph
+     must never be separated from the word it belongs to, and everywhere else in
+     the app that glue is a non-breaking space inside the string. An icon is an
+     ELEMENT, so no string can hold it — nowrap is the only mechanism, exactly as
+     on `.recs__trigger`. Do not remove it as redundant on a two-word label. */
+  white-space: nowrap;
   transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 /* :not(:disabled) so the amber hover doesn't fight the busy state — same as
@@ -606,7 +627,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   letter-spacing: -0.01em;
 }
 .ranked__count { color: var(--ink-faint); font-size: 0.9rem; }
-.ranked__empty { color: var(--ink-faint); font-style: italic; padding: 2rem 0; }
+/* `--ink-dim`, not `--ink-faint` (2026-09-10, user-raised). Three reasons for
+   the colour, none of them taste: faint measured 3.49:1 on this ground at the
+   time and 4.36 now, under WCAG AA for normal text either way (it moved in the
+   same session — D-052); R26's rule says a line that IS the only thing its
+   section shows takes the base weight, where the faint tier is for absences
+   sitting BESIDE content (`No TMDB rating`, `No review yet` both have a card
+   around them); and this is the first thing a first-time visitor sees.
+   The padding was `2rem 0`, which put 32px above the line and 80px below it,
+   since `.recs__head` brings its own 3rem — real space doing no work, and the
+   line read as adrift in it. Claude cut the bottom to zero on the argument that
+   the line belongs to the heading above it and should sit nearer that; the user
+   tuned it in devtools and put a smaller asymmetry back, which does look
+   better. So: tight to its own heading, with just enough beneath the line that
+   it does not sit flush on nothing. Tuned by eye, and there is nothing to
+   re-derive here — if it is ever changed again, change it by looking at it. */
+.ranked__empty { color: var(--ink-dim); font-style: italic; padding: 0.8rem 0 1rem; }
 
 /* ranked list ------------------------------------------------------- */
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
@@ -1217,7 +1253,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      "Get recommendations" is the one label EXEMPT from the glyph/line-break rule
      in CLAUDE.md § Frontend Design Notes — the user granted that explicitly — so
      this is not that rule being enforced. It is a separate fix that happens to
-     make the exemption moot. */
+     make the exemption moot.
+     AND `white-space: nowrap` now does a SECOND job, added by R15: this button
+     carries a sparkle icon, and the rule that a glyph must never be separated
+     from its word applies to it. Everywhere else that glue is a non-breaking
+     space inside the string — but an icon is an ELEMENT, not a character, so no
+     string can hold it to the words beside it. The nowrap is the only mechanism
+     available here, which makes this declaration load-bearing for two separate
+     reasons. Do not remove it because R11 looks settled. */
   flex-shrink: 0;
   white-space: nowrap;
   background: transparent;
@@ -1230,6 +1273,93 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+/* Sized in `em` so it tracks the button's font, and nudged onto the text
+   baseline the same way `.spinner` and `.search-btn__icon` are — this button is
+   inline, NOT a flex container, and that is deliberate: `busyButton()` swaps the
+   contents for a spinner plus a label that already begins with a non-breaking
+   space, so a flex `gap` would sit on top of that space and make the busy state
+   wider than the resting one. Following the search button's pattern keeps both
+   states spaced identically.
+   1.3em, up from 1.05 — the user asked for bigger and more pronounced, and both
+   halves matter: the size is here, the WEIGHT is in the paths (see index.html,
+   where the arms were thickened at the waist). The `vertical-align` scales with
+   it, -0.16em to -0.28em, or a taller icon sits high against the text. */
+/* Sized per BUTTON, not once on the icon: it rides on two triggers of different
+   weights, and the verdict's is the lower-stakes control (SPEC 2.3, and R25 kept
+   its border deliberately quieter for the same reason). Its `font-size: 0.88rem`
+   already shrinks an `em`-sized icon by 12%; 1.15em takes it to ~22% smaller in
+   absolute terms, so it reads as the smaller button's icon rather than the same
+   icon crammed in. `vertical-align` scales with each, or a taller icon rides
+   high against its text. */
+.recs__trigger .ai-sparkle { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
+/* AMBER, not the button's `--ink`, even though the icon is `fill="currentColor"`
+   and would otherwise inherit it. In this app amber IS the AI marker — the rec
+   card's "AI pick" badge, the fully-amber recs trigger, the AI-call-log link —
+   so a white sparkle here read as decoration while the identical mark two
+   sections down read as a signal. The user spotted it: same glyph, same job,
+   two meanings.
+   THIS IS NOT R25 BEING UNDONE, and the line matters. R25 says the verdict
+   button must stay quieter than `.recs__trigger` and warns against "finishing
+   the job" by making it amber — that is about the button's CHROME, its border
+   and its label, which both stay exactly as R25 left them (`--ink` label, a
+   0.3-alpha amber border against the trigger's solid one). What changes is a
+   ~15px semantic mark. The hierarchy still reads: one button is amber, the other
+   has an amber icon on it.
+   Setting `color` rather than `fill` so the paths keep resolving `currentColor`
+   — a `fill` here would work today and would silently stop following anything
+   the icon is later asked to inherit. */
+.verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; color: var(--amber); }
+/* The big star twinkles; the small one holds still. Both moving reads as a
+   throbbing icon, one moving reads as a catch of light — which is the whole
+   difference between "shiny" and "distracting" on an element that is on screen
+   for the entire session.
+   NOT a gradient fill, which is the obvious way to make something look shiny and
+   would have cost more than it gave: `fill="currentColor"` is what makes this
+   icon invert on the amber hover and dim with the label when the button is
+   disabled (D-027), and a gradient cannot follow any of that.
+   `transform-box: fill-box` is required, not tidiness — without it an SVG
+   element's transform-origin resolves against the SVG's own viewport corner, so
+   `scale()` would swing the star toward the top-left instead of breathing in
+   place.
+   `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
+   strong ease-OUT that would snap bright and drift back. The app now has two
+   animations deliberately off `--ease` — this and the rec-card exit — and both
+   say why at the declaration. */
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0.8; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.07); }
+}
+/* The glow the scale alone could not deliver — the user could still barely see
+   the twinkle, so the shine is now light rather than only motion.
+   ON THE `<svg>` ROOT, NOT ON THE PATH, and that is the load-bearing bit. A CSS
+   `filter` on an SVG child resolves its lengths in the local user coordinate
+   system (viewBox units), where `3px` would mean 3/24ths of the icon and vary
+   with the rendered size; on the root it is plain CSS pixels. It also means the
+   halo is not clipped: an outer `<svg>` clips its own viewport, so a glow drawn
+   inside would be cut off at the box edge, while a CSS filter on the element
+   paints outside it freely.
+   White rather than `currentColor`: a glow the same colour as the thing glowing
+   is just a blur. The white is what reads as a glint. It is safe from the
+   disabled state — `.recs__trigger:disabled` sets `opacity` on the BUTTON, so
+   everything inside dims together regardless of colour; only the hover, which
+   inverts the icon to `#1a1205` on an amber fill, shows white against amber.
+   Same 3s and same easing as the twinkle so the two stay in phase; they are
+   separate animations only because they sit on different elements. */
+@keyframes sparkle-glow {
+  0%, 100% { filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85)); }
+}
+.ai-sparkle { animation: sparkle-glow 3s ease-in-out infinite; }
+.ai-sparkle .sparkle-major {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+/* A disabled button should not be catching the eye — the section is locked and
+   the icon twinkling at the user would be inviting a click that does nothing.
+   Both animations stop, or the glow would keep pulsing on a dead control. */
+button:disabled .ai-sparkle,
+button:disabled .sparkle-major { animation: none; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is
@@ -1305,17 +1435,40 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    declaration can never be invalid, but that is insurance, not a design
    decision: JS sets the real value in the same synchronous task that appends the
    cards, so no frame is ever painted with the fallback.
-   The exact rule for choosing the count — and the one case it deliberately
-   leaves alone — is in `balancedColumns()` in app.js. */
+   The exact rule for choosing the count, and the card width that goes with it,
+   is in `balancedLayout()` in app.js. (It was `balancedColumns()`, returning a
+   count alone, until R29 made the width its business too.) */
 .recs__grid {
+  list-style: none; /* R21 — it is a `ul` now; `role="list"` keeps the semantics */
   display: grid;
   /* The narrowest a card may be, and the single source of truth for it: JS reads
      this property to work out how many columns actually fit. It no longer
      appears in `grid-template-columns` — with the count decided ahead of time
      there is no `minmax()` left to put it in — so do not delete it as unused. */
   --rec-min: 190px;
+  /* The WIDEST a card may be, and the reason is height rather than width: the
+     poster is `aspect-ratio: 2/3`, so every pixel of extra width costs 1.5 of
+     height. Without a cap, each time one fewer column fits the survivors
+     inherit all the space — at one card per row that meant a ~585px poster on
+     an 869px window. Read by `balancedLayout()` exactly as `--rec-min` is; the
+     two together are the card's allowed width band, and both live here so the
+     stylesheet stays the single source of truth for them. */
+  --rec-max: 250px;
   grid-template-columns: repeat(var(--rec-tracks, 6), 1fr);
   gap: 1.1rem;
+  /* R29 — A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK.
+     `--rec-width` is exactly the room `--rec-tracks` cards need at the width the
+     VIEWPORT allows, so the auto margins centre whatever is left over. One
+     returned card is therefore one normal-sized card with the slack split evenly
+     either side, instead of a single card stretched across the whole column with
+     a poster taller than the window (user-raised, with a screenshot).
+     Capping the CONTAINER rather than sizing each track is what keeps this
+     small: the `1fr` tracks divide a width that is already correct, so the
+     doubled-track/half-column machinery below is untouched. When the balanced
+     count equals what fits, `--rec-width` IS the container width and these two
+     declarations do nothing at all. */
+  max-width: var(--rec-width, 100%);
+  margin-inline: auto;
 }
 .rec-card {
   /* `auto / span 2`, not the shorter `span 2`. One value would leave
@@ -1353,7 +1506,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      times the height of a ranked one and 10px of travel read as a flicker
      rather than an arrival (R27). Separate names mean tuning one can never
      move the other. */
-  animation: rec-enter 0.5s var(--ease) backwards;
+  animation: rec-enter 0.75s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1366,20 +1519,69 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
     opacity 0.25s var(--ease);
 }
 
-/* R27's exit. The previous run's cards fade and settle back rather than being
-   dropped in one frame. Applied to any grid CHILD, not just `.rec-card`: the
-   metadata footer describes the run being replaced and is equally stale.
-   `forwards` is correct HERE and is not the D-043 trap: the fill has to hold the
-   invisible end state for the frame between the animation finishing and the JS
-   removing the node, and the node is gone immediately afterwards, so there is
-   nothing left for it to pin. Do not copy this fill onto `.rec-card` itself.
+/* The exit (R27, rebuilt by R30). The previous run's cards close one after
+   another like pages of a book, then the footer that described them fades.
+
+   R27 shipped this as a single uniform `translateY(6px) scale(0.97)` fade, on
+   the argument that the exit is clearing the decks while a request is already
+   in flight and should read as one gesture. The user watched it and disagreed
+   on both counts: the uniform `scale()` pulls both edges inward at once, which
+   reads as the card sliding SIDEWAYS rather than leaving — they called the
+   result "stuttering" — and they wanted the cards to go one by one, as they
+   arrive. Both are fixed here; that paragraph is not preserved because it was
+   describing live behaviour, not a past decision.
+
+   `scaleX` toward ONE edge is what makes it a hinge. The default
+   `transform-origin` is the centre, which collapses the card inward from both
+   sides — that is a shrink, and it is the very thing that read as sideways
+   movement. `left center` pins the spine and swings the rest shut.
+
+   `scaleY` shrinks alongside it — to 0.1, tried at 0.5 first and taken further
+   by the user — so the card collapses toward a horizontal line as it swings
+   shut, rather than simply being deleted at full height. Not to 0: something
+   still has to be visibly closing rather than already gone. `left center` gives each axis
+   what it needs from one declaration — X hinged at the spine, Y closing evenly
+   on the middle.
+
+   TRANSFORM-ORIGIN IS SCOPED TO `.is-leaving`, DELIBERATELY. Putting it on
+   `.rec-card` would silently move the hover `scale(1.02)` off centre, and that
+   effect depends on growing from the middle so it opens the gaps on both sides
+   equally — the whole finding of D-043's lift removal. One property, two
+   effects, and only one of them wants an offset origin.
+
    `pointer-events: none` because the footer's AI-call-log link stays clickable
    through the fade otherwise, and a click on something on its way out is never
-   what was meant. */
-.recs__grid > .is-leaving {
-  animation: rec-leave 0.28s var(--ease) forwards;
-  pointer-events: none;
+   what was meant.
+
+   `forwards` is correct HERE and is not the D-043 trap: the fill holds the
+   closed state for the frame between the animation ending and the JS removing
+   the node, and the node is gone immediately after. Do not copy this fill onto
+   `.rec-card` itself.
+
+   `ease-in`, NOT the `--ease` every other animation here uses, and this is the
+   larger half of why the first version read as unstaggered. `--ease` is
+   cubic-bezier(0.22, 1, 0.36, 1), a strong ease-OUT built for arrivals: 40% of
+   the way by t=0.1 and 67% by t=0.2. Each card therefore did its whole visible
+   move in the first ~70ms of a 340ms animation, so six cards 55ms apart flashed
+   through their moves inside a few hundred milliseconds and looked simultaneous
+   — the stagger was real and had nothing left to separate. `ease-in` inverts
+   that (2% at t=0.1, 32% at t=0.5): the card holds, then leaves, which is what
+   makes each departure a discrete event. It is also the right shape for a
+   departure on its own terms — things accelerate away, they decelerate in.
+   Total for a full six cards is 0.34s + 5x120ms = 0.94s. That is the budget's
+   ceiling and it is deliberate: the exit only ever runs while a request is in
+   flight, and an AI call is seconds. */
+.recs .is-leaving { pointer-events: none; }
+.rec-card.is-leaving {
+  /* 0.34s — kept in step with `RECS_EXIT_MS` in app.js, which the removal
+     backstop reads. Change both or the backstop fires early. */
+  animation: rec-close 0.34s ease-in forwards;
+  transform-origin: left center;
 }
+/* The footer is a line of text, not a card, and a book-close on it just squashes
+   the words. It fades instead, undelayed, so it is already going while the first
+   card is still closing. */
+.recs__meta .is-leaving { animation: rec-fade 0.34s var(--ease) forwards; }
 .rec-card::before {
   content: 'AI pick · not yet rated';
   position: absolute;
@@ -1467,20 +1669,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
 
-     `:has()` and NOT `.recs__grid:hover > *:not(:hover)`, which is the shorter
-     and obvious form. The grid has a 1.1rem gap that belongs to the grid but to
-     no card, so the short form would fire while the pointer merely crosses a
-     gap, dimming EVERYTHING with nothing lit — and moving between cards would
-     strobe. `:has(.rec-card:hover)` fires only when a card really is hovered.
+     `:has()` and NOT a plain `:hover` on the container, which is the shorter and
+     obvious form. The grid has a 1.1rem gap that belongs to the grid but to no
+     card, so the short form would fire while the pointer merely crosses a gap,
+     dimming EVERYTHING with nothing lit — and moving between cards would strobe.
+     `:has(.rec-card:hover)` fires only when a card really is hovered, and
+     hovering the FOOTER dims nothing at all for the same reason.
 
-     `> *` and not `> .rec-card`, so the metadata footer dims with the cards.
-     That was Claude's second objection to porting this and it turns out to be
-     one line, not a blocker: the footer is a grid CHILD, so dimming only cards
-     would leave it the single brightest thing on screen at the exact moment
-     attention is meant to be on one card. It carries the AI-call-log link, which
-     at 0.7 is still legible and still one pointer-move from full strength —
-     and hovering the FOOTER dims nothing at all, because the `:has()` tests for
-     a hovered card.
+     The footer dims WITH the cards, which was Claude's second objection to
+     porting this at all and turned out to be trivial. It carries the
+     AI-call-log link, which at 0.7 is still legible and one pointer-move from
+     full strength. (This originally read `> *` rather than `> .rec-card` on the
+     grid, because the footer was then a grid child. R29 moved it out, so it is
+     two selectors now — see the rule below.)
 
      The transition lives on `.rec-card` (and just below, for the footer), never
      here: a transition declared only in the hovered state eases in and snaps
@@ -1493,11 +1694,31 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      `backwards` — with `both`, `rec-enter`'s final `opacity: 1` would have been
      pinned on every card and they would simply have refused to dim, silently
      (D-043, same bug one property over from the transform). */
-  .recs__grid:has(.rec-card:hover) > *:not(:hover) { opacity: 0.7; }
-  /* Scoped to the grid: `.ai-meta` is shared with the verdict banner, which has
-     no spotlight and must not gain a stray transition. */
-  .recs__grid > .ai-meta { transition: opacity 0.25s var(--ease); }
+  /* The anchor is `.recs`, not `.recs__grid`, and that is R29's doing rather
+     than a tidy-up: the metadata footer moved OUT of the grid, and dimming only
+     what is left inside would leave it the single brightest thing on screen at
+     the exact moment attention is meant to be on one card — which is the whole
+     of D-049's `> *`. Two selectors now, because the footer is no longer a
+     sibling of the cards.
+     Hovering the FOOTER still dims nothing: the `:has()` tests for a hovered
+     card. */
+  .recs:has(.rec-card:hover) .rec-card:not(:hover),
+  .recs:has(.rec-card:hover) .recs__meta .ai-meta { opacity: 0.7; }
+  /* Scoped through `.recs__meta`: `.ai-meta` is shared with the verdict banner,
+     which has no spotlight and must not gain a stray transition. */
+  .recs__meta .ai-meta { transition: opacity 0.25s var(--ease); }
 }
+
+/* R17. The badge asserts two things and only one of them survives being acted
+   on: "AI pick" stays true forever, "not yet rated" stops being true the moment
+   the user adds the film and rates it — which is the FIRST thing the card
+   invites them to do, since adding opens the rate dialog. The card behind the
+   dialog then sat there contradicting the ranked list.
+   The false half is dropped rather than the whole badge: the provenance marker
+   is the reason this element exists (SPEC § 3.2 asks for a marker distinguishing
+   AI-suggested cards), and it is still accurate. `.is-rated` is toggled by
+   syncRecCardBadges(). */
+.rec-card.is-rated::before { content: 'AI pick'; }
 
 .rec-card img, .rec-card .noposter {
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
@@ -1534,7 +1755,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 .rec-card__body button {
   width: 100%;
-  margin-top: auto; /* pin every 'Add to my list' to the card's bottom edge */
+  margin-top: auto; /* pin every '+ Add to my list' to the card's bottom edge */
   background: var(--amber);
   color: #1a1205;
   border: none;
@@ -1599,7 +1820,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .log-link:hover { color: var(--amber-bright); }
 
 /* Placement: the recs grid is a grid, so span every column. */
-.recs__grid .ai-meta { grid-column: 1 / -1; }
+/* Was `.recs__grid .ai-meta { grid-column: 1 / -1 }` until R29 moved the footer
+   into its own slot below the grid. The grid's `gap` used to separate the two,
+   so the margin here replaces it at the same 1.1rem — put on the FOOTER and not
+   on the empty slot, so a run that produced no footer contributes nothing. */
+.recs__meta .ai-meta { margin-top: 1.1rem; }
 /* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
 .verdict__inner .ai-meta { flex: 1 0 100%; }
 
@@ -2425,6 +2650,24 @@ body:has(dialog[open]) { overflow: hidden; }
   animation: spin 0.7s linear infinite;
   vertical-align: -0.15em;
 }
+/* Announced, never seen (R22). The recs hint is the section's only live region,
+   so anything a screen reader needs to hear about a run has to reach THAT
+   element — the cards themselves are not announced and should not be, six at a
+   time. `clip-path: inset(50%)` rather than the older `clip: rect(...)`, and
+   `white-space: nowrap` so a long string cannot be collapsed to a single
+   character column and read out one letter per line by some engines. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
@@ -2440,7 +2683,18 @@ body:has(dialog[open]) { overflow: hidden; }
    to be able to watch. It also shrinks slightly, which the entrance does not —
    leaving is a retreat, arriving is a rise. */
 @keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-@keyframes rec-leave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(6px) scale(0.97); } }
+/* One straight run from full to gone, so the card fades THROUGHOUT the close
+   rather than in a stage of its own (user's call). It first shipped with the
+   opacity held back to 72% at the 60% mark, on the theory that the hinge should
+   be the visible event; that was written against `--ease`, which put the whole
+   hinge movement in the first fifth of the animation and left the fade with
+   nothing to overlap. Under `ease-in` the two now run together for the whole
+   duration, which is what the hold was reaching for anyway. */
+@keyframes rec-close {
+  from { opacity: 1; transform: scale(1, 1); }
+  to { opacity: 0; transform: scale(0, 0.1); }
+}
+@keyframes rec-fade { from { opacity: 1; } to { opacity: 0; } }
 
 /* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
    posterNode), replacing a 🎬 emoji that could not take a colour, sat off the

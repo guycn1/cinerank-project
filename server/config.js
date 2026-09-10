@@ -30,6 +30,8 @@ export const config = {
   openrouter: {
     apiKey: required('OPENROUTER_API_KEY'),
     base: 'https://openrouter.ai/api/v1/chat/completions',
+    // The app-wide default, and what RECOMMENDATIONS use. Deliberately the cheap
+    // tier: that task is "name some films" and Haiku does it well.
     model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
   },
 
@@ -40,6 +42,15 @@ export const config = {
   },
   tasteVerdict: {
     minRatedMovies: 2,
+    // The ONE feature that does not run on the cheap tier (D-053). Four prompt
+    // versions failed to get Haiku to write in a plain spoken register; the
+    // model turned out to be the constraint, not the wording. Sonnet-5 is the
+    // cheapest real-time Sonnet on OpenRouter ($2/$10 per Mtok against Haiku's
+    // $1/$5 — 2x, and ~0.29c a verdict), so this buys the register for a rounding
+    // error. Recommendations stay on Haiku: nothing there depends on voice.
+    // NOT a `:batch` slug, however cheap it looks in OpenRouter's list — those
+    // are asynchronous and would break a live request.
+    model: process.env.OPENROUTER_VERDICT_MODEL || 'anthropic/claude-sonnet-5',
   },
 };
 
@@ -51,6 +62,10 @@ const PRICE_PER_MTOK = {
   'anthropic/claude-haiku-4.5': 3.0,
   'anthropic/claude-3-haiku': 0.9,
   'anthropic/claude-sonnet-4.5': 9.0,
+  // Blended and rounded UP so the fallback can never under-report: sonnet-5 is
+  // $2/Mtok in and $10 out, and a verdict is ~93% input, so the true blend is
+  // about 2.6.
+  'anthropic/claude-sonnet-5': 3.0,
   'openai/gpt-4o-mini': 0.4,
 };
 
