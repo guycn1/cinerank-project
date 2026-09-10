@@ -67,7 +67,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   so one recommendation is one normal-sized card with the slack split evenly
   either side. The AI metadata footer sits in its own slot BELOW the grid, not
   inside it, so it stays full width whatever the cards do.
-* Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` (2–3
+* Taste verdict: `POST /api/taste-verdict`, prompt **`taste_verdict_v6` — v7 exists on disk and was ROLLED BACK** (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings — in
   plain spoken English rather than review prose; v5–v7 changed the REGISTER
   only. **v7 is the one that matters as a lesson: v5 and v6 tried to get there
@@ -78,7 +78,23 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   semicolons, ever" and the semicolon vanished from the next verdict), a
   VOCABULARY ban does nearly nothing — it removes an option and supplies no
   replacement, so the model obeys it and falls back to its own default voice for
-  the words it does pick. Register is a sample, not a rule.),
+  the words it does pick. Register is a sample, not a rule.
+  **And then v7 failed too, which is the actual finding.** Four worked examples
+  in place of the bans produced the worst verdict of the chain: still
+  "gratuitous", plus 4 sentences where every version since v4 has said 2–3 — a
+  measurable rule break, not a matter of taste, and probably caused by four
+  blockquotes pushing the Rules section down and the model matching the
+  examples' clipped rhythm by adding a sentence. Rolled back to v6, which at
+  least keeps its own rules.
+  **THREE STRUCTURALLY DIFFERENT PROMPTS — bans, more bans, examples — PRODUCED
+  THE SAME REGISTER. The prompt is not the lever.** Do not write v8. The
+  remaining levers are the model (`anthropic/claude-haiku-4.5` is the cheapest
+  tier and register control is where small models are weakest; it is one shared
+  `OPENROUTER_MODEL` for both features, so a verdict-only change needs a
+  per-feature override) and `temperature: 0.85` in `tasteVerdict.js`. A third
+  option is real few-shot — example turns in the messages array rather than
+  prose inside the system prompt — which is a different MECHANISM and would need
+  a small change in `openrouter.js`.),
   `max_tokens` 180, server-side sentence-aware truncation (450-char ceiling) +
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
