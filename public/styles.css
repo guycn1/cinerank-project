@@ -184,6 +184,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   grid-template-columns: minmax(0, 1fr) auto;
   column-gap: clamp(0.75rem, 2.5vw, 1.5rem);
   align-items: center;
+  --title-size: clamp(2rem, 6vw, 3.2rem);
 }
 .site-head .mark { grid-column: 1; grid-row: 1; }
 .site-head .tagline { grid-column: 1; grid-row: 2; }
@@ -200,12 +201,31 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      aligning to `start` is the point — the icon is taller than row 1, and if it
      occupied row 1 alone that row would stretch to fit it and shove the tagline
      down. Spanning lets it overhang into row 2's space and change nothing.
-     The negative margin cancels the link's own padding EXACTLY, so what lines up
-     with the top of the header block is the glyph, not the invisible hit area.
-     Without it the icon reads ~7px low and the padding gets blamed for it. */
+
+     `align-self: start` alone then OVERSHOT, which is the non-obvious part and
+     is worth keeping: it aligns to the top of the h1's LINE BOX, and the line
+     box is far taller than the letters. The h1 inherits `line-height: 1.55`, so
+     above the cap of the "C" there is half-leading PLUS the font's own
+     ascent-above-cap — together roughly 0.4em of empty space. Top-aligning to
+     the box therefore puts the icon visibly above the title it is meant to line
+     up with, which is exactly what the second screenshot showed.
+
+     --gh-drop is that empty space, expressed as a fraction of the title so the
+     alignment holds as the h1 scales rather than only at one viewport. It is
+     THE dial for this: raise it to sit lower, lower it to sit higher. The
+     padding is subtracted so the value describes where the GLYPH lands, not
+     where the invisible hit area does.
+     Tuned by eye against the user's ruler. If it ever needs to be exact rather
+     than close, measure instead of guessing (D-030 is the entry about
+     estimating Fraunces metrics twice and being wrong twice):
+       const h = document.querySelector('.mark h1').getBoundingClientRect();
+       const g = document.querySelector('.gh-link svg').getBoundingClientRect();
+       console.log(g.top - h.top);   // 0 puts the icon level with the line box
+  */
+  --gh-drop: 0.36;
   grid-row: 1 / span 2;
   align-self: start;
-  margin-top: calc(var(--gh-pad) * -1);
+  margin-top: calc(var(--title-size) * var(--gh-drop) - var(--gh-pad));
   justify-self: end;
   display: inline-flex;        /* shrink-wraps the SVG and kills the inline
                                   baseline gap that would offset the circle */
@@ -260,7 +280,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .mark h1 {
   font-family: 'Fraunces', serif;
   font-weight: 900;
-  font-size: clamp(2rem, 6vw, 3.2rem);
+  /* Held in a custom property because the GitHub link's vertical offset is a
+     FRACTION of this size — see --gh-drop. Two separate declarations would
+     silently break that alignment the day one of them was tuned. */
+  font-size: var(--title-size);
   letter-spacing: -0.02em;
 }
 .mark h1 span { color: var(--amber); }
