@@ -2156,6 +2156,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    echo `.verdict__refresh:hover` rather than inventing a third set. Amber and
    not white, because the glyph is already `--ink` and a glow the colour of the
    thing glowing is just a blur (R15).
+   It carries a `title="View source on GitHub"` tooltip (user-asked) ALONGSIDE
+   its `aria-label`, and the two deliberately differ: the title is the pointer
+   tooltip, the aria-label is the accessible name and the only one that can say
+   the tab is new. They cannot double up — an `aria-label` wins the accessible
+   name outright, so the title is never announced. Do not merge them.
    `border-radius: 50%` on the link so the halo is round like the mark itself; a
    rectangular glow around a circular glyph reads as a stray box. Hover is gated
    on `@media (hover: hover)`, the capability query the card hovers settled, so a
