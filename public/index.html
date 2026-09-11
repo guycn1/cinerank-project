@@ -52,6 +52,19 @@
   <main>
     <!-- Taste Verdict Banner (SPEC § 2.3) — visible early, compact, playful -->
     <section class="verdict" id="verdict" aria-label="Taste verdict">
+      <!-- The travelling glint on the banner's ring (step 4b). An SVG stroke,
+           not a gradient, and the reason is geometric rather than aesthetic: a
+           dash travels a PATH, so it keeps one width and one speed the whole way
+           round. Gradients cannot — a linear one crosses a frame in two places
+           at once, and a conic one maps equal angles to wildly unequal arc
+           lengths on a box this wide. Both were built and both failed; see the
+           note in styles.css.
+           `pathLength="100"` normalises the perimeter to 100 units, so the dash
+           is a PERCENTAGE of the ring and the banner can be any width without JS
+           measuring it. Decorative, so aria-hidden. -->
+      <svg class="verdict__sheen" aria-hidden="true" focusable="false">
+        <rect pathLength="100" />
+      </svg>
       <div class="verdict__inner">
         <span class="verdict__label">The verdict</span>
         <!-- is-muted from the start: this is a placeholder like every other
