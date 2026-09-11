@@ -370,9 +370,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   border-radius: var(--radius);
   padding: 2px;
   background:
-    /* The travelling highlight — the thing the eye actually tracks. */
+    /* The travelling highlight — the thing the eye actually tracks.
+       A GLINT, not a wash. The first attempt spanned 42–58% of a 300% layer,
+       which is ~48% of the banner's width: a 500px soft gradient reads as the
+       edge gently brightening, not as something moving across it. The core is
+       now ~2% of the layer (~6% of the banner, around 65px) with a short halo
+       either side.
+       And it is near-WHITE at high alpha because the base it crosses is bright:
+       a pale 0.6 wash over `--amber` composites to almost the same colour, so
+       the old band only showed at all while it happened to be over the crimson
+       stop. Contrast here is against the BASE, not against the page. */
     linear-gradient(110deg,
-      transparent 42%, rgba(255, 241, 214, 0.6) 50%, transparent 58%),
+      transparent 47%,
+      rgba(255, 250, 235, 0.25) 49%,
+      rgba(255, 252, 245, 0.95) 50%,
+      rgba(255, 250, 235, 0.25) 51%,
+      transparent 53%),
     /* The warm base, now STATIC. */
     linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   background-size: 300% 100%, 100% 100%;
@@ -403,11 +416,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        both keyframes. Animating `background-position` would otherwise move every
        layer together.
      - `no-repeat` so a second copy of the band can never tile into view.
-     Dials, in order of bluntness: the 0.6 alpha, the 42/50/58 band width, the
-     9s, then the 300%. Keep it SLOW — it is near the top of the page on every
-     load. The band is a soft gradient inside the border, not a crisp offset
-     outline, so D-044's focus-ring confusion does not apply. */
-  animation: sheen 9s linear infinite;
+     THE TWO REMAINING LEVERS ARE DESIGN CHANGES, NOT ANIMATION ONES, which is
+     why they have not been taken unilaterally:
+     - `padding: 2px` is the whole visible area. It is the single biggest
+       multiplier here — 3px is +50% of everything the effect has to work with —
+       and it is coupled to `.verdict__inner`'s
+       `border-radius: calc(var(--radius) - 2px)`, so both move together.
+     - The base's brightness. Measured, the glint reaches 3.40x contrast over
+       `--crimson`, 2.27x over `--amber-deep` and only **1.58x over `--amber`** —
+       a white highlight cannot pop against a base that is already bright, so the
+       sweep visibly fades as it crosses the amber end. A darker base stop would
+       fix it and would change the banner's colour identity.
+     The band is a soft gradient inside the border, not a crisp offset outline,
+     so D-044's focus-ring confusion does not apply. */
+  /* 7s, not 9s: a faster feature is markedly easier to detect in peripheral
+     vision, which is where this banner lives while you read the page. Still slow
+     enough not to nag. */
+  animation: sheen 7s linear infinite;
   box-shadow: var(--shadow);
 }
 @keyframes sheen {
