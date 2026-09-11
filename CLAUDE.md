@@ -1465,21 +1465,27 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      which had gone one notch TIGHTER on the theory that a halo crossing the
      grid's 17.6px gap would read as two cards sharing one glow. The spotlight
      (D-049) landed between the two edits and settles it: with every other card
-     at 0.7, a halo spilling across the gap falls on something already receding.
+     at 0.65, a halo spilling across the gap falls on something already receding.
      A box-shadow is ink overflow, so no size here can produce a scrollbar.
      Second difference: `z-index: 3` rather
      than the ranked card's `1`, which is arithmetic — every `.rec-card::before`
      badge carries `z-index: 2` and resolves in the same stacking context, so at
      `1` a NEIGHBOUR's badge would paint over this card's glow.
-     **The spotlight dimming IS ported, at `0.7` rather than the ranked list's
+     **The spotlight dimming IS ported, at `0.65` rather than the ranked list's
      `0.55`** (D-049). Claude argued against porting it at all and the user
      overruled that the same day — correctly: the objection was to the ranked
-     list's STRENGTH, not to the idea, and 0.7 leaves every unhovered card
+     list's STRENGTH, not to the idea, and 0.65 leaves every unhovered card
      perfectly readable while the section still recedes. `> *` and not
      `> .rec-card`, so the metadata footer dims with them instead of being left
      as the single brightest thing on screen; hovering the footer dims nothing,
-     because the `:has()` tests for a hovered card. Do not re-tune 0.7 by eye
-     without reading D-049 — the number is the whole of what was settled.
+     because the `:has()` tests for a hovered card.
+     **The live value is 0.65 and `styles.css` is the source of truth for it.
+     D-049 says `0.70` and is NOT stale** — it records what was settled on
+     2026-09-09, and the user nudged the dial to 0.65 by eye on 2026-09-11. The
+     decision (port the spotlight, far lighter than the ranked list) stands
+     exactly as that entry describes; only the figure moved, which is why no new
+     entry was written and why D-049 must not be edited to match. Do not
+     "restore" 0.70 from it.
    * **R15. DONE 2026-09-11 — a sparkle on the trigger, and the emoji exemption
      went unused.** Two four-point stars as an inline SVG with
      `fill="currentColor"`, so the icon follows all three of the button's states
