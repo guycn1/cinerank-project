@@ -432,26 +432,40 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        2.06 / 1.61 / 1.27   after the second, same day, on "even fainter"
        1.52 / 1.33 / 1.15   after the third, same day: 3px -> 2px ring, alpha
                             0.75 -> 0.66, blur 1.2 -> 1.4px
+       1.40 / 1.26 / 1.12   after the fourth, same day: blur 1.4 -> 1.8px and
+                            the halo 7px/0.28 -> 8px/0.22, WITH THE STROKE ALPHA
+                            LEFT ALONE — see the note below on why
      THIS IS THE TRADE THE POLISH PASSES BOUGHT, and it is worth stating plainly
      because the two asks fight: "less pronounced contrast" and "visible the
      whole way round" are the same number read from opposite ends. Crimson has
      come down 57% and amber 29% — the shouty end lost roughly twice what the
      weak end did, rather than the whole thing fading uniformly.
-     THE FLOOR HAS NOW BEEN REACHED DELIBERATELY, NOT DRIFTED INTO. After the
-     second pass this note said a third "fainter" request should come out of the
-     halo and the speed rather than the stroke alpha, because amber was already
-     near the point where the band stops reading over the ring's bright stretch.
-     The user then asked for exactly that — more transparent, blurrier, and the
-     ring back to 2px — and it was their call to make, so all three were applied
-     and amber sits at 1.15. RECORD THIS RATHER THAN QUIETLY RE-RAISING IT: the
-     effect is now intended to be almost subliminal, and someone finding it
-     "broken" later is probably finding it working as specified. Verify against
-     the user before adding brightness back.
-     If a FOURTH reduction is ever asked for, the honest answer is that the
-     stroke has no room left — take it out of the halo, the speed, or the
-     `7 93` dasharray, and say that the alpha is spent. The cure for the floor
-     itself is a darker base stop, which changes the banner's colour identity —
-     the user's decision, not Claude's. */
+     THE FLOOR WAS APPROACHED DELIBERATELY, NOT DRIFTED INTO. The effect is
+     INTENDED to be almost subliminal: someone finding it "broken" later is
+     probably finding it working as specified. Verify with the user before
+     adding brightness back rather than quietly re-raising it.
+     A PROCESS NOTE THAT SAVED THE FOURTH PASS, worth more than any of the
+     numbers above. The user asks for OUTCOMES — "more subtle", "even fainter",
+     "more transparent", "softer edges". Which PROPERTY delivers an outcome is
+     Claude's call, not theirs, and conflating the two produced a real error:
+     after pass 2 this note read "a further fainter request should come out of
+     the halo and the speed, NOT the stroke alpha", and passes 2 and 3 then cut
+     the alpha anyway while describing it as the user overriding that advice.
+     They had not asked for the alpha; they had asked for an outcome.
+     Getting that straight is what made pass 4 easy. The request was "more
+     transparent + softer edges", and on a 2px stroke those are THE SAME DIAL:
+     raising the blur from 1.4px to 1.8px softens the edges (what was asked) and
+     cuts peak brightness 20% (also what was asked), so it delivered both with
+     the stroke alpha untouched at 0.66. Three "fainter" passes had been spending
+     alpha on something the blur was giving away for free.
+     SO: WHEN A FURTHER REDUCTION IS ASKED FOR, READ IT AS AN OUTCOME AND PICK
+     THE LEVER. In rough order of remaining room: the `blur()`, the halo alpha,
+     the duration (salience scales with speed), and the `7 93` dasharray, which
+     sets the band's LENGTH as a fraction of the perimeter and costs no peak
+     brightness at all. The stroke alpha is the one with least room left — not
+     forbidden, just the last place to look rather than the first.
+     The cure for the floor itself is a darker base stop, which changes the
+     banner's colour identity — the user's decision, not Claude's. */
   box-shadow: var(--shadow);
 }
 /* The travelling glint. A STROKE DASH, which is the only one of the four
@@ -539,15 +553,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      the thing the eye follows. Cutting the core to match would have bought the
      same drop in presence and cost the effect.
      Light, zero-offset, warm — D-044's rule, same as every other glow here. */
-  filter: blur(1.4px) drop-shadow(0 0 7px rgba(255, 226, 170, 0.28));
-  /* 12s, up from 9s on the user's call (2026-09-12). SLOWER IS ALSO FAINTER in
-     the only sense that matters here: motion salience scales with speed, so the
-     -25% in angular velocity did part of the "make it fainter" work by itself,
-     and the alpha was cut less than it would otherwise have been. If this is
-     ever retimed, re-judge the alpha in the same pass.
+  filter: blur(1.8px) drop-shadow(0 0 8px rgba(255, 226, 170, 0.22));
+  /* 15s: 9s when the mechanism landed, then 12s, then 15s — all on the user's
+     call as the glint was walked quieter. SLOWER IS ALSO FAINTER in the only
+     sense that matters here: motion salience scales with speed, so each
+     slowdown did part of the "make it fainter" work by itself. That is why the
+     stroke alpha has moved far less than the number of "fainter" requests would
+     suggest. If this is ever retimed, re-judge the brightness in the same pass.
      Item 4b(5) — the glint speeding up while "New verdict" is busy — tunes its
-     busy duration against THIS number, so that item starts from 12s, not 9s. */
-  animation: sheen 12s linear infinite;
+     busy duration against THIS number, so that item starts from 15s. */
+  animation: sheen 15s linear infinite;
 }
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {

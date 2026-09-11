@@ -6,7 +6,7 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
-## D-055 · The verdict glint was taken past the visibility floor, against Claude's written advice
+## D-055 · The verdict glint's polish passes, and mistaking an outcome for a mechanism
 
 Three polish passes on 2026-09-12, all on `.verdict__sheen rect`. The mechanism
 (an SVG stroke dash on `pathLength="100"`) was settled the day before and was
@@ -23,13 +23,34 @@ so the same band is 2.06 over `--crimson` and 1.27 over `--amber` at once:
 read from opposite ends.
 
 **The user's instruction, given next:** more transparent, blurrier edges, and
-the ring back to 2px — i.e. precisely the stroke alpha Claude had just argued
-against, plus two other reductions on top. **It was theirs to call and it was
-applied in full.** Amber now sits at **1.15**. Recorded here because the
-alternative is a future session finding an almost-invisible effect, assuming it
-is broken, and quietly restoring brightness the user deliberately removed. The
-CSS and `CLAUDE.md` both now say: the effect is INTENDED to be almost
-subliminal; verify with the user before brightening it.
+the ring back to 2px. Claude read that as an instruction to cut the stroke
+alpha, cut it, and described the result as the user overruling the advice above.
+
+**CORRECTION, made on the next pass after the user challenged it ("why do you
+keep saying I'm asking about the alpha?"). This heading and that reading were
+both wrong, and the error is the useful part of this entry.** The user asked for
+an OUTCOME — "more transparent" — not for a property. Which property delivers an
+outcome is Claude's call. Having just written that the alpha was the wrong lever,
+Claude then reached for it anyway and attributed the choice to the user, which is
+both inaccurate and a way of dressing up a poor mechanism choice as deference.
+
+**What the corrected reading produced immediately.** On the FOURTH request
+("more transparent, softer edges, 12s → 15s") the two asks turned out to be the
+same dial: on a 2px stroke, raising `blur()` 1.4px → 1.8px softens the edges AND
+cuts peak brightness 20%. It delivered both with **the stroke alpha untouched**.
+Three passes had been spending alpha on something the blur was giving for free.
+
+Amber sits at **1.12** after that fourth pass. Recorded because the alternative
+is a future session finding an almost-invisible effect, assuming it is broken,
+and quietly restoring brightness the user deliberately removed. The CSS and
+`CLAUDE.md` both now say: the effect is INTENDED to be almost subliminal; verify
+with the user before brightening it.
+
+**The standing rule this produced, now in the CSS:** read a "fainter" request as
+an outcome and PICK the lever. In rough order of remaining room — `blur()`, the
+halo alpha, the duration (salience scales with speed), then the `7 93` dasharray,
+which sets the band's LENGTH and costs no peak brightness at all. The stroke
+alpha has least room left: not forbidden, just the last place to look.
 
 **What was NOT obvious, and is the reusable part: blur, stroke alpha and stroke
 WIDTH are one dial, not three.** A blur spreads a fixed amount of ink over more
