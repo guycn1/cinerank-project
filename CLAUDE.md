@@ -2236,9 +2236,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **Five visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **TWO DONE (the
-   logo spin and the ranked list's first-paint entrance, both 2026-09-11), three
-   open.** The user pulled this step in front of
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **THREE DONE
+   (the logo spin, the ranked list's first-paint entrance and the verdict
+   border's drift, all 2026-09-11), two open** — the film grain and the verdict
+   typing effect.
+   **A pattern came out of the three:** all were "the mechanism exists, the
+   effect is invisible", and in TWO of them the cause was `var(--ease)`
+   front-loading the motion into the first fifth of the duration. Check the
+   timing function before anything else. The user pulled this step in front of
    step 4 deliberately: the favicon will most likely derive from the logo, so the
    logo had to be settled before that discussion could start.
    **FOUR OF THE FIVE are the
@@ -2282,6 +2287,26 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Two constraints that DO still apply: keep it SLOW, since this sits near the
      top of the page on every load; and D-044's rule that amber must never become
      a hard-edged focus-ring lookalike.
+     **DONE 2026-09-11, and — as this item demanded — by measuring first.** The
+     cause was the CURVE, not the speed, the colours or the travel. A timing
+     function applies to EACH keyframe interval, so `var(--ease)` front-loaded
+     both 4.5s halves: **67% of the travel happened in the first 0.9s and the
+     final 2.7s covered 2%**, leaving the ring frozen for roughly 60% of every
+     cycle. Two brief swooshes with long dead stretches between them, so a glance
+     almost always caught it still.
+     Fixed with `linear`, which is not a preference but the definition of the
+     thing asked for: a drift is constant velocity. A point on the ring now moves
+     through about 55% of the gradient per half — a full amber-deep-to-crimson
+     transition — continuously. Nothing else changed: same 9s, same 220%, same
+     colours, same 2px.
+     **THIRD TIME `--ease` HAS BEEN THE CULPRIT** — the rec-card exit (R30), the
+     ranked list's entrance, and now this. It is built to make an arrival feel
+     instant, which is the exact opposite of anything a user is meant to WATCH.
+     **That is now a rule worth applying before measuring anything else: if an
+     animation is reported as invisible, look at the timing function first.**
+     The dials, in order of bluntness, if it ever wants more presence: the 9s,
+     then the `background-size` (more size = more travel), then the colour
+     spread, then the 2px ring.
    * **The ranked list's first-paint entrance is barely visible** (user-raised
      2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
      (D-031) and is not in scope. Same family as the two items above, and

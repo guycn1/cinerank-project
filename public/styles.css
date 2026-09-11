@@ -371,7 +371,29 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   padding: 2px;
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   background-size: 220% 220%;
-  animation: sheen 9s var(--ease) infinite;
+  /* Step 4b: this border always drifted — the 2px ring IS this gradient, with
+     .verdict__inner covering the middle — and nobody could see it. The cause was
+     the CURVE, measured before anything was touched:
+     `var(--ease)` is cubic-bezier(0.22, 1, 0.36, 1), and a timing function
+     applies to EACH keyframe interval, so both 4.5s halves were front-loaded.
+     67% of the travel happened in the first 0.9s and the final 2.7s covered 2% —
+     the ring was effectively frozen for about 60% of every cycle, so a glance
+     almost always caught it standing still.
+     `linear` is not a style preference here, it is what "drifts slowly" MEANS:
+     constant velocity, no dead stretches. A point on the ring now moves through
+     roughly 55% of the gradient per half-cycle, a full amber-deep-to-crimson
+     transition, continuously.
+     THIRD TIME `--ease` HAS BEEN THE CULPRIT in this family — the rec-card exit,
+     the ranked list's entrance, now this. It is built to make an arrival feel
+     instant, which is the exact opposite of anything you are meant to watch.
+     If this still wants more presence, the dials in order of bluntness are: the
+     9s, then the 220% background-size (more size = more travel), then the colour
+     spread, then the 2px ring. Keep it SLOW whatever happens — it sits near the
+     top of the page on every single load. The reversal at the 4.5s mark is an
+     instant change of direction rather than an eased one; at this speed it reads
+     as a drift turning around, and smoothing it would reintroduce dead spots at
+     both ends. */
+  animation: sheen 9s linear infinite;
   box-shadow: var(--shadow);
 }
 @keyframes sheen { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
