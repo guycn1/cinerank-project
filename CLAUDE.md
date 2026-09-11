@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2110,7 +2110,46 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
    shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
-3. **Add GitHub link(s)** to the page — out to the public repo.
+3. **Add GitHub link(s)** to the page — out to the public repo. **The header
+   link is DONE 2026-09-11**, which is the placement the user specified: a
+   GitHub mark top-right in `.site-head`, right-aligned with the content column.
+   That alignment is free rather than tuned — `main` and `.site-head` are both
+   `max-width: 1080px` with identical horizontal padding, so the icon lands
+   exactly above the verdict banner's right edge.
+   **It is deliberately NOT small, and no part of this backlog ever said it
+   should be.** Claude called this step "small and self-contained" meaning the
+   TASK; the user read that as the icon and corrected it, then asked for the
+   backlog to be checked in case the claim was written down anywhere. It was
+   not — checked. The icon is `clamp(32px, 4vw, 42px)`, a peer of the 34px logo
+   mark.
+   **The header is now a two-column grid** (`minmax(0, 1fr) auto`) with the mark
+   at 1/1, the tagline at 1/2, and the link spanning BOTH rows in column 2 so it
+   centres against the block rather than against either line. Every placement is
+   explicit: auto-placement gives the same result today and would move the day a
+   third element joins the header. `minmax(0, 1fr)` and not `1fr` for the reason
+   this project has now hit six times — `1fr` is `minmax(auto, 1fr)`, and that
+   automatic minimum would let a long tagline word push the icon off the edge
+   instead of wrapping.
+   **States, as the user specified them:** `opacity: 0.62` at rest, easing to
+   `1` on hover, with a box-shadow appearing over the same 0.25s. The glow is
+   **built out of light, not black** — the user flagged the dark-theme trap in
+   the request itself, and D-044 is the entry that records it costing real time
+   on the ranked card. Both layers take a **zero Y-offset** (a glow is emitted
+   and radiates evenly; an offset only makes it lopsided) and the magnitudes
+   echo `.verdict__refresh:hover` rather than inventing a third set. Amber and
+   not white, because the glyph is already `--ink` and a glow the colour of the
+   thing glowing is just a blur (R15).
+   `border-radius: 50%` on the link so the halo is round like the mark itself; a
+   rectangular glow around a circular glyph reads as a stray box. Hover is gated
+   on `@media (hover: hover)`, the capability query the card hovers settled, so a
+   tap cannot park the icon lit.
+   **One dial deliberately left unset:** the user raised `filter: brightness(1.x)`
+   as a possible "more than fully opaque" step and explicitly deferred it to a
+   later tuning by eye. The CSS says where it goes if it is added.
+   **Still open under this step, by omission rather than decision:** the plural
+   in "link(s)". The footer already carries a TMDB link and could carry a repo
+   link too; the user asked only for the header one, so that is all that was
+   built.
 
 4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
    request. State verified 2026-09-08: there is **no `<link rel="icon">` in

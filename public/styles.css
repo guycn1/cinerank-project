@@ -166,10 +166,70 @@ a:hover { text-decoration: underline; }
 main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 
 /* header ------------------------------------------------------------------- */
+/* Two columns: the mark and the tagline keep the left one, the repo link takes
+   the right and spans BOTH rows, so it centres against the header block rather
+   than against either line on its own. Every placement below is explicit —
+   auto-placement would happen to produce the same result today and would move
+   the day a third element joins the header.
+   `minmax(0, 1fr)` on the text column, not `1fr`: `1fr` is `minmax(auto, 1fr)`,
+   and that automatic minimum is the fifth-through-sixth root cause of this
+   project's shrink bugs (the search input, the add button, the ranked card's
+   track, .recs__trigger, .rec-card). Here it would let a long word in the
+   tagline push the icon off the right edge instead of wrapping. */
 .site-head {
   max-width: 1080px;
   margin: 0 auto;
   padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 2.5rem) 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: clamp(0.75rem, 2.5vw, 1.5rem);
+  align-items: center;
+}
+.site-head .mark { grid-column: 1; grid-row: 1; }
+.site-head .tagline { grid-column: 1; grid-row: 2; }
+
+/* The link out to the public repo (step 3). One dial for the size: the <a>
+   carries a font-size and the SVG is 1em, so the icon and its padded hit area
+   scale together. Sized to sit as a peer of the 34px logo mark — this is a real
+   navigational affordance, not a footnote. */
+.gh-link {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+  display: inline-flex;        /* shrink-wraps the SVG and kills the inline
+                                  baseline gap that would offset the circle */
+  padding: 0.45rem;
+  border-radius: 50%;          /* the mark is round, so the hover glow should be
+                                  too — a rectangular halo round a circular
+                                  glyph reads as a box someone forgot to hide */
+  color: var(--ink);
+  font-size: clamp(32px, 4vw, 42px);  /* the one size dial; the SVG is 1em */
+  opacity: 0.62;               /* "slightly transparent at rest" */
+  transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
+
+/* Gated on the CAPABILITY, never a width (the rule the card hovers settled), so
+   a tap on a phone cannot park the icon in its lit state. */
+@media (hover: hover) {
+  .gh-link:hover {
+    opacity: 1;
+    /* Built out of LIGHT, not black. On --bg #0b0b0f a black shadow has nothing
+       left to darken, which is exactly how the ranked card's first hover shadow
+       did no visible work at any opacity (D-044).
+       Both layers take a ZERO Y-offset, from the same entry: a shadow is cast
+       and pools away from the light, a glow is EMITTED and radiates evenly, so
+       any offset here would only make it lopsided.
+       Amber and not white: the glyph is already --ink, and a glow the same
+       colour as the thing glowing is just a blur (R15). The magnitudes echo
+       .verdict__refresh:hover rather than inventing a third set. */
+    box-shadow:
+      0 0 18px -4px rgba(245, 193, 91, 0.4),
+      0 0 38px -10px rgba(245, 193, 91, 0.22);
+    /* A `filter: brightness()` lift is deliberately NOT set yet — the user
+       flagged it as a later tuning by eye. If it is added, put it here beside
+       the opacity, and keep it in the transition list. */
+  }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
 .mark__reel {
