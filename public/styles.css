@@ -166,25 +166,199 @@ a:hover { text-decoration: underline; }
 main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 
 /* header ------------------------------------------------------------------- */
+/* Two columns: the mark and the tagline keep the left one, the repo link takes
+   the right and spans BOTH rows, so it centres against the header block rather
+   than against either line on its own. Every placement below is explicit —
+   auto-placement would happen to produce the same result today and would move
+   the day a third element joins the header.
+   `minmax(0, 1fr)` on the text column, not `1fr`: `1fr` is `minmax(auto, 1fr)`,
+   and that automatic minimum is the fifth-through-sixth root cause of this
+   project's shrink bugs (the search input, the add button, the ranked card's
+   track, .recs__trigger, .rec-card). Here it would let a long word in the
+   tagline push the icon off the right edge instead of wrapping. */
 .site-head {
   max-width: 1080px;
   margin: 0 auto;
   padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 2.5rem) 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: clamp(0.75rem, 2.5vw, 1.5rem);
+  align-items: center;
+  --title-size: clamp(2rem, 6vw, 3.2rem);
+}
+.site-head .mark { grid-column: 1; grid-row: 1; }
+.site-head .tagline { grid-column: 1; grid-row: 2; }
+
+/* The link out to the public repo (step 3). There are TWO of these — one in the
+   header, one at the right edge of the footer's credit line — so THIS rule is
+   the shared look and nothing else. Placement and size live with each instance
+   below, because size is the only thing that differs between them.
+   One dial for the size at each site: the <a> carries a font-size and the SVG is
+   1em, so the icon and its padded hit area scale together. */
+.gh-link {
+  /* The unlit ring between the mark and the start of the hover glow. In `em`,
+     so it stays proportional to the icon: as a fixed 0.45rem it was a thin rim
+     on the 63px header mark and nearly a third of the radius on the 24px footer
+     one, which read as a thick dark collar (user-raised, with a screenshot).
+     0.115em IS that hand-tuned 7.2px, expressed against the header's 63px —
+     so the header rim is unchanged to a twentieth of a pixel.
+     Changing this can never disturb the header's vertical alignment: the
+     margin-top below subtracts exactly what the padding adds, so the GLYPH
+     lands in the same place whatever this is set to. */
+  --gh-pad: 0.115em;
+  /* Multiplier on the hover glow, so the two instances can differ without a
+     second copy of the box-shadow. 1 is the header's settled size. */
+  --gh-halo: 1;
+  display: inline-flex;        /* shrink-wraps the SVG and kills the inline
+                                  baseline gap that would offset the circle */
+  padding: var(--gh-pad);
+  border-radius: 50%;          /* the mark is round, so the hover glow should be
+                                  too — a rectangular halo round a circular
+                                  glyph reads as a box someone forgot to hide */
+  color: var(--ink);
+  opacity: 0.68;               /* "slightly transparent at rest". Walked up by
+                                  eye, 0.62 → 0.65 → 0.68, once the halo settled */
+  transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
+
+/* HEADER instance — placement and size. Sized as a peer of the 34px logo mark:
+   a real navigational affordance, not a footnote. */
+.site-head .gh-link {
+  grid-column: 2;
+  /* Still spans both rows, but top-aligned rather than centred (user-raised:
+     centring left it sitting well below the h1). Keeping `span 2` while
+     aligning to `start` is the point — the icon is taller than row 1, and if it
+     occupied row 1 alone that row would stretch to fit it and shove the tagline
+     down. Spanning lets it overhang into row 2's space and change nothing.
+
+     `align-self: start` alone then OVERSHOT, which is the non-obvious part and
+     is worth keeping: it aligns to the top of the h1's LINE BOX, and the line
+     box is far taller than the letters. The h1 inherits `line-height: 1.55`, so
+     above the cap of the "C" there is half-leading PLUS the font's own
+     ascent-above-cap — together roughly 0.4em of empty space. Top-aligning to
+     the box therefore puts the icon visibly above the title it is meant to line
+     up with, which is exactly what the second screenshot showed.
+
+     --gh-drop is that empty space, expressed as a fraction of the title so the
+     alignment holds as the h1 scales rather than only at one viewport. It is
+     THE dial for this: raise it to sit lower, lower it to sit higher. The
+     padding is subtracted so the value describes where the GLYPH lands, not
+     where the invisible hit area does.
+     Tuned by eye against the user's ruler. If it ever needs to be exact rather
+     than close, measure instead of guessing (D-030 is the entry about
+     estimating Fraunces metrics twice and being wrong twice):
+       const h = document.querySelector('.mark h1').getBoundingClientRect();
+       const g = document.querySelector('.gh-link svg').getBoundingClientRect();
+       console.log(g.top - h.top);   // 0 puts the icon level with the line box
+  */
+  --gh-drop: 0.36;
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: calc(var(--title-size) * var(--gh-drop) - var(--gh-pad));
+  justify-self: end;
+  font-size: clamp(48px, 6vw, 63px);  /* the size dial here; the SVG is 1em.
+                                         Every term is the original 32/4vw/42
+                                         scaled by the 1.5x the user asked for,
+                                         so it grows by half at EVERY width
+                                         rather than only where the clamp
+                                         happened to be resting. */
+}
+
+/* FOOTER instance — the same mark, small, parked at the right edge of the credit
+   line. Size is the ONLY declaration it needs: everything else arrives from
+   .gh-link, and the hover halo is in `em` so it scales itself. `rem` and not
+   `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
+   the icon depend on a value chosen for body copy. */
+.site-foot__credit .gh-link {
+  font-size: 1.5rem;
+  /* Bigger glow than the header's, on the user's eye. Not a contradiction of
+     the shared `em` sizing: proportional was the right DEFAULT, and a small mark
+     on a quiet footer needs a little more spill to register as lit at all. This
+     is the dial — the header keeps 1. */
+  --gh-halo: 1.35;
+}
+
+/* Gated on the CAPABILITY, never a width (the rule the card hovers settled), so
+   a tap on a phone cannot park the icon in its lit state. */
+@media (hover: hover) {
+  .gh-link:hover {
+    opacity: 1;
+    /* Built out of LIGHT, not black. On --bg #0b0b0f a black shadow has nothing
+       left to darken, which is exactly how the ranked card's first hover shadow
+       did no visible work at any opacity (D-044).
+       Both layers take a ZERO Y-offset, from the same entry: a shadow is cast
+       and pools away from the light, a glow is EMITTED and radiates evenly, so
+       any offset here would only make it lopsided.
+       Amber and not white: the glyph is already --ink, and a glow the same
+       colour as the thing glowing is just a blur (R15). The magnitudes echo
+       .verdict__refresh:hover rather than inventing a third set.
+
+       In `em`, NOT px, so one rule serves both instances: the footer mark is
+       ~2.6x smaller, and a fixed 46px halo tuned for the header would have
+       swallowed it whole. These are the user's own hand-tuned 22px and 46px
+       divided by the header's 63px font-size, so the header is unchanged to
+       within a quarter of a pixel — the conversion is arithmetic, not a
+       retune.
+       --gh-halo then scales the whole glow per instance. It multiplies the blur
+       AND the spread so the shape is scaled rather than distorted; leave the
+       alphas out of it, for the reason above — brightness and size are separate
+       dials and mixing them makes neither judgeable. */
+    box-shadow:
+      0 0 calc(0.35em * var(--gh-halo)) calc(-0.06em * var(--gh-halo))
+        rgba(245, 193, 91, 0.4),
+      0 0 calc(0.73em * var(--gh-halo)) calc(-0.16em * var(--gh-halo))
+        rgba(245, 193, 91, 0.22);
+    /* Only the BLUR grew when this was widened (18/38 → 22/46). The alphas and
+       the negative spreads are untouched on purpose: raising alpha at the same
+       time makes a halo read as brighter rather than bigger, and then neither
+       dial can be judged on its own. Widen here, brighten in the alphas.
+       A `filter: brightness()` lift was considered for the hover — the user
+       raised it as a possible "more than fully opaque" step — and looks
+       unnecessary now that the resting opacity and the halo are tuned. If it is
+       ever wanted, it goes here beside the opacity and must join the transition
+       list above, or it will snap while everything else eases. */
+  }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
+/* Step 4b: the logo really did spin, and nobody could tell — everything visible
+   on it was rotationally symmetric, so eight seconds of rotation looked like a
+   still image.
+   The reel carried ONE asymmetric feature, a conic wedge painted in `var(--bg)`.
+   The backlog blamed the colour. That was only half of it: the wedge was also
+   the SECOND background layer, and first-listed paints on top, so it sat
+   underneath the amber ring and could not have cut anything even in a colour
+   that showed. And had it been on top, `--bg` would have been exactly the right
+   choice — the intent was clearly to notch the ring, not to draw a coloured
+   slice. It could still only ever have notched the INNER ring, because a
+   `border` paints above the background and the outer ring would have stayed
+   closed.
+   So the wedge is gone and a conic MASK replaces it: a mask cuts the element's
+   border and background together, which is what a reel notch needs, and it
+   costs one declaration instead of a rebuild of the rings as gradients.
+   --reel-notch is the one dial. At rest (prefers-reduced-motion kills the
+   animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
+  --reel-notch: 8%;
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--amber);
   background:
-    radial-gradient(circle at 50% 50%, transparent 30%, var(--amber) 31%, var(--amber) 37%, transparent 38%),
-    conic-gradient(from 0deg, var(--bg) 0 20%, transparent 0 25%) ;
-  animation: spin 8s linear infinite;
+    radial-gradient(circle at 50% 50%, transparent 30%, var(--amber) 31%, var(--amber) 37%, transparent 38%);
+  -webkit-mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
+  mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
+  /* The `spin` keyframe is SHARED with the busy-button spinner, which runs it at
+     0.7s. Duration lives in each element's own shorthand, so tune the speed
+     here — never in the keyframe, which would drag the spinner with it. */
+  animation: spin 10s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .mark h1 {
   font-family: 'Fraunces', serif;
   font-weight: 900;
-  font-size: clamp(2rem, 6vw, 3.2rem);
+  /* Held in a custom property because the GitHub link's vertical offset is a
+     FRACTION of this size — see --gh-drop. Two separate declarations would
+     silently break that alignment the day one of them was tuned. */
+  font-size: var(--title-size);
   letter-spacing: -0.02em;
 }
 .mark h1 span { color: var(--amber); }
@@ -192,18 +366,107 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 /* verdict banner --------------------------------------------------------- */
 .verdict {
+  position: relative;          /* containing block for .verdict__sheen */
   margin-top: 1.5rem;
   border-radius: var(--radius);
-  padding: 2px;
+  /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
+     else — so it is the biggest single multiplier on the effect. 2px → 3px on
+     the user's call. Coupled to .verdict__inner's border-radius below: both must
+     move together or the inner corners stop nesting cleanly. */
+  padding: 3px;
+  /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  background-size: 220% 220%;
-  animation: sheen 9s var(--ease) infinite;
+  /* Step 4b took FIVE passes. Keeping the dead ends because every one of them
+     was a plausible fix that measurably improved something and still failed —
+     and because two of them are impossible by construction, which is not
+     obvious from the rendered result.
+     1. THE CURVE. `var(--ease)` applies to EACH keyframe interval, so both
+        halves were front-loaded — 67% of the travel in the first 0.9s, the last
+        2.7s covering 2%, the ring frozen for ~60% of every cycle. A real fault,
+        and the THIRD animation in this file wrecked by `--ease` after the
+        rec-card exit and the ranked entrance. Fixing it changed almost nothing.
+     2. NO FEATURE TO TRACK. Three stops over 220% meant the whole ring was
+        nearly one colour at any instant and recoloured uniformly. Motion
+        perception needs a landmark, so no speed and no curve could have helped.
+        This is why the ring above is STATIC and the glint is its own thing.
+     3. A WASH, NOT A GLINT. That moving layer spanned ~48% of the banner at
+        0.6 alpha and measured only 1.27x contrast over `--amber`, so it was
+        invisible for much of its own journey. Contrast here is against the
+        BASE, not the page.
+     4. A LINEAR GRADIENT CANNOT DO THIS AT ALL. The user's screenshot showed
+        TWO white bands, top edge and bottom. That is not bad stops — a linear
+        gradient paints a straight stripe across the whole box, and a straight
+        stripe crosses a rectangular ring in two places at once. Passes 1-3 were
+        refining something structurally incapable of the effect.
+     5. NOR CAN A CONIC ONE, on a box this wide. A conic varies by ANGLE, and
+        angle maps to arc length terribly on a 14:1 rectangle: along the top
+        edge `dx/dtheta = h + x^2/h`, which is 0.61px/deg at the middle of the
+        edge and 125px/deg at the corner — a 200x swing. So the band was narrow
+        and crawling mid-edge, then ballooned and rocketed into each corner,
+        exactly as reported. An EARLIER COMMENT HERE CLAIMED THE SPEED WAS
+        "near-even" — that was wrong, and wrong because it averaged px-per-degree
+        over a whole edge instead of looking at the local derivative.
+     What actually works is .verdict__sheen below: a dash travels a PATH, so one
+     width and one speed the whole way round, by construction rather than by
+     tuning.
+     One measured limit stands and is NOT fixed: the glint reads 3.40x contrast
+     over `--crimson`, 2.27x over `--amber-deep` and only 1.58x over `--amber`,
+     so it fades slightly crossing the bright end of the ring. The cure is a
+     darker base stop, which changes the banner's colour identity — the user's
+     decision, not Claude's. */
   box-shadow: var(--shadow);
 }
-@keyframes sheen { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+/* The travelling glint. A STROKE DASH, which is the only one of the four
+   mechanisms tried that gives a constant width AND a constant speed: a dash
+   moves along the path itself, so neither can vary with where it happens to be.
+   Held 1.5px inside the banner (by explicit top/left/width/height — NOT by
+   `inset`, see the rule below) with a 3px stroke centred on that path, so the
+   stroke occupies exactly 0–3px from the banner's edge: precisely .verdict's
+   padding ring, flush against .verdict__inner, which starts at 3px.
+   `pathLength="100"` on the rect (set in the markup) renormalises the perimeter
+   to 100 units, which is what makes `stroke-dasharray: 7 93` mean "7% of the
+   ring, whatever the banner's width" — no JS measuring, and it survives a
+   resize for free. The two numbers MUST sum to 100, or there is either a second
+   dash on the ring or a gap in the loop.
+   Dashoffset then runs one whole perimeter per iteration, `linear`, so the loop
+   is seamless with no reversal. */
+.verdict__sheen {
+  position: absolute;
+  display: block;
+  /* SIZED EXPLICITLY, and `inset: 1.5px` is NOT enough — that was a real bug.
+     An <svg> is a REPLACED element, so `inset` only positions it; it does not
+     stretch it the way it would a <div>. With `width: auto` the SVG keeps its
+     intrinsic 300x150, so the viewport stayed 300x150 however wide the banner
+     was, the rect filled THAT, and `overflow: visible` then let the stroke spill
+     out of the banner and run down the page past the search box.
+     top/left rather than `inset`, so width/height are never over-constrained. */
+  top: 1.5px;
+  left: 1.5px;
+  width: calc(100% - 3px);
+  height: calc(100% - 3px);
+  /* Required: the viewport is the inset box, so the outer half of a 3px stroke
+     centred on the path would otherwise be clipped away. */
+  overflow: visible;
+  pointer-events: none;
+}
+.verdict__sheen rect {
+  width: 100%;
+  height: 100%;
+  rx: calc(var(--radius) - 1.5px);   /* tracks .verdict's radius and inset */
+  fill: none;
+  stroke: rgba(255, 253, 248, 0.98);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-dasharray: 7 93;
+  /* Light, zero-offset, warm — D-044's rule, same as every other glow here. */
+  filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
+  animation: sheen 9s linear infinite;
+}
+@keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);
-  border-radius: calc(var(--radius) - 2px);
+  /* Tracks .verdict's padding — see the note there. */
+  border-radius: calc(var(--radius) - 3px);
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;
@@ -675,12 +938,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    class). It used to sit on .movie-card itself, and since every re-render
    replaces every card, rating one film replayed the whole list's entrance —
    ~850ms of the page shimmering because one number changed. Later renders are
-   animated by a View Transition instead; running both made cards fade-slide in
-   while the transition cross-faded them, which looked muddy. */
+   animated by a View Transition instead; running both made cards play their
+   entrance while the transition cross-faded them, which looked muddy. */
 /* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
    `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
    animation keeps applying its final keyframe, and animations outrank normal
-   author declarations in the cascade. `fade-slide` ends at `transform: none`, so
+   author declarations in the cascade. The entrance keyframe ends at
+   `transform: none` — it was `fade-slide` then and is `card-enter` now, and both
+   do — so
    every first-paint card went on being pinned to `transform: none` for the life
    of the page — silently beating `.movie-card:hover`'s transform. The card lift
    therefore did nothing on a freshly loaded page, and only the poster (which has
@@ -690,11 +955,35 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    WITHOUT `is-entering` — which is what made it read as subtle rather than
    broken.
    `backwards` keeps the half that is actually needed: holding the from-state
-   during this card's stagger delay (set in JS, up to 400ms), so a card does not
+   during this card's stagger delay (set in JS, up to 700ms), so a card does not
    flash at full opacity before its turn. Nothing needs the forwards half — the
    final keyframe is `opacity: 1; transform: none`, which is identical to the
    card's natural resting state. Do NOT put `both` back. */
-.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) backwards; }
+/* Step 4b: this entrance ran, and was close to invisible. Three causes, all
+   measured before anything was changed, because the mechanism was never the
+   problem.
+   1. THE CURVE, which was most of it. `var(--ease)` is
+      `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: 67% of the
+      way by t=0.2 and within 1px of home after 168ms of a 450ms animation. So a
+      10px move happened in a sixth of a second and the card then sat still for
+      280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
+      spreads the same distance across 73% of the duration instead of 37%.
+      THE THIRD ANIMATION IN THIS FILE DELIBERATELY OFF `--ease` (with the
+      rec-card exit's `ease-in` and the sparkle's `ease-in-out`). `--ease` is
+      built for arrivals that should feel instant; an entrance you are meant to
+      WATCH is a different job.
+   2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
+      only read once the curve stopped eating them.
+   3. Its OWN keyframe now, not the shared `fade-slide` — which is also used by
+      `.search-results`, where 10px and a snappy curve are right. Same reasoning
+      R27 used to give the rec card `rec-enter`: separate names mean tuning one
+      can never move the other.
+   The stagger is in renderRanked() and was raised with these (45→70ms, cap
+   400→700ms); the cap used to bite at card 9, i.e. at exactly the list length
+   where a cascade reads best. */
+.movie-card.is-entering {
+  animation: card-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+}
 /* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
    notice it on the poster", which was literally true — the card never scaled).
    Two cues: it grows a little, and the shadow deepens and picks up a faint warm
@@ -786,7 +1075,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      new browser support.
 
      This only works because D-043 changed the entrance animation's fill from
-     `both` to `backwards`. `fade-slide` animates opacity to 1, and a
+     `both` to `backwards`. That entrance (`fade-slide` then, `card-enter` since
+     step 4b) animates opacity to 1, and a
      forwards-filling animation keeps applying that final keyframe — which
      outranks normal declarations. With `both`, every first-paint card would have
      been pinned at `opacity: 1` and would simply have refused to dim, silently,
@@ -1322,9 +1612,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    `scale()` would swing the star toward the top-left instead of breathing in
    place.
    `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
-   strong ease-OUT that would snap bright and drift back. The app now has two
-   animations deliberately off `--ease` — this and the rec-card exit — and both
-   say why at the declaration. */
+   strong ease-OUT that would snap bright and drift back. The app now has FOUR
+   animations deliberately off `--ease` — this, the rec-card exit (`ease-in`),
+   the ranked card's entrance (a gentler ease-out) and the verdict glint
+   (`linear`) — and each says why at its own declaration. The pattern behind
+   three of the four: `--ease` is built to make an arrival feel INSTANT, so
+   anything a user is meant to WATCH wants a different curve. */
 @keyframes sparkle-twinkle {
   0%, 100% { opacity: 0.8; transform: scale(0.94); }
   50% { opacity: 1; transform: scale(1.07); }
@@ -1502,17 +1795,19 @@ button:disabled .sparkle-major { animation: none; }
      element, and `both` would pin `transform: none` from the final keyframe and
      silently beat it, exactly as it did to the ranked card. Zero visual change
      at rest: the final keyframe already equals this card's resting state.
-     Its own keyframe, not the shared `fade-slide`: a rec card is roughly three
-     times the height of a ranked one and 10px of travel read as a flicker
-     rather than an arrival (R27). Separate names mean tuning one can never
-     move the other. */
+     Its own keyframe rather than the ranked card's: a rec card is roughly three
+     times the height of a ranked one, and the 10px of travel it would have
+     inherited read as a flicker rather than an arrival (R27). Separate names
+     mean tuning one can never move the other — which paid off at step 4b, when
+     the ranked card was retuned and split onto `card-enter` without this moving
+     at all. */
   animation: rec-enter 0.75s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
   /* R14. Same four properties, same 0.25s, same easing as .movie-card — the two
      card types should answer a pointer identically. `opacity` is in the list for
-     the spotlight below: without it the other cards would snap to 0.7 and back
+     the spotlight below: without it the other cards would snap to 0.65 and back
      rather than easing, and at this subtlety a snap is the only thing you would
      notice. */
   transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
@@ -1619,7 +1914,7 @@ button:disabled .sparkle-major { animation: none; }
    would read as two cards sharing one glow. The user then widened them by eye to
    40/100px — looser than the ranked card, not tighter — and that is the value
    here. The original worry does not survive the spotlight that landed between
-   the two edits (D-049): with every other card at 0.7, a halo spilling across
+   the two edits (D-049): with every other card at 0.65, a halo spilling across
    the gap falls on something already receding, so it reinforces the focus
    instead of muddling two cards together. Do not "restore" the tighter figures
    from this paragraph; it is here to explain why they moved, not to argue for
@@ -1678,7 +1973,7 @@ button:disabled .sparkle-major { animation: none; }
 
      The footer dims WITH the cards, which was Claude's second objection to
      porting this at all and turned out to be trivial. It carries the
-     AI-call-log link, which at 0.7 is still legible and one pointer-move from
+     AI-call-log link, which at 0.65 is still legible and one pointer-move from
      full strength. (This originally read `> *` rather than `> .rec-card` on the
      grid, because the footer was then a grid child. R29 moved it out, so it is
      two selectors now — see the rule below.)
@@ -1703,7 +1998,7 @@ button:disabled .sparkle-major { animation: none; }
      Hovering the FOOTER still dims nothing: the `:has()` tests for a hovered
      card. */
   .recs:has(.rec-card:hover) .rec-card:not(:hover),
-  .recs:has(.rec-card:hover) .recs__meta .ai-meta { opacity: 0.7; }
+  .recs:has(.rec-card:hover) .recs__meta .ai-meta { opacity: 0.65; }
   /* Scoped through `.recs__meta`: `.ai-meta` is shared with the verdict banner,
      which has no spotlight and must not gain a stray transition. */
   .recs__meta .ai-meta { transition: opacity 0.25s var(--ease); }
@@ -1887,7 +2182,19 @@ button:disabled .sparkle-major { animation: none; }
 }
 .log-cta__icon { width: 1.15em; height: 1.15em; }
 
-.site-foot__credit { color: var(--ink-faint); }
+/* The credit sits left, the repo mark at the right edge of the same line.
+   `space-between` rather than an auto margin, because there are exactly two
+   children and nothing here needs to survive a third being added quietly.
+   The text is wrapped in its own <span> so the <a> is a sibling of the whole
+   sentence — without it the icon would be just another inline word after the
+   full stop and would sit wherever the line happened to end. */
+.site-foot__credit {
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
 @media (max-width: 620px) {
   .log-cta { flex-direction: column; align-items: stretch; }
@@ -2669,11 +2976,19 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* The ranked card's entrance (step 4b). Split off `fade-slide` so its travel can
+   be tuned without moving `.search-results`, which still uses that one. Ends at
+   `transform: none` so it composes with the hover scale — see the `backwards`
+   note on .movie-card.is-entering, which this must keep satisfying. */
+@keyframes card-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
-   ranked list's `fade-slide`.
-   The travel is 18px rather than 10: `fade-slide` was written for a ranked card,
-   and 10px under a ~300px-tall poster card is a twitch, not an arrival. Both end
+   ranked list's (which was `fade-slide` at the time and is `card-enter` since
+   step 4b).
+   The travel is 18px: the ranked card's was 10px when this was written, and 10px
+   under a ~300px-tall poster card is a twitch, not an arrival. (That figure has
+   since moved to 14px on its own, which is exactly the independence the split
+   was for — do not re-sync them.) Both end
    at `transform: none` so they compose cleanly with the hover scale (R14) —
    neither ever leaves a transform behind, because the entrance fills `backwards`
    and the exit's node is removed.

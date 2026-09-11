@@ -397,10 +397,10 @@ function withViewTransition(update) {
 
 /* ---------- ranked list ------------------------------------------------- */
 // Has the list been painted at least once? The first paint is an ENTRANCE (the
-// staggered fade-slide, nothing to morph from); every later one is a CHANGE to
+// staggered `card-enter`, nothing to morph from); every later one is a CHANGE to
 // a list already on screen, and gets the transition instead. Running both at
-// once made cards fade-slide in while the transition simultaneously cross-faded
-// them, which just looked muddy.
+// once made cards play their entrance while the transition simultaneously
+// cross-faded them, which just looked muddy.
 let rankedPainted = false;
 
 /** Re-render the ranked list, animating the difference when there is one. */
@@ -429,7 +429,24 @@ function renderRanked() {
     li.className = 'movie-card';
     if (entering) {
       li.classList.add('is-entering');
-      li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+      // Step 4b, tuned twice. 45ms -> 70ms was still "almost all at once", and
+      // the reason is a RATIO rather than a number: what decides whether a
+      // stagger reads as a cascade is how many cards are mid-animation at the
+      // same instant, which is duration / stagger. At 70ms against a 600ms card
+      // that was 8.6 cards in flight -- they overlap into one blob and the
+      // stagger has nothing left to separate. 180ms took it to 3.3 and overshot
+      // ("almost too slow"); 125ms sits at 4.8, each arrival still its own event
+      // with the list still brisk. Walked 45 -> 70 -> 180 -> 135 -> 125 by eye,
+      // which is worth knowing -- the useful band is narrow and nowhere near
+      // where the value started, so do not retune it in small steps from here.
+      // So tune this AGAINST the duration on .movie-card.is-entering, never on
+      // its own: raising that duration without raising this walks straight back
+      // into the same blur.
+      // The cap STAYS, and must: this list is unbounded. It bites at card 10 now
+      // (10 * 125 > 1200), so a long list still assembles in 1.8s rather than
+      // growing without limit -- a clump at the tail is the accepted cost of
+      // that, and it is invisible on the list lengths this app actually holds.
+      li.style.animationDelay = `${Math.min(i * 125, 1200)}ms`;
     }
     // Pairs this card's before/after snapshots so the browser morphs it from
     // its old position to its new one. The name must be a valid CSS ident and

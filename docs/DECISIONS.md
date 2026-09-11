@@ -6,6 +6,82 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
+
+Backlog item R6 said `verifyTitle()` was overselling itself: it looks for a
+case-insensitive exact title match and otherwise returns `results[0]`, so SPEC
+§2.2 #4 and the README promised a drop path that the item claimed was "nearly
+unreachable". The item asked for a deliberate matching rule and a statement of
+what it costs.
+
+**The first finding is that the item's own premise was false, and it was false
+when written.** It asserted "TMDB search is fuzzy, so a hallucinated title
+usually resolves to SOME real film". Probing 30 titles against live TMDB (free,
+so this cost nothing but time) shows the search is close to token matching:
+
+| probe class | n | outcome |
+|---|---|---|
+| invented titles, realistic shapes | 12 | **7 returned ZERO results** and were dropped correctly |
+| invented titles that are real obscure films | 4 of the above | **EXACT-matched** — no rule can catch these |
+| genuine fallback substitutions | 2 | `Arrival 2` → a 1906 newsreel; `Blade Runner 3` → `Blade Runner 2049` |
+| legitimate picks the fallback RESCUED | 4 | Shawshank, LOTR Fellowship, Spider-Verse, Dr. Strangelove |
+
+So the drop path is the common outcome, not an unreachable one, and the audit
+had inverted the cost/benefit. Worth stating plainly: this was Claude's own
+earlier item, written from reading the code without running it against the real
+API. **Reading the code told us what the fallback COULD do; only measuring told
+us how often it does.**
+
+**The tiered matcher that was designed and then not built.** The two populations
+separate cleanly on Dice bigram similarity — legitimate rescues score 0.83–1.00,
+the bad substitutions 0.36–0.38 — so the obvious fix was: exact → normalised
+(accents, punctuation, `&`, commas) → article-stripped → prefix containment →
+similarity floor ~0.75 → drop. It works on paper. Three things argued against
+shipping it:
+
+1. **It cannot touch the commonest failure.** `The Silent Echo`, `Last Light`,
+   `Shadow of the Wolf` and `The Long Road Home` all sound invented and are all
+   real films that exact-match. The strictest possible matcher admits every one.
+2. **Dice alone gets Dr. Strangelove wrong.** The correct long title scores 0.41
+   while a wrong `National Theatre Live: Dr. Strangelove` scores 0.60, so the
+   rule needs a containment tier purely to avoid a confident wrong answer — new
+   machinery whose job is to patch the new machinery.
+3. **It costs run size on a graded demo.** Four of the sample's picks survive
+   only because of the fallback, and a recommendation run capped at six cards
+   cannot afford to silently shed a third of them for a rare correctness gain.
+
+**The user's call, given those numbers, was to leave the code and fix the
+claim** — the cheapest honest option, and the one that does not risk the demo.
+Claude had recommended the 0.75-floor matcher; the measurements are what changed
+the recommendation's footing, and the user weighed run size higher. Corrected
+instead: the JSDoc on `verifyTitle()` (which claimed "or null if no confident
+match", where no confidence test has ever existed), the comment in
+`generateRecommendations()`, SPEC §2.2 #4 and §6, the README, `docs/PROCESS.md`
+and `CLAUDE.md` § Prompt Versioning. SPEC is ANNOTATED rather than rewritten,
+following the precedent §2.3 already set for the verdict length — the
+requirement as written stays visible beside what was actually built.
+
+**The line that matters, and the one to keep saying:** the check confirms a card
+shows **a real film**, not that it shows **the** film the model named. Every fact
+on the card still comes from TMDB and never from the model, which is the half of
+the SPEC clause that was always exactly true.
+
+**One residual, deliberately not fixed.** `WALL-E` resolves to `East of Wall`
+(2025). TMDB's own title is `WALL·E` with an interpunct, and the real film is not
+in the top 20 results for any spelling tried — so tightening would drop it rather
+than find it, and only a query-side change (searching alternative titles, or
+using TMDB's `/find`) would help. It is the clearest example that the fallback
+and the matcher are two different problems.
+
+**Traps.** Do not re-open this from the code alone — the numbers above are the
+whole argument, and they are not visible in `verifyTitle()`. Do not "fix" the
+docs back to a stronger promise. And if the matcher is ever tightened after all,
+[routes.test.js](../test/routes.test.js)'s duplicate-pick test is built ON the
+fallback (`Collateral` → Heat), so it would need rewriting to a pick that
+legitimately resolves to the same film — a green suite after tightening, without
+touching that stub, would mean the tightening did not take.
+
+---
 ## D-053 · The taste verdict alone runs on a stronger model
 
 The user asked for the verdict to sound less formal. **Four prompt versions

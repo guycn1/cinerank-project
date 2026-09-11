@@ -21,11 +21,50 @@
       <h1>Cine<span>Rank</span></h1>
     </div>
     <p class="tagline">A personal ranking that learns your taste — and an AI that has to prove its picks are real.</p>
+    <!-- Step 3 of the agreed order: the way out to the public repo.
+         THE SAME PATH APPEARS ONCE MORE, in the footer's credit line — if this
+         one is ever edited, edit that one too. The footer copy carries the note
+         on why the two are duplicated rather than shared.
+         Inline SVG, never an icon font and never the emoji (D-027) — `fill` is
+         left off the path so it inherits `currentColor`, which is what lets the
+         rest and hover states be driven by one `color` and one `opacity`.
+         `rel="noopener"` matches the TMDB link in the footer rather than
+         inventing a second convention for external links; it is also the
+         security-relevant half (it denies the opened tab a handle on
+         `window.opener`). The label says the tab is new, because a link that
+         silently moves you to another site is the kind of thing a screen-reader
+         user should be told about BEFORE activating it. -->
+    <!-- `title` and `aria-label` deliberately differ and BOTH are wanted: the
+         title is the pointer tooltip, the aria-label is the accessible name and
+         is the only one that can say the tab is new. An aria-label present wins
+         the accessible name outright, so the title is never announced and the
+         two cannot double up. Do not "deduplicate" them. -->
+    <a class="gh-link" href="https://github.com/guycn1/cinerank-project"
+       target="_blank" rel="noopener"
+       title="View source on GitHub"
+       aria-label="CineRank source code on GitHub (opens in a new tab)">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.27-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/>
+      </svg>
+    </a>
   </header>
 
   <main>
     <!-- Taste Verdict Banner (SPEC § 2.3) — visible early, compact, playful -->
     <section class="verdict" id="verdict" aria-label="Taste verdict">
+      <!-- The travelling glint on the banner's ring (step 4b). An SVG stroke,
+           not a gradient, and the reason is geometric rather than aesthetic: a
+           dash travels a PATH, so it keeps one width and one speed the whole way
+           round. Gradients cannot — a linear one crosses a frame in two places
+           at once, and a conic one maps equal angles to wildly unequal arc
+           lengths on a box this wide. Both were built and both failed; see the
+           note in styles.css.
+           `pathLength="100"` normalises the perimeter to 100 units, so the dash
+           is a PERCENTAGE of the ring and the banner can be any width without JS
+           measuring it. Decorative, so aria-hidden. -->
+      <svg class="verdict__sheen" aria-hidden="true" focusable="false">
+        <rect pathLength="100" />
+      </svg>
       <div class="verdict__inner">
         <span class="verdict__label">The verdict</span>
         <!-- is-muted from the start: this is a placeholder like every other
@@ -134,7 +173,27 @@
       </button>
     </div>
     <p class="site-foot__credit">
-      Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.
+      <span>Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.</span>
+      <!-- The SECOND repo link — step 3 asked for link(s), plural. Everything
+           except its size comes from the shared .gh-link class.
+           The SVG path is duplicated from the header's rather than shared, and
+           that is a judgement call rather than an oversight. <symbol> + <use>
+           WOULD work here — unlike R15's sparkle, nothing selects into this
+           icon's internals, and `fill` inherits from the host's `color` — but it
+           costs a hidden sprite element and a rewrite of the header link that
+           was just settled by eye, to de-duplicate ONE static third-party logo
+           path that will never be regenerated. A <template> + JS clone is worse
+           still: this link's only content is the icon, so a failed script would
+           leave an empty clickable box. The two copies point at each other
+           instead; if one is ever edited, edit the other. -->
+      <a class="gh-link" href="https://github.com/guycn1/cinerank-project"
+         target="_blank" rel="noopener"
+         title="View source on GitHub"
+         aria-label="CineRank source code on GitHub (opens in a new tab)">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.27-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/>
+        </svg>
+      </a>
     </p>
   </footer>
 

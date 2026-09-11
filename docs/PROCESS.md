@@ -18,7 +18,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Fourteen merges to `main` so far (verify with
+  human sign-off.** Fifteen merges to `main` so far (verify with
   `git log --merges --oneline main`), each a deliberate decision.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
@@ -71,7 +71,12 @@ it reaches the DOM.
 
 - **Facts come from TMDB, never the model.** The recommendation prompt returns
   *titles only*; every title is looked up on TMDB, which supplies poster / year /
-  overview. An unverifiable title is silently dropped, not shown as a broken card.
+  overview. A title TMDB returns no result for is silently dropped, not shown as
+  a broken card — measurement showed that is the common outcome for an invented
+  title, not a rare one. The lookup keeps TMDB's best result when the titles do
+  not match exactly, so it proves the card describes a real film rather than
+  proving it is the film the model meant: a trade taken deliberately, with the
+  numbers, in D-054.
 - **Structured output, not prose parsing.** Recommendations must be a JSON array;
   `parseModelJson()` tolerates exactly one markdown fence and nothing looser.
 - **Prompt injection.** User review text feeds both prompts as untrusted data,
@@ -128,7 +133,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 53 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 54 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -154,6 +159,11 @@ of the practice.
   response must advertise the AI call log, and whenever no row was written it must
   not. Each of these was verified by breaking the code it guards and confirming
   the intended test — and only that test — fails.
+- **Two failures at once**, added 2026-09-11 and also written as a loop over both
+  features: when the AI call fails AND the log write then fails, there is no row
+  to hold either cause, so stderr is the only surviving record and the test
+  asserts both causes reach it. Probed the same way — dropping the composition
+  loses the AI cause, dropping the `console.error` loses both.
 
 To keep the live database untouched (§5), the Supabase client is swapped for a
 small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through
