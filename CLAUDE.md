@@ -2227,9 +2227,17 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **Four visual-polish items on the verdict banner, the ranked list and the
-   logo** (user-raised 2026-09-10 and 2026-09-11). **THREE OF THE FOUR are the
+   logo** (user-raised 2026-09-10 and 2026-09-11). **ONE DONE (the logo spin,
+   2026-09-11), three open.** The user pulled this step in front of step 4
+   deliberately: the favicon will most likely derive from the logo, so the logo
+   had to be settled before that discussion could start.
+   **THREE OF THE FOUR are the
    same shape — the mechanism already exists and the effect is simply too subtle
-   to see — so read each item before building anything.** Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
+   to see — so read each item before building anything.** The logo item was one
+   of them, and it is worth noting how it went: the mechanism was fine, the
+   written diagnosis of WHY it was invisible was incomplete, and following that
+   diagnosis literally would have produced the wrong effect. Read the code, not
+   just the item. Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
    user asked for these "after the recs overhaul, before the narrow-portrait
    overhaul", and renumbering would silently break every reference to "step 5",
    including the enforcement rules in the memory file
@@ -2288,16 +2296,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      cap, all in two places (`.movie-card.is-entering` and one line of
      `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
      spotlight both depend on it.
-   * **Does the logo circle actually spin? — ANSWERED 2026-09-11, no
-     investigation needed.** Yes, `animation: spin 8s linear infinite` is on
-     `.mark__reel` and runs. It is invisible because **every part of it that you
-     can see is rotationally symmetric**: the 3px amber border ring, and a
-     `radial-gradient` that draws a concentric amber ring. The one asymmetric
-     feature is a `conic-gradient` wedge covering the first 20% of the circle —
-     and it is painted in `var(--bg)`, the page's own background colour, so it
-     is invisible against the page behind it. The fix is not to the animation; it
-     is to give that wedge a colour that differs from the page (a film-reel notch
-     needs to be visible to read as one). Cheap, and it is the whole of this item.
+   * **Does the logo circle actually spin? — DONE 2026-09-11.** Yes, it always
+     did: `animation: spin 8s linear infinite` on `.mark__reel` runs and always
+     ran. It was invisible because **every part of it you could see was
+     rotationally symmetric** — the 3px amber border ring and a `radial-gradient`
+     drawing a concentric amber ring — so eight seconds of rotation looked like a
+     still image.
+     **The diagnosis first written here was half right, and the other half is the
+     interesting bit.** It said the one asymmetric feature, a `conic-gradient`
+     wedge over the first 20% of the circle, was invisible because it is painted
+     in `var(--bg)`. True, but it was also the SECOND background layer — and
+     first-listed paints on top — so it sat UNDERNEATH the amber ring and could
+     not have cut anything in any colour. Worth stating the consequence: had it
+     been on top, `var(--bg)` would have been exactly the right choice. The
+     intent was plainly to notch the ring, not to draw a coloured slice, so the
+     original advice here ("give that wedge a colour that differs from the page")
+     would have produced a rotating pie wedge — a different thing, and a worse
+     one.
+     Even on the correct layer it could only ever have notched the INNER ring: a
+     `border` paints above the background, so the outer ring would have stayed
+     closed.
+     **Built as a conic `mask` instead**, which cuts the border and the
+     background together — one declaration rather than rebuilding both rings as
+     gradients so a wedge could reach them. The dead wedge is deleted.
+     `--reel-notch` (9%, a 32.4° gap) is the one dial. Under
+     `prefers-reduced-motion` the animation is killed and the notch rests at 12
+     o'clock, which still reads as a reel rather than as a broken circle.
+     `-webkit-mask` is declared alongside `mask` for Safari.
 
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.

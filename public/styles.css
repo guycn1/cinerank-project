@@ -321,12 +321,31 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
+/* Step 4b: the logo really did spin, and nobody could tell — everything visible
+   on it was rotationally symmetric, so eight seconds of rotation looked like a
+   still image.
+   The reel carried ONE asymmetric feature, a conic wedge painted in `var(--bg)`.
+   The backlog blamed the colour. That was only half of it: the wedge was also
+   the SECOND background layer, and first-listed paints on top, so it sat
+   underneath the amber ring and could not have cut anything even in a colour
+   that showed. And had it been on top, `--bg` would have been exactly the right
+   choice — the intent was clearly to notch the ring, not to draw a coloured
+   slice. It could still only ever have notched the INNER ring, because a
+   `border` paints above the background and the outer ring would have stayed
+   closed.
+   So the wedge is gone and a conic MASK replaces it: a mask cuts the element's
+   border and background together, which is what a reel notch needs, and it
+   costs one declaration instead of a rebuild of the rings as gradients.
+   --reel-notch is the one dial. At rest (prefers-reduced-motion kills the
+   animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
+  --reel-notch: 9%;
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--amber);
   background:
-    radial-gradient(circle at 50% 50%, transparent 30%, var(--amber) 31%, var(--amber) 37%, transparent 38%),
-    conic-gradient(from 0deg, var(--bg) 0 20%, transparent 0 25%) ;
+    radial-gradient(circle at 50% 50%, transparent 30%, var(--amber) 31%, var(--amber) 37%, transparent 38%);
+  -webkit-mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
+  mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
   animation: spin 8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
