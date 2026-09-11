@@ -150,18 +150,66 @@ a:hover { text-decoration: underline; }
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
   position: fixed;
-  /* Bleed past every edge. The grain animation translates this layer by up to
-     translate(-3%, 2%); at inset:0 that briefly left a ~3% strip at the right
-     (and top) edge uncovered, which flickered as a dark bar. Overhanging the
-     viewport keeps the shift fully covered — the grain + motion are unchanged. */
+  /* Bleed past every edge, and THIS IS LOAD-BEARING RATHER THAN STYLING. The
+     animation below translates this layer; at inset:0 that briefly left a strip
+     at the right and top edges uncovered, which flickered as a dark bar.
+     The budget, so a future retune does not walk off the edge: translate
+     percentages resolve against the element's OWN box, which is 116% of the
+     viewport (100 + 8 + 8). The largest offset used below is 4%, i.e. 4.64% of
+     the viewport, against 8% of overhang on each side. Stay under ~6.9%. */
   inset: -8%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.06;
+  /* 0.035 -> 0.06 -> 0.1, the last step by the user's eye on 2026-09-12 AFTER
+     the resample fix below. Order matters: see the note at `animation`. */
+  opacity: 0.1;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 0.5s steps(2) infinite;
+  /* steps(1) per interval, so each keyframe HOLDS and the grain jumps between
+     discrete positions rather than sliding between them. Ten positions in 0.7s
+     is ~14 changes a second.
+     IT WAS `0.5s steps(2)`, WHICH IS THE WHOLE REASON IT READ AS INVISIBLE:
+     steps(2) over a two-keyframe animation gives the grain exactly TWO states,
+     alternating 4 times a second. That is a static texture with an occasional
+     twitch, not grain. Real film resolves fresh grain ~24 times a second, and
+     the eye reads that shimmer as texture even when each frame is faint.
+     BRIGHTNESS WAS NEVER THE PRIMARY PROBLEM, and the history proves it: the
+     opacity had already been pushed 0.035 -> 0.06 in an earlier session and the
+     living log's own verdict was "still subtle". `fractalNoise` has a non-zero
+     mean, so over a `#0b0b0f` page more opacity adds a grey VEIL before it adds
+     visible speckle — which is why turning that dial alone could not work.
+     It was raised again to 0.1 once the resampling above was in, and that is the
+     right ORDER rather than a contradiction: with the texture actually
+     refreshing there is speckle for the extra opacity to strengthen, where
+     before there was only a veil to thicken. If it is ever pushed much past
+     this, expect the veil to reappear — the fix then is a zero-mean noise
+     source (an `feComponentTransfer` on the alpha), not more opacity.
+     MIX-BLEND-MODE WAS THE OTHER CANDIDATE AND IS WRONG HERE — measured, not
+     assumed. `overlay` maps a full-white speck to +0.043 over this page's
+     background but +0.450 over a poster midtone, so it would move the grain ONTO
+     the posters and OFF the dark background, which is the opposite of the ask.
+     (It is the physically correct film behaviour, which is why it looks right in
+     the abstract and wrong on this page.) `soft-light` is gentler but tilts the
+     same way. Do not re-open that without re-running the numbers. */
+  animation: grain 0.7s steps(1) infinite;
 }
-@keyframes grain { to { transform: translate(-3%, 2%); } }
+/* Ten pseudo-random offsets rather than one destination. With `steps(1)` the
+   animation holds each until the next, so the texture RESAMPLES instead of
+   drifting along a single diagonal — which is what `steps(2)` on a two-keyframe
+   version did, and it reads as a slide rather than as grain.
+   Every offset is within +-4%; see the budget note at `.grain`'s `inset`. */
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-3%, -2%); }
+  20%  { transform: translate(2%, -4%); }
+  30%  { transform: translate(-4%, 3%); }
+  40%  { transform: translate(3%, 1%); }
+  50%  { transform: translate(-2%, 4%); }
+  60%  { transform: translate(4%, -3%); }
+  70%  { transform: translate(-3%, -4%); }
+  80%  { transform: translate(1%, 3%); }
+  90%  { transform: translate(-4%, -1%); }
+  100% { transform: translate(0, 0); }
+}
 
 main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 

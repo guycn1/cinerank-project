@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **four done and three open — the verdict glint and its busy-state cue both landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **five done and two open — the verdict glint, its busy-state cue and the film grain all landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2244,17 +2244,20 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **FOUR FULLY
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **FIVE FULLY
    DONE — the logo spin and the ranked list's first-paint entrance (both
-   2026-09-11), and the verdict border's glint plus its busy-state cue (both
-   2026-09-12). THREE OPEN:**
+   2026-09-11), and the verdict border's glint, its busy-state cue and the film
+   grain (all 2026-09-12). TWO OPEN:**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
       values, the twenty layer rules are GENERATED with delays derived from the
       duration, and the alphas are SOLVED and cannot be scaled. See D-055;
    2. the verdict typing effect (the only item here that is a new build);
-   3. the film grain;
+   3. ~~the film grain~~ — **DONE 2026-09-12**: it was a RESAMPLE-RATE problem,
+      not a brightness one. `mix-blend-mode`, this item's leading suggestion,
+      was measured and rejected — it moves grain onto the posters and off the
+      dark background;
    4. "New verdict" shown disabled rather than hidden when locked;
    5. ~~the glint speeding up while "New verdict" is busy~~ — **DONE
       2026-09-12**. Brightness in CSS, speed via `playbackRate` in JS rather
@@ -2534,36 +2537,39 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      o'clock, which still reads as a reel rather than as a broken circle.
      `-webkit-mask` is declared alongside `mask` for Safari.
 
-   * **The film-grain overlay is barely visible — make it read** (user-raised
-     2026-09-11). Fifth item, and the fourth of the five in the
-     "mechanism exists, effect invisible" family.
-     **State as it stands:** `.grain` is `position: fixed`, `inset: -8%`,
-     `z-index: 9999`, `opacity: 0.06`, with a 120×120 inline-SVG `feTurbulence`
-     (`fractalNoise`, `baseFrequency 0.9`, `numOctaves 3`) as its background and
-     `animation: grain 0.5s steps(2) infinite` translating it to
-     `translate(-3%, 2%)`.
-     **Opacity has ALREADY been pushed once and did not solve it** — it went
-     0.035 → 0.06 and the animation 0.6s → 0.5s during the 2026-09-05 overhaul,
-     and the living log's own verdict on that was "still subtle". That is the
-     D-053 shape: when the obvious dial has been turned and the effect did not
-     move, the dial is probably not the variable. **Do not just raise the
-     opacity**, for a checkable reason: `fractalNoise` is centred on mid-grey
-     with noisy alpha, so over a `#0b0b0f` page more opacity adds a grey VEIL
-     before it adds visible speckle — the page goes hazy rather than grainy.
-     **Two things worth measuring before touching opacity:**
-     - **`mix-blend-mode`.** The layer currently composites normally. `overlay`
-       or `soft-light` is the standard way to make grain modulate what is beneath
-       it instead of fogging it, and it is the most likely single answer here.
-     - **`steps(2)` means the grain has exactly TWO states**, so at 0.5s it
-       changes 4 times a second. Real grain shimmers. More steps, or a shorter
-       duration, buys liveliness without touching brightness at all.
-     **One trap, already paid for:** `inset: -8%` is load-bearing, not styling.
-     The animation translates the layer by up to 3%, and at `inset: 0` that left
-     a strip at the right and top edges uncovered, flickering as a dark bar. Any
-     rework must keep the overhang.
-     Note `prefers-reduced-motion` kills the animation outright (the global
-     `animation: none !important`), leaving a static grain — which is correct and
-     should stay true of whatever replaces it.
+   * **The film-grain overlay was barely visible — DONE 2026-09-12.**
+     **It was never a brightness problem, and the item's own two suggestions were
+     one right and one wrong.** Fixed by making the grain RESAMPLE.
+     **The cause:** `animation: grain 0.5s steps(2)` over a two-keyframe
+     animation gives the texture exactly TWO states, alternating four times a
+     second, sliding along a single diagonal. That is a static texture with an
+     occasional twitch. Real film resolves fresh grain ~24 times a second, and
+     the eye reads that shimmer as texture even when each frame is faint.
+     Now ten pseudo-random offsets at `0.7s steps(1)` — ~14 changes a second,
+     each position HELD rather than slid between.
+     **`mix-blend-mode` was this item's leading suggestion and it is WRONG for
+     this page — measured, not assumed.** `overlay` maps a full-white speck to
+     **+0.043** over the page's `#0b0b0f` background but **+0.450** over a poster
+     midtone, so it would move the grain ONTO the posters and OFF the dark
+     background, which is the opposite of what was asked for. It is the
+     physically correct film behaviour, which is exactly why it sounds right in
+     the abstract and fails here. `soft-light` tilts the same way (+0.108 /
+     +0.221). Do not re-open this without re-running those numbers.
+     **Opacity then went 0.06 -> 0.1** by the user's eye, and the ORDER is the
+     point rather than a contradiction of the above: with the texture actually
+     refreshing there is speckle for the extra opacity to strengthen, where
+     before there was only a veil to thicken. Pushed much further, the veil
+     returns — `fractalNoise` has a non-zero mean, so over a near-black page
+     opacity adds grey before it adds specks. The fix at that point is a
+     zero-mean noise source (an `feComponentTransfer` on the alpha), not more
+     opacity.
+     **`inset: -8%` is load-bearing and is now written as arithmetic rather than
+     a warning:** translate percentages resolve against the element's OWN box,
+     which is 116% of the viewport, so the 4% offsets used are 4.64% of the
+     viewport against 8% of overhang per side. Stay under ~6.9% or the layer
+     stops covering its own movement and a dark bar flickers at the edges.
+     `prefers-reduced-motion` still kills the animation outright, leaving a
+     static grain — correct, and it stays true of this version.
 
    * **Consider showing "New verdict" DISABLED when the feature is locked,
      rather than hiding it entirely** (user-raised 2026-09-11). Today the button
