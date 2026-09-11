@@ -2130,6 +2130,22 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    this project has now hit six times — `1fr` is `minmax(auto, 1fr)`, and that
    automatic minimum would let a long tagline word push the icon off the edge
    instead of wrapping.
+   **Sizing and alignment were both revised the same day on the user's
+   screenshots.** The icon was centred across the two rows, which left it sitting
+   well below the h1; it is now `align-self: start` with a negative `margin-top`
+   cancelling its own padding, so what meets the top of the header block is the
+   GLYPH rather than the invisible hit area — without that it reads about 7px low
+   and the padding takes the blame. It also grew 1.5x, applied to every term of
+   the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at every width
+   rather than only where the clamp happened to be resting.
+   **One thing to CHECK in step 5, not now:** `CineRank` is a single unbreakable
+   word, so `.mark` has a hard min-content width, and the icon's column now takes
+   ~21px more than it did. At some narrow width the two stop fitting on one row
+   and the h1 will overflow its `minmax(0, 1fr)` column rather than wrap. **The
+   exact width is NOT estimated here on purpose** — D-030 is the entry about
+   guessing Fraunces figure widths twice and being wrong twice; measure it with
+   `Range.getBoundingClientRect()` during the portrait pass. The likely answer is
+   that the header stacks below some breakpoint, which is step 5's call to make.
    **States, as the user specified them:** `opacity: 0.62` at rest, easing to
    `1` on hover, with a box-shadow appearing over the same 0.25s. The glow is
    **built out of light, not black** — the user flagged the dark-theme trap in
