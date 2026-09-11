@@ -2226,18 +2226,18 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
    building.
 
-4b. **Four visual-polish items on the verdict banner, the ranked list and the
-   logo** (user-raised 2026-09-10 and 2026-09-11). **ONE DONE (the logo spin,
-   2026-09-11), three open.** The user pulled this step in front of step 4
-   deliberately: the favicon will most likely derive from the logo, so the logo
-   had to be settled before that discussion could start.
-   **THREE OF THE FOUR are the
+4b. **Five visual-polish items on the verdict banner, the ranked list, the logo
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ONE DONE (the
+   logo spin, 2026-09-11), four open.** The user pulled this step in front of
+   step 4 deliberately: the favicon will most likely derive from the logo, so the
+   logo had to be settled before that discussion could start.
+   **FOUR OF THE FIVE are the
    same shape — the mechanism already exists and the effect is simply too subtle
-   to see — so read each item before building anything.** The logo item was one
-   of them, and it is worth noting how it went: the mechanism was fine, the
-   written diagnosis of WHY it was invisible was incomplete, and following that
-   diagnosis literally would have produced the wrong effect. Read the code, not
-   just the item. Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
+   to see — so read each item before building anything.** Only the typing effect
+   is a genuinely new build. The logo item was one of the four, and it is worth
+   noting how it went: the mechanism was fine, the written diagnosis of WHY it
+   was invisible was incomplete, and following that diagnosis literally would
+   have produced the wrong effect. Read the code, not just the item. Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
    user asked for these "after the recs overhaul, before the narrow-portrait
    overhaul", and renumbering would silently break every reference to "step 5",
    including the enforcement rules in the memory file
@@ -2326,6 +2326,37 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `prefers-reduced-motion` the animation is killed and the notch rests at 12
      o'clock, which still reads as a reel rather than as a broken circle.
      `-webkit-mask` is declared alongside `mask` for Safari.
+
+   * **The film-grain overlay is barely visible — make it read** (user-raised
+     2026-09-11). Fifth item, and the fourth of the five in the
+     "mechanism exists, effect invisible" family.
+     **State as it stands:** `.grain` is `position: fixed`, `inset: -8%`,
+     `z-index: 9999`, `opacity: 0.06`, with a 120×120 inline-SVG `feTurbulence`
+     (`fractalNoise`, `baseFrequency 0.9`, `numOctaves 3`) as its background and
+     `animation: grain 0.5s steps(2) infinite` translating it to
+     `translate(-3%, 2%)`.
+     **Opacity has ALREADY been pushed once and did not solve it** — it went
+     0.035 → 0.06 and the animation 0.6s → 0.5s during the 2026-09-05 overhaul,
+     and the living log's own verdict on that was "still subtle". That is the
+     D-053 shape: when the obvious dial has been turned and the effect did not
+     move, the dial is probably not the variable. **Do not just raise the
+     opacity**, for a checkable reason: `fractalNoise` is centred on mid-grey
+     with noisy alpha, so over a `#0b0b0f` page more opacity adds a grey VEIL
+     before it adds visible speckle — the page goes hazy rather than grainy.
+     **Two things worth measuring before touching opacity:**
+     - **`mix-blend-mode`.** The layer currently composites normally. `overlay`
+       or `soft-light` is the standard way to make grain modulate what is beneath
+       it instead of fogging it, and it is the most likely single answer here.
+     - **`steps(2)` means the grain has exactly TWO states**, so at 0.5s it
+       changes 4 times a second. Real grain shimmers. More steps, or a shorter
+       duration, buys liveliness without touching brightness at all.
+     **One trap, already paid for:** `inset: -8%` is load-bearing, not styling.
+     The animation translates the layer by up to 3%, and at `inset: 0` that left
+     a strip at the right and top edges uncovered, flickering as a dark bar. Any
+     rework must keep the overhang.
+     Note `prefers-reduced-motion` kills the animation outright (the global
+     `animation: none !important`), leaving a static grain — which is correct and
+     should stay true of whatever replaces it.
 
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.
