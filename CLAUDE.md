@@ -2146,8 +2146,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    guessing Fraunces figure widths twice and being wrong twice; measure it with
    `Range.getBoundingClientRect()` during the portrait pass. The likely answer is
    that the header stacks below some breakpoint, which is step 5's call to make.
-   **States, as the user specified them:** `opacity: 0.65` at rest (0.62 first,
-   nudged up by eye once the halo was settled), easing to `1` on hover, with a
+   **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
+   eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with a
    box-shadow appearing over the same 0.25s. The glow is
    **built out of light, not black** — the user flagged the dark-theme trap in
    the request itself, and D-044 is the entry that records it costing real time

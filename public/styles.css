@@ -240,8 +240,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
                                          so it grows by half at EVERY width
                                          rather than only where the clamp
                                          happened to be resting. */
-  opacity: 0.65;               /* "slightly transparent at rest", nudged up from
-                                  0.62 by eye once the halo was settled */
+  opacity: 0.68;               /* "slightly transparent at rest". Walked up by
+                                  eye, 0.62 → 0.65 → 0.68, once the halo settled */
   transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 .gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
