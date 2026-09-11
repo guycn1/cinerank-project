@@ -16,7 +16,8 @@ A personal movie-ranking app where the database and the AI each earn their place
 - **The AI** (via OpenRouter) has one narrow job: given your top-rated films, name
   similar ones you haven't added — and it is **never trusted for facts**. Every
   suggested title is cross-checked against TMDB, which supplies the real poster,
-  year and overview.
+  year and overview; a title TMDB has never heard of is dropped rather than shown
+  as a broken card.
 - **A Taste Verdict banner** sizes you up as a moviegoer in two or three teasing
   sentences — the low-stakes, fun AI touch, logged with the same discipline.
 

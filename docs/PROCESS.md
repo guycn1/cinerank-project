@@ -71,7 +71,12 @@ it reaches the DOM.
 
 - **Facts come from TMDB, never the model.** The recommendation prompt returns
   *titles only*; every title is looked up on TMDB, which supplies poster / year /
-  overview. An unverifiable title is silently dropped, not shown as a broken card.
+  overview. A title TMDB returns no result for is silently dropped, not shown as
+  a broken card — measurement showed that is the common outcome for an invented
+  title, not a rare one. The lookup keeps TMDB's best result when the titles do
+  not match exactly, so it proves the card describes a real film rather than
+  proving it is the film the model meant: a trade taken deliberately, with the
+  numbers, in D-054.
 - **Structured output, not prose parsing.** Recommendations must be a JSON array;
   `parseModelJson()` tolerates exactly one markdown fence and nothing looser.
 - **Prompt injection.** User review text feeds both prompts as untrusted data,

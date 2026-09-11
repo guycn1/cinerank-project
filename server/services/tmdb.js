@@ -69,8 +69,25 @@ export async function getMovieDetails(tmdbId) {
 
 /**
  * Cross-check an AI-suggested title against TMDB (SPEC § 2.2 step 4).
- * Returns a real, TMDB-verified movie object, or null if no confident match.
+ * Returns a real TMDB movie, or null when TMDB has never heard of the title.
  * The AI only picked the string; TMDB supplies every fact shown to the user.
+ *
+ * THIS IS A REAL-FILM CHECK, NOT A SAME-FILM CHECK, and the difference is
+ * deliberate (D-054). A title TMDB returns nothing for is dropped; anything else
+ * resolves to TMDB's own top result, which is occasionally a DIFFERENT film from
+ * the one the model named, shown with the model's reason still attached.
+ * This comment used to promise "or null if no confident match". That was never
+ * true -- there is no confidence test here, and there was none when that line
+ * was written.
+ *
+ * Tightening it was measured against live TMDB (30 probe titles) and rejected.
+ * TMDB search is close to TOKEN matching rather than fuzzy, so invented titles
+ * mostly return zero results and are already dropped, while the fallback earns
+ * its keep rescuing real films the model named imprecisely ("Shawshank
+ * Redemption", "Spider-Man: Into the Spiderverse"). And the commonest
+ * hallucination shape is immune to any matching rule anyway: an invented-sounding
+ * title like "The Silent Echo" turns out to be a real obscure film and
+ * EXACT-matches. Read D-054 before changing this; the numbers are in it.
  */
 export async function verifyTitle(title) {
   const data = await tmdbGet('/search/movie', { query: title, include_adult: 'false' });
@@ -79,5 +96,7 @@ export async function verifyTitle(title) {
 
   const wanted = title.trim().toLowerCase();
   const exact = results.find((r) => r.title.trim().toLowerCase() === wanted);
+  // Prefer a title-for-title match, else TMDB's top hit. The fallback is a
+  // documented trade (D-054), not an oversight -- see the note above.
   return shapeMovie(exact || results[0]);
 }

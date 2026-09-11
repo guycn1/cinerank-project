@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-SIX done, R20 withdrawn as incorrect and **three open: R5, R6 and R18**, the first two being the only remaining items that are not design/UI tweaks and R18 being parked for step 5 by design; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-SEVEN done, R20 withdrawn as incorrect and **two open: R5 and R18** — R5 the only remaining item that is not a design/UI tweak, R18 parked for step 5 by design; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054); the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -1179,8 +1179,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
-   seeing R27 and D-050 run. R1–R4, R8–R14,
-   R7, R15, R16, R17, R19, R21, R22 and R23–R30 are done and R20 was WITHDRAWN as incorrect — every
+   seeing R27 and D-050 run. R1–R4, R6–R17, R19 and R21–R30 are done, R20 was
+   WITHDRAWN as incorrect, and **R5 and R18 are the two still open** — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1271,20 +1271,41 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
    **Group B — the strength of the "verified against TMDB" claim**
 
-   * **R6. `verifyTitle()` falls back to `results[0]`, so almost nothing is ever
-     actually dropped.** It looks for a case-insensitive exact match and, failing
-     that, returns TMDB's first result for the query. TMDB search is fuzzy, so a
-     hallucinated title usually resolves to SOME real film, which is then shown
-     with the model's reason still describing the film that does not exist.
-     SPEC §2.2 #4 and the README both say unverifiable titles are dropped; in
-     practice that drop path is nearly unreachable.
-     **Do not simply tighten it to exact-match-only** — that would silently drop
-     legitimate picks over punctuation and diacritics (`Amelie` vs `Amélie`,
-     `The Lord of the Rings: Fellowship…` vs `…: The Fellowship…`) and shrink
-     every run. Decide the matching rule deliberately (normalise case, accents and
-     punctuation, then require equality or strong containment) and state what it
-     costs. The blast-radius claim in CLAUDE.md § Security 5 is NOT affected: the
-     output still only ever drives a title lookup.
+   * **R6. DONE 2026-09-11 (D-054) — closed by correcting the CLAIM, not the
+     code.** `verifyTitle()` still falls back to `results[0]`. What changed is
+     that SPEC §2.2 #4 and §6, the README, `docs/PROCESS.md`, this file and the
+     function's own JSDoc stopped promising more than it delivers.
+     **This item's original premise was WRONG when written, so it is corrected
+     here rather than preserved.** It claimed "TMDB search is fuzzy, so a
+     hallucinated title usually resolves to SOME real film" and that "that drop
+     path is nearly unreachable". Measured against live TMDB across 30 probe
+     titles: the search is close to TOKEN matching rather than fuzzy, and **7 of
+     12 realistic invented titles returned ZERO results** and were dropped
+     exactly as the docs said. The drop path is the common case, not an
+     unreachable one. The JSDoc carried a matching falsehood — "or null if no
+     confident match", where no confidence test has ever existed.
+     **What tightening would have bought, and cost.** The fallback is actively
+     rescuing real films the model named imprecisely: `Shawshank Redemption` (no
+     "The"), `The Lord of the Rings: Fellowship of the Ring` (a missing "The"),
+     `Spider-Man: Into the Spiderverse` (hyphen), `Dr. Strangelove` (shortened).
+     Against those four it produced two bad substitutions in the same sample —
+     `Arrival 2` → a 1906 newsreel, and `Blade Runner 3` → `Blade Runner 2049`.
+     **And the commonest hallucination shape is immune to ANY matching rule:**
+     an invented-sounding title like `The Silent Echo`, `Last Light` or `Shadow
+     of the Wolf` turns out to be a real obscure film and EXACT-matches, so the
+     strictest possible matcher still admits it. Tightening buys less than it
+     costs.
+     **The one genuinely broken case is not a hallucination**, and no matching
+     rule fixes it either: `WALL-E` resolves to `East of Wall` (2025), because
+     TMDB's own title is `WALL·E` with an interpunct and the real film is not in
+     the top 20 results for any spelling tried. Tightening would drop it rather
+     than find it — only a query-side change would find it. Left as a known
+     residual, written down so it is not rediscovered as a new bug.
+     **The user's call, made on the measurements: leave the code, fix the claim.**
+     The blast-radius claim in CLAUDE.md § Security 5 was never affected and is
+     untouched — the output still only ever drives a title lookup. Full numbers,
+     and the tiered matcher that was designed and rejected, are in D-054; do not
+     re-derive them by eye.
 
    **Group C — copy and consistency**
 
@@ -2498,7 +2519,7 @@ it.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
 * The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; this bullet said "one or two" until 2026-09-11 and would have sent a future session to shorten it back) — this is intentionally the lighter-weight of the two prompts.
-* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
+* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms the card shows a REAL film, not that it shows THE film the model named** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, so a near-miss resolves to a neighbouring film instead of being dropped. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 \---
 

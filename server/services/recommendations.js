@@ -159,7 +159,10 @@ export async function generateRecommendations() {
     picks = parseModelJson(result.text);
 
     // Cross-check every title against TMDB; TMDB supplies all facts (SPEC § 2.2
-    // #4). Unverifiable or already-owned titles are silently dropped (§ 2.2 #5).
+    // #4). Already-owned titles are silently dropped (§ 2.2 #5), and so are
+    // titles TMDB returns NO result for at all -- which is what "unverifiable"
+    // means here, and is narrower than the word sounds: a near-miss resolves to
+    // TMDB's top result rather than being dropped. See verifyTitle() and D-054.
     tally.named = picks.length;
     for (const pick of picks) {
       let movie = null;
