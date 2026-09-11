@@ -369,34 +369,51 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   margin-top: 1.5rem;
   border-radius: var(--radius);
   padding: 2px;
-  background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  background-size: 220% 220%;
-  /* Step 4b: this border always drifted — the 2px ring IS this gradient, with
-     .verdict__inner covering the middle — and nobody could see it. The cause was
-     the CURVE, measured before anything was touched:
-     `var(--ease)` is cubic-bezier(0.22, 1, 0.36, 1), and a timing function
-     applies to EACH keyframe interval, so both 4.5s halves were front-loaded.
-     67% of the travel happened in the first 0.9s and the final 2.7s covered 2% —
-     the ring was effectively frozen for about 60% of every cycle, so a glance
-     almost always caught it standing still.
-     `linear` is not a style preference here, it is what "drifts slowly" MEANS:
-     constant velocity, no dead stretches. A point on the ring now moves through
-     roughly 55% of the gradient per half-cycle, a full amber-deep-to-crimson
-     transition, continuously.
-     THIRD TIME `--ease` HAS BEEN THE CULPRIT in this family — the rec-card exit,
-     the ranked list's entrance, now this. It is built to make an arrival feel
-     instant, which is the exact opposite of anything you are meant to watch.
-     If this still wants more presence, the dials in order of bluntness are: the
-     9s, then the 220% background-size (more size = more travel), then the colour
-     spread, then the 2px ring. Keep it SLOW whatever happens — it sits near the
-     top of the page on every single load. The reversal at the 4.5s mark is an
-     instant change of direction rather than an eased one; at this speed it reads
-     as a drift turning around, and smoothing it would reintroduce dead spots at
-     both ends. */
+  background:
+    /* The travelling highlight — the thing the eye actually tracks. */
+    linear-gradient(110deg,
+      transparent 42%, rgba(255, 241, 214, 0.6) 50%, transparent 58%),
+    /* The warm base, now STATIC. */
+    linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
+  background-size: 300% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  /* Step 4b, in two passes, and the second one is the lesson.
+     The 2px ring IS this background, with .verdict__inner covering the middle,
+     and it always animated. Pass one fixed a real fault: `var(--ease)` applies
+     to EACH keyframe interval, so both halves were front-loaded — 67% of the
+     travel in the first 0.9s, the last 2.7s covering 2%, the ring frozen for
+     about 60% of every cycle. That made it the THIRD animation in this file
+     wrecked by `--ease`, after the rec-card exit and the ranked entrance.
+     It was still "practically invisible", because the curve was never the whole
+     problem. THE REAL ONE: three stops spread over 220% meant the entire ring
+     was nearly ONE COLOUR at any instant, and it recoloured almost uniformly.
+     Motion perception needs a FEATURE TO TRACK — a uniform slow recolour has no
+     landmark in it, so no speed and no curve could have made it read as movement.
+     So the base gradient is now STATIC and a second layer does the moving: a
+     narrow warm-white band that sweeps across. That is what the name `sheen`
+     meant all along, and it is why the effect is legible at the same 9s that
+     was invisible before — the eye follows one bright feature instead of trying
+     to notice that everything got slightly redder.
+     Three things make the loop clean:
+     - The band is transparent at both ends of its own gradient and the layer is
+       300% wide, so at position 0% and 100% it sits OFF the box entirely. The
+       animation therefore runs ONE WAY and still loops seamlessly — no reversal,
+       which is what a sheen should never have.
+     - Only the first layer's position is animated; the base keeps `0% 50%` in
+       both keyframes. Animating `background-position` would otherwise move every
+       layer together.
+     - `no-repeat` so a second copy of the band can never tile into view.
+     Dials, in order of bluntness: the 0.6 alpha, the 42/50/58 band width, the
+     9s, then the 300%. Keep it SLOW — it is near the top of the page on every
+     load. The band is a soft gradient inside the border, not a crisp offset
+     outline, so D-044's focus-ring confusion does not apply. */
   animation: sheen 9s linear infinite;
   box-shadow: var(--shadow);
 }
-@keyframes sheen { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes sheen {
+  from { background-position: 0% 50%, 0% 50%; }
+  to { background-position: 100% 50%, 0% 50%; }
+}
 .verdict__inner {
   background: var(--bg-raised);
   border-radius: calc(var(--radius) - 2px);

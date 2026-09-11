@@ -2294,19 +2294,41 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      final 2.7s covered 2%**, leaving the ring frozen for roughly 60% of every
      cycle. Two brief swooshes with long dead stretches between them, so a glance
      almost always caught it still.
-     Fixed with `linear`, which is not a preference but the definition of the
-     thing asked for: a drift is constant velocity. A point on the ring now moves
-     through about 55% of the gradient per half — a full amber-deep-to-crimson
-     transition — continuously. Nothing else changed: same 9s, same 220%, same
-     colours, same 2px.
+     That was fixed with `linear` — not a preference but the definition of the
+     thing asked for, since a drift is constant velocity.
+     **And it was still "practically invisible", which is the part worth
+     keeping.** The curve was a real fault but never the whole problem. **Three
+     stops spread over 220% meant the entire ring was nearly ONE COLOUR at any
+     instant, recolouring almost uniformly — and motion perception needs a
+     FEATURE TO TRACK.** A uniform slow recolour has no landmark in it, so no
+     speed and no curve could ever have made it read as movement. Claude's first
+     pass measured the timing carefully and fixed the wrong layer of the problem.
+     **The base gradient is now STATIC and a second layer does the moving:** a
+     narrow warm-white band sweeping across, which is what the name `sheen` meant
+     all along. It is legible at the SAME 9s that was invisible before, because
+     the eye follows one bright feature instead of trying to notice that
+     everything got slightly redder.
+     Three things make the loop clean, all verified by arithmetic rather than by
+     eye: the band is transparent at both ends of its own gradient on a 300%-wide
+     layer, so at positions 0% and 100% it sits OFF the box — the animation runs
+     **one way and still loops seamlessly**, with no reversal, which is what a
+     sheen should never have; only the FIRST layer's position is animated (the
+     base keeps `0% 50%` in both keyframes, since animating
+     `background-position` otherwise moves every layer together); and `no-repeat`
+     stops a second copy tiling into view. The band is partially in view for 74%
+     of the cycle and its bright core crosses the box for 50%.
+     Dials, in order of bluntness: the `0.6` alpha, the 42/50/58 band width, the
+     9s, then the 300%.
      **THIRD TIME `--ease` HAS BEEN THE CULPRIT** — the rec-card exit (R30), the
      ranked list's entrance, and now this. It is built to make an arrival feel
      instant, which is the exact opposite of anything a user is meant to WATCH.
-     **That is now a rule worth applying before measuring anything else: if an
-     animation is reported as invisible, look at the timing function first.**
-     The dials, in order of bluntness, if it ever wants more presence: the 9s,
-     then the `background-size` (more size = more travel), then the colour
-     spread, then the 2px ring.
+     **So: if an animation is reported as invisible, look at the timing function
+     first — but do not stop there.** This item is the counter-example to its own
+     rule. The curve was genuinely broken AND fixing it changed almost nothing,
+     because a second, deeper cause was doing the real damage. Two questions, not
+     one: *is the motion spread across the duration* (the timing function), and
+     *is there anything in the frame whose movement can be seen* (a trackable
+     feature). The ranked entrance happened to need only the first.
    * **The ranked list's first-paint entrance is barely visible** (user-raised
      2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
      (D-031) and is not in scope. Same family as the two items above, and
