@@ -412,18 +412,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      One measured limit stands and is NOT fixed: the glint is brightest against
      the dark end of the ring and faintest against the bright end, so it fades
      slightly crossing `--amber`. Measured by compositing the stroke at its
-     post-blur peak alpha over each base stop: after the 2026-09-12 polish it
-     reads 2.46x contrast over `--crimson`, 1.80x over `--amber-deep` and 1.35x
-     over `--amber` (it was 3.54 / 2.34 / 1.62 before that pass — an earlier note
-     here recorded 3.40 / 2.27 / 1.58 for the same state, close enough that the
-     conclusion never moved).
-     THIS IS THE TRADE THE POLISH PASS BOUGHT, and it is worth stating plainly
+     post-blur peak alpha over each base stop. Over crimson / amber-deep / amber:
+       3.54 / 2.34 / 1.62   before any polish (an earlier note here said
+                            3.40 / 2.27 / 1.58 for this same state — close
+                            enough that the conclusion never moved)
+       2.46 / 1.80 / 1.35   after the first polish pass, 2026-09-12
+       2.06 / 1.61 / 1.27   after the second, same day, on "even fainter"
+     THIS IS THE TRADE THE POLISH PASSES BOUGHT, and it is worth stating plainly
      because the two asks fight: "less pronounced contrast" and "visible the
-     whole way round" are the same number read from opposite ends. Crimson came
-     down 31% and amber only 17%, which is the deliberate shape — the shouty end
-     lost more than the weak end. Going further starts costing visibility over
-     amber, and the cure for THAT is a darker base stop, which changes the
-     banner's colour identity — the user's decision, not Claude's. */
+     whole way round" are the same number read from opposite ends. Crimson has
+     come down 42% and amber only 22% — the shouty end lost roughly twice what
+     the weak end did, rather than the whole thing fading uniformly.
+     AMBER IS NOW THE FLOOR TO WATCH. At 1.27 the band is close to the point
+     where it stops reading over the ring's bright stretch at all, so a THIRD
+     "fainter" pass should come out of the halo and the speed rather than the
+     stroke alpha. The cure for the floor itself is a darker base stop, which
+     changes the banner's colour identity — the user's decision, not Claude's. */
   box-shadow: var(--shadow);
 }
 /* The travelling glint. A STROKE DASH, which is the only one of the four
@@ -469,7 +473,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      contrast against the ring — and the colour is what serves the third: a pure
      white band over an amber/crimson ring reads as a DIFFERENT material laid on
      top, while a warm one reads as the ring catching light. */
-  stroke: rgba(255, 242, 224, 0.85);
+  stroke: rgba(255, 242, 224, 0.75);
   /* NOT a free dial, despite being filed as one. The stroke is centred on a path
      held 1.5px inside the banner, so 3px is exactly .verdict's 3px padding ring,
      flush to .verdict__inner. Change it and the glint either overhangs the inner
@@ -486,12 +490,26 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      amount of ink over more area, so it lowers the band's peak brightness by
      itself: measured on this 3px stroke, 1.0px of blur retains 87% of peak,
      1.2px retains 79% and 1.5px only 68%. Raising the blur therefore makes the
-     glint subtler whether or not the alpha moves — which is why the alpha only
-     came down 0.98 -> 0.85 rather than the 0.6 the "more subtle" note first
-     suggested. Drop both hard and it disappears over the bright end of the ring.
+     glint subtler whether or not the alpha moves. Drop both hard at once and it
+     disappears over the bright end of the ring — which is the floor this has
+     been walked down toward over two passes, not a hypothetical.
+     THE HALO AND THE CORE ARE ALSO DIFFERENT JOBS, and that is what the second
+     pass traded on. The drop-shadow is what reads as SHOWY; the stroke core is
+     what stays trackable as it travels. So when the user asked for fainter
+     again, the halo took the bigger cut (0.50 -> 0.32 alpha, -36%) and the core
+     the smaller one (0.85 -> 0.75, -12% before blur) — quieter without losing
+     the thing the eye follows. Cutting the core to match would have bought the
+     same drop in presence and cost the effect.
      Light, zero-offset, warm — D-044's rule, same as every other glow here. */
-  filter: blur(1px) drop-shadow(0 0 6px rgba(255, 226, 170, 0.5));
-  animation: sheen 9s linear infinite;
+  filter: blur(1.2px) drop-shadow(0 0 6px rgba(255, 226, 170, 0.32));
+  /* 12s, up from 9s on the user's call (2026-09-12). SLOWER IS ALSO FAINTER in
+     the only sense that matters here: motion salience scales with speed, so the
+     -25% in angular velocity did part of the "make it fainter" work by itself,
+     and the alpha was cut less than it would otherwise have been. If this is
+     ever retimed, re-judge the alpha in the same pass.
+     Item 4b(5) — the glint speeding up while "New verdict" is busy — tunes its
+     busy duration against THIS number, so that item starts from 12s, not 9s. */
+  animation: sheen 12s linear infinite;
 }
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
