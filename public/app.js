@@ -429,7 +429,15 @@ function renderRanked() {
     li.className = 'movie-card';
     if (entering) {
       li.classList.add('is-entering');
-      li.style.animationDelay = `${Math.min(i * 45, 400)}ms`;
+      // Step 4b. Raised from 45ms/400ms: the old cap bit at card 9, so on any
+      // list longer than that the last dozen cards all started within one frame
+      // and there was no cascade left to see -- at exactly the length where one
+      // reads best. 70ms with a 700ms ceiling cascades a full list of ten.
+      // The cap STAYS, and must: this list is unbounded, and R27's 120ms step
+      // (tuned for a grid capped at six cards) would be 2.4 seconds of the page
+      // assembling itself on every load. The duration and curve live on
+      // .movie-card.is-entering; all three were tuned together.
+      li.style.animationDelay = `${Math.min(i * 70, 700)}ms`;
     }
     // Pairs this card's before/after snapshots so the browser morphs it from
     // its old position to its new one. The name must be a valid CSS ident and

@@ -1539,6 +1539,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `--ease` (this and the rec-card exit); both say why at the declaration, and
      at two it is now worth naming the pair as `--ease-out`/`--ease-in` if a
      third ever appears.
+     **A third appeared on 2026-09-11 — the ranked card's entrance (step 4b) —
+     and the answer was still to inline it with a why-comment, not to mint
+     tokens.** `--ease-out` is the name that will not work: `--ease` IS an
+     ease-out, just a violently front-loaded one, so a token by that name would
+     read as a synonym for the thing it exists to differ from. All three
+     exceptions are one-offs with different reasons (a departure, a symmetric
+     loop, a watchable arrival) and each is a sentence away from its own
+     declaration. Revisit if two of them ever want the SAME curve — that is the
+     point at which a token stops being a rename and starts preventing drift.
      **Inline, NOT a flex container, and that is the non-obvious part.** The
      obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
      wrong here because `busyButton()` swaps the contents for a spinner plus a
@@ -2227,8 +2236,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **Five visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ONE DONE (the
-   logo spin, 2026-09-11), four open.** The user pulled this step in front of
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **TWO DONE (the
+   logo spin and the ranked list's first-paint entrance, both 2026-09-11), three
+   open.** The user pulled this step in front of
    step 4 deliberately: the favicon will most likely derive from the logo, so the
    logo had to be settled before that discussion could start.
    **FOUR OF THE FIVE are the
@@ -2296,6 +2306,24 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      cap, all in two places (`.movie-card.is-entering` and one line of
      `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
      spotlight both depend on it.
+     **DONE 2026-09-11, and the curve was indeed most of it.** All four dials
+     moved together, because individually none of them would have shown: curve
+     `var(--ease)` → `cubic-bezier(0.25, 0.46, 0.45, 0.94)`, travel 10 → 14px,
+     duration 0.45 → 0.6s, stagger 45 → 70ms with the cap 400 → 700ms.
+     **Measured before and after rather than judged by eye:** the card used to be
+     within 1px of home after 169ms of 450ms — **38% of the animation, 62% of it
+     sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
+     ratio, not the travel distance, is what "barely visible" actually meant.
+     The cap stays and had to: a list of twenty still settles in 1.3s, where
+     R27's 120ms step would have taken 2.4s.
+     **It got its OWN keyframe, `card-enter`.** `fade-slide` has a second
+     consumer — `.search-results`, where 10px and a snappy curve are correct —
+     so tuning the shared one would have moved the search panel too. Same split
+     R27 made for `rec-enter`, and for the same reason.
+     `backwards` is untouched, and the D-043 comment above the rule was corrected
+     where it named `fade-slide` as the animation that pinned `transform: none`:
+     it was `fade-slide` at the time and is `card-enter` now, and the trap
+     applies to both.
    * **Does the logo circle actually spin? — DONE 2026-09-11.** Yes, it always
      did: the `animation: spin … linear infinite` on `.mark__reel` runs and always
      ran. It was invisible because **every part of it you could see was

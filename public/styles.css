@@ -854,7 +854,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
    `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
    animation keeps applying its final keyframe, and animations outrank normal
-   author declarations in the cascade. `fade-slide` ends at `transform: none`, so
+   author declarations in the cascade. The entrance keyframe ends at
+   `transform: none` — it was `fade-slide` then and is `card-enter` now, and both
+   do — so
    every first-paint card went on being pinned to `transform: none` for the life
    of the page — silently beating `.movie-card:hover`'s transform. The card lift
    therefore did nothing on a freshly loaded page, and only the poster (which has
@@ -864,11 +866,35 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    WITHOUT `is-entering` — which is what made it read as subtle rather than
    broken.
    `backwards` keeps the half that is actually needed: holding the from-state
-   during this card's stagger delay (set in JS, up to 400ms), so a card does not
+   during this card's stagger delay (set in JS, up to 700ms), so a card does not
    flash at full opacity before its turn. Nothing needs the forwards half — the
    final keyframe is `opacity: 1; transform: none`, which is identical to the
    card's natural resting state. Do NOT put `both` back. */
-.movie-card.is-entering { animation: fade-slide 0.45s var(--ease) backwards; }
+/* Step 4b: this entrance ran, and was close to invisible. Three causes, all
+   measured before anything was changed, because the mechanism was never the
+   problem.
+   1. THE CURVE, which was most of it. `var(--ease)` is
+      `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: 67% of the
+      way by t=0.2 and within 1px of home after 168ms of a 450ms animation. So a
+      10px move happened in a sixth of a second and the card then sat still for
+      280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
+      spreads the same distance across 73% of the duration instead of 37%.
+      THE THIRD ANIMATION IN THIS FILE DELIBERATELY OFF `--ease` (with the
+      rec-card exit's `ease-in` and the sparkle's `ease-in-out`). `--ease` is
+      built for arrivals that should feel instant; an entrance you are meant to
+      WATCH is a different job.
+   2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
+      only read once the curve stopped eating them.
+   3. Its OWN keyframe now, not the shared `fade-slide` — which is also used by
+      `.search-results`, where 10px and a snappy curve are right. Same reasoning
+      R27 used to give the rec card `rec-enter`: separate names mean tuning one
+      can never move the other.
+   The stagger is in renderRanked() and was raised with these (45→70ms, cap
+   400→700ms); the cap used to bite at card 9, i.e. at exactly the list length
+   where a cascade reads best. */
+.movie-card.is-entering {
+  animation: card-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+}
 /* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
    notice it on the poster", which was literally true — the card never scaled).
    Two cues: it grows a little, and the shadow deepens and picks up a faint warm
@@ -2855,6 +2881,11 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* The ranked card's entrance (step 4b). Split off `fade-slide` so its travel can
+   be tuned without moving `.search-results`, which still uses that one. Ends at
+   `transform: none` so it composes with the hover scale — see the `backwards`
+   note on .movie-card.is-entering, which this must keep satisfying. */
+@keyframes card-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
    ranked list's `fade-slide`.
