@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, two done and five open — **the next session starts on the verdict glint's polish pass, flagged at the top of that item**; the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2235,21 +2235,32 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
    building.
 
-4b. **Five visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **THREE DONE
-   (the logo spin, the ranked list's first-paint entrance and the verdict
-   border's drift, all 2026-09-11), two open** — the film grain and the verdict
-   typing effect.
-   **A pattern came out of the three:** all were "the mechanism exists, the
-   effect is invisible", and in TWO of them the cause was `var(--ease)`
+4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **TWO FULLY
+   DONE — the logo spin and the ranked list's first-paint entrance, both
+   2026-09-11. FIVE OPEN:**
+   1. the verdict border's glint — **mechanism settled, POLISH OPEN, and this is
+      where the next session starts**; the user's three tuning notes are at the
+      top of that item;
+   2. the verdict typing effect (the only item here that is a new build);
+   3. the film grain;
+   4. "New verdict" shown disabled rather than hidden when locked;
+   5. the glint speeding up while "New verdict" is busy — **do this after (1)**,
+      or the resting speed and the busy speed get tuned against each other.
+   **A pattern came out of the finished ones:** all were "the mechanism exists,
+   the effect is invisible", and in TWO of them the cause was `var(--ease)`
    front-loading the motion into the first fifth of the duration. Check the
-   timing function before anything else. The user pulled this step in front of
+   timing function first — but the glint proved that is not always the whole
+   story, so also ask whether there is anything in the frame whose movement can
+   be SEEN at all. The user pulled this step in front of
    step 4 deliberately: the favicon will most likely derive from the logo, so the
    logo had to be settled before that discussion could start.
-   **FOUR OF THE FIVE are the
+   **FOUR OF THE ORIGINAL FIVE are the
    same shape — the mechanism already exists and the effect is simply too subtle
    to see — so read each item before building anything.** Only the typing effect
-   is a genuinely new build. The logo item was one of the four, and it is worth
+   is a genuinely new build; the two items added on 2026-09-11 (the disabled
+   button and the busy-speed glint) are their own shapes again. The logo item was
+   one of the four, and it is worth
    noting how it went: the mechanism was fine, the written diagnosis of WHY it
    was invisible was incomplete, and following that diagnosis literally would
    have produced the wrong effect. Read the code, not just the item. Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
@@ -2267,7 +2278,30 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      character at a time would announce it one character at a time; set the final
      text for assistive tech and animate the visible layer, or the accessibility
      work already done here is undone. `prefers-reduced-motion` must skip it.
-   * **The verdict banner's amber/crimson border should drift slowly. IT ALREADY
+   * **The verdict banner's border. MECHANISM SETTLED, POLISH STILL OPEN — and
+     THIS IS WHERE THE NEXT SESSION STARTS.**
+     **>>> START HERE. Three tuning notes, given by the user 2026-09-11 after
+     the travelling glint was finally working, and deliberately NOT acted on in
+     that session because they ran out of time. The user's words: the band
+     should be (1) MORE SUBTLE, (2) have SMOOTHER EDGES, and (3) have LESS
+     PRONOUNCED CONTRAST against the ring's other colours. <<<**
+     Their verdict on the state it was left in: *"that fixes it! We still can't
+     mark this sheen item done, but the hard part — travelling a perimeter
+     smoothly and correctly — is hopefully behind us."* So do NOT re-open the
+     mechanism: the dash, `pathLength`, the SVG sizing and the 360° travel are
+     all settled and were expensive to get right. This is a values pass on
+     `.verdict__sheen rect` only, and the four dials are named at that rule:
+     the `stroke` alpha (subtlety and contrast), the `drop-shadow` (edges), the
+     `7 93` dasharray (length) and `stroke-width`. `stroke-linecap: round` is
+     already there and is part of the "smoother edges" answer; a small `blur()`
+     or a softer, warmer stroke colour are the obvious next moves, since pure
+     near-white is what makes it read as harsh against an amber/crimson ring.
+     Note the one measured limit recorded in the CSS: the glint sits at 3.40x
+     contrast over `--crimson` but only 1.58x over `--amber`, so "less
+     pronounced contrast" and "visible the whole way round" pull against each
+     other — expect to trade.
+     (Original item below, kept because its diagnosis is what unlocked this.)
+     **The border should drift slowly. IT ALREADY
      DOES — check before building** (found 2026-09-11 while working R15).
      `.verdict` carries `animation: sheen 9s var(--ease) infinite`, which moves a
      220%-sized `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
@@ -2287,7 +2321,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Two constraints that DO still apply: keep it SLOW, since this sits near the
      top of the page on every load; and D-044's rule that amber must never become
      a hard-edged focus-ring lookalike.
-     **DONE 2026-09-11, and — as this item demanded — by measuring first.** The
+     **MECHANISM DONE 2026-09-11 (polish still open, see the top of this item),
+     and — as this item demanded — by measuring first.** The
      cause was the CURVE, not the speed, the colours or the travel. A timing
      function applies to EACH keyframe interval, so `var(--ease)` front-loaded
      both 4.5s halves: **67% of the travel happened in the first 0.9s and the
@@ -2470,6 +2505,48 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      Note `prefers-reduced-motion` kills the animation outright (the global
      `animation: none !important`), leaving a static grain — which is correct and
      should stay true of whatever replaces it.
+
+   * **Consider showing "New verdict" DISABLED when the feature is locked,
+     rather than hiding it entirely** (user-raised 2026-09-11). Today the button
+     carries `hidden` below the threshold, so the control does not exist on the
+     page at all — a user under the bar sees a banner with a sentence and no
+     sign that anything is ever going to appear there.
+     **Framed as "consider" by the user, so it is a question before it is a
+     task.** The argument for: every other locked control in this app is
+     DISABLED rather than absent — `.recs__trigger` is disabled with an
+     explanatory hint beside it (R1/R26), and the disabled-fill vocabulary is
+     already settled (R13, D-035), so this would be consistency rather than new
+     design. The argument against: the verdict is the lowest-stakes feature
+     (SPEC § 2.3) and a permanently dead button at the top of the page may be
+     worse than nothing.
+     **Read `syncVerdictAvailability()` before touching this** — it is the
+     single writer for both the button's `hidden` and `.verdict__text`, and the
+     guard it owns is what R1 was ported FROM. Whatever is decided, the
+     threshold sentence beside the button already explains the lock, so the two
+     must not end up saying it twice.
+
+   * **The ring's glint should speed up while "New verdict" is BUSY, then settle
+     back** (user-raised 2026-09-11). A progress cue that costs no new UI: the
+     band already travels the ring, so running it significantly faster for the
+     duration of the call turns the existing decoration into a status
+     indication, and it returns to its normal speed once a verdict lands OR an
+     error is shown.
+     **Depends on the polish pass above being finished first** — tuning a
+     resting speed and a busy speed at once is how neither gets judged.
+     Mechanically this is cheap and the pieces exist: `busyButton()` already
+     sets `aria-busy` on the trigger for exactly the right window, so
+     `.verdict:has(#verdict-refresh[aria-busy="true"]) .verdict__sheen rect`
+     needs only a shorter `animation-duration` — no JS, no class to remember to
+     remove, and it cannot get stuck on, because the attribute is cleared in the
+     same `finally` that restores the label.
+     **Two traps.** Changing `animation-duration` mid-animation restarts the
+     timing at the current `animation-delay`, so the dash may JUMP when the
+     speed changes; if that reads badly, the fix is to animate a
+     `@property`-registered offset instead of `stroke-dashoffset` directly, or
+     to accept the jump at the start of a call (when the button is being clicked
+     and the eye is on the button). And `prefers-reduced-motion` kills the
+     animation entirely, so this cue must never be the ONLY signal that a call is
+     in flight — the button's own spinner and label remain the primary one.
 
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.
