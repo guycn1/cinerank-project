@@ -6,6 +6,63 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
+
+Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x
+faster and brightens. Two dials, and they ended up in two different places.
+
+**D-055 got one of them wrong, and said so confidently.** It worked out that the
+twenty layers' delays are derived from the duration, prescribed a `--sheen-dur`
+custom property so one value could drive the duration and all twenty delays, and
+then added: the dash will JUMP when the speed changes, but that is *"accepted
+rather than fixed… it happens at the instant of a click, when the eye is on the
+button; machinery to smooth it would cost far more than it buys."*
+
+That was built, and the user rejected it on sight — **"it is noticeable even when
+the eyes are on the button"**. They were right, and the cost estimate was wrong:
+the fix is four lines.
+
+**Why a duration change cannot avoid the jump.** A CSS animation's progress is
+`(currentTime / duration)`. Changing the duration re-evaluates that fraction at
+the current instant, so the position necessarily moves. Measured at the moment of
+the switch, a layer went from 0.4867 of its cycle to 0.4333. No amount of
+delay-rescaling helps, because the delays were never the problem.
+
+**`playbackRate` fixes it by construction.** The Web Animations API preserves
+`currentTime` when the rate changes, so only velocity changes. The same layer
+stayed at 0.4867 exactly. `setSheenRate()` in `app.js` sets it on the twenty
+animations obtained via `getAnimations()`.
+
+**It also solves the layer-registration problem for free**, which the CSS route
+had to work for: each layer's phase lives in its own `currentTime`, so preserving
+every `currentTime` preserves every offset between them. Inter-layer spacing held
+at 0.045 across the switch, with no `--shift` arithmetic involved at all.
+
+**What survives from D-055.** The `--sheen-dur` machinery stays and is still
+correct — it is now the RESTING speed knob, where one value drives the duration
+and all twenty delays. Only the claim that it should drive the BUSY state is
+superseded. The CSS carries a matching warning not to reintroduce a duration
+override there.
+
+**The split as shipped, and the rule behind it: each half is done wherever it can
+be done without a visible seam.** Brightness is CSS (`opacity` on the group via
+`:has([aria-busy])`) because opacity transitions smoothly and has nothing to
+hide. Speed is JS because it is the one thing CSS cannot do cleanly here. The
+instinct to keep the whole cue declarative is what produced the jump.
+
+**Unchanged and still right:** no class and no state of our own — `busyButton()`
+already sets `aria-busy` for exactly the right window and clears it in the
+`finally` that restores the label, so the cue cannot stick on and it ends on an
+error as well as on success. Under `prefers-reduced-motion` the global
+`animation: none` means `getAnimations()` returns nothing, so `setSheenRate()` is
+a no-op precisely where it should be, while the brightness half still lands.
+
+**Residual, accepted knowingly this time:** velocity changes instantaneously
+rather than ramping. That is a different artefact from a position jump, it reads
+as "it sped up", and the user approved it after looking. A rAF ramp of
+`playbackRate` is the fix if it is ever wanted.
+
+---
 ## D-055 · The verdict glint: overcorrection, a revert, and a band that fades along a path
 
 The mechanism (an SVG stroke dash on `pathLength="100"`) was settled on

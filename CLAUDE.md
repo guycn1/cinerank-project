@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **three done and four open — the verdict glint landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **four done and three open — the verdict glint and its busy-state cue both landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2244,9 +2244,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **THREE FULLY
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **FOUR FULLY
    DONE — the logo spin and the ranked list's first-paint entrance (both
-   2026-09-11), and the verdict border's glint (2026-09-12). FOUR OPEN:**
+   2026-09-11), and the verdict border's glint plus its busy-state cue (both
+   2026-09-12). THREE OPEN:**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2255,10 +2256,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    2. the verdict typing effect (the only item here that is a new build);
    3. the film grain;
    4. "New verdict" shown disabled rather than hidden when locked;
-   5. the glint speeding up while "New verdict" is busy — **(1) is now done, so
-      this is unblocked**, and D-055 carries a one-line answer for each of its
-      two traps. Spec from the user 2026-09-12: roughly **3s** (against the
-      resting 15s) and a peak of about **0.8** (against the resting 0.55).
+   5. ~~the glint speeding up while "New verdict" is busy~~ — **DONE
+      2026-09-12**. Brightness in CSS, speed via `playbackRate` in JS rather
+      than the duration swap D-055 prescribed, because changing a CSS
+      animation's duration makes the dash JUMP (D-056).
    **A pattern came out of the finished ones:** all were "the mechanism exists,
    the effect is invisible", and in TWO of them the cause was `var(--ease)`
    front-loading the motion into the first fifth of the duration. Check the
@@ -2583,50 +2584,47 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      threshold sentence beside the button already explains the lock, so the two
      must not end up saying it twice.
 
-   * **The ring's glint should speed up while "New verdict" is BUSY, then settle
-     back** (user-raised 2026-09-11). A progress cue that costs no new UI: the
-     band already travels the ring, so running it significantly faster for the
-     duration of the call turns the existing decoration into a status
-     indication, and it returns to its normal speed once a verdict lands OR an
-     error is shown.
-     **UNBLOCKED 2026-09-12 — the glint's own polish is done.** The user's spec,
-     given the same day: roughly **3s** while busy (against the resting **15s**)
-     and a peak brightness of about **0.8** (against the resting **0.55**).
-     Mechanically the trigger already exists: `busyButton()` sets `aria-busy` on
-     the button for exactly the right window, so
-     `.verdict:has(#verdict-refresh[aria-busy="true"])` needs no JS, no class to
-     remember to remove, and it cannot get stuck on, because the attribute is
-     cleared in the same `finally` that restores the label.
-     **BUT NEITHER DIAL CAN BE CHANGED DIRECTLY. Both are booby-trapped by how
-     the glint is built, and each has a one-line answer — full reasoning in
-     D-055, and do not attempt this item without reading it.**
-     * **Duration cannot move alone.** All twenty layer rules carry an
-       `animation-delay` DERIVED from the duration, which is what holds them
-       centred on each other. A delay is an absolute time, so a shorter duration
-       multiplies every phase shift: at 3s the 15s-derived delays shift 5x too
-       far, the layers stop nesting, and the taper smears across a quarter of the
-       ring instead of forming a band. **Fix:** express each delay as a FRACTION
-       of a `--sheen-dur` variable, so one value drives the duration and all
-       twenty delays:
-       `animation-delay: calc(var(--sheen-dur) * var(--shift) * -1)`, then the
-       busy rule is just `--sheen-dur: 3s`.
-     * **Brightness cannot be scaled.** The per-layer alphas are SOLVED from a
-       target profile and composite multiplicatively, so they are not
-       proportional to the peak and multiplying them by 0.8/0.55 flattens the
-       taper instead of brightening it. **Fix:** author the twenty layers at the
-       BUSY peak (0.8) and scale down at rest with one group opacity on
-       `.verdict__sheen` — `opacity: 0.6875` (= 0.55/0.8) at rest, `1` when busy.
-       Group opacity scales the composite linearly, and `0.8 * bell(x) * 0.6875`
-       is exactly `0.55 * bell(x)`, so the resting look is preserved rather than
-       approximated. Regenerate the block at PEAK 0.8 rather than editing it.
-     With both of those, the whole busy state is **two declarations and no JS**.
-     **Two further traps.** Changing `animation-duration` mid-animation restarts
-     the timing at the current delay, so the dash may JUMP when the speed
-     changes; if that reads badly, accept it at the START of a call (the eye is
-     on the button being clicked) rather than inventing machinery. And
-     `prefers-reduced-motion` kills the animation entirely, so this cue must
-     never be the ONLY signal that a call is in flight — the button's own spinner
-     and label remain the primary one.
+   * **The ring's glint speeds up while "New verdict" is BUSY — DONE 2026-09-12.**
+     A progress cue that costs no new UI: the band already travels the ring, so
+     running it ~5x faster and brighter for the duration of the call turns
+     existing decoration into a status indication. Settles once a verdict lands
+     OR an error is shown.
+     **As shipped, and the split is the point: each half is done wherever it can
+     be done without a visible seam.**
+     * **Brightness — CSS.** `.verdict:has(#verdict-refresh[aria-busy='true'])
+       .verdict__sheen { opacity: 1 }`, lifting the group from its resting
+       `0.6875` to the authored peak. The twenty layers are authored at the BUSY
+       peak (0.80) and scaled down at rest by that ratio (0.55/0.80), because
+       group opacity scales a composite LINEARLY where the per-layer alphas
+       cannot be scaled at all. `0.80 * bell(x) * 0.6875` is exactly
+       `0.55 * bell(x)`, so the resting band is identical rather than
+       approximated — verified at 0.5491 against the approved 0.5490.
+     * **Speed — JS** (`setSheenRate()` in `app.js`), and NOT the
+       `--sheen-dur: 3s` that D-055 prescribed. That was built first and the user
+       rejected it: changing a CSS animation's duration re-evaluates
+       `(currentTime / duration)` at that instant, so **the dash JUMPS**
+       (measured: a layer moved from 0.4867 of its cycle to 0.4333). Setting
+       `playbackRate` preserves `currentTime` and changes only velocity — same
+       layer stayed at 0.4867 exactly — and it keeps the twenty layers in
+       register for free, since each layer's phase lives in its own currentTime.
+       **See D-056; do not reintroduce a duration override for the busy state.**
+     `--sheen-dur` survives as the RESTING speed knob, where one value still
+     drives the duration and all twenty delays.
+     **No class and no state of our own.** `busyButton()` already sets
+     `aria-busy` on the trigger for exactly the right window and clears it in the
+     `finally` that restores the label, so the cue cannot get stuck on and it
+     ends on an ERROR just as it does on success — verified in the handler rather
+     than assumed.
+     **Reduced motion:** the global `animation: none !important` removes the
+     travel, so `getAnimations()` returns nothing and `setSheenRate()` is a no-op
+     exactly where it should be. The brightness half still lands, since opacity
+     is not an animation. Either way the button's own spinner and label remain
+     the primary signal — this was never allowed to be the only indication that a
+     call is in flight.
+     **One residual, accepted knowingly:** velocity changes instantaneously
+     rather than ramping. Different artefact from a position jump, reads as "it
+     sped up", and the user approved it after looking. A rAF ramp of
+     `playbackRate` is the fix if it is ever wanted.
 
 5. **Complete overhaul of the portrait view under 500px.**
    **Plan and test against ~350px.** That is the target, not the floor.

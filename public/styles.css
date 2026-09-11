@@ -452,6 +452,26 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
+  /* THE ONE KNOB FOR SPEED. Every layer reads this for BOTH its duration and its
+     delay, which is what lets the busy state change the speed with a single
+     declaration — see the note on the layer block, trap 1. */
+  --sheen-dur: 15s;
+  /* THE ONE KNOB FOR BRIGHTNESS, and it is a ratio rather than a taste value.
+     The twenty layers are authored at the BUSY peak (0.80); this scales the
+     whole group back to the resting peak (0.55). 0.55 / 0.80 = 0.6875.
+     Group opacity scales a composite LINEARLY, and `0.80 * bell(x) * 0.6875` is
+     exactly `0.55 * bell(x)`, so the resting band is identical to authoring the
+     layers at 0.55 directly — not an approximation of it. That matters because
+     the alphas cannot simply be scaled (trap 2 on the layer block).
+     THE HALO BELOW IS INSIDE THIS GROUP AND SO IS SCALED TOO — which is exactly
+     right and needs no compensating tweak: the drop-shadow is computed from
+     layers that are 0.80/0.55 = 1.4545x brighter, and 1.4545 * 0.6875 = 1.000,
+     so the resting glow also lands unchanged. Do not "fix" the shadow alpha. */
+  opacity: 0.6875;
+  /* Brightness is a STATE change, not motion, so it eases even though the speed
+     jump cannot. Killed by the reduced-motion block, where it simply snaps —
+     correct, since the cue itself must survive for users who get no animation. */
+  transition: opacity 0.35s ease;
   /* ONE halo for the whole stack, deliberately on the SVG ROOT rather than on
      each rect: twenty stacked drop-shadows would both compound the glow and pay
      for twenty filter passes a frame instead of one. It is also what R15 says to
@@ -469,7 +489,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   fill: none;
   stroke-width: 2.5px;
   stroke-linecap: round;
-  animation: sheen 15s linear infinite;
+  animation: sheen var(--sheen-dur) linear infinite;
+  /* NOT a hardcoded time. `--shift` is each layer's phase as a FRACTION of one
+     cycle, so the delay rescales with the duration automatically and the twenty
+     layers stay nested at any speed (trap 1). */
+  animation-delay: calc(var(--sheen-dur) * var(--shift) * -1);
 }
 /* ===================== THE TAPERED BAND ===========================
    TWENTY dashes of decreasing length, centred on each other, whose alphas
@@ -480,26 +504,41 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    DO NOT HAND-EDIT THESE TWENTY LINES. They are generated; four separate things
    below are derived from the same parameters, and changing one by eye silently
    breaks the others. Regenerate instead (the generator is tiny — N layers, band
-   half-length R, target PEAK, duration DUR; it emits exactly this block).
+   half-length R, and the BUSY peak; it emits exactly this block).
+   NOTE THE ALPHAS HERE ARE THE BUSY ONES (peak 0.80). The resting look comes
+   from the group `opacity: 0.6875` on .verdict__sheen, which is 0.55/0.80 and
+   scales the whole composite back down — see the note at that declaration.
 
    1. CENTRING IS DONE WITH NEGATIVE `animation-delay`, NOT `stroke-dashoffset`.
       A static offset would leave each layer travelling less than a full 100
       units, so every layer would snap at its own loop point. A negative delay
       shifts WHERE IN THE CYCLE a layer starts while it still runs the whole
-      0 -> -100. Delay = -(R - halfLength) * DUR / 100.
+      0 -> -100.
+      Each layer therefore carries `--shift`, its phase as a FRACTION of one
+      cycle ((R - halfLength) / 100), and the delay is computed from it in the
+      shared rule above. Storing a fraction rather than a time is what makes
+      point 2 a non-issue.
    2. THEREFORE THE DELAYS ARE DERIVED FROM THE DURATION. A delay is an absolute
       time, so changing `animation`'s duration alone multiplies every layer's
       phase shift and the twenty stop nesting — the taper smears across the ring
       instead of forming a band. Duration and delays move together, always.
-      (This is exactly what 4b's busy-state item has to solve; the fix there is
-      to express each delay as a fraction of a `--sheen-dur` variable so one
-      value drives both.)
+      THIS IS ALREADY SOLVED: both the duration and every delay are derived
+      from one inherited `--sheen-dur`, so changing that single value rescales
+      all twenty phases with it. Never reintroduce a literal time here.
+      NOTE THE BUSY CUE DOES NOT USE IT. Changing the duration at all -- even
+      correctly, with the delays following -- makes the dash JUMP, because a CSS
+      animation re-evaluates `(currentTime / duration)` at the moment of the
+      change. The busy state sets `playbackRate` from app.js instead, which
+      preserves currentTime. So `--sheen-dur` is the RESTING speed knob only.
    3. THE ALPHAS ARE SOLVED, NOT CHOSEN, and they are NOT proportional to the
       brightness. Layers composite multiplicatively: total = 1 - PROD(1 - a_i).
       So scaling them all by a constant does NOT scale the band — it saturates
       the core toward 1 while the tips rise linearly, which FLATTENS the taper
       back into a hard-edged bar. (Tried by the user: quadrupling every alpha
       took the core/tip ratio from 7:1 down to 4.4:1 and looked worse.)
+      That is also why the busy state changes GROUP OPACITY rather than these
+      values: opacity scales a composite linearly, where scaling the alphas does
+      not scale the band at all.
       Instead pick the target profile C_k = PEAK * bell(distance from centre)
       and solve each layer from the one before it:
           a_k = 1 - (1 - C_k) / (1 - C_k-1)
@@ -514,27 +553,29 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
       under the threshold where the eye reads it as a seam. If these are ever
       thinned for performance, this is what gets traded away.
    Judge only the composite; no single alpha here means anything on its own
-   (the largest is ~0.07, and it sits at layer 14 rather than at the core). */
-.verdict__sheen rect:nth-child(1) { stroke-dasharray: 10 90; stroke: rgba(255,253,248,0.0008); animation-delay: 0s; }
-.verdict__sheen rect:nth-child(2) { stroke-dasharray: 9.5 90.5; stroke: rgba(255,253,248,0.0068); animation-delay: -0.0375s; }
-.verdict__sheen rect:nth-child(3) { stroke-dasharray: 9 91; stroke: rgba(255,253,248,0.0134); animation-delay: -0.075s; }
-.verdict__sheen rect:nth-child(4) { stroke-dasharray: 8.5 91.5; stroke: rgba(255,253,248,0.0200); animation-delay: -0.1125s; }
-.verdict__sheen rect:nth-child(5) { stroke-dasharray: 8 92; stroke: rgba(255,253,248,0.0264); animation-delay: -0.15s; }
-.verdict__sheen rect:nth-child(6) { stroke-dasharray: 7.5 92.5; stroke: rgba(255,253,248,0.0327); animation-delay: -0.1875s; }
-.verdict__sheen rect:nth-child(7) { stroke-dasharray: 7 93; stroke: rgba(255,253,248,0.0386); animation-delay: -0.225s; }
-.verdict__sheen rect:nth-child(8) { stroke-dasharray: 6.5 93.5; stroke: rgba(255,253,248,0.0443); animation-delay: -0.2625s; }
-.verdict__sheen rect:nth-child(9) { stroke-dasharray: 6 94; stroke: rgba(255,253,248,0.0494); animation-delay: -0.3s; }
-.verdict__sheen rect:nth-child(10) { stroke-dasharray: 5.5 94.5; stroke: rgba(255,253,248,0.0540); animation-delay: -0.3375s; }
-.verdict__sheen rect:nth-child(11) { stroke-dasharray: 5 95; stroke: rgba(255,253,248,0.0578); animation-delay: -0.375s; }
-.verdict__sheen rect:nth-child(12) { stroke-dasharray: 4.5 95.5; stroke: rgba(255,253,248,0.0606); animation-delay: -0.4125s; }
-.verdict__sheen rect:nth-child(13) { stroke-dasharray: 4 96; stroke: rgba(255,253,248,0.0621); animation-delay: -0.45s; }
-.verdict__sheen rect:nth-child(14) { stroke-dasharray: 3.5 96.5; stroke: rgba(255,253,248,0.0620); animation-delay: -0.4875s; }
-.verdict__sheen rect:nth-child(15) { stroke-dasharray: 3 97; stroke: rgba(255,253,248,0.0601); animation-delay: -0.525s; }
-.verdict__sheen rect:nth-child(16) { stroke-dasharray: 2.5 97.5; stroke: rgba(255,253,248,0.0558); animation-delay: -0.5625s; }
-.verdict__sheen rect:nth-child(17) { stroke-dasharray: 2 98; stroke: rgba(255,253,248,0.0492); animation-delay: -0.6s; }
-.verdict__sheen rect:nth-child(18) { stroke-dasharray: 1.5 98.5; stroke: rgba(255,253,248,0.0399); animation-delay: -0.6375s; }
-.verdict__sheen rect:nth-child(19) { stroke-dasharray: 1 99; stroke: rgba(255,253,248,0.0283); animation-delay: -0.675s; }
-.verdict__sheen rect:nth-child(20) { stroke-dasharray: 0.5 99.5; stroke: rgba(255,253,248,0.0148); animation-delay: -0.7125s; }
+   (the largest is 0.1305, and it sits at layer 16 rather than at the core).
+   Resting composite runs 0.001 at the tips to 0.549 at the core; busy, with the
+   group opacity at 1, it runs 0.001 to 0.799. */
+.verdict__sheen rect:nth-child(1) { stroke-dasharray: 10 90; stroke: rgba(255,253,248,0.0012); --shift: 0; }
+.verdict__sheen rect:nth-child(2) { stroke-dasharray: 9.5 90.5; stroke: rgba(255,253,248,0.0098); --shift: 0.0025; }
+.verdict__sheen rect:nth-child(3) { stroke-dasharray: 9 91; stroke: rgba(255,253,248,0.0196); --shift: 0.005; }
+.verdict__sheen rect:nth-child(4) { stroke-dasharray: 8.5 91.5; stroke: rgba(255,253,248,0.0294); --shift: 0.0075; }
+.verdict__sheen rect:nth-child(5) { stroke-dasharray: 8 92; stroke: rgba(255,253,248,0.0392); --shift: 0.01; }
+.verdict__sheen rect:nth-child(6) { stroke-dasharray: 7.5 92.5; stroke: rgba(255,253,248,0.0491); --shift: 0.0125; }
+.verdict__sheen rect:nth-child(7) { stroke-dasharray: 7 93; stroke: rgba(255,253,248,0.0591); --shift: 0.015; }
+.verdict__sheen rect:nth-child(8) { stroke-dasharray: 6.5 93.5; stroke: rgba(255,253,248,0.0691); --shift: 0.0175; }
+.verdict__sheen rect:nth-child(9) { stroke-dasharray: 6 94; stroke: rgba(255,253,248,0.0793); --shift: 0.02; }
+.verdict__sheen rect:nth-child(10) { stroke-dasharray: 5.5 94.5; stroke: rgba(255,253,248,0.0894); --shift: 0.0225; }
+.verdict__sheen rect:nth-child(11) { stroke-dasharray: 5 95; stroke: rgba(255,253,248,0.0994); --shift: 0.025; }
+.verdict__sheen rect:nth-child(12) { stroke-dasharray: 4.5 95.5; stroke: rgba(255,253,248,0.1090); --shift: 0.0275; }
+.verdict__sheen rect:nth-child(13) { stroke-dasharray: 4 96; stroke: rgba(255,253,248,0.1178); --shift: 0.03; }
+.verdict__sheen rect:nth-child(14) { stroke-dasharray: 3.5 96.5; stroke: rgba(255,253,248,0.1251); --shift: 0.0325; }
+.verdict__sheen rect:nth-child(15) { stroke-dasharray: 3 97; stroke: rgba(255,253,248,0.1299); --shift: 0.035; }
+.verdict__sheen rect:nth-child(16) { stroke-dasharray: 2.5 97.5; stroke: rgba(255,253,248,0.1305); --shift: 0.0375; }
+.verdict__sheen rect:nth-child(17) { stroke-dasharray: 2 98; stroke: rgba(255,253,248,0.1247); --shift: 0.04; }
+.verdict__sheen rect:nth-child(18) { stroke-dasharray: 1.5 98.5; stroke: rgba(255,253,248,0.1100); --shift: 0.0425; }
+.verdict__sheen rect:nth-child(19) { stroke-dasharray: 1 99; stroke: rgba(255,253,248,0.0842); --shift: 0.045; }
+.verdict__sheen rect:nth-child(20) { stroke-dasharray: 0.5 99.5; stroke: rgba(255,253,248,0.0465); --shift: 0.0475; }
 
 /* PAUSED WHILE OFF-SCREEN. The class is set by pauseSheenOffscreen() in app.js;
    the reasoning is at that function. `animation-play-state` freezes the dash in
@@ -545,6 +586,35 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    Inert under prefers-reduced-motion, where the global `animation: none
    !important` has already removed the animation outright. */
 .verdict.is-offscreen .verdict__sheen rect { animation-play-state: paused; }
+
+/* ===== THE BUSY CUE (step 4b) =====================================
+   While "New verdict" is generating, the band BRIGHTENS here and SPEEDS UP in
+   app.js. The split is not arbitrary — each half is done wherever it can be done
+   without a visible seam.
+   BRIGHTNESS BELONGS IN CSS: opacity transitions smoothly, so there is nothing
+   to hide. `opacity: 1` lifts the group from its resting 0.6875 back to the
+   authored peak (0.80), and the transition on .verdict__sheen eases it.
+   SPEED DELIBERATELY DOES NOT. A `--sheen-dur: 3s` here was the first build and
+   it is the one thing that cannot be done in CSS cleanly: a CSS animation's
+   progress is `(currentTime / duration)`, so a new duration re-evaluates the
+   position at that instant and THE DASH JUMPS. The user reported it as plainly
+   visible. `setSheenRate()` in app.js sets `playbackRate` on the twenty
+   animations instead, which preserves currentTime and changes only the velocity
+   — no jump, and the layers stay in register for free. Do not reintroduce a
+   duration override here; read the note at that function first.
+   NO CLASS AND NO STATE OF OUR OWN. `busyButton()` already sets `aria-busy` on
+   the trigger for exactly the right window and clears it in the `finally` that
+   restores the label, so this cue cannot get stuck on and it ends on an ERROR
+   just as it does on success.
+   Reduced motion: the global `animation: none !important` removes the travel, so
+   the speed half is silently dropped (and `getAnimations()` returns nothing,
+   making setSheenRate a no-op). The brightness half still lands, since opacity
+   is not an animation. Either way the button's own spinner and label remain the
+   primary signal — this was never allowed to be the only indication that a call
+   is in flight. */
+.verdict:has(#verdict-refresh[aria-busy='true']) .verdict__sheen {
+  opacity: 1;
+}
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);

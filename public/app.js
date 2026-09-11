@@ -1697,6 +1697,7 @@ function syncVerdictAvailability() {
 
 el.verdictRefresh.addEventListener('click', async () => {
   const restoreRefresh = busyButton(el.verdictRefresh);
+  setSheenRate(SHEEN_BUSY_RATE); // the ring becomes the progress cue
   clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
@@ -1725,6 +1726,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     }
   } finally {
     restoreRefresh();
+    setSheenRate(1); // settles on success AND on failure, like the button itself
   }
 });
 
@@ -2163,6 +2165,40 @@ document.addEventListener('click', (e) => {
 // rather than a broken state. The observer is deliberately never disconnected:
 // it watches one element that lives as long as the document, so there is nothing
 // to leak and nothing to tear down.
+// How much faster the glint travels while a verdict is generating. 5x against
+// the resting 15s lap, i.e. the ~3s the user asked for.
+const SHEEN_BUSY_RATE = 5;
+
+// Speed the glint up (or back down) WITHOUT moving it.
+//
+// This is deliberately not CSS. The obvious version is a `:has([aria-busy])`
+// rule setting a shorter duration, and it was built that way first -- but a CSS
+// animation's progress is `(currentTime / duration)`, so changing the duration
+// re-evaluates the position at the current instant and THE DASH JUMPS. The user
+// reported it as noticeable even with the eye on the button, which it is.
+//
+// `playbackRate` is the fix, and it fixes it by construction rather than by
+// hiding it: the Web Animations API preserves `currentTime` when the rate
+// changes, so the band carries on from exactly where it was and only its
+// velocity changes. Verified before building: at the moment of the switch the
+// duration swap moved a layer from 0.4867 to 0.4333 of its cycle, while the rate
+// change left it at 0.4867 exactly.
+//
+// It also keeps the twenty layers in register for free, which the CSS route had
+// to work for. Each layer's phase lives in its own `currentTime`, so preserving
+// every currentTime preserves every offset between them -- no rescaling of the
+// delays, and the taper cannot smear.
+//
+// `getAnimations()` is feature-detected, and under `prefers-reduced-motion` it
+// returns an empty list because the global rule removes the animation outright,
+// so this is a no-op exactly where it should be. The brightness half of the cue
+// is still CSS, since opacity transitions smoothly and has no jump to fix.
+function setSheenRate(rate) {
+  document.querySelectorAll('.verdict__sheen rect').forEach((r) => {
+    r.getAnimations?.().forEach((anim) => { anim.playbackRate = rate; });
+  });
+}
+
 function pauseSheenOffscreen() {
   const banner = document.getElementById('verdict');
   if (!banner || typeof IntersectionObserver !== 'function') return;
