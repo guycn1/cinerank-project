@@ -2297,7 +2297,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
      spotlight both depend on it.
    * **Does the logo circle actually spin? — DONE 2026-09-11.** Yes, it always
-     did: `animation: spin 8s linear infinite` on `.mark__reel` runs and always
+     did: the `animation: spin … linear infinite` on `.mark__reel` runs and always
      ran. It was invisible because **every part of it you could see was
      rotationally symmetric** — the 3px amber border ring and a `radial-gradient`
      drawing a concentric amber ring — so eight seconds of rotation looked like a
@@ -2319,7 +2319,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **Built as a conic `mask` instead**, which cuts the border and the
      background together — one declaration rather than rebuilding both rings as
      gradients so a wedge could reach them. The dead wedge is deleted.
-     `--reel-notch` (9%, a 32.4° gap) is the one dial. Under
+     `--reel-notch` (8%, a 28.8° gap) is the one dial, and the speed is the
+     duration in `.mark__reel`'s own `animation` shorthand — **10s, and never the
+     `spin` keyframe itself, which is SHARED with the busy-button spinner at
+     0.7s**. Both were tuned by eye off the first build (9% and 8s). Under
      `prefers-reduced-motion` the animation is killed and the notch rests at 12
      o'clock, which still reads as a reel rather than as a broken circle.
      `-webkit-mask` is declared alongside `mask` for Safari.

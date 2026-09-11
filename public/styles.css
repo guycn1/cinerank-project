@@ -339,14 +339,17 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    --reel-notch is the one dial. At rest (prefers-reduced-motion kills the
    animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
-  --reel-notch: 9%;
+  --reel-notch: 8%;
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--amber);
   background:
     radial-gradient(circle at 50% 50%, transparent 30%, var(--amber) 31%, var(--amber) 37%, transparent 38%);
   -webkit-mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
   mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
-  animation: spin 8s linear infinite;
+  /* The `spin` keyframe is SHARED with the busy-button spinner, which runs it at
+     0.7s. Duration lives in each element's own shorthand, so tune the speed
+     here — never in the keyframe, which would drag the spinner with it. */
+  animation: spin 10s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .mark h1 {
