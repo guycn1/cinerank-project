@@ -365,83 +365,98 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .tagline { color: var(--ink-dim); max-width: 46ch; margin-top: 0.75rem; }
 
 /* verdict banner --------------------------------------------------------- */
+/* Registered so the browser can INTERPOLATE it. An unregistered custom property
+   is an untyped token, so animating one snaps between keyframe values instead of
+   sweeping — the glint would teleport rather than travel. `syntax: '<angle>'` is
+   what makes it a real animatable angle. A background cannot be `transform`ed,
+   so this is the only mechanism for rotating a conic gradient in place. */
+@property --sheen-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
 .verdict {
   margin-top: 1.5rem;
   border-radius: var(--radius);
-  padding: 2px;
+  /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
+     else — so it is the biggest single multiplier on the effect. 2px → 3px on
+     the user's call. Coupled to .verdict__inner's border-radius below: both must
+     move together or the inner corners stop nesting cleanly. */
+  padding: 3px;
   background:
-    /* The travelling highlight — the thing the eye actually tracks.
-       A GLINT, not a wash. The first attempt spanned 42–58% of a 300% layer,
-       which is ~48% of the banner's width: a 500px soft gradient reads as the
-       edge gently brightening, not as something moving across it. The core is
-       now ~2% of the layer (~6% of the banner, around 65px) with a short halo
-       either side.
-       And it is near-WHITE at high alpha because the base it crosses is bright:
-       a pale 0.6 wash over `--amber` composites to almost the same colour, so
-       the old band only showed at all while it happened to be over the crimson
-       stop. Contrast here is against the BASE, not against the page. */
-    linear-gradient(110deg,
-      transparent 47%,
-      rgba(255, 250, 235, 0.25) 49%,
-      rgba(255, 252, 245, 0.95) 50%,
-      rgba(255, 250, 235, 0.25) 51%,
-      transparent 53%),
-    /* The warm base, now STATIC. */
+    /* The travelling glint. CONIC, and that is the whole point — see the note
+       below on why a linear gradient can never do this. */
+    conic-gradient(from var(--sheen-angle),
+      rgba(255, 253, 248, 0.98) 0deg,
+      rgba(255, 253, 248, 0.98) 8deg,
+      rgba(255, 248, 228, 0.28) 16deg,
+      transparent 26deg,
+      transparent 334deg,
+      rgba(255, 248, 228, 0.28) 344deg,
+      rgba(255, 253, 248, 0.98) 352deg,
+      rgba(255, 253, 248, 0.98) 360deg),
+    /* The warm base, static. */
     linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  background-size: 300% 100%, 100% 100%;
-  background-repeat: no-repeat;
-  /* Step 4b, in two passes, and the second one is the lesson.
-     The 2px ring IS this background, with .verdict__inner covering the middle,
-     and it always animated. Pass one fixed a real fault: `var(--ease)` applies
-     to EACH keyframe interval, so both halves were front-loaded — 67% of the
-     travel in the first 0.9s, the last 2.7s covering 2%, the ring frozen for
-     about 60% of every cycle. That made it the THIRD animation in this file
-     wrecked by `--ease`, after the rec-card exit and the ranked entrance.
-     It was still "practically invisible", because the curve was never the whole
-     problem. THE REAL ONE: three stops spread over 220% meant the entire ring
-     was nearly ONE COLOUR at any instant, and it recoloured almost uniformly.
-     Motion perception needs a FEATURE TO TRACK — a uniform slow recolour has no
-     landmark in it, so no speed and no curve could have made it read as movement.
-     So the base gradient is now STATIC and a second layer does the moving: a
-     narrow warm-white band that sweeps across. That is what the name `sheen`
-     meant all along, and it is why the effect is legible at the same 9s that
-     was invisible before — the eye follows one bright feature instead of trying
-     to notice that everything got slightly redder.
-     Three things make the loop clean:
-     - The band is transparent at both ends of its own gradient and the layer is
-       300% wide, so at position 0% and 100% it sits OFF the box entirely. The
-       animation therefore runs ONE WAY and still loops seamlessly — no reversal,
-       which is what a sheen should never have.
-     - Only the first layer's position is animated; the base keeps `0% 50%` in
-       both keyframes. Animating `background-position` would otherwise move every
-       layer together.
-     - `no-repeat` so a second copy of the band can never tile into view.
-     THE TWO REMAINING LEVERS ARE DESIGN CHANGES, NOT ANIMATION ONES, which is
-     why they have not been taken unilaterally:
-     - `padding: 2px` is the whole visible area. It is the single biggest
-       multiplier here — 3px is +50% of everything the effect has to work with —
-       and it is coupled to `.verdict__inner`'s
-       `border-radius: calc(var(--radius) - 2px)`, so both move together.
-     - The base's brightness. Measured, the glint reaches 3.40x contrast over
-       `--crimson`, 2.27x over `--amber-deep` and only **1.58x over `--amber`** —
-       a white highlight cannot pop against a base that is already bright, so the
-       sweep visibly fades as it crosses the amber end. A darker base stop would
-       fix it and would change the banner's colour identity.
-     The band is a soft gradient inside the border, not a crisp offset outline,
+  /* Step 4b, over four passes. The last one is the only structural finding; the
+     rest are recorded because each was a plausible fix that did not work.
+
+     WHY CONIC, AND WHY EVERY LINEAR ATTEMPT WAS DOOMED. The user's screenshot
+     showed TWO white bands, one on the top edge and one on the bottom. That is
+     not a bad choice of colour stops — it is what a linear gradient DOES to a
+     frame. A linear gradient paints a straight stripe across the whole box, and
+     a straight stripe crosses a rectangular ring in two places at once. No
+     tuning of a linear gradient can ever yield one band travelling a perimeter.
+     A conic gradient varies by ANGLE about a centre, so its bright sector sits
+     at one angular position and rotating it walks that sector around the ring —
+     which is exactly "360 degrees of travel", once per iteration, seamless
+     because 360deg IS 0deg.
+     Rotation needs `@property` (declared above): a bare custom property is an
+     unanimatable token, so registering it with `syntax: '<angle>'` is what makes
+     the browser interpolate it rather than snap. A background cannot be
+     `transform`ed, so this is the mechanism, not a preference.
+     Speed around the perimeter is near-even despite the banner being wide and
+     short, which is not obvious and was checked rather than assumed: on a
+     ~1000x70 banner the top and bottom edges each span 172 degrees of the 360
+     and each short end only 8, giving 5.81px per degree along the top against
+     8.74 at the ends. The glint moves about 1.5x faster (in pixels) whipping
+     round the ends, which at this speed reads as a turn rather than a jump.
+     The core is 16deg (352-8), about 93px along the top edge, with the halo
+     falling off by +/-26deg.
+
+     The three earlier passes, and what each got wrong:
+     1. THE CURVE. `var(--ease)` applies to EACH keyframe interval, so both
+        halves were front-loaded — 67% of the travel in the first 0.9s, the last
+        2.7s covering 2%, the ring frozen for ~60% of every cycle. A real fault,
+        and the THIRD animation in this file wrecked by `--ease` after the
+        rec-card exit and the ranked entrance. Fixing it changed almost nothing.
+     2. NO FEATURE TO TRACK. Three stops over 220% meant the whole ring was
+        nearly one colour at any instant and recoloured uniformly. Motion
+        perception needs a landmark, so no speed and no curve could have helped.
+        This is why the base is STATIC and a separate layer does the moving.
+     3. A WASH, NOT A GLINT. That moving layer spanned ~48% of the banner at
+        0.6 alpha — a 500px soft gradient reads as the edge brightening. It also
+        measured only 1.27x contrast over `--amber`, so it was invisible for much
+        of its own journey. Hence a narrow, near-white core: contrast here is
+        against the BASE, not against the page.
+     Each of 1-3 was necessary and none was sufficient; what actually broke it
+     open was noticing the geometry was wrong, not the values.
+     One measured limit still stands and is NOT fixed: the glint reaches 3.40x
+     contrast over `--crimson`, 2.27x over `--amber-deep` and only 1.58x over
+     `--amber`, so it fades slightly as it passes the bright end of the base. The
+     cure is a darker base stop, which would change the banner's colour identity
+     — a design decision, left to the user.
+     The glint is a soft gradient inside the border, not a crisp offset outline,
      so D-044's focus-ring confusion does not apply. */
-  /* 7s, not 9s: a faster feature is markedly easier to detect in peripheral
-     vision, which is where this banner lives while you read the page. Still slow
-     enough not to nag. */
-  animation: sheen 7s linear infinite;
+  animation: sheen 9s linear infinite;
   box-shadow: var(--shadow);
 }
-@keyframes sheen {
-  from { background-position: 0% 50%, 0% 50%; }
-  to { background-position: 100% 50%, 0% 50%; }
-}
+/* One full revolution per iteration. Seamless by construction — 360deg IS 0deg,
+   so there is no reversal and no jump at the loop point. */
+@keyframes sheen { to { --sheen-angle: 360deg; } }
 .verdict__inner {
   background: var(--bg-raised);
-  border-radius: calc(var(--radius) - 2px);
+  /* Tracks .verdict's padding — see the note there. */
+  border-radius: calc(var(--radius) - 3px);
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;

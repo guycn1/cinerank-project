@@ -2303,22 +2303,41 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      FEATURE TO TRACK.** A uniform slow recolour has no landmark in it, so no
      speed and no curve could ever have made it read as movement. Claude's first
      pass measured the timing carefully and fixed the wrong layer of the problem.
-     **The base gradient is now STATIC and a second layer does the moving:** a
-     narrow warm-white band sweeping across, which is what the name `sheen` meant
-     all along. It is legible at the SAME 9s that was invisible before, because
-     the eye follows one bright feature instead of trying to notice that
-     everything got slightly redder.
-     Three things make the loop clean, all verified by arithmetic rather than by
-     eye: the band is transparent at both ends of its own gradient on a 300%-wide
-     layer, so at positions 0% and 100% it sits OFF the box — the animation runs
-     **one way and still loops seamlessly**, with no reversal, which is what a
-     sheen should never have; only the FIRST layer's position is animated (the
-     base keeps `0% 50%` in both keyframes, since animating
-     `background-position` otherwise moves every layer together); and `no-repeat`
-     stops a second copy tiling into view. The band is partially in view for 74%
-     of the cycle and its bright core crosses the box for 50%.
-     Dials, in order of bluntness: the `0.6` alpha, the 42/50/58 band width, the
-     9s, then the 300%.
+     **The base gradient is now STATIC and a second layer does the moving.**
+     **It took FOUR passes, and only the last was structural** — the first three
+     were each a plausible fix that measurably improved something and left the
+     effect still unusable. The order matters as a lesson: curve → no landmark →
+     wash-not-glint → **wrong GEOMETRY**.
+     **The finding, from the user's screenshot: there were TWO white bands, one
+     on the top edge and one on the bottom.** That is not a bad choice of colour
+     stops — **it is what a linear gradient DOES to a frame.** A linear gradient
+     paints a straight stripe across the whole box, and a straight stripe crosses
+     a rectangular ring in two places at once. No tuning of a linear gradient can
+     ever produce one band travelling a perimeter, so all three earlier passes
+     were refining something that could not work.
+     **A CONIC gradient varies by ANGLE about a centre**, so its bright sector
+     sits at one angular position and rotating it walks that sector around the
+     ring — literally 360° of travel, once per 9s iteration, seamless because
+     360deg IS 0deg (no reversal, no jump at the loop point).
+     **Rotation requires `@property`**, and that is mechanism rather than taste:
+     an unregistered custom property is an untyped token, so animating it SNAPS
+     between keyframe values — the glint would teleport. `syntax: '<angle>'`
+     makes it interpolate. A background cannot be `transform`ed, so there is no
+     other route.
+     **Perimeter speed is near-even, which is not obvious and was checked:** on a
+     ~1000×70 banner the top and bottom each span 172° of the 360 and each short
+     end only 8°, giving 5.81px/° along the top against 8.74 at the ends — the
+     glint moves ~1.5× faster whipping round the ends, which reads as a turn.
+     **The ring went 2px → 3px** on the user's call. It is the entire visible
+     area of the effect and so its biggest single multiplier, and it is coupled
+     to `.verdict__inner`'s `border-radius: calc(var(--radius) - 3px)` — **both
+     must move together** or the inner corners stop nesting.
+     **One measured limit stands and is deliberately NOT fixed:** the glint
+     reaches 3.40× contrast over `--crimson`, 2.27× over `--amber-deep` and only
+     **1.58× over `--amber`**, so it fades slightly crossing the bright end of
+     the base. The cure is a darker base stop, which would change the banner's
+     colour identity — a design decision left to the user.
+     Dials: the glint's alpha, its 16° core / ±26° falloff, the 9s, the 3px.
      **THIRD TIME `--ease` HAS BEEN THE CULPRIT** — the rec-card exit (R30), the
      ranked list's entrance, and now this. It is built to make an arrival feel
      instant, which is the exact opposite of anything a user is meant to WATCH.
