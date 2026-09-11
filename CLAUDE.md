@@ -2309,25 +2309,28 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **DONE 2026-09-11, and the curve was indeed most of it.** All four dials
      moved together, because individually none of them would have shown: curve
      `var(--ease)` → `cubic-bezier(0.25, 0.46, 0.45, 0.94)`, travel 10 → 14px,
-     duration 0.45 → 0.6s, stagger 45 → **180**ms with the cap 400 → **1200**ms.
-     **The stagger took a second pass** — 70ms was shipped first and the user
-     reported the cards still arriving "almost all at once". They were right, and
-     the lesson is that **a stagger is a RATIO, not a number**: what decides
-     whether it reads as a cascade is how many cards are mid-animation at the
-     same instant, which is `duration / stagger`. At 45ms that was 13.3 cards, at
-     70ms still 8.6 — both overlap into a single blob, and no amount of stagger
-     "raising" helps until it is a real fraction of the duration. 180ms gives
-     3.3, and each arrival is its own event.
+     duration 0.45 → 0.6s, stagger 45 → **135**ms with the cap 400 → **1200**ms.
+     **The stagger took three passes — 45 → 70 → 180 → 135** — and the lesson is
+     that **a stagger is a RATIO, not a number**: what decides whether it reads
+     as a cascade is how many cards are mid-animation at the same instant, which
+     is `duration / stagger`. At 45ms that was 13.3 cards and at 70ms still 8.6,
+     both of which overlap into a single blob — the user's report after the 70ms
+     pass was that they still arrived "almost all at once", and they were right.
+     No amount of "raising" helps until the stagger is a real fraction of the
+     duration. 180ms gave 3.3 and overshot ("almost too slow"); **135ms gives
+     4.4 and is where it settled.** Worth keeping: the useful range turned out to
+     be narrow AND nowhere near where it started — the first two attempts were
+     both outside it in the same direction.
      **So this number and the duration must be tuned together.** Raising the
      duration without raising this walks straight back into the blur.
      **Measured before and after rather than judged by eye:** the card used to be
      within 1px of home after 169ms of 450ms — **38% of the animation, 62% of it
      sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
      ratio, not the travel distance, is what "barely visible" actually meant.
-     The cap stays and had to, since the list is unbounded: it bites at card 7
+     The cap stays and had to, since the list is unbounded: it bites at card 9
      now, so twenty films still settle in 1.8s rather than growing without limit.
      A clump at the tail is the accepted cost, and it is invisible at the list
-     lengths this app actually holds — seven films settle in 1.68s with every
+     lengths this app actually holds — seven films settle in 1.41s with every
      card distinct.
      **It got its OWN keyframe, `card-enter`.** `fade-slide` has a second
      consumer — `.search-results`, where 10px and a snappy curve are correct —
