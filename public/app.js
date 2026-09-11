@@ -397,10 +397,10 @@ function withViewTransition(update) {
 
 /* ---------- ranked list ------------------------------------------------- */
 // Has the list been painted at least once? The first paint is an ENTRANCE (the
-// staggered fade-slide, nothing to morph from); every later one is a CHANGE to
+// staggered `card-enter`, nothing to morph from); every later one is a CHANGE to
 // a list already on screen, and gets the transition instead. Running both at
-// once made cards fade-slide in while the transition simultaneously cross-faded
-// them, which just looked muddy.
+// once made cards play their entrance while the transition simultaneously
+// cross-faded them, which just looked muddy.
 let rankedPainted = false;
 
 /** Re-render the ranked list, animating the difference when there is one. */

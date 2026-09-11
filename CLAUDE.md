@@ -1539,15 +1539,21 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `--ease` (this and the rec-card exit); both say why at the declaration, and
      at two it is now worth naming the pair as `--ease-out`/`--ease-in` if a
      third ever appears.
-     **A third appeared on 2026-09-11 — the ranked card's entrance (step 4b) —
-     and the answer was still to inline it with a why-comment, not to mint
-     tokens.** `--ease-out` is the name that will not work: `--ease` IS an
-     ease-out, just a violently front-loaded one, so a token by that name would
-     read as a synonym for the thing it exists to differ from. All three
-     exceptions are one-offs with different reasons (a departure, a symmetric
-     loop, a watchable arrival) and each is a sentence away from its own
-     declaration. Revisit if two of them ever want the SAME curve — that is the
-     point at which a token stops being a rename and starts preventing drift.
+     **There are FOUR as of 2026-09-11**, not two — the rec-card exit
+     (`ease-in`), this sparkle (`ease-in-out`), the ranked card's entrance (a
+     gentler ease-out) and the verdict glint (`linear`) — **and the answer was
+     still to inline each with a why-comment rather than mint tokens.**
+     `--ease-out` is the name that will not work: `--ease` IS an ease-out, just a
+     violently front-loaded one, so a token by that name would read as a synonym
+     for the thing it exists to differ from. All four are one-offs with different
+     reasons (a departure, a symmetric loop, a watchable arrival, a constant
+     drift) and each sits a sentence away from its own declaration. Revisit if
+     two of them ever want the SAME curve — that is the point at which a token
+     stops being a rename and starts preventing drift.
+     **The pattern behind three of the four is worth more than the tokens
+     question:** `--ease` exists to make an arrival feel INSTANT, so anything the
+     user is meant to WATCH wants a different curve. It was the diagnosed cause
+     in R30, in the ranked entrance and in the verdict glint.
      **Inline, NOT a flex container, and that is the non-obvious part.** The
      obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It is
      wrong here because `busyButton()` swaps the contents for a spinner plus a
@@ -1719,9 +1725,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      rather than rebuilt: `.rec-card` now carries its own
      `animation: rec-enter 0.75s var(--ease) backwards`, and the stagger went from
      `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card step
-     the user asked for. Its own keyframe, not the shared `fade-slide`, because
+     the user asked for. Its own keyframe rather than the ranked card's, because
      10px of travel under a ~300px poster card is a twitch and tuning it must not
-     move the ranked list.
+     move the ranked list. (That independence paid off at step 4b: the ranked
+     card was retuned and split onto `card-enter` with `rec-enter` untouched.)
      The exit did not exist at all — `replaceChildren()` dropped six cards in one
      frame — and is now `exitRecCards()`: `.is-leaving` on the cards and on the
      metadata footer, since that describes the run being replaced.
@@ -2300,24 +2307,30 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      contrast over `--crimson` but only 1.58x over `--amber`, so "less
      pronounced contrast" and "visible the whole way round" pull against each
      other — expect to trade.
-     (Original item below, kept because its diagnosis is what unlocked this.)
-     **The border should drift slowly. IT ALREADY
-     DOES — check before building** (found 2026-09-11 while working R15).
-     `.verdict` carries `animation: sheen 9s var(--ease) infinite`, which moves a
-     220%-sized `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
-     `background-position: 0%` to `100%` and back; `.verdict__inner` covers the
-     middle, so the 2px ring IS that gradient and it is already drifting. This is
-     the same shape as the logo-spin item below: the mechanism is there and the
-     effect is too subtle to notice. So the real work is making it VISIBLE —
-     a shorter cycle, a wider colour spread, or more gradient travel — not
-     writing an animation. Measure what it does now before changing it.
-     **The rest of this item as first written is DELETED, not preserved, because
-     it was wrong:** it called the banner "a static treatment" and went on to
-     suggest a `border-image` or a masked pseudo-element, since "`border-color`
-     cannot hold a gradient". All of that was written before the `sheen`
-     animation was found, and following it would have meant rebuilding a
-     mechanism that already exists — the banner does it with `padding: 2px`, a
-     gradient background, and `.verdict__inner` covering the middle.
+     **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
+     names has since been REPLACED — none of the following describes the code
+     today. It is kept only because its instruction to measure first is what
+     unlocked the item.**
+     *It read: the border should drift slowly, and IT ALREADY DOES — check
+     before building (found 2026-09-11 while working R15). `.verdict` carried
+     `animation: sheen 9s var(--ease) infinite`, moving a 220%-sized
+     `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
+     `background-position: 0%` to `100%` and back, with `.verdict__inner`
+     covering the middle so that the then-2px ring WAS that gradient. Same shape
+     as the logo-spin item: the mechanism was there and the effect too subtle to
+     notice, so the work was making it VISIBLE — a shorter cycle, a wider colour
+     spread, or more gradient travel — not writing an animation.*
+     **What the code is NOW:** a static warm `linear-gradient` ring at
+     `padding: 3px`, with all the movement in `.verdict__sheen` — an SVG
+     `<rect>` stroke-dashed with `pathLength="100"`, travelling the perimeter
+     once per 9s. No `background-position` animation, no `--ease`, no conic
+     gradient, no 220%.
+     **An earlier deletion recorded here was itself right and stays recorded:**
+     the item as FIRST drafted called the banner "a static treatment" and
+     suggested a `border-image` or masked pseudo-element because "`border-color`
+     cannot hold a gradient" — all written before the `sheen` animation was
+     found, and following it would have meant rebuilding something that already
+     existed.
      Two constraints that DO still apply: keep it SLOW, since this sits near the
      top of the page on every load; and D-044's rule that amber must never become
      a hard-edged focus-ring lookalike.

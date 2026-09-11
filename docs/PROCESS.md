@@ -133,7 +133,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 53 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 54 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -159,6 +159,11 @@ of the practice.
   response must advertise the AI call log, and whenever no row was written it must
   not. Each of these was verified by breaking the code it guards and confirming
   the intended test — and only that test — fails.
+- **Two failures at once**, added 2026-09-11 and also written as a loop over both
+  features: when the AI call fails AND the log write then fails, there is no row
+  to hold either cause, so stderr is the only surviving record and the test
+  asserts both causes reach it. Probed the same way — dropping the composition
+  loses the AI cause, dropping the `console.error` loses both.
 
 To keep the live database untouched (§5), the Supabase client is swapped for a
 small in-memory fake (`test/helpers.js`); TMDB and OpenRouter are stubbed through

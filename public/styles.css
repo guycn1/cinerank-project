@@ -419,9 +419,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* The travelling glint. A STROKE DASH, which is the only one of the four
    mechanisms tried that gives a constant width AND a constant speed: a dash
    moves along the path itself, so neither can vary with where it happens to be.
-   Inset 1.5px with a 3px stroke centred on that path, so the stroke occupies
-   exactly 0–3px from the banner's edge — precisely .verdict's padding ring, and
-   flush against .verdict__inner, which starts at 3px.
+   Held 1.5px inside the banner (by explicit top/left/width/height — NOT by
+   `inset`, see the rule below) with a 3px stroke centred on that path, so the
+   stroke occupies exactly 0–3px from the banner's edge: precisely .verdict's
+   padding ring, flush against .verdict__inner, which starts at 3px.
    `pathLength="100"` on the rect (set in the markup) renormalises the perimeter
    to 100 units, which is what makes `stroke-dasharray: 7 93` mean "7% of the
    ring, whatever the banner's width" — no JS measuring, and it survives a
@@ -937,8 +938,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    class). It used to sit on .movie-card itself, and since every re-render
    replaces every card, rating one film replayed the whole list's entrance —
    ~850ms of the page shimmering because one number changed. Later renders are
-   animated by a View Transition instead; running both made cards fade-slide in
-   while the transition cross-faded them, which looked muddy. */
+   animated by a View Transition instead; running both made cards play their
+   entrance while the transition cross-faded them, which looked muddy. */
 /* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
    `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
    animation keeps applying its final keyframe, and animations outrank normal
@@ -1074,7 +1075,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      new browser support.
 
      This only works because D-043 changed the entrance animation's fill from
-     `both` to `backwards`. `fade-slide` animates opacity to 1, and a
+     `both` to `backwards`. That entrance (`fade-slide` then, `card-enter` since
+     step 4b) animates opacity to 1, and a
      forwards-filling animation keeps applying that final keyframe — which
      outranks normal declarations. With `both`, every first-paint card would have
      been pinned at `opacity: 1` and would simply have refused to dim, silently,
@@ -1610,9 +1612,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    `scale()` would swing the star toward the top-left instead of breathing in
    place.
    `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
-   strong ease-OUT that would snap bright and drift back. The app now has two
-   animations deliberately off `--ease` — this and the rec-card exit — and both
-   say why at the declaration. */
+   strong ease-OUT that would snap bright and drift back. The app now has FOUR
+   animations deliberately off `--ease` — this, the rec-card exit (`ease-in`),
+   the ranked card's entrance (a gentler ease-out) and the verdict glint
+   (`linear`) — and each says why at its own declaration. The pattern behind
+   three of the four: `--ease` is built to make an arrival feel INSTANT, so
+   anything a user is meant to WATCH wants a different curve. */
 @keyframes sparkle-twinkle {
   0%, 100% { opacity: 0.8; transform: scale(0.94); }
   50% { opacity: 1; transform: scale(1.07); }
@@ -1790,10 +1795,12 @@ button:disabled .sparkle-major { animation: none; }
      element, and `both` would pin `transform: none` from the final keyframe and
      silently beat it, exactly as it did to the ranked card. Zero visual change
      at rest: the final keyframe already equals this card's resting state.
-     Its own keyframe, not the shared `fade-slide`: a rec card is roughly three
-     times the height of a ranked one and 10px of travel read as a flicker
-     rather than an arrival (R27). Separate names mean tuning one can never
-     move the other. */
+     Its own keyframe rather than the ranked card's: a rec card is roughly three
+     times the height of a ranked one, and the 10px of travel it would have
+     inherited read as a flicker rather than an arrival (R27). Separate names
+     mean tuning one can never move the other — which paid off at step 4b, when
+     the ranked card was retuned and split onto `card-enter` without this moving
+     at all. */
   animation: rec-enter 0.75s var(--ease) backwards;
   position: relative;
   display: flex;
@@ -2976,9 +2983,12 @@ body:has(dialog[open]) { overflow: hidden; }
 @keyframes card-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
-   ranked list's `fade-slide`.
-   The travel is 18px rather than 10: `fade-slide` was written for a ranked card,
-   and 10px under a ~300px-tall poster card is a twitch, not an arrival. Both end
+   ranked list's (which was `fade-slide` at the time and is `card-enter` since
+   step 4b).
+   The travel is 18px: the ranked card's was 10px when this was written, and 10px
+   under a ~300px-tall poster card is a twitch, not an arrival. (That figure has
+   since moved to 14px on its own, which is exactly the independence the split
+   was for — do not re-sync them.) Both end
    at `transform: none` so they compose cleanly with the hover scale (R14) —
    neither ever leaves a transform behind, because the entrance fills `backwards`
    and the exit's node is removed.
