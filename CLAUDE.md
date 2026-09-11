@@ -2188,6 +2188,23 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    63px give `0.35em`/`0.73em`, so the header is unchanged to within a quarter
    pixel while the footer's ~2.6x smaller mark gets a proportional glow. A fixed
    46px halo would have swallowed a 24px icon whole.
+   **Two more by-eye fixes once the footer mark was on screen, both from one
+   screenshot.** The dark ring the user saw "wrapping" the small mark was the
+   link's own `padding` — unlit page background between the glyph and where the
+   glow starts — and it was fixed in `rem`, so it did not scale down: a thin rim
+   at 63px, nearly a third of the radius at 24px. `--gh-pad` is now `0.115em`,
+   which IS the hand-tuned 7.2px expressed against the header's 63px, so the
+   header rim moves by 0.05px and the footer's drops 7.20 → 2.76px.
+   **Changing that value can never disturb the header's alignment**, and it is
+   worth knowing why: the `margin-top` calc subtracts exactly what the padding
+   adds, so the glyph lands in the same place whatever the padding is.
+   The halo then got its own per-instance dial, `--gh-halo`, multiplying blur AND
+   spread so the glow is scaled rather than distorted. The header keeps `1` —
+   **its glow is byte-for-byte what the user settled, 22/46px** — and the footer
+   takes `1.35`. Proportional was the right default, but a small mark on a quiet
+   footer needs a little more spill to register as lit. The alphas stay out of
+   the multiplier, for the reason the earlier widening established: brightness
+   and size are separate dials and mixing them makes neither judgeable.
    `.site-foot__credit` became a flex row with the sentence wrapped in its own
    `<span>` — without that wrapper the icon would be one more inline word after
    the full stop and would sit wherever the line happened to end, not at the

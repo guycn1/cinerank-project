@@ -196,7 +196,19 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    One dial for the size at each site: the <a> carries a font-size and the SVG is
    1em, so the icon and its padded hit area scale together. */
 .gh-link {
-  --gh-pad: 0.45rem;
+  /* The unlit ring between the mark and the start of the hover glow. In `em`,
+     so it stays proportional to the icon: as a fixed 0.45rem it was a thin rim
+     on the 63px header mark and nearly a third of the radius on the 24px footer
+     one, which read as a thick dark collar (user-raised, with a screenshot).
+     0.115em IS that hand-tuned 7.2px, expressed against the header's 63px —
+     so the header rim is unchanged to a twentieth of a pixel.
+     Changing this can never disturb the header's vertical alignment: the
+     margin-top below subtracts exactly what the padding adds, so the GLYPH
+     lands in the same place whatever this is set to. */
+  --gh-pad: 0.115em;
+  /* Multiplier on the hover glow, so the two instances can differ without a
+     second copy of the box-shadow. 1 is the header's settled size. */
+  --gh-halo: 1;
   display: inline-flex;        /* shrink-wraps the SVG and kills the inline
                                   baseline gap that would offset the circle */
   padding: var(--gh-pad);
@@ -258,7 +270,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    .gh-link, and the hover halo is in `em` so it scales itself. `rem` and not
    `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
    the icon depend on a value chosen for body copy. */
-.site-foot__credit .gh-link { font-size: 1.5rem; }
+.site-foot__credit .gh-link {
+  font-size: 1.5rem;
+  /* Bigger glow than the header's, on the user's eye. Not a contradiction of
+     the shared `em` sizing: proportional was the right DEFAULT, and a small mark
+     on a quiet footer needs a little more spill to register as lit at all. This
+     is the dial — the header keeps 1. */
+  --gh-halo: 1.35;
+}
 
 /* Gated on the CAPABILITY, never a width (the rule the card hovers settled), so
    a tap on a phone cannot park the icon in its lit state. */
@@ -280,10 +299,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        swallowed it whole. These are the user's own hand-tuned 22px and 46px
        divided by the header's 63px font-size, so the header is unchanged to
        within a quarter of a pixel — the conversion is arithmetic, not a
-       retune. */
+       retune.
+       --gh-halo then scales the whole glow per instance. It multiplies the blur
+       AND the spread so the shape is scaled rather than distorted; leave the
+       alphas out of it, for the reason above — brightness and size are separate
+       dials and mixing them makes neither judgeable. */
     box-shadow:
-      0 0 0.35em -0.06em rgba(245, 193, 91, 0.4),
-      0 0 0.73em -0.16em rgba(245, 193, 91, 0.22);
+      0 0 calc(0.35em * var(--gh-halo)) calc(-0.06em * var(--gh-halo))
+        rgba(245, 193, 91, 0.4),
+      0 0 calc(0.73em * var(--gh-halo)) calc(-0.16em * var(--gh-halo))
+        rgba(245, 193, 91, 0.22);
     /* Only the BLUR grew when this was widened (18/38 → 22/46). The alphas and
        the negative spreads are untouched on purpose: raising alpha at the same
        time makes a halo read as brighter rather than bigger, and then neither
