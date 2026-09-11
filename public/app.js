@@ -429,15 +429,21 @@ function renderRanked() {
     li.className = 'movie-card';
     if (entering) {
       li.classList.add('is-entering');
-      // Step 4b. Raised from 45ms/400ms: the old cap bit at card 9, so on any
-      // list longer than that the last dozen cards all started within one frame
-      // and there was no cascade left to see -- at exactly the length where one
-      // reads best. 70ms with a 700ms ceiling cascades a full list of ten.
-      // The cap STAYS, and must: this list is unbounded, and R27's 120ms step
-      // (tuned for a grid capped at six cards) would be 2.4 seconds of the page
-      // assembling itself on every load. The duration and curve live on
-      // .movie-card.is-entering; all three were tuned together.
-      li.style.animationDelay = `${Math.min(i * 70, 700)}ms`;
+      // Step 4b, tuned twice. 45ms -> 70ms was still "almost all at once", and
+      // the reason is a RATIO rather than a number: what decides whether a
+      // stagger reads as a cascade is how many cards are mid-animation at the
+      // same instant, which is duration / stagger. At 70ms against a 600ms card
+      // that was 8.6 cards in flight -- they overlap into one blob and the
+      // stagger has nothing left to separate. At 180ms it is 3.3, and each
+      // arrival is its own event.
+      // So tune this AGAINST the duration on .movie-card.is-entering, never on
+      // its own: raising that duration without raising this walks straight back
+      // into the same blur.
+      // The cap STAYS, and must: this list is unbounded. It bites at card 7 now
+      // (7 * 180 > 1200), so a long list still assembles in 1.8s rather than
+      // growing without limit -- a clump at the tail is the accepted cost of
+      // that, and it is invisible on the list lengths this app actually holds.
+      li.style.animationDelay = `${Math.min(i * 180, 1200)}ms`;
     }
     // Pairs this card's before/after snapshots so the browser morphs it from
     // its old position to its new one. The name must be a valid CSS ident and
