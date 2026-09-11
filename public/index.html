@@ -52,17 +52,46 @@
   <main>
     <!-- Taste Verdict Banner (SPEC § 2.3) — visible early, compact, playful -->
     <section class="verdict" id="verdict" aria-label="Taste verdict">
-      <!-- The travelling glint on the banner's ring (step 4b). An SVG stroke,
+      <!-- The travelling glint on the banner's ring (step 4b). SVG strokes,
            not a gradient, and the reason is geometric rather than aesthetic: a
            dash travels a PATH, so it keeps one width and one speed the whole way
            round. Gradients cannot — a linear one crosses a frame in two places
            at once, and a conic one maps equal angles to wildly unequal arc
            lengths on a box this wide. Both were built and both failed; see the
            note in styles.css.
-           `pathLength="100"` normalises the perimeter to 100 units, so the dash
-           is a PERCENTAGE of the ring and the banner can be any width without JS
-           measuring it. Decorative, so aria-hidden. -->
+           `pathLength="100"` normalises the perimeter to 100 units, so a dash is
+           a PERCENTAGE of the ring and the banner can be any width without JS
+           measuring it. Decorative, so aria-hidden.
+           TWENTY IDENTICAL RECTS, AND THE COUNT IS LOAD-BEARING. Each one is a
+           dash of a different length, and they are centred on each other so
+           their alphas composite into a band that FADES IN AND OUT along its
+           travel instead of switching on and off — a gradient along the path,
+           which a single dash cannot express. A dash has hard ends, so N of them
+           can only make N steps: at five the band was a visible staircase. The
+           rects are deliberately bare — every per-layer value (length, alpha,
+           phase) is generated into styles.css, and the twenty rules there say
+           why they must not be hand-edited. If you change the number of rects
+           here, regenerate that block to match. -->
       <svg class="verdict__sheen" aria-hidden="true" focusable="false">
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
+        <rect pathLength="100" />
         <rect pathLength="100" />
       </svg>
       <div class="verdict__inner">

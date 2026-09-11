@@ -6,96 +6,145 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
-## D-055 · The verdict glint's polish passes, and mistaking an outcome for a mechanism
+## D-055 · The verdict glint: overcorrection, a revert, and a band that fades along a path
 
-Three polish passes on 2026-09-12, all on `.verdict__sheen rect`. The mechanism
-(an SVG stroke dash on `pathLength="100"`) was settled the day before and was
-not reopened. This entry is not about the values — those are recoverable from the
-CSS — it is about a disagreement and a measurement that changed the approach.
+The mechanism (an SVG stroke dash on `pathLength="100"`) was settled on
+2026-09-11. This entry is about everything after it — the polish, which went
+badly before it went well, and is recorded for the METHOD rather than the values.
+The final numbers live in `public/styles.css`; do not mirror them here.
 
-**Claude's recommendation, written into the CSS after pass 2:** a further
-"fainter" request should come out of the halo and the speed, NOT the stroke
-alpha, because the glint's contrast over `--amber` had reached 1.27 and the
-band was close to not reading at all over the ring's bright stretch. Contrast is
-measured against the BASE RING, not the page, and the ring is a warm gradient,
-so the same band is 2.06 over `--crimson` and 1.27 over `--amber` at once:
-"less pronounced contrast" and "visible the whole way round" are the same number
-read from opposite ends.
+### The failure: four compounding passes, and a framing error under them
 
-**The user's instruction, given next:** more transparent, blurrier edges, and
-the ring back to 2px. Claude read that as an instruction to cut the stroke
-alpha, cut it, and described the result as the user overruling the advice above.
+The user asked for the band to be subtler, softer-edged and lower-contrast. Four
+passes followed in one day, each moving several values at once: warm the stroke,
+add a blur, cut the alpha, narrow the ring, slow the travel. Contrast over the
+ring's three base stops went 3.54 / 2.34 / 1.62 down to 1.40 / 1.26 / 1.12, and
+the user's verdict was that we were "in a loop… overcorrecting more and more".
+They were right. **Nothing could be attributed, because nothing was isolated.**
 
-**CORRECTION, made on the next pass after the user challenged it ("why do you
-keep saying I'm asking about the alpha?"). This heading and that reading were
-both wrong, and the error is the useful part of this entry.** The user asked for
-an OUTCOME — "more transparent" — not for a property. Which property delivers an
-outcome is Claude's call. Having just written that the alpha was the wrong lever,
-Claude then reached for it anyway and attributed the choice to the user, which is
-both inaccurate and a way of dressing up a poor mechanism choice as deference.
+Underneath it sat a framing error worth naming, because Claude repeated it three
+times. **The user asks for OUTCOMES — "more subtle", "even fainter", "more
+transparent". WHICH PROPERTY DELIVERS AN OUTCOME IS CLAUDE'S CALL.** Claude had
+written into the CSS that a further reduction should come from the halo and the
+speed and NOT the stroke alpha, then reached for the alpha anyway and described
+it as the user overruling that advice. The user challenged it directly — *"why
+do you keep saying I'm asking about the alpha?"* — and was right. Dressing up a
+poor mechanism choice as deference is worse than simply making the choice, and it
+corrupts the record: an earlier version of this entry stated Claude's inference
+as the user's instruction.
 
-**What the corrected reading produced immediately.** On the FOURTH request
-("more transparent, softer edges, 12s → 15s") the two asks turned out to be the
-same dial: on a 2px stroke, raising `blur()` 1.4px → 1.8px softens the edges AND
-cuts peak brightness 20%. It delivered both with **the stroke alpha untouched**.
-Three passes had been spending alpha on something the blur was giving for free.
+Straightening it out paid at once. The next request was "more transparent +
+softer edges", and on a 2px stroke those are THE SAME DIAL: raising `blur()`
+softens the edges and cuts peak brightness together. Both asks, alpha untouched.
+Three passes had been spending alpha on what the blur was giving away free.
 
-Amber sits at **1.12** after that fourth pass. Recorded because the alternative
-is a future session finding an almost-invisible effect, assuming it is broken,
-and quietly restoring brightness the user deliberately removed. The CSS and
-`CLAUDE.md` both now say: the effect is INTENDED to be almost subliminal; verify
-with the user before brightening it.
+### The fix: revert to the last commit and move ONE dial at a time
 
-**The standing rule this produced, now in the CSS:** read a "fainter" request as
-an outcome and PICK the lever. In rough order of remaining room — `blur()`, the
-halo alpha, the duration (salience scales with speed), then the `7 93` dasharray,
-which sets the band's LENGTH and costs no peak brightness at all. The stroke
-alpha has least room left: not forbidden, just the last place to look.
+The user's call, and the transferable part: revert the working tree to the
+pre-polish commit, **stop committing and stop editing docs**, then move one
+property at a time and judge each alone. Deliberately radical values, so an
+effect is unmistakable rather than a matter of taste — alpha 0.98 -> 0.3,
+`blur()` 0 -> 15px, halo 5px -> 20px. Three dials were bracketed and settled in
+minutes, after four passes had failed to settle any. Two were rejected outright
+(a large blur destroys the band; a wide halo is all bloom), and the finding was
+that the effect wants to be TIGHT and dim rather than diffuse.
 
-**What was NOT obvious, and is the reusable part: blur, stroke alpha and stroke
-WIDTH are one dial, not three.** A blur spreads a fixed amount of ink over more
-area, so it lowers the band's peak brightness by itself — and it eats a NARROW
-band proportionally harder. Measured peak retention:
+### The mechanism that finally worked, and the three non-obvious things in it
 
-| blur | 3px stroke | 2px stroke |
-|---|---|---|
-| 1.0px | 87% | 68% |
-| 1.2px | 79% | 60% |
-| 1.4px | 72% | 52% |
+The user asked for the band's ends to taper — `linear-gradient(transparent,
+#fff, transparent)` along the direction of travel — while the ring's thickness
+stayed crisp. A blur cannot do that (it softens the thickness too, which is what
+made 15px useless), and a stroke dash has hard ends by definition.
 
-So "bring the ring down to 2px" was a **faintness** change worth roughly a 0.10
-cut in alpha before the alpha was touched. Had all three been turned down
-naively — the obvious reading of the request — the band would have gone to
-nothing. The numbers above are why the alpha only moved 0.75 → 0.66.
+Answer: **stack many dashes of decreasing length, centred on each other, and let
+their alphas composite into a falloff.**
 
-**A second split that carried pass 2:** the drop-shadow and the stroke core do
-different jobs. The halo is what reads as SHOWY; the core is what stays
-TRACKABLE as the band travels. So the halo took a 36% cut and the core 12%,
-rather than fading both evenly. Cutting the core to match would have bought the
-same drop in presence and cost the effect.
+**1. Centre them with negative `animation-delay`, never `stroke-dashoffset`.** A
+static offset leaves each layer travelling less than a full 100 units, so every
+layer snaps at its own loop point. A negative delay shifts where in the cycle a
+layer starts while it still runs the whole cycle. **Consequence, and it is a
+trap: the delays are DERIVED FROM THE DURATION.** Changing the duration alone
+multiplies every phase shift and the layers stop nesting.
 
-**Claude was wrong twice in this pass and the user caught the first.** (1) The
-ring width was documented as a single dial. The user pushed back — "I believe
-other numeric values rely on the ring's width being exactly 3px" — and they were
-right: it is **FIVE** coupled values (`.verdict`'s padding; `.verdict__inner`'s
-`border-radius` = --radius - W; `.verdict__sheen`'s top/left = W/2 and
-width/height = 100% - W; the rect's `rx` = --radius - W/2 and its
-`stroke-width`). (2) Claude then changed four of the five and **missed
-`.verdict__inner`'s radius**, which would have left the inner panel's corners
-not nesting inside the ring. It was caught by printing the arithmetic and
-checking it, not by looking at the result — a 1px radius mismatch on a 14px
-corner is invisible in a screenshot and permanent in the code. The five are now
-enumerated in one place in the CSS.
+**2. The alphas must be SOLVED, not chosen — and they are not monotonic.**
+Layers composite multiplicatively (`1 - PROD(1 - a)`), so scaling them all
+saturates the core toward 1 while the tips rise linearly, FLATTENING the taper
+into the hard bar it was meant to replace. The user tried exactly that
+(quadrupling every alpha) and reported it looked worse; measured, the core/tip
+ratio fell from 7:1 to 4.4:1. The right method is to pick the target profile and
+solve backwards, `a_k = 1 - (1 - C_k) / (1 - C_k-1)`. **The alphas then peak in
+the MIDDLE layer and come back down**, because inner layers paint onto an
+already-part-opaque stack. No intuitive sequence produces that, which is why the
+block is generated rather than hand-written.
 
-**Trap:** `stroke-width` is listed as a "dial" in older notes. It is not an
-independent one — it IS the ring width. Change it alone and the glint overhangs
-`.verdict__inner` or stops reaching the banner's edge.
+**3. The layer COUNT is an anti-banding parameter, not a detail.** A dash has
+hard ends, so N layers can only ever make N steps. At five the band was a visible
+STAIRCASE — the user photographed it — with a max step of 0.176 in composite
+opacity. Twenty puts it at 0.043, under the threshold where the eye reads a seam.
+**That was Claude's design flaw rather than a tuning error**, and the first
+instinct (brighter values) had merely made the existing artefact visible.
 
-**The one lever with room left** is the `7 93` dasharray: it sets the band's
-LENGTH as a percentage of the perimeter and costs no brightness at all. If a
-fourth reduction is ever asked for, the stroke alpha is spent — take it from
-there, from the halo, or from the speed, and say so rather than quietly picking
-one.
+### Performance: measured, then accepted
+
+Twenty animated elements drew a fair question from the user.
+`stroke-dashoffset` is a PAINT property, so unlike every other infinite
+animation on the page (all transform/opacity) it cannot be composited — each
+frame re-rasterises the strokes plus the halo filter.
+
+Measured rather than argued, the user running each configuration:
+
+| condition | effect of the sheen |
+|---|---|
+| unthrottled | none (below measurement noise) |
+| 6x CPU throttle | none |
+| 20x CPU throttle | 3 late frames in ~240 |
+| software rendering, unthrottled | none |
+| software rendering + 6x | none |
+| software rendering + 20x | 26% fps drop, ~41% of frames late |
+
+Two corrections Claude had to make mid-investigation, both prompted by the user
+pushing back. **DevTools CPU throttling slows the MAIN THREAD ONLY** — not the
+GPU, not raster threads — so the first "concern closed" was premature and was
+withdrawn; the user's suspicion that the GPU had been doing the heavy lifting was
+correct, and software rendering is the test that addresses it. Even that bound is
+optimistic, because raster still runs on 20 unthrottled desktop cores.
+
+**Decision: keep the look, change nothing.** The only failing configuration needs
+no GPU AND a CPU 20x slower than the developer's, which no real device occupies.
+The levers that would have helped — fewer layers, dropping the halo — both
+degrade a design the user had signed off, to buy back frames on hardware the
+audience does not have.
+
+**One mitigation was taken**, and its justification is battery, not frame rate:
+`pauseSheenOffscreen()` stops the animation when the banner scrolls out of view.
+It does NOT address the measured cost, which occurs while the banner is visible;
+that was said plainly rather than sold as a fix.
+
+### Traps for the pending busy-state item (4b)
+
+The spec is ~3s and a ~0.8 peak while "New verdict" is busy. Both dials are
+booby-trapped by the above, and both have a one-line answer:
+
+* **Duration cannot move alone** (trap 1). Express each delay as a fraction of a
+  `--sheen-dur` variable, and one value then drives the duration and all twenty
+  delays.
+* **Brightness cannot be scaled** (trap 2). Author the layers at the BUSY peak
+  and scale down at rest with one group `opacity`: group opacity scales the
+  composite linearly, and `0.8 * bell(x) * (0.55/0.8)` is exactly
+  `0.55 * bell(x)`, so the shape is preserved rather than approximated.
+
+That makes the whole busy state two declarations and no JS — `busyButton()`
+already sets `aria-busy`, so a `:has()` selector suffices and it cannot stick on.
+
+### The lesson worth keeping
+
+When tuning turns into a loop, **stop committing, revert to a known state, and
+move one dial at a time with deliberately extreme values.** Four passes of
+simultaneous changes produced something the user disliked and nobody could
+explain; an afternoon of single-variable tests produced something they called
+"almost perfect" and a mechanism nobody had thought of. And when a request names
+an outcome, pick the lever yourself and own that choice — never attribute a
+mechanism to the person who only described a result.
 
 ---
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened

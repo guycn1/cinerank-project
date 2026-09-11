@@ -2135,6 +2135,43 @@ document.addEventListener('click', (e) => {
     });
 });
 
+/* ---------- the verdict ring's glint ------------------------------ */
+// Pause the sheen while the banner is off-screen.
+//
+// The glint animates `stroke-dashoffset` across twenty layered dashes, and that
+// is a PAINT property -- it cannot be handed to the compositor the way a
+// transform can, so every frame re-rasterises those strokes and the halo filter
+// on top of them. Measured cost is nil on ordinary hardware and small even on
+// heavily throttled software rendering (the figures are recorded at
+// `.verdict__sheen rect` in styles.css), so this is not fixing a reported
+// problem. It is that the banner sits at the very top of a page whose actual
+// content is the ranked list below it, so anyone scrolled down is paying for an
+// animation they cannot see -- battery and thermals on a phone, mostly.
+//
+// `animation-play-state: paused` FREEZES the dash where it is and resumes from
+// there, so scrolling back finds the band where it left off. That matters more
+// than it sounds: the twenty layers are kept in register by phase offsets
+// (negative `animation-delay`), so anything that restarted them independently
+// would pull the taper apart. Pausing cannot, because it stops and starts them
+// all together.
+//
+// threshold 0, so it pauses only once the banner is COMPLETELY out of view --
+// never while a sliver of it is still on screen.
+//
+// Feature-detected. An engine without IntersectionObserver keeps the animation
+// running, which is exactly today's behaviour, so the fallback is the status quo
+// rather than a broken state. The observer is deliberately never disconnected:
+// it watches one element that lives as long as the document, so there is nothing
+// to leak and nothing to tear down.
+function pauseSheenOffscreen() {
+  const banner = document.getElementById('verdict');
+  if (!banner || typeof IntersectionObserver !== 'function') return;
+  new IntersectionObserver(
+    ([entry]) => banner.classList.toggle('is-offscreen', !entry.isIntersecting),
+    { threshold: 0 },
+  ).observe(banner);
+}
+
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
   // Both AI triggers get the sparkle. Injected here, before anything can put a
@@ -2143,6 +2180,7 @@ document.addEventListener('click', (e) => {
   // snapshot is taken or it would not come back.
   el.recsTrigger.prepend(sparkleNode());
   el.verdictRefresh.prepend(sparkleNode());
+  pauseSheenOffscreen();
   try {
     state.cfg = await api('/api/config');
   } catch { /* keep defaults */ }

@@ -369,23 +369,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   position: relative;          /* containing block for .verdict__sheen */
   margin-top: 1.5rem;
   border-radius: var(--radius);
-  /* THE RING WIDTH, AND IT IS FIVE NUMBERS, NOT ONE. Everything below is
-     derived from it — change one and change all five, or the glint stops
-     lining up with the ring it is supposed to travel:
-       1. this padding                        = W
-       2. .verdict__inner's border-radius     = var(--radius) - W
-       3. .verdict__sheen's top/left          = W/2   (the path is centred in
-          the ring, so it sits half a stroke in from the banner edge)
-       4. .verdict__sheen's width/height      = calc(100% - W)
-       5. .verdict__sheen rect's rx           = var(--radius) - W/2
-          and its stroke-width                = W
-     History: 2px originally, raised to 3px when the glint was being made
-     visible at all, and back to 2px on 2026-09-12 once the polish passes had
-     gone the other way and a 3px ring read as too heavy for a band this quiet.
-     It is also the biggest single multiplier on the effect, and narrowing it is
-     a FAINTNESS change as much as a geometric one — see the note at the
-     rect's filter, where the blur arithmetic depends on this number. */
-  padding: 2px;
+  /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
+     else — so it is the biggest single multiplier on the effect. 2px → 3px on
+     the user's call. Coupled to .verdict__inner's border-radius below: both must
+     move together or the inner corners stop nesting cleanly. */
+  padding: 2.5px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   /* Step 4b took FIVE passes. Keeping the dead ends because every one of them
@@ -421,69 +409,30 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      What actually works is .verdict__sheen below: a dash travels a PATH, so one
      width and one speed the whole way round, by construction rather than by
      tuning.
-     One measured limit stands and is NOT fixed: the glint is brightest against
-     the dark end of the ring and faintest against the bright end, so it fades
-     slightly crossing `--amber`. Measured by compositing the stroke at its
-     post-blur peak alpha over each base stop. Over crimson / amber-deep / amber:
-       3.54 / 2.34 / 1.62   before any polish (an earlier note here said
-                            3.40 / 2.27 / 1.58 for this same state — close
-                            enough that the conclusion never moved)
-       2.46 / 1.80 / 1.35   after the first polish pass, 2026-09-12
-       2.06 / 1.61 / 1.27   after the second, same day, on "even fainter"
-       1.52 / 1.33 / 1.15   after the third, same day: 3px -> 2px ring, alpha
-                            0.75 -> 0.66, blur 1.2 -> 1.4px
-       1.40 / 1.26 / 1.12   after the fourth, same day: blur 1.4 -> 1.8px and
-                            the halo 7px/0.28 -> 8px/0.22, WITH THE STROKE ALPHA
-                            LEFT ALONE — see the note below on why
-     THIS IS THE TRADE THE POLISH PASSES BOUGHT, and it is worth stating plainly
-     because the two asks fight: "less pronounced contrast" and "visible the
-     whole way round" are the same number read from opposite ends. Crimson has
-     come down 57% and amber 29% — the shouty end lost roughly twice what the
-     weak end did, rather than the whole thing fading uniformly.
-     THE FLOOR WAS APPROACHED DELIBERATELY, NOT DRIFTED INTO. The effect is
-     INTENDED to be almost subliminal: someone finding it "broken" later is
-     probably finding it working as specified. Verify with the user before
-     adding brightness back rather than quietly re-raising it.
-     A PROCESS NOTE THAT SAVED THE FOURTH PASS, worth more than any of the
-     numbers above. The user asks for OUTCOMES — "more subtle", "even fainter",
-     "more transparent", "softer edges". Which PROPERTY delivers an outcome is
-     Claude's call, not theirs, and conflating the two produced a real error:
-     after pass 2 this note read "a further fainter request should come out of
-     the halo and the speed, NOT the stroke alpha", and passes 2 and 3 then cut
-     the alpha anyway while describing it as the user overriding that advice.
-     They had not asked for the alpha; they had asked for an outcome.
-     Getting that straight is what made pass 4 easy. The request was "more
-     transparent + softer edges", and on a 2px stroke those are THE SAME DIAL:
-     raising the blur from 1.4px to 1.8px softens the edges (what was asked) and
-     cuts peak brightness 20% (also what was asked), so it delivered both with
-     the stroke alpha untouched at 0.66. Three "fainter" passes had been spending
-     alpha on something the blur was giving away for free.
-     SO: WHEN A FURTHER REDUCTION IS ASKED FOR, READ IT AS AN OUTCOME AND PICK
-     THE LEVER. In rough order of remaining room: the `blur()`, the halo alpha,
-     the duration (salience scales with speed), and the `7 93` dasharray, which
-     sets the band's LENGTH as a fraction of the perimeter and costs no peak
-     brightness at all. The stroke alpha is the one with least room left — not
-     forbidden, just the last place to look rather than the first.
-     The cure for the floor itself is a darker base stop, which changes the
-     banner's colour identity — the user's decision, not Claude's. */
+     One measured limit stands and is NOT fixed: the glint reads 3.40x contrast
+     over `--crimson`, 2.27x over `--amber-deep` and only 1.58x over `--amber`,
+     so it fades slightly crossing the bright end of the ring. The cure is a
+     darker base stop, which changes the banner's colour identity — the user's
+     decision, not Claude's. */
   box-shadow: var(--shadow);
 }
-/* The travelling glint. A STROKE DASH, which is the only one of the four
-   mechanisms tried that gives a constant width AND a constant speed: a dash
-   moves along the path itself, so neither can vary with where it happens to be.
+/* The travelling glint. STROKE DASHES — the only one of the mechanisms tried
+   that holds a constant width AND a constant speed, because a dash moves along
+   the path itself, so neither can vary with where it happens to be.
    Held W/2 inside the banner (by explicit top/left/width/height — NOT by
-   `inset`, see the rule below) with a W-wide stroke centred on that path, so the
-   stroke occupies exactly 0..W from the banner's edge: precisely .verdict's
-   padding ring, flush against .verdict__inner, which starts at W. W is the ring
-   width, currently 2px — the five values derived from it are listed at
-   .verdict's padding, and they all move together.
-   `pathLength="100"` on the rect (set in the markup) renormalises the perimeter
-   to 100 units, which is what makes `stroke-dasharray: 7 93` mean "7% of the
-   ring, whatever the banner's width" — no JS measuring, and it survives a
-   resize for free. The two numbers MUST sum to 100, or there is either a second
-   dash on the ring or a gap in the loop.
+   `inset`, see the rule below) with a W-wide stroke centred on that path, so it
+   occupies exactly 0..W from the banner's edge: precisely .verdict's padding
+   ring, flush against .verdict__inner. W is the ring width, and it is FIVE
+   coupled values — they are enumerated at .verdict's `padding`.
+   `pathLength="100"` on each rect (set in the markup) renormalises the perimeter
+   to 100 units, which is what makes a dasharray mean "n% of the ring, whatever
+   the banner's width" — no JS measuring, and it survives a resize for free.
+   Each pair MUST sum to 100, or there is either a second dash on the ring or a
+   gap in the loop.
    Dashoffset then runs one whole perimeter per iteration, `linear`, so the loop
-   is seamless with no reversal. */
+   is seamless with no reversal.
+   THERE ARE TWENTY OF THEM, not one, and that is the whole of the "smooth
+   edges" answer — see the block below the shared rule. */
 .verdict__sheen {
   position: absolute;
   display: block;
@@ -495,81 +444,112 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      was, the rect filled THAT, and `overflow: visible` then let the stroke spill
      out of the banner and run down the page past the search box.
      top/left rather than `inset`, so width/height are never over-constrained. */
-  top: 1px;
-  left: 1px;
-  width: calc(100% - 2px);
-  height: calc(100% - 2px);
+  top: 1.25px;
+  left: 1.25px;
+  width: calc(100% - 2.5px);
+  height: calc(100% - 2.5px);
   /* Required: the viewport is the inset box, so the outer half of the stroke
      (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
+  /* ONE halo for the whole stack, deliberately on the SVG ROOT rather than on
+     each rect: twenty stacked drop-shadows would both compound the glow and pay
+     for twenty filter passes a frame instead of one. It is also what R15 says to
+     do — a CSS filter on an SVG CHILD resolves its lengths in the local user
+     coordinate system, where they would scale with the rendered size. (Safe
+     either way here, since the <svg> carries no viewBox and user units are CSS
+     pixels 1:1, but the root is the rule.)
+     Light, zero-offset, warm — D-044, same as every other glow in this file. */
+  filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
 }
 .verdict__sheen rect {
   width: 100%;
   height: 100%;
-  rx: calc(var(--radius) - 1px);     /* = --radius - W/2; tracks .verdict's ring */
+  rx: calc(var(--radius) - 1.25px);   /* tracks .verdict's radius and inset */
   fill: none;
-  /* WARM off-white, not the near-white `rgba(255, 253, 248, 0.98)` this was.
-     The polish pass asked for three things — subtler, smoother edges, less
-     contrast against the ring — and the colour is what serves the third: a pure
-     white band over an amber/crimson ring reads as a DIFFERENT material laid on
-     top, while a warm one reads as the ring catching light. */
-  stroke: rgba(255, 242, 224, 0.66);
-  /* NOT independently tunable. This is W, the ring width, and it is one of the
-     five values listed at .verdict's padding — the stroke is centred on a path
-     held W/2 inside the banner, so it spans exactly 0..W and lands flush against
-     .verdict__inner. Change it ALONE and the glint either overhangs the inner
-     panel or stops reaching the banner's edge; change it WITH the other four and
-     the ring simply gets thinner, which is what happened on 2026-09-12. */
-  stroke-width: 2px;
+  stroke-width: 2.5px;
   stroke-linecap: round;
-  stroke-dasharray: 7 93;
-  /* `blur()` FIRST, then the shadow — filters apply left to right, so the glow is
-     computed from the already-softened band and the two read as one soft object
-     rather than a hard line wearing a halo. This is the "smoother edges" half:
-     `stroke-linecap: round` only makes the dash ends semicircular, it does not
-     FADE them, and a blur is the only thing in a values pass that does.
-     THE BLUR, THE ALPHA AND THE STROKE WIDTH ARE ONE DIAL, NOT THREE. Blurring
-     spreads a fixed amount of ink over more area, so it lowers the band's peak
-     brightness by itself — and how much it costs depends on how wide the stroke
-     is, because a blur eats a NARROW band proportionally harder. Measured peak
-     retention:
-                    3px stroke   2px stroke
-       blur 1.0px       87%          68%
-       blur 1.2px       79%          60%
-       blur 1.4px       72%          52%
-       blur 1.8px       60%          42%
-     So narrowing the ring 3px -> 2px on 2026-09-12 was a FAINTNESS change worth
-     roughly a 0.10 cut in alpha, before the alpha was touched at all. Raising
-     the blur is likewise a faintness change whether or not the alpha moves.
-     Turn all three down at once and the band disappears over the bright end of
-     the ring — which is the floor this has now been walked right up to over
-     three passes, not a hypothetical.
-     THE HALO AND THE CORE ARE ALSO DIFFERENT JOBS, and that is what the second
-     pass traded on. The drop-shadow is what reads as SHOWY; the stroke core is
-     what stays trackable as it travels. So when the user asked for fainter
-     again, the halo took the bigger cut (0.50 -> 0.32 alpha, -36%) and the core
-     the smaller one (0.85 -> 0.75, -12% before blur) — quieter without losing
-     the thing the eye follows. Cutting the core to match would have bought the
-     same drop in presence and cost the effect.
-     Light, zero-offset, warm — D-044's rule, same as every other glow here. */
-  filter: blur(1.8px) drop-shadow(0 0 8px rgba(255, 226, 170, 0.22));
-  /* 15s: 9s when the mechanism landed, then 12s, then 15s — all on the user's
-     call as the glint was walked quieter. SLOWER IS ALSO FAINTER in the only
-     sense that matters here: motion salience scales with speed, so each
-     slowdown did part of the "make it fainter" work by itself. That is why the
-     stroke alpha has moved far less than the number of "fainter" requests would
-     suggest. If this is ever retimed, re-judge the brightness in the same pass.
-     Item 4b(5) — the glint speeding up while "New verdict" is busy — tunes its
-     busy duration against THIS number, so that item starts from 15s. */
   animation: sheen 15s linear infinite;
 }
+/* ===================== THE TAPERED BAND ===========================
+   TWENTY dashes of decreasing length, centred on each other, whose alphas
+   COMPOSITE into a falloff instead of a hard end. This is what makes the band
+   fade in and out along its direction of travel rather than switching on and
+   off — a gradient along the path, which is the one thing a stroke dash cannot
+   express directly.
+   DO NOT HAND-EDIT THESE TWENTY LINES. They are generated; four separate things
+   below are derived from the same parameters, and changing one by eye silently
+   breaks the others. Regenerate instead (the generator is tiny — N layers, band
+   half-length R, target PEAK, duration DUR; it emits exactly this block).
+
+   1. CENTRING IS DONE WITH NEGATIVE `animation-delay`, NOT `stroke-dashoffset`.
+      A static offset would leave each layer travelling less than a full 100
+      units, so every layer would snap at its own loop point. A negative delay
+      shifts WHERE IN THE CYCLE a layer starts while it still runs the whole
+      0 -> -100. Delay = -(R - halfLength) * DUR / 100.
+   2. THEREFORE THE DELAYS ARE DERIVED FROM THE DURATION. A delay is an absolute
+      time, so changing `animation`'s duration alone multiplies every layer's
+      phase shift and the twenty stop nesting — the taper smears across the ring
+      instead of forming a band. Duration and delays move together, always.
+      (This is exactly what 4b's busy-state item has to solve; the fix there is
+      to express each delay as a fraction of a `--sheen-dur` variable so one
+      value drives both.)
+   3. THE ALPHAS ARE SOLVED, NOT CHOSEN, and they are NOT proportional to the
+      brightness. Layers composite multiplicatively: total = 1 - PROD(1 - a_i).
+      So scaling them all by a constant does NOT scale the band — it saturates
+      the core toward 1 while the tips rise linearly, which FLATTENS the taper
+      back into a hard-edged bar. (Tried by the user: quadrupling every alpha
+      took the core/tip ratio from 7:1 down to 4.4:1 and looked worse.)
+      Instead pick the target profile C_k = PEAK * bell(distance from centre)
+      and solve each layer from the one before it:
+          a_k = 1 - (1 - C_k) / (1 - C_k-1)
+      The result is counter-intuitive and worth seeing before "correcting" it:
+      THE ALPHAS ARE NOT MONOTONIC. They peak around the middle layer and come
+      back down, because the inner layers paint onto an already-part-opaque
+      stack and need less of their own alpha to move the total.
+   4. TWENTY IS NOT DECORATION — IT IS THE ANTI-BANDING NUMBER. Each layer is a
+      hard-edged dash, so N layers can only ever make N steps. At five the band
+      was a visible STAIRCASE (max step 0.176 in composite opacity, obvious on
+      screen and photographed by the user). Twenty puts the max step at 0.043,
+      under the threshold where the eye reads it as a seam. If these are ever
+      thinned for performance, this is what gets traded away.
+   Judge only the composite; no single alpha here means anything on its own
+   (the largest is ~0.07, and it sits at layer 14 rather than at the core). */
+.verdict__sheen rect:nth-child(1) { stroke-dasharray: 10 90; stroke: rgba(255,253,248,0.0008); animation-delay: 0s; }
+.verdict__sheen rect:nth-child(2) { stroke-dasharray: 9.5 90.5; stroke: rgba(255,253,248,0.0068); animation-delay: -0.0375s; }
+.verdict__sheen rect:nth-child(3) { stroke-dasharray: 9 91; stroke: rgba(255,253,248,0.0134); animation-delay: -0.075s; }
+.verdict__sheen rect:nth-child(4) { stroke-dasharray: 8.5 91.5; stroke: rgba(255,253,248,0.0200); animation-delay: -0.1125s; }
+.verdict__sheen rect:nth-child(5) { stroke-dasharray: 8 92; stroke: rgba(255,253,248,0.0264); animation-delay: -0.15s; }
+.verdict__sheen rect:nth-child(6) { stroke-dasharray: 7.5 92.5; stroke: rgba(255,253,248,0.0327); animation-delay: -0.1875s; }
+.verdict__sheen rect:nth-child(7) { stroke-dasharray: 7 93; stroke: rgba(255,253,248,0.0386); animation-delay: -0.225s; }
+.verdict__sheen rect:nth-child(8) { stroke-dasharray: 6.5 93.5; stroke: rgba(255,253,248,0.0443); animation-delay: -0.2625s; }
+.verdict__sheen rect:nth-child(9) { stroke-dasharray: 6 94; stroke: rgba(255,253,248,0.0494); animation-delay: -0.3s; }
+.verdict__sheen rect:nth-child(10) { stroke-dasharray: 5.5 94.5; stroke: rgba(255,253,248,0.0540); animation-delay: -0.3375s; }
+.verdict__sheen rect:nth-child(11) { stroke-dasharray: 5 95; stroke: rgba(255,253,248,0.0578); animation-delay: -0.375s; }
+.verdict__sheen rect:nth-child(12) { stroke-dasharray: 4.5 95.5; stroke: rgba(255,253,248,0.0606); animation-delay: -0.4125s; }
+.verdict__sheen rect:nth-child(13) { stroke-dasharray: 4 96; stroke: rgba(255,253,248,0.0621); animation-delay: -0.45s; }
+.verdict__sheen rect:nth-child(14) { stroke-dasharray: 3.5 96.5; stroke: rgba(255,253,248,0.0620); animation-delay: -0.4875s; }
+.verdict__sheen rect:nth-child(15) { stroke-dasharray: 3 97; stroke: rgba(255,253,248,0.0601); animation-delay: -0.525s; }
+.verdict__sheen rect:nth-child(16) { stroke-dasharray: 2.5 97.5; stroke: rgba(255,253,248,0.0558); animation-delay: -0.5625s; }
+.verdict__sheen rect:nth-child(17) { stroke-dasharray: 2 98; stroke: rgba(255,253,248,0.0492); animation-delay: -0.6s; }
+.verdict__sheen rect:nth-child(18) { stroke-dasharray: 1.5 98.5; stroke: rgba(255,253,248,0.0399); animation-delay: -0.6375s; }
+.verdict__sheen rect:nth-child(19) { stroke-dasharray: 1 99; stroke: rgba(255,253,248,0.0283); animation-delay: -0.675s; }
+.verdict__sheen rect:nth-child(20) { stroke-dasharray: 0.5 99.5; stroke: rgba(255,253,248,0.0148); animation-delay: -0.7125s; }
+
+/* PAUSED WHILE OFF-SCREEN. The class is set by pauseSheenOffscreen() in app.js;
+   the reasoning is at that function. `animation-play-state` freezes the dash in
+   place and resumes from there, which is required rather than merely tidy: the
+   twenty layers are held in register by phase offsets, so anything that
+   restarted them independently would pull the taper apart. Pause stops and
+   starts all twenty together.
+   Inert under prefers-reduced-motion, where the global `animation: none
+   !important` has already removed the animation outright. */
+.verdict.is-offscreen .verdict__sheen rect { animation-play-state: paused; }
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);
-  /* = var(--radius) - W, where W is .verdict's ring width. One of the five
-     coupled values listed at .verdict's padding — see the note there. */
-  border-radius: calc(var(--radius) - 2px);
+  /* Tracks .verdict's padding — see the note there. */
+  border-radius: calc(var(--radius) - 2.5px);
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;
