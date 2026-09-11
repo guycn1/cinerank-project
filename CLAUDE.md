@@ -2146,8 +2146,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    guessing Fraunces figure widths twice and being wrong twice; measure it with
    `Range.getBoundingClientRect()` during the portrait pass. The likely answer is
    that the header stacks below some breakpoint, which is step 5's call to make.
-   **States, as the user specified them:** `opacity: 0.62` at rest, easing to
-   `1` on hover, with a box-shadow appearing over the same 0.25s. The glow is
+   **States, as the user specified them:** `opacity: 0.65` at rest (0.62 first,
+   nudged up by eye once the halo was settled), easing to `1` on hover, with a
+   box-shadow appearing over the same 0.25s. The glow is
    **built out of light, not black** — the user flagged the dark-theme trap in
    the request itself, and D-044 is the entry that records it costing real time
    on the ranked card. Both layers take a **zero Y-offset** (a glow is emitted
@@ -2159,9 +2160,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    rectangular glow around a circular glyph reads as a stray box. Hover is gated
    on `@media (hover: hover)`, the capability query the card hovers settled, so a
    tap cannot park the icon lit.
-   **One dial deliberately left unset:** the user raised `filter: brightness(1.x)`
-   as a possible "more than fully opaque" step and explicitly deferred it to a
-   later tuning by eye. The CSS says where it goes if it is added.
+   **One dial considered and left unset:** the user raised
+   `filter: brightness(1.x)` as a possible "more than fully opaque" step, then
+   judged it unnecessary once the resting opacity and the halo had been tuned —
+   the two cheaper dials turned out to be enough. The CSS still says where it
+   goes and that it must join the transition list, so it is a documented hook
+   rather than a forgotten idea. **When the halo was widened, only the BLUR
+   moved** (18/38 → 22/46) and the alphas were deliberately held: raising both
+   makes a halo read as brighter rather than bigger, and then neither dial can
+   be judged on its own.
    **Still open under this step, by omission rather than decision:** the plural
    in "link(s)". The footer already carries a TMDB link and could carry a repo
    link too; the user asked only for the header one, so that is all that was

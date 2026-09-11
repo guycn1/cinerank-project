@@ -240,7 +240,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
                                          so it grows by half at EVERY width
                                          rather than only where the clamp
                                          happened to be resting. */
-  opacity: 0.62;               /* "slightly transparent at rest" */
+  opacity: 0.65;               /* "slightly transparent at rest", nudged up from
+                                  0.62 by eye once the halo was settled */
   transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 .gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
@@ -260,11 +261,17 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        colour as the thing glowing is just a blur (R15). The magnitudes echo
        .verdict__refresh:hover rather than inventing a third set. */
     box-shadow:
-      0 0 18px -4px rgba(245, 193, 91, 0.4),
-      0 0 38px -10px rgba(245, 193, 91, 0.22);
-    /* A `filter: brightness()` lift is deliberately NOT set yet — the user
-       flagged it as a later tuning by eye. If it is added, put it here beside
-       the opacity, and keep it in the transition list. */
+      0 0 22px -4px rgba(245, 193, 91, 0.4),
+      0 0 46px -10px rgba(245, 193, 91, 0.22);
+    /* Only the BLUR grew when this was widened (18/38 → 22/46). The alphas and
+       the negative spreads are untouched on purpose: raising alpha at the same
+       time makes a halo read as brighter rather than bigger, and then neither
+       dial can be judged on its own. Widen here, brighten in the alphas.
+       A `filter: brightness()` lift was considered for the hover — the user
+       raised it as a possible "more than fully opaque" step — and looks
+       unnecessary now that the resting opacity and the halo are tuned. If it is
+       ever wanted, it goes here beside the opacity and must join the transition
+       list above, or it will snap while everything else eases. */
   }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
