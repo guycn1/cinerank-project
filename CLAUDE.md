@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-SEVEN done, R20 withdrawn as incorrect and **two open: R5 and R18** — R5 the only remaining item that is not a design/UI tweak, R18 parked for step 5 by design; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054); the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
+**Last updated:** 2026-09-11 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file); the per-item statuses there are the source of truth, do not summarise them from memory; fifteenth merge to main was 19b2cc2; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — six steps, see "Agreed order of work from here")
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -103,7 +103,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 53 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 54 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -128,6 +128,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   never is; and **R28**'s five, one per reason a run can come back empty —
   including the one that matters, that an unreachable TMDB is reported as such
   rather than as "the model only named films already in your list".
+  **And R5's, added 2026-09-11**, also a loop over both features: when the AI
+  call fails AND the log write then fails, both causes must reach stderr —
+  because no row exists to hold either, so that is the only record left. It
+  captures `console.error` rather than letting it print, which keeps the suite
+  quiet and turns the sink into an assertion. Probed both ways: dropping the
+  composition loses the AI cause, dropping the `console.error` loses both.
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
@@ -1179,8 +1185,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
-   seeing R27 and D-050 run. R1–R4, R6–R17, R19 and R21–R30 are done, R20 was
-   WITHDRAWN as incorrect, and **R5 and R18 are the two still open** — every
+   seeing R27 and D-050 run. R1–R17, R19 and R21–R30 are done, R20 was WITHDRAWN as
+   incorrect, and **R18 is the only one still open** — every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1260,14 +1266,38 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      identical failure from a search row said `Couldn’t add “Dune” — …`. The rec
      card now carries the same three stamps a search row does, which is what R3
      needed anyway.
-   * **R5. A log-write failure destroys the real error.** In
-     `generateRecommendations()`, if the `recommendation_logs` insert fails the
-     function throws `Recommendation log write failed: …`, discarding the
-     `errorText` already captured from an AI failure. Related and DELIBERATE, but
-     written down so it is not "fixed" by accident: a SUCCESSFUL, already-paid-for
-     run is also discarded if its log write fails. That is the right call for a
-     course that grades the audit trail — the log is the point — but the user
-     should see something better than a bare 422.
+   * **R5. DONE 2026-09-11 — two failures used to leave zero records.** If the
+     `recommendation_logs` insert failed, the function threw
+     `Recommendation log write failed: …` and DISCARDED the `errorText` already
+     captured from an AI failure. The part that made it more than untidy: that
+     cause then survived **nowhere at all**. The row that would have carried it
+     is the write that just failed, and the route answers a `RecommendationError`
+     with a calm sentence (R8) rather than letting it reach the central handler's
+     `console.error` — so an OpenRouter outage that coincided with a DB blip was
+     unexplainable after the fact.
+     Fixed by COMPOSING the two causes rather than letting one replace the other,
+     and by writing the result to **stderr at the throw site** — the only sink
+     left once the log table is unreachable. Deliberately not surfaced to the
+     user: neither cause is actionable by them, and R8's calm sentence is already
+     the right answer.
+     **Applied to `tasteVerdict.js` in the same commit and must stay symmetric** —
+     R23/D-047 exist precisely because these two drifted into separate error
+     dialects once before.
+     **The second half of this item was NOT a defect and is unchanged:** a
+     SUCCESSFUL, already-paid-for run is still discarded if its log write fails.
+     That is the right call for a course that grades the audit trail — cards on
+     screen with no row behind them are the exact state the log exists to make
+     impossible — and the code now says so at the branch. Do not "rescue"
+     `verified` there.
+     **One stale complaint in this item, retired rather than acted on:** it asked
+     for the user to "see something better than a bare 422". That was written
+     during the 2026-09-09 audit, BEFORE R8 landed the same day; the user already
+     gets "Couldn’t generate recommendations right now. Try again in a moment."
+     Do not invent a third message shape for this path.
+     Covered by a test written as a loop over BOTH features, and probed twice:
+     disabling the composition fails the "original AI failure was destroyed"
+     assertion for each feature, and deleting the `console.error` fails the
+     "log-write cause was lost" assertion for each.
 
    **Group B — the strength of the "verified against TMDB" claim**
 
@@ -2204,7 +2234,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (53).
+  `review_requires_rating` guards all covered by `npm test` (54).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.

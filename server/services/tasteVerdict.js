@@ -123,7 +123,20 @@ export async function generateTasteVerdict() {
   // The row did NOT land, so there is nothing to advertise — `logged` stays
   // false. This is the one branch that could produce a false NEGATIVE if it were
   // reordered below the throw beneath it, so leave the order alone.
-  if (logError) throw new TasteVerdictError(`Taste verdict log write failed: ${logError.message}`);
+  if (logError) {
+    // Identical treatment to recommendations.js, and it must stay identical —
+    // R23/D-047 exist because these two drifted into separate error dialects
+    // once already. Composing the causes rather than replacing one with the
+    // other is R5: an AI failure here had its `errorText` destroyed by the
+    // insert's message, and with no row written that cause survived nowhere.
+    const cause = errorText
+      ? `${logError.message} (the AI call had already failed with: ${errorText})`
+      : logError.message;
+    // The only sink left once the log table is unreachable. Not shown to the
+    // user — the route's calm sentence stands (R8/R23).
+    console.error('[cinerank] taste verdict log write failed:', cause);
+    throw new TasteVerdictError(`Taste verdict log write failed: ${cause}`);
+  }
 
   // The row is committed and its status is 'failed', so this is the ONLY exit
   // that may advertise the AI call log — and, just as importantly, the only exit

@@ -215,8 +215,27 @@ export async function generateRecommendations() {
   };
   const { error: logError } = await supabase.from('recommendation_logs').insert(logRow);
   if (logError) {
-    // Logging is a hard requirement — surface the failure rather than hide it.
-    throw new RecommendationError(`Recommendation log write failed: ${logError.message}`);
+    // Logging is a hard requirement (SPEC § 5.2), so a run that cannot be
+    // audited is discarded rather than quietly shown -- INCLUDING a successful
+    // run that has already been paid for. That is deliberate and must stay:
+    // cards on screen with no row behind them are precisely the state the audit
+    // trail exists to make impossible. Do not "rescue" `verified` here.
+    //
+    // What WAS a bug (R5): when the AI call had ALREADY failed, this threw the
+    // insert's message and destroyed `errorText`. That cause then survived
+    // nowhere at all -- the row that would have carried it is the write that
+    // just failed, and the route answers a RecommendationError with a calm
+    // sentence instead of letting it reach the central handler. Two failures,
+    // zero records.
+    const cause = errorText
+      ? `${logError.message} (the AI call had already failed with: ${errorText})`
+      : logError.message;
+    // stderr is the ONLY sink left once the log table is unreachable, so the
+    // operator gets the one record that can still be written. Deliberately not
+    // shown to the user: the route's calm sentence is the right answer (R8) and
+    // neither cause is anything they can act on.
+    console.error('[cinerank] recommendation log write failed:', cause);
+    throw new RecommendationError(`Recommendation log write failed: ${cause}`);
   }
 
   // The log row is committed by this point, so this is the only failure the UI

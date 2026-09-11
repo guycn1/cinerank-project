@@ -630,22 +630,60 @@ for (const feature of [
   });
 }
 
+/**
+ * Capture console.error for the duration of one call. When the log table is
+ * unreachable, stderr is the only sink left, so "did it reach stderr" is a real
+ * assertion rather than test hygiene — it is the ONLY surviving record of the
+ * cause (R5). Capturing also keeps the suite's own output clean.
+ */
+async function captureStderr(fn) {
+  const lines = [];
+  const original = console.error;
+  console.error = (...args) => lines.push(args.map(String).join(' '));
+  try {
+    await fn();
+  } finally {
+    console.error = original;
+  }
+  return lines.join('\n');
+}
+
 // The third no-row case, and the one most likely to be broken by reordering: the
 // AI call failed AND the log write failed, so there is genuinely nothing to read.
-test('POST /api/taste-verdict when the log write itself fails advertises nothing', async () => {
-  db.results['movies:select'] = RATED_FOUR;
-  db.results['taste_verdict_logs:insert'] = { data: null, error: { message: 'insert refused' } };
-  const restore = stubFetch({ 'openrouter.ai': 'throw' });
-  try {
-    const res = await client.post('/api/taste-verdict');
-    assert.equal(res.status, 422);
-    const body = await res.json();
-    assert.equal(body.logged, undefined);
-    assert.doesNotMatch(body.error, /insert refused|log write/i);
-  } finally {
-    restore();
-  }
-});
+// Written as a loop over BOTH features for the same reason R23's invariant is:
+// these two drifted into separate error dialects once already (D-047).
+for (const feature of [
+  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs', library: () => RATED_FOUR },
+  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs', library: () => RECS_LIBRARY },
+]) {
+  test(`POST ${feature.path} when the log write itself fails advertises nothing`, async () => {
+    db.results['movies:select'] = feature.library();
+    db.results[`${feature.table}:insert`] = { data: null, error: { message: 'insert refused' } };
+    const restore = stubFetch({ 'openrouter.ai': 'throw' });
+    let res;
+    try {
+      const stderr = await captureStderr(async () => {
+        res = await client.post(feature.path);
+      });
+      assert.equal(res.status, 422);
+      const body = await res.json();
+      assert.equal(body.logged, undefined, `${feature.name}: no row exists, so nothing may be advertised`);
+      assert.doesNotMatch(body.error, /insert refused|log write/i);
+
+      // R5: the AI failure must NOT be destroyed by the log failure. With no row
+      // written, stderr is the only place either cause can still exist — so both
+      // have to be in it, or the run is genuinely unexplainable afterwards.
+      assert.match(stderr, /insert refused/, `${feature.name}: the log-write cause was lost`);
+      assert.match(
+        stderr,
+        /OpenRouter/,
+        `${feature.name}: the original AI failure was destroyed by the log-write failure`
+      );
+    } finally {
+      restore();
+    }
+  });
+}
 
 /* ---------- /api/ai-log shape ---------------------------------------- */
 
