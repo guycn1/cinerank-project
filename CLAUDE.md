@@ -2285,16 +2285,18 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    * **The ranked list's first-paint entrance is barely visible** (user-raised
      2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
      (D-031) and is not in scope. Same family as the two items above, and
-     measured rather than guessed, so this starts from evidence:
-     `.movie-card.is-entering` is `fade-slide 0.45s var(--ease) backwards`, a
+     measured rather than guessed, so this started from evidence. **The next
+     three paragraphs are the DIAGNOSIS — they describe the broken state, not the
+     current one; the shipped values are in the DONE block below.**
+     `.movie-card.is-entering` WAS `fade-slide 0.45s var(--ease) backwards`, a
      10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`.
-     **`--ease` is the main culprit, exactly as it was for the rec-card exit.**
-     It is `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 is
-     already gone by 45ms, and the card is within 1px of home after **168ms of a
-     450ms animation**. So a 10px move effectively happens in a sixth of a
-     second, and the remaining 280ms is the card sitting still.
-     **The stagger also collapses.** `min(i * 45, 400)` caps at card 9, so on a
-     list of twenty the last dozen all start within the same frame — there is no
+     **`--ease` was the main culprit, exactly as it was for the rec-card exit.**
+     It is `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
+     already gone by 45ms, and the card was within 1px of home after **168ms of a
+     450ms animation**. So a 10px move effectively happened in a sixth of a
+     second, and the remaining 280ms was the card sitting still.
+     **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on a
+     list of twenty the last dozen all started within the same frame — no
      cascade to see at exactly the length where one would read best.
      **R27 is the worked precedent for this on the rec cards**, and its numbers
      are a starting point rather than a template: `rec-enter` at 0.75s over 18px,
@@ -2309,28 +2311,29 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **DONE 2026-09-11, and the curve was indeed most of it.** All four dials
      moved together, because individually none of them would have shown: curve
      `var(--ease)` → `cubic-bezier(0.25, 0.46, 0.45, 0.94)`, travel 10 → 14px,
-     duration 0.45 → 0.6s, stagger 45 → **135**ms with the cap 400 → **1200**ms.
-     **The stagger took three passes — 45 → 70 → 180 → 135** — and the lesson is
-     that **a stagger is a RATIO, not a number**: what decides whether it reads
-     as a cascade is how many cards are mid-animation at the same instant, which
-     is `duration / stagger`. At 45ms that was 13.3 cards and at 70ms still 8.6,
-     both of which overlap into a single blob — the user's report after the 70ms
-     pass was that they still arrived "almost all at once", and they were right.
-     No amount of "raising" helps until the stagger is a real fraction of the
-     duration. 180ms gave 3.3 and overshot ("almost too slow"); **135ms gives
-     4.4 and is where it settled.** Worth keeping: the useful range turned out to
-     be narrow AND nowhere near where it started — the first two attempts were
-     both outside it in the same direction.
+     duration 0.45 → 0.6s, stagger 45 → **125**ms with the cap 400 → **1200**ms.
+     **The stagger took four passes — 45 → 70 → 180 → 135 → 125** — and the
+     lesson is that **a stagger is a RATIO, not a number**: what decides whether
+     it reads as a cascade is how many cards are mid-animation at the same
+     instant, which is `duration / stagger`. At 45ms that was 13.3 cards and at
+     70ms still 8.6, both of which overlap into a single blob — the user's report
+     after the 70ms pass was that they still arrived "almost all at once", and
+     they were right. No amount of "raising" helps until the stagger is a real
+     fraction of the duration. 180ms gave 3.3 and overshot ("almost too slow"),
+     135ms gave 4.4, and **125ms gives 4.8 and is where it settled.**
+     Worth keeping: the useful band turned out to be narrow AND nowhere near
+     where it started — the first two attempts were both outside it in the same
+     direction, so do not retune this in small steps from 125.
      **So this number and the duration must be tuned together.** Raising the
      duration without raising this walks straight back into the blur.
      **Measured before and after rather than judged by eye:** the card used to be
      within 1px of home after 169ms of 450ms — **38% of the animation, 62% of it
      sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
      ratio, not the travel distance, is what "barely visible" actually meant.
-     The cap stays and had to, since the list is unbounded: it bites at card 9
+     The cap stays and had to, since the list is unbounded: it bites at card 10
      now, so twenty films still settle in 1.8s rather than growing without limit.
      A clump at the tail is the accepted cost, and it is invisible at the list
-     lengths this app actually holds — seven films settle in 1.41s with every
+     lengths this app actually holds — seven films settle in 1.35s with every
      card distinct.
      **It got its OWN keyframe, `card-enter`.** `fade-slide` has a second
      consumer — `.search-results`, where 10px and a snappy curve are correct —

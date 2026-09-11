@@ -434,19 +434,19 @@ function renderRanked() {
       // stagger reads as a cascade is how many cards are mid-animation at the
       // same instant, which is duration / stagger. At 70ms against a 600ms card
       // that was 8.6 cards in flight -- they overlap into one blob and the
-      // stagger has nothing left to separate. 180ms took it to 3.3, which the
-      // user called almost too slow, and 135ms sits at 4.4: each arrival still
-      // its own event, the list still brisk. Walked 45 -> 70 -> 180 -> 135 by
-      // eye, which is worth knowing -- the useful range is narrow and the
-      // bottom of it is nowhere near where it started.
+      // stagger has nothing left to separate. 180ms took it to 3.3 and overshot
+      // ("almost too slow"); 125ms sits at 4.8, each arrival still its own event
+      // with the list still brisk. Walked 45 -> 70 -> 180 -> 135 -> 125 by eye,
+      // which is worth knowing -- the useful band is narrow and nowhere near
+      // where the value started, so do not retune it in small steps from here.
       // So tune this AGAINST the duration on .movie-card.is-entering, never on
       // its own: raising that duration without raising this walks straight back
       // into the same blur.
-      // The cap STAYS, and must: this list is unbounded. It bites at card 9 now
-      // (9 * 135 > 1200), so a long list still assembles in 1.8s rather than
+      // The cap STAYS, and must: this list is unbounded. It bites at card 10 now
+      // (10 * 125 > 1200), so a long list still assembles in 1.8s rather than
       // growing without limit -- a clump at the tail is the accepted cost of
       // that, and it is invisible on the list lengths this app actually holds.
-      li.style.animationDelay = `${Math.min(i * 135, 1200)}ms`;
+      li.style.animationDelay = `${Math.min(i * 125, 1200)}ms`;
     }
     // Pairs this card's before/after snapshots so the browser morphs it from
     // its old position to its new one. The name must be a valid CSS ident and
