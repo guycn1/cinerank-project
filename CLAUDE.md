@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, two done and five open — **the verdict glint's polish had two passes on 2026-09-12 (subtler/softer/warmer, then fainter again and 9s → 12s) and is awaiting the user's eye, so it is mid-tuning rather than done**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, two done and five open — **the verdict glint's polish had THREE passes on 2026-09-12 (subtler/softer/warmer; then fainter again and 9s → 12s; then more transparent, blurrier and the ring back to 2px) and is awaiting the user's eye, so it is mid-tuning rather than done — the band is now deliberately near the visibility floor, do not brighten it back without asking**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2247,12 +2247,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **TWO FULLY
    DONE — the logo spin and the ranked list's first-paint entrance, both
    2026-09-11. FIVE OPEN:**
-   1. the verdict border's glint — **mechanism settled; the polish took two
+   1. the verdict border's glint — **mechanism settled; the polish took THREE
       passes on 2026-09-12 and now awaits the user's eye**. Their three tuning
-      notes (subtler, smoother edges, less contrast) were all acted on, then
-      "even fainter" plus 9s → 12s in a second pass. Read the item before
-      turning anything: blur and stroke alpha are ONE dial, and amber is the
-      visibility floor;
+      notes (subtler, smoother edges, less contrast) were acted on, then
+      "even fainter" + 9s → 12s, then "more transparent, blurrier, ring back to
+      2px". Read the item before turning anything: blur, stroke alpha and stroke
+      WIDTH are one dial; the ring width is FIVE coupled values; and the band is
+      now deliberately at the visibility floor;
    2. the verdict typing effect (the only item here that is a new build);
    3. the film grain;
    4. "New verdict" shown disabled rather than hidden when locked;
@@ -2294,41 +2295,59 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      The user's three tuning notes, given 2026-09-11 once the travelling glint
      was finally working: the band should be (1) MORE SUBTLE, (2) have SMOOTHER
      EDGES, and (3) have LESS PRONOUNCED CONTRAST against the ring's other
-     colours. **All three were acted on 2026-09-12, then the user asked for
-     "even fainter" plus 9s → 12s, which was the second pass. Their verdict on
-     the first: "absolutely an improvement — but not quite there yet."** So this
-     item is NOT done; it is mid-tuning, and the next word on it is the user's.
+     colours. **All three were acted on 2026-09-12 and the user has asked for
+     fainter TWICE more since, so there have been THREE passes in all.** Their
+     verdict after the first: *"absolutely an improvement — but not quite there
+     yet."* So this item is NOT done; it is mid-tuning, and the next word on it
+     is the user's.
      Do NOT re-open the mechanism: the dash, `pathLength`, the SVG sizing and
      the 360° travel are settled and were expensive to get right — the user's
      own line was *"the hard part, travelling a perimeter smoothly and
-     correctly, is hopefully behind us."* This stays a values pass on
-     `.verdict__sheen rect`.
-     **Where the two passes landed** (full reasoning and the couplings are in
+     correctly, is hopefully behind us."* This stays a values pass.
+     **Where the three passes landed** (full reasoning and the couplings are in
      the CSS at that rule, which is the source of truth for the numbers):
-     stroke went near-white `0.98` → warm off-white `0.85` → `0.75`; a
-     `blur()` was added and widened, 1.0px → 1.2px; the drop-shadow softened
-     0.85 → 0.50 → 0.32 and widened 5px → 6px; the travel slowed 9s → 12s.
-     Contrast over crimson / amber-deep / amber went 3.54 / 2.34 / 1.62 →
-     2.06 / 1.61 / 1.27.
-     **Three things a further pass must know.** (a) **Blur and stroke alpha are
-     ONE dial** — blurring spreads fixed ink over more area, so it lowers peak
-     brightness by itself (1.0px keeps 87%, 1.2px 79%, 1.5px 68%); turning both
-     down hard is how this disappears. (b) **The halo and the core do different
-     jobs**: the drop-shadow is what reads as showy, the stroke core is what
-     stays trackable, which is why the second pass cut the halo 36% and the core
-     only 12%. (c) **Speed is part of the brightness budget** — salience scales
-     with speed, so 9s → 12s did some of "fainter" on its own.
-     **AMBER IS THE FLOOR.** At 1.27 contrast the band is near the point where it
-     stops reading over the ring's bright stretch at all, so a THIRD "fainter"
-     request should come out of the halo and the speed, NOT the stroke alpha.
-     "Less pronounced contrast" and "visible the whole way round" are the same
-     number read from opposite ends — expect to trade, and say so rather than
-     quietly picking one.
-     **`stroke-width` is not a dial**, though an earlier version of this item
-     listed it as one: 3px is exactly `.verdict`'s padding ring, so changing it
-     makes the glint overhang `.verdict__inner` or stop reaching the banner's
-     edge. The real dials are the stroke alpha, the `blur()`, the drop-shadow
-     alpha, the `7 93` dasharray and the duration.
+       1. near-white `0.98` → warm off-white `0.85`; `blur(1px)` added;
+          drop-shadow 5px/0.85 → 6px/0.50.
+       2. "even fainter" + slower: alpha `0.85` → `0.75`, blur → 1.2px,
+          drop-shadow → 0.32, travel 9s → 12s.
+       3. "more transparent, blurrier edges, ring back to 2px": alpha `0.75` →
+          `0.66`, blur → 1.4px, drop-shadow → 7px/0.28, and the RING 3px → 2px
+          across all five coupled values.
+     Contrast over crimson / amber-deep / amber: 3.54 / 2.34 / 1.62 →
+     2.46 / 1.80 / 1.35 → 2.06 / 1.61 / 1.27 → **1.52 / 1.33 / 1.15**.
+     **Four things a further pass must know.** (a) **Blur, stroke alpha and
+     stroke WIDTH are one dial** — blurring spreads fixed ink over more area, so
+     it lowers peak brightness by itself, and it eats a narrow band harder. Peak
+     retention: at 1.2px blur a 3px stroke keeps 79% but a 2px stroke only 60%;
+     at 1.4px, 72% against 52%. Narrowing the ring to 2px was therefore worth
+     about a 0.10 alpha cut before the alpha was touched. (b) **The halo and the
+     core do different jobs**: the drop-shadow is what reads as showy, the stroke
+     core is what stays trackable, which is why pass 2 cut the halo 36% and the
+     core 12%. (c) **Speed is part of the brightness budget** — salience scales
+     with speed, so 9s → 12s did some of "fainter" on its own. (d) The band is
+     **7% of the perimeter** via `pathLength="100"`, so the dasharray is a length
+     dial that costs no brightness — the one lever with room left.
+     **THE FLOOR HAS BEEN REACHED DELIBERATELY.** After pass 2 this item said a
+     third "fainter" request should come out of the halo and the speed rather
+     than the stroke alpha, because amber was already near the point where the
+     band stops reading over the ring's bright stretch. The user then asked for
+     exactly that — more transparent, blurrier, 2px ring — which was theirs to
+     call, and amber now sits at **1.15**. **The effect is INTENDED to be almost
+     subliminal. Someone finding it "broken" later is probably finding it working
+     as specified — verify with the user before adding brightness back.** If a
+     fourth reduction is asked for, the honest answer is that the stroke alpha is
+     spent: take it out of the halo, the speed or the dasharray, and say so.
+     **`stroke-width` is not an independent dial**, though an earlier version of
+     this item listed it as one. It IS the ring width W, and W is **five coupled
+     values, not one** — `.verdict`'s padding, `.verdict__inner`'s
+     `border-radius` (= --radius - W), `.verdict__sheen`'s top/left (= W/2) and
+     width/height (= 100% - W), and the rect's `rx` (= --radius - W/2) and
+     `stroke-width`. Change one alone and the glint overhangs the inner panel or
+     stops reaching the banner's edge; change all five and the ring just gets
+     thinner, which is what the third pass did (3px → 2px). They are listed
+     together in the CSS at `.verdict`'s padding.
+     The free dials are the stroke alpha, the `blur()`, the drop-shadow alpha,
+     the `7 93` dasharray and the duration.
      **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
      names has since been REPLACED — none of the following describes the code
      today. It is kept only because its instruction to measure first is what
@@ -2343,7 +2362,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      notice, so the work was making it VISIBLE — a shorter cycle, a wider colour
      spread, or more gradient travel — not writing an animation.*
      **What the code is NOW:** a static warm `linear-gradient` ring at
-     `padding: 3px`, with all the movement in `.verdict__sheen` — an SVG
+     `padding: 2px` (3px between the mechanism landing and the third polish
+     pass), with all the movement in `.verdict__sheen` — an SVG
      `<rect>` stroke-dashed with `pathLength="100"`, travelling the perimeter
      once per **12s** (9s until the polish pass of 2026-09-12). No
      `background-position` animation, no `--ease`, **no conic gradient** and no
@@ -2413,23 +2433,30 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      what the user reported seeing: a band that crawled and stayed narrow
      mid-edge, then ballooned and rocketed through each corner. A conic cannot
      hold width OR speed on a wide rectangle, and no tuning changes that.
-     **The ring went 2px → 3px** on the user's call. It is the entire visible
-     area of the effect and so its biggest single multiplier, and it is coupled
-     to `.verdict__inner`'s `border-radius: calc(var(--radius) - 3px)` — **both
-     must move together** or the inner corners stop nesting.
+     **The ring went 2px → 3px** on the user's call, while the effect was still
+     being made visible at all. It is the entire visible area of the effect and
+     so its biggest single multiplier, and it is coupled to `.verdict__inner`'s
+     `border-radius` — **both must move together** or the inner corners stop
+     nesting. **It went back to 2px on 2026-09-12**, once three polish passes had
+     pushed the glint the other way and a 3px ring read as too heavy for a band
+     that quiet. The coupling turned out to be FIVE values rather than the two
+     named here; they are enumerated in the CSS at `.verdict`'s padding, and the
+     fifth (`.verdict__inner`'s radius) was missed on the first attempt at the
+     change and caught by checking the arithmetic rather than by looking at it.
      **One measured limit stands and is deliberately NOT fixed:** the glint is
      brightest over the ring's dark end and faintest over its bright end, so it
      fades slightly crossing `--amber`. Over crimson / amber-deep / amber it read
-     **3.40 / 2.27 / 1.58** when the mechanism landed and **2.06 / 1.61 / 1.27**
-     after the two polish passes of 2026-09-12. The cure for the floor is a
+     **3.40 / 2.27 / 1.58** when the mechanism landed and **1.52 / 1.33 / 1.15**
+     after the three polish passes of 2026-09-12. The cure for the floor is a
      darker base stop, which would change the banner's colour identity — a
      design decision left to the user.
      **Dials, as they actually are now** (the old line here listed a 16° core and
      a ±26° falloff, which were CONIC parameters and died with that pass):
      the stroke alpha, the `blur()`, the drop-shadow alpha, the `7 93` dasharray
      and the 12s. **`stroke-width` is NOT among them** despite older notes
-     calling it a dial — 3px is exactly `.verdict`'s padding ring, so moving it
-     makes the glint overhang `.verdict__inner` or stop reaching the banner edge.
+     calling it a dial — it is the ring width W, one of five coupled values (see
+     the START-HERE block at the top of this item), so moving it alone makes the
+     glint overhang `.verdict__inner` or stop reaching the banner edge.
      Two couplings to know before turning any of them: **blur and stroke alpha
      are one dial**, because blurring a fixed amount of ink over more area lowers
      peak brightness by itself (1.0px keeps 87% of peak, 1.2px 79%, 1.5px 68%);

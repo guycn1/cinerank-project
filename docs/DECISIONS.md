@@ -6,6 +6,77 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-055 · The verdict glint was taken past the visibility floor, against Claude's written advice
+
+Three polish passes on 2026-09-12, all on `.verdict__sheen rect`. The mechanism
+(an SVG stroke dash on `pathLength="100"`) was settled the day before and was
+not reopened. This entry is not about the values — those are recoverable from the
+CSS — it is about a disagreement and a measurement that changed the approach.
+
+**Claude's recommendation, written into the CSS after pass 2:** a further
+"fainter" request should come out of the halo and the speed, NOT the stroke
+alpha, because the glint's contrast over `--amber` had reached 1.27 and the
+band was close to not reading at all over the ring's bright stretch. Contrast is
+measured against the BASE RING, not the page, and the ring is a warm gradient,
+so the same band is 2.06 over `--crimson` and 1.27 over `--amber` at once:
+"less pronounced contrast" and "visible the whole way round" are the same number
+read from opposite ends.
+
+**The user's instruction, given next:** more transparent, blurrier edges, and
+the ring back to 2px — i.e. precisely the stroke alpha Claude had just argued
+against, plus two other reductions on top. **It was theirs to call and it was
+applied in full.** Amber now sits at **1.15**. Recorded here because the
+alternative is a future session finding an almost-invisible effect, assuming it
+is broken, and quietly restoring brightness the user deliberately removed. The
+CSS and `CLAUDE.md` both now say: the effect is INTENDED to be almost
+subliminal; verify with the user before brightening it.
+
+**What was NOT obvious, and is the reusable part: blur, stroke alpha and stroke
+WIDTH are one dial, not three.** A blur spreads a fixed amount of ink over more
+area, so it lowers the band's peak brightness by itself — and it eats a NARROW
+band proportionally harder. Measured peak retention:
+
+| blur | 3px stroke | 2px stroke |
+|---|---|---|
+| 1.0px | 87% | 68% |
+| 1.2px | 79% | 60% |
+| 1.4px | 72% | 52% |
+
+So "bring the ring down to 2px" was a **faintness** change worth roughly a 0.10
+cut in alpha before the alpha was touched. Had all three been turned down
+naively — the obvious reading of the request — the band would have gone to
+nothing. The numbers above are why the alpha only moved 0.75 → 0.66.
+
+**A second split that carried pass 2:** the drop-shadow and the stroke core do
+different jobs. The halo is what reads as SHOWY; the core is what stays
+TRACKABLE as the band travels. So the halo took a 36% cut and the core 12%,
+rather than fading both evenly. Cutting the core to match would have bought the
+same drop in presence and cost the effect.
+
+**Claude was wrong twice in this pass and the user caught the first.** (1) The
+ring width was documented as a single dial. The user pushed back — "I believe
+other numeric values rely on the ring's width being exactly 3px" — and they were
+right: it is **FIVE** coupled values (`.verdict`'s padding; `.verdict__inner`'s
+`border-radius` = --radius - W; `.verdict__sheen`'s top/left = W/2 and
+width/height = 100% - W; the rect's `rx` = --radius - W/2 and its
+`stroke-width`). (2) Claude then changed four of the five and **missed
+`.verdict__inner`'s radius**, which would have left the inner panel's corners
+not nesting inside the ring. It was caught by printing the arithmetic and
+checking it, not by looking at the result — a 1px radius mismatch on a 14px
+corner is invisible in a screenshot and permanent in the code. The five are now
+enumerated in one place in the CSS.
+
+**Trap:** `stroke-width` is listed as a "dial" in older notes. It is not an
+independent one — it IS the ring width. Change it alone and the glint overhangs
+`.verdict__inner` or stops reaching the banner's edge.
+
+**The one lever with room left** is the `7 93` dasharray: it sets the band's
+LENGTH as a percentage of the perimeter and costs no brightness at all. If a
+fourth reduction is ever asked for, the stroke alpha is spent — take it from
+there, from the halo, or from the speed, and say so rather than quietly picking
+one.
+
+---
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
 
 Backlog item R6 said `verifyTitle()` was overselling itself: it looks for a

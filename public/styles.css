@@ -369,11 +369,23 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   position: relative;          /* containing block for .verdict__sheen */
   margin-top: 1.5rem;
   border-radius: var(--radius);
-  /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
-     else — so it is the biggest single multiplier on the effect. 2px → 3px on
-     the user's call. Coupled to .verdict__inner's border-radius below: both must
-     move together or the inner corners stop nesting cleanly. */
-  padding: 3px;
+  /* THE RING WIDTH, AND IT IS FIVE NUMBERS, NOT ONE. Everything below is
+     derived from it — change one and change all five, or the glint stops
+     lining up with the ring it is supposed to travel:
+       1. this padding                        = W
+       2. .verdict__inner's border-radius     = var(--radius) - W
+       3. .verdict__sheen's top/left          = W/2   (the path is centred in
+          the ring, so it sits half a stroke in from the banner edge)
+       4. .verdict__sheen's width/height      = calc(100% - W)
+       5. .verdict__sheen rect's rx           = var(--radius) - W/2
+          and its stroke-width                = W
+     History: 2px originally, raised to 3px when the glint was being made
+     visible at all, and back to 2px on 2026-09-12 once the polish passes had
+     gone the other way and a 3px ring read as too heavy for a band this quiet.
+     It is also the biggest single multiplier on the effect, and narrowing it is
+     a FAINTNESS change as much as a geometric one — see the note at the
+     rect's filter, where the blur arithmetic depends on this number. */
+  padding: 2px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   /* Step 4b took FIVE passes. Keeping the dead ends because every one of them
@@ -418,25 +430,39 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
                             enough that the conclusion never moved)
        2.46 / 1.80 / 1.35   after the first polish pass, 2026-09-12
        2.06 / 1.61 / 1.27   after the second, same day, on "even fainter"
+       1.52 / 1.33 / 1.15   after the third, same day: 3px -> 2px ring, alpha
+                            0.75 -> 0.66, blur 1.2 -> 1.4px
      THIS IS THE TRADE THE POLISH PASSES BOUGHT, and it is worth stating plainly
      because the two asks fight: "less pronounced contrast" and "visible the
      whole way round" are the same number read from opposite ends. Crimson has
-     come down 42% and amber only 22% — the shouty end lost roughly twice what
-     the weak end did, rather than the whole thing fading uniformly.
-     AMBER IS NOW THE FLOOR TO WATCH. At 1.27 the band is close to the point
-     where it stops reading over the ring's bright stretch at all, so a THIRD
-     "fainter" pass should come out of the halo and the speed rather than the
-     stroke alpha. The cure for the floor itself is a darker base stop, which
-     changes the banner's colour identity — the user's decision, not Claude's. */
+     come down 57% and amber 29% — the shouty end lost roughly twice what the
+     weak end did, rather than the whole thing fading uniformly.
+     THE FLOOR HAS NOW BEEN REACHED DELIBERATELY, NOT DRIFTED INTO. After the
+     second pass this note said a third "fainter" request should come out of the
+     halo and the speed rather than the stroke alpha, because amber was already
+     near the point where the band stops reading over the ring's bright stretch.
+     The user then asked for exactly that — more transparent, blurrier, and the
+     ring back to 2px — and it was their call to make, so all three were applied
+     and amber sits at 1.15. RECORD THIS RATHER THAN QUIETLY RE-RAISING IT: the
+     effect is now intended to be almost subliminal, and someone finding it
+     "broken" later is probably finding it working as specified. Verify against
+     the user before adding brightness back.
+     If a FOURTH reduction is ever asked for, the honest answer is that the
+     stroke has no room left — take it out of the halo, the speed, or the
+     `7 93` dasharray, and say that the alpha is spent. The cure for the floor
+     itself is a darker base stop, which changes the banner's colour identity —
+     the user's decision, not Claude's. */
   box-shadow: var(--shadow);
 }
 /* The travelling glint. A STROKE DASH, which is the only one of the four
    mechanisms tried that gives a constant width AND a constant speed: a dash
    moves along the path itself, so neither can vary with where it happens to be.
-   Held 1.5px inside the banner (by explicit top/left/width/height — NOT by
-   `inset`, see the rule below) with a 3px stroke centred on that path, so the
-   stroke occupies exactly 0–3px from the banner's edge: precisely .verdict's
-   padding ring, flush against .verdict__inner, which starts at 3px.
+   Held W/2 inside the banner (by explicit top/left/width/height — NOT by
+   `inset`, see the rule below) with a W-wide stroke centred on that path, so the
+   stroke occupies exactly 0..W from the banner's edge: precisely .verdict's
+   padding ring, flush against .verdict__inner, which starts at W. W is the ring
+   width, currently 2px — the five values derived from it are listed at
+   .verdict's padding, and they all move together.
    `pathLength="100"` on the rect (set in the markup) renormalises the perimeter
    to 100 units, which is what makes `stroke-dasharray: 7 93` mean "7% of the
    ring, whatever the banner's width" — no JS measuring, and it survives a
@@ -447,38 +473,41 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .verdict__sheen {
   position: absolute;
   display: block;
-  /* SIZED EXPLICITLY, and `inset: 1.5px` is NOT enough — that was a real bug.
+  /* SIZED EXPLICITLY, and an `inset: W/2` shorthand is NOT enough — that was a
+     real bug, hit with `inset: 1.5px` back when the ring was 3px.
      An <svg> is a REPLACED element, so `inset` only positions it; it does not
      stretch it the way it would a <div>. With `width: auto` the SVG keeps its
      intrinsic 300x150, so the viewport stayed 300x150 however wide the banner
      was, the rect filled THAT, and `overflow: visible` then let the stroke spill
      out of the banner and run down the page past the search box.
      top/left rather than `inset`, so width/height are never over-constrained. */
-  top: 1.5px;
-  left: 1.5px;
-  width: calc(100% - 3px);
-  height: calc(100% - 3px);
-  /* Required: the viewport is the inset box, so the outer half of a 3px stroke
-     centred on the path would otherwise be clipped away. */
+  top: 1px;
+  left: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  /* Required: the viewport is the inset box, so the outer half of the stroke
+     (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
 }
 .verdict__sheen rect {
   width: 100%;
   height: 100%;
-  rx: calc(var(--radius) - 1.5px);   /* tracks .verdict's radius and inset */
+  rx: calc(var(--radius) - 1px);     /* = --radius - W/2; tracks .verdict's ring */
   fill: none;
   /* WARM off-white, not the near-white `rgba(255, 253, 248, 0.98)` this was.
      The polish pass asked for three things — subtler, smoother edges, less
      contrast against the ring — and the colour is what serves the third: a pure
      white band over an amber/crimson ring reads as a DIFFERENT material laid on
      top, while a warm one reads as the ring catching light. */
-  stroke: rgba(255, 242, 224, 0.75);
-  /* NOT a free dial, despite being filed as one. The stroke is centred on a path
-     held 1.5px inside the banner, so 3px is exactly .verdict's 3px padding ring,
-     flush to .verdict__inner. Change it and the glint either overhangs the inner
-     panel or stops reaching the banner's edge. Tune alpha and blur instead. */
-  stroke-width: 3px;
+  stroke: rgba(255, 242, 224, 0.66);
+  /* NOT independently tunable. This is W, the ring width, and it is one of the
+     five values listed at .verdict's padding — the stroke is centred on a path
+     held W/2 inside the banner, so it spans exactly 0..W and lands flush against
+     .verdict__inner. Change it ALONE and the glint either overhangs the inner
+     panel or stops reaching the banner's edge; change it WITH the other four and
+     the ring simply gets thinner, which is what happened on 2026-09-12. */
+  stroke-width: 2px;
   stroke-linecap: round;
   stroke-dasharray: 7 93;
   /* `blur()` FIRST, then the shadow — filters apply left to right, so the glow is
@@ -486,13 +515,22 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      rather than a hard line wearing a halo. This is the "smoother edges" half:
      `stroke-linecap: round` only makes the dash ends semicircular, it does not
      FADE them, and a blur is the only thing in a values pass that does.
-     THE BLUR AND THE ALPHA ARE ONE DIAL, NOT TWO. Blurring spreads a fixed
-     amount of ink over more area, so it lowers the band's peak brightness by
-     itself: measured on this 3px stroke, 1.0px of blur retains 87% of peak,
-     1.2px retains 79% and 1.5px only 68%. Raising the blur therefore makes the
-     glint subtler whether or not the alpha moves. Drop both hard at once and it
-     disappears over the bright end of the ring — which is the floor this has
-     been walked down toward over two passes, not a hypothetical.
+     THE BLUR, THE ALPHA AND THE STROKE WIDTH ARE ONE DIAL, NOT THREE. Blurring
+     spreads a fixed amount of ink over more area, so it lowers the band's peak
+     brightness by itself — and how much it costs depends on how wide the stroke
+     is, because a blur eats a NARROW band proportionally harder. Measured peak
+     retention:
+                    3px stroke   2px stroke
+       blur 1.0px       87%          68%
+       blur 1.2px       79%          60%
+       blur 1.4px       72%          52%
+       blur 1.8px       60%          42%
+     So narrowing the ring 3px -> 2px on 2026-09-12 was a FAINTNESS change worth
+     roughly a 0.10 cut in alpha, before the alpha was touched at all. Raising
+     the blur is likewise a faintness change whether or not the alpha moves.
+     Turn all three down at once and the band disappears over the bright end of
+     the ring — which is the floor this has now been walked right up to over
+     three passes, not a hypothetical.
      THE HALO AND THE CORE ARE ALSO DIFFERENT JOBS, and that is what the second
      pass traded on. The drop-shadow is what reads as SHOWY; the stroke core is
      what stays trackable as it travels. So when the user asked for fainter
@@ -501,7 +539,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      the thing the eye follows. Cutting the core to match would have bought the
      same drop in presence and cost the effect.
      Light, zero-offset, warm — D-044's rule, same as every other glow here. */
-  filter: blur(1.2px) drop-shadow(0 0 6px rgba(255, 226, 170, 0.32));
+  filter: blur(1.4px) drop-shadow(0 0 7px rgba(255, 226, 170, 0.28));
   /* 12s, up from 9s on the user's call (2026-09-12). SLOWER IS ALSO FAINTER in
      the only sense that matters here: motion salience scales with speed, so the
      -25% in angular velocity did part of the "make it fainter" work by itself,
@@ -514,8 +552,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);
-  /* Tracks .verdict's padding — see the note there. */
-  border-radius: calc(var(--radius) - 3px);
+  /* = var(--radius) - W, where W is .verdict's ring width. One of the five
+     coupled values listed at .verdict's padding — see the note there. */
+  border-radius: calc(var(--radius) - 2px);
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;
