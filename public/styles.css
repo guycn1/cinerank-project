@@ -189,12 +189,30 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .site-head .mark { grid-column: 1; grid-row: 1; }
 .site-head .tagline { grid-column: 1; grid-row: 2; }
 
-/* The link out to the public repo (step 3). One dial for the size: the <a>
-   carries a font-size and the SVG is 1em, so the icon and its padded hit area
-   scale together. Sized to sit as a peer of the 34px logo mark — this is a real
-   navigational affordance, not a footnote. */
+/* The link out to the public repo (step 3). There are TWO of these — one in the
+   header, one at the right edge of the footer's credit line — so THIS rule is
+   the shared look and nothing else. Placement and size live with each instance
+   below, because size is the only thing that differs between them.
+   One dial for the size at each site: the <a> carries a font-size and the SVG is
+   1em, so the icon and its padded hit area scale together. */
 .gh-link {
   --gh-pad: 0.45rem;
+  display: inline-flex;        /* shrink-wraps the SVG and kills the inline
+                                  baseline gap that would offset the circle */
+  padding: var(--gh-pad);
+  border-radius: 50%;          /* the mark is round, so the hover glow should be
+                                  too — a rectangular halo round a circular
+                                  glyph reads as a box someone forgot to hide */
+  color: var(--ink);
+  opacity: 0.68;               /* "slightly transparent at rest". Walked up by
+                                  eye, 0.62 → 0.65 → 0.68, once the halo settled */
+  transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
+
+/* HEADER instance — placement and size. Sized as a peer of the 34px logo mark:
+   a real navigational affordance, not a footnote. */
+.site-head .gh-link {
   grid-column: 2;
   /* Still spans both rows, but top-aligned rather than centred (user-raised:
      centring left it sitting well below the h1). Keeping `span 2` while
@@ -227,24 +245,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   align-self: start;
   margin-top: calc(var(--title-size) * var(--gh-drop) - var(--gh-pad));
   justify-self: end;
-  display: inline-flex;        /* shrink-wraps the SVG and kills the inline
-                                  baseline gap that would offset the circle */
-  padding: var(--gh-pad);
-  border-radius: 50%;          /* the mark is round, so the hover glow should be
-                                  too — a rectangular halo round a circular
-                                  glyph reads as a box someone forgot to hide */
-  color: var(--ink);
-  font-size: clamp(48px, 6vw, 63px);  /* the one size dial; the SVG is 1em.
+  font-size: clamp(48px, 6vw, 63px);  /* the size dial here; the SVG is 1em.
                                          Every term is the original 32/4vw/42
                                          scaled by the 1.5x the user asked for,
                                          so it grows by half at EVERY width
                                          rather than only where the clamp
                                          happened to be resting. */
-  opacity: 0.68;               /* "slightly transparent at rest". Walked up by
-                                  eye, 0.62 → 0.65 → 0.68, once the halo settled */
-  transition: opacity 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
-.gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
+
+/* FOOTER instance — the same mark, small, parked at the right edge of the credit
+   line. Size is the ONLY declaration it needs: everything else arrives from
+   .gh-link, and the hover halo is in `em` so it scales itself. `rem` and not
+   `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
+   the icon depend on a value chosen for body copy. */
+.site-foot__credit .gh-link { font-size: 1.5rem; }
 
 /* Gated on the CAPABILITY, never a width (the rule the card hovers settled), so
    a tap on a phone cannot park the icon in its lit state. */
@@ -259,10 +273,17 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
        any offset here would only make it lopsided.
        Amber and not white: the glyph is already --ink, and a glow the same
        colour as the thing glowing is just a blur (R15). The magnitudes echo
-       .verdict__refresh:hover rather than inventing a third set. */
+       .verdict__refresh:hover rather than inventing a third set.
+
+       In `em`, NOT px, so one rule serves both instances: the footer mark is
+       ~2.6x smaller, and a fixed 46px halo tuned for the header would have
+       swallowed it whole. These are the user's own hand-tuned 22px and 46px
+       divided by the header's 63px font-size, so the header is unchanged to
+       within a quarter of a pixel — the conversion is arithmetic, not a
+       retune. */
     box-shadow:
-      0 0 22px -4px rgba(245, 193, 91, 0.4),
-      0 0 46px -10px rgba(245, 193, 91, 0.22);
+      0 0 0.35em -0.06em rgba(245, 193, 91, 0.4),
+      0 0 0.73em -0.16em rgba(245, 193, 91, 0.22);
     /* Only the BLUR grew when this was widened (18/38 → 22/46). The alphas and
        the negative spreads are untouched on purpose: raising alpha at the same
        time makes a halo read as brighter rather than bigger, and then neither
@@ -1993,7 +2014,19 @@ button:disabled .sparkle-major { animation: none; }
 }
 .log-cta__icon { width: 1.15em; height: 1.15em; }
 
-.site-foot__credit { color: var(--ink-faint); }
+/* The credit sits left, the repo mark at the right edge of the same line.
+   `space-between` rather than an auto margin, because there are exactly two
+   children and nothing here needs to survive a third being added quietly.
+   The text is wrapped in its own <span> so the <a> is a sibling of the whole
+   sentence — without it the icon would be just another inline word after the
+   full stop and would sit wherever the line happened to end. */
+.site-foot__credit {
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
 @media (max-width: 620px) {
   .log-cta { flex-direction: column; align-items: stretch; }

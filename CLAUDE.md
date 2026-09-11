@@ -2174,10 +2174,32 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    moved** (18/38 → 22/46) and the alphas were deliberately held: raising both
    makes a halo read as brighter rather than bigger, and then neither dial can
    be judged on its own.
-   **Still open under this step, by omission rather than decision:** the plural
-   in "link(s)". The footer already carries a TMDB link and could carry a repo
-   link too; the user asked only for the header one, so that is all that was
-   built.
+   **The plural in "link(s)" is now satisfied too — a SECOND mark sits at the
+   right edge of the footer's credit line** (user-asked, same day). It is the
+   same icon at `1.5rem` against the header's `clamp(48px, 6vw, 63px)`.
+   **`.gh-link` was split into a shared look plus two placements** to take it:
+   the class now carries only the padding, the round hit area, the colour, the
+   resting opacity, the transition and the hover glow, while
+   `.site-head .gh-link` holds the grid placement and `--gh-drop`, and
+   `.site-foot__credit .gh-link` holds nothing but a `font-size`. Size is
+   genuinely the only difference between the two.
+   **The hover halo moved from px to `em` as part of that**, and the conversion
+   is arithmetic rather than a retune: `22px`/`46px` divided by the header's
+   63px give `0.35em`/`0.73em`, so the header is unchanged to within a quarter
+   pixel while the footer's ~2.6x smaller mark gets a proportional glow. A fixed
+   46px halo would have swallowed a 24px icon whole.
+   `.site-foot__credit` became a flex row with the sentence wrapped in its own
+   `<span>` — without that wrapper the icon would be one more inline word after
+   the full stop and would sit wherever the line happened to end, not at the
+   right edge.
+   **The SVG path is DUPLICATED between the two, deliberately.** `<symbol>` +
+   `<use>` would genuinely work here — unlike R15's sparkle, nothing selects into
+   this icon's internals and `fill` inherits from the host's `color` — but it
+   costs a hidden sprite element plus a rewrite of the header link the user had
+   just finished tuning by eye, to de-duplicate one static third-party logo path
+   that will never be regenerated. A `<template>` + JS clone is worse again: this
+   link's only content is the icon, so a failed script leaves an empty clickable
+   box. Both copies carry a comment pointing at the other; edit one, edit both.
 
 4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
    request. State verified 2026-09-08: there is **no `<link rel="icon">` in
