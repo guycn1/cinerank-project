@@ -6,6 +6,95 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
+
+Step 4 of the agreed order, settled 2026-09-12. The user had sequenced it behind
+step 4b on the reasoning that "the favicon will most likely derive from the
+logo, so the logo had to be settled before that discussion could start". That
+held — but the derivation turned out to be a re-draw rather than a copy, and the
+copy would have been the wrong artefact.
+
+### The finding that shaped everything else
+
+**There was nothing to export.** `.mark__reel` is pure CSS: a 34px box with a 3px
+amber border, a `radial-gradient` inner ring, and a `conic-gradient` mask cutting
+a notch over the first 8% of the turn. No asset exists, so "derive from the logo"
+could only ever mean re-drawing it in SVG.
+
+**And a faithful re-draw fails at the only size that matters.** Normalised into a
+32-unit viewBox, the logo's inner ring measures **1.12 units — 0.56px at a 16px
+favicon**. It aliases into a smudge or disappears. The outer ring at 2.82 units
+is 1.4px, thin but survivable. Neither number was estimated: both were computed
+from the live CSS, the inner ring's 31%→37% resolving against the 19.799px
+half-diagonal of the 28px padding box. This project has been bitten by estimated
+figures before (D-030's rank numerals, twice), so they were derived rather than
+eyeballed.
+
+### How it was chosen
+
+Four candidates were drawn and published as a comparison page rendering each at
+16/24/32/64px on both a light and a dark tab strip, plus a simulated tab strip —
+because the tab is the only view that decides a favicon:
+
+* **A, faithful 1:1** — included specifically so the failure could be seen rather
+  than asserted. It failed as predicted.
+* **B, trued up** — same two-ring structure, thicknesses raised to 4.0 and 2.2
+  and the notch opened 28.8°→34° until both rings hold at 16px. **Chosen.**
+* **C, bold reel** — pushed further (5.0 / 3.2, notch 42°). More legible, but
+  reads heavier than the header mark when the two are seen together.
+* **D, ring and hub** — inner ring becomes a solid fill. The most robust and the
+  least faithful.
+
+**The user picked B**, the furthest toward faithful that still survives 16px.
+Recorded because the rejected options are the content: a later session looking at
+this file will see a mark whose proportions do not match `.mark__reel` and may
+"correct" it back to A, which is the one option already proven not to work.
+
+### Three sub-decisions, all deliberate
+
+* **No background disc.** Offered, because the mark is amber-on-transparent and a
+  tab strip is near-white in light mode, where `--amber` contrasts poorly. The
+  comparison page carried a live toggle for it. The user compared both on a light
+  strip and chose transparent, keeping the header's own treatment.
+* **No animation**, though the header mark turns once per 10s and an SVG favicon
+  can carry a `<style>` block. Chrome rasterises the first frame and ignores the
+  rest, so a spin renders differently per browser for no gain.
+* **SVG only — no `.ico`, no PNG set.** This is the one where Claude's first
+  advice was WRONG and had to be corrected mid-discussion.
+
+### The Safari claim Claude got wrong
+
+Claude initially advised that "Safari is the historical laggard" and that an
+airtight fix "would need a real `.ico`". The user asked whether current Safari
+still probes for one. **It does not.** Safari 26.0 added SVG favicon support;
+caniuse shows desktop and iOS Safari unsupported through 18.7 and supported from
+26.0 on, and WebKit's own release notes for 26.0 say it covers favicons rather
+than only the old pinned-tab `mask-icon`.
+
+Worth recording how that was established, because the first attempt failed: a
+plain web search returned two articles flatly contradicting each other — one
+claiming support since 15.4, one claiming Safari ignores SVG favicons entirely.
+Averaging them would have produced a confident wrong answer. caniuse and the
+vendor's own release notes settled it. **The lesson matches D-062's: for a
+factual claim about behaviour, go to the authority, do not aggregate.**
+
+So SVG-only is safe on every current browser. Safari 18.7 and older still probe
+`/favicon.ico` and still 404 — **the same error as before rather than a new one**,
+and closing it costs a binary asset in a repo that currently has none.
+
+### What the console error actually was
+
+CLAUDE.md had said the request "lands on the 404 handler". **There is no 404
+handler** — `server/index.js` has only a central *error* handler, which fires on
+`next(err)`. The request fell through `express.static`, past every API mount, to
+Express's built-in finalhandler: a 404 with `Cannot GET /favicon.ico` as
+`text/html`. Verified by booting the app on port 3999 rather than reasoned about.
+Corrected in place, since it was wrong when written.
+
+Declaring any icon link is what stops the probe, so the icon and the console
+error are one fix rather than two.
+
+---
 ## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
 
 Two decisions, reached in one investigation and kept together because

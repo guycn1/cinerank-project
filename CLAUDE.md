@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **WHAT IS LEFT, and the numbering is a trap: step 4 — the favicon discussion — is the ONLY unstarted item before step 6.** 4b was deliberately pulled in FRONT of step 4 and step 5 then closed after it, so the order actually worked was 3 → 4b → 5 → and back to 4. Steps 1, 2, 3, 4b and 5 are all done; step 4's precondition (the logo being settled) was met on 2026-09-11, and it opens as a DISCUSSION, not a build. Then step 6, the pre-submission blockers. The next-session marker sits on step 4.)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -213,15 +213,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
-### Front-end overhaul (started 2026-09-05 — ALL STEPS DONE as of 2026-09-12, bar the step-4 favicon discussion)
+### Front-end overhaul (started 2026-09-05 — COMPLETE as of 2026-09-12)
 
-**Status, so this heading is not misread as open-ended work:** every step of the
-agreed order that touches the UI is closed — 1 (mobile keypad), 2 (the R1–R30
-recommendations sub-backlog), 3 (GitHub links), 4b (seven polish items) and 5
-(the portrait overhaul under 500px, closed by the user against the ~350px
-target). **Step 4, the favicon gap, is a DISCUSSION and is the one thing still
-unstarted**; step 6 is pre-submission evidence, not UI. The bullets below are the
-running record of how each piece got there and stay as written.
+**Status, so this heading is not misread as open-ended work: EVERY UI STEP OF THE
+AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
+sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
+4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
+under 500px, closed by the user against the ~350px target). **Step 6, the only
+step left, is pre-submission evidence and cleanup — not UI.** The bullets below
+are the running record of how each piece got there and stay as written.
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -2334,27 +2334,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    link's only content is the icon, so a failed script leaves an empty clickable
    box. Both copies carry a comment pointing at the other; edit one, edit both.
 
-4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
-   request.
-   **>>> START HERE. THIS IS THE ONLY UNSTARTED STEP LEFT BEFORE STEP 6, and it
-   is easy to skip by accident — 4b was deliberately pulled IN FRONT of it, and
-   step 5 then closed after it, so the numbering runs 3 → 4b → 5 → back to 4.
-   Steps 1, 2, 3, 4b and 5 are ALL DONE. Do not jump to step 6 without settling
-   this one. <<<**
-   **Its precondition is now met.** The user put 4b ahead of this deliberately
-   because "the favicon will most likely derive from the logo, so the logo had to
-   be settled before that discussion could start" — and the logo was settled on
-   2026-09-11 (the conic `mask` notch, under 4b). Nothing is blocking this now.
-   **It opens as a DISCUSSION, not a build — that is the user's explicit framing
-   and it has not changed.** Bring options, not a chosen icon.
-   State verified 2026-09-08: there is **no `<link rel="icon">` in
-   `index.html`, no icon file in `public/`, and no server-side favicon route**,
-   so every browser auto-requests `/favicon.ico`, misses the static middleware
-   and lands on the 404 handler. That is the lone console error on a clean load,
-   and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
-   building. **Re-verify that state before opening the discussion**: it was
-   checked on 2026-09-08 and the header/footer GitHub marks and the logo have all
-   been worked since.
+4. **The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
+   asked, then built from what the discussion settled.
+   **Shipped:** `public/favicon.svg` plus one `<link rel="icon"
+   type="image/svg+xml">` in `index.html`. No `.ico`, no PNG set, no server
+   route — `express.static` already serves `public/`.
+   **It is a RE-DRAW, not an export, and it cannot be anything else.**
+   `.mark__reel` is pure CSS, so no asset ever existed to export. And a faithful
+   transcription fails at the only size that matters: normalised to a 32-unit
+   viewBox the logo's inner ring is **1.12 units — 0.56px at 16px**, which
+   aliases into a smudge. Four candidates were drawn and compared at
+   16/24/32/64px on light and dark tab strips; the user chose the one that goes
+   furthest toward faithful while still holding at 16px (rings 4.0 and 2.2, notch
+   34° against the logo's 28.8°).
+   **DO NOT "CORRECT" ITS PROPORTIONS BACK TO MATCH `.mark__reel`.** They differ
+   on purpose, the exact-match version was built and rejected, and the file says
+   so at the top. Retune only at 16px — every candidate looks fine at 64px.
+   **Three sub-decisions, all deliberate and all in D-064:** no background disc
+   (offered with a live toggle, compared on a light strip, rejected); no spin
+   (Chrome rasterises only the first frame); SVG only.
+   **On SVG-only — Claude's first advice here was wrong and the user caught it.**
+   It claimed Safari would still probe `/favicon.ico` and that an airtight fix
+   needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
+   unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
+   covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
+   and older still probe — the same 404 as before, not a new one.
+   **One correction to what this entry used to claim.** It said the request
+   "lands on the 404 handler". There is **no 404 handler**: `server/index.js` has
+   only a central error handler, which fires on `next(err)`. The request fell
+   through `express.static` and every API mount to Express's built-in
+   finalhandler — a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
+   by booting the app on port 3999, not reasoned about. Wrong when written, so
+   corrected rather than preserved.
+   Declaring any icon link is what stops the auto-probe, so the icon and the
+   console error were one fix, not two.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -2364,9 +2377,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    typing effect — the only item here that was ever a genuinely new build —
    closed the same day (D-057), tuned to 15ms/char by the user's eye.
    **That pointer used to say "next session starts on step 5, the portrait
-   overhaul". Step 5 is now DONE too (closed by the user 2026-09-12), so the next
-   unstarted item is STEP 4, the favicon discussion — which 4b was pulled in
-   front of. Its enforcement rules live under step 5 and still stand.**
+   overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
+   the agreed order is closed and the only one left is STEP 6 — pre-submission
+   evidence and cleanup. Step 5's two narrow-viewport enforcement rules still
+   stand and are not retired by it closing.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2839,6 +2853,18 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
+   **>>> START HERE. EVERY UI STEP IS NOW DONE — 1, 2, 3, 4, 4b and 5 — so this
+   is the only step left, and it is not UI work: it is evidence, registration and
+   cleanup. The checklist is under "Pre-submission blockers" below; the nine
+   resilience screenshots are greppable as `RS-1` through `RS-9`, each with its
+   own recipe and the exact string to expect. Two recipes are order-dependent and
+   will waste a session if skimmed (RS-2 needs a search run BEFORE the key is
+   broken; RS-6 needs the page loaded BEFORE the server is stopped).
+   The user is capturing screenshots only once the UI is finished — which it now
+   is — but that is still THEIR call to start, and it has been restated several
+   times. Do not push to shoot them early.
+   The narrow-viewport enforcement rules under step 5 are NOT retired by that
+   step closing; they still apply to anything that comes up. <<<**
 
 **Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
 rather than renumbered because "step 5" is referenced by name outside this file —
