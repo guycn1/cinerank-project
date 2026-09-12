@@ -6,6 +6,56 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
+
+**The ask.** "New verdict" was left to natural flex-wrap math and only dropped
+to its own line around 537px. The user wanted that forced earlier, at 680px,
+with the button's own rendered width identical whichever way it wraps.
+
+**First attempt, and why it failed.** `flex-basis: 100%` on `.verdict__refresh`
+under a `@media (max-width: 680px)` block does force the wrap — its
+hypothetical main size becomes the full row width, which the label and verdict
+text ahead of it can never share a line with. But `flex-basis` is not just the
+forcing signal, it is also the SIZE: with nothing else left on its new line to
+shrink it back down, the button rendered edge-to-edge across the whole banner.
+Confirmed by screenshot, not assumed.
+
+**Second attempt, and why it ALSO failed — this is the non-obvious part.**
+Adding `max-width: max-content` alongside it, to clamp the rendered size back
+to the button's own content width, undid the wrap outright: the break point
+fell straight back to the natural ~537px. The reason is in the spec, not
+obvious from using the properties day to day — the flex algorithm's
+"hypothetical main size" (what decides whether an item fits the current line
+and therefore wraps) is the flex-basis **after** it has already been clamped
+by min/max-width. A `max-width` that fixes the rendered size fixes the forcing
+value too, before the wrap decision is ever made. One property cannot carry
+two different numbers for two different jobs.
+
+**The fix: a second, empty flex item does the forcing instead.**
+`.verdict__break` — a bare `<span aria-hidden>` added to `index.html` right
+after `.verdict__text`, `display: none` above the breakpoint (not a flex item
+at all, zero effect on wider layouts) and `flex-basis: 100%` with no
+max-width of its own below it. It is what can't share a line with the label
+and text; the button after it starts a fresh line sized purely by its own
+content, completely untouched by any of this. `margin-bottom: -1rem` on the
+break element cancels the extra row-gap its own (empty) line would otherwise
+insert on top of the real gap already between it and the button — tied to
+`.verdict__inner`'s `gap: 1rem` and must move with it.
+
+**Verified with real screenshots, not spec-reading alone, after getting it
+wrong twice.** Chrome was already on the machine; `chrome.exe --headless
+--screenshot --window-size=W,H <url>` needs no new dependency (no Playwright,
+no `chromium-cli`) and rendered actual computed layouts at 536/538/680/681px.
+Two wrong fixes in a row is what made "I'm confident in the CSS spec reasoning"
+insufficient here — the second failure was *also* plausible-sounding spec
+reasoning.
+
+**The trap for later:** if this is ever "simplified" back to one property on
+`.verdict__refresh`, re-read this entry first — both single-property routes
+were tried and both are dead ends for the same underlying reason, not two
+independent bugs.
+
+---
 ## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
 
 **The choice.** `#verdict-text`'s content is now written through ONE function,
