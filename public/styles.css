@@ -1801,7 +1801,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      both follow it. Restating a width on .movie-card__poster here is what
      caused the overflow this rule used to have. */
   .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
-  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; margin-top: 0.4rem; }
+  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; }
   /* The buttons are pushed right by an auto margin, NOT by
      `justify-content: space-between` on the row. space-between only separates
      two or more children, and an unrated card has no score badge — leaving
