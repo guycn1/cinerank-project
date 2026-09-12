@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **five done and two open — the verdict glint, its busy-state cue and the film grain all landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **SIX done and ONE open (the verdict typing effect) — the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" all landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2244,10 +2244,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **FIVE FULLY
-   DONE — the logo spin and the ranked list's first-paint entrance (both
-   2026-09-11), and the verdict border's glint, its busy-state cue and the film
-   grain (all 2026-09-12). TWO OPEN:**
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **SIX FULLY DONE
+   — the logo spin and the ranked list's first-paint entrance (both 2026-09-11),
+   and the verdict border's glint, its busy-state cue, the film grain and the
+   disabled "New verdict" (all 2026-09-12). ONE OPEN — the verdict typing
+   effect, which is the only item here that was ever a new build:**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2258,7 +2259,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
       not a brightness one. `mix-blend-mode`, this item's leading suggestion,
       was measured and rejected — it moves grain onto the posters and off the
       dark background;
-   4. "New verdict" shown disabled rather than hidden when locked;
+   4. ~~"New verdict" shown disabled rather than hidden when locked~~ — **DONE
+      2026-09-12**, and it needed no new CSS: the disabled vocabulary from
+      R13/D-035/R15 already covered it. Two traps, both traced rather than
+      tested, and the second was created by the fix for the first;
    5. ~~the glint speeding up while "New verdict" is busy~~ — **DONE
       2026-09-12**. Brightness in CSS, speed via `playbackRate` in JS rather
       than the duration swap D-055 prescribed, because changing a CSS
@@ -2571,24 +2575,42 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `prefers-reduced-motion` still kills the animation outright, leaving a
      static grain — correct, and it stays true of this version.
 
-   * **Consider showing "New verdict" DISABLED when the feature is locked,
-     rather than hiding it entirely** (user-raised 2026-09-11). Today the button
-     carries `hidden` below the threshold, so the control does not exist on the
-     page at all — a user under the bar sees a banner with a sentence and no
-     sign that anything is ever going to appear there.
-     **Framed as "consider" by the user, so it is a question before it is a
-     task.** The argument for: every other locked control in this app is
-     DISABLED rather than absent — `.recs__trigger` is disabled with an
-     explanatory hint beside it (R1/R26), and the disabled-fill vocabulary is
-     already settled (R13, D-035), so this would be consistency rather than new
-     design. The argument against: the verdict is the lowest-stakes feature
-     (SPEC § 2.3) and a permanently dead button at the top of the page may be
-     worse than nothing.
-     **Read `syncVerdictAvailability()` before touching this** — it is the
-     single writer for both the button's `hidden` and `.verdict__text`, and the
-     guard it owns is what R1 was ported FROM. Whatever is decided, the
-     threshold sentence beside the button already explains the lock, so the two
-     must not end up saying it twice.
+   * **"New verdict" is shown DISABLED when the feature is locked, not hidden —
+     DONE 2026-09-12.** Raised by the user as "consider", argued both ways, and
+     the user took the consistency argument: every other locked control in this
+     app is disabled rather than absent, so a banner with a sentence and no
+     control was the odd one out. The threshold sentence beside it explains WHY;
+     the greyed button shows WHAT is locked, so the two do not say the same thing
+     twice.
+     **It needed no new CSS at all**, which is the payoff from R13/D-035/R15
+     having settled the disabled vocabulary generically:
+     `.verdict__refresh:disabled` already existed (opacity, `not-allowed` — the
+     outline-button treatment), its hover was already `:not(:disabled)` guarded,
+     and R15's sparkle rule was written as `button:disabled .ai-sparkle`, so a
+     locked control already stops twinkling. Nothing was special-cased.
+     The markup now starts the button `disabled` rather than `hidden`, which is
+     also the correct state before the first `/api/movies` response (the rated
+     count is not known yet) and if that request FAILS (the feature genuinely is
+     unavailable).
+     **TWO TRAPS, both found by tracing rather than by testing, and the second
+     was introduced by the fix for the first.**
+     1. `syncVerdictAvailability()` runs from `loadMovies()`, so adding or rating
+        a film WHILE a verdict is generating would re-enable the button
+        mid-request. Writing `hidden` was safe unconditionally; writing
+        `disabled` is not. Guarded on `aria-busy`, the same guard and the same
+        reason as R1's in `syncRecommendationsAvailability()`.
+     2. **But skipping is not free here, and the old code survived this by
+        accident.** Remove films mid-request and the count can drop below the
+        threshold; the sync skips, then `busyButton()`'s settle unconditionally
+        re-enables — leaving a clickable button on a locked feature. The old code
+        wrote `hidden` unconditionally, so the button simply stayed gone.
+        The run's `finally` now re-asserts `verdictLocked()`. **Deliberately NOT
+        by calling `syncVerdictAvailability()`**, which also writes
+        `.verdict__text` and would overwrite the error message on the failure
+        path — the exact shape of bug R1.
+     `verdictLocked()` exists so the threshold rule has ONE definition with two
+     callers; an approximation of a rule goes stale the moment the rule changes
+     (D-039).
 
    * **The ring's glint speeds up while "New verdict" is BUSY — DONE 2026-09-12.**
      A progress cue that costs no new UI: the band already travels the ring, so

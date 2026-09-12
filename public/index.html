@@ -101,7 +101,14 @@
              class on load anyway — without it the initial paint briefly showed
              the real verdict's styling. -->
         <p class="verdict__text is-muted" id="verdict-text" aria-live="polite">Reading the room…</p>
-        <button class="verdict__refresh" id="verdict-refresh" type="button" hidden>
+        <!-- Starts DISABLED, not hidden (step 4b). The locked state shows the
+             control greyed out rather than removing it, matching every other
+             locked control in the app; syncVerdictAvailability() is the single
+             writer that enables it. Disabled is also the correct state before
+             the first /api/movies response, since the rated count is not known
+             yet -- and if that request FAILS it stays disabled, which is right:
+             the feature genuinely is unavailable. -->
+        <button class="verdict__refresh" id="verdict-refresh" type="button" disabled>
           <span>New verdict</span>
         </button>
       </div>

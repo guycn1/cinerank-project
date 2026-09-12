@@ -1678,20 +1678,53 @@ function clearVerdictMeta() {
   el.verdict.querySelector('.ai-meta')?.remove();
 }
 
+/** Is the taste verdict below its rating threshold? ONE predicate, because two
+ *  places now need the answer and an approximation of a rule goes stale the
+ *  moment the rule changes (D-039 is the entry about exactly that). */
+function verdictLocked() {
+  return ratedCount() < state.cfg.minRatedForVerdict;
+}
+
 function syncVerdictAvailability() {
   const need = state.cfg.minRatedForVerdict;
   const have = ratedCount();
-  if (have < need) {
-    el.verdictRefresh.hidden = true;
+  const locked = verdictLocked();
+
+  // DISABLED, NOT HIDDEN (step 4b, the user's call). Below the threshold the
+  // button used to be removed from the page entirely, so a new user saw a banner
+  // with a sentence and no sign that anything would ever appear there. Every
+  // other locked control in this app is disabled rather than absent --
+  // `.recs__trigger` sits greyed with its explanatory hint beside it -- and the
+  // disabled vocabulary was already settled (R13, D-035), so this is consistency
+  // rather than new design. It needed NO new CSS: `.verdict__refresh:disabled`
+  // already existed, its hover is already `:not(:disabled)` guarded, and R15
+  // wrote the sparkle-stop rule as `button:disabled .ai-sparkle`, which covers
+  // this for free -- a locked control must not twinkle, since that invites a
+  // click that does nothing.
+  //
+  // THE GUARD IS NOT OPTIONAL, and it is the bug R1 fixed one section over.
+  // This function runs from `loadMovies()`, so adding or rating a film WHILE a
+  // verdict is generating would otherwise re-enable the button mid-request and
+  // hand a second click to the user. Writing `hidden` was safe to do
+  // unconditionally; writing `disabled` is not. Same guard and same reasoning as
+  // `syncRecommendationsAvailability()`. This only declines to fight a run that
+  // still owns the control.
+  // BECAUSE IT SKIPS, THE RUN MUST HAND THE STATE BACK. Skipping is not free
+  // here the way it is for the recs trigger: removing films mid-request can drop
+  // the count below the threshold, and `busyButton()`'s settle unconditionally
+  // re-enables. The verdict handler's `finally` therefore re-asserts
+  // `verdictLocked()` itself -- see the note there.
+  if (el.verdictRefresh.getAttribute('aria-busy') !== 'true') {
+    el.verdictRefresh.disabled = locked;
+  }
+
+  if (locked) {
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
-  } else {
-    el.verdictRefresh.hidden = false;
-    if (!el.verdict.dataset.generated) {
-      el.verdictText.classList.add('is-muted');
-      el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
-    }
+  } else if (!el.verdict.dataset.generated) {
+    el.verdictText.classList.add('is-muted');
+    el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
   }
 }
 
@@ -1727,6 +1760,17 @@ el.verdictRefresh.addEventListener('click', async () => {
   } finally {
     restoreRefresh();
     setSheenRate(1); // settles on success AND on failure, like the button itself
+    // The sync SKIPS this button while a run owns it, so the run has to hand
+    // back the correct state rather than just an enabled button. Removing films
+    // mid-request can drop the count below the threshold, and `restoreRefresh()`
+    // unconditionally re-enables -- which would leave a clickable button on a
+    // locked feature. (The old code survived this by accident: it wrote
+    // `hidden` unconditionally, so the button simply stayed gone.)
+    // NOT `syncVerdictAvailability()`, deliberately: that also writes
+    // `.verdict__text`, so on the failure path it would overwrite the error
+    // message we just put there with the idle placeholder -- the exact shape of
+    // bug R1. Re-assert the one thing the guard skipped, nothing else.
+    el.verdictRefresh.disabled = verdictLocked();
   }
 });
 
