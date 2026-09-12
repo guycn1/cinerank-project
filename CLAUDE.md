@@ -3133,6 +3133,31 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   `onrender.com` host. So forgetting this ships an idle function rather than a
   hijacked app — but a debug tool wired into a submitted build is still its own
   kind of wrong.
+* [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
+  Raised by the 2026-09-12 sweep and deliberately left for the user: most of them
+  are covered by `npm test` and by hand testing, but ticking an acceptance
+  criterion is a claim that it was *verified for submission*, which is the
+  user's call and not Claude's to make on their behalf. Walk them one at a time
+  against the live app — several can be ticked off the same session as the
+  `RS-n` screenshots, since they exercise the same states.
+  **Do the escaping fix below FIRST**, because these eight are written `\[ ]` and
+  therefore do not render as task-list checkboxes at all — they are literal text
+  on GitHub, so there is nothing to tick in the UI until that backslash goes.
+* [ ] **Strip the markdown escaping artifacts from `CLAUDE.md` and `SPEC.md`.**
+  Cosmetic rendering, not staleness, which is why the sweep left it alone — but
+  both files are in a public repo and get read rendered. Counted 2026-09-12 —
+  `CLAUDE.md`: 10 `\---`, 19 `\_`, 5 `\&`, 1 `\[`. `SPEC.md`: 7 `\---`, 56 `\_`,
+  6 `\&`, 11 `\[`.
+  `README.md`, `docs/PROCESS.md` and `docs/DECISIONS.md` are clean — the two
+  affected files are the oldest, and the escapes almost certainly came in with
+  one paste. The damage is real but small: `\---` renders as the literal text
+  `---` instead of a horizontal rule, `\[ ]` kills the eight checkboxes above,
+  and SPEC's seven numbered headings render as `1\.` rather than `1.`.
+  **`\_` is the one that is genuinely harmless** — it renders as a plain
+  underscore, so `tmdb\_id` already looks right; it is only noise in the source.
+  **Do this as its own commit, and eyeball the rendered result before the merge**
+  — a blind find-and-replace across two files this size is exactly the kind of
+  change that quietly mangles a code fence or a table.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
