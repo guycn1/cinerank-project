@@ -3403,36 +3403,63 @@ down would be re-broken within a session. See D-065.
    cannot work, by rule 1. This is not visible per line — a span may legally wrap
    across lines, so an odd backtick count on one line proves nothing. The unit is
    the paragraph, and `check-markdown` checks it there.
-3. **Never write an escaped thematic break.** It renders as a literal `---`
-   paragraph, which reads as debris.
-4. **Never put a bare `---` directly under a line of text.** That is setext
-   syntax: it silently promotes the line above to an `<h2>`. Confirmed against
-   GitHub's renderer, not assumed.
-5. **Never put a section separator before a heading** — `check-markdown` fails on
-   it. GitHub's own stylesheet already draws a rule under every `h1` and
-   `h2`, so a separator there draws two horizontal lines a few dozen pixels
-   apart, bracketing a heading that never needed help. **There is now not one
-   left anywhere in the repo**, so any appearance is a regression. This rule
-   briefly carried an exception for `docs/DECISIONS.md` "keeping its 65 by
-   choice" — wrong twice over: there were 38, not 65, and they sat above only 38
-   of the 65 entries, so the same boundary was drawn two different ways for no
+3. **Never write an escaped thematic break, in any of its three spellings.** It
+   renders as a literal `---` / `***` / `___` paragraph, which reads as debris.
+4. **Never put a bare rule directly under a line of text.** That is setext
+   syntax, and it silently promotes the line above to a heading — `---` makes an
+   `h2`, **`===` makes an `h1`**. Both confirmed against GitHub's renderer, not
+   assumed. (`***` and `___` are not setext underlines, so they are safe there.)
+5. **Never put a section separator before a heading, in any spelling** —
+   `check-markdown` fails on it. GitHub's own stylesheet already draws a rule
+   under every `h1` and `h2`, so a separator there draws two horizontal lines a
+   few dozen pixels apart, bracketing a heading that never needed help. **There
+   is now not one left anywhere in the repo**, so any appearance is a regression.
+   This rule briefly carried an exception for `docs/DECISIONS.md` "keeping its 65
+   by choice" — wrong twice over: there were 38, not 65, and they sat above only
+   38 of the 65 entries, so the same boundary was drawn two different ways for no
    reason. The user called it, they are gone, and the file is uniform.
-6. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
+6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
+   the whole block as one paragraph full of pipe characters — not a degraded
+   table, no table at all. These files carry 84 table rows between them.
+7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
+
+### Two things the checker deliberately does NOT catch
+
+Both were found by the 2026-09-13 audit, both render visibly wrong, and both were
+left out **because a rule for them would cry wolf** — and a check that cries wolf
+buries the ones that matter. The render audit below is the backstop for these.
+
+* **An unclosed `**`**, which renders as literal asterisks. A source-level rule
+  would have to flag an odd count of `**` in a paragraph, and that fires on
+  perfectly good prose: an exponent like `2**8`, or a redaction written as an odd
+  run of asterisks. `DOSSIER.md` already contains `********` twice, deliberately.
+* **An inline link whose `)` is missing**, which renders the `[text](` literally.
+  CommonMark permits a newline between `(` and the destination, so a link may
+  legally wrap across lines and a line-scoped rule would flag it.
 
 ### The trap that produced rule 1, and the check that catches it
 
 **Do not verify an escape by checking the character class in one or two
-contexts and generalising.** That is exactly how the last defect survived a pass
-that had already fixed everything around it: `\[` was verified correct in list
-items (it renders as a working checkbox) and in table cells, declared safe as a
-class, and the one occurrence sitting inside a CODE SPAN went out the door. The
-user caught it in a screenshot.
+contexts and generalising.** That is exactly how one defect survived a pass that
+had already fixed everything around it: `\[` was verified correct in list items
+(it renders as a working checkbox) and in table cells, declared safe as a class,
+and the one occurrence sitting inside a CODE SPAN went out the door. The user
+caught it in a screenshot.
 
 **The question that catches it is not "is this character safe" but "does any code
 span contain a backslash".** That is rule 1, and it is the first thing
 `check-markdown` looks for.
+
+**The same mistake, one level up, produced rules 3 to 6.** The checker knew the
+HYPHEN spelling of a thematic break and nothing else, so `\***` rendering as
+debris, `***` doubling a heading's rule, and `===` silently creating an `<h1>`
+all passed clean. A table with no separator row passed too. The 2026-09-13 audit
+found them by writing nine plausible defects, **rendering them to confirm each
+was genuinely broken**, and only then asking whether the checker caught them — it
+caught none of the five that were real. Generalise from the RENDERED OUTPUT, not
+from the rule you happen to have written.
 
 ### When a change is structural, render it and diff the HTML
 

@@ -43,6 +43,9 @@ const ALLOWED_SPANS = new Set([
   // The rest are this project's own DOCUMENTATION of the escaping problem --
   // they have to show the sequence to describe it. Whole-span matches only.
   BS + '_', BS + '&', BS + '[', BS + '---', '1' + BS + '.', BS + '[ ]',
+  // The other two thematic-break spellings, added 2026-09-13 when rules 3-5
+  // learned about them and the docs had to quote them to explain them.
+  BS + '***', BS + '___',
 ]);
 
 // Markdown treats a backslash before one of these as an escape. Inside a code
@@ -67,6 +70,8 @@ for (const file of markdownFiles(root)) {
   const rel = relative(root, file).split(BS).join('/');
   const lines = readFileSync(file, 'utf8').split('\n');
   let inFence = false;
+  let pipeRun = [];
+  let pipeStart = 0;
 
   lines.forEach((line, i) => {
     const n = i + 1;
@@ -91,17 +96,28 @@ for (const file of markdownFiles(root)) {
     }
 
     // --- RULE 2: no escaped thematic break ------------------------------------
-    if (!inFence && line.trim() === BS + '---') {
-      errors.push(`${rel}:${n}  ` + BS + '--- renders as a literal "---" paragraph, not a rule');
+    // All THREE spellings. CommonMark's thematic break is 3+ of -, * or _, so an
+    // escaped one is debris whichever character was used. The 2026-09-13 audit
+    // found the checker only knew the hyphen spelling: \*** rendered as a literal
+    // "***" paragraph and passed clean.
+    if (!inFence && /^(-{3,}|\*{3,}|_{3,})$/.test(line.trim().slice(1)) && line.trim()[0] === BS) {
+      errors.push(`${rel}:${n}  ` + BS + line.trim().slice(1, 4) +
+                  ' renders as a literal paragraph, not a rule');
     }
 
-    // --- RULE 3: a bare --- under a text line is a SETEXT HEADING -------------
-    // Silently promotes the line above to an <h2>. The reason the 2026-09-12 fix
-    // DELETED the separators instead of unescaping them.
-    if (!inFence && line.trim() === '---' && n > 1) {
+    // --- RULE 3: a bare rule under a text line is a SETEXT HEADING -------------
+    // Silently promotes the line above to a heading. The reason the 2026-09-12
+    // fix DELETED the separators instead of unescaping them.
+    //
+    // BOTH underline characters, and they make DIFFERENT headings: - gives an h2,
+    // = gives an h1. The = case was a false negative until the 2026-09-13 audit
+    // rendered it and watched a plain paragraph become an <h1>. * and _ are NOT
+    // setext underlines, so they are correctly absent here.
+    if (!inFence && n > 1 && /^(-+|=+)$/.test(line.trim())) {
       const prev = lines[i - 1];
       if (prev !== undefined && prev.trim() !== '') {
-        errors.push(`${rel}:${n}  --- directly under text silently makes that line an <h2>`);
+        const level = line.trim()[0] === '=' ? 'h1' : 'h2';
+        errors.push(`${rel}:${n}  a rule directly under text silently makes that line an <${level}>`);
       }
     }
 
@@ -111,14 +127,32 @@ for (const file of markdownFiles(root)) {
     // times on docs/DECISIONS.md -- and then the user looked at how those
     // actually rendered and had them removed, which is what makes the rule
     // enforceable: there is not one left in the repo, so it can never cry wolf
-    // and any hit is a real regression. A --- that is NOT before a heading is
-    // untouched by this rule; thematic breaks mid-section are fine.
-    if (!inFence && line.trim() === '---' && n > 1) {
+    // and any hit is a real regression. A separator that is NOT before a heading
+    // is untouched by this rule; thematic breaks mid-section are fine.
+    //
+    // All three spellings, for the same reason as rule 2: *** and ___ produce the
+    // identical <hr> and were false negatives until 2026-09-13.
+    if (!inFence && n > 1 && /^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
       let j = i + 1;
       while (j < lines.length && lines[j].trim() === '') j += 1;
-      if (lines[j] !== undefined && /^#{1,6}\s/.test(lines[j].trim())) {
+      if (lines[j] !== undefined && /^#{1,6}[ \t]/.test(lines[j].trim())) {
         errors.push(`${rel}:${n}  separator before a heading: GitHub already rules every h1/h2`);
       }
+    }
+
+    // --- RULE 5: a table needs its separator row -------------------------------
+    // Two or more consecutive pipe lines whose SECOND line is not |---|---| is not
+    // a table at all: GitHub renders the whole block as one paragraph full of pipe
+    // characters. Found by the 2026-09-13 audit, which rendered it to be sure --
+    // these files carry 84 table rows between them, so the blast radius is real.
+    if (!inFence && /^[ \t]*\|/.test(line)) {
+      if (!pipeRun.length) pipeStart = n;
+      pipeRun.push(line);
+    } else if (pipeRun.length) {
+      if (pipeRun.length >= 2 && !/^[ \t]*\|?[\s|:-]+\|?[ \t]*$/.test(pipeRun[1])) {
+        errors.push(`${rel}:${pipeStart}  table has no |---| separator row, so it renders as a paragraph of pipes`);
+      }
+      pipeRun = [];
     }
 
     // --- COSMETIC: an escape in plain text is noise, not a defect -------------
@@ -132,6 +166,10 @@ for (const file of markdownFiles(root)) {
       }
     }
   });
+  // A table running to the last line of the file never hits the else branch above.
+  if (pipeRun.length >= 2 && !/^[ \t]*\|?[\s|:-]+\|?[ \t]*$/.test(pipeRun[1])) {
+    errors.push(`${rel}:${pipeStart}  table has no |---| separator row, so it renders as a paragraph of pipes`);
+  }
 
   // --- RULE 5: a code span that is opened and never closed ------------------
   // Per-LINE checks cannot see this: a code span may legally wrap across lines,

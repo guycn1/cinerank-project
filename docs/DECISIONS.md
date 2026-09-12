@@ -73,6 +73,69 @@ deliberately preserved inside the blocker entry that documents this work — whi
 is itself the trap a blind find-and-replace would have sprung, since that entry
 quotes the escape sequences as examples.
 
+### Addendum: the second audit, and five false negatives the first one never looked for
+
+The user asked for the whole thing again — every markdown file rendered end to
+end, and the checker proved free of false positives AND false negatives. The
+first audit had verified the rules it had. It had never asked whether the rules
+it had were the rules it needed.
+
+**The method that found them.** Write nine plausible defects, **render all nine
+and read the output**, and only then ask whether the checker catches them. Five
+were genuinely broken and the checker caught none:
+
+* `===` under a text line — silently promotes that line to an `<h1>`. Identical
+  in kind to the `---` case the checker already had, and strictly worse, because
+  it makes a bigger heading. A pure false negative.
+* `***` and `___` before a heading — the same doubled rule around a heading that
+  rule 5 exists to prevent, in the two spellings it did not know.
+* An escaped `\***` — the same literal-debris paragraph rule 3 exists to prevent.
+* A table with no `|---|` separator row — GitHub renders the whole block as one
+  paragraph of pipe characters. Not a degraded table: no table. These files carry
+  84 table rows between them.
+
+The common cause is one habit: **the checker had learned the HYPHEN spelling of a
+thematic break and nothing else.** That is the same error as the `\[` defect the
+previous audit shipped — generalising from the instance in hand rather than from
+the rendered output — one level up, in the rules instead of in the prose.
+
+**Two hazards were deliberately NOT given rules**, and the reasoning is the same
+one that removed the separator rule for a day: a check that cries wolf buries the
+ones that matter. An unclosed `**` would need an odd-`**`-count test, which fires
+on an exponent like `2**8` and on a redaction written as an odd run of asterisks —
+`DOSSIER.md` carries `********` twice, deliberately. An unclosed inline link
+would need a line-scoped test, and CommonMark lets a link destination begin on
+the next line. Both render visibly wrong, both are caught by the render audit, and
+both are now written down as known limitations rather than papered over.
+
+**Verified in both directions, 57 cases: 26 that must fail, 31 that must pass.**
+The must-pass half is where the value is — escapes inside fenced blocks, escapes
+in plain text, a Windows path and a regex token as genuine content, a span
+wrapped across lines, double and triple delimiters, a valid table, an alignment
+row, a lone pipe line, `***` used as a legitimate mid-section break, CRLF line
+endings, and an empty file. Zero false positives across all 16 real files, and
+that was measured BEFORE the rules were written rather than hoped for after.
+
+**The render audit itself was wrong twice and both are worth recording.** Its
+first "leaked heading" probe used `\s*` after a newline anchor — and `\s` matches
+newlines, so `#` anywhere in the document matched and CLAUDE.md was reported as
+broken when it was not. Its "unconsumed bold" probe then flagged `DOSSIER.md`,
+which turned out to be the user's own eight-asterisk redaction of an email
+address rendering exactly as intended. **An audit tool gets the same treatment as
+the thing it audits: check its output against reality before believing it.**
+
+**And the checker caught this entry being written.** The paragraph above quoting
+`\***` inline tripped rule 1 — correctly, since an escape in a code span does
+render literally. The two remaining thematic-break spellings joined the
+whole-span allowlist, which was then probed to confirm it still fires on the same
+sequence embedded in a larger span.
+
+**Final state: all 16 markdown files clean.** Every heading level, fenced block,
+table row, list item, horizontal rule and code span in every source file appears
+in its rendered output and nothing extra appears; and no markdown syntax —
+backtick, emphasis marker, link bracket, escape, heading, pipe row or comment —
+survives into the rendered prose of any of them.
+
 ### Addendum: the full audit, and the defect that had been there for weeks
 
 The user asked for a proper verification pass — every markdown file rendered end
