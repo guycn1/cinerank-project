@@ -677,19 +677,40 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* Step 5, user-raised: LEFT to natural flex-wrap math, "New verdict" only
    dropped to its own line at ~537px — the point where the label + `.verdict__text`'s
    12rem min-width + the button's own width stopped fitting one row. The user
-   wants that deliberately earlier, at ~680px, well before the row feels tight.
-   `flex-basis: 100%` forces the wrap: it sets the button's HYPOTHETICAL main
-   size to the full row width, which the label + text ahead of it can never
-   share a line with, so the flex-wrap algorithm bumps it down.
-   `max-width: max-content` is not decoration -- without it the button also
-   RENDERS at that 100% basis, because once it is alone on its own line there
-   is nothing left on that line to shrink it back down (this shipped without
-   it first and stretched the button edge-to-edge, per the user's screenshot).
-   The max-width clamps the FINAL size back to the label's own content width,
-   same trick `.ai-meta` uses for forcing its own full-width row below (that
-   one is SUPPOSED to stretch, which is why it has no such clamp). */
+   wants that forced earlier, at ~680px, with the button's own width UNCHANGED
+   by wrapping either way.
+   TWO THINGS WERE TRIED ON THE BUTTON ITSELF AND BOTH FAILED, for the same
+   underlying reason, and the fix is a third element rather than a third
+   attempt on the button:
+   1. `flex-basis: 100%` on `.verdict__refresh` forces the wrap, but also
+      SIZES it — with nothing else sharing its new line there is nothing left
+      to shrink it back down, so it rendered edge-to-edge (stretched).
+   2. Adding `max-width: max-content` to claw the size back down undid the
+      wrap itself: the WRAP decision is made on the hypothetical main size,
+      which is the flex-basis already clamped by min/max-width — so clamping
+      the rendered size clamps the forcing value too, before the wrap
+      algorithm ever runs, and the break point fell straight back to the
+      natural ~537px.
+   There is no third value for one property that forces a line break AND
+   leaves the item's own size alone — those are the same number by
+   definition. `.verdict__break` (in index.html, right after `.verdict__text`)
+   is a second, empty flex item that takes the forcing role instead: it alone
+   carries `flex-basis: 100%` with no max-width of its own, so IT is what
+   can't share a line with the label/text, and the button after it starts a
+   fresh line sized purely by its own content — completely untouched. */
+.verdict__break { display: none; } /* not a flex item at all above the breakpoint */
 @media (max-width: 680px) {
-  .verdict__refresh { flex-basis: 100%; max-width: max-content; }
+  .verdict__break {
+    display: block;
+    flex-basis: 100%;
+    height: 0;
+    overflow: hidden;
+    /* Cancels the row-gap this element's own (empty) line would otherwise ADD
+       on top of the real gap between it and the button -- without this the
+       button sits 2rem below the text instead of 1rem. Tied to
+       .verdict__inner's `gap: 1rem` above; move both together. */
+    margin-bottom: -1rem;
+  }
 }
 .verdict__label {
   font-family: 'Fraunces', serif;

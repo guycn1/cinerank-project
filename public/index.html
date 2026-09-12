@@ -101,6 +101,10 @@
              class on load anyway — without it the initial paint briefly showed
              the real verdict's styling. -->
         <p class="verdict__text is-muted" id="verdict-text" aria-live="polite">Reading the room…</p>
+        <!-- Step 5: a dedicated, invisible flex-line break -- see its CSS rule
+             for why the button itself cannot do this job alone. Inert (display:
+             none) above ~680px; purely decorative, so aria-hidden. -->
+        <span class="verdict__break" aria-hidden="true"></span>
         <!-- Starts DISABLED, not hidden (step 4b). The locked state shows the
              control greyed out rather than removing it, matching every other
              locked control in the app; syncVerdictAvailability() is the single
