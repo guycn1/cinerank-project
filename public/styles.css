@@ -674,6 +674,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   gap: 1rem;
   flex-wrap: wrap;
 }
+/* Step 5, user-raised: LEFT to natural flex-wrap math, "New verdict" only
+   dropped to its own line at ~537px — the point where the label + `.verdict__text`'s
+   12rem min-width + the button's own width stopped fitting one row. The user
+   wants that deliberately earlier, at ~680px, well before the row feels tight.
+   `flex-basis: 100%` forces the wrap regardless of the real widths on either
+   side of the threshold — same trick `.ai-meta` already uses on this exact
+   container (see its rule below) — so this is not fighting the layout, just
+   pinning the ALREADY-natural wrap point to a chosen number instead of letting
+   it fall out of arithmetic. `gap` applies to a wrapped row too, so the button
+   gets the same spacing above it that it already had at the narrower widths
+   where this used to happen on its own. */
+@media (max-width: 680px) {
+  .verdict__refresh { flex-basis: 100%; }
+}
 .verdict__label {
   font-family: 'Fraunces', serif;
   font-weight: 600;
