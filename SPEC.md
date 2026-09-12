@@ -1,4 +1,4 @@
-SPEC.md — CineRank
+# SPEC.md — CineRank
 **Authors:** Guy Cohen \& Michael Chernyak
 **Course:** LLM-Augmented Software Practice (ASE-26)
 **Status:** Draft v1

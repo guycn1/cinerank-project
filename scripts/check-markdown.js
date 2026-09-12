@@ -26,6 +26,13 @@ const TICK = String.fromCharCode(96);
 const BS = String.fromCharCode(92);
 const NL = String.fromCharCode(10);
 
+// A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
+// a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
+// so a ~~~ block would have had its contents scanned as prose and flagged. No file
+// uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
+// unaffected, because that is two tildes and this needs three.
+const isFence = (line) => /^[ \t]*(`{3,}|~{3,})/.test(line);
+
 // Code-span contents where a backslash is REAL CONTENT, not a stray escape.
 // Matched against the WHOLE span, so allowing the span "\_" cannot also allow
 // "tmdb\_id". Add to this list only when the backslash is genuinely part of what
@@ -75,7 +82,7 @@ for (const file of markdownFiles(root)) {
 
   lines.forEach((line, i) => {
     const n = i + 1;
-    if (line.trim().startsWith(TICK + TICK + TICK)) { inFence = !inFence; return; }
+    if (isFence(line)) { inFence = !inFence; return; }
 
     // --- RULE 1: an escape inside a code span always renders literally --------
     // This is the one that is genuinely invisible when writing and obvious when
@@ -211,7 +218,7 @@ for (const file of markdownFiles(root)) {
       para = [];
     };
     lines.forEach((line, i) => {
-      if (line.trim().startsWith(TICK + TICK + TICK)) { check(); fence = !fence; return; }
+      if (isFence(line)) { check(); fence = !fence; return; }
       if (fence) return;
       if (line.trim() === "") { check(); return; }
       if (!para.length) paraStart = i + 1;
