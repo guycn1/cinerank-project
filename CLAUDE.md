@@ -2165,22 +2165,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and the padding takes the blame. It also grew 1.5x, applied to every term of
    the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at every width
    rather than only where the clamp happened to be resting.
-   **MEASURED in step 5 (2026-09-12): the predicted overflow is real, and it is
-   bigger than expected.** `CineRank` is a single unbreakable word with a hard
-   min-content width, so once the row can't fit label + h1 + the icon's column,
-   the h1 overflows its `minmax(0, 1fr)` column rather than wrapping — exactly as
-   this note predicted. What was NOT predicted is the range: **the header GitHub
-   icon is fully clipped off-canvas from ~510px down** (confirmed with real
-   headless-Chrome screenshots at 292/350/400/500/505/515/520/550/600px, per
-   D-030's "measure, don't estimate" rule — bisected to a threshold between 505px
-   clipped and 515px clean), not just at the very narrow widths this note
-   expected. That covers most phone widths in portrait. **Not caused by the two
-   fixes landing alongside this note** (the reel's `flex-shrink: 0` and the
-   GitHub icon's ≤400px halving) — confirmed identical on the pre-fix commit at
-   292px, and the icon stays clipped even after halving, because halving the
-   icon's own column doesn't touch what's actually overflowing, the h1. **Still
-   open, and still step 5's call**: stack the header below some breakpoint, cap
-   `--title-size` further, or something else — not decided yet.
+   **STILL UNRESOLVED as of 2026-09-12 — a claim briefly written here about it
+   was WITHDRAWN, and the withdrawal is the useful part.** A headless-Chrome
+   screenshot pass (292 through 600px) appeared to show the header GitHub icon
+   fully clipped off-canvas from ~510px down. The user's own real browser
+   directly contradicted it — a live screenshot at `window.innerWidth === 406`
+   showed the icon completely visible, dead centre of the range the automated
+   pass called broken. Chasing the discrepancy (font-load timing, a stray
+   `--window-size` that turned out to be silently ignored because the headless
+   instance reused an already-running session) fixed one real bug in the TEST
+   TOOLING but never reconciled the two results, and the user asked to stop
+   spending the session on it rather than dig further — correctly: this was
+   supposed to be two small, mechanical CSS fixes.
+   **So: nothing is confirmed either way.** The h1-overflow mechanism this note
+   already describes (a single unbreakable word in a `minmax(0, 1fr)` column)
+   is real and unchanged; whether it actually clips the icon at some width, and
+   which width, is NOT established — do not cite the ~510px figure, it was
+   retracted, not corrected. If this needs settling later, trust the real
+   browser over another automated pass; something about headless Chrome's
+   rendering did not match it here for a reason that was never found.
+   **What IS certain, independent of any of the above:** the two fixes that
+   shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
+   icon scaled to 75% under `max-width: 400px`) cannot affect anything above
+   400px by construction — the icon rule is strictly gated by its media query,
+   and the reel's fix only ever prevents a shrink that would otherwise occur
+   under pressure, never something that changes its rest state.
    **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
    eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with a
    box-shadow appearing over the same 0.25s. The glow is

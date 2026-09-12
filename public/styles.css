@@ -316,13 +316,15 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    here because everything about this icon is already expressed in `em` off
    its own font-size — the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
    and the hover halo's blur/spread (both `em`, in the :hover rule below) all
-   scale off THIS property, so halving it halves the icon, its padding AND the
+   scale off THIS property, so scaling it scales the icon, its padding AND the
    halo together, exactly as asked, with no separate rule for each.
-   Written as the same clamp halved by `calc(... * 0.5)`, not as an independent
+   Written as the same clamp scaled by `calc(... * 0.75)`, not as an independent
    clamp with its own numbers — an independent one could drift from the base
-   size later and nobody would notice the coupling had broken. */
+   size later and nobody would notice the coupling had broken.
+   0.75, not the 0.5 first shipped: the user's own follow-up call, after 50%
+   read as too aggressive a cut — this is a QUARTER smaller, not half. */
 @media (max-width: 400px) {
-  .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.5); }
+  .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.75); }
 }
 
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
