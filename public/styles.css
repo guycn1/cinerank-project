@@ -3242,6 +3242,29 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-table tbody tr:last-child td:not(:last-child) {
     border-bottom: 1px solid var(--line-faint);
   }
+  /* Step 5, user-raised with a screenshot: "TOTAL TOKENS" wrapped to two lines
+     and read right-aligned instead of left. Root cause: this pseudo-element
+     sets no `text-align` of its own, so it INHERITS `text-align: right` from
+     `.log-table td` above — the rule that correctly right-aligns the VALUE
+     column. On a single-line label that is invisible: a floated box with no
+     explicit width shrinks to fit its own content, so there is no leftover
+     space for `text-align` to redistribute either way. It only becomes
+     visible once a label actually wraps, where the shorter line then sits
+     flush against the box's RIGHT edge instead of its left.
+     `text-align: left` here is the fix, and here (the general rule) rather
+     than only on `:has(.sub)::before` below (the label the user's screenshot
+     actually showed) is what makes it complete: neither rule sets
+     `text-align` today, both inherit `right` from the same place, and a fix
+     placed on just one would leave the exact same bug live on the other.
+     Checked against every label this table can show (`Feature`, `Prompt`,
+     `Model`, `Tokens`, `Cost`, `Duration`, `Status`, `Result`, `Time`, `Total
+     tokens`, `Total cost`, `Total duration`) — the three "Total …" labels are
+     the only ones long enough to wrap in practice, and "Total duration" (14
+     characters) is LONGER than "Total tokens" (12) and shares the exact same
+     cell width in card mode, so it wraps at an equal-or-wider viewport and
+     was already showing the identical bug, unphotographed. This one
+     declaration fixes it too, for the same inheritance reason — not two
+     separate patches for two labels that happen to look different. */
   .log-table td::before {
     content: attr(data-label);
     float: left;
@@ -3251,6 +3274,7 @@ body:has(dialog[open]) { overflow: hidden; }
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-align: left;
   }
 
   /* Cells with a sub-line (only Tokens: "428" stacked over "355 in / 73 out")
@@ -3269,6 +3293,11 @@ body:has(dialog[open]) { overflow: hidden; }
     float: none;
     margin-right: 0;
     grid-row: 1 / span 2;
+    /* Positions the BOX at the start of the grid cell — a different concern
+       from the TEXT inside it wrapping right-aligned, which is what the
+       user's screenshot actually showed. That is `text-align: left` on the
+       shared `.log-table td::before` rule above, inherited here on purpose;
+       do not duplicate it in this rule. */
     justify-self: start;
   }
   .log-table td:has(.sub) > .sub { grid-column: 2; }
