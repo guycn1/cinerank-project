@@ -6,6 +6,60 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-060 · D-059's premise was wrong — the "leave it" call is reversed, with a soft-hyphen fix that needs no JS resize logic at all
+
+**Supersedes D-059**, the same day. D-059 accepted the `hyphens: auto` gap
+("SquarePants" breaking with no hyphen, "childhood" right beside it
+hyphenating correctly) on an explicit premise: closing it fully "needs JS
+measuring text and manually inserting the break… the same category of
+ongoing work `syncReviewToggles()` exists for."
+
+**That premise was wrong, and the user caught it by asking a direct
+question** ("doesn't CSS hyphenation allow breaking after ANY character?") —
+not by testing, by querying the mechanism itself, which is exactly the kind
+of check this project's "verify before asserting" habit is for. The honest
+answer is no — `hyphens: auto` is constrained to points a language dictionary
+trusts, which is *why* the gap exists — but that answer surfaced a mechanism
+neither of us had weighed yet: a **soft hyphen** (U+00AD), which marks an
+arbitrary point as a break OPPORTUNITY with no dictionary involved at all.
+Insert one between every character of a title, once, and it renders as
+nothing unless it happens to be where a line actually breaks. There is no
+resize logic to write, because there is nothing to recompute — the same text,
+generated once, either respects its own embedded break points or doesn't,
+entirely as a function of the CSS `hyphens` property in effect at that
+instant. D-059's cost estimate was for a different, harder problem (finding
+WHERE text overflows) that this approach never needs to solve.
+
+**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over three
+titles — `.movie-card__body`, `.rec-card__body`, `.result-row` — with no
+viewport check inside it at all. CSS alone gates whether the embedded soft
+hyphens are ever honoured: `hyphens: none` by default (>= 400px — the exact
+user instruction, and why 400 itself is excluded, not included, unlike the
+unrelated `max-width: 400px` query elsewhere in this file), overridden to
+`hyphens: manual` under `max-width: 399px`. `hyphens: auto` is removed
+entirely — it added nothing once every position already has a soft-hyphen
+opportunity, and it was the one carrying the dictionary dependency that
+caused the original gap.
+
+**Narrower than D-059's fix in one respect, and that narrowing is
+deliberate, not a regression.** The old `hyphens: auto` pass had also been
+added to the rate/confirm dialog headings and the toast. Those are dropped
+here: both double as an element's accessible name (`aria-labelledby`) or
+live-region content (`.toast[role=status][aria-live=polite]`), so soft
+hyphens embedded in their text would reach a screen reader, not just the eye.
+Soft hyphens are *supposed* to be silent to assistive tech, but that has a
+real history of inconsistent implementation, and this app's accessibility
+work is not worth trading for a cosmetic fix in two spots that were never
+the reported problem. `aria-label`s, `alt` text and `dataset.title` were
+never touched by either version of this feature — only the visible text node
+in each of the three card/row titles.
+
+**Trap for later: do not add `hyphens: auto` back "for consistency."** It is
+what caused the original inconsistency (a real word hyphenates, an invented
+one does not) — the soft-hyphen approach is what fixed it, precisely by not
+depending on a dictionary.
+
+---
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
 **The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow

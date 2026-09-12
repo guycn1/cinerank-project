@@ -1068,7 +1068,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      400-character words, so nothing is known to be broken here — but the guard
      is one declaration and the failure mode is the whole page. */
   overflow-wrap: anywhere;
-  hyphens: auto; /* see the full note at .movie-card__body */
+  hyphens: none; /* see the full note at .movie-card__body */
 }
 .result-row:hover { background: var(--bg-raised); }
 .result-row img, .result-row .noposter {
@@ -1559,47 +1559,43 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    any future non-text content in this column (something with `white-space:
    nowrap`, a wide image) could size the track the same way. This makes the track
    incapable of being pushed open regardless of what lands in it. */
-/* `hyphens: auto` (step 5, user-raised with a screenshot: "SpongeBob" broke as
-   "SpongeB" / "ob"). This does NOT replace `overflow-wrap: anywhere` above —
-   the two solve different problems and both stay. `overflow-wrap` is the
-   LAST-RESORT sizing guard: it is what stops one unbroken word from blowing
-   the track open, and it must keep doing that job. `hyphens: auto` changes
-   what happens once a break is actually needed: the browser's own
-   language-aware hyphenation runs FIRST, at a real syllable boundary, and
-   only draws a hyphen there — the raw "break absolutely anywhere" behaviour
-   is still what fires on a word hyphenation cannot place a point in (a long
-   unbroken code, a URL-shaped title). Needs `lang` on the document to pick
-   the right dictionary (`<html lang="en">` already sets this) and degrades
-   completely safely where unsupported — an engine that ignores `hyphens`
-   just keeps today's behaviour, nothing regresses.
-   Same pairing added to every OTHER place in this file carrying the identical
-   `overflow-wrap: anywhere` guard over a film title — `.result-row`,
-   `.rec-card__body`, `.rate-dialog h3`/`.confirm-dialog h3`, `.toast` — so a
-   title breaks the same way wherever it appears.
-   **KNOWN, ACCEPTED GAP (same day, user-caught with a screenshot): the raw
-   "anywhere" fallback still shows no hyphen at all when it fires** — seen on
-   "SquarePants", an invented camelCase compound the hyphenation algorithm
-   found no valid pattern in ("childhood", a real word, hyphenated correctly
-   right next to it in the same title). There is no CSS property that puts a
-   fallback character on an ARBITRARY overflow-wrap break the way
-   `hyphenate-character` does for a real hyphenation point — closing this
-   fully needs JS measuring text and manually inserting the break, the same
-   category of ongoing work `syncReviewToggles()` exists for elsewhere (resize,
-   zoom, font-swap all have to re-run it). Raised to the user as a real
-   engineering-cost decision, not a two-line fix; their call was to leave it —
-   most real words already hyphenate correctly, and the residual gap only
-   hits unusual invented titles at the narrowest widths. See D-059. Do not
-   build the JS fallback on a hunch; that call was already made. NOT added to
-   the AI log's `.log-error` cell, which holds technical error text and URLs
-   rather than
-   a title — hyphenation dictionaries only recognise real words, so it would
-   have no effect there anyway. */
+/* SOFT-HYPHEN BREAKS, BELOW 400px ONLY (step 5, user-raised, D-059 → D-060).
+   `hyphens: auto` was tried first and REMOVED: it only hyphenates at points a
+   real dictionary/pattern algorithm trusts, so a real word ("childhood")
+   hyphenated correctly while an invented compound ("SquarePants") found no
+   trusted point at all and fell through to `overflow-wrap: anywhere`'s raw,
+   hyphen-less break — inconsistent, and no CSS knob fixes that ceiling.
+   D-059 accepted that gap on the premise that closing it needed resize-aware
+   JS measurement. THAT PREMISE WAS WRONG, which is why this replaces it
+   rather than sitting beside it (D-060): a SOFT HYPHEN (U+00AD, inserted once
+   by `softHyphenate()` in app.js, between every pair of adjacent non-space
+   characters) is a break opportunity at literally every position, with none
+   of `hyphens: auto`'s dictionary dependency — AND it needs no JS resize
+   logic at all, because a soft hyphen is invisible and zero-width unless it
+   is the actual point a line breaks. The text is generated once; CSS ALONE
+   decides whether those embedded break points are ever honoured.
+   `hyphens: none` here suppresses every hyphenation opportunity — the
+   embedded soft hyphens included — so >= 400px renders BYTE-IDENTICAL to
+   plain `overflow-wrap: anywhere` with no hyphenation feature at all, exactly
+   as the user asked. The override to `hyphens: manual` (the CSS default,
+   restored explicitly below 400px) is what lets those same soft hyphens
+   start being honoured — live, on resize, with nothing re-rendered.
+   SCOPED to card/row titles only — `.movie-card__body`, `.rec-card__body` and
+   `.result-row`, all three set the same way below. Deliberately NOT applied
+   to the rate/confirm dialog headings or the toast: both of those double as
+   an ELEMENT'S ACCESSIBLE NAME (`aria-labelledby`) or live-region content
+   (`.toast[aria-live]`), so soft hyphens embedded in their text would be
+   exposed to a screen reader, not just to the eye — soft hyphens are SUPPOSED
+   to be silent to assistive tech, but implementations have a real history of
+   getting that wrong, and this app's accessibility work is not worth trading
+   away for a cosmetic fix. Those two keep only `overflow-wrap: anywhere`,
+   unchanged, same as before this feature existed. */
 .movie-card__body {
   align-self: start;
   margin-top: 0.3rem;
   min-width: 0;
   overflow-wrap: anywhere;
-  hyphens: auto;
+  hyphens: none;
 }
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
@@ -2413,7 +2409,27 @@ button:disabled .sparkle-major { animation: none; }
      way `.reason` is. See the matching `min-width: 0` on `.rec-card` itself. */
   min-width: 0;
   overflow-wrap: anywhere;
-  hyphens: auto; /* see the full note at .movie-card__body */
+  hyphens: none; /* see the full note at .movie-card__body */
+}
+/* The live toggle for all three `hyphens: none` declarations above (search
+   row, ranked card, rec card) — see the full note at .movie-card__body for
+   why this exists and why it is scoped to exactly these three selectors.
+   Placed here, after all three base rules, on purpose: an equal-specificity
+   override only wins if it is LATER in source order, and .rec-card__body's
+   own `hyphens: none` (just above) is the last of the three to appear in this
+   file. A media query placed any earlier would be silently overridden by
+   whichever base rule came after it.
+   399px, not 400 — the user's own word was "narrower than 400px", which
+   excludes exactly 400 itself; the unrelated `max-width: 400px` query
+   elsewhere in this file (the score row's grid-column fix) is INCLUSIVE of
+   400 on purpose, from that fix's own literal wording, so the two are not
+   meant to match and are kept as separate queries rather than merged. */
+@media (max-width: 399px) {
+  .movie-card__body,
+  .rec-card__body,
+  .result-row {
+    hyphens: manual;
+  }
 }
 .rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
@@ -2648,7 +2664,6 @@ body:has(dialog[open]) { overflow: hidden; }
   font-family: 'Fraunces', serif;
   margin-bottom: 1rem;
   overflow-wrap: anywhere;
-  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
@@ -3323,7 +3338,6 @@ body:has(dialog[open]) { overflow: hidden; }
      BOX, so without this an unbreakable word does not wrap — it spills straight
      out of the rounded panel. Same one-line guard the dialogs and cards carry. */
   overflow-wrap: anywhere;
-  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.err { border-left-color: var(--crimson); }

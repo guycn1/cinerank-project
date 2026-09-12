@@ -395,6 +395,32 @@ function withViewTransition(update) {
   t.finished.catch(() => {});
 }
 
+/**
+ * Insert a soft hyphen (U+00AD) between every pair of adjacent non-space
+ * characters in a film title (step 5, D-060, supersedes D-059's `hyphens:
+ * auto`). A soft hyphen is a break OPPORTUNITY, not a break — it renders as
+ * nothing at all unless it is the exact point a line actually breaks, so
+ * this is invisible and inert wherever nothing needs to break. Unlike
+ * `hyphens: auto`, it needs no dictionary: it offers a valid point at every
+ * position, which is what an invented compound title ("SquarePants") needs
+ * and a language pattern algorithm could not supply.
+ * Whether these embedded points are ever honoured is decided entirely by
+ * CSS (`hyphens: none` above 400px, `manual` below it, on `.movie-card__body`
+ * / `.rec-card__body` / `.result-row`) — this function runs UNCONDITIONALLY,
+ * with no viewport check and no resize listener. That is the whole reason
+ * this replaces D-059's "needs JS measurement" premise rather than confirming
+ * it: the text is generated once, and the SAME text starts or stops
+ * respecting its own embedded hyphens live, as the media query flips on
+ * resize, with nothing here re-run.
+ * Deliberately not used on the rate/confirm dialog headings or the toast —
+ * see the CSS note at `.movie-card__body` for why: both double as an
+ * accessible name or live-region content, and a soft hyphen embedded there
+ * would reach a screen reader, not just the eye.
+ */
+function softHyphenate(text) {
+  return text.replace(/(\S)(?=\S)/g, '$1­');
+}
+
 /* ---------- ranked list ------------------------------------------------- */
 // Has the list been painted at least once? The first paint is an ENTRANCE (the
 // staggered `card-enter`, nothing to morph from); every later one is a CHANGE to
@@ -509,7 +535,7 @@ function renderRanked() {
     const body = document.createElement('div');
     body.className = 'movie-card__body';
     const h3 = document.createElement('h3');
-    h3.append(document.createTextNode(m.title + ' '));
+    h3.append(document.createTextNode(softHyphenate(m.title) + ' '));
     const yr = document.createElement('span');
     yr.className = 'year';
     yr.textContent = m.year ? `(${m.year})` : '';
@@ -968,7 +994,7 @@ function renderSearchResults(results, query) {
     const meta = document.createElement('div');
     meta.className = 'meta';
     const strong = document.createElement('strong');
-    strong.textContent = r.title;
+    strong.textContent = softHyphenate(r.title);
     const span = document.createElement('span');
     // `!= null`, not truthiness, and `toFixed(1)` so this row and the ranked
     // card state the same number the same way. Truthiness happened to hide
@@ -1604,7 +1630,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     const body = document.createElement('div');
     body.className = 'rec-card__body';
     const h3 = document.createElement('h3');
-    h3.append(document.createTextNode(s.title + ' '));
+    h3.append(document.createTextNode(softHyphenate(s.title) + ' '));
     const yr = document.createElement('span');
     yr.className = 'year';
     yr.textContent = s.year ? `(${s.year})` : '';
