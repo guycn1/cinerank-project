@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is now IN PROGRESS (started and substantially worked the same day 4b closed) — NOT complete, do not treat it as done.** Landed so far: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is still open and still parked here.** Still to do in step 5: everything else the portrait pass turns up, working down from ~500px toward the ~350px "good enough" floor and stopping at ~290px per the two enforcement rules below.)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is now IN PROGRESS (started and substantially worked the same day 4b closed) — NOT complete, do not treat it as done.** Landed so far: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** Still to do in step 5: everything else the portrait pass turns up, working down from ~500px toward the ~350px "good enough" floor and stopping at ~290px per the two enforcement rules below.)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -157,6 +157,28 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   real film, and `POST /api/movies` for one is refused in the browser — pressing
   Add on a dummy card cannot reach the database. Reload to stop; nothing is
   persisted. Never run by Node.
+  **IT NEEDS THREE RATED FILMS IN THE REAL DATABASE, and that surprises people
+  — including Claude, which wrote a set of repro steps on 2026-09-12 without
+  checking and sent the user to a dead button.** The harness fakes the
+  recommendation CALL, never the gate in front of it: `GET /api/movies` is not
+  intercepted, so the trigger's disabled state and the hint's text both come from
+  the real list. At zero rated films the button is dead and nothing in the file
+  ever runs.
+  **And forcing the button on no longer rescues it.** The harness carries a
+  `setTimeout(…, 0)` that re-enables the trigger after the run's `finally`
+  re-disables it — complete when written (96158b1, 2026-09-09), because the
+  below-threshold branch of `syncRecommendationsAvailability()` then did only two
+  things and neither touched the grid. **R16 (885a6a5, 2026-09-11) added
+  `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()` to that same
+  branch**, so a sub-threshold dummy run now renders six cards and wipes them in
+  the same tick: a flash, not a run. Deliberately NOT patched (D-063) — the fix
+  is to rate three films, since the harness exists to avoid OpenRouter calls, not
+  to stand in for the database. Both the file header and the branch itself say so,
+  including that the paragraph above that `setTimeout` is no longer a promise it
+  works. **The generalisable bit: a test double that patches around ONE observable
+  consequence of an app branch cannot notice when that branch grows another —
+  nothing fails and nothing warns, the double just quietly covers less than its
+  comment claims.**
   **It starts every page load DISARMED and is armed only by calling
   `debugRecs()`.** That flag is not decoration: the fetch patch installs the
   moment the file runs, which was harmless while pasting into a console WAS the
@@ -1190,8 +1212,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
-   seeing R27 and D-050 run. R1–R17, R19 and R21–R30 are done, R20 was WITHDRAWN as
-   incorrect, and **R18 is the only one still open** — every
+   seeing R27 and D-050 run. **R1–R19 and R21–R30 are ALL DONE, R20 was WITHDRAWN
+   as incorrect, and R18 — the last one open — was CLOSED 2026-09-12 as won't-fix
+   on measurement (D-063). STEP 2 IS THEREFORE COMPLETE; nothing in this
+   sub-backlog is outstanding.** Every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1638,11 +1662,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      owned filter means a rated film can never be recommended back, and it is
      there so the badge rests on `state.movies` alone rather than on a
      server-side filter staying correct.
-   * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
-     that run to three or four on a phone**, so the grid jumps as the hint
-     changes. Low severity: the busy string and the resting string are close in
-     length, so the shift is real but small. Check it during the step-5 portrait
-     pass rather than guessing at a number now.
+   * **R18. CLOSED 2026-09-12 as WON'T-FIX, on measurement (D-063) — the last
+     item in this sub-backlog, so step 2 is now fully closed.** It read:
+     "`.recs__hint { min-height: 1.2em }` reserves one line for messages that run
+     to three or four on a phone, so the grid jumps as the hint changes", and it
+     deliberately parked the question for the step-5 portrait pass rather than
+     guessing a number. That instruction is what made this closeable.
+     **Measured at `innerWidth: 360` (line-height 22.32px), twice, identically:
+     the busy message is 3 lines / 67.0px and the "Based on: …" message is 2
+     lines / 44.6px.** So the whole effect is ONE line, 22.4px, once per run —
+     not the three-or-four-line swing the item assumed. The resting → busy
+     transition does not move at all: 81 chars and 92 chars both land on three
+     lines at this width.
+     **And the one transition that does move is the one that cannot be seen.**
+     The hint shrinks inside `renderRecommendations()`, and eleven lines later —
+     same synchronous block — that function fires R27's
+     `el.recsHead.scrollIntoView({ block: 'start' })`. The page is smooth-scrolling
+     the section to the top of the viewport and starting a 1.75s staggered
+     entrance on six cards at the instant the hint loses its line. **The user
+     looked for it twice, on the run set up specifically to expose it, and
+     reported seeing "barely anything worth fixing" — the numbers explain that
+     rather than contradict it.**
+     **The fix is worse than the defect.** Holding the grid still means reserving
+     the tallest message (`min-height: ~3.1em`), which permanently parks 67px of
+     blank space above the grid on narrow viewports — in the exact viewport class
+     step 5 exists to make LESS cramped — and hardcodes a line count that is a
+     function of four message strings, the font and the width. Do not re-propose
+     it, and do not re-propose the three alternatives weighed and rejected in
+     D-063 (per-breakpoint media queries, shortening the busy copy, or measuring
+     the tallest message in JS).
+     **One thing observed and deliberately NOT changed:** `min-height: 1.2em`
+     computes to 17.28px against a 22.32px line box, so it under-reserves by ~5px
+     even in the empty-hint case it was written for. That window is first paint
+     to `/api/movies` returning, where the content arriving dominates it. Noted
+     so it is not rediscovered as a bug.
 
    **Group E — structure and tests**
 
@@ -2727,11 +2780,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    search-results panel's height floor, mid-word hyphenation, the AI log's
    card-view label alignment, the toast's width/shadow/centering) — see the
    living log above for the full list and D-058/D-060/D-061/D-062 for the
-   traps found along the way. **R18** (`.recs__hint { min-height: 1.2em }`
-   reserving one line for messages that can run to three or four) is the one
-   still-open recommendations item and is deliberately parked here — see its
-   entry under step 2. The two enforcement rules immediately below are yours
-   to apply on every pass through this step, not a one-time read. <<<**
+   traps found along the way. **R18 — which used to be parked here as the one
+   still-open recommendations item — was CLOSED 2026-09-12 as won't-fix once it
+   was finally measured (D-063): the shift is one line, 22.4px, and it happens
+   in the same frame as R27's scroll, so it cannot be seen. Step 2 is therefore
+   COMPLETE and step 5 is now pure portrait work with nothing inherited.** The
+   two enforcement rules immediately below are yours to apply on every pass
+   through this step, not a one-time read. <<<**
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
    The user asked to be stopped, in advance, because the deadline is close:

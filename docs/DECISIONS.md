@@ -6,6 +6,115 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
+
+Two decisions, reached in one investigation and kept together because
+separating them would lose the thread: **(a)** R18 — the last open item in the
+recommendations sub-backlog — is closed without a code change, and **(b)** the
+`debugRecs` harness is knowingly left half-stale rather than patched. The
+second is what made the first hard to look at.
+
+### (a) R18: measured, then dropped
+
+**What R18 claimed.** `.recs__hint { min-height: 1.2em }` "reserves one line for
+messages that run to three or four on a phone, so the grid jumps as the hint
+changes." Filed 2026-09-09 during the recommendations audit, explicitly parked
+for the step-5 portrait pass with the instruction to "check it during the
+portrait pass rather than guessing at a number now". That instruction is the
+only reason this entry can be written — the item was never costed by eye.
+
+**What the measurement showed**, at `innerWidth: 360`, computed line-height
+22.32px, over two consecutive runs with identical results:
+
+| Hint state | Height | Lines |
+|---|---|---|
+| Busy (`Pulling your top films → …`, 92 chars) | 67.0px | 3 |
+| After the run (`Based on: …`, 58 chars) | 44.6px | 2 |
+
+So the entire effect is **one line, 22.4px, once per run** — not the three-or-four
+line swing the item described. The other transition the item implies, resting
+(81 chars) → busy (92 chars), does not move at all: both land on three lines at
+this width.
+
+**And the one transition that does move is the one that cannot be seen.** The
+hint shrinks in `renderRecommendations()` (app.js, the `setRecsHint(['Based on:
+…'])` call), and eleven lines later, in the same synchronous block, that same
+function fires `el.recsHead.scrollIntoView({ block: 'start' })` — R27's scroll.
+At the exact instant the hint loses a line, the page is smooth-scrolling the
+section to the top of the viewport and six cards are beginning a 1.75s staggered
+entrance. The user looked for the jump twice, on the run the instructions
+specifically set up to expose it, and reported "I've barely seen anything worth
+fixing" — which the numbers then explained rather than contradicted.
+
+**Why the obvious fix is worse than the defect.** Holding the grid still means
+reserving the tallest message: `min-height: ~3.1em`, permanently parking 67px of
+blank space above the grid on every narrow viewport, including the roughly
+two-thirds of the time the message is shorter than that. That trades a masked
+one-line shift for unmasked dead space in the exact viewport class step 5 exists
+to make less cramped. It also hardcodes a line count that is a function of four
+message strings, the font and the viewport width — it goes silently wrong the day
+any of those changes, and nothing would catch it.
+
+**Rejected alternatives**, briefly, so they are not re-proposed:
+* *Media-query the `min-height` per breakpoint.* Same hardcoding, now in several
+  places, and it still cannot know what the strings are.
+* *Shorten the busy message so every state fits two lines.* The busy line is
+  R26-classified as a caption and is doing real work — it names the three stages
+  of the run, which is the "not a wrapper" evidence SPEC §7.2 asks for. Trimming
+  copy to make a layout rule work is the wrong way round.
+* *Measure the tallest message in JS and set the height.* Reading layout during
+  a render is precisely what `syncReviewToggles()`'s three batched passes exist
+  to avoid, for a shift nobody can see.
+
+**One observation made and deliberately NOT acted on.** `min-height: 1.2em` at
+this element's `0.9rem` computes to 17.28px, where a line box here is
+`1.55 × 14.4 =` 22.32px — so it under-reserves by about 5px even in the empty
+case it was written for. That window lasts from first paint until `/api/movies`
+returns, and the content arriving dominates it. Recorded so it is not
+rediscovered and "fixed" as a bug.
+
+**Where Claude was wrong, and it cost the user a round trip.** The reproduction
+steps handed over were written assuming a populated ranked list. The database
+was empty, so the trigger was disabled by `syncRecommendationsAvailability()`,
+the click never happened, and the user's screenshot showed a locked section that
+looked like a harness failure. The state of the data was checkable before
+writing the steps and was not checked.
+
+### (b) The `debugRecs` harness is left half-stale on purpose
+
+Found while diagnosing the above, and it is the reason a sub-threshold run could
+not simply be forced.
+
+`scripts/debug-recs.js` (96158b1, 2026-09-09) carries a `setTimeout(…, 0)` that
+re-enables `#recs-trigger` after the run's `finally` re-disables it. **That
+workaround was complete when written**: at the time, the below-threshold branch
+of `syncRecommendationsAvailability()` did exactly two things — write the "Rate
+at least 3 movies" hint, and disable the button. Neither touched the grid, so a
+dummy run below the threshold rendered six cards and they stayed. Zero rated
+films was a perfectly usable harness state.
+
+**R16 (885a6a5, 2026-09-11 — two days later) added a third statement to that same
+branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`, so
+a locked section cannot sit above six live recommendations. Correct on its own
+terms and unrelated to this file. The consequence is that the harness's cards are
+now wiped by the run's own `finally`, in the tick they were rendered — below the
+threshold you get a flash, not a run.
+
+**Not fixed.** Re-adding the cards after the sync has cleared them would put the
+harness in a fight with a rule the app asserts deliberately, and the
+locked-shows-no-output state is itself worth being able to look at. The answer is
+to rate three films: the harness exists to avoid OpenRouter calls, not to stand
+in for the database, and its fetch patch already lets a positive `tmdb_id` through
+to the real server so films can be added without disarming it.
+
+**The generalisable part**, which is why this is logged rather than left as a
+comment: a test double that patches around *one observable consequence* of an
+app branch has no way to notice when that branch grows another. Nothing fails,
+nothing warns — the double just quietly covers less than its comment claims. Both
+the header and the branch in `debug-recs.js` now say so, including that the
+paragraph above the `setTimeout` is no longer a promise that it works.
+
+---
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
 
 **Context: this one was found without trustworthy automated verification.**
