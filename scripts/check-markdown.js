@@ -99,14 +99,21 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // RULE 4 was here and was REMOVED deliberately: "a separator immediately
-    // before a heading is redundant, because GitHub rules every h1/h2". True,
-    // and it is why the 2026-09-12 fix deleted CLAUDE.md and SPEC.md's
-    // separators rather than unescaping them -- but docs/DECISIONS.md uses 65 of
-    // them between long entries, where they render as real rules and arguably
-    // earn their keep. That is a judgement for a human, not a linter, and 65
-    // false alarms would have buried the three checks above. The guidance lives
-    // in CLAUDE.md instead: do not add new ones, and never an escaped one.
+    // --- RULE 4: no separator immediately before a heading --------------------
+    // GitHub rules every h1/h2 itself, so one here draws two lines around the
+    // heading. This was briefly dropped from the checker because it fired 38
+    // times on docs/DECISIONS.md -- and then the user looked at how those
+    // actually rendered and had them removed, which is what makes the rule
+    // enforceable: there is not one left in the repo, so it can never cry wolf
+    // and any hit is a real regression. A --- that is NOT before a heading is
+    // untouched by this rule; thematic breaks mid-section are fine.
+    if (!inFence && line.trim() === '---' && n > 1) {
+      let j = i + 1;
+      while (j < lines.length && lines[j].trim() === '') j += 1;
+      if (lines[j] !== undefined && /^#{1,6}\s/.test(lines[j].trim())) {
+        errors.push(`${rel}:${n}  separator before a heading: GitHub already rules every h1/h2`);
+      }
+    }
 
     // --- COSMETIC: an escape in plain text is noise, not a defect -------------
     if (!inFence) {

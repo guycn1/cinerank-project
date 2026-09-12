@@ -5,7 +5,6 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
----
 ## D-065 · The markdown separators are DELETED, not unescaped — and two of the four suspected escaping defects turned out not to be defects at all
 
 CLAUDE.md and SPEC.md carried ~110 backslash escapes from an old paste. The
@@ -74,6 +73,39 @@ deliberately preserved inside the blocker entry that documents this work — whi
 is itself the trap a blind find-and-replace would have sprung, since that entry
 quotes the escape sequences as examples.
 
+### Addendum, next day: the separators came out of every file, and the rule became enforceable
+
+This entry originally carved out an exception — `docs/DECISIONS.md` "keeps its 65
+between long entries by choice" — and the checker dropped its separator rule
+rather than fire 38 times against it. **The user then looked at how those
+actually rendered and overruled it, correctly.**
+
+Two things decided it, and the second is the one Claude had missed. The rule is
+REDUNDANT: GitHub already draws a border under every `h2`, so each entry opened
+with a horizontal line, a gap, a large bold heading, and then the heading's own
+line. And it was INCONSISTENT: only **38 of the 65** entries had one, so the same
+boundary was drawn two different ways with nothing behind the difference. A
+convention applied to 58% of cases is worse than either choice applied to all of
+them. The earlier figure of "65" was wrong as well.
+
+All 38 came out, plus one more in `docs/PROCESS.md` that nobody had noticed.
+Verified the way the rules now require: rendered before and after, and the
+BEFORE html with only its `<hr>` lines stripped is byte-identical to the AFTER.
+Heading, table and code-span counts unchanged — 65 h2, 45 h3, 5 tables, 951 code
+spans, before and after.
+
+**The payoff is that the rule became enforceable.** It was dropped from the
+checker only because it would have cried wolf 38 times; with zero left anywhere
+in the repo it can now fail the build on any reappearance, which is what it does.
+
+**And restoring it immediately caught two things, which is the argument for
+probing a check rather than trusting it.** First, the restored rule did not work
+at all: a heredoc ate a backslash and its regex became `/^#{1,6}s/`, matching a
+literal "s" after the hashes and therefore nothing — a check that passes",
+silently, forever. The probe caught it in one run. **That is the same failure as
+the tag-balance check in D-064: a green result from something that never tested
+what it claimed.** Second, once fixed, it found the `PROCESS.md` separator that
+three manual passes over "all the markdown files" had walked straight past.
 ### The one that got through, and the check it produced
 
 The first pass fixed the separators and the code-span underscores, verified the
@@ -114,7 +146,6 @@ information. Measuring each class against the real renderer shrank the job from
 "eyeball 3,380 lines" into a diff that fits on a screen. Measure the classes
 before estimating the risk, not after.
 
----
 
 ## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
 
@@ -239,7 +270,6 @@ geometry box (stroke excluded) and would have put the outer ring's edge within a
 rounding error of the mask boundary. And the file gained an XML prolog and
 explicit `width`/`height`.
 
----
 ## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
 
 Two decisions, reached in one investigation and kept together because
@@ -348,7 +378,6 @@ nothing warns — the double just quietly covers less than its comment claims. B
 the header and the branch in `debug-recs.js` now say so, including that the
 paragraph above the `setTimeout` is no longer a promise that it works.
 
----
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
 
 **Context: this one was found without trustworthy automated verification.**
@@ -431,7 +460,6 @@ silently measuring the wrong thing. Overriding defensively — every property
 in the same CATEGORY, not just the ones presently in play — is what would
 have prevented this from breaking at all.
 
----
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
 **Bug 1: soft hyphens reached placeholders and error messages on the verdict
@@ -482,7 +510,6 @@ flag alone only fixes the half of it that happens to be least common in
 practice (a lone emoji) while leaving the more common compound sequences
 (ZWJ, flags, skin-tone modifiers) still breakable.
 
----
 ## D-060 · D-059's premise was wrong — the "leave it" call is reversed, with a soft-hyphen fix that needs no JS resize logic at all
 
 **Supersedes D-059**, the same day. D-059 accepted the `hyphens: auto` gap
@@ -563,7 +590,6 @@ The threshold itself moved from `399px` (an exact reading of "narrower than
 here only so a future session does not "restore" 399 by reading the original
 paragraph above without this addendum.
 
----
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
 **The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
@@ -612,7 +638,6 @@ decision was already made with the cost stated plainly. Revisit only if the
 gap turns out to matter more than a screenshot at ~300px width — a real
 demo, a grading rubric complaint, anything beyond this.
 
----
 ## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
 
 **The ask.** "New verdict" was left to natural flex-wrap math and only dropped
@@ -662,7 +687,6 @@ reasoning.
 were tried and both are dead ends for the same underlying reason, not two
 independent bugs.
 
----
 ## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
 
 **The choice.** `#verdict-text`'s content is now written through ONE function,
@@ -714,7 +738,6 @@ then 15ms, then reverted to 18ms, all by eye, and none of that is logged as a
 decision; recorded here only so a future session does not "helpfully" retune
 it by misreading this entry.
 
----
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
 Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x
@@ -771,7 +794,6 @@ rather than ramping. That is a different artefact from a position jump, it reads
 as "it sped up", and the user approved it after looking. A rAF ramp of
 `playbackRate` is the fix if it is ever wanted.
 
----
 ## D-055 · The verdict glint: overcorrection, a revert, and a band that fades along a path
 
 The mechanism (an SVG stroke dash on `pathLength="100"`) was settled on
@@ -912,7 +934,6 @@ explain; an afternoon of single-variable tests produced something they called
 an outcome, pick the lever yourself and own that choice — never attribute a
 mechanism to the person who only described a result.
 
----
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
 
 Backlog item R6 said `verifyTitle()` was overselling itself: it looks for a
@@ -988,7 +1009,6 @@ fallback (`Collateral` → Heat), so it would need rewriting to a pick that
 legitimately resolves to the same film — a green suite after tightening, without
 touching that stub, would mean the tightening did not take.
 
----
 ## D-053 · The taste verdict alone runs on a stronger model
 
 The user asked for the verdict to sound less formal. **Four prompt versions
@@ -1051,7 +1071,6 @@ verdict model is ever moved back down a tier, move the prompt back to v6 with
 it — v7's four examples dilute the rules underneath them on a small model, which
 is exactly how the four-sentence break happened.
 
----
 ## D-052 · `--ink-faint` stays below WCAG AA, on purpose
 
 Claude flagged that `--ink-faint` (#6b6760) measured **3.49:1** on the page and
@@ -1124,7 +1143,6 @@ a signal from everybody, including the people the contrast rule is written for.
 token*, contrast against the background is not the whole specification. Measure
 the pair.
 
----
 ## D-051 · Card size comes from the viewport, never from the result count (R29)
 
 D-050 moved the recs grid's column count into JS but left the tracks filling the
@@ -1213,7 +1231,6 @@ meant to be on one card. The `:has()` anchor moved up to `.recs`, and the rule i
 now two selectors, scoped through `.recs__meta` so the verdict banner's own
 `.ai-meta` is untouched.
 
----
 ## D-050 · The recs grid picks its own column count, and deliberately stops short
 
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
@@ -1271,7 +1288,6 @@ adventurous. And `.rec-card` is `grid-column: auto / span 2`, not the shorter
 `span 2` — one value leaves `grid-column-end: auto`, so the moment JS writes a
 `grid-column-start` the card would collapse to a single half-width track.
 
----
 ## D-049 · The recs spotlight IS ported, at 0.70 — supersedes D-048's last section
 
 **D-048 records Claude rejecting the ranked list's spotlight dimming for the recs
@@ -1314,7 +1330,6 @@ the ranked list needed `z-index: 1` for: `opacity < 1` makes each dimmed sibling
 paint as though positioned at `z-index: 0`, which would otherwise clip the
 hovered card's glow.
 
----
 ## D-048 · The rec-card enter/exit is two CSS phases, not a View Transition (R27, R14)
 
 The user asked for "a smooth entering animation to recs-cards as they're being
@@ -1400,7 +1415,6 @@ a grid child: `:not(:hover)` over cards alone would leave the footer at full
 strength in the middle of a dimmed grid, and including it would dim the
 AI-call-log link, which is the section's only route into the audit trail.
 
----
 ## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
 
 The recommendations route answered every `RecommendationError` with
@@ -1466,7 +1480,6 @@ the same way it carries `short`.
   to a second feature that the user has not looked at yet. Do not "unify" the two
   by copying the verdict's version back over this one — that is backwards.
 
----
 ## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
 `generateRecommendations()` read the library with one query filtered
 `.not('rating', 'is', null)` and then built **two** things out of that one result:
@@ -1531,7 +1544,6 @@ had been written after the fix instead of before it.
 * This is the SERVER half only. The client half — rec cards never re-syncing
   their Add button when ownership changes — is R3 and is still open.
 
----
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400
 unbroken `f`s. The ranked list did not merely overflow: the card widened, the
@@ -1592,7 +1604,6 @@ by anything, including future non-text content with its own intrinsic width. The
 Both are marked in the CSS as defensive rather than corrective, so a later reader
 does not mistake them for evidence of bugs that happened.
 
----
 ## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
 Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
 pronounced, and more importantly - brighter. It's barely visible against the dark
@@ -1638,7 +1649,6 @@ D-043, per the rule in CLAUDE.md: D-043 records what was decided and why at the
 time, including the reasoning that turned out to be too blunt, and that record is
 worth more intact than tidied.
 
----
 ## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
 Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
 existing one as "too subtle - I can only notice it on the poster". That sentence
@@ -1717,7 +1727,6 @@ the app's amber. **The user chose C.**
   avoid. The deepened shadow, warm rim and border still respond, so the card is
   not left inert.
 
----
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
 Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
@@ -1810,7 +1819,6 @@ operation, names the film where one exists, says "couldn’t" exactly once and e
 in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
 `short` **and** that its `error` text is unchanged.
 
----
 ## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
 Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
 film that is unrated but carries a review drew the "Not rated yet" chip and its
@@ -1871,7 +1879,6 @@ any film that has a review. No UI path sends it.
   the common case, and backlog #20 is about labelling it in the UI, not
   forbidding it.
 
----
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
 Backlog #14. Expand a review with "view more…", then rate, add or remove a
 *different* film, and it snapped shut. `renderRanked()` opens with
@@ -1945,7 +1952,6 @@ list rebuild its HTML any more often than it already does. Verified rather than
 asserted: the diff touches no `replaceChildren`, `requestAnimationFrame`,
 `startViewTransition` or `refreshRanked` line.
 
----
 
 ## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
 Reported by the user within minutes of D-038 shipping. Two films were tied at
@@ -1998,7 +2004,6 @@ re-rating that crosses no neighbour, and an untouched tie among them — since a
 signature that is merely more sensitive would be its own bug. Related: [D-034],
 [D-038].
 
----
 
 ## D-038 · Tied films share a rank number, and say so
 Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
@@ -2065,7 +2070,6 @@ Verified by simulating the algorithm over nine cases rather than by reading it �
 ties at the top, middle and bottom, a three-way tie, everything tied, unrated
 films mixed in, 0.0 as a real rating, and the 99→100 `is-wide` boundary.
 
----
 
 ## D-037 · TMDB's `vote_average: 0` is an absence, not a score
 Found by the user immediately after D-036 shipped, from two screenshots of the
@@ -2110,7 +2114,6 @@ figure is re-derivable with `npm run backfill-tmdb-rating` at any time.
 This does not supersede [D-036]; the snapshot-at-add-time decision stands
 unchanged. It corrects what a stored value of `0` means.
 
----
 
 ## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
 Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
@@ -2161,7 +2164,6 @@ any film fails. Adding a nullable column is backward compatible with the
 already-deployed code, so the migration can and should be applied BEFORE the
 next merge to `main`.
 
----
 
 ## D-035 · The Remove button's label is light, and arithmetic decided that
 Yesterday's hover pass (#10) gave the confirm dialog's Remove button a darker
@@ -2215,7 +2217,6 @@ re-fails AA. If either token moves, re-measure; do not re-tune by eye. Related:
 D-030, where two eyeballed estimates were both wrong and only a measurement
 settled it.
 
----
 
 ## D-034 · "ranking updated" is checked before it is claimed
 The three confirmation toasts had three different shapes and two named no film
@@ -2265,7 +2266,6 @@ through by design, and prefixing it client-side produces doublings like
 `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
 the messages at the source; it stays on backlog #16.
 
----
 
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
 `.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
@@ -2317,7 +2317,6 @@ Not changed: the `?`, the missing score badge, and the button reading "Rate"
 instead of "Edit" are the card's other three unrated signals and are all correct
 as they stand.
 
----
 
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
 Testing the save-failure path (throttled to Offline) showed the crimson toast
@@ -2351,7 +2350,6 @@ time" on Skip, and "Saved — ranking updated"). Both are dimmed for the ~250ms 
 the dialog's fade-out. Both are confirmations rather than errors and remain
 readable for the other ~3s, so they are deliberately left alone.
 
----
 
 ## D-031 · The ranked list re-sorts with a View Transition, not a rewritten renderer
 `renderRanked()` opens with `replaceChildren()`, so every render destroys and
@@ -2443,7 +2441,6 @@ collapse stays open as its own item. This is a chosen trade, not an oversight.
   prefix on the UUID — a bare UUID can begin with a digit, which is not a valid
   CSS ident, and a duplicate aborts the entire transition.
 
----
 
 ## D-030 · Three-digit ranks are capped, not documented away
 A forced test (ranks rewritten to 250+ in the console) showed three-digit
@@ -2526,7 +2523,6 @@ the obvious move and it is wrong: cards with wider ranks get a wider first
 column, so poster left edges stop aligning down the list — trading a problem
 nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
 
----
 
 ## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
 The ranked list numbered every card `i + 1`, unrated films included. So an
@@ -2584,7 +2580,6 @@ a long list a just-skipped film is far out of sight. Raised with the user, who
 chose to leave it — noted here so the omission reads as a decision rather than an
 oversight.
 
----
 
 ## D-028 · Search stays typo-intolerant; the empty state explains instead
 Search is strict: "obamma" returns nothing, "obama" returns plenty. First

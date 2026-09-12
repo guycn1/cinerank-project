@@ -8,7 +8,6 @@ not an afterthought.
 **Authors:** Guy Cohen & Michael Chernyak · **Course:** LLM-Augmented Software
 Practice (ASE-26)
 
----
 
 ## 1. Working method
 

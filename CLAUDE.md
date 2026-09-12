@@ -3400,10 +3400,15 @@ down would be re-broken within a session. See D-065.
 3. **Never put a bare `---` directly under a line of text.** That is setext
    syntax: it silently promotes the line above to an `<h2>`. Confirmed against
    GitHub's renderer, not assumed.
-4. **Do not add new section separators before headings.** GitHub's own
-   stylesheet already draws a rule under every `h1` and `h2`, so a separator
-   there draws two rules a line apart. `docs/DECISIONS.md` keeps its 65 between
-   long entries by choice; that is the exception, not the pattern to copy.
+4. **Never put a section separator before a heading** — `check-markdown` fails on
+   it. GitHub's own stylesheet already draws a rule under every `h1` and
+   `h2`, so a separator there draws two horizontal lines a few dozen pixels
+   apart, bracketing a heading that never needed help. **There is now not one
+   left anywhere in the repo**, so any appearance is a regression. This rule
+   briefly carried an exception for `docs/DECISIONS.md` "keeping its 65 by
+   choice" — wrong twice over: there were 38, not 65, and they sat above only 38
+   of the 65 entries, so the same boundary was drawn two different ways for no
+   reason. The user called it, they are gone, and the file is uniform.
 5. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
