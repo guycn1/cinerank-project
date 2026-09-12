@@ -1003,11 +1003,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      **The user's actual ask: let the panel stay a normal, comfortable height
      even when that means it no longer fits the screen — a bit of page scroll
      to reach the rest of it is fine; a visibly stunted panel is not.** So this
-     is a FLOOR (`max()`), not a second ceiling: below ~320px of viewport
-     height the panel holds at 160px regardless of how much shorter the
+     is a FLOOR (`max()`), not a second ceiling: below ~480px of viewport
+     height the panel holds at 240px regardless of how much shorter the
      viewport gets — it can and will exceed the viewport itself at the low
-     end, on purpose. Between ~320px and ~680px it still eases down from 340 to
-     160 (the "a bit shorter, not radically" middle ground the user asked to
+     end, on purpose. Between ~480px and ~680px it still eases down from 340 to
+     240 (the "a bit shorter, not radically" middle ground the user asked to
      keep); above that it is the untouched 340px ceiling, exactly as before.
      No orientation query needed: the floor does the whole job regardless of
      WHY the viewport is short, so a landscape phone and a short desktop window
@@ -1018,8 +1018,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      where `dvh` would resize the panel mid-scroll. Written as a pair because a
      lone unsupported `svh` would invalidate the whole declaration and leave the
      panel with NO cap — worse than the fixed value it replaced. */
-  max-height: max(160px, min(340px, 50vh));
-  max-height: max(160px, min(340px, 50svh));
+  max-height: max(240px, min(340px, 50vh));
+  max-height: max(240px, min(340px, 50svh));
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
