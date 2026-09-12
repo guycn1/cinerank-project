@@ -703,6 +703,25 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    those two sit beside real content on a card and should stay quieter than it,
    while this one has nothing to be quieter than. */
 .verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
+/* The typing effect (step 4b) animates THIS span, never `.verdict__text`
+   itself -- that element is `aria-live="polite"` and typing its accessible
+   text one character at a time would announce it one character at a time.
+   `.verdict__typed` is `aria-hidden`; a plain `.sr-only` sibling (built in
+   setVerdictText()) carries the full string from the first frame, so the live
+   region always has one complete announcement to make. Inherits colour and
+   tracking from `.verdict__text`/`.verdict__text:not(.is-muted)` -- nothing to
+   set here beyond the caret. */
+.verdict__typed.is-typing::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 1px;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: verdict-caret 0.8s step-end infinite;
+}
+@keyframes verdict-caret { 50% { opacity: 0; } }
 .verdict__refresh {
   background: transparent;
   /* NOT --line, which this was: at #26262f on the banner's --bg-raised ground it

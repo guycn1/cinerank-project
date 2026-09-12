@@ -6,6 +6,58 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
+
+**The choice.** `#verdict-text`'s content is now written through ONE function,
+`setVerdictText(text, { typed })`, rather than eight scattered
+`textContent =` assignments. It builds two child spans every call: a
+`.sr-only` one holding the FULL text immediately, and an `aria-hidden`
+`.verdict__typed` one that is what actually animates. Only the success path
+passes `{ typed: true }`; every placeholder, the busy line and both error
+messages render instantly, unchanged from before this item existed.
+
+**Why not the obvious approach — typing straight into `#verdict-text`'s own
+text node.** That element is `aria-live="polite"` (SPEC's accessibility work,
+already covered by R22's lesson about that same recs-hint region): mutating
+it character-by-character would announce it character-by-character. The
+element needs to carry the FULL, correct text for assistive tech from the
+first frame it changes, while the sighted view is free to animate — those are
+two different requirements on the same node, so they got two different
+children instead of one compromise.
+
+**A pure-CSS reveal was considered and rejected.** The classic typewriter
+trick — `white-space: nowrap; width: 0` animated to the content width with
+`steps(N)` — only works for a single unbroken line. The verdict is 2–3
+sentences (~35–60 words) that wrap across several lines at the banner's
+width, and there is no CSS-only mechanism that reveals wrapped,
+proportional-width text character-by-character without JS measuring each
+line — the kind of measurement this project has gotten wrong twice before
+by estimating instead (D-030's Fraunces figure widths). JS driving a
+`textContent.slice()` loop on a dedicated node was more work than the CSS
+idea but had no hidden measurement step to get wrong.
+
+**Cancellation is a generation counter, not a boolean flag.** Every call
+bumps `verdictTypeGen`; a running loop checks its captured `gen` against the
+current value on every tick and quietly stops if it no longer matches. This
+is the same shape D-040's single-writer fix used for expanded reviews, and it
+is what makes the hazard this item was flagged with — `syncVerdictAvailability()`
+or a second click landing mid-type — a non-event: the new call's own
+`setVerdictText()` invocation cancels the old one as a side effect of running,
+so no caller needs to know a typewriter exists or ask "is one running?" first.
+
+**One call site deliberately bypasses the helper**, and it is commented at
+the point it does: the `err.logged` branch builds a link (text node + `<a>` +
+text node), not a single string, so there is nothing plausible to type. It
+still benefits from the guarantee: the busy branch that always runs first in
+that handler has already cancelled any leftover typer for this run, so the
+bypass cannot race a live animation.
+
+**The pace, 18ms/char, is a tuned dial, not a decision** — the user tried 18ms,
+then 15ms, then reverted to 18ms, all by eye, and none of that is logged as a
+decision; recorded here only so a future session does not "helpfully" retune
+it by misreading this entry.
+
+---
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
 Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x

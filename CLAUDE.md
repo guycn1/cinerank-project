@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **SIX done and ONE open — THE NEXT SESSION STARTS ON THE VERDICT TYPING EFFECT, flagged with a START HERE at the top of its item; it is the only 4b item that was ever a new build, and it has two hazards that are the whole difficulty — the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" all landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2254,17 +2254,21 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **SIX FULLY DONE
-   — the logo spin and the ranked list's first-paint entrance (both 2026-09-11),
-   and the verdict border's glint, its busy-state cue, the film grain and the
-   disabled "New verdict" (all 2026-09-12). ONE OPEN — the verdict typing
-   effect, which is the only item here that was ever a new build:**
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
+   DONE — step 4b is CLOSED.** The logo spin and the ranked list's first-paint
+   entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
+   the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
+   typing effect — the only item here that was ever a genuinely new build —
+   closed the same day (D-057), tuned to 15ms/char by the user's eye.
+   **Next session starts on step 5, the portrait overhaul — see its two
+   enforcement rules further down.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
       values, the twenty layer rules are GENERATED with delays derived from the
       duration, and the alphas are SOLVED and cannot be scaled. See D-055;
-   2. the verdict typing effect (the only item here that is a new build);
+   2. ~~the verdict typing effect~~ — **DONE 2026-09-12** (D-057), the only item
+      here that was ever a new build;
    3. ~~the film grain~~ — **DONE 2026-09-12**: it was a RESAMPLE-RATE problem,
       not a brightness one. `mix-blend-mode`, this item's leading suggestion,
       was measured and rejected — it moves grain onto the posters and off the
@@ -2299,23 +2303,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    including the enforcement rules in the memory file
    `recs-overhaul-known-issues.md`. Step 5 stays the portrait overhaul.
 
-   * **A typing effect on the verdict as it appears**, like early ChatGPT.
-     **>>> START HERE. THIS IS THE ONLY OPEN ITEM IN STEP 4b, and the only one in
-     the whole sub-backlog that was ever a genuinely NEW BUILD rather than an
-     existing effect that was too subtle to see. The other six are done; their
-     entries are kept for the traps they record, not as work. Deferred here by
-     the user on 2026-09-12 with the session ending, so nothing was started. <<<**
-     **The two hazards below are the whole reason this item is not five minutes
-     of work.** Read them before writing anything, and read D-040 and R1 for the
-     single-writer lesson they come from.
-     Read D-040's single-writer lesson before starting: `.verdict__text` is
-     written by `syncVerdictAvailability()` (placeholders, threshold text) AND by
-     a run, so a typewriter that animates into the same element needs to lose
-     cleanly when the sync takes the element back mid-type — the exact shape of
-     bug R1 was. Also: the element is `aria-live="polite"`, so typing it one
-     character at a time would announce it one character at a time; set the final
-     text for assistive tech and animate the visible layer, or the accessibility
-     work already done here is undone. `prefers-reduced-motion` must skip it.
+   * **A typing effect on the verdict as it appears, like early ChatGPT — DONE
+     2026-09-12 (D-057).** The only item in this sub-backlog that was ever a
+     genuinely new build rather than an existing effect too subtle to see.
+     **Both hazards flagged in advance were real and both are handled:**
+     `.verdict__text` had (and still has) two writers — `syncVerdictAvailability()`
+     and a run — so D-040's single-writer lesson applied directly. Every write
+     now goes through ONE function, `setVerdictText(text, { typed })`
+     (`app.js`), which cancels any typer already running (a generation counter,
+     the same shape D-040 used) before writing its own content — a sync landing
+     mid-type just wins, cleanly, with no coordination the caller has to think
+     about.
+     The `aria-live="polite"` hazard is solved by giving the element TWO
+     children on every write: a `.sr-only` span carrying the FULL text from the
+     first frame (what assistive tech announces, once, complete) and an
+     `aria-hidden` `.verdict__typed` span that is what animates on screen. Only
+     the SUCCESS path types (`{ typed: true }`); placeholders, the busy line and
+     both error messages render instantly, unchanged.
+     **`prefers-reduced-motion` is checked inside the helper itself**, before
+     the typing branch runs at all — so the caret's CSS animation is
+     structurally unreachable under reduced motion, not merely suppressed by
+     the app's global kill-switch.
+     **One call site deliberately bypasses the helper**, and says so at the
+     point it does: the verdict's `err.logged` failure builds a link (text +
+     `<a>` + text), not a single string, so there is nothing plausible to type.
+     Pace: 18ms/char, tuned by the user's eye — 15ms was tried and reverted, the
+     user preferring the slower read. Full reasoning, including the pure-CSS
+     reveal that was considered and rejected, is D-057.
    * **The verdict banner's border — the travelling glint. DONE 2026-09-12.**
      Four polish passes went wrong, the user called the loop, and the item was
      then finished by reverting and isolating one dial at a time. **Full story,

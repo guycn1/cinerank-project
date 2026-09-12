@@ -1678,6 +1678,66 @@ function clearVerdictMeta() {
   el.verdict.querySelector('.ai-meta')?.remove();
 }
 
+const VERDICT_TYPE_MS = 18; // per character -- the "early ChatGPT" pace, tuned by eye
+let verdictTypeGen = 0; // bumped on every call; a stale loop checks this and stops
+let verdictTypeTimer = null;
+
+/**
+ * The SINGLE writer for `#verdict-text`'s content (step 4b's typing effect).
+ * `.verdict__text` has always had two writers -- `syncVerdictAvailability()`
+ * and a run -- and D-040/R1 is the lesson that a second writer taking the
+ * element back mid-animation is exactly the bug shape to avoid. Routing every
+ * write through here, rather than a direct `textContent =`, means a sync that
+ * fires mid-type doesn't need to know a typewriter exists: it just calls this,
+ * which cancels whatever was running and shows its own text immediately.
+ *
+ * Built from TWO children, never from the paragraph's own text node, because
+ * `#verdict-text` is `aria-live="polite"` (R22's lesson applies here too): typing
+ * the accessible text one character at a time would announce it one character
+ * at a time. `.verdict__typed` (`aria-hidden`) is what the eye sees and what
+ * animates; the plain `.sr-only` span carries the FULL text from the first
+ * frame, so the live region always has one complete, correct announcement to
+ * make, never a half-typed fragment.
+ *
+ * `{ typed: true }` is for the success path ALONE -- the only case that is
+ * actually "the verdict appearing". Every placeholder, the busy line and both
+ * error messages pass no option and render instantly, exactly as before this
+ * item existed.
+ */
+function setVerdictText(text, { typed = false } = {}) {
+  verdictTypeGen += 1;
+  const gen = verdictTypeGen;
+  clearTimeout(verdictTypeTimer);
+
+  const visible = document.createElement('span');
+  visible.className = 'verdict__typed';
+  visible.setAttribute('aria-hidden', 'true');
+  const heard = document.createElement('span');
+  heard.className = 'sr-only';
+  heard.textContent = text;
+  el.verdictText.replaceChildren(visible, heard);
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!typed || reduceMotion || !text) {
+    visible.textContent = text;
+    return;
+  }
+
+  visible.classList.add('is-typing');
+  let i = 0;
+  const step = () => {
+    if (gen !== verdictTypeGen) return; // superseded by a later write -- stop silently
+    visible.textContent = text.slice(0, i);
+    i += 1;
+    if (i <= text.length) {
+      verdictTypeTimer = setTimeout(step, VERDICT_TYPE_MS);
+    } else {
+      visible.classList.remove('is-typing');
+    }
+  };
+  step();
+}
+
 /** Is the taste verdict below its rating threshold? ONE predicate, because two
  *  places now need the answer and an approximation of a rule goes stale the
  *  moment the rule changes (D-039 is the entry about exactly that). */
@@ -1721,10 +1781,10 @@ function syncVerdictAvailability() {
   if (locked) {
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
+    setVerdictText(`Rate at least ${need} movies to get a verdict (you have ${have}).`);
   } else if (!el.verdict.dataset.generated) {
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
+    setVerdictText('Tap “New verdict” for an AI-generated read on your taste.');
   }
 }
 
@@ -1733,11 +1793,11 @@ el.verdictRefresh.addEventListener('click', async () => {
   setSheenRate(SHEEN_BUSY_RATE); // the ring becomes the progress cue
   clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
-  el.verdictText.textContent = 'Consulting the critics…';
+  setVerdictText('Consulting the critics…');
   try {
     const { verdict, meta } = await api('/api/taste-verdict', { method: 'POST' });
     el.verdictText.classList.remove('is-muted');
-    el.verdictText.textContent = verdict; // plain text, textContent only
+    setVerdictText(verdict, { typed: true }); // the one case this item is about
     el.verdict.dataset.generated = '1';
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
@@ -1748,6 +1808,11 @@ el.verdictRefresh.addEventListener('click', async () => {
     // call log for details" pointing at a log that could not load either, with
     // the real cause thrown away (R23, D-047).
     // Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    // Bypasses setVerdictText() on purpose: this content is a link plus two
+    // text nodes, not a single string, so there is nothing plausible to type.
+    // Safe to write directly -- the busy branch above already cancelled any
+    // in-flight typer for this run, and this `catch` cannot run alongside the
+    // `try`'s own setVerdictText(verdict, { typed: true }) call.
     if (err.logged) {
       el.verdictText.replaceChildren(
         document.createTextNode(`${err.message} See the `),
@@ -1755,7 +1820,7 @@ el.verdictRefresh.addEventListener('click', async () => {
         document.createTextNode(' for details.')
       );
     } else {
-      el.verdictText.textContent = err.message;
+      setVerdictText(err.message);
     }
   } finally {
     restoreRefresh();
