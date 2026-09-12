@@ -67,6 +67,9 @@ server/
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js         run before every commit
+scripts/check-markdown.js       run before every commit that touches a .md file;
+                                catches escapes that render literally and the two
+                                structural traps (see CLAUDE.md)
 scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
 scripts/debug-recs.js           dev only — fakes a recommendation response in the
                                 browser so UI work costs no OpenRouter credit

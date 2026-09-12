@@ -6,6 +6,116 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-065 · The markdown separators are DELETED, not unescaped — and two of the four suspected escaping defects turned out not to be defects at all
+
+CLAUDE.md and SPEC.md carried ~110 backslash escapes from an old paste. The
+2026-09-12 sweep flagged them as cosmetic and left them; the user pushed back,
+correctly, that for a course graded substantially on workflow documentation the
+RENDERED markdown IS the deliverable, and that a rendering fault in a 3,380-line
+file is the hardest kind to notice. That reframing is what made this worth doing.
+
+### What was actually broken, measured rather than assumed
+
+Every class was rendered through GitHub's own Markdown API before deciding.
+**Two of the four suspected defects were not defects**, and Claude had asserted
+both of them confidently:
+
+* `[ ]` — claimed to "kill the eight checkboxes" in SPEC § 7.1. **False.** An
+  escaped bracket in a list item renders as a working, tickable checkbox, byte
+  for byte identical to an unescaped one.
+* `1.` in headings — claimed to render as `1.`. **False.** `## 1. Test`
+  renders `<h2>1. Test</h2>`.
+* `&` and plain-text `_` also render correctly. All four classes: left alone.
+
+The two that were real: **the 17 section separators**, which rendered as a
+literal `---` paragraph instead of a rule, and **the 54 escaped underscores
+inside code spans**, which showed the backslash to the reader. The second is the
+one that mattered — it covered nearly every technical identifier in both files:
+all four env var names in § Security & Secrets (the Module 17 section), both log
+tables, every log column, all three check constraints, and every prompt file and
+version string. The user found it in a screenshot of the security section.
+
+### The decision: delete the separators rather than unescape them
+
+The obvious fix was `---` → `---`, turning each into a real horizontal rule.
+**The user rejected that from a screenshot and was right on both counts.**
+
+* **A rule there is redundant.** GitHub's stylesheet already puts a
+  `border-bottom` on every `h1` and `h2`, and all 17 separators sit immediately
+  above an `h2` — checked, no exceptions. Converting would have drawn a rule, a
+  gap, the heading, and then the heading's own rule: two rules a line apart
+  around every section break.
+* **Deleting is strictly SAFER than converting, which is the non-obvious half.**
+  An unescaped `---` directly under a text line is a setext heading, not a
+  thematic break — confirmed with the renderer, `text` + `---` → `<h2>text</h2>`.
+  All 17 happen to have a blank line above them today, so converting would have
+  been safe NOW and left a trap armed for whoever next edits one of those blank
+  lines. A deleted line cannot be mis-parsed later. The escaped paragraph being
+  removed is self-contained, with blank lines both sides, so its removal cannot
+  affect the paragraph above or the heading below either.
+
+### How the risk was actually retired
+
+The user's objection to eyeballing it was correct and is worth recording as a
+method: GitHub's "Display the rich diff" button shows the whole rendered file,
+so a subtle structural regression is about as findable there as by reading the
+source. **Rendering the file to HTML and diffing THAT** is the version that
+works — output is a few dozen lines, and structural regressions are loud in HTML
+even when they are quiet on screen: a paragraph promoted to a heading is a
+literal `<p>` → `<h2>`, a broken table loses its `<table>` element entirely.
+
+`POST https://api.github.com/markdown` rather than a local renderer, because the
+two things most at risk were task lists and tables — both GitHub extensions, so
+a CommonMark renderer could have passed something that breaks in the repo.
+
+Result: SPEC.md's rendered HTML was an EXACT match for the intended transforms,
+zero unintended changes. CLAUDE.md differed in exactly two lines, both escapes
+deliberately preserved inside the blocker entry that documents this work — which
+is itself the trap a blind find-and-replace would have sprung, since that entry
+quotes the escape sequences as examples.
+
+### The one that got through, and the check it produced
+
+The first pass fixed the separators and the code-span underscores, verified the
+HTML diff, and declared the other four escape classes safe. One was not. The user
+asked, plainly, whether Claude was confident about each remaining class — and for
+one of them the answer was no.
+
+`\[` had been verified in TWO contexts: a list item (it renders as a working
+checkbox) and a table cell (`uuid[]`). Both correct. It was then declared safe as
+a CLASS — and the single occurrence sitting inside a CODE SPAN, the JSON output
+contract in the Prompt Versioning section, shipped rendering as a visible
+backslash. The user screenshotted it.
+
+**The error was generalising from character class rather than from context.** An
+escape inside a code span always renders literally, whatever character follows
+it — so the question that finds these is not "is this character safe" but "does
+ANY code span contain a backslash". Asking it that way across all five markdown
+files returned five hits: four legitimate (a Windows path, two regex tokens, and
+the literal characters `tidyVerdict()` strips) and the one defect.
+
+**That question is now a script rather than a resolution.** `npm run
+check-markdown` enforces it plus the two structural traps, exits non-zero on a
+real defect, and reports the harmless plain-text escapes without failing. It was
+probed the way this project probes a test — each of the four defects it claims to
+catch was injected into a temporary file and confirmed to fail the check,
+including the exact bracket case that got through. One rule was deliberately
+REMOVED after it fired 65 times on `docs/DECISIONS.md` separators that render
+correctly: a check that cries wolf buries the three that matter.
+
+**This mattered more than an ordinary cleanup, and that is why it is a rule and
+not a note:** most of the remaining work on this project is writes to these same
+markdown files, so a convention living only in prose would have been re-broken
+within a session. The rules are in CLAUDE.md § Markdown Authoring Rules.
+**The reusable lesson is the sequencing.** Claude's first instinct was to warn
+about the edit's danger in the abstract, which produced anxiety and no
+information. Measuring each class against the real renderer shrank the job from
+~110 edits across two files to 71, removed two false premises, and turned
+"eyeball 3,380 lines" into a diff that fits on a screen. Measure the classes
+before estimating the risk, not after.
+
+---
+
 ## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
 
 Step 4 of the agreed order, settled 2026-09-12. The user had sequenced it behind

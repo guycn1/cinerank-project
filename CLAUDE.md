@@ -2,7 +2,6 @@
 
 This file governs how Claude (or Claude Code) should work in this repository. Refer to `SPEC.md` for the full functional/technical spec — this file is about *how to build it*, not *what to build*.
 
-\---
 
 ## Project Context
 
@@ -16,7 +15,6 @@ This project consists of:
 
 Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged.
 
-\---
 
 ## Project Status — Living Log
 
@@ -3134,47 +3132,45 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   hijacked app — but a debug tool wired into a submitted build is still its own
   kind of wrong.
 * [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
-  Raised by the 2026-09-12 sweep and deliberately left for the user: most of them
-  are covered by `npm test` and by hand testing, but ticking an acceptance
-  criterion is a claim that it was *verified for submission*, which is the
-  user's call and not Claude's to make on their behalf. Walk them one at a time
-  against the live app — several can be ticked off the same session as the
-  `RS-n` screenshots, since they exercise the same states.
-  **Do the escaping fix below FIRST**, because these eight are written `\[ ]` and
-  therefore do not render as task-list checkboxes at all — they are literal text
-  on GitHub, so there is nothing to tick in the UI until that backslash goes.
-* [ ] **Strip the markdown escaping artifacts from `CLAUDE.md` and `SPEC.md`.**
-  Cosmetic rendering, not staleness, which is why the sweep left it alone — but
-  both files are in a public repo and get read rendered. Counted 2026-09-12 —
-  `CLAUDE.md`: 10 `\---`, 19 `\_`, 5 `\&`, 1 `\[`. `SPEC.md`: 7 `\---`, 56 `\_`,
-  6 `\&`, 11 `\[`.
-  `README.md`, `docs/PROCESS.md` and `docs/DECISIONS.md` are clean — the two
-  affected files are the oldest, and the escapes almost certainly came in with
-  one paste. The damage is real but small: `\---` renders as the literal text
-  `---` instead of a horizontal rule, `\[ ]` kills the eight checkboxes above,
-  and SPEC's seven numbered headings render as `1\.` rather than `1.`.
-  **A CORRECTION TO WHAT THIS ENTRY FIRST SAID.** It claimed the escaped
-  underscore "is genuinely harmless — it renders as a plain underscore, so
-  `tmdb\_id` already looks right". That is wrong wherever the escape sits inside
-  a CODE SPAN, because **backslash escapes are not processed inside backticks** —
-  the reader sees the backslash. Counted by rendering context 2026-09-12:
-  `CLAUDE.md` has **23 of 23 inside code spans** and none in plain text;
-  `SPEC.md` has **31 inside code spans**, 24 in plain text (those really do render
-  clean) and 1 inside a fenced block. So the majority are visible to a reader,
-  not merely noise in the source.
-  **THE BLAST RADIUS IS RENDERING ONLY, AND THAT IS VERIFIABLE.** Nothing in the
-  codebase reads either file: the only paths anything opens are `public/` via
-  `express.static`, `scripts/debug-recs.js` via its one route, and `prompts/*.md`
-  via `loadPrompt()`. No route, no test and no build step touches `CLAUDE.md` or
-  `SPEC.md`, so this edit cannot change behaviour, break a test or affect the
-  deploy — the worst case is that a markdown file looks wrong on GitHub, and it
-  is one `git revert` away.
-  The "mangled code fence" warning above is also smaller than it sounds now that
-  it has been counted: `CLAUDE.md` has **zero** escapes inside fenced blocks and
-  `SPEC.md` has **one**. Check that one by hand and the fences are accounted for.
-  **Do this as its own commit, and eyeball the rendered result before the merge**
-  — a blind find-and-replace across two files this size is exactly the kind of
-  change that quietly mangles a code fence or a table.
+  Raised by the 2026-09-12 sweep and deliberately left for the user: most are
+  covered by `npm test` and by hand testing, but ticking an acceptance criterion
+  is a claim that it was *verified for submission*, which is the user's call and
+  not Claude's to make on their behalf. Walk them one at a time against the live
+  app — several can be ticked off in the same session as the `RS-n` screenshots,
+  since they exercise the same states.
+  **This item once said the escaping fix had to come first, because the boxes
+  were written with an escaped bracket and therefore "do not render as task-list
+  checkboxes at all". THAT WAS WRONG** — measured against GitHub's own renderer
+  on 2026-09-12, an escaped bracket in a list item produces a working, tickable
+  checkbox, byte-identical to an unescaped one. There is no dependency; these
+  eight have been tickable all along.
+* [x] **Markdown escaping in `CLAUDE.md` and `SPEC.md` — DONE 2026-09-12 (D-065),
+  and it turned out to be two real defects out of the four that were suspected.**
+  Every class was measured against GitHub's Markdown API rather than assumed,
+  which is the only reason the job ended up small and safe:
+  * **Section separators — FIXED, by DELETING them, not by unescaping them.** All
+    17 rendered as a literal `---` paragraph, which is visible debris. But every
+    one sits immediately above an `h2`, and GitHub's own stylesheet already draws
+    a rule under every `h1`/`h2` — so converting them would have put two rules a
+    line apart around every heading. The user spotted that from a screenshot.
+    Deleting is also strictly SAFER than converting: an unescaped `---` under a
+    text line silently becomes a setext `h2` (confirmed with the renderer), so
+    converting would have armed a trap for whoever next edits a blank line.
+  * **Escaped underscores inside code spans — FIXED.** These really did render
+    with the backslash showing, and they covered essentially every technical
+    identifier in both documents: all four env var names in § Security & Secrets,
+    both log table names, every log column, all three check constraints, and
+    every prompt filename and version. The user caught this in a screenshot of
+    the Module 17 section.
+  * **Escaped brackets, ampersands, numbered headings, and underscores in plain
+    text — LEFT ALONE ON PURPOSE. All of them already render correctly.** Do not
+    "finish the job" by removing them; there is nothing to finish, and the three
+    deliberate examples left in this entry would be destroyed by a blind sweep.
+  **Verified, not hoped:** both files were rendered through GitHub's Markdown API
+  before and after, and the two HTML outputs diffed. SPEC.md came back an EXACT
+  match for the intended transforms — zero unintended changes. CLAUDE.md differed
+  in exactly two lines, both of them escapes deliberately preserved in this entry
+  as examples. Nothing else in either rendered file moved.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
@@ -3197,14 +3193,13 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * Prefer not to touch the user's DB at all for testing; ask them to run a check or
   use a throwaway when a real round-trip is genuinely needed.
 
-\---
 
 ## Tech Stack
 
 * **Backend:** Node.js + Express
 * **Database:** Supabase (Postgres) — see SPEC.md §5 for schema
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
-* **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB\_API\_KEY` in `.env`.
+* **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
   **Two models, on purpose (D-053):** recommendations run on the cheap
   `anthropic/claude-haiku-4.5`, the taste verdict alone on
@@ -3215,17 +3210,15 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   overrides it. Overridable per feature via `OPENROUTER_MODEL` and
   `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
 
-\---
 
 ## Coding Conventions
 
 * Keep TMDB calls and OpenRouter calls in separate service modules — never inline `fetch()` calls directly inside route handlers.
 * All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) — never hand-built SQL strings.
 * The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file — each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
-* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation\_logs` or `taste\_verdict\_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
+* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation_logs` or `taste_verdict_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
 * Do not add authentication/multi-user support unless explicitly asked — SPEC.md marks this as v1 out-of-scope.
 
-\---
 
 ## Frontend Design Notes
 
@@ -3268,22 +3261,20 @@ and R15's glyph. The same applies to any future icon button: reach for nowrap,
 not for a non-breaking space, and do not assume an unrelated cleanup can remove
 it.
 
-\---
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend\_v1.md`, `taste\_verdict\_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend\_v3` (second-person, 8–16-word reason); taste verdict uses `taste\_verdict\_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT\_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend_v1.md`, `taste_verdict_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend_v3` (second-person, 8–16-word reason); taste verdict uses `taste_verdict_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT_VERSION` const at the top of each service module.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
-* The recommendation prompt must instruct the model to return **structured JSON only** (`\[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
+* The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
 * The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; this bullet said "one or two" until 2026-09-11 and would have sent a future session to shorten it back) — this is intentionally the lighter-weight of the two prompts.
 * The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms the card shows a REAL film, not that it shows THE film the model named** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, so a near-miss resolves to a neighbouring film instead of being dropped. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
-\---
 
 ## Security \& Secrets (Module 17)
 
-1. **Never write a secret into source code.** `SUPABASE\_URL`, `SUPABASE\_ANON\_KEY`, `TMDB\_API\_KEY`, and `OPENROUTER\_API\_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
+1. **Never write a secret into source code.** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TMDB_API_KEY`, and `OPENROUTER_API_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
 2. **Never build a database query by concatenating strings.** Use the Supabase JS client's query builder for all reads/writes.
 3. **Frontend uses only the Supabase anon key, never the service role key.** This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) — the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
 4. **Escape/encode any user-provided text before rendering it in the DOM** (movie reviews especially — this is free-text user input) to prevent stored XSS.
@@ -3292,13 +3283,12 @@ it.
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
    * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after.
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (Its sibling for documentation is `npm run check-markdown` — see § Markdown Authoring Rules.)
 
 ### Security \& Scope (why no accounts ≠ no security story)
 
 This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the frontend key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
 
-\---
 
 ## Decision Logging (non-negotiable)
 
@@ -3376,8 +3366,80 @@ was never a valid record — the merge count that had drifted, or the magnifier
 orientation Claude asserted backwards. Fix the fact and say in the commit message
 that it is a correction, not an update.
 
-\---
 
+## Markdown Authoring Rules (binding — every `.md` file in this repo)
+
+**Run `npm run check-markdown` before committing any change that touches a `.md`
+file.** It exits non-zero on a real rendering defect and is the enforcement for
+everything below. Do not rely on remembering these rules — the whole point is
+that the check does the remembering.
+
+**Why this is binding rather than advisory.** The markdown files ARE a graded
+deliverable here (Module 8 process documentation), so "it only looks wrong" is
+not a cosmetic category in this project. On 2026-09-12 both `CLAUDE.md` and
+`SPEC.md` were found rendering wrong on GitHub and nobody had noticed: 17 section
+separators showing as a literal `---` paragraph, and a backslash printed inside
+the code chip of essentially every technical identifier in both files — all four
+env var names in § Security & Secrets, both log tables, every log column, all
+three check constraints, every prompt filename. **Most of the work still left on
+this project is writes to these very files**, so a rule that is merely written
+down would be re-broken within a session. See D-065.
+
+### The rules
+
+1. **Never put a backslash escape inside a code span.** Backticks disable
+   markdown parsing entirely, so the backslash is PRINTED. An escaped underscore
+   inside a code span is exactly how every identifier in these files came to
+   render with a visible backslash. Escaping is never needed inside backticks,
+   and always renders wrong. A
+   backslash that is genuinely part of what you are showing — a Windows path, a
+   regex token — is fine, and `scripts/check-markdown.js` carries a small
+   whole-span allowlist for those.
+2. **Never write an escaped thematic break.** It renders as a literal `---`
+   paragraph, which reads as debris.
+3. **Never put a bare `---` directly under a line of text.** That is setext
+   syntax: it silently promotes the line above to an `<h2>`. Confirmed against
+   GitHub's renderer, not assumed.
+4. **Do not add new section separators before headings.** GitHub's own
+   stylesheet already draws a rule under every `h1` and `h2`, so a separator
+   there draws two rules a line apart. `docs/DECISIONS.md` keeps its 65 between
+   long entries by choice; that is the exception, not the pattern to copy.
+5. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
+   left alone.** They are source noise, not defects. The checker reports them
+   without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
+
+### The trap that produced rule 1, and the check that catches it
+
+**Do not verify an escape by checking the character class in one or two
+contexts and generalising.** That is exactly how the last defect survived a pass
+that had already fixed everything around it: `\[` was verified correct in list
+items (it renders as a working checkbox) and in table cells, declared safe as a
+class, and the one occurrence sitting inside a CODE SPAN went out the door. The
+user caught it in a screenshot.
+
+**The question that catches it is not "is this character safe" but "does any code
+span contain a backslash".** That is rule 1, and it is the first thing
+`check-markdown` looks for.
+
+### When a change is structural, render it and diff the HTML
+
+For anything beyond a word — reflowing a section, editing a table, moving
+headings — the checker is not enough, because it only knows the rules above.
+Render before and after and diff the OUTPUT:
+
+```
+curl -s -X POST -H "Content-Type: application/json" --data @payload.json https://api.github.com/markdown > after.html
+```
+
+(`payload.json` is `{"text": <file contents>, "mode": "gfm"}`.)
+
+**GitHub's API and not a local renderer**, because the two things most at risk —
+task lists and tables — are GitHub extensions, so a CommonMark renderer can pass
+something that breaks in the repo. **And the HTML diff, not the "Display the
+rich diff" button**: that button shows the whole rendered file, where a
+structural regression is about as findable as by reading the source. In an HTML
+diff a regression is loud — a paragraph promoted to a heading is a literal `<p>`
+becoming `<h2>`, and a broken table loses its `<table>` element entirely.
 ## Version Control Workflow (non-negotiable)
 
 * **Repo:** https://github.com/guycn1/cinerank-project.git (repo name: `cinerank-project`)
@@ -3386,6 +3448,10 @@ that it is a correction, not an update.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
 * **Merging `draft` → `main` only happens at a notable, settled milestone** — a UI milestone or a backend milestone believed to be genuinely complete, not a small incremental change. **Claude must ask the user for explicit confirmation before merging to `main`.** Never merge automatically, even if the milestone seems obviously done.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
+* **Any commit that touches a `.md` file runs `npm run check-markdown` first,
+  the same way every commit runs `npm run scan-secrets`.** The markdown is a graded
+  deliverable, and a rendering fault in a file this long is close to unfindable
+  by eye — see § Markdown Authoring Rules and D-065.
 * Commit messages should include a summary of what actually changed.
 
 ### Environment & tooling traps (all of these have actually bitten here)
@@ -3427,7 +3493,6 @@ next session does not rediscover them.
   the file on disk. Inline SVG inside `index.html` is exempt: that is parsed by
   the lenient HTML parser, which is why comments there can and do contain `--`.
 
-\---
 
 ## Out of Scope (v1)
 
