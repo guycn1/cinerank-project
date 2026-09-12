@@ -312,6 +312,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
                                          rather than only where the clamp
                                          happened to be resting. */
 }
+/* Step 5, user-raised, alongside the reel fix above. ONE declaration is enough
+   here because everything about this icon is already expressed in `em` off
+   its own font-size — the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
+   and the hover halo's blur/spread (both `em`, in the :hover rule below) all
+   scale off THIS property, so halving it halves the icon, its padding AND the
+   halo together, exactly as asked, with no separate rule for each.
+   Written as the same clamp halved by `calc(... * 0.5)`, not as an independent
+   clamp with its own numbers — an independent one could drift from the base
+   size later and nobody would notice the coupling had broken. */
+@media (max-width: 400px) {
+  .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.5); }
+}
 
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
    line. Size is the ONLY declaration it needs: everything else arrives from
@@ -388,6 +400,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
   --reel-notch: 8%;
+  /* Step 5, user-raised (a ~292px screenshot showed it squashed into an oval).
+     `.mark` is a flex row and `CineRank` is one unbreakable word with a hard
+     min-content width, so once the row ran out of room the browser had to
+     shrink SOMETHING — and with no flex-shrink here, the default of 1 let it
+     take it out of the reel's WIDTH while its explicit `height: 34px` stayed
+     fixed, since height isn't the flex-basis dimension in a row container.
+     A circle with one axis shrunk and the other pinned is an ellipse. Never
+     shrink at all, at any width — the mark is a fixed-size logo mark, not
+     fluid content. */
+  flex-shrink: 0;
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--amber);
   background:
