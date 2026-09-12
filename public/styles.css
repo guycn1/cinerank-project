@@ -3404,18 +3404,18 @@ body:has(dialog[open]) { overflow: hidden; }
    toast gets noticeably wider while an already-wide error is untouched.
    Tuned by eye like every other dimension in this file. */
 @media (max-width: 700px) {
-  .toast { min-width: 22rem; }
+  .toast { min-width: 25rem; }
 }
 /* At 500px the ask changes shape — EVERY toast, short or long, should read as
    nearly full-width with a small margin either side, not just "wider than
    its own content". That needs an explicit `width`, not another floor.
    `min-width: 0` resets the 700px tier's floor -- left in place, it would win
-   over this narrower width the moment `calc(100% - 2rem)` dropped below
-   22rem (viewports under ~370px), forcing the toast WIDER than the viewport
+   over this narrower width the moment `calc(100% - 1.5rem)` dropped below
+   25rem (viewports under ~424px), forcing the toast WIDER than the viewport
    itself and overflowing it sideways. `max-width` is raised to match `width`
    for the same reason in the other direction: the base rule's `max-width:
-   90vw` is NARROWER than `calc(100% - 2rem)` at this breakpoint (450px vs
-   468px at exactly 500px wide), and would otherwise claw the edge-to-edge
+   90vw` is NARROWER than `calc(100% - 1.5rem)` at this breakpoint (450px vs
+   476px at exactly 500px wide), and would otherwise claw the edge-to-edge
    look back down to a wider, un-asked-for margin.
    `%`, not `vw`, in the calc: `.toast` is `position: fixed`, whose containing
    block for a percentage is the viewport either way, but `%` reads as
@@ -3424,8 +3424,8 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (max-width: 500px) {
   .toast {
     min-width: 0;
-    width: calc(100% - 2rem);
-    max-width: calc(100% - 2rem);
+    width: calc(100% - 1.5rem);
+    max-width: calc(100% - 1.5rem);
   }
 }
 
