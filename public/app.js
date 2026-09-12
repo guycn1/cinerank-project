@@ -157,12 +157,26 @@ const TOAST_SINGLE_LINE_MAX = 630;
  * CURRENT viewport, never whether a piece of text would fit at a DIFFERENT
  * one, so this measures it directly.
  * The probe shares the real `.toast` class (same font, padding, border) but
- * neutralises width/max-width/min-width inline -- inline styles win over the
- * class's stylesheet rules regardless of specificity or which media query is
- * currently active, so the reading is the text's TRUE natural width,
- * independent of whatever the actual browser viewport happens to be right
- * now. `white-space: nowrap` forces it onto one line so `scrollWidth`/
+ * neutralises EVERY positioning/sizing property inline -- inline styles win
+ * over the class's stylesheet rules regardless of specificity or which media
+ * query is currently active, so the reading is the text's TRUE natural
+ * width, independent of whatever the actual browser viewport happens to be
+ * right now. `white-space: nowrap` forces it onto one line so
  * `getBoundingClientRect()` reports the full un-wrapped width.
+ * D-062, and the trap this repeats: `.toast` now centres itself with
+ * `left: 0; right: 0; width: fit-content; margin-inline: auto` (D-062's own
+ * fix). The FIRST version of this probe overrode only `left`/`width`, so it
+ * still inherited the class's `right: 0` and `margin-inline: auto` -- with
+ * BOTH `left` (overridden here to -9999px) and `right` (still 0, inherited)
+ * specified and `width: auto`, the box model stops being shrink-to-fit
+ * entirely and instead stretches to fill the whole (enormous, since one edge
+ * sits off-screen) gap between them -- which is why a short toast like
+ * `"Hairspray" saved.` was measured as needing 400px+ and misclassified as
+ * long the moment D-062 landed. Every property the class's positioning could
+ * plausibly use is now explicitly neutralised here, not just the ones it
+ * happened to use at the time this was written -- so a future change to how
+ * `.toast` centres itself can't silently break this measurement again the
+ * same way.
  * A throwaway, invisible, off-screen element -- never the real, currently
  * showing toast -- so measuring one toast can't flicker or resize another.
  */
@@ -170,7 +184,8 @@ function toastIsLong(text) {
   const probe = document.createElement('span');
   probe.className = 'toast';
   probe.style.cssText =
-    'position:absolute; visibility:hidden; left:-9999px; top:-9999px; ' +
+    'position:absolute; visibility:hidden; ' +
+    'left:-9999px; right:auto; top:-9999px; bottom:auto; margin:0; ' +
     'white-space:nowrap; width:auto; min-width:0; max-width:none;';
   probe.textContent = text;
   document.body.append(probe);
