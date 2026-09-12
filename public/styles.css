@@ -1009,6 +1009,29 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
+/* Step 5, user-raised: a phone in LANDSCAPE is the case the vh-based cap above
+   still gets wrong. 60svh of an ~380px-tall landscape phone is ~228px, which
+   sounds like the same "shrink it" story as the vh line above -- but the header
+   and search bar sit ABOVE this panel and are sized off `vw`/`rem`, not `vh`, so
+   they do not shrink to make room in a SHORT viewport the way they would in a
+   NARROW one. In landscape those two together can already take up most of a
+   380px-tall screen, so a panel sized off a flat 60% of the TOTAL height (which
+   knows nothing about what is already spent above it) still ends up dominating
+   whatever is left, and the whole page reads as one wall of results.
+   Gated on BOTH `orientation: landscape` AND a short `max-height` -- orientation
+   alone would also catch an ordinary wide desktop window, which is tall and was
+   never the problem (60svh of 1080px is already clamped down to the 340px
+   ceiling above; this override must not touch that case). The combination is
+   what actually means "a phone lying on its side", which is the only case being
+   fixed here.
+   Numbers are a first pass, same as every other pixel value in this file --
+   tune from a real screenshot, not by re-deriving them here. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .search-results {
+    max-height: min(200px, 45vh);
+    max-height: min(200px, 45svh);
+  }
+}
 /* Lines inside the results panel — loading, "no matches", errors, the
    empty-query nudge. Built by searchNote() in app.js. */
 .search-note { padding: 1rem; color: var(--ink-dim); }
