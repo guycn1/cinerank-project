@@ -68,6 +68,26 @@ elements in this file have now hit exactly this shape of trap
 THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 `inset` + `margin: auto` from the start rather than rediscovering this.
 
+**Addendum, same day: this fix immediately broke `toastIsLong()` (D-060's
+measurement helper), and the break is worth recording alongside the fix that
+caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
+only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
+`right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
+margin-inline: auto;` — and the probe, still only overriding `left` (to
+`-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
+specified, which per the shrink-to-fit case list stops being shrink-to-fit
+entirely: the box stretches to fill the whole gap between them, enormous
+since `left` sits off-screen. A short toast (`"Hairspray" saved.`) measured
+as needing 400px+ on the very next check and was misclassified as long.
+Fixed by neutralising `right`, `bottom` and `margin` in the probe too, not
+just the properties `.toast` happened to set when the probe was first
+written. **The general lesson, not just this one instance:** a measurement
+probe that clones a real class by name, then overrides "the properties that
+currently matter," is exactly one CSS change on the real class away from
+silently measuring the wrong thing. Overriding defensively — every property
+in the same CATEGORY, not just the ones presently in play — is what would
+have prevented this from breaking at all.
+
 ---
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
