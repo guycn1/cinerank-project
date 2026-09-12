@@ -2165,14 +2165,22 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and the padding takes the blame. It also grew 1.5x, applied to every term of
    the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at every width
    rather than only where the clamp happened to be resting.
-   **One thing to CHECK in step 5, not now:** `CineRank` is a single unbreakable
-   word, so `.mark` has a hard min-content width, and the icon's column now takes
-   ~21px more than it did. At some narrow width the two stop fitting on one row
-   and the h1 will overflow its `minmax(0, 1fr)` column rather than wrap. **The
-   exact width is NOT estimated here on purpose** — D-030 is the entry about
-   guessing Fraunces figure widths twice and being wrong twice; measure it with
-   `Range.getBoundingClientRect()` during the portrait pass. The likely answer is
-   that the header stacks below some breakpoint, which is step 5's call to make.
+   **MEASURED in step 5 (2026-09-12): the predicted overflow is real, and it is
+   bigger than expected.** `CineRank` is a single unbreakable word with a hard
+   min-content width, so once the row can't fit label + h1 + the icon's column,
+   the h1 overflows its `minmax(0, 1fr)` column rather than wrapping — exactly as
+   this note predicted. What was NOT predicted is the range: **the header GitHub
+   icon is fully clipped off-canvas from ~510px down** (confirmed with real
+   headless-Chrome screenshots at 292/350/400/500/505/515/520/550/600px, per
+   D-030's "measure, don't estimate" rule — bisected to a threshold between 505px
+   clipped and 515px clean), not just at the very narrow widths this note
+   expected. That covers most phone widths in portrait. **Not caused by the two
+   fixes landing alongside this note** (the reel's `flex-shrink: 0` and the
+   GitHub icon's ≤400px halving) — confirmed identical on the pre-fix commit at
+   292px, and the icon stays clipped even after halving, because halving the
+   icon's own column doesn't touch what's actually overflowing, the h1. **Still
+   open, and still step 5's call**: stack the header below some breakpoint, cap
+   `--title-size` further, or something else — not decided yet.
    **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
    eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with a
    box-shadow appearing over the same 0.25s. The glow is
