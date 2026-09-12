@@ -59,9 +59,22 @@ aiLogRouter.get(
       .slice(0, 60);
 
     // `detailed` / `timed` count how many calls actually carry a token split
-    // and a duration. Rows written before migration 001 have neither, so the
-    // sums cover a subset — the viewer says so rather than silently showing an
-    // in/out split that doesn't add up to the token total.
+    // and a duration, so a caller can tell whether the sums below cover every
+    // row or only some of them.
+    //
+    // TWO THINGS THIS COMMENT USED TO GET WRONG, both corrected here rather than
+    // left, because it described behaviour that does not exist:
+    //   1. It said "the viewer says so". It does not. `renderLogTotals()` in
+    //      public/app.js deliberately does NOT surface either count — see D-018
+    //      — it only uses `detailed` as a truthiness test for whether to draw the
+    //      in/out sub-line at all, and `timed` the same way for the duration.
+    //   2. It said rows written before migration 001 "have neither", present
+    //      tense. Those six rows were deleted by hand once, for presentation
+    //      (D-019), so no row in the table is missing a split or a duration
+    //      today and neither count can currently come back short.
+    // Both fields are kept anyway: they cost nothing, and they are what stops a
+    // future partial-coverage row from silently showing an in/out split that
+    // does not add up to the token total.
     const totals = rows.reduce(
       (acc, r) => {
         acc.calls += 1;

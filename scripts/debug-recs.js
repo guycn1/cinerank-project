@@ -20,6 +20,15 @@
  * Six really is the ceiling: parseModelJson() ends in `.slice(0, 6)`, so no
  * response can ever carry more than six suggestions.
  *
+ * PREREQUISITE, AND IT SURPRISES PEOPLE: you need THREE RATED FILMS in the real
+ * database before any of this is reachable. The harness fakes the recommendation
+ * CALL; it does not fake the gate in front of it. `GET /api/movies` is not
+ * intercepted, and the trigger's disabled state and the hint's text are both
+ * computed from that real response — so at zero rated films the button is dead
+ * and nothing here ever runs. Forcing the button on from the console does not
+ * help either; see the long note beside the /api/recommendations branch below
+ * for what R16 changed and why a sub-threshold run now clears its own cards.
+ *
  * WHY IT EXISTS. Judging the grid's column split, the entrance stagger, the
  * scroll and the hover glow needs many runs at many window widths, and every one
  * of those spent real OpenRouter credit on an answer nobody read.
@@ -158,6 +167,45 @@
       // when fewer than 3 films are rated. Harmless in normal use; here it would
       // let you press the button exactly once. A macrotask runs after that whole
       // synchronous tail, so this puts it back.
+      //
+      // >>> THIS WORKAROUND IS NOW ONLY HALF OF WHAT IT NEEDS TO BE, AND THE
+      // HARNESS NO LONGER SURVIVES A SUB-THRESHOLD RUN. Do not read the
+      // paragraph above as a promise that it does. <<<
+      //
+      // It was written on 2026-09-09 (96158b1) and it was complete AT THE TIME.
+      // Back then `syncRecommendationsAvailability()`'s below-threshold branch
+      // did exactly two things: it wrote the "Rate at least 3 movies to unlock
+      // recommendations" hint, and it disabled this button. Neither touched the
+      // grid. So a dummy run below the threshold rendered its six cards and they
+      // STAYED — the only casualty was the button, and the line below puts that
+      // back. You could sit at zero rated films and still exercise the whole
+      // render path, which is most of why the harness exists.
+      //
+      // R16 (885a6a5, 2026-09-11 — two days later) added a third statement to
+      // that same branch, for a good reason that has nothing to do with this
+      // file: a section that says it is locked must not sit above six live
+      // recommendations, so the branch now also runs
+      //   el.recsGrid.replaceChildren();
+      //   el.recsMeta.replaceChildren();
+      // The cards and the metadata footer are therefore wiped by the run's own
+      // `finally`, in the same tick they were rendered. Below the threshold you
+      // now get a flash and an empty grid, not a run.
+      //
+      // Nothing is broken in R16 and nothing here is a workaround for it. This
+      // is the ordinary shape of a test double going stale: the harness patched
+      // around ONE observable consequence of a branch, and the branch later grew
+      // another. A double that reaches into app behaviour has to be re-read
+      // whenever that behaviour changes, and nothing makes that happen
+      // automatically.
+      //
+      // NOT FIXED, deliberately (D-063 in docs/DECISIONS.md). Re-adding the cards
+      // after the sync has cleared them would mean this file fighting a rule the
+      // app states on purpose, and the "locked section shows no output" state is
+      // itself worth being able to look at. THE ANSWER IS TO RATE THREE FILMS —
+      // the harness's job is to avoid OpenRouter calls, not to stand in for the
+      // database. Adding real films costs nothing but TMDB and Supabase, and the
+      // fetch patch below deliberately lets a positive tmdb_id through to the
+      // real server so you can do it without disarming anything.
       setTimeout(() => {
         const t = document.querySelector('#recs-trigger');
         if (t && t.getAttribute('aria-busy') !== 'true') t.disabled = false;

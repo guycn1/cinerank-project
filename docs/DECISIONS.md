@@ -6,6 +6,239 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
+
+Step 4 of the agreed order, settled 2026-09-12. The user had sequenced it behind
+step 4b on the reasoning that "the favicon will most likely derive from the
+logo, so the logo had to be settled before that discussion could start". That
+held — but the derivation turned out to be a re-draw rather than a copy, and the
+copy would have been the wrong artefact.
+
+### The finding that shaped everything else
+
+**There was nothing to export.** `.mark__reel` is pure CSS: a 34px box with a 3px
+amber border, a `radial-gradient` inner ring, and a `conic-gradient` mask cutting
+a notch over the first 8% of the turn. No asset exists, so "derive from the logo"
+could only ever mean re-drawing it in SVG.
+
+**And a faithful re-draw fails at the only size that matters.** Normalised into a
+32-unit viewBox, the logo's inner ring measures **1.12 units — 0.56px at a 16px
+favicon**. It aliases into a smudge or disappears. The outer ring at 2.82 units
+is 1.4px, thin but survivable. Neither number was estimated: both were computed
+from the live CSS, the inner ring's 31%→37% resolving against the 19.799px
+half-diagonal of the 28px padding box. This project has been bitten by estimated
+figures before (D-030's rank numerals, twice), so they were derived rather than
+eyeballed.
+
+### How it was chosen
+
+Four candidates were drawn and published as a comparison page rendering each at
+16/24/32/64px on both a light and a dark tab strip, plus a simulated tab strip —
+because the tab is the only view that decides a favicon:
+
+* **A, faithful 1:1** — included specifically so the failure could be seen rather
+  than asserted. It failed as predicted.
+* **B, trued up** — same two-ring structure, thicknesses raised to 4.0 and 2.2
+  and the notch opened 28.8°→34° until both rings hold at 16px. **Chosen.**
+* **C, bold reel** — pushed further (5.0 / 3.2, notch 42°). More legible, but
+  reads heavier than the header mark when the two are seen together.
+* **D, ring and hub** — inner ring becomes a solid fill. The most robust and the
+  least faithful.
+
+**The user picked B**, the furthest toward faithful that still survives 16px.
+Recorded because the rejected options are the content: a later session looking at
+this file will see a mark whose proportions do not match `.mark__reel` and may
+"correct" it back to A, which is the one option already proven not to work.
+
+### Three sub-decisions, all deliberate
+
+* **No background disc.** Offered, because the mark is amber-on-transparent and a
+  tab strip is near-white in light mode, where `--amber` contrasts poorly. The
+  comparison page carried a live toggle for it. The user compared both on a light
+  strip and chose transparent, keeping the header's own treatment.
+* **No animation**, though the header mark turns once per 10s and an SVG favicon
+  can carry a `<style>` block. Chrome rasterises the first frame and ignores the
+  rest, so a spin renders differently per browser for no gain.
+* **SVG only — no `.ico`, no PNG set.** This is the one where Claude's first
+  advice was WRONG and had to be corrected mid-discussion.
+
+### The Safari claim Claude got wrong
+
+Claude initially advised that "Safari is the historical laggard" and that an
+airtight fix "would need a real `.ico`". The user asked whether current Safari
+still probes for one. **It does not.** Safari 26.0 added SVG favicon support;
+caniuse shows desktop and iOS Safari unsupported through 18.7 and supported from
+26.0 on, and WebKit's own release notes for 26.0 say it covers favicons rather
+than only the old pinned-tab `mask-icon`.
+
+Worth recording how that was established, because the first attempt failed: a
+plain web search returned two articles flatly contradicting each other — one
+claiming support since 15.4, one claiming Safari ignores SVG favicons entirely.
+Averaging them would have produced a confident wrong answer. caniuse and the
+vendor's own release notes settled it. **The lesson matches D-062's: for a
+factual claim about behaviour, go to the authority, do not aggregate.**
+
+So SVG-only is safe on every current browser. Safari 18.7 and older still probe
+`/favicon.ico` and still 404 — **the same error as before rather than a new one**,
+and closing it costs a binary asset in a repo that currently has none.
+
+### What the console error actually was
+
+CLAUDE.md had said the request "lands on the 404 handler". **There is no 404
+handler** — `server/index.js` has only a central *error* handler, which fires on
+`next(err)`. The request fell through `express.static`, past every API mount, to
+Express's built-in finalhandler: a 404 with `Cannot GET /favicon.ico` as
+`text/html`. Verified by booting the app on port 3999 rather than reasoned about.
+Corrected in place, since it was wrong when written.
+
+Declaring any icon link is what stops the probe, so the icon and the console
+error are one fix rather than two.
+
+### Addendum, same day: the first version of the file did not render at all
+
+Worth appending rather than leaving to the commit log, because the failure mode
+is the interesting part and the verification mistake behind it is worse than the
+bug.
+
+**The file shipped with two consecutive hyphens inside its opening comment** —
+used as an em dash, and also unavoidably present in the CSS custom property
+names it quoted. XML forbids that sequence in a comment; SVG is parsed as strict
+XML; so the file failed to parse and **no icon appeared anywhere** — tab and
+bookmarks, Chrome and Firefox alike.
+
+**The symptom set is what makes this worth recording, because it reads like a
+success.** The request returned 200 with the right `Content-Type`, the link tag
+was present in the served HTML, and the `/favicon.ico` console error genuinely
+was gone (the browser had found a declared icon and stopped probing). Every
+signal that had been checked said it worked. The user reported the only one that
+had not been: the tab still showed the placeholder.
+
+**Claude's verification was the real defect.** The file was "sanity-checked"
+before committing — but the check counted opening, closing and self-closing tags,
+which passes cleanly on this file. **Tag balance is not well-formedness**, and
+asserting the file was valid on that basis was the same class of error as the
+headless-Chrome screenshots in D-062: a check that produces a green result
+without testing the thing that matters. Now recorded under the tooling traps in
+CLAUDE.md, together with the fix — parse it with a real parser, and parse the
+bytes the server sends rather than the file on disk.
+
+Also corrected while the file was open: `maskUnits` is now stated explicitly as
+`userSpaceOnUse` with its region given, rather than relying on the
+`objectBoundingBox` default, whose region derives from the masked group's
+geometry box (stroke excluded) and would have put the outer ring's edge within a
+rounding error of the mask boundary. And the file gained an XML prolog and
+explicit `width`/`height`.
+
+---
+## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
+
+Two decisions, reached in one investigation and kept together because
+separating them would lose the thread: **(a)** R18 — the last open item in the
+recommendations sub-backlog — is closed without a code change, and **(b)** the
+`debugRecs` harness is knowingly left half-stale rather than patched. The
+second is what made the first hard to look at.
+
+### (a) R18: measured, then dropped
+
+**What R18 claimed.** `.recs__hint { min-height: 1.2em }` "reserves one line for
+messages that run to three or four on a phone, so the grid jumps as the hint
+changes." Filed 2026-09-09 during the recommendations audit, explicitly parked
+for the step-5 portrait pass with the instruction to "check it during the
+portrait pass rather than guessing at a number now". That instruction is the
+only reason this entry can be written — the item was never costed by eye.
+
+**What the measurement showed**, at `innerWidth: 360`, computed line-height
+22.32px, over two consecutive runs with identical results:
+
+| Hint state | Height | Lines |
+|---|---|---|
+| Busy (`Pulling your top films → …`, 92 chars) | 67.0px | 3 |
+| After the run (`Based on: …`, 58 chars) | 44.6px | 2 |
+
+So the entire effect is **one line, 22.4px, once per run** — not the three-or-four
+line swing the item described. The other transition the item implies, resting
+(81 chars) → busy (92 chars), does not move at all: both land on three lines at
+this width.
+
+**And the one transition that does move is the one that cannot be seen.** The
+hint shrinks in `renderRecommendations()` (app.js, the `setRecsHint(['Based on:
+…'])` call), and eleven lines later, in the same synchronous block, that same
+function fires `el.recsHead.scrollIntoView({ block: 'start' })` — R27's scroll.
+At the exact instant the hint loses a line, the page is smooth-scrolling the
+section to the top of the viewport and six cards are beginning a 1.75s staggered
+entrance. The user looked for the jump twice, on the run the instructions
+specifically set up to expose it, and reported "I've barely seen anything worth
+fixing" — which the numbers then explained rather than contradicted.
+
+**Why the obvious fix is worse than the defect.** Holding the grid still means
+reserving the tallest message: `min-height: ~3.1em`, permanently parking 67px of
+blank space above the grid on every narrow viewport, including the roughly
+two-thirds of the time the message is shorter than that. That trades a masked
+one-line shift for unmasked dead space in the exact viewport class step 5 exists
+to make less cramped. It also hardcodes a line count that is a function of four
+message strings, the font and the viewport width — it goes silently wrong the day
+any of those changes, and nothing would catch it.
+
+**Rejected alternatives**, briefly, so they are not re-proposed:
+* *Media-query the `min-height` per breakpoint.* Same hardcoding, now in several
+  places, and it still cannot know what the strings are.
+* *Shorten the busy message so every state fits two lines.* The busy line is
+  R26-classified as a caption and is doing real work — it names the three stages
+  of the run, which is the "not a wrapper" evidence SPEC §7.2 asks for. Trimming
+  copy to make a layout rule work is the wrong way round.
+* *Measure the tallest message in JS and set the height.* Reading layout during
+  a render is precisely what `syncReviewToggles()`'s three batched passes exist
+  to avoid, for a shift nobody can see.
+
+**One observation made and deliberately NOT acted on.** `min-height: 1.2em` at
+this element's `0.9rem` computes to 17.28px, where a line box here is
+`1.55 × 14.4 =` 22.32px — so it under-reserves by about 5px even in the empty
+case it was written for. That window lasts from first paint until `/api/movies`
+returns, and the content arriving dominates it. Recorded so it is not
+rediscovered and "fixed" as a bug.
+
+**Where Claude was wrong, and it cost the user a round trip.** The reproduction
+steps handed over were written assuming a populated ranked list. The database
+was empty, so the trigger was disabled by `syncRecommendationsAvailability()`,
+the click never happened, and the user's screenshot showed a locked section that
+looked like a harness failure. The state of the data was checkable before
+writing the steps and was not checked.
+
+### (b) The `debugRecs` harness is left half-stale on purpose
+
+Found while diagnosing the above, and it is the reason a sub-threshold run could
+not simply be forced.
+
+`scripts/debug-recs.js` (96158b1, 2026-09-09) carries a `setTimeout(…, 0)` that
+re-enables `#recs-trigger` after the run's `finally` re-disables it. **That
+workaround was complete when written**: at the time, the below-threshold branch
+of `syncRecommendationsAvailability()` did exactly two things — write the "Rate
+at least 3 movies" hint, and disable the button. Neither touched the grid, so a
+dummy run below the threshold rendered six cards and they stayed. Zero rated
+films was a perfectly usable harness state.
+
+**R16 (885a6a5, 2026-09-11 — two days later) added a third statement to that same
+branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`, so
+a locked section cannot sit above six live recommendations. Correct on its own
+terms and unrelated to this file. The consequence is that the harness's cards are
+now wiped by the run's own `finally`, in the tick they were rendered — below the
+threshold you get a flash, not a run.
+
+**Not fixed.** Re-adding the cards after the sync has cleared them would put the
+harness in a fight with a rule the app asserts deliberately, and the
+locked-shows-no-output state is itself worth being able to look at. The answer is
+to rate three films: the harness exists to avoid OpenRouter calls, not to stand
+in for the database, and its fetch patch already lets a positive `tmdb_id` through
+to the real server so films can be added without disarming it.
+
+**The generalisable part**, which is why this is logged rather than left as a
+comment: a test double that patches around *one observable consequence* of an
+app branch has no way to notice when that branch grows another. Nothing fails,
+nothing warns — the double just quietly covers less than its comment claims. Both
+the header and the branch in `debug-recs.js` now say so, including that the
+paragraph above the `setTimeout` is no longer a promise that it works.
+
+---
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
 
 **Context: this one was found without trustworthy automated verification.**
@@ -2328,6 +2561,15 @@ and leave the spinner standing alone. Separately, `.search button` is
 `<button>` across engines, and shrinking is what clipped the label to begin with.
 
 ## D-026 · A sync must not stomp a deliberate state ("Added" is sticky)
+
+*Naming note, added later and deliberately not applied to the text below:
+`syncSearchResultButtons()` was renamed `syncAddButtons()` by R3 on 2026-09-09,
+when it stopped sweeping only the search panel and started querying the whole
+document. The old name is left as written throughout this entry because it is
+what the function was called when this was decided — grep for `syncAddButtons`
+in `public/app.js` to find it today. D-024 carries the same note for the same
+reason.*
+
 Reported as "skipping the rate dialog does not sync the search results". It was
 the reverse — skipping was correct, and **saving** was the bug. Saving a rating
 runs `loadMovies()` a second time, whose `syncSearchResultButtons()`

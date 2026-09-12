@@ -84,7 +84,7 @@ Beyond this priority order, the specific visual treatment — layout, styling, a
 * **Loading:** search results and recommendation generation both show a lightweight loading state — recommendation generation especially, since an LLM call can take a few seconds and a frozen button reads as broken.
 * **Empty state:** a brand-new list shows "No movies yet — search for one to get started," not a blank page.
 * **Not-enough-data state:** fewer than 3 rated movies → "Rate at least 3 movies to unlock recommendations" shown directly on the disabled recommendations action, not just a disabled button with no explanation. Similarly, the Taste Verdict Banner shows "Rate at least 2 movies to get a verdict" before that threshold, rather than an empty or broken banner.
-* **Failure state:** TMDB or OpenRouter failures produce a specific, calm inline message (see § 2.3) — never a raw error dump or a silently broken button.
+* **Failure state:** TMDB or OpenRouter failures produce a specific, calm inline message (see § 2.4, the resilience requirements — this pointed at § 2.3, which specifies only the verdict banner's own fallback) — never a raw error dump or a silently broken button.
 * **Duplicate handling:** attempting to add a movie already in the list shows a clear "Already in your list" message instead of a duplicate entry or a raw DB constraint error.
 
 \---
@@ -132,6 +132,8 @@ User requests recommendations → Express route →
 |GET|`/api/recommendations/history`|(optional) view past recommendation runs|
 |POST|`/api/taste-verdict`|Generate a new taste verdict banner message|
 
+*Three more endpoints exist as built and are not in the draft above: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the in-app viewer reads), `GET /api/config` (the three public threshold numbers, so the client never hardcodes a rule the server owns) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see `docs/DECISIONS.md` D-017.*
+
 \---
 
 ## 5\. Data Model (Supabase / Postgres)
@@ -147,10 +149,13 @@ User requests recommendations → Express route →
 |description|text|TMDB overview|
 |poster\_url|text||
 |rating|numeric(3,1)|nullable until rated|
-|review|text|nullable|
+|tmdb\_rating|numeric(3,1)|*added later, migration 002.* TMDB's own score, captured once at ADD time and never refreshed (D-036). `vote\_average: 0` means "no votes" on TMDB's scale, so it is stored as `null` rather than as a score of zero (D-037, migration 003)|
+|review|text|nullable *(and, since migration 004, only permitted on a rated film — see the constraint note below)*|
 |created\_at|timestamptz|default now()|
 
 Unique constraint on `tmdb\_id` — prevents adding the same movie twice, gives a clean DB-level answer to the "duplicate handling" UX requirement in § 3.4.
+
+*Three check constraints exist as built, two of them added after this spec was written: `rating\_range` and `tmdb\_rating\_range` (both 0–10), and `review\_requires\_rating` (migration 004, D-041) — a review may not exist on an unrated film, because the rating is the required half and the review the optional one. That rule previously lived only in the shape of the rate dialog. `db/schema.sql` is the canonical, current definition; this table is the spec's original design plus the annotations above.*
 
 ### 5.2 `recommendation\_logs`
 
@@ -166,6 +171,8 @@ Unique constraint on `tmdb\_id` — prevents adding the same movie twice, gives 
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|logged per call, per course requirement on cost tracking|
 
+*Five more columns were added by migration 001 and are live: `prompt\_tokens` and `completion\_tokens` (the in/out split behind `tokens\_used`), `duration\_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error\_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in § 4 of `docs/PROCESS.md` expressible. `db/schema.sql` is canonical.*
+
 This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different (and gradeable) thing.
 
 ### 5.3 `taste\_verdict\_logs`
@@ -176,10 +183,12 @@ This table is the real DB payoff of the AI feature — it's not just "call the A
 |created\_at|timestamptz|default now()|
 |prompt\_version|text|e.g. `"v1"` — its own prompt file, versioned independently of recommendations|
 |input\_movie\_ids|uuid\[]|all rated movies used as input (not just top-N — the verdict is about overall taste, not favorites)|
-|verdict\_text|text|the model's one/two-sentence output, stored as-is|
+|verdict\_text|text|the model's one/two-sentence output, stored as-is *(2–3 sentences as shipped — see the annotation on § 2.3)*|
 |model\_used|text|e.g. `"anthropic/claude-..."` via OpenRouter|
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|same cost-logging discipline as recommendations|
+
+*Carries the same five migration-001 columns as § 5.2 — `prompt\_tokens`, `completion\_tokens`, `duration\_ms`, `status`, `error\_text` — deliberately identical, so the two features cannot drift into two different audit shapes. `db/schema.sql` is canonical.*
 
 Smaller/lighter than § 5.2 by design — this is a low-stakes feature, but it still gets the same auditability treatment, not a shortcut.
 
@@ -189,11 +198,11 @@ Smaller/lighter than § 5.2 by design — this is a low-stakes feature, but it s
 
 Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Banner) equally:
 
-* Each feature has its **own versioned prompt file** — `prompts/recommend\_v1.md` and `prompts/taste\_verdict\_v1.md` — never inlined as strings in application code, never sharing one file.
+* Each feature has its **own versioned prompt file** — `prompts/recommend\_v1.md` and `prompts/taste\_verdict\_v1.md` — never inlined as strings in application code, never sharing one file. *(Those two names are the pattern, and both files still exist untouched. The chains have since run to `recommend\_v3` and `taste\_verdict\_v7`, which are the live versions; every superseded file is kept, and `docs/PROCESS.md` § 2 tabulates what each bump fixed.)*
 * The recommendation prompt requires **structured JSON output** (array of `{title, reason}` objects) — the app must not depend on regex-parsing free-form prose.
 * The taste verdict prompt requires a **short plain-text output** (one or two sentences as specified; 2–3 as shipped, see § 2.3) — no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
 * The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown (§ 2.2, step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case — an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on § 2.2 step 4 and `docs/DECISIONS.md` D-054)*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
-* See CLAUDE.md § Prompt Injection for how user-supplied review text (which feeds into *both* prompts) is handled safely.
+* See CLAUDE.md § Security \& Secrets, item 5 ("Prompt injection awareness"), for how user-supplied review text — which feeds into *both* prompts — is handled safely. *(This pointed at a § Prompt Injection heading that does not exist in CLAUDE.md.)*
 
 \---
 
@@ -211,6 +220,8 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 * \[ ] `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see CLAUDE.md § Security \& Secrets).
 
 ### 7.2 Manual Demo Script (for grading)
+
+*Two steps below have been overtaken by what got built, and the script in `README.md` is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on § 2.3). Step 4 no longer needs Supabase at all: the app has an in-app **AI call log** viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
 
 1. Show an empty list → add 3-4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change, and the Taste Verdict Banner generating a fresh one-liner about the taste profile so far.

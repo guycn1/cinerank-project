@@ -4,6 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CineRank — your personal film ranking</title>
+  <!-- Step 4 of the agreed order. SVG ONLY, no .ico and no PNG set: every
+       current browser supports an SVG favicon (Safari was the last holdout and
+       landed it in 26.0), and declaring any icon here is what stops the browser
+       auto-probing /favicon.ico -- which had no route, no file and no 404
+       handler, so it fell through to Express's finalhandler and was the lone
+       console error on a clean load, live site included.
+       Safari 18.7 and older will still probe and still 404. That is the same
+       error as before rather than a new one, and it costs a binary asset in a
+       repo that has none to fix. Deliberate.
+       The file carries the reasoning for its own geometry -- read it before
+       retuning anything in it. -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link

@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is now IN PROGRESS (started and substantially worked the same day 4b closed) — NOT complete, do not treat it as done.** Landed so far: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is still open and still parked here.** Still to do in step 5: everything else the portrait pass turns up, working down from ~500px toward the ~350px "good enough" floor and stopping at ~290px per the two enforcement rules below.)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,13 +33,13 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "step 4b's verdict
-  glint rebuilt as twenty composited dashes, its busy-state cue, the film grain
-  and the disabled 'New verdict'" (2026-09-12, `2c9c2ef`). **Seventeen** merges
-  so far;
+* `main` is at the latest settled UI milestone — currently "step 4b closed
+  with the verdict typing effect, plus a substantial (not yet complete) round
+  of step 5 portrait-overhaul work" (2026-09-12, `3650f52`). **Eighteen**
+  merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
-  a wrong count). The same number appears in `docs/PROCESS.md` §1 — update both.
+  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 — update both.
   `draft` continues day to day.
 
 ### Implemented
@@ -157,6 +157,28 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   real film, and `POST /api/movies` for one is refused in the browser — pressing
   Add on a dummy card cannot reach the database. Reload to stop; nothing is
   persisted. Never run by Node.
+  **IT NEEDS THREE RATED FILMS IN THE REAL DATABASE, and that surprises people
+  — including Claude, which wrote a set of repro steps on 2026-09-12 without
+  checking and sent the user to a dead button.** The harness fakes the
+  recommendation CALL, never the gate in front of it: `GET /api/movies` is not
+  intercepted, so the trigger's disabled state and the hint's text both come from
+  the real list. At zero rated films the button is dead and nothing in the file
+  ever runs.
+  **And forcing the button on no longer rescues it.** The harness carries a
+  `setTimeout(…, 0)` that re-enables the trigger after the run's `finally`
+  re-disables it — complete when written (96158b1, 2026-09-09), because the
+  below-threshold branch of `syncRecommendationsAvailability()` then did only two
+  things and neither touched the grid. **R16 (885a6a5, 2026-09-11) added
+  `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()` to that same
+  branch**, so a sub-threshold dummy run now renders six cards and wipes them in
+  the same tick: a flash, not a run. Deliberately NOT patched (D-063) — the fix
+  is to rate three films, since the harness exists to avoid OpenRouter calls, not
+  to stand in for the database. Both the file header and the branch itself say so,
+  including that the paragraph above that `setTimeout` is no longer a promise it
+  works. **The generalisable bit: a test double that patches around ONE observable
+  consequence of an app branch cannot notice when that branch grows another —
+  nothing fails and nothing warns, the double just quietly covers less than its
+  comment claims.**
   **It starts every page load DISARMED and is armed only by calling
   `debugRecs()`.** That flag is not decoration: the fetch patch installs the
   moment the file runs, which was harmless while pasting into a console WAS the
@@ -191,7 +213,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
-### Front-end overhaul (in progress — started 2026-09-05)
+### Front-end overhaul (started 2026-09-05 — COMPLETE as of 2026-09-12)
+
+**Status, so this heading is not misread as open-ended work: EVERY UI STEP OF THE
+AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
+sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
+4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
+under 500px, closed by the user against the ~350px target). **Step 6, the only
+step left, is pre-submission evidence and cleanup — not UI.** The bullets below
+are the running record of how each piece got there and stay as written.
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -414,9 +444,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   and is recorded in the ranked-list bullets further down, since it came out of
   the same whole-app sweep: the Add button breaking in two, the input refusing to
   yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
-  mid-word, and the new sub-500px grid layout. **More is scheduled:** step 5 of
-  the agreed order is a complete overhaul of the portrait view under 500px, which
-  lands here again.
+  mid-word, and the new sub-500px grid layout. **Step 5, the portrait overhaul
+  under 500px, landed here again on 2026-09-12 and is now CLOSED** — it gave the
+  results panel a height FLOOR (`max(240px, min(340px, 50vh))`) in place of what
+  had become a second ceiling, and soft-hyphenated row titles below 400px
+  (D-060/D-061). Nothing further is scheduled for this section.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
@@ -554,13 +586,24 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     was a bare `max-height: 340px` — the app's only fixed-pixel height cap, while
     the AI log dialog already used `88vh`. On a short viewport (a phone in
     landscape, a small desktop window) 340px is most of the screen, so the panel
-    buried the page. Now `min(340px, 60svh)` with a `60vh` line above it as the
-    fallback, since a lone unsupported `svh` would invalidate the declaration and
-    leave NO cap at all. `svh` and not `dvh` so it does not resize mid-scroll as
-    a mobile URL bar collapses.
-    **Strictly shrinking, so nothing comfortable today can change:** `min()`
-    cannot return more than 340px. Viewports 640px tall and up are byte-identical;
-    only 500px and below see a smaller panel (300px at 500 tall, 216px at 360).
+    buried the page.
+    **SUPERSEDED ON 2026-09-12 — the figures in the rest of this paragraph are
+    the 2026-09-09 state and are NOT the live rule.** That first fix was
+    `min(340px, 60svh)` over a `60vh` fallback line, and it OVER-CORRECTED: a
+    flat percentage of a genuinely short viewport (a phone in landscape can
+    report ~240px of height) crushed the panel to about one row — the same
+    "radically short" look it was meant to fix. Step 5 replaced the second
+    ceiling with a FLOOR. **Live rule: `max(240px, min(340px, 50vh))`, with the
+    `50svh` line below it as the override** — so below ~480px of viewport height
+    the panel holds at 240px and is allowed to exceed the viewport, between
+    ~480px and ~680px it eases from 340 down to 240, and above ~680px it is the
+    original 340px ceiling untouched. The `styles.css` rule carries the full
+    reasoning; read it rather than this paragraph.
+    What DOES still hold from the original fix, and is why it is written as two
+    declarations: the `vh` line is the fallback and the `svh` line overrides it,
+    because a lone unsupported `svh` would invalidate the declaration and leave
+    NO cap at all; and `svh` rather than `dvh` so the panel does not resize
+    mid-scroll as a mobile URL bar collapses.
     **Two more one-line guards from the same sweep** (findings 7 and 8). The
     rate dialog's heading shows a film title exactly as the confirm dialog's
     does, but only the confirm dialog carried `overflow-wrap: anywhere` — the
@@ -1190,8 +1233,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
    and produced R1–R22 below; R23–R25 were added later, from findings made while
    fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
-   seeing R27 and D-050 run. R1–R17, R19 and R21–R30 are done, R20 was WITHDRAWN as
-   incorrect, and **R18 is the only one still open** — every
+   seeing R27 and D-050 run. **R1–R19 and R21–R30 are ALL DONE, R20 was WITHDRAWN
+   as incorrect, and R18 — the last one open — was CLOSED 2026-09-12 as won't-fix
+   on measurement (D-063). STEP 2 IS THEREFORE COMPLETE; nothing in this
+   sub-backlog is outstanding.** Every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
    these are how the items get referred to. Keep the statuses current as they
@@ -1550,10 +1595,17 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      still to inline each with a why-comment rather than mint tokens.**
      (COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number of
      animations that could plausibly have used `--ease` and deliberately do not.
-     A grep for timing functions returns more — the two `spin`s and the film
-     grain — but those were never candidates: a rotation is linear because it is
-     a rotation, and stepped noise is stepped because it is noise. Still four as
-     of 2026-09-12.)
+     They are the verdict glint (`sheen`, `linear`), the ranked list's entrance
+     (`card-enter`, its own cubic-bezier), the trigger sparkle (`sparkle-glow`
+     and `sparkle-twinkle`, both `ease-in-out`, counted as one effect) and the
+     rec-card exit (`rec-close`, `ease-in`).
+     A grep for timing functions returns more — the two `spin`s, the film grain,
+     and the verdict caret's `step-end` — but none of those was ever a candidate:
+     a rotation is linear because it is a rotation, stepped noise is stepped
+     because it is noise, and a caret blinks rather than fades, which is what
+     `step-end` means. **The caret is not in the original exclusion list because
+     it did not exist when this was written — it arrived with the typing effect
+     (D-057).** Still four as of 2026-09-12.)
      `--ease-out` is the name that will not work: `--ease` IS an ease-out, just a
      violently front-loaded one, so a token by that name would read as a synonym
      for the thing it exists to differ from. All four are one-offs with different
@@ -1638,11 +1690,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      owned filter means a rated film can never be recommended back, and it is
      there so the badge rests on `state.movies` alone rather than on a
      server-side filter staying correct.
-   * **R18. `.recs__hint { min-height: 1.2em }` reserves one line for messages
-     that run to three or four on a phone**, so the grid jumps as the hint
-     changes. Low severity: the busy string and the resting string are close in
-     length, so the shift is real but small. Check it during the step-5 portrait
-     pass rather than guessing at a number now.
+   * **R18. CLOSED 2026-09-12 as WON'T-FIX, on measurement (D-063) — the last
+     item in this sub-backlog, so step 2 is now fully closed.** It read:
+     "`.recs__hint { min-height: 1.2em }` reserves one line for messages that run
+     to three or four on a phone, so the grid jumps as the hint changes", and it
+     deliberately parked the question for the step-5 portrait pass rather than
+     guessing a number. That instruction is what made this closeable.
+     **Measured at `innerWidth: 360` (line-height 22.32px), twice, identically:
+     the busy message is 3 lines / 67.0px and the "Based on: …" message is 2
+     lines / 44.6px.** So the whole effect is ONE line, 22.4px, once per run —
+     not the three-or-four-line swing the item assumed. The resting → busy
+     transition does not move at all: 81 chars and 92 chars both land on three
+     lines at this width.
+     **And the one transition that does move is the one that cannot be seen.**
+     The hint shrinks inside `renderRecommendations()`, and eleven lines later —
+     same synchronous block — that function fires R27's
+     `el.recsHead.scrollIntoView({ block: 'start' })`. The page is smooth-scrolling
+     the section to the top of the viewport and starting a 1.75s staggered
+     entrance on six cards at the instant the hint loses its line. **The user
+     looked for it twice, on the run set up specifically to expose it, and
+     reported seeing "barely anything worth fixing" — the numbers explain that
+     rather than contradict it.**
+     **The fix is worse than the defect.** Holding the grid still means reserving
+     the tallest message (`min-height: ~3.1em`), which permanently parks 67px of
+     blank space above the grid on narrow viewports — in the exact viewport class
+     step 5 exists to make LESS cramped — and hardcodes a line count that is a
+     function of four message strings, the font and the width. Do not re-propose
+     it, and do not re-propose the three alternatives weighed and rejected in
+     D-063 (per-breakpoint media queries, shortening the busy copy, or measuring
+     the tallest message in JS).
+     **One thing observed and deliberately NOT changed:** `min-height: 1.2em`
+     computes to 17.28px against a 22.32px line box, so it under-reserves by ~5px
+     even in the empty-hint case it was written for. That window is first paint
+     to `/api/movies` returning, where the content arriving dominates it. Noted
+     so it is not rediscovered as a bug.
 
    **Group E — structure and tests**
 
@@ -2271,13 +2352,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    link's only content is the icon, so a failed script leaves an empty clickable
    box. Both copies carry a comment pointing at the other; edit one, edit both.
 
-4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
-   request. State verified 2026-09-08: there is **no `<link rel="icon">` in
-   `index.html`, no icon file in `public/`, and no server-side favicon route**,
-   so every browser auto-requests `/favicon.ico`, misses the static middleware
-   and lands on the 404 handler. That is the lone console error on a clean load,
-   and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
-   building.
+4. **The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
+   asked, then built from what the discussion settled.
+   **Shipped:** `public/favicon.svg` plus one `<link rel="icon"
+   type="image/svg+xml">` in `index.html`. No `.ico`, no PNG set, no server
+   route — `express.static` already serves `public/`.
+   **It is a RE-DRAW, not an export, and it cannot be anything else.**
+   `.mark__reel` is pure CSS, so no asset ever existed to export. And a faithful
+   transcription fails at the only size that matters: normalised to a 32-unit
+   viewBox the logo's inner ring is **1.12 units — 0.56px at 16px**, which
+   aliases into a smudge. Four candidates were drawn and compared at
+   16/24/32/64px on light and dark tab strips; the user chose the one that goes
+   furthest toward faithful while still holding at 16px (rings 4.0 and 2.2, notch
+   34° against the logo's 28.8°).
+   **DO NOT "CORRECT" ITS PROPORTIONS BACK TO MATCH `.mark__reel`.** They differ
+   on purpose, the exact-match version was built and rejected, and the file says
+   so at the top. Retune only at 16px — every candidate looks fine at 64px.
+   **Three sub-decisions, all deliberate and all in D-064:** no background disc
+   (offered with a live toggle, compared on a light strip, rejected); no spin
+   (Chrome rasterises only the first frame); SVG only.
+   **On SVG-only — Claude's first advice here was wrong and the user caught it.**
+   It claimed Safari would still probe `/favicon.ico` and that an airtight fix
+   needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
+   unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
+   covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
+   and older still probe — the same 404 as before, not a new one.
+   **One correction to what this entry used to claim.** It said the request
+   "lands on the 404 handler". There is **no 404 handler**: `server/index.js` has
+   only a central error handler, which fires on `next(err)`. The request fell
+   through `express.static` and every API mount to Express's built-in
+   finalhandler — a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
+   by booting the app on port 3999, not reasoned about. Wrong when written, so
+   corrected rather than preserved.
+   Declaring any icon link is what stops the auto-probe, so the icon and the
+   console error were one fix, not two.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -2285,9 +2393,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
    the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
    typing effect — the only item here that was ever a genuinely new build —
-   closed the same day (D-057), tuned to 15ms/char by the user's eye.
-   **Next session starts on step 5, the portrait overhaul — see its two
-   enforcement rules further down.**
+   closed the same day (D-057), tuned to **18**ms/char by the user's eye. (This line said 15ms, which was wrong when written — 15ms was tried and REVERTED, the user preferring the slower read. `VERDICT_TYPE_MS` in `app.js` is 18, the item below says 18, and D-057 says 18.)
+   **That pointer used to say "next session starts on step 5, the portrait
+   overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
+   the agreed order is closed and the only one left is STEP 6 — pre-submission
+   evidence and cleanup. Step 5's two narrow-viewport enforcement rules still
+   stand and are not retired by it closing.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2382,7 +2493,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
         alone multiplies every layer's phase shift and the twenty stop nesting —
         the taper smears instead of forming a band. Never hand-edit those lines.
      3. **The alphas are SOLVED, not chosen, and they are not monotonic** — they
-        peak around the middle layer. Layers composite multiplicatively, so
+        rise to a peak at layer 16 of the 20 and fall away after it (0.1305 at
+        16, against 0.0012 at the first and 0.0465 at the last). Layers composite multiplicatively, so
         scaling them all flattens the taper back into a hard bar rather than
         dimming it. The user proved this by quadrupling them; it looked worse.
      **The layer count is an anti-banding parameter.** A dash has hard ends, so N
@@ -2396,9 +2508,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      cost anywhere except software-rendering-plus-20x**, a configuration no real
      device occupies. Full table in D-055. Note DevTools CPU throttling slows the
      MAIN THREAD ONLY, which is why the software-rendering runs were needed.
-     **Still open here: the busy-state item further down this list** (the glint
-     speeding up while "New verdict" runs). Its two dials are exactly the two
-     traps above; D-055 carries the one-line fix for each.
+     **The busy-state item further down this list** (the glint speeding up while
+     "New verdict" runs) **is DONE — 2026-09-12, D-056.** This paragraph used to
+     say it was still open; it was, when written, and the sentence is corrected
+     rather than deleted because its point still stands: that item's two dials
+     are exactly the two traps above. Note that only ONE of D-055's two one-line
+     fixes was used — the speed half went to `playbackRate` in JS instead of the
+     duration swap D-055 prescribed, because changing a CSS animation's duration
+     makes the dash JUMP. See D-056 before touching it.
      **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
      names has since been REPLACED — none of the following describes the code
      today. It is kept only because its instruction to measure first is what
@@ -2720,7 +2837,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sped up", and the user approved it after looking. A rAF ramp of
      `playbackRate` is the fix if it is ever wanted.
 
-5. **Complete overhaul of the portrait view under 500px.**
+5. **Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
+   USER 2026-09-12. Do not reopen it, and do not go hunting for more narrow-width
+   work: the user has declared the target met.**
+   Their words, and the standard they closed it against: there are no viable
+   remaining issues at **~350px**, which is the width this step agreed to plan
+   and test against; messiness only starts below **~310px**, and even there the
+   UI is still mostly usable, just less pretty.
+   **That ~310px figure is a finding, not an invitation.** It sits inside the
+   "good enough only" band and above the ~290px ignore floor, so it is the
+   expected outcome of the two rules below rather than a defect list. Anything
+   found under 350px from here needs the first rule applied to it.
+   **What landed across the step** (2026-09-12, in one long pass): the ranked
+   card's score row no longer wraps its rating mid-number or pushes Edit/Remove
+   outside the card below 400px (D-058); the header logo reel no longer squashes
+   into an ellipse and the GitHub icon scales to 75% below 400px; the
+   search-results panel's height cap became a FLOOR rather than a second ceiling;
+   mid-word title breaks hyphenate via `Intl.Segmenter` soft hyphens instead of
+   breaking raw (D-060/D-061); the AI call log's card-view labels stopped
+   misaligning when they wrap; and the toast got a real box-shadow, content-aware
+   widening below 700/500px, and a genuine centering fix (D-062). **R18 was
+   closed inside this step as won't-fix on measurement (D-063)**, which also
+   closed step 2.
+   **The two enforcement rules below still stand for any future narrow-width
+   question**, in this step or outside it — they are about the deadline, not
+   about this step's backlog, and this step closing does not retire them.
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
    The user asked to be stopped, in advance, because the deadline is close:
@@ -2736,6 +2877,18 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
+   **>>> START HERE. EVERY UI STEP IS NOW DONE — 1, 2, 3, 4, 4b and 5 — so this
+   is the only step left, and it is not UI work: it is evidence, registration and
+   cleanup. The checklist is under "Pre-submission blockers" below; the nine
+   resilience screenshots are greppable as `RS-1` through `RS-9`, each with its
+   own recipe and the exact string to expect. Two recipes are order-dependent and
+   will waste a session if skimmed (RS-2 needs a search run BEFORE the key is
+   broken; RS-6 needs the page loaded BEFORE the server is stopped).
+   The user is capturing screenshots only once the UI is finished — which it now
+   is — but that is still THEIR call to start, and it has been restated several
+   times. Do not push to shoot them early.
+   The narrow-viewport enforcement rules under step 5 are NOT retired by that
+   step closing; they still apply to anything that comes up. <<<**
 
 **Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
 rather than renumbered because "step 5" is referenced by name outside this file —
@@ -2980,6 +3133,48 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   `onrender.com` host. So forgetting this ships an idle function rather than a
   hijacked app — but a debug tool wired into a submitted build is still its own
   kind of wrong.
+* [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
+  Raised by the 2026-09-12 sweep and deliberately left for the user: most of them
+  are covered by `npm test` and by hand testing, but ticking an acceptance
+  criterion is a claim that it was *verified for submission*, which is the
+  user's call and not Claude's to make on their behalf. Walk them one at a time
+  against the live app — several can be ticked off the same session as the
+  `RS-n` screenshots, since they exercise the same states.
+  **Do the escaping fix below FIRST**, because these eight are written `\[ ]` and
+  therefore do not render as task-list checkboxes at all — they are literal text
+  on GitHub, so there is nothing to tick in the UI until that backslash goes.
+* [ ] **Strip the markdown escaping artifacts from `CLAUDE.md` and `SPEC.md`.**
+  Cosmetic rendering, not staleness, which is why the sweep left it alone — but
+  both files are in a public repo and get read rendered. Counted 2026-09-12 —
+  `CLAUDE.md`: 10 `\---`, 19 `\_`, 5 `\&`, 1 `\[`. `SPEC.md`: 7 `\---`, 56 `\_`,
+  6 `\&`, 11 `\[`.
+  `README.md`, `docs/PROCESS.md` and `docs/DECISIONS.md` are clean — the two
+  affected files are the oldest, and the escapes almost certainly came in with
+  one paste. The damage is real but small: `\---` renders as the literal text
+  `---` instead of a horizontal rule, `\[ ]` kills the eight checkboxes above,
+  and SPEC's seven numbered headings render as `1\.` rather than `1.`.
+  **A CORRECTION TO WHAT THIS ENTRY FIRST SAID.** It claimed the escaped
+  underscore "is genuinely harmless — it renders as a plain underscore, so
+  `tmdb\_id` already looks right". That is wrong wherever the escape sits inside
+  a CODE SPAN, because **backslash escapes are not processed inside backticks** —
+  the reader sees the backslash. Counted by rendering context 2026-09-12:
+  `CLAUDE.md` has **23 of 23 inside code spans** and none in plain text;
+  `SPEC.md` has **31 inside code spans**, 24 in plain text (those really do render
+  clean) and 1 inside a fenced block. So the majority are visible to a reader,
+  not merely noise in the source.
+  **THE BLAST RADIUS IS RENDERING ONLY, AND THAT IS VERIFIABLE.** Nothing in the
+  codebase reads either file: the only paths anything opens are `public/` via
+  `express.static`, `scripts/debug-recs.js` via its one route, and `prompts/*.md`
+  via `loadPrompt()`. No route, no test and no build step touches `CLAUDE.md` or
+  `SPEC.md`, so this edit cannot change behaviour, break a test or affect the
+  deploy — the worst case is that a markdown file looks wrong on GitHub, and it
+  is one `git revert` away.
+  The "mangled code fence" warning above is also smaller than it sounds now that
+  it has been counted: `CLAUDE.md` has **zero** escapes inside fenced blocks and
+  `SPEC.md` has **one**. Check that one by hand and the fences are accounted for.
+  **Do this as its own commit, and eyeball the rendered result before the merge**
+  — a blind find-and-replace across two files this size is exactly the kind of
+  change that quietly mangles a code fence or a table.
 * [ ] Final `draft → main` merge once the above land (needs explicit user OK).
 
 ### Incident log
@@ -3216,6 +3411,21 @@ next session does not rediscover them.
 * **The UI copy uses curly apostrophes** (`’`, e.g. "Couldn’t reach CineRank").
   An edit anchored on a straight `'` will not match. Copy the exact character
   out of the file rather than retyping it.
+* **A comment in an `.svg` file must never contain two consecutive hyphens, and
+  the failure is SILENT.** XML forbids that sequence inside a comment, SVG is
+  parsed as strict XML, and a parse error means the browser renders nothing at
+  all — with no console error, because the request itself returned 200. This
+  cost a round trip on `public/favicon.svg` (2026-09-12): the comment used the
+  two-hyphen sequence as an em dash and also quoted the CSS custom property
+  names, which begin with it. The favicon was simply absent in Chrome and
+  Firefox, in the tab and in bookmarks, while the network tab looked perfect.
+  **The trap inside the trap: a tag-balance or bracket check PASSES on such a
+  file**, which is what made the first "validated" claim wrong. Only a real
+  parser catches it — on Windows, `[xml](Get-Content -Raw path)` in PowerShell
+  throws with the line and column. Do that after editing any `.svg`, and prefer
+  parsing **what the server actually sends** (`curl` to a file, then parse) over
+  the file on disk. Inline SVG inside `index.html` is exempt: that is parsed by
+  the lenient HTML parser, which is why comments there can and do contain `--`.
 
 \---
 

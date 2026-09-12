@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    CineRank's film-reel mark, re-drawn for a browser tab.
+
+    ⚠ NEVER WRITE TWO CONSECUTIVE HYPHENS ANYWHERE IN A COMMENT IN THIS FILE.
+    SVG is XML, and XML forbids that sequence inside a comment — the whole file
+    then fails to parse and the browser silently shows no icon at all, with no
+    console error, because the request itself succeeded. That is exactly what
+    happened on the first version of this file: it used the two-hyphen sequence
+    as an em dash and also quoted the CSS custom property names, which begin with
+    it. Use a real em dash, and name tokens as "the amber token" rather than
+    writing the property syntax out. Tag-balance checks do NOT catch this; parse
+    the file (PowerShell: cast the text to [xml]) after any edit to the comments.
+
+    NOT AN EXPORT OF THE HEADER LOGO, AND IT CANNOT BE ONE. The mark__reel rule
+    in public/styles.css is pure CSS — a 34px box with a 3px amber border, a
+    radial-gradient inner ring, and a conic-gradient mask cutting a notch — so
+    there was never a file to export. This is a translation of that construction
+    into SVG, and a DELIBERATELY COARSER one.
+
+    Why coarser: transcribed 1:1, the inner ring measures 1.12 units of this
+    32-unit viewBox, which is 0.56px at 16px. It aliases into a smudge or
+    disappears outright. Four candidates were drawn and compared at 16/24/32/64px
+    on both light and dark tab strips; the user picked this one — the furthest
+    toward faithful that still survives 16px. See step 4 in CLAUDE.md and D-064.
+
+    THE TWO RINGS AND THE NOTCH ARE THE MARK. If any of the three values below is
+    ever retuned, re-check it AT 16px and nowhere else — every one of these was
+    chosen for that size, and all three look fine at 64px whatever you do to them.
+
+      outer ring  r 14,   width 4      (logo: r 14.588, width 2.824)
+      inner ring  r 6.6,  width 2.2    (logo: r 6.336,  width 1.118)
+      notch       34 deg               (logo: 28.8 deg, from the reel-notch
+                                        token's 8% of a turn)
+
+    Colour is the amber token (#f5c15b) from public/styles.css, hardcoded because
+    a standalone favicon cannot read the app's custom properties. If that token
+    ever moves, this file does not follow it automatically — change both.
+
+    No background disc: the mark sits straight on the tab strip, transparent, so
+    it keeps the header's own amber-on-nothing treatment. Considered with a
+    #0b0b0f disc behind it and rejected by the user after comparing both on a
+    light strip.
+
+    No animation, though the header mark turns once per 10s. Chrome rasterises
+    the first frame of an SVG favicon and ignores the rest, so a spin would look
+    different in every browser for no gain. Decided, not overlooked.
+
+    The notch is a mask rather than a stroke-dasharray gap so that ONE wedge cuts
+    both rings at the same angle, which is exactly what the CSS conic-gradient
+    mask does. Keep them in step: two dasharrays would be two chances to drift.
+  -->
+  <!--
+    maskUnits is userSpaceOnUse and the region is stated outright. Left to
+    default it would be objectBoundingBox, whose region is derived from the
+    masked group's GEOMETRY box (stroke excluded) and padded 10% — workable here,
+    but it puts the outer ring's edge within a rounding error of the mask
+    boundary. Stating the region removes the arithmetic entirely.
+  -->
+  <mask id="notch" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+    <rect width="32" height="32" fill="#fff"/>
+    <!-- Wedge from the centre, 12 o'clock clockwise to 34 deg. Radius 22
+         overshoots the 32-unit box on purpose, so the cut always clears the
+         outer ring no matter how thick it gets. -->
+    <path d="M16 16 L16 -6 A 22 22 0 0 1 28.302 -2.239 Z" fill="#000"/>
+  </mask>
+  <g mask="url(#notch)" fill="none" stroke="#f5c15b">
+    <circle cx="16" cy="16" r="14" stroke-width="4"/>
+    <circle cx="16" cy="16" r="6.6" stroke-width="2.2"/>
+  </g>
+</svg>
