@@ -2721,6 +2721,17 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `playbackRate` is the fix if it is ever wanted.
 
 5. **Complete overhaul of the portrait view under 500px.**
+   **>>> START HERE. This is IN PROGRESS, not done — do not start step 6 or
+   re-scope this as finished. A substantial round already landed 2026-09-12
+   (score row wrap/overflow, logo reel + GitHub icon at narrow widths, the
+   search-results panel's height floor, mid-word hyphenation, the AI log's
+   card-view label alignment, the toast's width/shadow/centering) — see the
+   living log above for the full list and D-058/D-060/D-061/D-062 for the
+   traps found along the way. **R18** (`.recs__hint { min-height: 1.2em }`
+   reserving one line for messages that can run to three or four) is the one
+   still-open recommendations item and is deliberately parked here — see its
+   entry under step 2. The two enforcement rules immediately below are yours
+   to apply on every pass through this step, not a one-time read. <<<**
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
    The user asked to be stopped, in advance, because the deadline is close:
