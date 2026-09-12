@@ -6,6 +6,55 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
+
+**The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
+phone width, and `overflow-wrap: anywhere` is exactly why (D-045) — it is the
+guard that stops one unbroken word from blowing a card's track open, and it
+breaks wherever it has to, with no regard for syllables.
+
+**The fix.** `hyphens: auto`, paired everywhere that guard already lives over
+a film title (`.movie-card__body`, `.result-row`, `.rec-card__body`, the rate
+and confirm dialog headings, `.toast`). It does not replace `overflow-wrap`;
+it changes what happens BEFORE that last resort is needed — the browser's own
+hyphenation algorithm looks for a real syllable break first and draws a
+hyphen there. `overflow-wrap: anywhere` only still fires raw when hyphenation
+finds nothing.
+
+**The gap, caught by the user with a second screenshot the same day.** In the
+very same title, "childhood" hyphenated correctly ("child-" / "hood") and
+"SquarePants" did not — it broke as "SquarePant" / "s", no hyphen at all.
+Diagnosed rather than assumed: `hyphens: auto` runs a real dictionary/pattern
+algorithm, not a guess, and it found nothing in an invented camelCase
+compound proper noun that it trusts enough to hyphenate. `overflow-wrap`'s
+raw fallback took over for that word alone, and that mechanism has no concept
+of a break character — there is no CSS property equivalent to
+`hyphenate-character` for an ARBITRARY forced break, only for a genuine
+hyphenation point.
+
+**The alternative, and why it was not built.** Closing the gap for every
+possible invented title needs JS: measure the rendered text, find where it
+would actually overflow, and insert the hyphen and break by hand. That is the
+same *category* of ongoing maintenance `syncReviewToggles()` already exists
+for — it has to re-run on resize, on zoom, and after a late webfont swap, or
+it goes stale exactly the way that function's own history describes. Worth
+building for a load-bearing feature; not obviously worth it for a cosmetic
+consistency gap that only shows up on invented compound words at the
+narrowest phone widths — precisely the territory CLAUDE.md's own step 5 rule
+says to flag rather than chase past a quick fix.
+
+**Put to the user as a real trade-off, not decided unilaterally: leave it, or
+build the JS fallback anyway.** Their call was to leave it. Most real words in
+real film titles already hyphenate correctly, which is the actual improvement
+here; the residual gap is real but narrow, and is now a documented, accepted
+limit rather than an oversight.
+
+**Trap for later: do not "finish" this with the JS fallback on a hunch.** The
+decision was already made with the cost stated plainly. Revisit only if the
+gap turns out to matter more than a screenshot at ~300px width — a real
+demo, a grading rubric complaint, anything beyond this.
+
+---
 ## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
 
 **The ask.** "New verdict" was left to natural flex-wrap math and only dropped
