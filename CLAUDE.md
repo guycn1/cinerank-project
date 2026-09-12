@@ -2184,6 +2184,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    retracted, not corrected. If this needs settling later, trust the real
    browser over another automated pass; something about headless Chrome's
    rendering did not match it here for a reason that was never found.
+   **The tooling unreliability turned out to run deeper than this note knew
+   at the time — see D-062.** A LATER, unrelated bug hunt found a case with a
+   completely FRESH profile (no session reuse) where the requested
+   `--window-size` still didn't match what the page's own JS reported, and a
+   separate run where the output PNG was pixel-exact at the requested size
+   while `window.innerWidth` read something else entirely. So "session
+   reuse" was A cause seen once, not the whole story — do not treat headless
+   Chrome's width reporting as trustworthy here without a live console check
+   backing it up.
    **What IS certain, independent of any of the above:** the two fixes that
    shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
    icon scaled to 75% under `max-width: 400px`) cannot affect anything above
