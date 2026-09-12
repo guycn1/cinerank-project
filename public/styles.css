@@ -3417,16 +3417,29 @@ body:has(dialog[open]) { overflow: hidden; }
    on a phone, where every extra millimetre of tap-target and line width
    counts. Two tiers, wider than "normal" — never narrower, both are strictly
    additive on top of the base rule above.
+   SCOPED to `.toast.is-long` — user-raised, same day, with a worked example:
+   a short toast ("Dune saved.") must look IDENTICAL at 1000px, 600px and
+   450px, and only widen once its text would already need more than one line
+   at a normal, >700px width. That "would it wrap at normal width" question
+   cannot be answered by CSS alone — a media query only knows the CURRENT
+   viewport, not whether a piece of TEXT would fit at a DIFFERENT, wider one —
+   so `toastIsLong()` in app.js measures it once per call (an invisible,
+   unconstrained probe sharing this class, so font/padding/border match
+   exactly) and toggles `is-long` before the toast is ever shown. A short
+   toast never carries the class, so it keeps the base rule's shrink-to-fit
+   sizing at every width, exactly as asked.
    `min-width`, not `width`, at 700px — a FLOOR, not a fixed size: it only
-   pulls up a toast that would otherwise be narrower than this, so a short
-   toast gets noticeably wider while an already-wide error is untouched.
+   pulls up a toast that would otherwise be narrower than this, so a short-
+   but-still-long-enough-to-wrap toast gets noticeably wider while an
+   already-wide error is untouched.
    Tuned by eye like every other dimension in this file. */
 @media (max-width: 700px) {
-  .toast { min-width: 25rem; }
+  .toast.is-long { min-width: 25rem; }
 }
-/* At 500px the ask changes shape — EVERY toast, short or long, should read as
-   nearly full-width with a small margin either side, not just "wider than
-   its own content". That needs an explicit `width`, not another floor.
+/* At 500px the ask changes shape — every LONG toast should read as nearly
+   full-width with a small margin either side, not just "wider than its own
+   content". That needs an explicit `width`, not another floor. Still gated
+   on `.is-long`, for the exact same reason as the 700px tier above.
    `min-width: 0` resets the 700px tier's floor -- left in place, it would win
    over this narrower width the moment `calc(100% - 1.5rem)` dropped below
    25rem (viewports under ~424px), forcing the toast WIDER than the viewport
@@ -3440,7 +3453,7 @@ body:has(dialog[open]) { overflow: hidden; }
    plainly tied to "the box's own sizing" here, where `vw` would look like an
    unrelated absolute unit next to the `rem` padding beside it. */
 @media (max-width: 500px) {
-  .toast {
+  .toast.is-long {
     min-width: 0;
     width: calc(100% - 1.5rem);
     max-width: calc(100% - 1.5rem);

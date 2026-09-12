@@ -140,11 +140,51 @@ function failureText(context, err) {
   return `${context} — ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
 }
 
+// The widest `max-width: 90vw` ever gets while styles.css's narrow-viewport
+// widening rules (`@media (max-width: 700px)`) are still in play -- 90% of
+// 700px. If a message's natural, unconstrained single line fits inside this,
+// it fits at every wider viewport too, so it counts as "normal width" for
+// toastIsLong() below. Tied to those two CSS values; move this if either
+// changes.
+const TOAST_SINGLE_LINE_MAX = 630;
+
+/**
+ * Would `text` already need more than one line at a normal, >700px toast
+ * width — i.e. is it "long" under the user's own definition (step 5,
+ * user-raised with a worked example: "Dune saved." must look identical at
+ * 1000/600/450px; only a message that already wraps at normal width should
+ * ever widen). A media query alone cannot answer this: it only knows the
+ * CURRENT viewport, never whether a piece of text would fit at a DIFFERENT
+ * one, so this measures it directly.
+ * The probe shares the real `.toast` class (same font, padding, border) but
+ * neutralises width/max-width/min-width inline -- inline styles win over the
+ * class's stylesheet rules regardless of specificity or which media query is
+ * currently active, so the reading is the text's TRUE natural width,
+ * independent of whatever the actual browser viewport happens to be right
+ * now. `white-space: nowrap` forces it onto one line so `scrollWidth`/
+ * `getBoundingClientRect()` reports the full un-wrapped width.
+ * A throwaway, invisible, off-screen element -- never the real, currently
+ * showing toast -- so measuring one toast can't flicker or resize another.
+ */
+function toastIsLong(text) {
+  const probe = document.createElement('span');
+  probe.className = 'toast';
+  probe.style.cssText =
+    'position:absolute; visibility:hidden; left:-9999px; top:-9999px; ' +
+    'white-space:nowrap; width:auto; min-width:0; max-width:none;';
+  probe.textContent = text;
+  document.body.append(probe);
+  const fits = probe.getBoundingClientRect().width <= TOAST_SINGLE_LINE_MAX;
+  probe.remove();
+  return !fits;
+}
+
 let toastTimer;
 function toast(message, isError = false) {
   el.toast.textContent = message;
   el.toast.hidden = false;
   el.toast.classList.toggle('err', isError);
+  el.toast.classList.toggle('is-long', toastIsLong(message));
   requestAnimationFrame(() => el.toast.classList.add('show'));
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
