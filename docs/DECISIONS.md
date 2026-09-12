@@ -6,6 +6,69 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
+
+**Context: this one was found without trustworthy automated verification.**
+Repeated attempts to check a "toast is too narrow" report with headless
+Chrome that session produced inconsistent, contradictory numbers — a
+`--window-size` flag silently ignored under `--dump-dom` even with a fresh
+profile and no cached session, and one run where the output PNG was
+pixel-exact at the requested size while the PAGE'S OWN `window.innerWidth`
+read a completely different number. That gap means the image dimensions
+alone were never proof the page was laid out at that width — every earlier
+"confirmed via pixel-exact screenshot" claim this session rested on an
+assumption that turned out not to hold. The user's own console, on the real
+browser, is what actually resolved this.
+
+**The bug, and how it was found.** A toast reading `"The SpongeBob
+SquarePants Movie" saved.` rendered as an ugly, narrow, three-line wrap on a
+380px phone. The obvious suspect was the new content-length-aware widening
+feature (D-060-era `is-long` logic) misfiring — checked directly via the
+user's own console and RULED OUT: `className` had no `is-long`, `min-width`
+was `0px`, computed `width` matched the rendered width exactly. The feature
+was correctly declining to widen this message. Something else was making
+the UNWIDENED box too narrow.
+
+**The actual cause — the user's own hypothesis, not the one investigated
+first.** `.toast` used `position: fixed; left: 50%; transform:
+translateX(-50%) …` to centre a shrink-to-fit box — a common, ordinarily
+harmless pattern. The trap: a `transform` is applied AFTER layout, so it
+never feeds back into how a `width: auto` box's size is calculated. The
+browser computes shrink-to-fit as if the box's real, untransformed left edge
+sits at `left: 50%`, leaving only the space from there to the viewport's
+right edge as "available" — roughly HALF the real viewport. On the reported
+380px screen: 380 / 2 = 190, against a measured rendered width of
+**187.09px**. Near-exact.
+
+**A different, wrong theory was tried first and is worth naming so it is not
+tried again.** The initial suspicion was `overflow-wrap: anywhere` (D-045)
+collapsing the box's min-content and somehow confusing shrink-to-fit. That
+theory does not explain a value tied cleanly to exactly half the viewport,
+and the user's own instinct — asking specifically about `left: 50%` — turned
+out to be the real mechanism. Diagnosed correctly by someone who was not
+staring at the CSS spec's shrink-to-fit formula, which is itself worth
+remembering.
+
+**The fix.** `left: 0; right: 0; width: fit-content; margin-inline: auto;`,
+`transform` reduced to its vertical entrance offset alone. Both edges pinned
+gives shrink-to-fit the FULL viewport with no anchor-point ambiguity;
+`width: fit-content` asks for the shrink-to-fit size explicitly rather than
+depending on the `auto` case (which is what produced the wrong size in the
+first place); `margin-inline: auto` centres the now-correctly-sized box —
+the identical centring principle `.noposter__icon` already uses for its own,
+unrelated reason (`inset: 0` + `margin: auto` over `top/left: 50%` + a
+compensating translate).
+
+**Trap for later: a shrink-to-fit element centred with `left/top: 50%` plus
+a compensating `translate(-50%)` is not a neutral choice.** It looks
+identical to `inset: 0` + `margin: auto` at rest, and differs only in how
+much of the viewport the sizing algorithm believes it has to work with. Two
+elements in this file have now hit exactly this shape of trap
+(`.noposter__icon`, for a different underlying reason, and this one) — if a
+THIRD shrink-to-fit, percentage-centred element is ever added, reach for
+`inset` + `margin: auto` from the start rather than rediscovering this.
+
+---
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
 **Bug 1: soft hyphens reached placeholders and error messages on the verdict
