@@ -3153,8 +3153,25 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   one paste. The damage is real but small: `\---` renders as the literal text
   `---` instead of a horizontal rule, `\[ ]` kills the eight checkboxes above,
   and SPEC's seven numbered headings render as `1\.` rather than `1.`.
-  **`\_` is the one that is genuinely harmless** — it renders as a plain
-  underscore, so `tmdb\_id` already looks right; it is only noise in the source.
+  **A CORRECTION TO WHAT THIS ENTRY FIRST SAID.** It claimed the escaped
+  underscore "is genuinely harmless — it renders as a plain underscore, so
+  `tmdb\_id` already looks right". That is wrong wherever the escape sits inside
+  a CODE SPAN, because **backslash escapes are not processed inside backticks** —
+  the reader sees the backslash. Counted by rendering context 2026-09-12:
+  `CLAUDE.md` has **23 of 23 inside code spans** and none in plain text;
+  `SPEC.md` has **31 inside code spans**, 24 in plain text (those really do render
+  clean) and 1 inside a fenced block. So the majority are visible to a reader,
+  not merely noise in the source.
+  **THE BLAST RADIUS IS RENDERING ONLY, AND THAT IS VERIFIABLE.** Nothing in the
+  codebase reads either file: the only paths anything opens are `public/` via
+  `express.static`, `scripts/debug-recs.js` via its one route, and `prompts/*.md`
+  via `loadPrompt()`. No route, no test and no build step touches `CLAUDE.md` or
+  `SPEC.md`, so this edit cannot change behaviour, break a test or affect the
+  deploy — the worst case is that a markdown file looks wrong on GitHub, and it
+  is one `git revert` away.
+  The "mangled code fence" warning above is also smaller than it sounds now that
+  it has been counted: `CLAUDE.md` has **zero** escapes inside fenced blocks and
+  `SPEC.md` has **one**. Check that one by hand and the fences are accounted for.
   **Do this as its own commit, and eyeball the rendered result before the merge**
   — a blind find-and-replace across two files this size is exactly the kind of
   change that quietly mangles a code fence or a table.
