@@ -993,44 +993,35 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
      AI log dialog already caps itself at `88vh`. On a short viewport (a phone
      in landscape, a small desktop window) 340px is most of the screen, so the
-     results panel buried the page behind it.
-     `min()` can only ever return something <= 340px, so this is a STRICTLY
-     SHRINKING change: no viewport that is comfortable today can get a taller
-     panel, and only viewports where 340px was already too much see any
-     difference at all.
+     results panel buried the page behind it. A pure `min(340px, ratio * vh)`
+     was tried first and OVERCORRECTED (user-caught, with a screenshot): on a
+     genuinely short viewport — a phone in landscape can report an innerHeight
+     as low as ~240px — a flat percentage of the total crushed the panel down
+     to little more than one row, which is exactly the "radically short" look
+     being fixed. A landscape-only variant with an even smaller ceiling made
+     the SAME mistake harder, not solved it.
+     **The user's actual ask: let the panel stay a normal, comfortable height
+     even when that means it no longer fits the screen — a bit of page scroll
+     to reach the rest of it is fine; a visibly stunted panel is not.** So this
+     is a FLOOR (`max()`), not a second ceiling: below ~520px of viewport
+     height the panel holds at 260px regardless of how much shorter the
+     viewport gets — it can and will exceed the viewport itself at the low
+     end, on purpose. Between ~520px and ~680px it still eases down from 340 to
+     260 (the "a bit shorter, not radically" middle ground the user asked to
+     keep); above that it is the untouched 340px ceiling, exactly as before.
+     No orientation query needed: the floor does the whole job regardless of
+     WHY the viewport is short, so a landscape phone and a short desktop window
+     get the same protection from the same one rule.
      Two declarations, and the order matters: the `vh` line is the fallback, and
      the `svh` line overrides it wherever `svh` is understood. `svh` is the
      SMALL viewport height, so it stays put while a mobile URL bar collapses,
      where `dvh` would resize the panel mid-scroll. Written as a pair because a
      lone unsupported `svh` would invalidate the whole declaration and leave the
      panel with NO cap — worse than the fixed value it replaced. */
-  max-height: min(340px, 60vh);
-  max-height: min(340px, 60svh);
+  max-height: max(260px, min(340px, 50vh));
+  max-height: max(260px, min(340px, 50svh));
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
-}
-/* Step 5, user-raised: a phone in LANDSCAPE is the case the vh-based cap above
-   still gets wrong. 60svh of an ~380px-tall landscape phone is ~228px, which
-   sounds like the same "shrink it" story as the vh line above -- but the header
-   and search bar sit ABOVE this panel and are sized off `vw`/`rem`, not `vh`, so
-   they do not shrink to make room in a SHORT viewport the way they would in a
-   NARROW one. In landscape those two together can already take up most of a
-   380px-tall screen, so a panel sized off a flat 60% of the TOTAL height (which
-   knows nothing about what is already spent above it) still ends up dominating
-   whatever is left, and the whole page reads as one wall of results.
-   Gated on BOTH `orientation: landscape` AND a short `max-height` -- orientation
-   alone would also catch an ordinary wide desktop window, which is tall and was
-   never the problem (60svh of 1080px is already clamped down to the 340px
-   ceiling above; this override must not touch that case). The combination is
-   what actually means "a phone lying on its side", which is the only case being
-   fixed here.
-   Numbers are a first pass, same as every other pixel value in this file --
-   tune from a real screenshot, not by re-deriving them here. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .search-results {
-    max-height: min(200px, 45vh);
-    max-height: min(200px, 45svh);
-  }
 }
 /* Lines inside the results panel — loading, "no matches", errors, the
    empty-query nudge. Built by searchNote() in app.js. */
