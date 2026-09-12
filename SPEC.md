@@ -1,7 +1,71 @@
 # SPEC.md — CineRank
-**Authors:** Guy Cohen \& Michael Chernyak
-**Course:** LLM-Augmented Software Practice (ASE-26)
-**Status:** Draft v1
+
+**Authors:** Guy Cohen \& Michael Chernyak · **Course:** LLM-Augmented Software Practice (ASE-26)
+
+**Status:** Live specification — currently in the **third** turn of the co-evolution spiral. Annotated in place, never silently rewritten; see the next section.
+
+
+## Specification status — the co-evolution spiral (Module 10)
+
+A specification is the opening turn of a spiral rather than a fixed contract:
+requirements emerge from attempted solutions, so the document has to be allowed to
+learn. This section records the turns this one has actually been through, and the
+commits that pinned each. It is written from `git log` — a record of what happened,
+not a plan for what will.
+
+**The convention this document follows, and why.** Where the built app diverged from
+what § 1 to § 7 promised, the original text **stays exactly as written** and the
+correction is added beside it as an italic parenthetical. Nothing is quietly edited to
+agree with the code: a spec revised into agreement with its own implementation can no
+longer show where the two ever differed, which is the one thing it is uniquely able to
+show. Seven such annotations are in place — § 2.2, § 2.3, § 4.5, § 5.1, § 5.3, § 6
+and § 7.2.
+
+### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
+
+Commit points: `aadaf18` to `0525b8e`.
+
+The first turn ran fast and end to end — schema and versioned prompts (`baab823`), the
+Express API with isolated service modules (`d5e9702`), then the frontend (`aee82b4`).
+This document and `CLAUDE.md` were committed at `aadaf18`, **after** that first pass
+rather than before it: the turn was exploratory, and the spec pinned what it
+established. It closed at `0525b8e`, whose message reads "functionally complete against
+SPEC" — the stopping condition § 7.1 defines had been reached.
+
+### Turn 2 — the interface requirement emerged from use (2026-09-06 to 2026-09-12)
+
+Commit points: `49738c2` to `d47c960`, sixteen merges to `main`.
+
+§ 3.2 deliberately declined to prescribe the visual treatment, leaving layout, motion
+and typography to design judgement. Using the finished app is what turned that open
+brief into concrete requirements — a requirement that could not have been written
+before a solution was attempted. The work it produced is tracked in `CLAUDE.md` rather
+than here, because that is working state and this is intent: a 20-item ranked-list
+overhaul, a 30-item recommendations audit (R1 to R30), seven polish items, and a
+narrow-viewport pass closed against an agreed ~350px target.
+
+**This turn holds the clearest co-evolution point in the project.** At `2a1800c`,
+§ 2.2 step 4's promise that every suggestion is "cross-checked against TMDB" was
+measured against live TMDB across 30 probe titles — and found to claim more than the
+code delivers. The alternative was tightening the matcher until it met the promise;
+that was designed, costed against the measurements, and rejected on the numbers.
+**The specification was corrected and the code was left alone** (`docs/DECISIONS.md`
+D-054).
+
+### Turn 3 — the trail itself became the deliverable (2026-09-12 to open)
+
+Commit points: `83a5da5` onward.
+
+A staleness sweep across every markdown file and code comment (`83a5da5`) found claims
+that had quietly stopped being true. Following it, both this file and `CLAUDE.md` were
+found to be **rendering wrong on GitHub** — a fault invisible in the source and never
+caught by eye. That produced a new verification gate, `npm run check-markdown`
+(`d1dd505`), since proved in both directions across 57 cases, together with the
+authoring rules it enforces in `CLAUDE.md` § Markdown Authoring Rules.
+
+This turn is open. Its remaining scope is under "Pre-submission blockers" in
+`CLAUDE.md`, and § 7.1's acceptance checkboxes below are to be ticked as part of
+closing it.
 
 
 ## 1\. Overview \& Problem Statement

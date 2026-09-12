@@ -3503,7 +3503,7 @@ Render before and after and diff the OUTPUT:
 curl -s -X POST -H "Content-Type: application/json" --data @payload.json https://api.github.com/markdown > after.html
 ```
 
-(`payload.json` is `{"text": <file contents>, "mode": "gfm"}`.)
+(`payload.json` is `{"text": <file contents>}` — see the mode note below.)
 
 **GitHub's API and not a local renderer**, because the two things most at risk —
 task lists and tables — are GitHub extensions, so a CommonMark renderer can pass
@@ -3512,6 +3512,26 @@ rich diff" button**: that button shows the whole rendered file, where a
 structural regression is about as findable as by reading the source. In an HTML
 diff a regression is loud — a paragraph promoted to a heading is a literal `<p>`
 becoming `<h2>`, and a broken table loses its `<table>` element entirely.
+
+**NEITHER API MODE MATCHES THE REPO'S FILE VIEW EXACTLY. This rule used to say
+`mode: gfm` without qualification — that was wrong, and it hid a live defect for
+the entire life of `SPEC.md`.** Measured 2026-09-13 against the HTML github.com
+actually serves for a blob:
+
+* **Default mode** (omit `mode`) matches the file view on LINE BREAKS — a soft
+  break inside a paragraph renders as a space, with no `<br>` — and it emits the
+  same `markdown-heading` anchor wrappers the blob view does. It does NOT render
+  task lists as checkboxes.
+* **`mode: gfm`** renders task lists, but inserts a `<br>` at every soft break,
+  where the blob view emits none.
+
+So `gfm` makes consecutive source lines LOOK like separate display lines when the
+repo in fact runs them together into one paragraph. That is precisely how
+`SPEC.md`'s three-line `Authors` / `Course` / `Status` header shipped reading as
+one run-on line and survived every render audit: every audit had been run in
+`gfm`. **Use the default mode for anything about paragraphs, layout or line
+breaks, and `gfm` only to confirm a task list.** When it genuinely matters, fetch
+the real blob from github.com and read that — it is the only authority.
 ## Version Control Workflow (non-negotiable)
 
 * **Repo:** https://github.com/guycn1/cinerank-project.git (repo name: `cinerank-project`)
