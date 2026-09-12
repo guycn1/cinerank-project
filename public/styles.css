@@ -3372,8 +3372,33 @@ body:has(dialog[open]) { overflow: hidden; }
 .toast {
   position: fixed;
   bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(1rem);
+  /* Step 5, user-caught: `left: 50%` + `width: auto` was quietly starving the
+     shrink-to-fit calculation of half the viewport. Transforms are a
+     post-layout visual effect — they never feed back into sizing — so the
+     browser computes the box's width BEFORE `translateX(-50%)` ever runs,
+     using `left: 50%` as if the box's untransformed left edge really did sit
+     at the horizontal centre. That leaves only the space from there to the
+     viewport's right edge as "available" for shrink-to-fit, i.e. roughly
+     HALF the real viewport — measured directly on a reported bug: a 380px
+     viewport produced a 187px-wide toast for a message that should have
+     rendered as one full-width line. 380/2 = 190, near-exact.
+     `left: 0; right: 0` gives shrink-to-fit the FULL viewport instead —
+     both edges are pinned, so there is no anchor-point ambiguity. `width:
+     fit-content` asks for the shrink-to-fit size explicitly rather than
+     relying on the `auto` case again, and `margin-inline: auto` centres the
+     now-correctly-sized box within that full span — the same centring
+     principle `.noposter__icon` already uses one screen down (`inset: 0` +
+     `margin: auto` over `top/left: 50%` + a translate), for an analogous
+     reason: a percentage anchor plus a compensating transform is two moving
+     parts standing in for what one non-percentage technique does directly.
+     `transform` now only carries the vertical entrance offset — the
+     horizontal half was purely compensating for `left: 50%` and has nothing
+     left to correct. */
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-inline: auto;
+  transform: translateY(1rem);
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-left: 3px solid var(--amber);
@@ -3408,7 +3433,7 @@ body:has(dialog[open]) { overflow: hidden; }
      out of the rounded panel. Same one-line guard the dialogs and cards carry. */
   overflow-wrap: anywhere;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show { opacity: 1; transform: translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
 
 /* Step 5, user-raised: the toast is otherwise shrink-to-fit (no `width`, just
