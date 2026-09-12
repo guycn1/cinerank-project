@@ -3345,6 +3345,21 @@ next session does not rediscover them.
 * **The UI copy uses curly apostrophes** (`’`, e.g. "Couldn’t reach CineRank").
   An edit anchored on a straight `'` will not match. Copy the exact character
   out of the file rather than retyping it.
+* **A comment in an `.svg` file must never contain two consecutive hyphens, and
+  the failure is SILENT.** XML forbids that sequence inside a comment, SVG is
+  parsed as strict XML, and a parse error means the browser renders nothing at
+  all — with no console error, because the request itself returned 200. This
+  cost a round trip on `public/favicon.svg` (2026-09-12): the comment used the
+  two-hyphen sequence as an em dash and also quoted the CSS custom property
+  names, which begin with it. The favicon was simply absent in Chrome and
+  Firefox, in the tab and in bookmarks, while the network tab looked perfect.
+  **The trap inside the trap: a tag-balance or bracket check PASSES on such a
+  file**, which is what made the first "validated" claim wrong. Only a real
+  parser catches it — on Windows, `[xml](Get-Content -Raw path)` in PowerShell
+  throws with the line and column. Do that after editing any `.svg`, and prefer
+  parsing **what the server actually sends** (`curl` to a file, then parse) over
+  the file on disk. Inline SVG inside `index.html` is exempt: that is parsed by
+  the lenient HTML parser, which is why comments there can and do contain `--`.
 
 \---
 

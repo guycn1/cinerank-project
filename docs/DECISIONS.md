@@ -94,6 +94,41 @@ Corrected in place, since it was wrong when written.
 Declaring any icon link is what stops the probe, so the icon and the console
 error are one fix rather than two.
 
+### Addendum, same day: the first version of the file did not render at all
+
+Worth appending rather than leaving to the commit log, because the failure mode
+is the interesting part and the verification mistake behind it is worse than the
+bug.
+
+**The file shipped with two consecutive hyphens inside its opening comment** —
+used as an em dash, and also unavoidably present in the CSS custom property
+names it quoted. XML forbids that sequence in a comment; SVG is parsed as strict
+XML; so the file failed to parse and **no icon appeared anywhere** — tab and
+bookmarks, Chrome and Firefox alike.
+
+**The symptom set is what makes this worth recording, because it reads like a
+success.** The request returned 200 with the right `Content-Type`, the link tag
+was present in the served HTML, and the `/favicon.ico` console error genuinely
+was gone (the browser had found a declared icon and stopped probing). Every
+signal that had been checked said it worked. The user reported the only one that
+had not been: the tab still showed the placeholder.
+
+**Claude's verification was the real defect.** The file was "sanity-checked"
+before committing — but the check counted opening, closing and self-closing tags,
+which passes cleanly on this file. **Tag balance is not well-formedness**, and
+asserting the file was valid on that basis was the same class of error as the
+headless-Chrome screenshots in D-062: a check that produces a green result
+without testing the thing that matters. Now recorded under the tooling traps in
+CLAUDE.md, together with the fix — parse it with a real parser, and parse the
+bytes the server sends rather than the file on disk.
+
+Also corrected while the file was open: `maskUnits` is now stated explicitly as
+`userSpaceOnUse` with its region given, rather than relying on the
+`objectBoundingBox` default, whose region derives from the masked group's
+geometry box (stroke excluded) and would have put the outer ring's edge within a
+rounding error of the mask boundary. And the file gained an XML prolog and
+explicit `width`/`height`.
+
 ---
 ## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
 
