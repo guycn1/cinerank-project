@@ -1800,6 +1800,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    — a `fill` here would work today and would silently stop following anything
    the icon is later asked to inherit. */
 .verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; color: var(--amber); }
+/* ...but NOT while the button is disabled, where the amber above would be the
+   only thing still holding its colour. The label dims and the icon did not, so a
+   locked control sat there with a bright gold mark on it — which is exactly the
+   "invites a click that does nothing" problem R15 switched the animation off to
+   avoid, in colour rather than in motion. The user caught it against the recs
+   trigger, where it is right by accident: that sparkle carries NO colour of its
+   own, so it inherits `currentColor` and follows `.recs__trigger:disabled`'s
+   `--ink-faint` for free.
+   `inherit` rather than a hardcoded token, so the icon tracks whatever the
+   button's own disabled colour becomes and the two can never drift apart. The
+   two buttons still dim to different values, and that is R25 standing: their
+   chrome is deliberately not unified. What is unified is that on EACH button the
+   mark matches its own label. */
+.verdict__refresh:disabled .ai-sparkle { color: inherit; }
 /* The big star twinkles; the small one holds still. Both moving reads as a
    throbbing icon, one moving reads as a catch of light — which is the whole
    difference between "shiny" and "distracting" on an element that is on screen
