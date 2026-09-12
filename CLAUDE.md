@@ -586,13 +586,24 @@ are the running record of how each piece got there and stay as written.
     was a bare `max-height: 340px` — the app's only fixed-pixel height cap, while
     the AI log dialog already used `88vh`. On a short viewport (a phone in
     landscape, a small desktop window) 340px is most of the screen, so the panel
-    buried the page. Now `min(340px, 60svh)` with a `60vh` line above it as the
-    fallback, since a lone unsupported `svh` would invalidate the declaration and
-    leave NO cap at all. `svh` and not `dvh` so it does not resize mid-scroll as
-    a mobile URL bar collapses.
-    **Strictly shrinking, so nothing comfortable today can change:** `min()`
-    cannot return more than 340px. Viewports 640px tall and up are byte-identical;
-    only 500px and below see a smaller panel (300px at 500 tall, 216px at 360).
+    buried the page.
+    **SUPERSEDED ON 2026-09-12 — the figures in the rest of this paragraph are
+    the 2026-09-09 state and are NOT the live rule.** That first fix was
+    `min(340px, 60svh)` over a `60vh` fallback line, and it OVER-CORRECTED: a
+    flat percentage of a genuinely short viewport (a phone in landscape can
+    report ~240px of height) crushed the panel to about one row — the same
+    "radically short" look it was meant to fix. Step 5 replaced the second
+    ceiling with a FLOOR. **Live rule: `max(240px, min(340px, 50vh))`, with the
+    `50svh` line below it as the override** — so below ~480px of viewport height
+    the panel holds at 240px and is allowed to exceed the viewport, between
+    ~480px and ~680px it eases from 340 down to 240, and above ~680px it is the
+    original 340px ceiling untouched. The `styles.css` rule carries the full
+    reasoning; read it rather than this paragraph.
+    What DOES still hold from the original fix, and is why it is written as two
+    declarations: the `vh` line is the fallback and the `svh` line overrides it,
+    because a lone unsupported `svh` would invalidate the declaration and leave
+    NO cap at all; and `svh` rather than `dvh` so the panel does not resize
+    mid-scroll as a mobile URL bar collapses.
     **Two more one-line guards from the same sweep** (findings 7 and 8). The
     rate dialog's heading shows a film title exactly as the confirm dialog's
     does, but only the confirm dialog carried `overflow-wrap: anywhere` — the
@@ -1584,10 +1595,17 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      still to inline each with a why-comment rather than mint tokens.**
      (COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number of
      animations that could plausibly have used `--ease` and deliberately do not.
-     A grep for timing functions returns more — the two `spin`s and the film
-     grain — but those were never candidates: a rotation is linear because it is
-     a rotation, and stepped noise is stepped because it is noise. Still four as
-     of 2026-09-12.)
+     They are the verdict glint (`sheen`, `linear`), the ranked list's entrance
+     (`card-enter`, its own cubic-bezier), the trigger sparkle (`sparkle-glow`
+     and `sparkle-twinkle`, both `ease-in-out`, counted as one effect) and the
+     rec-card exit (`rec-close`, `ease-in`).
+     A grep for timing functions returns more — the two `spin`s, the film grain,
+     and the verdict caret's `step-end` — but none of those was ever a candidate:
+     a rotation is linear because it is a rotation, stepped noise is stepped
+     because it is noise, and a caret blinks rather than fades, which is what
+     `step-end` means. **The caret is not in the original exclusion list because
+     it did not exist when this was written — it arrived with the typing effect
+     (D-057).** Still four as of 2026-09-12.)
      `--ease-out` is the name that will not work: `--ease` IS an ease-out, just a
      violently front-loaded one, so a token by that name would read as a synonym
      for the thing it exists to differ from. All four are one-offs with different
@@ -2375,7 +2393,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
    the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
    typing effect — the only item here that was ever a genuinely new build —
-   closed the same day (D-057), tuned to 15ms/char by the user's eye.
+   closed the same day (D-057), tuned to **18**ms/char by the user's eye. (This line said 15ms, which was wrong when written — 15ms was tried and REVERTED, the user preferring the slower read. `VERDICT_TYPE_MS` in `app.js` is 18, the item below says 18, and D-057 says 18.)
    **That pointer used to say "next session starts on step 5, the portrait
    overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
    the agreed order is closed and the only one left is STEP 6 — pre-submission
@@ -2475,7 +2493,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
         alone multiplies every layer's phase shift and the twenty stop nesting —
         the taper smears instead of forming a band. Never hand-edit those lines.
      3. **The alphas are SOLVED, not chosen, and they are not monotonic** — they
-        peak around the middle layer. Layers composite multiplicatively, so
+        rise to a peak at layer 16 of the 20 and fall away after it (0.1305 at
+        16, against 0.0012 at the first and 0.0465 at the last). Layers composite multiplicatively, so
         scaling them all flattens the taper back into a hard bar rather than
         dimming it. The user proved this by quadrupling them; it looked worse.
      **The layer count is an anti-banding parameter.** A dash has hard ends, so N
@@ -2489,9 +2508,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      cost anywhere except software-rendering-plus-20x**, a configuration no real
      device occupies. Full table in D-055. Note DevTools CPU throttling slows the
      MAIN THREAD ONLY, which is why the software-rendering runs were needed.
-     **Still open here: the busy-state item further down this list** (the glint
-     speeding up while "New verdict" runs). Its two dials are exactly the two
-     traps above; D-055 carries the one-line fix for each.
+     **The busy-state item further down this list** (the glint speeding up while
+     "New verdict" runs) **is DONE — 2026-09-12, D-056.** This paragraph used to
+     say it was still open; it was, when written, and the sentence is corrected
+     rather than deleted because its point still stands: that item's two dials
+     are exactly the two traps above. Note that only ONE of D-055's two one-line
+     fixes was used — the speed half went to `playbackRate` in JS instead of the
+     duration swap D-055 prescribed, because changing a CSS animation's duration
+     makes the dash JUMP. See D-056 before touching it.
      **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
      names has since been REPLACED — none of the following describes the code
      today. It is kept only because its instruction to measure first is what

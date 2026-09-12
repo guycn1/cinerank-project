@@ -3530,11 +3530,21 @@ body:has(dialog[open]) { overflow: hidden; }
    at `transform: none` so they compose cleanly with the hover scale (R14) —
    neither ever leaves a transform behind, because the entrance fills `backwards`
    and the exit's node is removed.
-   The exit is shorter than the entrance (0.28s vs 0.5s) and is NOT staggered: it
-   is clearing the decks while a request is already in flight, so it should read
-   as one gesture and get out of the way. The ENTRANCE is the one the user asked
-   to be able to watch. It also shrinks slightly, which the entrance does not —
-   leaving is a retreat, arriving is a rise. */
+   The exit is shorter than the entrance and it also shrinks slightly, which the
+   entrance does not — leaving is a retreat, arriving is a rise. The ENTRANCE is
+   the one the user asked to be able to watch.
+   TWO CLAIMS IN THIS PARAGRAPH WERE TRUE WHEN WRITTEN AND ARE NOT NOW, corrected
+   here rather than left, because both described live behaviour:
+     - the durations were "0.28s vs 0.5s". They are 0.34s (rec-close, see
+       RECS_EXIT_MS in app.js, which must stay in step with it) and 0.75s
+       (rec-enter, just above).
+     - it said the exit "is NOT staggered", on the reasoning that it should read
+       as one gesture while a request is already in flight. R30 replaced that:
+       the user asked for the cards to close one by one, like pages of a book,
+       and the exit now staggers at RECS_EXIT_STAGGER_MS (120ms, the same figure
+       as the entrance's, and deliberately a SEPARATE constant so the two stay
+       independently tunable). Six cards therefore take about 0.94s to leave.
+       The old reasoning is still why the exit is the shorter of the two. */
 @keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 /* One straight run from full to gone, so the card fades THROUGHOUT the close
    rather than in a stage of its own (user's call). It first shipped with the

@@ -2561,6 +2561,15 @@ and leave the spinner standing alone. Separately, `.search button` is
 `<button>` across engines, and shrinking is what clipped the label to begin with.
 
 ## D-026 · A sync must not stomp a deliberate state ("Added" is sticky)
+
+*Naming note, added later and deliberately not applied to the text below:
+`syncSearchResultButtons()` was renamed `syncAddButtons()` by R3 on 2026-09-09,
+when it stopped sweeping only the search panel and started querying the whole
+document. The old name is left as written throughout this entry because it is
+what the function was called when this was decided — grep for `syncAddButtons`
+in `public/app.js` to find it today. D-024 carries the same note for the same
+reason.*
+
 Reported as "skipping the rate dialog does not sync the search results". It was
 the reverse — skipping was correct, and **saving** was the bug. Saving a rating
 runs `loadMovies()` a second time, whose `syncSearchResultButtons()`

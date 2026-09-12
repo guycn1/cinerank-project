@@ -26,16 +26,20 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   `sync: false`, so Render prompts for them in its dashboard and no value ever
   enters the committed file.
 - **Dependency advisories get diagnosed, not force-fixed.** The first Render
-  build reported three moderate advisories in `qs`, Express's query-string
-  parser. `npm audit fix` did nothing — and neither did `--force`, which is the
-  point where it would have been easy to either shrug or reach for a major
+  build flagged moderate advisories in `qs`, Express's query-string parser —
+  **two of them**, `GHSA-x5fp-wj9c-mxmx` (array-limit bypass) and
+  `GHSA-4mjr-xmp4-gh2g` (DoS via `isBuffer`), both named in `package.json` beside
+  the override. `npm audit fix` did nothing — and neither did `--force`, which is
+  the point where it would have been easy to either shrug or reach for a major
   upgrade. The actual cause was that Express 4 pins `qs` to *exactly* the
   vulnerable `6.15.3`, leaving npm no semver room, so the only move it could see
   was Express 5 and its breaking changes. An `overrides` entry lifting `qs` to
-  the patched `6.16.0` — a minor bump — cleared all three, with the route tests
+  the patched `6.16.0` — a minor bump — cleared both, with the route tests
   covering exactly the surface involved (query strings, JSON bodies). Recorded in
   `package.json` next to the override, because an unexplained override is the
-  kind of thing a later reader deletes.
+  kind of thing a later reader deletes. `npm audit` now reports zero across every
+  severity, and `qs` resolves to a single `6.16.0` install that both `express`
+  and `body-parser` share.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -187,7 +191,10 @@ screenshots for the submission even though the server side is now tested.
 - Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
   screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a
-  mid-overhaul one.
+  mid-overhaul one. **That precondition is now met** — the front-end overhaul
+  finished on 2026-09-12 — so the shots can be taken against a settled UI
+  whenever the authors choose to. Nine states are enumerated with their exact
+  recipes in `CLAUDE.md` (greppable as `RS-1` through `RS-9`).
 - ~~**The recommendations error state is written and then immediately
   overwritten** by the availability-sync that runs in the same `finally`, so a
   failed run shows the user nothing. The verdict side already does it properly —

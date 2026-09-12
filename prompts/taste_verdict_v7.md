@@ -22,6 +22,23 @@ prompt is not the lever and the next thing to try is the model or the 0.85
 temperature. Everything about WHAT to say is unchanged since v4. Loaded by
 services/tasteVerdict.js.
 
+OUTCOME, ADDED AFTER THE FACT SO THE PARAGRAPH ABOVE IS NOT READ AS LIVE ADVICE.
+The register did not move, and the prediction held: the prompt was not the lever,
+the MODEL was. On claude-haiku-4.5 this file produced the worst verdict of the
+chain, and it also broke a rule every version since v4 has kept, writing 4
+sentences against a stated 2-3; the app was rolled back to v6 at that point. The
+same file then landed first try on claude-sonnet-5, register and sentence count
+both, and that is the live configuration: taste_verdict_v7 on claude-sonnet-5,
+the one feature not on the cheap tier. The 0.85 temperature and real few-shot as
+example TURNS were never needed and stay untried. See D-053 and D-056 in
+docs/DECISIONS.md.
+
+TRAP, AND IT IS THE REASON THIS NOTE IS HERE: v7 is the version that FAILED on
+the cheap tier. If the verdict is ever moved back down a tier, move the prompt
+back to v6 with it -- the four worked examples below dilute the rules underneath
+them on a small model. Do not write a v8 on register grounds; look at the model
+first.
+
 Placeholder:
   {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
