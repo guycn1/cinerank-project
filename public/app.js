@@ -397,13 +397,34 @@ function withViewTransition(update) {
 
 /**
  * Insert a soft hyphen (U+00AD) between every pair of adjacent non-space
- * characters (step 5, D-060, supersedes D-059's `hyphens: auto`). A soft
- * hyphen is a break OPPORTUNITY, not a break — it renders as nothing at all
- * unless it is the exact point a line actually breaks, so this is invisible
- * and inert wherever nothing needs to break. Unlike `hyphens: auto`, it needs
- * no dictionary: it offers a valid point at every position, which is what an
- * invented compound title ("SquarePants") needs and a language pattern
- * algorithm could not supply.
+ * GRAPHEME CLUSTERS (step 5, D-060/D-061, supersedes D-059's `hyphens:
+ * auto`). A soft hyphen is a break OPPORTUNITY, not a break — it renders as
+ * nothing at all unless it is the exact point a line actually breaks, so
+ * this is invisible and inert wherever nothing needs to break. Unlike
+ * `hyphens: auto`, it needs no dictionary: it offers a valid point at every
+ * position, which is what an invented compound title ("SquarePants") needs
+ * and a language pattern algorithm could not supply.
+ *
+ * GRAPHEME CLUSTERS, NOT RAW CHARACTERS — D-061, user-caught with a
+ * screenshot of a review's emoji rendered as two tofu glyphs. The first
+ * version of this function split on `/(\S)(?=\S)/g`, which iterates JS
+ * STRING INDICES — UTF-16 code units, not visual characters. Most emoji
+ * (🎬, 😀, …) are a SURROGATE PAIR: two code units for one code point.
+ * Splitting between them with an inserted character orphans both halves,
+ * which is exactly what a browser renders as a broken-glyph placeholder.
+ * A regex `u` flag alone would not have been enough either — it fixes
+ * surrogate pairs but a flag emoji or a ZWJ family emoji is MULTIPLE full
+ * code points joined into one user-perceived character, and code-point
+ * iteration is still free to split those apart.
+ * `Intl.Segmenter({ granularity: 'grapheme' })` is the correct unit: it is
+ * Unicode's own definition of "one character a reader sees", and it is
+ * capable of surrogate pairs, ZWJ sequences and combining marks all in one.
+ * Falls straight through to the PLAIN, unmodified text where unsupported —
+ * never to the old character-by-character regex, which is what caused this
+ * bug in the first place. No hyphenation is a safe, fully inert fallback;
+ * silently-corrupted emoji is not. (Baseline note: well inside this file's
+ * stated baseline of Chrome/Edge 111 — `Intl.Segmenter` shipped in Chrome 87.)
+ *
  * Whether these embedded points are ever honoured is decided entirely by
  * CSS (`hyphens: none` above 400px, `manual` below it, on `.movie-card__body`
  * / `.rec-card__body` / `.result-row` / `.verdict__text`; `.review` and
@@ -414,7 +435,9 @@ function withViewTransition(update) {
  * starts or stops respecting its own embedded hyphens live, as the media
  * query flips on resize, with nothing here re-run.
  * Called on every film title, review and AI-reason text — all plain visible
- * content with no accessible-name or live-region role to leak into.
+ * content with no accessible-name or live-region role to leak into. On the
+ * verdict, called ONLY on the real, AI-generated text (see the `typed` guard
+ * in `setVerdictText()`) — never on a placeholder or an error message.
  * Deliberately NOT used on the rate/confirm dialog headings or the toast —
  * see the CSS note at `.movie-card__body` for why: both double as an
  * accessible name or live-region content, and a soft hyphen embedded there
@@ -423,8 +446,21 @@ function withViewTransition(update) {
  * `setVerdictText()` calls this only on the `aria-hidden` visible span, never
  * on the plain `.sr-only` one the live region actually announces.
  */
+const graphemeSegmenter =
+  typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function'
+    ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+    : null;
+
 function softHyphenate(text) {
-  return text.replace(/(\S)(?=\S)/g, '$1­');
+  if (!graphemeSegmenter) return text; // unsupported -- plain text, never the broken regex
+  const graphemes = [...graphemeSegmenter.segment(text)].map((s) => s.segment);
+  let out = '';
+  for (let i = 0; i < graphemes.length; i += 1) {
+    out += graphemes[i];
+    const next = graphemes[i + 1];
+    if (next && !/\s/.test(graphemes[i]) && !/\s/.test(next)) out += '­';
+  }
+  return out;
 }
 
 /* ---------- ranked list ------------------------------------------------- */
@@ -1736,9 +1772,19 @@ let verdictTypeTimer = null;
  * error messages pass no option and render instantly, exactly as before this
  * item existed.
  *
- * The VISIBLE span is soft-hyphenated (D-060's approach, step 5, user-raised);
- * `.sr-only` never is -- same split this function already had for typing,
- * reused for the same reason: `.verdict__typed` is `aria-hidden`, so embedding
+ * The VISIBLE span is soft-hyphenated (D-060's approach, step 5), but ONLY
+ * when `typed` is true -- i.e. only the real, AI-generated verdict, never a
+ * placeholder or an error message (user-caught: it was reaching those too).
+ * `!typed` is checked FIRST and returns before hyphenation is even
+ * considered, on purpose -- folding it into the same branch as the
+ * reduced-motion skip (both used to render instantly, so it read as one
+ * case) silently hyphenated every non-typed call along with them. A REAL
+ * verdict that skips the typing animation (reduced motion, or empty text)
+ * must still be hyphenated; a placeholder must never be, regardless of
+ * motion preference -- two different reasons to "render instantly", and only
+ * one of them means "this is verdict content".
+ * `.sr-only` is never hyphenated either way -- same split this function
+ * already had for typing: `.verdict__typed` is `aria-hidden`, so embedding
  * U+00AD there never reaches a screen reader, while the announced text must
  * stay exactly what was written.
  * During typing this hyphenates the SLICE on every tick, not the whole string
@@ -1759,9 +1805,14 @@ function setVerdictText(text, { typed = false } = {}) {
   heard.textContent = text;
   el.verdictText.replaceChildren(visible, heard);
 
+  if (!typed) {
+    visible.textContent = text; // placeholder or error -- plain, never hyphenated
+    return;
+  }
+
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!typed || reduceMotion || !text) {
-    visible.textContent = softHyphenate(text);
+  if (reduceMotion || !text) {
+    visible.textContent = softHyphenate(text); // real verdict, just not animated
     return;
   }
 

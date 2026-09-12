@@ -6,6 +6,57 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
+
+**Bug 1: soft hyphens reached placeholders and error messages on the verdict
+banner, not just the real generated verdict.** `setVerdictText(text, {
+typed })` had `if (!typed || reduceMotion || !text) { visible.textContent =
+softHyphenate(text); … }` — one branch for two different reasons a call
+"renders instantly". `!typed` means this text is NOT the verdict (a
+placeholder, the busy line, an error); `reduceMotion || !text` means it IS
+the verdict but skips the typing animation. Folding both into one condition
+hyphenated every non-typed call along with the real ones — visible in a
+screenshot as "A-I-generated" and "t-aste" broken mid-word in the idle
+placeholder text, which is prose that was never supposed to be touched at
+all. Fixed by checking `!typed` first and returning before hyphenation is
+even considered; the reduced-motion/empty-text check now only ever runs for
+a real verdict.
+
+**Bug 2, more serious: `softHyphenate()` corrupted multi-unit emoji.**
+Reported as a broken review emoji rendering as two tofu placeholder glyphs.
+The original implementation, `text.replace(/(\S)(?=\S)/g, '$1­')`,
+iterates JS STRING INDICES — UTF-16 code units, not visual characters. Most
+emoji are a SURROGATE PAIR (two code units, one code point); the regex
+inserted a character BETWEEN the pair, orphaning both halves, which a
+browser renders exactly as the reported broken glyph.
+
+**A regex `u` flag was considered and is not enough — this is the part worth
+keeping.** It fixes surrogate pairs (making `\S` match a full code point as
+one unit) but a flag emoji (two regional-indicator code points) or a ZWJ
+family emoji (several base emoji joined by U+200D into one visual character)
+is MULTIPLE code points forming ONE user-perceived character, and
+code-point-aware iteration is still free to insert a hyphen between them.
+
+**Fixed with `Intl.Segmenter({ granularity: 'grapheme' })`** — the Unicode
+standard's own definition of "one character a reader sees", which treats
+surrogate pairs, ZWJ sequences and combining marks alike as one indivisible
+unit. Verified directly (this API is available in Node, so the exact
+function was run against a surrogate-pair emoji, a ZWJ family emoji and a
+flag emoji before shipping — the fix was confirmed, not just reasoned about).
+Falls straight through to PLAIN, unmodified text on an engine without
+`Intl.Segmenter` — never to the old per-character regex, which is what
+caused this bug. No hyphenation is a safe, fully inert fallback; silently
+corrupted emoji is not. Within this file's stated Chrome/Edge 111 baseline —
+`Intl.Segmenter` shipped in Chrome 87.
+
+**Trap for later: do not "simplify" `softHyphenate()` back to a plain regex,
+with or without the `u` flag.** Both are wrong for the same underlying
+reason — string-index iteration is not character iteration — and the `u`
+flag alone only fixes the half of it that happens to be least common in
+practice (a lone emoji) while leaving the more common compound sequences
+(ZWJ, flags, skin-tone modifiers) still breakable.
+
+---
 ## D-060 · D-059's premise was wrong — the "leave it" call is reversed, with a soft-hyphen fix that needs no JS resize logic at all
 
 **Supersedes D-059**, the same day. D-059 accepted the `hyphens: auto` gap
