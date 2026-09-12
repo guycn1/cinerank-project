@@ -205,7 +205,7 @@ function toast(message, isError = false) {
   toastTimer = setTimeout(() => {
     el.toast.classList.remove('show');
     setTimeout(() => (el.toast.hidden = true), 300);
-  }, 300000); // TEMP debug value while tuning the toast's width/shadow -- restore to 3200 when done
+  }, 3200);
 }
 
 /**
