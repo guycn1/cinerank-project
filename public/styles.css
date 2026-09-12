@@ -1842,9 +1842,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    ends" stays intact if the column count ever changes upstream.
    400px, not some fraction of 620px: this is the width the failure was
    actually observed at, not a guess at a round number relative to a wider
-   breakpoint that solves a different problem. */
+   breakpoint that solves a different problem.
+   `row-gap` (user-added, following the score row's `margin-top: 0.4rem` being
+   dropped in the 620px block above): with that margin gone, the space above
+   the score row came entirely from `.movie-card`'s own `gap: 1.2rem` — the
+   SAME value also spacing the rank/poster/title columns apart. `row-gap`
+   alone, not the `gap` shorthand, is what makes that tunable independently:
+   the shorthand would have reset `column-gap` to match, tightening the
+   rank/poster/title columns too, which was never part of this. Tuned to
+   0.6rem by eye, same as every other value in this file. */
 @media (max-width: 400px) {
   .movie-card__score { grid-column-start: 1; }
+  .movie-card { row-gap: 0.6rem; }
 }
 
 /* recommendations --------------------------------------------------- */
