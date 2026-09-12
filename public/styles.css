@@ -1687,7 +1687,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .score-block {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 /* TMDB's own score. Faint and small on purpose: the amber figure above is the
    user's, this is context for it, and the size gap is what keeps the two from
@@ -1823,6 +1823,28 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   .score-badge { margin-top: 0; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
+}
+
+/* Step 5, user-raised with a screenshot (innerWidth 316): below ~400px the
+   score row (`grid-column: 2 / -1` from the 620px block above) only has the
+   poster + title columns to work with, and that is not enough room for BOTH
+   the rating badge and the buttons. Two visible failures, same root cause:
+   `.score-badge`'s "6.8" and its `<small>` "/10" wrapped onto two lines (the
+   badge box got too narrow to hold both), and `.card-actions`' Edit/Remove
+   pair — a flex row with no wrap of its own — overflowed past the card's own
+   right edge rather than shrinking.
+   Fix (the user's own, checked and correct): start the row from column 1
+   instead of 2, so it spans the WHOLE card width — rank digit's column
+   included — rather than just poster+title. Written as `grid-column-start`
+   alone, not the `grid-column` shorthand, so it overrides only the START of
+   the 620px block's `2 / -1` and inherits that rule's END (`-1`) rather than
+   restating it — one value moves, the coupling to "wherever the card actually
+   ends" stays intact if the column count ever changes upstream.
+   400px, not some fraction of 620px: this is the width the failure was
+   actually observed at, not a guess at a round number relative to a wider
+   breakpoint that solves a different problem. */
+@media (max-width: 400px) {
+  .movie-card__score { grid-column-start: 1; }
 }
 
 /* recommendations --------------------------------------------------- */
