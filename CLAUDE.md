@@ -2885,6 +2885,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    The user is capturing screenshots only once the UI is finished — which it now
    is — but that is still THEIR call to start, and it has been restated several
    times. Do not push to shoot them early.
+   **READ `DOSSIER.md` FIRST — it is the course's own grading rules, it arrived
+   2026-09-13, and THIS CHECKLIST PREDATES IT AND HAS NEVER BEEN RECONCILED
+   AGAINST IT.** That reconciliation is the first checkbox below.
    The narrow-viewport enforcement rules under step 5 are NOT retired by that
    step closing; they still apply to anything that comes up. <<<**
 
@@ -3028,6 +3031,35 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s
   `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
   ever breaks on a new Node.
+* [ ] **RECONCILE THE BLOCKERS BELOW AGAINST `DOSSIER.md` — NOT YET DONE, and
+  this list predates that file.** `DOSSIER.md` arrived on 2026-09-13 and was
+  committed in `45fb828`. It is **the course's own grading rules, copied from
+  Moodle by the user**, and it is the authority on what is graded. Everything in
+  this Pre-submission section was written before it existed and has never been
+  checked against it. Read it before treating this checklist as complete.
+  **What it changes about how this repo should be judged:**
+  * **The repository IS the record.** It grades commit history, context files
+    (`CLAUDE.md` and the memory notes), specifications, prompts, verification
+    gates and their results, folder structure and the readme. It explicitly does
+    NOT grade a video, a verbal account, files outside the repo, or a repo
+    re-created after the fact with its history lost. That is why the markdown
+    rendering work was worth doing, and why `npm run check-markdown` exists.
+  * **The grade is three equal thirds** — class engagement, the shared running
+    project, and this one, the independent application. This repo is one third.
+  * **Up to 90 is defensible from the repo; 91–97 is the grader's judgement;
+    98–100 is for exceptional work and is not guaranteed.** So the checklist
+    below buys the defensible band, and nothing more is purchasable by ticking.
+  * **It grades the DISCIPLINE, not the app.** Its words: two students can ship
+    the same working product and earn different grades. What counts is how the
+    problem was framed, how the spec was written, how context was engineered,
+    how verification was designed, and how legible the trail was left.
+  **The concrete task:** walk `DOSSIER.md` end to end against this repo and this
+  checklist, and add any blocker it implies that is not already here. Do NOT
+  assume the overlap is complete — nobody has checked.
+  **Note on its content:** it carries two deliberate eight-asterisk redactions of
+  an email address, and was verified to contain zero emails and zero URLs before
+  being committed to a public repo. Do not "fix" those asterisks; they are the
+  user's redaction and they render exactly as intended.
 * [ ] **Put the live URL on the project sheet** —
   https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
   *inside* the ticked deploy item above, where it did not show up as an open
