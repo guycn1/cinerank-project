@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and now holds SEVEN items, **SIX done and ONE open (the verdict typing effect) — the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" all landed 2026-09-12 after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch**; the per-item statuses there are the source of truth, do not summarise them from memory; sixteenth merge to main was 9cb6bc3; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-EIGHT done, R20 withdrawn as incorrect and **one open: R18**, parked for step 5 by design — so every recommendations item that is not a narrow-viewport question is now closed; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is now IN PROGRESS (started and substantially worked the same day 4b closed) — NOT complete, do not treat it as done.** Landed so far: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is still open and still parked here.** Still to do in step 5: everything else the portrait pass turns up, working down from ~500px toward the ~350px "good enough" floor and stopping at ~290px per the two enforcement rules below.)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -33,9 +33,9 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently "recommendations
-  backlog closed bar R18, GitHub links in the header and footer, and three of
-  step 4b's animations made visible" (2026-09-11, `9cb6bc3`). **Sixteen** merges
+* `main` is at the latest settled UI milestone — currently "step 4b's verdict
+  glint rebuilt as twenty composited dashes, its busy-state cue, the film grain
+  and the disabled 'New verdict'" (2026-09-12, `2c9c2ef`). **Seventeen** merges
   so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -2165,14 +2165,40 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    and the padding takes the blame. It also grew 1.5x, applied to every term of
    the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at every width
    rather than only where the clamp happened to be resting.
-   **One thing to CHECK in step 5, not now:** `CineRank` is a single unbreakable
-   word, so `.mark` has a hard min-content width, and the icon's column now takes
-   ~21px more than it did. At some narrow width the two stop fitting on one row
-   and the h1 will overflow its `minmax(0, 1fr)` column rather than wrap. **The
-   exact width is NOT estimated here on purpose** — D-030 is the entry about
-   guessing Fraunces figure widths twice and being wrong twice; measure it with
-   `Range.getBoundingClientRect()` during the portrait pass. The likely answer is
-   that the header stacks below some breakpoint, which is step 5's call to make.
+   **STILL UNRESOLVED as of 2026-09-12 — a claim briefly written here about it
+   was WITHDRAWN, and the withdrawal is the useful part.** A headless-Chrome
+   screenshot pass (292 through 600px) appeared to show the header GitHub icon
+   fully clipped off-canvas from ~510px down. The user's own real browser
+   directly contradicted it — a live screenshot at `window.innerWidth === 406`
+   showed the icon completely visible, dead centre of the range the automated
+   pass called broken. Chasing the discrepancy (font-load timing, a stray
+   `--window-size` that turned out to be silently ignored because the headless
+   instance reused an already-running session) fixed one real bug in the TEST
+   TOOLING but never reconciled the two results, and the user asked to stop
+   spending the session on it rather than dig further — correctly: this was
+   supposed to be two small, mechanical CSS fixes.
+   **So: nothing is confirmed either way.** The h1-overflow mechanism this note
+   already describes (a single unbreakable word in a `minmax(0, 1fr)` column)
+   is real and unchanged; whether it actually clips the icon at some width, and
+   which width, is NOT established — do not cite the ~510px figure, it was
+   retracted, not corrected. If this needs settling later, trust the real
+   browser over another automated pass; something about headless Chrome's
+   rendering did not match it here for a reason that was never found.
+   **The tooling unreliability turned out to run deeper than this note knew
+   at the time — see D-062.** A LATER, unrelated bug hunt found a case with a
+   completely FRESH profile (no session reuse) where the requested
+   `--window-size` still didn't match what the page's own JS reported, and a
+   separate run where the output PNG was pixel-exact at the requested size
+   while `window.innerWidth` read something else entirely. So "session
+   reuse" was A cause seen once, not the whole story — do not treat headless
+   Chrome's width reporting as trustworthy here without a live console check
+   backing it up.
+   **What IS certain, independent of any of the above:** the two fixes that
+   shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
+   icon scaled to 75% under `max-width: 400px`) cannot affect anything above
+   400px by construction — the icon rule is strictly gated by its media query,
+   and the reel's fix only ever prevents a shrink that would otherwise occur
+   under pressure, never something that changes its rest state.
    **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
    eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with a
    box-shadow appearing over the same 0.25s. The glow is
@@ -2254,17 +2280,21 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    building.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
-   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **SIX FULLY DONE
-   — the logo spin and the ranked list's first-paint entrance (both 2026-09-11),
-   and the verdict border's glint, its busy-state cue, the film grain and the
-   disabled "New verdict" (all 2026-09-12). ONE OPEN — the verdict typing
-   effect, which is the only item here that was ever a new build:**
+   and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
+   DONE — step 4b is CLOSED.** The logo spin and the ranked list's first-paint
+   entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
+   the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
+   typing effect — the only item here that was ever a genuinely new build —
+   closed the same day (D-057), tuned to 15ms/char by the user's eye.
+   **Next session starts on step 5, the portrait overhaul — see its two
+   enforcement rules further down.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
       values, the twenty layer rules are GENERATED with delays derived from the
       duration, and the alphas are SOLVED and cannot be scaled. See D-055;
-   2. the verdict typing effect (the only item here that is a new build);
+   2. ~~the verdict typing effect~~ — **DONE 2026-09-12** (D-057), the only item
+      here that was ever a new build;
    3. ~~the film grain~~ — **DONE 2026-09-12**: it was a RESAMPLE-RATE problem,
       not a brightness one. `mix-blend-mode`, this item's leading suggestion,
       was measured and rejected — it moves grain onto the posters and off the
@@ -2299,15 +2329,33 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    including the enforcement rules in the memory file
    `recs-overhaul-known-issues.md`. Step 5 stays the portrait overhaul.
 
-   * **A typing effect on the verdict as it appears**, like early ChatGPT.
-     Read D-040's single-writer lesson before starting: `.verdict__text` is
-     written by `syncVerdictAvailability()` (placeholders, threshold text) AND by
-     a run, so a typewriter that animates into the same element needs to lose
-     cleanly when the sync takes the element back mid-type — the exact shape of
-     bug R1 was. Also: the element is `aria-live="polite"`, so typing it one
-     character at a time would announce it one character at a time; set the final
-     text for assistive tech and animate the visible layer, or the accessibility
-     work already done here is undone. `prefers-reduced-motion` must skip it.
+   * **A typing effect on the verdict as it appears, like early ChatGPT — DONE
+     2026-09-12 (D-057).** The only item in this sub-backlog that was ever a
+     genuinely new build rather than an existing effect too subtle to see.
+     **Both hazards flagged in advance were real and both are handled:**
+     `.verdict__text` had (and still has) two writers — `syncVerdictAvailability()`
+     and a run — so D-040's single-writer lesson applied directly. Every write
+     now goes through ONE function, `setVerdictText(text, { typed })`
+     (`app.js`), which cancels any typer already running (a generation counter,
+     the same shape D-040 used) before writing its own content — a sync landing
+     mid-type just wins, cleanly, with no coordination the caller has to think
+     about.
+     The `aria-live="polite"` hazard is solved by giving the element TWO
+     children on every write: a `.sr-only` span carrying the FULL text from the
+     first frame (what assistive tech announces, once, complete) and an
+     `aria-hidden` `.verdict__typed` span that is what animates on screen. Only
+     the SUCCESS path types (`{ typed: true }`); placeholders, the busy line and
+     both error messages render instantly, unchanged.
+     **`prefers-reduced-motion` is checked inside the helper itself**, before
+     the typing branch runs at all — so the caret's CSS animation is
+     structurally unreachable under reduced motion, not merely suppressed by
+     the app's global kill-switch.
+     **One call site deliberately bypasses the helper**, and says so at the
+     point it does: the verdict's `err.logged` failure builds a link (text +
+     `<a>` + text), not a single string, so there is nothing plausible to type.
+     Pace: 18ms/char, tuned by the user's eye — 15ms was tried and reverted, the
+     user preferring the slower read. Full reasoning, including the pure-CSS
+     reveal that was considered and rejected, is D-057.
    * **The verdict banner's border — the travelling glint. DONE 2026-09-12.**
      Four polish passes went wrong, the user called the loop, and the item was
      then finished by reverting and isolating one dial at a time. **Full story,

@@ -6,6 +6,372 @@ recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
 ---
+## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
+
+**Context: this one was found without trustworthy automated verification.**
+Repeated attempts to check a "toast is too narrow" report with headless
+Chrome that session produced inconsistent, contradictory numbers — a
+`--window-size` flag silently ignored under `--dump-dom` even with a fresh
+profile and no cached session, and one run where the output PNG was
+pixel-exact at the requested size while the PAGE'S OWN `window.innerWidth`
+read a completely different number. That gap means the image dimensions
+alone were never proof the page was laid out at that width — every earlier
+"confirmed via pixel-exact screenshot" claim this session rested on an
+assumption that turned out not to hold. The user's own console, on the real
+browser, is what actually resolved this.
+
+**The bug, and how it was found.** A toast reading `"The SpongeBob
+SquarePants Movie" saved.` rendered as an ugly, narrow, three-line wrap on a
+380px phone. The obvious suspect was the new content-length-aware widening
+feature (D-060-era `is-long` logic) misfiring — checked directly via the
+user's own console and RULED OUT: `className` had no `is-long`, `min-width`
+was `0px`, computed `width` matched the rendered width exactly. The feature
+was correctly declining to widen this message. Something else was making
+the UNWIDENED box too narrow.
+
+**The actual cause — the user's own hypothesis, not the one investigated
+first.** `.toast` used `position: fixed; left: 50%; transform:
+translateX(-50%) …` to centre a shrink-to-fit box — a common, ordinarily
+harmless pattern. The trap: a `transform` is applied AFTER layout, so it
+never feeds back into how a `width: auto` box's size is calculated. The
+browser computes shrink-to-fit as if the box's real, untransformed left edge
+sits at `left: 50%`, leaving only the space from there to the viewport's
+right edge as "available" — roughly HALF the real viewport. On the reported
+380px screen: 380 / 2 = 190, against a measured rendered width of
+**187.09px**. Near-exact.
+
+**A different, wrong theory was tried first and is worth naming so it is not
+tried again.** The initial suspicion was `overflow-wrap: anywhere` (D-045)
+collapsing the box's min-content and somehow confusing shrink-to-fit. That
+theory does not explain a value tied cleanly to exactly half the viewport,
+and the user's own instinct — asking specifically about `left: 50%` — turned
+out to be the real mechanism. Diagnosed correctly by someone who was not
+staring at the CSS spec's shrink-to-fit formula, which is itself worth
+remembering.
+
+**The fix.** `left: 0; right: 0; width: fit-content; margin-inline: auto;`,
+`transform` reduced to its vertical entrance offset alone. Both edges pinned
+gives shrink-to-fit the FULL viewport with no anchor-point ambiguity;
+`width: fit-content` asks for the shrink-to-fit size explicitly rather than
+depending on the `auto` case (which is what produced the wrong size in the
+first place); `margin-inline: auto` centres the now-correctly-sized box —
+the identical centring principle `.noposter__icon` already uses for its own,
+unrelated reason (`inset: 0` + `margin: auto` over `top/left: 50%` + a
+compensating translate).
+
+**Trap for later: a shrink-to-fit element centred with `left/top: 50%` plus
+a compensating `translate(-50%)` is not a neutral choice.** It looks
+identical to `inset: 0` + `margin: auto` at rest, and differs only in how
+much of the viewport the sizing algorithm believes it has to work with. Two
+elements in this file have now hit exactly this shape of trap
+(`.noposter__icon`, for a different underlying reason, and this one) — if a
+THIRD shrink-to-fit, percentage-centred element is ever added, reach for
+`inset` + `margin: auto` from the start rather than rediscovering this.
+
+**Addendum, same day: this fix immediately broke `toastIsLong()` (D-060's
+measurement helper), and the break is worth recording alongside the fix that
+caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
+only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
+`right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
+margin-inline: auto;` — and the probe, still only overriding `left` (to
+`-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
+specified, which per the shrink-to-fit case list stops being shrink-to-fit
+entirely: the box stretches to fill the whole gap between them, enormous
+since `left` sits off-screen. A short toast (`"Hairspray" saved.`) measured
+as needing 400px+ on the very next check and was misclassified as long.
+Fixed by neutralising `right`, `bottom` and `margin` in the probe too, not
+just the properties `.toast` happened to set when the probe was first
+written. **The general lesson, not just this one instance:** a measurement
+probe that clones a real class by name, then overrides "the properties that
+currently matter," is exactly one CSS change on the real class away from
+silently measuring the wrong thing. Overriding defensively — every property
+in the same CATEGORY, not just the ones presently in play — is what would
+have prevented this from breaking at all.
+
+---
+## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
+
+**Bug 1: soft hyphens reached placeholders and error messages on the verdict
+banner, not just the real generated verdict.** `setVerdictText(text, {
+typed })` had `if (!typed || reduceMotion || !text) { visible.textContent =
+softHyphenate(text); … }` — one branch for two different reasons a call
+"renders instantly". `!typed` means this text is NOT the verdict (a
+placeholder, the busy line, an error); `reduceMotion || !text` means it IS
+the verdict but skips the typing animation. Folding both into one condition
+hyphenated every non-typed call along with the real ones — visible in a
+screenshot as "A-I-generated" and "t-aste" broken mid-word in the idle
+placeholder text, which is prose that was never supposed to be touched at
+all. Fixed by checking `!typed` first and returning before hyphenation is
+even considered; the reduced-motion/empty-text check now only ever runs for
+a real verdict.
+
+**Bug 2, more serious: `softHyphenate()` corrupted multi-unit emoji.**
+Reported as a broken review emoji rendering as two tofu placeholder glyphs.
+The original implementation, `text.replace(/(\S)(?=\S)/g, '$1­')`,
+iterates JS STRING INDICES — UTF-16 code units, not visual characters. Most
+emoji are a SURROGATE PAIR (two code units, one code point); the regex
+inserted a character BETWEEN the pair, orphaning both halves, which a
+browser renders exactly as the reported broken glyph.
+
+**A regex `u` flag was considered and is not enough — this is the part worth
+keeping.** It fixes surrogate pairs (making `\S` match a full code point as
+one unit) but a flag emoji (two regional-indicator code points) or a ZWJ
+family emoji (several base emoji joined by U+200D into one visual character)
+is MULTIPLE code points forming ONE user-perceived character, and
+code-point-aware iteration is still free to insert a hyphen between them.
+
+**Fixed with `Intl.Segmenter({ granularity: 'grapheme' })`** — the Unicode
+standard's own definition of "one character a reader sees", which treats
+surrogate pairs, ZWJ sequences and combining marks alike as one indivisible
+unit. Verified directly (this API is available in Node, so the exact
+function was run against a surrogate-pair emoji, a ZWJ family emoji and a
+flag emoji before shipping — the fix was confirmed, not just reasoned about).
+Falls straight through to PLAIN, unmodified text on an engine without
+`Intl.Segmenter` — never to the old per-character regex, which is what
+caused this bug. No hyphenation is a safe, fully inert fallback; silently
+corrupted emoji is not. Within this file's stated Chrome/Edge 111 baseline —
+`Intl.Segmenter` shipped in Chrome 87.
+
+**Trap for later: do not "simplify" `softHyphenate()` back to a plain regex,
+with or without the `u` flag.** Both are wrong for the same underlying
+reason — string-index iteration is not character iteration — and the `u`
+flag alone only fixes the half of it that happens to be least common in
+practice (a lone emoji) while leaving the more common compound sequences
+(ZWJ, flags, skin-tone modifiers) still breakable.
+
+---
+## D-060 · D-059's premise was wrong — the "leave it" call is reversed, with a soft-hyphen fix that needs no JS resize logic at all
+
+**Supersedes D-059**, the same day. D-059 accepted the `hyphens: auto` gap
+("SquarePants" breaking with no hyphen, "childhood" right beside it
+hyphenating correctly) on an explicit premise: closing it fully "needs JS
+measuring text and manually inserting the break… the same category of
+ongoing work `syncReviewToggles()` exists for."
+
+**That premise was wrong, and the user caught it by asking a direct
+question** ("doesn't CSS hyphenation allow breaking after ANY character?") —
+not by testing, by querying the mechanism itself, which is exactly the kind
+of check this project's "verify before asserting" habit is for. The honest
+answer is no — `hyphens: auto` is constrained to points a language dictionary
+trusts, which is *why* the gap exists — but that answer surfaced a mechanism
+neither of us had weighed yet: a **soft hyphen** (U+00AD), which marks an
+arbitrary point as a break OPPORTUNITY with no dictionary involved at all.
+Insert one between every character of a title, once, and it renders as
+nothing unless it happens to be where a line actually breaks. There is no
+resize logic to write, because there is nothing to recompute — the same text,
+generated once, either respects its own embedded break points or doesn't,
+entirely as a function of the CSS `hyphens` property in effect at that
+instant. D-059's cost estimate was for a different, harder problem (finding
+WHERE text overflows) that this approach never needs to solve.
+
+**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over
+titles, reviews and AI-reason text, with no viewport check inside it at all.
+CSS alone gates whether the embedded soft hyphens are ever honoured: below
+400px (originally 399px — see the addendum) they are; at 400px and above,
+`hyphens: none` suppresses them completely. `hyphens: auto` is removed
+entirely — it added nothing once every position already has a soft-hyphen
+opportunity, and it was the one carrying the dictionary dependency that
+caused the original gap.
+
+**Narrower than D-059's fix in one respect, and that narrowing is
+deliberate, not a regression.** The old `hyphens: auto` pass had also been
+added to the rate/confirm dialog headings and the toast. Those are dropped
+here: both double as an element's accessible name (`aria-labelledby`) or
+live-region content (`.toast[role=status][aria-live=polite]`), so soft
+hyphens embedded in their text would reach a screen reader, not just the eye.
+Soft hyphens are *supposed* to be silent to assistive tech, but that has a
+real history of inconsistent implementation, and this app's accessibility
+work is not worth trading for a cosmetic fix in two spots that were never
+the reported problem. `aria-label`s, `alt` text and `dataset.title` were
+never touched by either version of this feature — only the visible text node
+in each of the three card/row titles.
+
+**Trap for later: do not add `hyphens: auto` back "for consistency."** It is
+what caused the original inconsistency (a real word hyphenates, an invented
+one does not) — the soft-hyphen approach is what fixed it, precisely by not
+depending on a dictionary.
+
+**Addendum, same day: extended to `#verdict-text`, `.review` and `.reason`,
+and the threshold moved to 400px inclusive.** Two things worth recording
+about the extension itself, not just the fact of it:
+
+1. **`.review` and `.reason` needed no new CSS at all** — both are plain
+   descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
+   and `hyphens` are inherited properties, and `softHyphenate()` is called
+   directly on their own text in `app.js`. Inheritance alone made them work.
+2. **`#verdict-text` needed the split-channel treatment its own typing effect
+   already uses, and this is the one genuine fork in the extension.** The
+   obvious approach — hyphenate the full verdict string once, before typing
+   it out — was rejected: `setVerdictText()`'s typing loop paces itself off
+   `text.length`, and a hyphenated string is roughly DOUBLE the length of the
+   plain one (a soft hyphen between every letter), so typing it out at the
+   same `VERDICT_TYPE_MS` per character would have quietly doubled the
+   animation's duration, undoing the pace the user tuned by eye (18ms/char,
+   after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
+   tick instead of the string once — `i`/`text.length` stay the plain count,
+   so the pace is exactly what it was, and the hyphenated text is only ever
+   assembled for what's already been revealed. The `aria-hidden` /
+   `.sr-only` split this element already had for the typing effect is what
+   makes any of this safe on an `aria-live="polite"` element in the first
+   place — the hyphenated text goes only into the hidden visible span.
+
+The threshold itself moved from `399px` (an exact reading of "narrower than
+400px") to `400px` inclusive, at the user's own follow-up request — recorded
+here only so a future session does not "restore" 399 by reading the original
+paragraph above without this addendum.
+
+---
+## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
+
+**The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
+phone width, and `overflow-wrap: anywhere` is exactly why (D-045) — it is the
+guard that stops one unbroken word from blowing a card's track open, and it
+breaks wherever it has to, with no regard for syllables.
+
+**The fix.** `hyphens: auto`, paired everywhere that guard already lives over
+a film title (`.movie-card__body`, `.result-row`, `.rec-card__body`, the rate
+and confirm dialog headings, `.toast`). It does not replace `overflow-wrap`;
+it changes what happens BEFORE that last resort is needed — the browser's own
+hyphenation algorithm looks for a real syllable break first and draws a
+hyphen there. `overflow-wrap: anywhere` only still fires raw when hyphenation
+finds nothing.
+
+**The gap, caught by the user with a second screenshot the same day.** In the
+very same title, "childhood" hyphenated correctly ("child-" / "hood") and
+"SquarePants" did not — it broke as "SquarePant" / "s", no hyphen at all.
+Diagnosed rather than assumed: `hyphens: auto` runs a real dictionary/pattern
+algorithm, not a guess, and it found nothing in an invented camelCase
+compound proper noun that it trusts enough to hyphenate. `overflow-wrap`'s
+raw fallback took over for that word alone, and that mechanism has no concept
+of a break character — there is no CSS property equivalent to
+`hyphenate-character` for an ARBITRARY forced break, only for a genuine
+hyphenation point.
+
+**The alternative, and why it was not built.** Closing the gap for every
+possible invented title needs JS: measure the rendered text, find where it
+would actually overflow, and insert the hyphen and break by hand. That is the
+same *category* of ongoing maintenance `syncReviewToggles()` already exists
+for — it has to re-run on resize, on zoom, and after a late webfont swap, or
+it goes stale exactly the way that function's own history describes. Worth
+building for a load-bearing feature; not obviously worth it for a cosmetic
+consistency gap that only shows up on invented compound words at the
+narrowest phone widths — precisely the territory CLAUDE.md's own step 5 rule
+says to flag rather than chase past a quick fix.
+
+**Put to the user as a real trade-off, not decided unilaterally: leave it, or
+build the JS fallback anyway.** Their call was to leave it. Most real words in
+real film titles already hyphenate correctly, which is the actual improvement
+here; the residual gap is real but narrow, and is now a documented, accepted
+limit rather than an oversight.
+
+**Trap for later: do not "finish" this with the JS fallback on a hunch.** The
+decision was already made with the cost stated plainly. Revisit only if the
+gap turns out to matter more than a screenshot at ~300px width — a real
+demo, a grading rubric complaint, anything beyond this.
+
+---
+## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
+
+**The ask.** "New verdict" was left to natural flex-wrap math and only dropped
+to its own line around 537px. The user wanted that forced earlier, at 680px,
+with the button's own rendered width identical whichever way it wraps.
+
+**First attempt, and why it failed.** `flex-basis: 100%` on `.verdict__refresh`
+under a `@media (max-width: 680px)` block does force the wrap — its
+hypothetical main size becomes the full row width, which the label and verdict
+text ahead of it can never share a line with. But `flex-basis` is not just the
+forcing signal, it is also the SIZE: with nothing else left on its new line to
+shrink it back down, the button rendered edge-to-edge across the whole banner.
+Confirmed by screenshot, not assumed.
+
+**Second attempt, and why it ALSO failed — this is the non-obvious part.**
+Adding `max-width: max-content` alongside it, to clamp the rendered size back
+to the button's own content width, undid the wrap outright: the break point
+fell straight back to the natural ~537px. The reason is in the spec, not
+obvious from using the properties day to day — the flex algorithm's
+"hypothetical main size" (what decides whether an item fits the current line
+and therefore wraps) is the flex-basis **after** it has already been clamped
+by min/max-width. A `max-width` that fixes the rendered size fixes the forcing
+value too, before the wrap decision is ever made. One property cannot carry
+two different numbers for two different jobs.
+
+**The fix: a second, empty flex item does the forcing instead.**
+`.verdict__break` — a bare `<span aria-hidden>` added to `index.html` right
+after `.verdict__text`, `display: none` above the breakpoint (not a flex item
+at all, zero effect on wider layouts) and `flex-basis: 100%` with no
+max-width of its own below it. It is what can't share a line with the label
+and text; the button after it starts a fresh line sized purely by its own
+content, completely untouched by any of this. `margin-bottom: -1rem` on the
+break element cancels the extra row-gap its own (empty) line would otherwise
+insert on top of the real gap already between it and the button — tied to
+`.verdict__inner`'s `gap: 1rem` and must move with it.
+
+**Verified with real screenshots, not spec-reading alone, after getting it
+wrong twice.** Chrome was already on the machine; `chrome.exe --headless
+--screenshot --window-size=W,H <url>` needs no new dependency (no Playwright,
+no `chromium-cli`) and rendered actual computed layouts at 536/538/680/681px.
+Two wrong fixes in a row is what made "I'm confident in the CSS spec reasoning"
+insufficient here — the second failure was *also* plausible-sounding spec
+reasoning.
+
+**The trap for later:** if this is ever "simplified" back to one property on
+`.verdict__refresh`, re-read this entry first — both single-property routes
+were tried and both are dead ends for the same underlying reason, not two
+independent bugs.
+
+---
+## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
+
+**The choice.** `#verdict-text`'s content is now written through ONE function,
+`setVerdictText(text, { typed })`, rather than eight scattered
+`textContent =` assignments. It builds two child spans every call: a
+`.sr-only` one holding the FULL text immediately, and an `aria-hidden`
+`.verdict__typed` one that is what actually animates. Only the success path
+passes `{ typed: true }`; every placeholder, the busy line and both error
+messages render instantly, unchanged from before this item existed.
+
+**Why not the obvious approach — typing straight into `#verdict-text`'s own
+text node.** That element is `aria-live="polite"` (SPEC's accessibility work,
+already covered by R22's lesson about that same recs-hint region): mutating
+it character-by-character would announce it character-by-character. The
+element needs to carry the FULL, correct text for assistive tech from the
+first frame it changes, while the sighted view is free to animate — those are
+two different requirements on the same node, so they got two different
+children instead of one compromise.
+
+**A pure-CSS reveal was considered and rejected.** The classic typewriter
+trick — `white-space: nowrap; width: 0` animated to the content width with
+`steps(N)` — only works for a single unbroken line. The verdict is 2–3
+sentences (~35–60 words) that wrap across several lines at the banner's
+width, and there is no CSS-only mechanism that reveals wrapped,
+proportional-width text character-by-character without JS measuring each
+line — the kind of measurement this project has gotten wrong twice before
+by estimating instead (D-030's Fraunces figure widths). JS driving a
+`textContent.slice()` loop on a dedicated node was more work than the CSS
+idea but had no hidden measurement step to get wrong.
+
+**Cancellation is a generation counter, not a boolean flag.** Every call
+bumps `verdictTypeGen`; a running loop checks its captured `gen` against the
+current value on every tick and quietly stops if it no longer matches. This
+is the same shape D-040's single-writer fix used for expanded reviews, and it
+is what makes the hazard this item was flagged with — `syncVerdictAvailability()`
+or a second click landing mid-type — a non-event: the new call's own
+`setVerdictText()` invocation cancels the old one as a side effect of running,
+so no caller needs to know a typewriter exists or ask "is one running?" first.
+
+**One call site deliberately bypasses the helper**, and it is commented at
+the point it does: the `err.logged` branch builds a link (text node + `<a>` +
+text node), not a single string, so there is nothing plausible to type. It
+still benefits from the guarantee: the busy branch that always runs first in
+that handler has already cancelled any leftover typer for this run, so the
+bypass cannot race a live animation.
+
+**The pace, 18ms/char, is a tuned dial, not a decision** — the user tried 18ms,
+then 15ms, then reverted to 18ms, all by eye, and none of that is logged as a
+decision; recorded here only so a future session does not "helpfully" retune
+it by misreading this entry.
+
+---
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
 Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x

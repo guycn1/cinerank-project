@@ -140,11 +140,66 @@ function failureText(context, err) {
   return `${context} — ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
 }
 
+// The widest `max-width: 90vw` ever gets while styles.css's narrow-viewport
+// widening rules (`@media (max-width: 700px)`) are still in play -- 90% of
+// 700px. If a message's natural, unconstrained single line fits inside this,
+// it fits at every wider viewport too, so it counts as "normal width" for
+// toastIsLong() below. Tied to those two CSS values; move this if either
+// changes.
+const TOAST_SINGLE_LINE_MAX = 630;
+
+/**
+ * Would `text` already need more than one line at a normal, >700px toast
+ * width — i.e. is it "long" under the user's own definition (step 5,
+ * user-raised with a worked example: "Dune saved." must look identical at
+ * 1000/600/450px; only a message that already wraps at normal width should
+ * ever widen). A media query alone cannot answer this: it only knows the
+ * CURRENT viewport, never whether a piece of text would fit at a DIFFERENT
+ * one, so this measures it directly.
+ * The probe shares the real `.toast` class (same font, padding, border) but
+ * neutralises EVERY positioning/sizing property inline -- inline styles win
+ * over the class's stylesheet rules regardless of specificity or which media
+ * query is currently active, so the reading is the text's TRUE natural
+ * width, independent of whatever the actual browser viewport happens to be
+ * right now. `white-space: nowrap` forces it onto one line so
+ * `getBoundingClientRect()` reports the full un-wrapped width.
+ * D-062, and the trap this repeats: `.toast` now centres itself with
+ * `left: 0; right: 0; width: fit-content; margin-inline: auto` (D-062's own
+ * fix). The FIRST version of this probe overrode only `left`/`width`, so it
+ * still inherited the class's `right: 0` and `margin-inline: auto` -- with
+ * BOTH `left` (overridden here to -9999px) and `right` (still 0, inherited)
+ * specified and `width: auto`, the box model stops being shrink-to-fit
+ * entirely and instead stretches to fill the whole (enormous, since one edge
+ * sits off-screen) gap between them -- which is why a short toast like
+ * `"Hairspray" saved.` was measured as needing 400px+ and misclassified as
+ * long the moment D-062 landed. Every property the class's positioning could
+ * plausibly use is now explicitly neutralised here, not just the ones it
+ * happened to use at the time this was written -- so a future change to how
+ * `.toast` centres itself can't silently break this measurement again the
+ * same way.
+ * A throwaway, invisible, off-screen element -- never the real, currently
+ * showing toast -- so measuring one toast can't flicker or resize another.
+ */
+function toastIsLong(text) {
+  const probe = document.createElement('span');
+  probe.className = 'toast';
+  probe.style.cssText =
+    'position:absolute; visibility:hidden; ' +
+    'left:-9999px; right:auto; top:-9999px; bottom:auto; margin:0; ' +
+    'white-space:nowrap; width:auto; min-width:0; max-width:none;';
+  probe.textContent = text;
+  document.body.append(probe);
+  const fits = probe.getBoundingClientRect().width <= TOAST_SINGLE_LINE_MAX;
+  probe.remove();
+  return !fits;
+}
+
 let toastTimer;
 function toast(message, isError = false) {
   el.toast.textContent = message;
   el.toast.hidden = false;
   el.toast.classList.toggle('err', isError);
+  el.toast.classList.toggle('is-long', toastIsLong(message));
   requestAnimationFrame(() => el.toast.classList.add('show'));
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
@@ -395,6 +450,74 @@ function withViewTransition(update) {
   t.finished.catch(() => {});
 }
 
+/**
+ * Insert a soft hyphen (U+00AD) between every pair of adjacent non-space
+ * GRAPHEME CLUSTERS (step 5, D-060/D-061, supersedes D-059's `hyphens:
+ * auto`). A soft hyphen is a break OPPORTUNITY, not a break — it renders as
+ * nothing at all unless it is the exact point a line actually breaks, so
+ * this is invisible and inert wherever nothing needs to break. Unlike
+ * `hyphens: auto`, it needs no dictionary: it offers a valid point at every
+ * position, which is what an invented compound title ("SquarePants") needs
+ * and a language pattern algorithm could not supply.
+ *
+ * GRAPHEME CLUSTERS, NOT RAW CHARACTERS — D-061, user-caught with a
+ * screenshot of a review's emoji rendered as two tofu glyphs. The first
+ * version of this function split on `/(\S)(?=\S)/g`, which iterates JS
+ * STRING INDICES — UTF-16 code units, not visual characters. Most emoji
+ * (🎬, 😀, …) are a SURROGATE PAIR: two code units for one code point.
+ * Splitting between them with an inserted character orphans both halves,
+ * which is exactly what a browser renders as a broken-glyph placeholder.
+ * A regex `u` flag alone would not have been enough either — it fixes
+ * surrogate pairs but a flag emoji or a ZWJ family emoji is MULTIPLE full
+ * code points joined into one user-perceived character, and code-point
+ * iteration is still free to split those apart.
+ * `Intl.Segmenter({ granularity: 'grapheme' })` is the correct unit: it is
+ * Unicode's own definition of "one character a reader sees", and it is
+ * capable of surrogate pairs, ZWJ sequences and combining marks all in one.
+ * Falls straight through to the PLAIN, unmodified text where unsupported —
+ * never to the old character-by-character regex, which is what caused this
+ * bug in the first place. No hyphenation is a safe, fully inert fallback;
+ * silently-corrupted emoji is not. (Baseline note: well inside this file's
+ * stated baseline of Chrome/Edge 111 — `Intl.Segmenter` shipped in Chrome 87.)
+ *
+ * Whether these embedded points are ever honoured is decided entirely by
+ * CSS (`hyphens: none` above 400px, `manual` below it, on `.movie-card__body`
+ * / `.rec-card__body` / `.result-row` / `.verdict__text`; `.review` and
+ * `.reason` inherit theirs from the first two) — this function runs
+ * UNCONDITIONALLY, with no viewport check and no resize listener. That is
+ * the whole reason this replaces D-059's "needs JS measurement" premise
+ * rather than confirming it: the text is generated once, and the SAME text
+ * starts or stops respecting its own embedded hyphens live, as the media
+ * query flips on resize, with nothing here re-run.
+ * Called on every film title, review and AI-reason text — all plain visible
+ * content with no accessible-name or live-region role to leak into. On the
+ * verdict, called ONLY on the real, AI-generated text (see the `typed` guard
+ * in `setVerdictText()`) — never on a placeholder or an error message.
+ * Deliberately NOT used on the rate/confirm dialog headings or the toast —
+ * see the CSS note at `.movie-card__body` for why: both double as an
+ * accessible name or live-region content, and a soft hyphen embedded there
+ * would reach a screen reader, not just the eye. `#verdict-text` IS
+ * `aria-live`, but clears this the same way its typing effect already does:
+ * `setVerdictText()` calls this only on the `aria-hidden` visible span, never
+ * on the plain `.sr-only` one the live region actually announces.
+ */
+const graphemeSegmenter =
+  typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function'
+    ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+    : null;
+
+function softHyphenate(text) {
+  if (!graphemeSegmenter) return text; // unsupported -- plain text, never the broken regex
+  const graphemes = [...graphemeSegmenter.segment(text)].map((s) => s.segment);
+  let out = '';
+  for (let i = 0; i < graphemes.length; i += 1) {
+    out += graphemes[i];
+    const next = graphemes[i + 1];
+    if (next && !/\s/.test(graphemes[i]) && !/\s/.test(next)) out += '­';
+  }
+  return out;
+}
+
 /* ---------- ranked list ------------------------------------------------- */
 // Has the list been painted at least once? The first paint is an ENTRANCE (the
 // staggered `card-enter`, nothing to morph from); every later one is a CHANGE to
@@ -509,7 +632,7 @@ function renderRanked() {
     const body = document.createElement('div');
     body.className = 'movie-card__body';
     const h3 = document.createElement('h3');
-    h3.append(document.createTextNode(m.title + ' '));
+    h3.append(document.createTextNode(softHyphenate(m.title) + ' '));
     const yr = document.createElement('span');
     yr.className = 'year';
     yr.textContent = m.year ? `(${m.year})` : '';
@@ -550,7 +673,7 @@ function renderRanked() {
       // the `m.id` looked up here — a numeric id would need String() at both
       // ends to avoid has(5) missing "5".
       r.dataset.movieId = m.id;
-      r.textContent = m.review;
+      r.textContent = softHyphenate(m.review); // D-060's approach; plain content, no aria role to leak into
       const toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.className = 'review-toggle';
@@ -968,7 +1091,7 @@ function renderSearchResults(results, query) {
     const meta = document.createElement('div');
     meta.className = 'meta';
     const strong = document.createElement('strong');
-    strong.textContent = r.title;
+    strong.textContent = softHyphenate(r.title);
     const span = document.createElement('span');
     // `!= null`, not truthiness, and `toFixed(1)` so this row and the ranked
     // card state the same number the same way. Truthiness happened to hide
@@ -1604,14 +1727,14 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     const body = document.createElement('div');
     body.className = 'rec-card__body';
     const h3 = document.createElement('h3');
-    h3.append(document.createTextNode(s.title + ' '));
+    h3.append(document.createTextNode(softHyphenate(s.title) + ' '));
     const yr = document.createElement('span');
     yr.className = 'year';
     yr.textContent = s.year ? `(${s.year})` : '';
     h3.append(yr);
     const reason = document.createElement('p');
     reason.className = 'reason';
-    reason.textContent = s.reason;
+    reason.textContent = softHyphenate(s.reason); // D-060's approach; plain content, no aria role to leak into
     const btn = document.createElement('button');
     btn.type = 'button';
     // The same three dataset stamps a search row carries, so this button is
@@ -1678,6 +1801,91 @@ function clearVerdictMeta() {
   el.verdict.querySelector('.ai-meta')?.remove();
 }
 
+const VERDICT_TYPE_MS = 18; // per character -- the "early ChatGPT" pace, tuned by eye
+let verdictTypeGen = 0; // bumped on every call; a stale loop checks this and stops
+let verdictTypeTimer = null;
+
+/**
+ * The SINGLE writer for `#verdict-text`'s content (step 4b's typing effect).
+ * `.verdict__text` has always had two writers -- `syncVerdictAvailability()`
+ * and a run -- and D-040/R1 is the lesson that a second writer taking the
+ * element back mid-animation is exactly the bug shape to avoid. Routing every
+ * write through here, rather than a direct `textContent =`, means a sync that
+ * fires mid-type doesn't need to know a typewriter exists: it just calls this,
+ * which cancels whatever was running and shows its own text immediately.
+ *
+ * Built from TWO children, never from the paragraph's own text node, because
+ * `#verdict-text` is `aria-live="polite"` (R22's lesson applies here too): typing
+ * the accessible text one character at a time would announce it one character
+ * at a time. `.verdict__typed` (`aria-hidden`) is what the eye sees and what
+ * animates; the plain `.sr-only` span carries the FULL text from the first
+ * frame, so the live region always has one complete, correct announcement to
+ * make, never a half-typed fragment.
+ *
+ * `{ typed: true }` is for the success path ALONE -- the only case that is
+ * actually "the verdict appearing". Every placeholder, the busy line and both
+ * error messages pass no option and render instantly, exactly as before this
+ * item existed.
+ *
+ * The VISIBLE span is soft-hyphenated (D-060's approach, step 5), but ONLY
+ * when `typed` is true -- i.e. only the real, AI-generated verdict, never a
+ * placeholder or an error message (user-caught: it was reaching those too).
+ * `!typed` is checked FIRST and returns before hyphenation is even
+ * considered, on purpose -- folding it into the same branch as the
+ * reduced-motion skip (both used to render instantly, so it read as one
+ * case) silently hyphenated every non-typed call along with them. A REAL
+ * verdict that skips the typing animation (reduced motion, or empty text)
+ * must still be hyphenated; a placeholder must never be, regardless of
+ * motion preference -- two different reasons to "render instantly", and only
+ * one of them means "this is verdict content".
+ * `.sr-only` is never hyphenated either way -- same split this function
+ * already had for typing: `.verdict__typed` is `aria-hidden`, so embedding
+ * U+00AD there never reaches a screen reader, while the announced text must
+ * stay exactly what was written.
+ * During typing this hyphenates the SLICE on every tick, not the whole string
+ * once up front -- `i` and `text.length` stay the plain character count either
+ * way, so VERDICT_TYPE_MS's pace is untouched by how many extra soft-hyphen
+ * characters a hyphenated string would otherwise add.
+ */
+function setVerdictText(text, { typed = false } = {}) {
+  verdictTypeGen += 1;
+  const gen = verdictTypeGen;
+  clearTimeout(verdictTypeTimer);
+
+  const visible = document.createElement('span');
+  visible.className = 'verdict__typed';
+  visible.setAttribute('aria-hidden', 'true');
+  const heard = document.createElement('span');
+  heard.className = 'sr-only';
+  heard.textContent = text;
+  el.verdictText.replaceChildren(visible, heard);
+
+  if (!typed) {
+    visible.textContent = text; // placeholder or error -- plain, never hyphenated
+    return;
+  }
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion || !text) {
+    visible.textContent = softHyphenate(text); // real verdict, just not animated
+    return;
+  }
+
+  visible.classList.add('is-typing');
+  let i = 0;
+  const step = () => {
+    if (gen !== verdictTypeGen) return; // superseded by a later write -- stop silently
+    visible.textContent = softHyphenate(text.slice(0, i));
+    i += 1;
+    if (i <= text.length) {
+      verdictTypeTimer = setTimeout(step, VERDICT_TYPE_MS);
+    } else {
+      visible.classList.remove('is-typing');
+    }
+  };
+  step();
+}
+
 /** Is the taste verdict below its rating threshold? ONE predicate, because two
  *  places now need the answer and an approximation of a rule goes stale the
  *  moment the rule changes (D-039 is the entry about exactly that). */
@@ -1721,10 +1929,10 @@ function syncVerdictAvailability() {
   if (locked) {
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
+    setVerdictText(`Rate at least ${need} movies to get a verdict (you have ${have}).`);
   } else if (!el.verdict.dataset.generated) {
     el.verdictText.classList.add('is-muted');
-    el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
+    setVerdictText('Tap “New verdict” for an AI-generated read on your taste.');
   }
 }
 
@@ -1733,11 +1941,11 @@ el.verdictRefresh.addEventListener('click', async () => {
   setSheenRate(SHEEN_BUSY_RATE); // the ring becomes the progress cue
   clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
-  el.verdictText.textContent = 'Consulting the critics…';
+  setVerdictText('Consulting the critics…');
   try {
     const { verdict, meta } = await api('/api/taste-verdict', { method: 'POST' });
     el.verdictText.classList.remove('is-muted');
-    el.verdictText.textContent = verdict; // plain text, textContent only
+    setVerdictText(verdict, { typed: true }); // the one case this item is about
     el.verdict.dataset.generated = '1';
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
@@ -1748,6 +1956,11 @@ el.verdictRefresh.addEventListener('click', async () => {
     // call log for details" pointing at a log that could not load either, with
     // the real cause thrown away (R23, D-047).
     // Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    // Bypasses setVerdictText() on purpose: this content is a link plus two
+    // text nodes, not a single string, so there is nothing plausible to type.
+    // Safe to write directly -- the busy branch above already cancelled any
+    // in-flight typer for this run, and this `catch` cannot run alongside the
+    // `try`'s own setVerdictText(verdict, { typed: true }) call.
     if (err.logged) {
       el.verdictText.replaceChildren(
         document.createTextNode(`${err.message} See the `),
@@ -1755,7 +1968,7 @@ el.verdictRefresh.addEventListener('click', async () => {
         document.createTextNode(' for details.')
       );
     } else {
-      el.verdictText.textContent = err.message;
+      setVerdictText(err.message);
     }
   } finally {
     restoreRefresh();

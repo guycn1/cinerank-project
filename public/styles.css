@@ -312,6 +312,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
                                          rather than only where the clamp
                                          happened to be resting. */
 }
+/* Step 5, user-raised, alongside the reel fix above. ONE declaration is enough
+   here because everything about this icon is already expressed in `em` off
+   its own font-size — the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
+   and the hover halo's blur/spread (both `em`, in the :hover rule below) all
+   scale off THIS property, so scaling it scales the icon, its padding AND the
+   halo together, exactly as asked, with no separate rule for each.
+   Written as the same clamp scaled by `calc(... * 0.75)`, not as an independent
+   clamp with its own numbers — an independent one could drift from the base
+   size later and nobody would notice the coupling had broken.
+   0.75, not the 0.5 first shipped: the user's own follow-up call, after 50%
+   read as too aggressive a cut — this is a QUARTER smaller, not half. */
+@media (max-width: 400px) {
+  .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.75); }
+}
 
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
    line. Size is the ONLY declaration it needs: everything else arrives from
@@ -388,6 +402,16 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
   --reel-notch: 8%;
+  /* Step 5, user-raised (a ~292px screenshot showed it squashed into an oval).
+     `.mark` is a flex row and `CineRank` is one unbreakable word with a hard
+     min-content width, so once the row ran out of room the browser had to
+     shrink SOMETHING — and with no flex-shrink here, the default of 1 let it
+     take it out of the reel's WIDTH while its explicit `height: 34px` stayed
+     fixed, since height isn't the flex-basis dimension in a row container.
+     A circle with one axis shrunk and the other pinned is an ellipse. Never
+     shrink at all, at any width — the mark is a fixed-size logo mark, not
+     fluid content. */
+  flex-shrink: 0;
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--amber);
   background:
@@ -674,6 +698,44 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   gap: 1rem;
   flex-wrap: wrap;
 }
+/* Step 5, user-raised: LEFT to natural flex-wrap math, "New verdict" only
+   dropped to its own line at ~537px — the point where the label + `.verdict__text`'s
+   12rem min-width + the button's own width stopped fitting one row. The user
+   wants that forced earlier, at ~680px, with the button's own width UNCHANGED
+   by wrapping either way.
+   TWO THINGS WERE TRIED ON THE BUTTON ITSELF AND BOTH FAILED, for the same
+   underlying reason, and the fix is a third element rather than a third
+   attempt on the button:
+   1. `flex-basis: 100%` on `.verdict__refresh` forces the wrap, but also
+      SIZES it — with nothing else sharing its new line there is nothing left
+      to shrink it back down, so it rendered edge-to-edge (stretched).
+   2. Adding `max-width: max-content` to claw the size back down undid the
+      wrap itself: the WRAP decision is made on the hypothetical main size,
+      which is the flex-basis already clamped by min/max-width — so clamping
+      the rendered size clamps the forcing value too, before the wrap
+      algorithm ever runs, and the break point fell straight back to the
+      natural ~537px.
+   There is no third value for one property that forces a line break AND
+   leaves the item's own size alone — those are the same number by
+   definition. `.verdict__break` (in index.html, right after `.verdict__text`)
+   is a second, empty flex item that takes the forcing role instead: it alone
+   carries `flex-basis: 100%` with no max-width of its own, so IT is what
+   can't share a line with the label/text, and the button after it starts a
+   fresh line sized purely by its own content — completely untouched. */
+.verdict__break { display: none; } /* not a flex item at all above the breakpoint */
+@media (max-width: 680px) {
+  .verdict__break {
+    display: block;
+    flex-basis: 100%;
+    height: 0;
+    overflow: hidden;
+    /* Cancels the row-gap this element's own (empty) line would otherwise ADD
+       on top of the real gap between it and the button -- without this the
+       button sits 2rem below the text instead of 1rem. Tied to
+       .verdict__inner's `gap: 1rem` above; move both together. */
+    margin-bottom: -1rem;
+  }
+}
 .verdict__label {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -687,6 +749,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   min-width: 12rem;
   font-size: 1rem;
   color: var(--ink);
+  /* D-045's guard, extended here: a verdict is AI-generated prose, not a
+     literal file upload, but the taste-verdict prompt has no length limit on
+     any SINGLE word, so the same "one unbreakable token can blow a flex item
+     open" risk applies. Paired with `hyphens` for D-060's soft-hyphen
+     approach — see the full note at .movie-card__body; this is the fourth
+     and last of the four elements it now covers. */
+  overflow-wrap: anywhere;
+  hyphens: none;
 }
 /* The real verdict only — a half-step off white plus a touch of tracking.
    `is-muted` marks every placeholder and the error fallback; those share the
@@ -703,6 +773,25 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    those two sit beside real content on a card and should stay quieter than it,
    while this one has nothing to be quieter than. */
 .verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
+/* The typing effect (step 4b) animates THIS span, never `.verdict__text`
+   itself -- that element is `aria-live="polite"` and typing its accessible
+   text one character at a time would announce it one character at a time.
+   `.verdict__typed` is `aria-hidden`; a plain `.sr-only` sibling (built in
+   setVerdictText()) carries the full string from the first frame, so the live
+   region always has one complete announcement to make. Inherits colour and
+   tracking from `.verdict__text`/`.verdict__text:not(.is-muted)` -- nothing to
+   set here beyond the caret. */
+.verdict__typed.is-typing::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 1px;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: verdict-caret 0.8s step-end infinite;
+}
+@keyframes verdict-caret { 50% { opacity: 0; } }
 .verdict__refresh {
   background: transparent;
   /* NOT --line, which this was: at #26262f on the banner's --bg-raised ground it
@@ -912,19 +1001,33 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
      AI log dialog already caps itself at `88vh`. On a short viewport (a phone
      in landscape, a small desktop window) 340px is most of the screen, so the
-     results panel buried the page behind it.
-     `min()` can only ever return something <= 340px, so this is a STRICTLY
-     SHRINKING change: no viewport that is comfortable today can get a taller
-     panel, and only viewports where 340px was already too much see any
-     difference at all.
+     results panel buried the page behind it. A pure `min(340px, ratio * vh)`
+     was tried first and OVERCORRECTED (user-caught, with a screenshot): on a
+     genuinely short viewport — a phone in landscape can report an innerHeight
+     as low as ~240px — a flat percentage of the total crushed the panel down
+     to little more than one row, which is exactly the "radically short" look
+     being fixed. A landscape-only variant with an even smaller ceiling made
+     the SAME mistake harder, not solved it.
+     **The user's actual ask: let the panel stay a normal, comfortable height
+     even when that means it no longer fits the screen — a bit of page scroll
+     to reach the rest of it is fine; a visibly stunted panel is not.** So this
+     is a FLOOR (`max()`), not a second ceiling: below ~480px of viewport
+     height the panel holds at 240px regardless of how much shorter the
+     viewport gets — it can and will exceed the viewport itself at the low
+     end, on purpose. Between ~480px and ~680px it still eases down from 340 to
+     240 (the "a bit shorter, not radically" middle ground the user asked to
+     keep); above that it is the untouched 340px ceiling, exactly as before.
+     No orientation query needed: the floor does the whole job regardless of
+     WHY the viewport is short, so a landscape phone and a short desktop window
+     get the same protection from the same one rule.
      Two declarations, and the order matters: the `vh` line is the fallback, and
      the `svh` line overrides it wherever `svh` is understood. `svh` is the
      SMALL viewport height, so it stays put while a mobile URL bar collapses,
      where `dvh` would resize the panel mid-scroll. Written as a pair because a
      lone unsupported `svh` would invalidate the whole declaration and leave the
      panel with NO cap — worse than the fixed value it replaced. */
-  max-height: min(340px, 60vh);
-  max-height: min(340px, 60svh);
+  max-height: max(240px, min(340px, 50vh));
+  max-height: max(240px, min(340px, 50svh));
   overflow-y: auto;
   animation: fade-slide 0.3s var(--ease);
 }
@@ -973,6 +1076,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      400-character words, so nothing is known to be broken here — but the guard
      is one declaration and the failure mode is the whole page. */
   overflow-wrap: anywhere;
+  hyphens: none; /* see the full note at .movie-card__body */
 }
 .result-row:hover { background: var(--bg-raised); }
 .result-row img, .result-row .noposter {
@@ -1463,11 +1567,52 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    any future non-text content in this column (something with `white-space:
    nowrap`, a wide image) could size the track the same way. This makes the track
    incapable of being pushed open regardless of what lands in it. */
+/* SOFT-HYPHEN BREAKS, BELOW 400px ONLY (step 5, user-raised, D-059 → D-060).
+   `hyphens: auto` was tried first and REMOVED: it only hyphenates at points a
+   real dictionary/pattern algorithm trusts, so a real word ("childhood")
+   hyphenated correctly while an invented compound ("SquarePants") found no
+   trusted point at all and fell through to `overflow-wrap: anywhere`'s raw,
+   hyphen-less break — inconsistent, and no CSS knob fixes that ceiling.
+   D-059 accepted that gap on the premise that closing it needed resize-aware
+   JS measurement. THAT PREMISE WAS WRONG, which is why this replaces it
+   rather than sitting beside it (D-060): a SOFT HYPHEN (U+00AD, inserted once
+   by `softHyphenate()` in app.js, between every pair of adjacent non-space
+   characters) is a break opportunity at literally every position, with none
+   of `hyphens: auto`'s dictionary dependency — AND it needs no JS resize
+   logic at all, because a soft hyphen is invisible and zero-width unless it
+   is the actual point a line breaks. The text is generated once; CSS ALONE
+   decides whether those embedded break points are ever honoured.
+   `hyphens: none` here suppresses every hyphenation opportunity — the
+   embedded soft hyphens included — so >= 400px renders BYTE-IDENTICAL to
+   plain `overflow-wrap: anywhere` with no hyphenation feature at all, exactly
+   as the user asked. The override to `hyphens: manual` (the CSS default,
+   restored explicitly below 400px) is what lets those same soft hyphens
+   start being honoured — live, on resize, with nothing re-rendered.
+   COVERS four elements: `.movie-card__body`, `.rec-card__body` and
+   `.result-row` (each set the same way below), plus `.verdict__text`.
+   `.review` and `.reason` need no CSS of their own at all — both are plain
+   descendants of `.movie-card__body`/`.rec-card__body`, `overflow-wrap` and
+   `hyphens` are inherited properties, and `softHyphenate()` is called
+   directly on their text in app.js, so they pick up this whole toggle for
+   free. Deliberately NOT applied to the rate/confirm dialog headings or the
+   toast: both of those double as an ELEMENT'S ACCESSIBLE NAME
+   (`aria-labelledby`) or live-region content (`.toast[aria-live]`), so soft
+   hyphens embedded in their text would be exposed to a screen reader, not
+   just to the eye — soft hyphens are SUPPOSED to be silent to assistive tech,
+   but implementations have a real history of getting that wrong, and this
+   app's accessibility work is not worth trading away for a cosmetic fix.
+   `.verdict__text` is `aria-live="polite"` too, and clears this the same way
+   the typing effect already does (see `setVerdictText()`): the hyphenated
+   text goes ONLY into the `aria-hidden` `.verdict__typed` span, never into
+   the plain `.sr-only` one the live region actually announces. Those two
+   dialog headings and the toast keep only `overflow-wrap: anywhere`,
+   unchanged, same as before this feature existed. */
 .movie-card__body {
   align-self: start;
   margin-top: 0.3rem;
   min-width: 0;
   overflow-wrap: anywhere;
+  hyphens: none;
 }
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
@@ -1592,7 +1737,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .score-block {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 /* TMDB's own score. Faint and small on purpose: the amber figure above is the
    user's, this is context for it, and the size gap is what keeps the two from
@@ -1706,7 +1851,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      both follow it. Restating a width on .movie-card__poster here is what
      caused the overflow this rule used to have. */
   .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
-  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; margin-top: 0.4rem; }
+  .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; }
   /* The buttons are pushed right by an auto margin, NOT by
      `justify-content: space-between` on the row. space-between only separates
      two or more children, and an unrated card has no score badge — leaving
@@ -1728,6 +1873,37 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   .score-badge { margin-top: 0; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
+}
+
+/* Step 5, user-raised with a screenshot (innerWidth 316): below ~400px the
+   score row (`grid-column: 2 / -1` from the 620px block above) only has the
+   poster + title columns to work with, and that is not enough room for BOTH
+   the rating badge and the buttons. Two visible failures, same root cause:
+   `.score-badge`'s "6.8" and its `<small>` "/10" wrapped onto two lines (the
+   badge box got too narrow to hold both), and `.card-actions`' Edit/Remove
+   pair — a flex row with no wrap of its own — overflowed past the card's own
+   right edge rather than shrinking.
+   Fix (the user's own, checked and correct): start the row from column 1
+   instead of 2, so it spans the WHOLE card width — rank digit's column
+   included — rather than just poster+title. Written as `grid-column-start`
+   alone, not the `grid-column` shorthand, so it overrides only the START of
+   the 620px block's `2 / -1` and inherits that rule's END (`-1`) rather than
+   restating it — one value moves, the coupling to "wherever the card actually
+   ends" stays intact if the column count ever changes upstream.
+   400px, not some fraction of 620px: this is the width the failure was
+   actually observed at, not a guess at a round number relative to a wider
+   breakpoint that solves a different problem.
+   `row-gap` (user-added, following the score row's `margin-top: 0.4rem` being
+   dropped in the 620px block above): with that margin gone, the space above
+   the score row came entirely from `.movie-card`'s own `gap: 1.2rem` — the
+   SAME value also spacing the rank/poster/title columns apart. `row-gap`
+   alone, not the `gap` shorthand, is what makes that tunable independently:
+   the shorthand would have reset `column-gap` to match, tightening the
+   rank/poster/title columns too, which was never part of this. Tuned to
+   0.8rem by eye, same as every other value in this file. */
+@media (max-width: 400px) {
+  .movie-card__score { grid-column-start: 1; }
+  .movie-card { row-gap: 0.8rem; }
 }
 
 /* recommendations --------------------------------------------------- */
@@ -2250,6 +2426,32 @@ button:disabled .sparkle-major { animation: none; }
      way `.reason` is. See the matching `min-width: 0` on `.rec-card` itself. */
   min-width: 0;
   overflow-wrap: anywhere;
+  hyphens: none; /* see the full note at .movie-card__body */
+}
+/* The live toggle for all four `hyphens: none` declarations (search row,
+   ranked card, rec card, verdict text) — see the full note at
+   .movie-card__body for why this exists and why it is scoped to exactly
+   these four selectors, `.review`/`.reason` inheriting theirs from two of
+   them rather than needing their own entry here.
+   Placed here, after all four base rules, on purpose: an equal-specificity
+   override only wins if it is LATER in source order, and .rec-card__body's
+   own `hyphens: none` (just above) is the last of the four to appear in this
+   file — `.verdict__text`'s sits much earlier (near the top, with the rest of
+   the verdict banner). A media query placed any earlier than ALL FOUR would
+   be silently overridden by whichever base rule came after it.
+   400px, inclusive — changed from the original 399px (which read the user's
+   first wording, "narrower than 400px", literally) at their own follow-up
+   request. Now the SAME boundary as the unrelated `max-width: 400px` query
+   elsewhere in this file (the score row's grid-column fix), which is a
+   coincidence of two separate asks landing on the same number, not a
+   dependency — do not merge the two queries, they style different things. */
+@media (max-width: 400px) {
+  .movie-card__body,
+  .rec-card__body,
+  .result-row,
+  .verdict__text {
+    hyphens: manual;
+  }
 }
 .rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
@@ -3040,6 +3242,29 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-table tbody tr:last-child td:not(:last-child) {
     border-bottom: 1px solid var(--line-faint);
   }
+  /* Step 5, user-raised with a screenshot: "TOTAL TOKENS" wrapped to two lines
+     and read right-aligned instead of left. Root cause: this pseudo-element
+     sets no `text-align` of its own, so it INHERITS `text-align: right` from
+     `.log-table td` above — the rule that correctly right-aligns the VALUE
+     column. On a single-line label that is invisible: a floated box with no
+     explicit width shrinks to fit its own content, so there is no leftover
+     space for `text-align` to redistribute either way. It only becomes
+     visible once a label actually wraps, where the shorter line then sits
+     flush against the box's RIGHT edge instead of its left.
+     `text-align: left` here is the fix, and here (the general rule) rather
+     than only on `:has(.sub)::before` below (the label the user's screenshot
+     actually showed) is what makes it complete: neither rule sets
+     `text-align` today, both inherit `right` from the same place, and a fix
+     placed on just one would leave the exact same bug live on the other.
+     Checked against every label this table can show (`Feature`, `Prompt`,
+     `Model`, `Tokens`, `Cost`, `Duration`, `Status`, `Result`, `Time`, `Total
+     tokens`, `Total cost`, `Total duration`) — the three "Total …" labels are
+     the only ones long enough to wrap in practice, and "Total duration" (14
+     characters) is LONGER than "Total tokens" (12) and shares the exact same
+     cell width in card mode, so it wraps at an equal-or-wider viewport and
+     was already showing the identical bug, unphotographed. This one
+     declaration fixes it too, for the same inheritance reason — not two
+     separate patches for two labels that happen to look different. */
   .log-table td::before {
     content: attr(data-label);
     float: left;
@@ -3049,6 +3274,7 @@ body:has(dialog[open]) { overflow: hidden; }
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-align: left;
   }
 
   /* Cells with a sub-line (only Tokens: "428" stacked over "355 in / 73 out")
@@ -3067,6 +3293,11 @@ body:has(dialog[open]) { overflow: hidden; }
     float: none;
     margin-right: 0;
     grid-row: 1 / span 2;
+    /* Positions the BOX at the start of the grid cell — a different concern
+       from the TEXT inside it wrapping right-aligned, which is what the
+       user's screenshot actually showed. That is `text-align: left` on the
+       shared `.log-table td::before` rule above, inherited here on purpose;
+       do not duplicate it in this rule. */
     justify-self: start;
   }
   .log-table td:has(.sub) > .sub { grid-column: 2; }
@@ -3141,15 +3372,58 @@ body:has(dialog[open]) { overflow: hidden; }
 .toast {
   position: fixed;
   bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(1rem);
+  /* Step 5, user-caught: `left: 50%` + `width: auto` was quietly starving the
+     shrink-to-fit calculation of half the viewport. Transforms are a
+     post-layout visual effect — they never feed back into sizing — so the
+     browser computes the box's width BEFORE `translateX(-50%)` ever runs,
+     using `left: 50%` as if the box's untransformed left edge really did sit
+     at the horizontal centre. That leaves only the space from there to the
+     viewport's right edge as "available" for shrink-to-fit, i.e. roughly
+     HALF the real viewport — measured directly on a reported bug: a 380px
+     viewport produced a 187px-wide toast for a message that should have
+     rendered as one full-width line. 380/2 = 190, near-exact.
+     `left: 0; right: 0` gives shrink-to-fit the FULL viewport instead —
+     both edges are pinned, so there is no anchor-point ambiguity. `width:
+     fit-content` asks for the shrink-to-fit size explicitly rather than
+     relying on the `auto` case again, and `margin-inline: auto` centres the
+     now-correctly-sized box within that full span — the same centring
+     principle `.noposter__icon` already uses one screen down (`inset: 0` +
+     `margin: auto` over `top/left: 50%` + a translate), for an analogous
+     reason: a percentage anchor plus a compensating transform is two moving
+     parts standing in for what one non-percentage technique does directly.
+     `transform` now only carries the vertical entrance offset — the
+     horizontal half was purely compensating for `left: 50%` and has nothing
+     left to correct. */
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-inline: auto;
+  transform: translateY(1rem);
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-left: 3px solid var(--amber);
   color: var(--ink);
   padding: 0.7rem 1.1rem;
   border-radius: 10px;
-  box-shadow: var(--shadow);
+  /* `var(--shadow)` alone (a BLACK drop shadow) is D-044's exact trap: on
+     `--bg: #0b0b0f` there is almost nothing left for black to darken. By the
+     numbers, `--shadow`'s 0.7-alpha black over this background moves the
+     rendered colour from rgb(11,11,15) to roughly rgb(3,3,5) — an 8-unit
+     shift, essentially invisible, which is exactly why the user reported it
+     as "barely visible at all". Kept as the FIRST layer anyway: the toast can
+     still overlap a lighter poster or bright text below it, where a directional
+     black shadow does real work.
+     The second layer is what actually sells "floating above the page" here —
+     a soft WHITE glow, the same fix D-044/R14/R15/the GitHub link all use on
+     this background: light is visible against near-black where black is not.
+     Neutral white, not amber: the border-left already carries the success/
+     error distinction (var(--amber) / var(--crimson)), so the shadow's job is
+     depth alone, not a second status signal — one glow covers both states
+     without a `.toast.err` override. Zero Y-offset on this layer specifically
+     (unlike the kept black one): it is a glow, not a cast shadow, so it must
+     radiate evenly rather than pool toward one edge (D-044). Tuned by eye,
+     like every other dimension in this file. */
+  box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.16);
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s var(--ease);
   z-index: 10000;
@@ -3159,8 +3433,57 @@ body:has(dialog[open]) { overflow: hidden; }
      out of the rounded panel. Same one-line guard the dialogs and cards carry. */
   overflow-wrap: anywhere;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show { opacity: 1; transform: translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
+
+/* Step 5, user-raised: the toast is otherwise shrink-to-fit (no `width`, just
+   the `max-width: 90vw` ceiling above), so a short message like "Saved." sits
+   narrow while a long error stretches wider — fine on a wide screen, cramped
+   on a phone, where every extra millimetre of tap-target and line width
+   counts. Two tiers, wider than "normal" — never narrower, both are strictly
+   additive on top of the base rule above.
+   SCOPED to `.toast.is-long` — user-raised, same day, with a worked example:
+   a short toast ("Dune saved.") must look IDENTICAL at 1000px, 600px and
+   450px, and only widen once its text would already need more than one line
+   at a normal, >700px width. That "would it wrap at normal width" question
+   cannot be answered by CSS alone — a media query only knows the CURRENT
+   viewport, not whether a piece of TEXT would fit at a DIFFERENT, wider one —
+   so `toastIsLong()` in app.js measures it once per call (an invisible,
+   unconstrained probe sharing this class, so font/padding/border match
+   exactly) and toggles `is-long` before the toast is ever shown. A short
+   toast never carries the class, so it keeps the base rule's shrink-to-fit
+   sizing at every width, exactly as asked.
+   `min-width`, not `width`, at 700px — a FLOOR, not a fixed size: it only
+   pulls up a toast that would otherwise be narrower than this, so a short-
+   but-still-long-enough-to-wrap toast gets noticeably wider while an
+   already-wide error is untouched.
+   Tuned by eye like every other dimension in this file. */
+@media (max-width: 700px) {
+  .toast.is-long { min-width: 25rem; }
+}
+/* At 500px the ask changes shape — every LONG toast should read as nearly
+   full-width with a small margin either side, not just "wider than its own
+   content". That needs an explicit `width`, not another floor. Still gated
+   on `.is-long`, for the exact same reason as the 700px tier above.
+   `min-width: 0` resets the 700px tier's floor -- left in place, it would win
+   over this narrower width the moment `calc(100% - 1.5rem)` dropped below
+   25rem (viewports under ~424px), forcing the toast WIDER than the viewport
+   itself and overflowing it sideways. `max-width` is raised to match `width`
+   for the same reason in the other direction: the base rule's `max-width:
+   90vw` is NARROWER than `calc(100% - 1.5rem)` at this breakpoint (450px vs
+   476px at exactly 500px wide), and would otherwise claw the edge-to-edge
+   look back down to a wider, un-asked-for margin.
+   `%`, not `vw`, in the calc: `.toast` is `position: fixed`, whose containing
+   block for a percentage is the viewport either way, but `%` reads as
+   plainly tied to "the box's own sizing" here, where `vw` would look like an
+   unrelated absolute unit next to the `rem` padding beside it. */
+@media (max-width: 500px) {
+  .toast.is-long {
+    min-width: 0;
+    width: calc(100% - 1.5rem);
+    max-width: calc(100% - 1.5rem);
+  }
+}
 
 /* utilities -------------------------------------------------------- */
 .spinner {
