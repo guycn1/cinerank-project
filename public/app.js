@@ -1678,25 +1678,59 @@ function clearVerdictMeta() {
   el.verdict.querySelector('.ai-meta')?.remove();
 }
 
+/** Is the taste verdict below its rating threshold? ONE predicate, because two
+ *  places now need the answer and an approximation of a rule goes stale the
+ *  moment the rule changes (D-039 is the entry about exactly that). */
+function verdictLocked() {
+  return ratedCount() < state.cfg.minRatedForVerdict;
+}
+
 function syncVerdictAvailability() {
   const need = state.cfg.minRatedForVerdict;
   const have = ratedCount();
-  if (have < need) {
-    el.verdictRefresh.hidden = true;
+  const locked = verdictLocked();
+
+  // DISABLED, NOT HIDDEN (step 4b, the user's call). Below the threshold the
+  // button used to be removed from the page entirely, so a new user saw a banner
+  // with a sentence and no sign that anything would ever appear there. Every
+  // other locked control in this app is disabled rather than absent --
+  // `.recs__trigger` sits greyed with its explanatory hint beside it -- and the
+  // disabled vocabulary was already settled (R13, D-035), so this is consistency
+  // rather than new design. It needed NO new CSS: `.verdict__refresh:disabled`
+  // already existed, its hover is already `:not(:disabled)` guarded, and R15
+  // wrote the sparkle-stop rule as `button:disabled .ai-sparkle`, which covers
+  // this for free -- a locked control must not twinkle, since that invites a
+  // click that does nothing.
+  //
+  // THE GUARD IS NOT OPTIONAL, and it is the bug R1 fixed one section over.
+  // This function runs from `loadMovies()`, so adding or rating a film WHILE a
+  // verdict is generating would otherwise re-enable the button mid-request and
+  // hand a second click to the user. Writing `hidden` was safe to do
+  // unconditionally; writing `disabled` is not. Same guard and same reasoning as
+  // `syncRecommendationsAvailability()`. This only declines to fight a run that
+  // still owns the control.
+  // BECAUSE IT SKIPS, THE RUN MUST HAND THE STATE BACK. Skipping is not free
+  // here the way it is for the recs trigger: removing films mid-request can drop
+  // the count below the threshold, and `busyButton()`'s settle unconditionally
+  // re-enables. The verdict handler's `finally` therefore re-asserts
+  // `verdictLocked()` itself -- see the note there.
+  if (el.verdictRefresh.getAttribute('aria-busy') !== 'true') {
+    el.verdictRefresh.disabled = locked;
+  }
+
+  if (locked) {
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
     el.verdictText.textContent = `Rate at least ${need} movies to get a verdict (you have ${have}).`;
-  } else {
-    el.verdictRefresh.hidden = false;
-    if (!el.verdict.dataset.generated) {
-      el.verdictText.classList.add('is-muted');
-      el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
-    }
+  } else if (!el.verdict.dataset.generated) {
+    el.verdictText.classList.add('is-muted');
+    el.verdictText.textContent = 'Tap “New verdict” for an AI-generated read on your taste.';
   }
 }
 
 el.verdictRefresh.addEventListener('click', async () => {
   const restoreRefresh = busyButton(el.verdictRefresh);
+  setSheenRate(SHEEN_BUSY_RATE); // the ring becomes the progress cue
   clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
   el.verdictText.textContent = 'Consulting the critics…';
@@ -1725,6 +1759,18 @@ el.verdictRefresh.addEventListener('click', async () => {
     }
   } finally {
     restoreRefresh();
+    setSheenRate(1); // settles on success AND on failure, like the button itself
+    // The sync SKIPS this button while a run owns it, so the run has to hand
+    // back the correct state rather than just an enabled button. Removing films
+    // mid-request can drop the count below the threshold, and `restoreRefresh()`
+    // unconditionally re-enables -- which would leave a clickable button on a
+    // locked feature. (The old code survived this by accident: it wrote
+    // `hidden` unconditionally, so the button simply stayed gone.)
+    // NOT `syncVerdictAvailability()`, deliberately: that also writes
+    // `.verdict__text`, so on the failure path it would overwrite the error
+    // message we just put there with the idle placeholder -- the exact shape of
+    // bug R1. Re-assert the one thing the guard skipped, nothing else.
+    el.verdictRefresh.disabled = verdictLocked();
   }
 });
 
@@ -2135,6 +2181,77 @@ document.addEventListener('click', (e) => {
     });
 });
 
+/* ---------- the verdict ring's glint ------------------------------ */
+// Pause the sheen while the banner is off-screen.
+//
+// The glint animates `stroke-dashoffset` across twenty layered dashes, and that
+// is a PAINT property -- it cannot be handed to the compositor the way a
+// transform can, so every frame re-rasterises those strokes and the halo filter
+// on top of them. Measured cost is nil on ordinary hardware and small even on
+// heavily throttled software rendering (the figures are recorded at
+// `.verdict__sheen rect` in styles.css), so this is not fixing a reported
+// problem. It is that the banner sits at the very top of a page whose actual
+// content is the ranked list below it, so anyone scrolled down is paying for an
+// animation they cannot see -- battery and thermals on a phone, mostly.
+//
+// `animation-play-state: paused` FREEZES the dash where it is and resumes from
+// there, so scrolling back finds the band where it left off. That matters more
+// than it sounds: the twenty layers are kept in register by phase offsets
+// (negative `animation-delay`), so anything that restarted them independently
+// would pull the taper apart. Pausing cannot, because it stops and starts them
+// all together.
+//
+// threshold 0, so it pauses only once the banner is COMPLETELY out of view --
+// never while a sliver of it is still on screen.
+//
+// Feature-detected. An engine without IntersectionObserver keeps the animation
+// running, which is exactly today's behaviour, so the fallback is the status quo
+// rather than a broken state. The observer is deliberately never disconnected:
+// it watches one element that lives as long as the document, so there is nothing
+// to leak and nothing to tear down.
+// How much faster the glint travels while a verdict is generating. 5x against
+// the resting 15s lap, i.e. the ~3s the user asked for.
+const SHEEN_BUSY_RATE = 5;
+
+// Speed the glint up (or back down) WITHOUT moving it.
+//
+// This is deliberately not CSS. The obvious version is a `:has([aria-busy])`
+// rule setting a shorter duration, and it was built that way first -- but a CSS
+// animation's progress is `(currentTime / duration)`, so changing the duration
+// re-evaluates the position at the current instant and THE DASH JUMPS. The user
+// reported it as noticeable even with the eye on the button, which it is.
+//
+// `playbackRate` is the fix, and it fixes it by construction rather than by
+// hiding it: the Web Animations API preserves `currentTime` when the rate
+// changes, so the band carries on from exactly where it was and only its
+// velocity changes. Verified before building: at the moment of the switch the
+// duration swap moved a layer from 0.4867 to 0.4333 of its cycle, while the rate
+// change left it at 0.4867 exactly.
+//
+// It also keeps the twenty layers in register for free, which the CSS route had
+// to work for. Each layer's phase lives in its own `currentTime`, so preserving
+// every currentTime preserves every offset between them -- no rescaling of the
+// delays, and the taper cannot smear.
+//
+// `getAnimations()` is feature-detected, and under `prefers-reduced-motion` it
+// returns an empty list because the global rule removes the animation outright,
+// so this is a no-op exactly where it should be. The brightness half of the cue
+// is still CSS, since opacity transitions smoothly and has no jump to fix.
+function setSheenRate(rate) {
+  document.querySelectorAll('.verdict__sheen rect').forEach((r) => {
+    r.getAnimations?.().forEach((anim) => { anim.playbackRate = rate; });
+  });
+}
+
+function pauseSheenOffscreen() {
+  const banner = document.getElementById('verdict');
+  if (!banner || typeof IntersectionObserver !== 'function') return;
+  new IntersectionObserver(
+    ([entry]) => banner.classList.toggle('is-offscreen', !entry.isIntersecting),
+    { threshold: 0 },
+  ).observe(banner);
+}
+
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
   // Both AI triggers get the sparkle. Injected here, before anything can put a
@@ -2143,6 +2260,7 @@ document.addEventListener('click', (e) => {
   // snapshot is taken or it would not come back.
   el.recsTrigger.prepend(sparkleNode());
   el.verdictRefresh.prepend(sparkleNode());
+  pauseSheenOffscreen();
   try {
     state.cfg = await api('/api/config');
   } catch { /* keep defaults */ }

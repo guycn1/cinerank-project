@@ -150,18 +150,66 @@ a:hover { text-decoration: underline; }
 /* film-grain overlay --------------------------------------------------------- */
 .grain {
   position: fixed;
-  /* Bleed past every edge. The grain animation translates this layer by up to
-     translate(-3%, 2%); at inset:0 that briefly left a ~3% strip at the right
-     (and top) edge uncovered, which flickered as a dark bar. Overhanging the
-     viewport keeps the shift fully covered — the grain + motion are unchanged. */
+  /* Bleed past every edge, and THIS IS LOAD-BEARING RATHER THAN STYLING. The
+     animation below translates this layer; at inset:0 that briefly left a strip
+     at the right and top edges uncovered, which flickered as a dark bar.
+     The budget, so a future retune does not walk off the edge: translate
+     percentages resolve against the element's OWN box, which is 116% of the
+     viewport (100 + 8 + 8). The largest offset used below is 4%, i.e. 4.64% of
+     the viewport, against 8% of overhang on each side. Stay under ~6.9%. */
   inset: -8%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.06;
+  /* 0.035 -> 0.06 -> 0.1, the last step by the user's eye on 2026-09-12 AFTER
+     the resample fix below. Order matters: see the note at `animation`. */
+  opacity: 0.1;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 0.5s steps(2) infinite;
+  /* steps(1) per interval, so each keyframe HOLDS and the grain jumps between
+     discrete positions rather than sliding between them. Ten positions in 0.7s
+     is ~14 changes a second.
+     IT WAS `0.5s steps(2)`, WHICH IS THE WHOLE REASON IT READ AS INVISIBLE:
+     steps(2) over a two-keyframe animation gives the grain exactly TWO states,
+     alternating 4 times a second. That is a static texture with an occasional
+     twitch, not grain. Real film resolves fresh grain ~24 times a second, and
+     the eye reads that shimmer as texture even when each frame is faint.
+     BRIGHTNESS WAS NEVER THE PRIMARY PROBLEM, and the history proves it: the
+     opacity had already been pushed 0.035 -> 0.06 in an earlier session and the
+     living log's own verdict was "still subtle". `fractalNoise` has a non-zero
+     mean, so over a `#0b0b0f` page more opacity adds a grey VEIL before it adds
+     visible speckle — which is why turning that dial alone could not work.
+     It was raised again to 0.1 once the resampling above was in, and that is the
+     right ORDER rather than a contradiction: with the texture actually
+     refreshing there is speckle for the extra opacity to strengthen, where
+     before there was only a veil to thicken. If it is ever pushed much past
+     this, expect the veil to reappear — the fix then is a zero-mean noise
+     source (an `feComponentTransfer` on the alpha), not more opacity.
+     MIX-BLEND-MODE WAS THE OTHER CANDIDATE AND IS WRONG HERE — measured, not
+     assumed. `overlay` maps a full-white speck to +0.043 over this page's
+     background but +0.450 over a poster midtone, so it would move the grain ONTO
+     the posters and OFF the dark background, which is the opposite of the ask.
+     (It is the physically correct film behaviour, which is why it looks right in
+     the abstract and wrong on this page.) `soft-light` is gentler but tilts the
+     same way. Do not re-open that without re-running the numbers. */
+  animation: grain 0.7s steps(1) infinite;
 }
-@keyframes grain { to { transform: translate(-3%, 2%); } }
+/* Ten pseudo-random offsets rather than one destination. With `steps(1)` the
+   animation holds each until the next, so the texture RESAMPLES instead of
+   drifting along a single diagonal — which is what `steps(2)` on a two-keyframe
+   version did, and it reads as a slide rather than as grain.
+   Every offset is within +-4%; see the budget note at `.grain`'s `inset`. */
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-3%, -2%); }
+  20%  { transform: translate(2%, -4%); }
+  30%  { transform: translate(-4%, 3%); }
+  40%  { transform: translate(3%, 1%); }
+  50%  { transform: translate(-2%, 4%); }
+  60%  { transform: translate(4%, -3%); }
+  70%  { transform: translate(-3%, -4%); }
+  80%  { transform: translate(1%, 3%); }
+  90%  { transform: translate(-4%, -1%); }
+  100% { transform: translate(0, 0); }
+}
 
 main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 
@@ -373,7 +421,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      else — so it is the biggest single multiplier on the effect. 2px → 3px on
      the user's call. Coupled to .verdict__inner's border-radius below: both must
      move together or the inner corners stop nesting cleanly. */
-  padding: 3px;
+  padding: 2.5px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   /* Step 4b took FIVE passes. Keeping the dead ends because every one of them
@@ -416,57 +464,210 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      decision, not Claude's. */
   box-shadow: var(--shadow);
 }
-/* The travelling glint. A STROKE DASH, which is the only one of the four
-   mechanisms tried that gives a constant width AND a constant speed: a dash
-   moves along the path itself, so neither can vary with where it happens to be.
-   Held 1.5px inside the banner (by explicit top/left/width/height — NOT by
-   `inset`, see the rule below) with a 3px stroke centred on that path, so the
-   stroke occupies exactly 0–3px from the banner's edge: precisely .verdict's
-   padding ring, flush against .verdict__inner, which starts at 3px.
-   `pathLength="100"` on the rect (set in the markup) renormalises the perimeter
-   to 100 units, which is what makes `stroke-dasharray: 7 93` mean "7% of the
-   ring, whatever the banner's width" — no JS measuring, and it survives a
-   resize for free. The two numbers MUST sum to 100, or there is either a second
-   dash on the ring or a gap in the loop.
+/* The travelling glint. STROKE DASHES — the only one of the mechanisms tried
+   that holds a constant width AND a constant speed, because a dash moves along
+   the path itself, so neither can vary with where it happens to be.
+   Held W/2 inside the banner (by explicit top/left/width/height — NOT by
+   `inset`, see the rule below) with a W-wide stroke centred on that path, so it
+   occupies exactly 0..W from the banner's edge: precisely .verdict's padding
+   ring, flush against .verdict__inner. W is the ring width, and it is FIVE
+   coupled values — they are enumerated at .verdict's `padding`.
+   `pathLength="100"` on each rect (set in the markup) renormalises the perimeter
+   to 100 units, which is what makes a dasharray mean "n% of the ring, whatever
+   the banner's width" — no JS measuring, and it survives a resize for free.
+   Each pair MUST sum to 100, or there is either a second dash on the ring or a
+   gap in the loop.
    Dashoffset then runs one whole perimeter per iteration, `linear`, so the loop
-   is seamless with no reversal. */
+   is seamless with no reversal.
+   THERE ARE TWENTY OF THEM, not one, and that is the whole of the "smooth
+   edges" answer — see the block below the shared rule. */
 .verdict__sheen {
   position: absolute;
   display: block;
-  /* SIZED EXPLICITLY, and `inset: 1.5px` is NOT enough — that was a real bug.
+  /* SIZED EXPLICITLY, and an `inset: W/2` shorthand is NOT enough — that was a
+     real bug, hit with `inset: 1.5px` back when the ring was 3px.
      An <svg> is a REPLACED element, so `inset` only positions it; it does not
      stretch it the way it would a <div>. With `width: auto` the SVG keeps its
      intrinsic 300x150, so the viewport stayed 300x150 however wide the banner
      was, the rect filled THAT, and `overflow: visible` then let the stroke spill
      out of the banner and run down the page past the search box.
      top/left rather than `inset`, so width/height are never over-constrained. */
-  top: 1.5px;
-  left: 1.5px;
-  width: calc(100% - 3px);
-  height: calc(100% - 3px);
-  /* Required: the viewport is the inset box, so the outer half of a 3px stroke
-     centred on the path would otherwise be clipped away. */
+  top: 1.25px;
+  left: 1.25px;
+  width: calc(100% - 2.5px);
+  height: calc(100% - 2.5px);
+  /* Required: the viewport is the inset box, so the outer half of the stroke
+     (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
+  /* THE ONE KNOB FOR SPEED. Every layer reads this for BOTH its duration and its
+     delay, which is what lets the busy state change the speed with a single
+     declaration — see the note on the layer block, trap 1. */
+  --sheen-dur: 15s;
+  /* THE ONE KNOB FOR BRIGHTNESS, and it is a ratio rather than a taste value.
+     The twenty layers are authored at the BUSY peak (0.80); this scales the
+     whole group back to the resting peak (0.55). 0.55 / 0.80 = 0.6875.
+     Group opacity scales a composite LINEARLY, and `0.80 * bell(x) * 0.6875` is
+     exactly `0.55 * bell(x)`, so the resting band is identical to authoring the
+     layers at 0.55 directly — not an approximation of it. That matters because
+     the alphas cannot simply be scaled (trap 2 on the layer block).
+     THE HALO BELOW IS INSIDE THIS GROUP AND SO IS SCALED TOO — which is exactly
+     right and needs no compensating tweak: the drop-shadow is computed from
+     layers that are 0.80/0.55 = 1.4545x brighter, and 1.4545 * 0.6875 = 1.000,
+     so the resting glow also lands unchanged. Do not "fix" the shadow alpha. */
+  opacity: 0.6875;
+  /* Brightness is a STATE change, not motion, so it eases even though the speed
+     jump cannot. Killed by the reduced-motion block, where it simply snaps —
+     correct, since the cue itself must survive for users who get no animation. */
+  transition: opacity 0.35s ease;
+  /* ONE halo for the whole stack, deliberately on the SVG ROOT rather than on
+     each rect: twenty stacked drop-shadows would both compound the glow and pay
+     for twenty filter passes a frame instead of one. It is also what R15 says to
+     do — a CSS filter on an SVG CHILD resolves its lengths in the local user
+     coordinate system, where they would scale with the rendered size. (Safe
+     either way here, since the <svg> carries no viewBox and user units are CSS
+     pixels 1:1, but the root is the rule.)
+     Light, zero-offset, warm — D-044, same as every other glow in this file. */
+  filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
 }
 .verdict__sheen rect {
   width: 100%;
   height: 100%;
-  rx: calc(var(--radius) - 1.5px);   /* tracks .verdict's radius and inset */
+  rx: calc(var(--radius) - 1.25px);   /* tracks .verdict's radius and inset */
   fill: none;
-  stroke: rgba(255, 253, 248, 0.98);
-  stroke-width: 3px;
+  stroke-width: 2.5px;
   stroke-linecap: round;
-  stroke-dasharray: 7 93;
-  /* Light, zero-offset, warm — D-044's rule, same as every other glow here. */
-  filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
-  animation: sheen 9s linear infinite;
+  animation: sheen var(--sheen-dur) linear infinite;
+  /* NOT a hardcoded time. `--shift` is each layer's phase as a FRACTION of one
+     cycle, so the delay rescales with the duration automatically and the twenty
+     layers stay nested at any speed (trap 1). */
+  animation-delay: calc(var(--sheen-dur) * var(--shift) * -1);
+}
+/* ===================== THE TAPERED BAND ===========================
+   TWENTY dashes of decreasing length, centred on each other, whose alphas
+   COMPOSITE into a falloff instead of a hard end. This is what makes the band
+   fade in and out along its direction of travel rather than switching on and
+   off — a gradient along the path, which is the one thing a stroke dash cannot
+   express directly.
+   DO NOT HAND-EDIT THESE TWENTY LINES. They are generated; four separate things
+   below are derived from the same parameters, and changing one by eye silently
+   breaks the others. Regenerate instead (the generator is tiny — N layers, band
+   half-length R, and the BUSY peak; it emits exactly this block).
+   NOTE THE ALPHAS HERE ARE THE BUSY ONES (peak 0.80). The resting look comes
+   from the group `opacity: 0.6875` on .verdict__sheen, which is 0.55/0.80 and
+   scales the whole composite back down — see the note at that declaration.
+
+   1. CENTRING IS DONE WITH NEGATIVE `animation-delay`, NOT `stroke-dashoffset`.
+      A static offset would leave each layer travelling less than a full 100
+      units, so every layer would snap at its own loop point. A negative delay
+      shifts WHERE IN THE CYCLE a layer starts while it still runs the whole
+      0 -> -100.
+      Each layer therefore carries `--shift`, its phase as a FRACTION of one
+      cycle ((R - halfLength) / 100), and the delay is computed from it in the
+      shared rule above. Storing a fraction rather than a time is what makes
+      point 2 a non-issue.
+   2. THEREFORE THE DELAYS ARE DERIVED FROM THE DURATION. A delay is an absolute
+      time, so changing `animation`'s duration alone multiplies every layer's
+      phase shift and the twenty stop nesting — the taper smears across the ring
+      instead of forming a band. Duration and delays move together, always.
+      THIS IS ALREADY SOLVED: both the duration and every delay are derived
+      from one inherited `--sheen-dur`, so changing that single value rescales
+      all twenty phases with it. Never reintroduce a literal time here.
+      NOTE THE BUSY CUE DOES NOT USE IT. Changing the duration at all -- even
+      correctly, with the delays following -- makes the dash JUMP, because a CSS
+      animation re-evaluates `(currentTime / duration)` at the moment of the
+      change. The busy state sets `playbackRate` from app.js instead, which
+      preserves currentTime. So `--sheen-dur` is the RESTING speed knob only.
+   3. THE ALPHAS ARE SOLVED, NOT CHOSEN, and they are NOT proportional to the
+      brightness. Layers composite multiplicatively: total = 1 - PROD(1 - a_i).
+      So scaling them all by a constant does NOT scale the band — it saturates
+      the core toward 1 while the tips rise linearly, which FLATTENS the taper
+      back into a hard-edged bar. (Tried by the user: quadrupling every alpha
+      took the core/tip ratio from 7:1 down to 4.4:1 and looked worse.)
+      That is also why the busy state changes GROUP OPACITY rather than these
+      values: opacity scales a composite linearly, where scaling the alphas does
+      not scale the band at all.
+      Instead pick the target profile C_k = PEAK * bell(distance from centre)
+      and solve each layer from the one before it:
+          a_k = 1 - (1 - C_k) / (1 - C_k-1)
+      The result is counter-intuitive and worth seeing before "correcting" it:
+      THE ALPHAS ARE NOT MONOTONIC. They peak around the middle layer and come
+      back down, because the inner layers paint onto an already-part-opaque
+      stack and need less of their own alpha to move the total.
+   4. TWENTY IS NOT DECORATION — IT IS THE ANTI-BANDING NUMBER. Each layer is a
+      hard-edged dash, so N layers can only ever make N steps. At five the band
+      was a visible STAIRCASE (max step 0.176 in composite opacity, obvious on
+      screen and photographed by the user). Twenty puts the max step at 0.043,
+      under the threshold where the eye reads it as a seam. If these are ever
+      thinned for performance, this is what gets traded away.
+   Judge only the composite; no single alpha here means anything on its own
+   (the largest is 0.1305, and it sits at layer 16 rather than at the core).
+   Resting composite runs 0.001 at the tips to 0.549 at the core; busy, with the
+   group opacity at 1, it runs 0.001 to 0.799. */
+.verdict__sheen rect:nth-child(1) { stroke-dasharray: 10 90; stroke: rgba(255,253,248,0.0012); --shift: 0; }
+.verdict__sheen rect:nth-child(2) { stroke-dasharray: 9.5 90.5; stroke: rgba(255,253,248,0.0098); --shift: 0.0025; }
+.verdict__sheen rect:nth-child(3) { stroke-dasharray: 9 91; stroke: rgba(255,253,248,0.0196); --shift: 0.005; }
+.verdict__sheen rect:nth-child(4) { stroke-dasharray: 8.5 91.5; stroke: rgba(255,253,248,0.0294); --shift: 0.0075; }
+.verdict__sheen rect:nth-child(5) { stroke-dasharray: 8 92; stroke: rgba(255,253,248,0.0392); --shift: 0.01; }
+.verdict__sheen rect:nth-child(6) { stroke-dasharray: 7.5 92.5; stroke: rgba(255,253,248,0.0491); --shift: 0.0125; }
+.verdict__sheen rect:nth-child(7) { stroke-dasharray: 7 93; stroke: rgba(255,253,248,0.0591); --shift: 0.015; }
+.verdict__sheen rect:nth-child(8) { stroke-dasharray: 6.5 93.5; stroke: rgba(255,253,248,0.0691); --shift: 0.0175; }
+.verdict__sheen rect:nth-child(9) { stroke-dasharray: 6 94; stroke: rgba(255,253,248,0.0793); --shift: 0.02; }
+.verdict__sheen rect:nth-child(10) { stroke-dasharray: 5.5 94.5; stroke: rgba(255,253,248,0.0894); --shift: 0.0225; }
+.verdict__sheen rect:nth-child(11) { stroke-dasharray: 5 95; stroke: rgba(255,253,248,0.0994); --shift: 0.025; }
+.verdict__sheen rect:nth-child(12) { stroke-dasharray: 4.5 95.5; stroke: rgba(255,253,248,0.1090); --shift: 0.0275; }
+.verdict__sheen rect:nth-child(13) { stroke-dasharray: 4 96; stroke: rgba(255,253,248,0.1178); --shift: 0.03; }
+.verdict__sheen rect:nth-child(14) { stroke-dasharray: 3.5 96.5; stroke: rgba(255,253,248,0.1251); --shift: 0.0325; }
+.verdict__sheen rect:nth-child(15) { stroke-dasharray: 3 97; stroke: rgba(255,253,248,0.1299); --shift: 0.035; }
+.verdict__sheen rect:nth-child(16) { stroke-dasharray: 2.5 97.5; stroke: rgba(255,253,248,0.1305); --shift: 0.0375; }
+.verdict__sheen rect:nth-child(17) { stroke-dasharray: 2 98; stroke: rgba(255,253,248,0.1247); --shift: 0.04; }
+.verdict__sheen rect:nth-child(18) { stroke-dasharray: 1.5 98.5; stroke: rgba(255,253,248,0.1100); --shift: 0.0425; }
+.verdict__sheen rect:nth-child(19) { stroke-dasharray: 1 99; stroke: rgba(255,253,248,0.0842); --shift: 0.045; }
+.verdict__sheen rect:nth-child(20) { stroke-dasharray: 0.5 99.5; stroke: rgba(255,253,248,0.0465); --shift: 0.0475; }
+
+/* PAUSED WHILE OFF-SCREEN. The class is set by pauseSheenOffscreen() in app.js;
+   the reasoning is at that function. `animation-play-state` freezes the dash in
+   place and resumes from there, which is required rather than merely tidy: the
+   twenty layers are held in register by phase offsets, so anything that
+   restarted them independently would pull the taper apart. Pause stops and
+   starts all twenty together.
+   Inert under prefers-reduced-motion, where the global `animation: none
+   !important` has already removed the animation outright. */
+.verdict.is-offscreen .verdict__sheen rect { animation-play-state: paused; }
+
+/* ===== THE BUSY CUE (step 4b) =====================================
+   While "New verdict" is generating, the band BRIGHTENS here and SPEEDS UP in
+   app.js. The split is not arbitrary — each half is done wherever it can be done
+   without a visible seam.
+   BRIGHTNESS BELONGS IN CSS: opacity transitions smoothly, so there is nothing
+   to hide. `opacity: 1` lifts the group from its resting 0.6875 back to the
+   authored peak (0.80), and the transition on .verdict__sheen eases it.
+   SPEED DELIBERATELY DOES NOT. A `--sheen-dur: 3s` here was the first build and
+   it is the one thing that cannot be done in CSS cleanly: a CSS animation's
+   progress is `(currentTime / duration)`, so a new duration re-evaluates the
+   position at that instant and THE DASH JUMPS. The user reported it as plainly
+   visible. `setSheenRate()` in app.js sets `playbackRate` on the twenty
+   animations instead, which preserves currentTime and changes only the velocity
+   — no jump, and the layers stay in register for free. Do not reintroduce a
+   duration override here; read the note at that function first.
+   NO CLASS AND NO STATE OF OUR OWN. `busyButton()` already sets `aria-busy` on
+   the trigger for exactly the right window and clears it in the `finally` that
+   restores the label, so this cue cannot get stuck on and it ends on an ERROR
+   just as it does on success.
+   Reduced motion: the global `animation: none !important` removes the travel, so
+   the speed half is silently dropped (and `getAnimations()` returns nothing,
+   making setSheenRate a no-op). The brightness half still lands, since opacity
+   is not an animation. Either way the button's own spinner and label remain the
+   primary signal — this was never allowed to be the only indication that a call
+   is in flight. */
+.verdict:has(#verdict-refresh[aria-busy='true']) .verdict__sheen {
+  opacity: 1;
 }
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);
   /* Tracks .verdict's padding — see the note there. */
-  border-radius: calc(var(--radius) - 3px);
+  border-radius: calc(var(--radius) - 2.5px);
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;
@@ -1599,6 +1800,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    — a `fill` here would work today and would silently stop following anything
    the icon is later asked to inherit. */
 .verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; color: var(--amber); }
+/* ...but NOT while the button is disabled, where the amber above would be the
+   only thing still holding its colour. The label dims and the icon did not, so a
+   locked control sat there with a bright gold mark on it — which is exactly the
+   "invites a click that does nothing" problem R15 switched the animation off to
+   avoid, in colour rather than in motion. The user caught it against the recs
+   trigger, where it is right by accident: that sparkle carries NO colour of its
+   own, so it inherits `currentColor` and follows `.recs__trigger:disabled`'s
+   `--ink-faint` for free.
+   `inherit` rather than a hardcoded token, so the icon tracks whatever the
+   button's own disabled colour becomes and the two can never drift apart. The
+   two buttons still dim to different values, and that is R25 standing: their
+   chrome is deliberately not unified. What is unified is that on EACH button the
+   mark matches its own label. */
+.verdict__refresh:disabled .ai-sparkle { color: inherit; }
 /* The big star twinkles; the small one holds still. Both moving reads as a
    throbbing icon, one moving reads as a catch of light — which is the whole
    difference between "shiny" and "distracting" on an element that is on screen
