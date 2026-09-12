@@ -73,6 +73,67 @@ deliberately preserved inside the blocker entry that documents this work — whi
 is itself the trap a blind find-and-replace would have sprung, since that entry
 quotes the escape sequences as examples.
 
+### Addendum: the full audit, and the defect that had been there for weeks
+
+The user asked for a proper verification pass — every markdown file rendered end
+to end, and the checker itself proved free of false positives and negatives. Both
+found something.
+
+**The render audit compared SOURCE STRUCTURE to RENDERED OUTPUT** for all 15
+markdown files (the five docs plus all ten prompt versions): heading counts,
+fenced blocks, table rows, list items and code spans on each side, plus a scan of
+the output for markdown that had leaked into a paragraph. Four files flagged.
+Three were detector artefacts — a deliberately numbered bold paragraph reading as
+a list, and code-span content counting as "visible prose" once tags were
+stripped. **The fourth was real, and nothing had ever caught it.**
+
+`docs/DECISIONS.md` D-011 tried to show the three characters `tidyVerdict()`
+strips, escaping the backtick with a backslash. Escapes do not work inside a code
+span (rule 1), so the run never closed and **GitHub swallowed the rest of the
+sentence into the code element.** It had rendered that way for weeks, through a
+full staleness sweep and two markdown passes.
+
+(Both forms are shown in a fenced block below, because quoting a broken delimiter
+inline is exactly the problem being described — the checker rejected a first
+attempt at this very paragraph, which is a fair advertisement for it.)
+
+```
+broken:  strips `* _ \``, and ...
+fixed :  strips `` * _ ` ``, and ...
+```
+
+**Worse: the checker was actively hiding it.** Its allowlist carried that exact
+span, justified as "the literal chars tidyVerdict() strips" — a guess that the
+backslash was content. It was a failed escape. The entry is removed, and the
+allowlist now warns that an addition must be a backslash which is genuinely part
+of what is being shown.
+
+**Why no existing rule caught it.** Rule 1 looks for a backslash FOLLOWED BY a
+punctuation character; here the backslash was the last character before the
+delimiter. A per-line backtick-parity check does not work either — a code span
+may legally wrap across lines, so 65 lines in these files carry an odd count and
+are all correct. The unit has to be the PARAGRAPH, and the test CommonMark's own:
+an opening run of N backticks is closed by the next run of EXACTLY N. Run at
+paragraph level across all 15 files, exactly one paragraph failed — this one.
+
+That is now rule 2 in `check-markdown`. **Its first implementation was wrong in a way
+worth recording**: it matched runs with a stack, which is not what CommonMark
+does, and it rejected the very fix it was meant to accept (double delimiters
+holding a literal backtick). Corrected to forward-scanning.
+
+**The checker is now verified in both directions**: 19 cases, 8 that must fail and
+11 that must pass, covering every rule plus the traps around them — escapes inside
+fenced blocks, escapes in plain text, a Windows path and a regex token as real
+content, a span wrapped across lines, and the double-delimiter fix. 19/19.
+
+**And the final render audit passes on all 15 files**: code-span counts match
+exactly between source and output, and no escape or stray backtick reaches the
+prose in any file.
+
+**The pattern across this whole entry is one thing.** Every defect here was found
+by asking a question at the right unit — the class, not the character; the
+paragraph, not the line; the rendered HTML, not the source — and every one was
+missed by a check that looked green at the wrong unit.
 ### Addendum, next day: the separators came out of every file, and the rule became enforceable
 
 This entry originally carved out an exception — `docs/DECISIONS.md` "keeps its 65
@@ -2970,7 +3031,7 @@ file; v1/v2 untouched.
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
 literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
-title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `* _ \``, and
+title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `` * _ ` ``, and
 if still over a 300-char ceiling truncates at the last sentence end (else last
 word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
 file; `taste_verdict_v1.md` untouched.

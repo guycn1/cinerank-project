@@ -3395,12 +3395,20 @@ down would be re-broken within a session. See D-065.
    backslash that is genuinely part of what you are showing — a Windows path, a
    regex token — is fine, and `scripts/check-markdown.js` carries a small
    whole-span allowlist for those.
-2. **Never write an escaped thematic break.** It renders as a literal `---`
+2. **Never leave a code span unclosed.** A span is closed by the next run of
+   EXACTLY as many backticks as opened it — a run of a different length in
+   between is content, not a delimiter. Get this wrong and the renderer swallows
+   the rest of the sentence into the code element. **To show a literal backtick,
+   use DOUBLE delimiters and pad with spaces** (`` like this ``); escaping it
+   cannot work, by rule 1. This is not visible per line — a span may legally wrap
+   across lines, so an odd backtick count on one line proves nothing. The unit is
+   the paragraph, and `check-markdown` checks it there.
+3. **Never write an escaped thematic break.** It renders as a literal `---`
    paragraph, which reads as debris.
-3. **Never put a bare `---` directly under a line of text.** That is setext
+4. **Never put a bare `---` directly under a line of text.** That is setext
    syntax: it silently promotes the line above to an `<h2>`. Confirmed against
    GitHub's renderer, not assumed.
-4. **Never put a section separator before a heading** — `check-markdown` fails on
+5. **Never put a section separator before a heading** — `check-markdown` fails on
    it. GitHub's own stylesheet already draws a rule under every `h1` and
    `h2`, so a separator there draws two horizontal lines a few dozen pixels
    apart, bracketing a heading that never needed help. **There is now not one
@@ -3409,7 +3417,7 @@ down would be re-broken within a session. See D-065.
    choice" — wrong twice over: there were 38, not 65, and they sat above only 38
    of the 65 entries, so the same boundary was drawn two different ways for no
    reason. The user called it, they are gone, and the file is uniform.
-5. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
+6. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
 
