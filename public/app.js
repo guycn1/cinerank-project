@@ -150,7 +150,7 @@ function toast(message, isError = false) {
   toastTimer = setTimeout(() => {
     el.toast.classList.remove('show');
     setTimeout(() => (el.toast.hidden = true), 300);
-  }, 3200);
+  }, 300000);
 }
 
 /**

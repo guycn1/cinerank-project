@@ -3380,7 +3380,25 @@ body:has(dialog[open]) { overflow: hidden; }
   color: var(--ink);
   padding: 0.7rem 1.1rem;
   border-radius: 10px;
-  box-shadow: var(--shadow);
+  /* `var(--shadow)` alone (a BLACK drop shadow) is D-044's exact trap: on
+     `--bg: #0b0b0f` there is almost nothing left for black to darken. By the
+     numbers, `--shadow`'s 0.7-alpha black over this background moves the
+     rendered colour from rgb(11,11,15) to roughly rgb(3,3,5) — an 8-unit
+     shift, essentially invisible, which is exactly why the user reported it
+     as "barely visible at all". Kept as the FIRST layer anyway: the toast can
+     still overlap a lighter poster or bright text below it, where a directional
+     black shadow does real work.
+     The second layer is what actually sells "floating above the page" here —
+     a soft WHITE glow, the same fix D-044/R14/R15/the GitHub link all use on
+     this background: light is visible against near-black where black is not.
+     Neutral white, not amber: the border-left already carries the success/
+     error distinction (var(--amber) / var(--crimson)), so the shadow's job is
+     depth alone, not a second status signal — one glow covers both states
+     without a `.toast.err` override. Zero Y-offset on this layer specifically
+     (unlike the kept black one): it is a glow, not a cast shadow, so it must
+     radiate evenly rather than pool toward one edge (D-044). Tuned by eye,
+     like every other dimension in this file. */
+  box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.12);
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s var(--ease);
   z-index: 10000;
