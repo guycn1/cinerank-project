@@ -359,7 +359,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
     in card view; summary stays on the label line, panel is a full-width block
     with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
     same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
-* **Taste verdict section — DONE** (2026-09-07).
+* **Taste verdict section — DONE** (2026-09-07). **Three later changes are NOT
+  described in this bullet and are in step 4b instead: the banner's ring gained a
+  travelling glint (2026-09-12), that glint speeds up and brightens while a
+  verdict generates, and "New verdict" is now shown DISABLED when the feature is
+  locked rather than hidden.**
   - "New verdict" gets the same busy state as "Get recommendations": disabled,
     spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
     `:hover:not(:disabled)`. Both buttons lock their width for the duration —
@@ -1544,6 +1548,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (`ease-in`), this sparkle (`ease-in-out`), the ranked card's entrance (a
      gentler ease-out) and the verdict glint (`linear`) — **and the answer was
      still to inline each with a why-comment rather than mint tokens.**
+     (COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number of
+     animations that could plausibly have used `--ease` and deliberately do not.
+     A grep for timing functions returns more — the two `spin`s and the film
+     grain — but those were never candidates: a rotation is linear because it is
+     a rotation, and stepped noise is stepped because it is noise. Still four as
+     of 2026-09-12.)
      `--ease-out` is the name that will not work: `--ease` IS an ease-out, just a
      violently front-loaded one, so a token by that name would read as a synonym
      for the thing it exists to differ from. All four are one-offs with different
@@ -2354,11 +2364,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      as the logo-spin item: the mechanism was there and the effect too subtle to
      notice, so the work was making it VISIBLE — a shorter cycle, a wider colour
      spread, or more gradient travel — not writing an animation.*
-     **What the code is NOW:** a static warm `linear-gradient` ring at
-     `padding: 3px`, with all the movement in `.verdict__sheen` — an SVG
-     `<rect>` stroke-dashed with `pathLength="100"`, travelling the perimeter
-     once per 9s. No `background-position` animation, no `--ease`, no conic
-     gradient, no 220%.
+     **What the code became ON 2026-09-11, when the mechanism landed** (NOT what
+     it is today — the 2026-09-12 rebuild is described at the TOP of this item,
+     and every figure in this paragraph has since moved): a static warm
+     `linear-gradient` ring at `padding: 3px`, with all the movement in
+     `.verdict__sheen` — ONE SVG `<rect>` stroke-dashed with `pathLength="100"`,
+     travelling the perimeter once per 9s. No `background-position` animation, no
+     `--ease`, no conic gradient, no 220%. (It is now a 2.5px ring, TWENTY rects
+     and 15s.) What that paragraph was recording — that the gradient-scrolling
+     approach was gone — is still true.
      **An earlier deletion recorded here was itself right and stays recorded:**
      the item as FIRST drafted called the banner "a static treatment" and
      suggested a `border-image` or masked pseudo-element because "`border-color`
@@ -2431,11 +2445,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      area of the effect and so its biggest single multiplier, and it is coupled
      to `.verdict__inner`'s `border-radius: calc(var(--radius) - 3px)` — **both
      must move together** or the inner corners stop nesting.
-     **One measured limit stands and is deliberately NOT fixed:** the glint
-     reaches 3.40× contrast over `--crimson`, 2.27× over `--amber-deep` and only
-     **1.58× over `--amber`**, so it fades slightly crossing the bright end of
-     the base. The cure is a darker base stop, which would change the banner's
-     colour identity — a design decision left to the user.
+     **One measured limit, AS MEASURED ON 2026-09-11 and superseded by the
+     rebuild:** the glint then reached 3.40× contrast over `--crimson`, 2.27×
+     over `--amber-deep` and only **1.58× over `--amber`**, so it faded slightly
+     crossing the bright end of the base. The shape of that finding still holds
+     — the band is always weakest over `--amber` — but the NUMBERS are long
+     obsolete, and the current profile is a composite of twenty layers rather
+     than one stroke. The cure for the floor was and is a darker base stop, which
+     would change the banner's colour identity — a design decision left to the
+     user.
      Dials, AS THEY WERE ON 2026-09-11: the glint's alpha, its 16° core / ±26°
      falloff, the 9s and the 3px. The 16°/±26° were CONIC parameters and died
      with that pass; the shipped dials are listed at the top of this item.
