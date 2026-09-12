@@ -24,7 +24,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is now IN PROGRESS (started and substantially worked the same day 4b closed) — NOT complete, do not treat it as done.** Landed so far: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** Still to do in step 5: everything else the portrait pass turns up, working down from ~500px toward the ~350px "good enough" floor and stopping at ~290px per the two enforcement rules below.)
+**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, and an EIGHTEENTH followed the same day, 3650f52, folding in the verdict typing effect plus this whole day's step 5 work — see the build-status bullet above for the current count and SHA, this clause is left as the record of when the seventeenth happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **WHAT IS LEFT, and the numbering is a trap: step 4 — the favicon discussion — is the ONLY unstarted item before step 6.** 4b was deliberately pulled in FRONT of step 4 and step 5 then closed after it, so the order actually worked was 3 → 4b → 5 → and back to 4. Steps 1, 2, 3, 4b and 5 are all done; step 4's precondition (the logo being settled) was met on 2026-09-11, and it opens as a DISCUSSION, not a build. Then step 6, the pre-submission blockers. The next-session marker sits on step 4.)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -213,7 +213,15 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
-### Front-end overhaul (in progress — started 2026-09-05)
+### Front-end overhaul (started 2026-09-05 — ALL STEPS DONE as of 2026-09-12, bar the step-4 favicon discussion)
+
+**Status, so this heading is not misread as open-ended work:** every step of the
+agreed order that touches the UI is closed — 1 (mobile keypad), 2 (the R1–R30
+recommendations sub-backlog), 3 (GitHub links), 4b (seven polish items) and 5
+(the portrait overhaul under 500px, closed by the user against the ~350px
+target). **Step 4, the favicon gap, is a DISCUSSION and is the one thing still
+unstarted**; step 6 is pre-submission evidence, not UI. The bullets below are the
+running record of how each piece got there and stay as written.
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -436,9 +444,11 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
   and is recorded in the ranked-list bullets further down, since it came out of
   the same whole-app sweep: the Add button breaking in two, the input refusing to
   yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
-  mid-word, and the new sub-500px grid layout. **More is scheduled:** step 5 of
-  the agreed order is a complete overhaul of the portrait view under 500px, which
-  lands here again.
+  mid-word, and the new sub-500px grid layout. **Step 5, the portrait overhaul
+  under 500px, landed here again on 2026-09-12 and is now CLOSED** — it gave the
+  results panel a height FLOOR (`max(240px, min(340px, 50vh))`) in place of what
+  had become a second ceiling, and soft-hyphenated row titles below 400px
+  (D-060/D-061). Nothing further is scheduled for this section.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
     click the row never had; open results going stale after an add (one
@@ -2325,12 +2335,26 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    box. Both copies carry a comment pointing at the other; edit one, edit both.
 
 4. **Then discuss the favicon gap.** Its own step, after the link, at the user's
-   request. State verified 2026-09-08: there is **no `<link rel="icon">` in
+   request.
+   **>>> START HERE. THIS IS THE ONLY UNSTARTED STEP LEFT BEFORE STEP 6, and it
+   is easy to skip by accident — 4b was deliberately pulled IN FRONT of it, and
+   step 5 then closed after it, so the numbering runs 3 → 4b → 5 → back to 4.
+   Steps 1, 2, 3, 4b and 5 are ALL DONE. Do not jump to step 6 without settling
+   this one. <<<**
+   **Its precondition is now met.** The user put 4b ahead of this deliberately
+   because "the favicon will most likely derive from the logo, so the logo had to
+   be settled before that discussion could start" — and the logo was settled on
+   2026-09-11 (the conic `mask` notch, under 4b). Nothing is blocking this now.
+   **It opens as a DISCUSSION, not a build — that is the user's explicit framing
+   and it has not changed.** Bring options, not a chosen icon.
+   State verified 2026-09-08: there is **no `<link rel="icon">` in
    `index.html`, no icon file in `public/`, and no server-side favicon route**,
    so every browser auto-requests `/favicon.ico`, misses the static middleware
    and lands on the 404 handler. That is the lone console error on a clean load,
    and it appears on the LIVE site too. Cosmetic, not a bug — discuss before
-   building.
+   building. **Re-verify that state before opening the discussion**: it was
+   checked on 2026-09-08 and the header/footer GitHub marks and the logo have all
+   been worked since.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -2339,8 +2363,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
    typing effect — the only item here that was ever a genuinely new build —
    closed the same day (D-057), tuned to 15ms/char by the user's eye.
-   **Next session starts on step 5, the portrait overhaul — see its two
-   enforcement rules further down.**
+   **That pointer used to say "next session starts on step 5, the portrait
+   overhaul". Step 5 is now DONE too (closed by the user 2026-09-12), so the next
+   unstarted item is STEP 4, the favicon discussion — which 4b was pulled in
+   front of. Its enforcement rules live under step 5 and still stand.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2773,20 +2799,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sped up", and the user approved it after looking. A rAF ramp of
      `playbackRate` is the fix if it is ever wanted.
 
-5. **Complete overhaul of the portrait view under 500px.**
-   **>>> START HERE. This is IN PROGRESS, not done — do not start step 6 or
-   re-scope this as finished. A substantial round already landed 2026-09-12
-   (score row wrap/overflow, logo reel + GitHub icon at narrow widths, the
-   search-results panel's height floor, mid-word hyphenation, the AI log's
-   card-view label alignment, the toast's width/shadow/centering) — see the
-   living log above for the full list and D-058/D-060/D-061/D-062 for the
-   traps found along the way. **R18 — which used to be parked here as the one
-   still-open recommendations item — was CLOSED 2026-09-12 as won't-fix once it
-   was finally measured (D-063): the shift is one line, 22.4px, and it happens
-   in the same frame as R27's scroll, so it cannot be seen. Step 2 is therefore
-   COMPLETE and step 5 is now pure portrait work with nothing inherited.** The
-   two enforcement rules immediately below are yours to apply on every pass
-   through this step, not a one-time read. <<<**
+5. **Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
+   USER 2026-09-12. Do not reopen it, and do not go hunting for more narrow-width
+   work: the user has declared the target met.**
+   Their words, and the standard they closed it against: there are no viable
+   remaining issues at **~350px**, which is the width this step agreed to plan
+   and test against; messiness only starts below **~310px**, and even there the
+   UI is still mostly usable, just less pretty.
+   **That ~310px figure is a finding, not an invitation.** It sits inside the
+   "good enough only" band and above the ~290px ignore floor, so it is the
+   expected outcome of the two rules below rather than a defect list. Anything
+   found under 350px from here needs the first rule applied to it.
+   **What landed across the step** (2026-09-12, in one long pass): the ranked
+   card's score row no longer wraps its rating mid-number or pushes Edit/Remove
+   outside the card below 400px (D-058); the header logo reel no longer squashes
+   into an ellipse and the GitHub icon scales to 75% below 400px; the
+   search-results panel's height cap became a FLOOR rather than a second ceiling;
+   mid-word title breaks hyphenate via `Intl.Segmenter` soft hyphens instead of
+   breaking raw (D-060/D-061); the AI call log's card-view labels stopped
+   misaligning when they wrap; and the toast got a real box-shadow, content-aware
+   widening below 700/500px, and a genuine centering fix (D-062). **R18 was
+   closed inside this step as won't-fix on measurement (D-063)**, which also
+   closed step 2.
+   **The two enforcement rules below still stand for any future narrow-width
+   question**, in this step or outside it — they are about the deadline, not
+   about this step's backlog, and this step closing does not retire them.
    **Plan and test against ~350px.** That is the target, not the floor.
    **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
    The user asked to be stopped, in advance, because the deadline is close:
