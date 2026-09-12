@@ -3398,7 +3398,7 @@ body:has(dialog[open]) { overflow: hidden; }
      (unlike the kept black one): it is a glow, not a cast shadow, so it must
      radiate evenly rather than pool toward one edge (D-044). Tuned by eye,
      like every other dimension in this file. */
-  box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.16);
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s var(--ease);
   z-index: 10000;
