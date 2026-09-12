@@ -1068,6 +1068,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      400-character words, so nothing is known to be broken here — but the guard
      is one declaration and the failure mode is the whole page. */
   overflow-wrap: anywhere;
+  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .result-row:hover { background: var(--bg-raised); }
 .result-row img, .result-row .noposter {
@@ -1558,11 +1559,32 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    any future non-text content in this column (something with `white-space:
    nowrap`, a wide image) could size the track the same way. This makes the track
    incapable of being pushed open regardless of what lands in it. */
+/* `hyphens: auto` (step 5, user-raised with a screenshot: "SpongeBob" broke as
+   "SpongeB" / "ob"). This does NOT replace `overflow-wrap: anywhere` above —
+   the two solve different problems and both stay. `overflow-wrap` is the
+   LAST-RESORT sizing guard: it is what stops one unbroken word from blowing
+   the track open, and it must keep doing that job. `hyphens: auto` changes
+   what happens once a break is actually needed: the browser's own
+   language-aware hyphenation runs FIRST, at a real syllable boundary, and
+   only draws a hyphen there — the raw "break absolutely anywhere" behaviour
+   is still what fires on a word hyphenation cannot place a point in (a long
+   unbroken code, a URL-shaped title). Needs `lang` on the document to pick
+   the right dictionary (`<html lang="en">` already sets this) and degrades
+   completely safely where unsupported — an engine that ignores `hyphens`
+   just keeps today's behaviour, nothing regresses.
+   Same pairing added to every OTHER place in this file carrying the identical
+   `overflow-wrap: anywhere` guard over a film title — `.result-row`,
+   `.rec-card__body`, `.rate-dialog h3`/`.confirm-dialog h3`, `.toast` — so a
+   title breaks the same way wherever it appears. NOT added to the AI log's
+   `.log-error` cell, which holds technical error text and URLs rather than
+   a title — hyphenation dictionaries only recognise real words, so it would
+   have no effect there anyway. */
 .movie-card__body {
   align-self: start;
   margin-top: 0.3rem;
   min-width: 0;
   overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .movie-card__body h3 {
   font-family: 'Fraunces', serif;
@@ -2376,6 +2398,7 @@ button:disabled .sparkle-major { animation: none; }
      way `.reason` is. See the matching `min-width: 0` on `.rec-card` itself. */
   min-width: 0;
   overflow-wrap: anywhere;
+  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .rec-card__body h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; }
 .rec-card__body .year { color: var(--ink-dim); font-weight: 400; }
@@ -2610,6 +2633,7 @@ body:has(dialog[open]) { overflow: hidden; }
   font-family: 'Fraunces', serif;
   margin-bottom: 1rem;
   overflow-wrap: anywhere;
+  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .rate-dialog label { display: block; margin: 0.9rem 0 0.4rem; font-size: 0.9rem; }
 .rate-dialog label span { color: var(--ink-faint); }
@@ -3284,6 +3308,7 @@ body:has(dialog[open]) { overflow: hidden; }
      BOX, so without this an unbreakable word does not wrap — it spills straight
      out of the rounded panel. Same one-line guard the dialogs and cards carry. */
   overflow-wrap: anywhere;
+  hyphens: auto; /* see the full note at .movie-card__body */
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
