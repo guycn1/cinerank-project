@@ -397,25 +397,31 @@ function withViewTransition(update) {
 
 /**
  * Insert a soft hyphen (U+00AD) between every pair of adjacent non-space
- * characters in a film title (step 5, D-060, supersedes D-059's `hyphens:
- * auto`). A soft hyphen is a break OPPORTUNITY, not a break — it renders as
- * nothing at all unless it is the exact point a line actually breaks, so
- * this is invisible and inert wherever nothing needs to break. Unlike
- * `hyphens: auto`, it needs no dictionary: it offers a valid point at every
- * position, which is what an invented compound title ("SquarePants") needs
- * and a language pattern algorithm could not supply.
+ * characters (step 5, D-060, supersedes D-059's `hyphens: auto`). A soft
+ * hyphen is a break OPPORTUNITY, not a break — it renders as nothing at all
+ * unless it is the exact point a line actually breaks, so this is invisible
+ * and inert wherever nothing needs to break. Unlike `hyphens: auto`, it needs
+ * no dictionary: it offers a valid point at every position, which is what an
+ * invented compound title ("SquarePants") needs and a language pattern
+ * algorithm could not supply.
  * Whether these embedded points are ever honoured is decided entirely by
  * CSS (`hyphens: none` above 400px, `manual` below it, on `.movie-card__body`
- * / `.rec-card__body` / `.result-row`) — this function runs UNCONDITIONALLY,
- * with no viewport check and no resize listener. That is the whole reason
- * this replaces D-059's "needs JS measurement" premise rather than confirming
- * it: the text is generated once, and the SAME text starts or stops
- * respecting its own embedded hyphens live, as the media query flips on
- * resize, with nothing here re-run.
- * Deliberately not used on the rate/confirm dialog headings or the toast —
+ * / `.rec-card__body` / `.result-row` / `.verdict__text`; `.review` and
+ * `.reason` inherit theirs from the first two) — this function runs
+ * UNCONDITIONALLY, with no viewport check and no resize listener. That is
+ * the whole reason this replaces D-059's "needs JS measurement" premise
+ * rather than confirming it: the text is generated once, and the SAME text
+ * starts or stops respecting its own embedded hyphens live, as the media
+ * query flips on resize, with nothing here re-run.
+ * Called on every film title, review and AI-reason text — all plain visible
+ * content with no accessible-name or live-region role to leak into.
+ * Deliberately NOT used on the rate/confirm dialog headings or the toast —
  * see the CSS note at `.movie-card__body` for why: both double as an
  * accessible name or live-region content, and a soft hyphen embedded there
- * would reach a screen reader, not just the eye.
+ * would reach a screen reader, not just the eye. `#verdict-text` IS
+ * `aria-live`, but clears this the same way its typing effect already does:
+ * `setVerdictText()` calls this only on the `aria-hidden` visible span, never
+ * on the plain `.sr-only` one the live region actually announces.
  */
 function softHyphenate(text) {
   return text.replace(/(\S)(?=\S)/g, '$1­');
@@ -576,7 +582,7 @@ function renderRanked() {
       // the `m.id` looked up here — a numeric id would need String() at both
       // ends to avoid has(5) missing "5".
       r.dataset.movieId = m.id;
-      r.textContent = m.review;
+      r.textContent = softHyphenate(m.review); // D-060's approach; plain content, no aria role to leak into
       const toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.className = 'review-toggle';
@@ -1637,7 +1643,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     h3.append(yr);
     const reason = document.createElement('p');
     reason.className = 'reason';
-    reason.textContent = s.reason;
+    reason.textContent = softHyphenate(s.reason); // D-060's approach; plain content, no aria role to leak into
     const btn = document.createElement('button');
     btn.type = 'button';
     // The same three dataset stamps a search row carries, so this button is
@@ -1729,6 +1735,16 @@ let verdictTypeTimer = null;
  * actually "the verdict appearing". Every placeholder, the busy line and both
  * error messages pass no option and render instantly, exactly as before this
  * item existed.
+ *
+ * The VISIBLE span is soft-hyphenated (D-060's approach, step 5, user-raised);
+ * `.sr-only` never is -- same split this function already had for typing,
+ * reused for the same reason: `.verdict__typed` is `aria-hidden`, so embedding
+ * U+00AD there never reaches a screen reader, while the announced text must
+ * stay exactly what was written.
+ * During typing this hyphenates the SLICE on every tick, not the whole string
+ * once up front -- `i` and `text.length` stay the plain character count either
+ * way, so VERDICT_TYPE_MS's pace is untouched by how many extra soft-hyphen
+ * characters a hyphenated string would otherwise add.
  */
 function setVerdictText(text, { typed = false } = {}) {
   verdictTypeGen += 1;
@@ -1745,7 +1761,7 @@ function setVerdictText(text, { typed = false } = {}) {
 
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!typed || reduceMotion || !text) {
-    visible.textContent = text;
+    visible.textContent = softHyphenate(text);
     return;
   }
 
@@ -1753,7 +1769,7 @@ function setVerdictText(text, { typed = false } = {}) {
   let i = 0;
   const step = () => {
     if (gen !== verdictTypeGen) return; // superseded by a later write -- stop silently
-    visible.textContent = text.slice(0, i);
+    visible.textContent = softHyphenate(text.slice(0, i));
     i += 1;
     if (i <= text.length) {
       verdictTypeTimer = setTimeout(step, VERDICT_TYPE_MS);

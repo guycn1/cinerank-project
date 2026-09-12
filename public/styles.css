@@ -749,6 +749,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   min-width: 12rem;
   font-size: 1rem;
   color: var(--ink);
+  /* D-045's guard, extended here: a verdict is AI-generated prose, not a
+     literal file upload, but the taste-verdict prompt has no length limit on
+     any SINGLE word, so the same "one unbreakable token can blow a flex item
+     open" risk applies. Paired with `hyphens` for D-060's soft-hyphen
+     approach — see the full note at .movie-card__body; this is the fourth
+     and last of the four elements it now covers. */
+  overflow-wrap: anywhere;
+  hyphens: none;
 }
 /* The real verdict only — a half-step off white plus a touch of tracking.
    `is-muted` marks every placeholder and the error fallback; those share the
@@ -1580,15 +1588,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    as the user asked. The override to `hyphens: manual` (the CSS default,
    restored explicitly below 400px) is what lets those same soft hyphens
    start being honoured — live, on resize, with nothing re-rendered.
-   SCOPED to card/row titles only — `.movie-card__body`, `.rec-card__body` and
-   `.result-row`, all three set the same way below. Deliberately NOT applied
-   to the rate/confirm dialog headings or the toast: both of those double as
-   an ELEMENT'S ACCESSIBLE NAME (`aria-labelledby`) or live-region content
-   (`.toast[aria-live]`), so soft hyphens embedded in their text would be
-   exposed to a screen reader, not just to the eye — soft hyphens are SUPPOSED
-   to be silent to assistive tech, but implementations have a real history of
-   getting that wrong, and this app's accessibility work is not worth trading
-   away for a cosmetic fix. Those two keep only `overflow-wrap: anywhere`,
+   COVERS four elements: `.movie-card__body`, `.rec-card__body` and
+   `.result-row` (each set the same way below), plus `.verdict__text`.
+   `.review` and `.reason` need no CSS of their own at all — both are plain
+   descendants of `.movie-card__body`/`.rec-card__body`, `overflow-wrap` and
+   `hyphens` are inherited properties, and `softHyphenate()` is called
+   directly on their text in app.js, so they pick up this whole toggle for
+   free. Deliberately NOT applied to the rate/confirm dialog headings or the
+   toast: both of those double as an ELEMENT'S ACCESSIBLE NAME
+   (`aria-labelledby`) or live-region content (`.toast[aria-live]`), so soft
+   hyphens embedded in their text would be exposed to a screen reader, not
+   just to the eye — soft hyphens are SUPPOSED to be silent to assistive tech,
+   but implementations have a real history of getting that wrong, and this
+   app's accessibility work is not worth trading away for a cosmetic fix.
+   `.verdict__text` is `aria-live="polite"` too, and clears this the same way
+   the typing effect already does (see `setVerdictText()`): the hyphenated
+   text goes ONLY into the `aria-hidden` `.verdict__typed` span, never into
+   the plain `.sr-only` one the live region actually announces. Those two
+   dialog headings and the toast keep only `overflow-wrap: anywhere`,
    unchanged, same as before this feature existed. */
 .movie-card__body {
   align-self: start;
@@ -2411,23 +2428,28 @@ button:disabled .sparkle-major { animation: none; }
   overflow-wrap: anywhere;
   hyphens: none; /* see the full note at .movie-card__body */
 }
-/* The live toggle for all three `hyphens: none` declarations above (search
-   row, ranked card, rec card) — see the full note at .movie-card__body for
-   why this exists and why it is scoped to exactly these three selectors.
-   Placed here, after all three base rules, on purpose: an equal-specificity
+/* The live toggle for all four `hyphens: none` declarations (search row,
+   ranked card, rec card, verdict text) — see the full note at
+   .movie-card__body for why this exists and why it is scoped to exactly
+   these four selectors, `.review`/`.reason` inheriting theirs from two of
+   them rather than needing their own entry here.
+   Placed here, after all four base rules, on purpose: an equal-specificity
    override only wins if it is LATER in source order, and .rec-card__body's
-   own `hyphens: none` (just above) is the last of the three to appear in this
-   file. A media query placed any earlier would be silently overridden by
-   whichever base rule came after it.
-   399px, not 400 — the user's own word was "narrower than 400px", which
-   excludes exactly 400 itself; the unrelated `max-width: 400px` query
-   elsewhere in this file (the score row's grid-column fix) is INCLUSIVE of
-   400 on purpose, from that fix's own literal wording, so the two are not
-   meant to match and are kept as separate queries rather than merged. */
-@media (max-width: 399px) {
+   own `hyphens: none` (just above) is the last of the four to appear in this
+   file — `.verdict__text`'s sits much earlier (near the top, with the rest of
+   the verdict banner). A media query placed any earlier than ALL FOUR would
+   be silently overridden by whichever base rule came after it.
+   400px, inclusive — changed from the original 399px (which read the user's
+   first wording, "narrower than 400px", literally) at their own follow-up
+   request. Now the SAME boundary as the unrelated `max-width: 400px` query
+   elsewhere in this file (the score row's grid-column fix), which is a
+   coincidence of two separate asks landing on the same number, not a
+   dependency — do not merge the two queries, they style different things. */
+@media (max-width: 400px) {
   .movie-card__body,
   .rec-card__body,
-  .result-row {
+  .result-row,
+  .verdict__text {
     hyphens: manual;
   }
 }

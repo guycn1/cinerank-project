@@ -30,13 +30,11 @@ entirely as a function of the CSS `hyphens` property in effect at that
 instant. D-059's cost estimate was for a different, harder problem (finding
 WHERE text overflows) that this approach never needs to solve.
 
-**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over three
-titles — `.movie-card__body`, `.rec-card__body`, `.result-row` — with no
-viewport check inside it at all. CSS alone gates whether the embedded soft
-hyphens are ever honoured: `hyphens: none` by default (>= 400px — the exact
-user instruction, and why 400 itself is excluded, not included, unlike the
-unrelated `max-width: 400px` query elsewhere in this file), overridden to
-`hyphens: manual` under `max-width: 399px`. `hyphens: auto` is removed
+**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over
+titles, reviews and AI-reason text, with no viewport check inside it at all.
+CSS alone gates whether the embedded soft hyphens are ever honoured: below
+400px (originally 399px — see the addendum) they are; at 400px and above,
+`hyphens: none` suppresses them completely. `hyphens: auto` is removed
 entirely — it added nothing once every position already has a soft-hyphen
 opportunity, and it was the one carrying the dictionary dependency that
 caused the original gap.
@@ -58,6 +56,35 @@ in each of the three card/row titles.
 what caused the original inconsistency (a real word hyphenates, an invented
 one does not) — the soft-hyphen approach is what fixed it, precisely by not
 depending on a dictionary.
+
+**Addendum, same day: extended to `#verdict-text`, `.review` and `.reason`,
+and the threshold moved to 400px inclusive.** Two things worth recording
+about the extension itself, not just the fact of it:
+
+1. **`.review` and `.reason` needed no new CSS at all** — both are plain
+   descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
+   and `hyphens` are inherited properties, and `softHyphenate()` is called
+   directly on their own text in `app.js`. Inheritance alone made them work.
+2. **`#verdict-text` needed the split-channel treatment its own typing effect
+   already uses, and this is the one genuine fork in the extension.** The
+   obvious approach — hyphenate the full verdict string once, before typing
+   it out — was rejected: `setVerdictText()`'s typing loop paces itself off
+   `text.length`, and a hyphenated string is roughly DOUBLE the length of the
+   plain one (a soft hyphen between every letter), so typing it out at the
+   same `VERDICT_TYPE_MS` per character would have quietly doubled the
+   animation's duration, undoing the pace the user tuned by eye (18ms/char,
+   after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
+   tick instead of the string once — `i`/`text.length` stay the plain count,
+   so the pace is exactly what it was, and the hyphenated text is only ever
+   assembled for what's already been revealed. The `aria-hidden` /
+   `.sr-only` split this element already had for the typing effect is what
+   makes any of this safe on an `aria-live="polite"` element in the first
+   place — the hyphenated text goes only into the hidden visible span.
+
+The threshold itself moved from `399px` (an exact reading of "narrower than
+400px") to `400px` inclusive, at the user's own follow-up request — recorded
+here only so a future session does not "restore" 399 by reading the original
+paragraph above without this addendum.
 
 ---
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
