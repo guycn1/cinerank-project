@@ -3135,7 +3135,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   traps a future rebalance would undo.
 * [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
   missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
-  Put them in `docs/`.
+  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED FOR ITS RS KEY:**
+  `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the first
+  capture. The subdirectory rather than `docs/` itself so nine-plus PNGs do not
+  bury six prose files; the RS key in the filename so a reader's `grep "RS-"`
+  ties every image back to the recipe that produced it, and so the README and
+  SPEC can link them by a path that says what it is. A default
+  `Screenshot 2026-09-13 171841.png` says nothing and would have to be renamed
+  before submission anyway.
   **Every state has a stable `RS-n` marker, so `grep "RS-" CLAUDE.md` returns the
   whole set and each line is self-contained enough to shoot from without reading
   the history.** Add new ones with the next free number and never renumber.
@@ -3189,7 +3196,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     Worth knowing why it earns a slot: finding this state is what caught the
     central 500 handler claiming a failure was "on our side" when it was neither
     a bug nor the server's fault.
-  - [ ] **RS-8 · The non-error empty state.** Everything working; search a
+  - [x] **RS-8 · CAPTURED 2026-09-13 — `docs/screenshots/rs-8-search-no-matches.png`.**
+    **The non-error empty state.** Everything working; search a
     nonsense string. Expect the MUTED note (not crimson): "No matches for
     “<query>”. Check the spelling, or try a different title." One shot, purely to
     show that an empty result and a failure are visibly different — which is the
