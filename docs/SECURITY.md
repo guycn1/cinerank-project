@@ -40,7 +40,7 @@ result rather than a flattering one.
 | ASI06 | Memory & Context Poisoning | n/a — no RAG, no cross-call memory | **Real** — the central risk of this project |
 | ASI07 | Insecure Inter-Agent Communication | n/a — single agent, no protocol | n/a — single agent, no protocol |
 | ASI08 | Cascading Failures | Controlled — resilience requirements, tests, and captured evidence in [`RESILIENCE.md`](RESILIENCE.md) | Controlled — verification gates + git rollback |
-| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for | **Real** — answered as a standing practice |
+| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for ([how it works](AI-CALL-LOG.md)) | **Real** — answered as a standing practice |
 | ASI10 | Rogue Agents | **Realised** — the debug harness, for one day | Controlled — nothing reaches `main` unreviewed |
 
 ## The risks that carry weight here

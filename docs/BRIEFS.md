@@ -42,9 +42,17 @@ label in two. Those needed a running app and a human looking at it.
 
 ## 2. Documentation brief — the AI call log
 
-**Status: commissioned here, not yet written.** This file is the brief; acting on
-it is a separate, optional job. A brief that names its own status honestly is
-worth more than one that implies a document exists.
+**Status: commissioned here, and WRITTEN — [`AI-CALL-LOG.md`](AI-CALL-LOG.md),
+2026-09-14.** This file is the brief; that file is the result, and the two are
+worth reading in that order, because the brief is a specification for a document
+and the document can be judged against it.
+
+*(This said "not yet written" until 2026-09-14, on the reasoning that a brief
+naming its own status honestly is worth more than one implying a document exists.
+That was true while it stood. The user read it during a pre-merge sweep and called
+it a real gap, which it was — the brief argues that this component has the highest
+ratio of non-obvious decision to line of code in the project, and then left those
+decisions undocumented.)*
 
 ### Audience
 
@@ -120,7 +128,9 @@ would make this document the thing nobody finishes reading.
 
 ### Where it goes, and how to tell it worked
 
-`docs/AI-CALL-LOG.md`. The test is not length: **hand it to someone who has never
-seen the component and ask them to make the totals row taller.** If they change
-the curtain height with it, the document worked. If they change only the row and
-leave a gap at the dialog's edge, it did not.
+[`AI-CALL-LOG.md`](AI-CALL-LOG.md), written 2026-09-14. The test is not length:
+**hand it to someone who has never seen the component and ask them to make the
+totals row taller.** If they change the curtain height with it, the document
+worked. If they change only the row and leave a gap at the dialog's edge, it did
+not. That test is restated as the written document's own closing section, so it
+travels with the thing being judged rather than only with the brief.
