@@ -3363,8 +3363,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
     the shot is taken.** Four route tests fail while it is in place, which is
     expected and is not a reason to debug anything.
-* [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Four frames,
-  `docs/screenshots/pi-1`…`pi-4`.** The demo film is The Room, whose review IS
+* [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
+  `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
   output hijack in one). Added with
   `npm run seed-demo -- --with-injection --keep --write`, captured, then removed
@@ -3375,7 +3375,15 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     system prompt, with its real cost in the footer.
   * `pi-3` the recommendations: four real TMDB-verified films with normal
     reasons.
-  * `pi-4` the whole page — malicious input and clean output in one frame.
+  * `pi-4` the verdict AND the injection card in one frame.
+  * `pi-5` the recommendations AND the injection card in one frame.
+  **`pi-4` and `pi-5` are not two versions of the same shot**, which is how
+  they were first misread: each pairs the malicious INPUT with a different
+  feature’s OUTPUT, and `pi-2` and `pi-3` are cropped to their banners, so
+  without both of these nothing in the set shows what fed the verdict. The
+  redundancy test that matters is "what claim does this carry", not "what does
+  this look like". A sixth frame WAS dropped as genuinely redundant: a ranked
+  crop whose only claim, The Room’s position, appears in three others.
   **THE DETAIL THAT MAKES IT PROOF RATHER THAN ASSERTION is the "Based on:"
   line in `pi-3`**, which names The Room as one of the five films in the taste
   profile. Without it a reader would have to take on trust that the injection
