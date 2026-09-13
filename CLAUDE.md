@@ -29,7 +29,10 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 **Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
-boxes against `docs/ACCEPTANCE.md`. THE ONLY THING LEFT IS THE FINAL
+boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
+closed 2026-09-14, see `SPEC.md` § Specification status, which satisfies the
+course's "at least three full turns" under the conservative reading that counts no
+merge as a turn. THE ONLY THING LEFT IS THE FINAL
 `draft` → `main` MERGE, which still needs explicit confirmation. The live URL is
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug

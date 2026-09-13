@@ -31,6 +31,14 @@ that way the project has been through as many turns as it has merges, and
 repeated here: the same count already lives in two other files and has drifted
 once before.
 
+**All three are now complete**, which is the form the course's requirement takes:
+a commit history across at least three *full* turns of the spiral. It holds under
+the conservative reading deliberately — the three narratives below are whole, with
+their own problem shifts, and none of the twenty merges to `main` is being counted
+as a turn in its own right. The merge-based count would satisfy the same
+requirement many times over and is the weaker claim, because a merge is a commit
+point rather than a change in the understanding of the problem.
+
 The three turns below are a **coarser grouping** — by the moments when the
 understanding of the PROBLEM changed, rather than by every point at which intent
 was pinned. It is the more conservative unit, and it is used because three
@@ -68,9 +76,10 @@ that was designed, costed against the measurements, and rejected on the numbers.
 **The specification was corrected and the code was left alone** (`docs/DECISIONS.md`
 D-054).
 
-### Turn 3 — the trail itself became the deliverable (2026-09-12 to open)
+### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
-Commit points: `83a5da5` onward.
+Commit points: `83a5da5` to `4ef7534` — **76 commits**, spanning three days and
+four merges to `main`.
 
 A staleness sweep across every markdown file and code comment (`83a5da5`) found claims
 that had quietly stopped being true. Following it, both this file and `CLAUDE.md` were
@@ -79,10 +88,24 @@ caught by eye. That produced a new verification gate, `npm run check-markdown`
 (`d1dd505`), since proved in both directions across 57 cases, together with the
 authoring rules it enforces in `CLAUDE.md` § Markdown Authoring Rules.
 
-This turn is open, and **merging to `main` pins a commit point inside it rather than
-closing it** — several more merges are expected before the deadline. Its remaining
-scope is under "Pre-submission blockers" in `CLAUDE.md`, and § 7.1's acceptance
-checkboxes below are to be ticked as part of closing it.
+**This turn is closed.** Its stated closing conditions were the pre-submission
+blocker list in `CLAUDE.md` and § 7.1's acceptance checkboxes below; both were met
+on 2026-09-14, and `docs/MERGE-READINESS.md` reads MET on all five of Module 16's
+criteria as a result.
+
+What closed it is what the turn was about. The problem had stopped being "does the
+application work" — it demonstrably did, deployed and green — and had become
+"can any of that be shown to someone who was not here". Answering it produced two
+evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
+[`docs/RESILIENCE.md`](docs/RESILIENCE.md), twenty-six captures across four
+families, and an architecture diagram. **It also produced three real defects and
+three untested happy paths**, none of which the test suite, the linter or the
+render audits had revealed, because each of those inspects structure and none of
+them puts the application into a state and looks at it.
+
+**Merging to `main` pins this turn rather than closing it** — it was closed by its
+scope being complete, which is the distinction Module 10 draws between a commit
+point and a turn boundary.
 
 
 ## 1\. Overview \& Problem Statement
