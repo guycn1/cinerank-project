@@ -3154,7 +3154,16 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   **The ranked list must still be working in every shot except RS-7** — that is
   the point of most of them: one thing broke, the app did not.
 
-  - [ ] **RS-1 · TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
+  - [x] **RS-1 · CAPTURED 2026-09-13 — `docs/screenshots/rs-1-tmdb-down-on-search.png`.**
+    Framed to match RS-8 deliberately: same panel, same position, one crimson
+    and one muted. The pair is the visual form of D-033 applied to Search, and
+    is worth more side by side than either shot alone.
+    **It is also the evidence D-036 predicted it would be.** The ranked card
+    still shows `TMDB 7.6` with TMDB unreachable, because that number is a
+    snapshot written at ADD time and never refreshed. A live refresh would have
+    made the whole ranked list depend on TMDB being up, and this frame is what
+    that would have cost.
+    **TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
     anything. Expect the crimson note inside the results panel:
     "Couldn’t reach the movie database. Try again in a moment."
   - [x] **RS-2 · CAPTURED 2026-09-13 — `docs/screenshots/rs-2-tmdb-down-on-add.png`.**
