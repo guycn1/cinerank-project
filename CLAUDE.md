@@ -2988,7 +2988,7 @@ below — this list is the smaller stuff.)
   revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
   misalign every poster's left edge down the list, trading a rare problem for a
   permanent one. 1000+ is unhandled by choice.
-* [ ] **Demo seed list for submission.** Ship with 3–4 pre-rated movies
+* [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
   1. One deliberate taste persona — a specific sensibility (e.g. "bold,
