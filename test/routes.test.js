@@ -214,6 +214,63 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 
 /* ---------- resilience: TMDB unreachable ------------------------------- */
 
+// THE SEARCH HAPPY PATH, which had no coverage at all until 2026-09-13.
+// The only two search tests were the 400 for a missing query and the 502 below
+// for TMDB being unreachable -- both failure paths. MATRIX_TMDB, the one fixture
+// carrying a poster, was used exclusively by the ADD tests. So the single
+// behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
+// movie title returns real TMDB results with posters" -- was the one search
+// behaviour the suite never checked.
+//
+// Asserts the whole shaped contract rather than a truthy response, because every
+// field here is depended on downstream: the picker renders title, year and
+// poster, and `tmdb_id` is what the add path posts back.
+test('GET /api/movies/search returns shaped TMDB results, posters included', async () => {
+  const restore = stubFetch({
+    'query=matrix': {
+      results: [
+        MATRIX_TMDB,
+        // TMDB genuinely omits poster_path for some titles, and the client draws
+        // its own placeholder for that case (D-027). The shaped value must be
+        // null rather than an empty string or a URL ending in "null".
+        {
+          ...MATRIX_TMDB,
+          id: 604,
+          title: 'The Matrix Reloaded',
+          release_date: '2003-05-15',
+          poster_path: null,
+        },
+      ],
+    },
+  });
+  try {
+    const res = await client.get('/api/movies/search?q=matrix');
+    assert.equal(res.status, 200);
+    const { results } = await res.json();
+    assert.equal(results.length, 2);
+
+    const [first, second] = results;
+    assert.equal(first.tmdb_id, 603, 'the id the add path posts back');
+    assert.equal(first.title, 'The Matrix');
+    assert.equal(first.year, 1999, 'a NUMBER sliced out of release_date, not the raw date');
+    assert.match(
+      first.poster_url,
+      /^https?:\/\/\S+\/matrix\.jpg$/,
+      'an absolute poster URL built from the image base, not a bare TMDB path'
+    );
+    assert.equal(first.tmdb_rating, 8.2, 'rounded to one decimal');
+    assert.equal(typeof first.description, 'string');
+
+    assert.equal(
+      second.poster_url,
+      null,
+      "a missing poster_path must shape to null, never a URL ending in \"null\""
+    );
+  } finally {
+    restore();
+  }
+});
+
 test('GET /api/movies/search when TMDB is unreachable → 502, calm message', async () => {
   const restore = stubFetch({ 'themoviedb.org': 'throw' });
   try {
