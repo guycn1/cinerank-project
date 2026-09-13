@@ -41,9 +41,11 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently **"THE FRONT-END
-  OVERHAUL IS COMPLETE: every UI step of the agreed order (1, 2, 3, 4, 4b, 5) is
-  closed"** (2026-09-12, `d47c960`). **Nineteen**
+* `main` is at the latest settled milestone — currently **"the DOSSIER
+  reconciliation: framing document, OWASP mapping, merge-readiness pack, a linter,
+  and an unfrozen SPEC"** (2026-09-13, `ba702c2`). The milestone before it was the
+  front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
+  steps closed. **Twenty**
   merges so far;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
