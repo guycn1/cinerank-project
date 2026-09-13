@@ -2634,7 +2634,7 @@ overflow.
 **Claude first recommended NOT fixing it**, and wrote that up as a measured
 non-fix: unreachable below 100 films, demo seed list is 3–4, and each candidate
 fix looked more expensive than the defect. **The user overruled it on grounds
-Claude had not weighed** — that a grader reading an unchecked TODO box may not
+Claude had not weighed** — that a reader who meets an unchecked TODO box may not
 read the paragraph under it, and will score "documented limitation" as "too lazy
 to fix edge cases". That is a judgement about the audience, and the audience is
 the point of the artefact. Recorded because the reasoning is invisible in the
