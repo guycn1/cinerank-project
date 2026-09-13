@@ -8,6 +8,7 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "test": "node --disable-warning=ExperimentalWarning --experimental-test-module-mocks --test \"test/**/*.test.js\"",
+    "lint": "eslint .",
     "scan-secrets": "node scripts/scan-secrets.js",
     "check-markdown": "node scripts/check-markdown.js",
     "backfill-tmdb-rating": "node scripts/backfill-tmdb-rating.js"
@@ -24,5 +25,9 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
+  }
 }

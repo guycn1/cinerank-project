@@ -75,7 +75,9 @@ scripts/debug-recs.js           dev only — fakes a recommendation response in 
                                 browser so UI work costs no OpenRouter credit
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
+eslint.config.js    defect rules + complexity ceilings; not a style linter
 docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of scope
+docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop

@@ -1249,6 +1249,13 @@ el.rateForm.addEventListener('submit', async (e) => {
     setRateError(err.message);
   } finally {
     settleSave();
+    // FALSE POSITIVE, checked: the rule fires on any property write to an
+    // outer-scope object after an await, in case that object was swapped
+    // meanwhile. `el` is a const object literal declared once at the top of this
+    // file and never reassigned, so there is no state for this write to be based
+    // on an outdated version of. The directive must sit immediately above the
+    // statement — ESLint applies it to the next LINE, comments included.
+    // eslint-disable-next-line require-atomic-updates
     el.rateCancel.disabled = false;
   }
 });

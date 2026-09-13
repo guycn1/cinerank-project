@@ -643,6 +643,11 @@ async function captureStderr(fn) {
   try {
     await fn();
   } finally {
+    // FALSE POSITIVE, and it is the point of the helper: save, replace, restore
+    // around an await is exactly what a stderr capture IS. The rule cannot tell a
+    // deliberate restore from an accidental stale write, and these tests run
+    // sequentially in one thread.
+    // eslint-disable-next-line require-atomic-updates
     console.error = original;
   }
   return lines.join('\n');

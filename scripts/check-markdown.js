@@ -17,9 +17,8 @@
 // and do NOT fail, so this can be wired into a hook without crying wolf.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TICK = String.fromCharCode(96);

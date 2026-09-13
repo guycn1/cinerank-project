@@ -65,7 +65,7 @@ export function parseModelJson(text) {
 // Belt-and-suspenders: strip markdown, and if the model overshoots the word
 // budget cut at the last sentence end (else last word), never mid-word.
 export function tidyReason(raw) {
-  let r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
+  const r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (r.length <= REASON_MAX) return r;
   const head = r.slice(0, REASON_MAX);
   const dot = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));

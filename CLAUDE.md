@@ -3551,6 +3551,9 @@ the real blob from github.com and read that — it is the only authority.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
 * **Merging `draft` → `main` only happens at a notable, settled milestone** — a UI milestone or a backend milestone believed to be genuinely complete, not a small incremental change. **Claude must ask the user for explicit confirmation before merging to `main`.** Never merge automatically, even if the milestone seems obviously done.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
+* **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
+  the bar; the five complexity warnings are a deliberate, documented state — see
+  `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Any commit that touches a `.md` file runs `npm run check-markdown` first,
   the same way every commit runs `npm run scan-secrets`.** The markdown is a graded
   deliverable, and a rendering fault in a file this long is close to unfindable
