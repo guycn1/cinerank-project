@@ -5,6 +5,70 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-070 · Log rows that misnamed their model were deleted by hand, not preserved as history
+
+*Written up 2026-09-13, the day the bug behind them was fixed.*
+
+The bug is in the commit that precedes this: `tasteVerdict.js` fell back to the
+app-wide model when writing a log row for a FAILED call, so every failed verdict
+recorded `claude-haiku-4.5` while the call that actually failed was
+`claude-sonnet-5`. Successful rows were always correct, because they read the
+model back out of OpenRouter's own response.
+
+That left a handful of wrong rows already in `taste_verdict_logs`.
+
+### The disagreement, which is the content of this entry
+
+**Claude's position was that they should stay** — that they were "a record of what
+the app wrote at the time", and that the project's own staleness rule says
+historical records are preserved rather than maintained.
+
+**The user overruled it, and was right.** Their argument: the log exists to
+provide the historical reality of every AI call the app performed. Rows that
+misname the model are not documenting reality; they are false about precisely the
+thing they exist to record.
+
+The mistake was conflating two different kinds of artifact. D-010's
+preserve-don't-maintain rule governs **narrative** — decision entries, and code
+comments that explicitly describe a past state. Those record a *belief held at a
+time*, and they stay valuable as records even when the belief turned out wrong.
+
+A row in the AI call log is not narrative. It **asserts a fact about an external
+event**: this call used model M. When the call used model N, the row is not a
+preserved belief, it is wrong data about something that really happened — sitting
+in the one artifact in this project whose entire value is factual accuracy about
+external events. The dialog's own blurb says these are the calls the app made.
+Keeping a row that misstates one preserves an error, not a history.
+
+### The precedent, and the obligation that comes with it
+
+This is the **second** time rows have been removed from the log by hand. D-019
+was the first: six pre-migration rows with no token split and no duration,
+deleted for presentation rather than correctness.
+
+D-019 recorded that deletion as *"a deliberate exception, recorded because the
+log's whole argument is that it is an append-only audit trail"*. That set the
+discipline this entry follows. **The rule, now that it has happened twice: rows
+may be removed from the log by hand only for a reason that is written down, and
+the app itself still has no code path that can delete one.**
+
+The two exceptions differ in kind, which is worth keeping straight. D-019 removed
+rows that were INCOMPLETE — true as far as they went, deleted so the footer would
+not need permanent partial-coverage markers. This removed rows that were FALSE.
+The second is the stronger justification of the two.
+
+### Scope, checked rather than assumed
+
+No committed screenshot contains any deleted row. The bad rows were written at
+18:25:22 and 18:43:14; `rs-4-openrouter-down-recs-log.png` tops out at 17:54:01
+and `rs-3-tmdb-down-during-recs-log.png` at 17:44:04. Nothing in the repository
+shows a row that no longer exists, so no evidence needed re-shooting on account
+of the deletion — only on account of the fix.
+
+Related: D-019 for the first hand-deletion and the append-only argument, D-053 for
+the two-model split that created the bug, D-010 for the preserve-don't-maintain
+rule this entry marks the boundary of.
+
 ## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
 
 *Written up 2026-09-13, found while shooting the RS-4 evidence.*

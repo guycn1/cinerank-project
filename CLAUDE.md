@@ -3240,12 +3240,20 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     the log whose `error_text` names the real cause (e.g. `OpenRouter responded
     401`). The split is the point: calm sentence to the user, technical cause to
     the audit trail (R8/R9, D-047).
-  - [ ] **RS-5 — HALF CAPTURED 2026-09-13. In-app frame done:
-    `docs/screenshots/rs-5-openrouter-down-verdict.png`. STILL OWED: the log row
-    — red `failed`, feature `TV`, prompt `TV_v7`, model `claude-sonnet-5`.**
-    That second frame is worth having for a reason beyond symmetry: RS-4 failed
-    on Haiku and this fails on Sonnet, so the pair shows D-053’s two-model split
-    in the FAILURE path, not only in the successes.
+  - [x] **RS-5 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-5-openrouter-down-verdict.png` and
+    `docs/screenshots/rs-5-openrouter-down-verdict-log.png`.**
+    **The log frame is the single strongest image in the set.** It holds the
+    two failed rows ADJACENT — `TV`/`TV_v7`/`claude-sonnet-5` above
+    `R`/`R_v3`/`claude-haiku-4.5`, both `failed`, both `OpenRouter responded
+    401`, both with em dashes for tokens and cost. One image therefore carries
+    R23 (two features answering a failure identically, after they had drifted
+    into two error dialects) AND D-053’s two-model split holding in the
+    FAILURE path, not only in the successes.
+    **That second claim was false until the day this was shot.** The failed
+    verdict row named the app-wide model, not the one it called; the user
+    caught it in the first attempt at this frame. Fixed, covered by a test per
+    feature, and the wrong rows deleted by hand — D-070.
     The captured frame is full-page rather than cropped to the banner, and is
     kept that way: it is the only capture in the set showing the site header —
     the wordmark and `.mark__reel`, the tagline, and the GitHub link from step 3
