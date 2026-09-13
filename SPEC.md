@@ -84,6 +84,12 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 * No social features (sharing lists, following other users, public rankings).
 * No editing/moderating AI suggestions beyond accepting or dismissing them.
 
+*(Reconciled 2026-09-13: `CLAUDE.md` carried a FOURTH exclusion this list never
+had — no automatic or background regeneration of recommendations or verdicts. The
+consolidated list, with the reason each one is there, is `docs/FRAMING.md` § Out of
+scope, which is now the authority. The three above stay as written rather than
+being silently extended.)*
+
 
 ## 2\. Functional Requirements
 

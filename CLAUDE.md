@@ -2,6 +2,10 @@
 
 This file governs how Claude (or Claude Code) should work in this repository. Refer to `SPEC.md` for the full functional/technical spec — this file is about *how to build it*, not *what to build*.
 
+For *why it exists* — the problem, the stakeholders, the definition of done and
+what is deliberately not being built — see `docs/FRAMING.md`, the Module 6 framing
+document. It is the authority on scope boundaries; `SPEC.md` § 1 predates it.
+
 
 ## Project Context
 
