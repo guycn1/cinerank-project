@@ -187,7 +187,21 @@
     <section class="recs">
       <div class="recs__head" id="recs-head">
         <h2>What to watch next</h2>
-        <button class="recs__trigger" id="recs-trigger" type="button">
+        <!-- STARTS DISABLED ON PURPOSE, exactly as #verdict-refresh does. Both
+             buttons are enabled by syncRecommendationsAvailability() /
+             syncVerdictAvailability(), which loadMovies() calls AFTER its
+             `await api("/api/movies")`. So when that request FAILS the function
+             throws before either sync runs, and a button keeps whatever state
+             this markup gave it. The verdict button shipped `disabled` with the
+             step-4b work and was therefore correct; this one did not, so a
+             database outage left a fully-enabled "Get recommendations" above an
+             empty ranked list (found 2026-09-13 while shooting RS-7).
+             It is also the right state before the first response has landed:
+             the rated count is not known yet. Do NOT remove this attribute to
+             "fix" a disabled button -- the sync writes disabled in BOTH
+             directions on every load, so the only way it stays off is if the
+             movie list never loaded at all, which is exactly when it should. -->
+        <button class="recs__trigger" id="recs-trigger" type="button" disabled>
           Get recommendations
         </button>
       </div>
