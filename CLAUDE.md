@@ -38,7 +38,7 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
 ticked.** What landed on
-2026-09-13/14: twenty-six captures across four families with an index; three new
+2026-09-13/14: twenty-eight captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
 real defects fixed, three of them found by LOOKING at the running app rather than
@@ -3159,16 +3159,20 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   so the rows are exactly what the normal UI flow produces. The content is
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
-* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
-  written up in `docs/RESILIENCE.md`.** That document is where they ARGUE
-  something: all thirteen frames embedded, grouped by which dependency failed,
+* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and a
+  TENTH ADDED 2026-09-14 (RS-10), all written up in `docs/RESILIENCE.md`.** That
+  document is where they ARGUE something: all fifteen frames embedded, grouped by which dependency failed,
   each with the exact string it must show and the decision it evidences. The
   recipes below stay here because they are working instructions; the analysis is
   there because that is what a reader opens. `docs/screenshots/README.md` indexes
-  all 21 captures in the repo, and renders automatically when the folder is
+  all 28 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
-  Eleven files in `docs/screenshots/`: RS-3, RS-4, RS-5 and RS-9 each need two
-  frames, because each splits its claim across the page and the audit trail.
+  Fifteen files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9 and RS-10 each
+  need two frames. For the first four the claim splits across the page and the
+  audit trail; RS-10's splits across TIME, because it is a race.
+  *(This line read "Eleven files" and the sentence above it read "21 captures" until
+  2026-09-14. Both were wrong when written — there were already thirteen and
+  twenty-six — so they are corrected rather than preserved.)*
   Server behaviour is covered by `npm test`; these are the *pictures*.
   **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** — a
   failed verdict logged against a model it never called (D-070), a fully
@@ -3396,6 +3400,35 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
     the shot is taken.** Four route tests fail while it is in place, which is
     expected and is not a reason to debug anything.
+  - [x] **RS-10 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-10-row-deleted-mid-edit-before.png` and
+    `docs/screenshots/rs-10-row-deleted-mid-edit-after.png`.**
+    **A row deleted while it was being edited — the only state in this set where
+    NOTHING is broken.** Every key is valid, the server is up and the database is
+    up. What fails is the assumption that the row a dialog opened still exists
+    when Save is pressed.
+    **THE ONLY RACE IN THE SET, so it is the only one needing two frames of the
+    SAME moment rather than two surfaces.** A single still cannot show an order of
+    events; a before and an after can.
+    **Recipe.** Everything working. Open the app TWICE side by side — two windows,
+    or one browser in split view, which is what the captured frames use. Add a
+    throwaway film that is not in the seed set and rate it **9.5**, so it lands at
+    `#1` and its disappearance is unmissable without scrolling. Reload the second
+    view. Match the scroll position in both. Then: view 1, click Edit on that film
+    and type a review, DO NOT save — shoot frame one. View 2, Remove that film and
+    confirm. View 1, click Save — shoot frame two.
+    **No timing pressure at any point.** `app.js` carries no `visibilitychange`
+    handler, no `focus` handler and no polling timer, so view 1 sits untouched
+    indefinitely: the dialog stays open and the typed text stays put. The ONE
+    thing on a clock is view 2's `“<Title>” removed.` toast, which lives 3.2s —
+    nice to catch (the captured frame has it) and not worth chasing.
+    Expect, inline and crimson in the dialog: "Couldn’t find that film — it may
+    have been removed. Refresh and try again." The rating and the typed review
+    must both still be there.
+    **The staleness is the mechanism and it is visible**: view 1 still reads
+    `8 films` with the film at `#1` while view 2 reads `7 films` without it.
+    **It deletes exactly one row and it is a throwaway**, so the seed set is
+    untouched and there is nothing to restore afterwards.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and

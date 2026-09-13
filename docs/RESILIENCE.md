@@ -7,7 +7,7 @@ being unreachable from a page already open in the browser.
 
 `npm test` covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
-can photograph. Nine states, thirteen frames.
+can photograph. Ten states, fifteen frames.
 
 ## What "graceful" is taken to mean here
 
@@ -209,6 +209,61 @@ nothing re-fetches them. The app keeps showing what it has.
 was written, so nothing may be offered. Pointing a user at an audit log that
 cannot load either would be worse than saying nothing.
 
+## When the data changes underneath you
+
+Every dependency here is healthy. Nothing is unplugged, no key is broken, and the
+request below reaches a working server and a working database. What fails is an
+assumption — that the row a dialog opened is still there by the time the dialog is
+finished with it.
+
+### RS-10 · A row deleted while it was being edited
+
+![One browser showing two independent views of the app side by side. In the left
+view a rate dialog is open on Titanic with a review typed and not yet saved; both
+views list eight films with Titanic ranked
+first](screenshots/rs-10-row-deleted-mid-edit-before.png)
+
+The baseline, and it is worth establishing: at the moment that review was typed
+the two views agreed. Eight films, Titanic at `#1`, in both.
+
+![The same two views. The right one has removed Titanic and still shows its
+confirmation toast, and now lists seven films with Mad Max first. The left one
+still lists eight with Titanic first, and its dialog now carries a crimson line
+reading that the film could not be
+found](screenshots/rs-10-row-deleted-mid-edit-after.png)
+
+The right view removed the film — its `“Titanic” removed.` toast is still on
+screen and its count has dropped to seven. **The left view has not noticed.** Its
+ranked list still shows Titanic at `#1` and still says eight films, because
+nothing re-fetches while a dialog is open: `app.js` carries no `visibilitychange`
+handler, no `focus` handler and no polling timer. Pressing Save from that stale
+view is what produces the `404`.
+
+**Three things this establishes, and the third is the one that needed a picture.**
+
+1. **It is a `404`, not a `500`.** The route tests `PGRST116` explicitly and
+   answers with a message about the film rather than letting the central handler
+   blame the server for something that is not its fault
+   (`server/routes/movies.js`). Asserted by
+   `PATCH /api/movies/:id for a row that no longer exists → 404, not 500`.
+2. **The message names both the cause and the remedy** — *“Couldn’t find that
+   film — it may have been removed. Refresh and try again.”* It is the only error
+   in the application that tells the user what happened to their data and what to
+   do about it, because it is the only one where the app knows.
+3. **The typed review survived.** It is still in the box, word for word, and the
+   rating is still at 9.5. A modal `<dialog>` submits and closes by default, which
+   would have taken the text with it; the save handler prevents that and reports
+   inline instead (`D-032`) — so the failure is recoverable by pressing Save
+   again once the cause is gone, rather than by retyping.
+
+**Why this state gets two frames of one moment, rather than two surfaces.** Every
+other pair in this document splits a claim between the page and the audit trail.
+This claim is *temporal* — it is about an order of events — and the honest way to
+evidence that in still images is a before and an after. The second frame happens
+to carry the whole story on its own, since the left view's stale `8 films` sits
+beside the right view's `7 films`; the first is what licenses a reader to read
+that as staleness rather than as two views that never matched.
+
 ## Two states that are not failures at all
 
 Both are included because an application that cannot tell "nothing found" apart
@@ -304,7 +359,7 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-9`: `CLAUDE.md`, under Pre-submission
+* Recipes for every state, as `RS-1` … `RS-10`: `CLAUDE.md`, under Pre-submission
   blockers.
 * Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
 * The acceptance criteria these satisfy: `SPEC.md` § 7.1.

@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Twenty-six captures, in four families. Every one is the real application in the
+Twenty-eight captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -10,16 +10,17 @@ take on trust.
 
 | Family | Count | What it is | Discussed in |
 |---|---|---|---|
-| `rs-*` | 13 | Nine resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
+| `rs-*` | 15 | Ten resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
 | `ac-*` | 5 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
-Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-9`. Four
-states need two frames, because the claim is split between what the user sees and
-what the audit trail records.
+Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-10`.
+Five states need two frames. For four of them the claim is split between what the
+user sees and what the audit trail records; for `RS-10` it is split across time,
+because the state is a race and a single still cannot show one.
 
 | File | State | What it establishes |
 |---|---|---|
@@ -36,6 +37,8 @@ what the audit trail records.
 | [`rs-8-search-no-matches.png`](rs-8-search-no-matches.png) | No matches (**not** a failure) | Muted, not crimson — compare directly with `rs-1` |
 | [`rs-9-zero-recommendations.png`](rs-9-zero-recommendations.png) | Nothing to suggest (**not** a failure) | Cost still declared for a run that returned nothing |
 | [`rs-9-zero-recommendations-log.png`](rs-9-zero-recommendations-log.png) | …its log row | Near-identical to `rs-3`'s row, opposite meaning |
+| [`rs-10-row-deleted-mid-edit-before.png`](rs-10-row-deleted-mid-edit-before.png) | A row deleted mid-edit — before | Two independent views agree: eight films, the film being edited at #1 |
+| [`rs-10-row-deleted-mid-edit-after.png`](rs-10-row-deleted-mid-edit-after.png) | …after | One view deleted it; the other has not noticed, and its save returns 404 with the typed review intact |
 
 **Two pairs are meant to be read against each other.** `rs-1` and `rs-8` are the
 same panel in the same position, one crimson because something failed and one
