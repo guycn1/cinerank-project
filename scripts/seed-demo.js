@@ -7,10 +7,21 @@
  *
  * Usage (the server must be running):
  *   npm run seed-demo                       dry run — resolves and prints, writes nothing
- *   npm run seed-demo -- --write            actually seed
+ *   npm run seed-demo -- --write            REPLACE: wipe the list, then seed
+ *   npm run seed-demo -- --write --keep     add the seed films alongside what is there
  *   npm run seed-demo -- --reset            dry run of the removal
  *   npm run seed-demo -- --reset --write    remove the seeded films
  *   npm run seed-demo -- --write --with-injection   also add the injection demo film
+ *
+ * REPLACE IS THE DEFAULT, AND IT IS A DELIBERATE, USER-REQUESTED EXCEPTION TO A
+ * BINDING RULE. CLAUDE.md Working agreements says: never run destructive
+ * operations against the live Supabase data, no delete all. That rule binds the
+ * AGENT, and it still does — Claude must never run this script with --write.
+ * It does not bind the owner of the data running a tool deliberately, and the
+ * whole point of a demo seed is that the list ends up as EXACTLY the seed set:
+ * seeding alongside whatever was already there is not a demo list, it is a
+ * mixture. The safety is that the wipe is never silent — a dry run prints every
+ * film it would destroy, with its rating, and --write is required to act.
  *
  * Dry run is the default on purpose, following scripts/backfill-tmdb-rating.js:
  * this writes to the live database, and CLAUDE.md § Working agreements exists
@@ -39,6 +50,7 @@ const args = new Set(process.argv.slice(2));
 const WRITE = args.has('--write');
 const RESET = args.has('--reset');
 const WITH_INJECTION = args.has('--with-injection');
+const KEEP = args.has('--keep');
 
 /* ------------------------------------------------------------------------- *
  * THE SEED SET — edit this block, not the code below it.
@@ -173,46 +185,78 @@ function describe(entry) {
   return entry.rating + (entry.review ? ' + review' : ', no review');
 }
 
-async function seed(entries) {
-  const { res, body } = await api('/api/movies');
-  if (!res.ok) fail('Reading the current list', res, body);
-  const existing = (body && body.movies) || [];
+/**
+ * ALWAYS prints the current list, even when it is empty. An earlier version
+ * printed only the seed films, so "to add" meant "this seed film is not in the
+ * list" and said nothing about what else was in there — and that got read as
+ * "the list is empty", which it was not. Showing the real list is the fix.
+ */
+function printCurrentList(existing) {
+  console.log('\nCurrent list: ' + existing.length + ' film(s)' + (existing.length ? '' : '  (empty)'));
+  for (const m of existing) {
+    console.log('    ' + m.title + ' (' + m.year + ')  rating: ' + (m.rating == null ? '-' : m.rating));
+  }
+}
 
-  console.log('\nResolving ' + entries.length + ' films through the app own search...\n');
+async function resolveAll(entries) {
+  console.log('\nResolving ' + entries.length + ' seed films through the app own search...\n');
   const resolved = [];
   for (const entry of entries) {
     const r = await resolve(entry);
-    const already = existing.find((m) => m.tmdb_id === r.tmdb_id);
     console.log(
-      '  ' + (already ? 'in list ' : 'to add  ') + r.resolvedTitle + ' (' + r.resolvedYear + ')' +
-        '  tmdb:' + r.tmdb_id + '  -> ' + describe(r) + (r.inexact ? '   [year matched, title did not]' : '')
+      '    ' + r.resolvedTitle + ' (' + r.resolvedYear + ')  tmdb:' + r.tmdb_id +
+        '  -> ' + describe(r) + (r.inexact ? '   [year matched, title did not]' : '')
     );
-    resolved.push(Object.assign({}, r, { existingId: already ? already.id : null }));
+    resolved.push(r);
   }
+  return resolved;
+}
 
-  if (!WRITE) {
-    console.log('\nDRY RUN — nothing written. Re-run with: npm run seed-demo -- --write\n');
-    return;
+function announcePlan(existing, purge) {
+  if (purge) {
+    console.log('\n  REPLACE MODE (the default): all ' + existing.length + ' film(s) above are');
+    console.log('  DELETED FIRST, so the list ends up as exactly the seed set.');
+    console.log('  Their ratings and reviews go with them and are NOT recoverable —');
+    console.log('  the Supabase free tier has no point-in-time recovery.');
+    console.log('  Pass --keep to add the seed films alongside what is already there.\n');
+  } else if (KEEP && existing.length > 0) {
+    console.log('\n  --keep: nothing is deleted. Seed films already present are left alone.\n');
   }
+}
 
-  console.log('\nWriting...\n');
+async function removeAll(existing) {
+  console.log('Removing ' + existing.length + ' film(s)...\n');
+  for (const m of existing) {
+    const del = await api('/api/movies/' + m.id, { method: 'DELETE' });
+    if (!del.res.ok) fail('Removing "' + m.title + '"', del.res, del.body);
+    console.log('  removed ' + m.title);
+  }
+  console.log('');
+}
+
+/** Adds one resolved film if it is not already present, and returns its row id. */
+async function ensureAdded(r, stillThere) {
+  const already = stillThere.find((m) => m.tmdb_id === r.tmdb_id);
+  if (already) return already.id;
+  const add = await api('/api/movies', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tmdb_id: r.tmdb_id }),
+  });
+  if (add.res.status === 409) return null; // already there under another row
+  if (!add.res.ok) fail('Adding "' + r.resolvedTitle + '"', add.res, add.body);
+  console.log('  added   ' + r.resolvedTitle);
+  return add.body.movie.id;
+}
+
+async function applySeed(resolved, stillThere) {
+  console.log('Writing...\n');
   for (const r of resolved) {
-    let id = r.existingId;
+    const id = await ensureAdded(r, stillThere);
     if (!id) {
-      const add = await api('/api/movies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tmdb_id: r.tmdb_id }),
-      });
-      if (add.res.status === 409) {
-        console.log('  skipped (already in list) ' + r.resolvedTitle);
-        continue;
-      }
-      if (!add.res.ok) fail('Adding "' + r.resolvedTitle + '"', add.res, add.body);
-      id = add.body.movie.id;
-      console.log('  added   ' + r.resolvedTitle);
+      console.log('  skipped (already in list) ' + r.resolvedTitle);
+      continue;
     }
-
     if (r.rating == null) continue; // an unrated film is finished at the add
 
     // ONE patch carrying both fields — see the header note on migration 004.
@@ -226,6 +270,27 @@ async function seed(entries) {
     if (!upd.res.ok) fail('Rating "' + r.resolvedTitle + '"', upd.res, upd.body);
     console.log('  rated   ' + r.resolvedTitle + '  ' + r.rating + (r.review ? ' (+ review)' : ''));
   }
+}
+
+async function seed(entries) {
+  const { res, body } = await api('/api/movies');
+  if (!res.ok) fail('Reading the current list', res, body);
+  const existing = (body && body.movies) || [];
+
+  printCurrentList(existing);
+  const resolved = await resolveAll(entries);
+
+  const purge = !KEEP && existing.length > 0;
+  announcePlan(existing, purge);
+
+  if (!WRITE) {
+    console.log('DRY RUN — nothing written and nothing deleted.');
+    console.log('Re-run with: npm run seed-demo -- --write' + (KEEP ? ' --keep' : '') + '\n');
+    return;
+  }
+
+  if (purge) await removeAll(existing);
+  await applySeed(resolved, purge ? [] : existing);
   console.log('\nDone. Open ' + BASE + ' and check the list reads the way a real one would.\n');
 }
 

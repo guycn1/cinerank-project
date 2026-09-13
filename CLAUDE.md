@@ -3006,7 +3006,15 @@ below — this list is the smaller stuff.)
   re-seed while tuning; final state must be exactly what the normal UI flow
   produces.
   **THE HELPER IS BUILT — `scripts/seed-demo.js`, `npm run seed-demo` (2026-09-13).**
-  Dry run by default, `--write` to apply, `--reset` to remove, `--with-injection` to
+  **It REPLACES by default: the wipe is the first thing it does**, so the list
+  ends up as exactly the seed set rather than the seed set mixed into whatever
+  was already there. That is a DELIBERATE, USER-REQUESTED EXCEPTION to the
+  no-delete-all working agreement, and the agreement still binds Claude —
+  **Claude must never run this script with `--write`.** The safety is that the
+  wipe is never silent: a dry run prints every film it would destroy with its
+  rating, and says the ratings and reviews are not recoverable.
+  Dry run by default, `--write` to apply, `--keep` to add alongside instead of
+  replacing, `--reset` to remove ONLY the declared seed films, `--with-injection` to
   add the Module 17 demo film whose review IS an injection attempt. It goes
   through the app own HTTP API rather than Supabase, so the rows are exactly
   what the UI produces, and films are declared by TITLE AND YEAR and resolved
