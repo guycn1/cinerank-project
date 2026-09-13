@@ -3269,7 +3269,29 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     loads and there is no UI to photograph — this cost time once already. Expect
     "Couldn’t reach CineRank. Check your connection and try again." The ranked
     list keeps showing whatever it loaded before the server went away.
-  - [ ] **RS-7 · Database unreachable.** Bogus `SUPABASE_URL` /
+  - [x] **RS-7 · CAPTURED 2026-09-13 —
+    `docs/screenshots/rs-7-database-unreachable.png`.**
+    **Shooting it found two real defects, both fixed before the frame was
+    taken, and the frame is now the evidence for both.** One root cause:
+    `loadMovies()` destructures on its first line, so a failed `/api/movies`
+    throws before ANY of the four sync functions below that `await` can run,
+    and every element keeps whatever the markup gave it. `#recs-trigger`
+    shipped without `disabled` and so rendered fully live above an empty list
+    (fixed in the markup, mirroring `#verdict-refresh`, which the step-4b work
+    had already got right); and `Reading the room…` — a placeholder meant to
+    last a fraction of a second — sat there for the life of the page, still
+    promising a verdict (fixed with two lines inside `init()`’s existing
+    catch, which cannot run when the load succeeds).
+    **A THIRD ELEMENT IS SKIPPED THE SAME WAY AND IS CORRECT — DO NOT "FIX"
+    IT.** `#ranked-empty` reads "No movies yet — search for one above to get
+    started." and stays `hidden`, because `refreshRanked()` is below that
+    `await` too. That is the right outcome: the user may have a full list and
+    the app simply cannot reach it, so unhiding that sentence would assert
+    something false. A sweep for "the same bug" would introduce one here.
+    **Search stays live in the frame, and that is not an oversight** — it
+    calls TMDB, not Supabase, so one dependency being down while the other
+    works is exactly what the UI should show.
+    **Database unreachable.** Bogus `SUPABASE_URL` /
     `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
     movies — Something went wrong."
     **This is the ONE shot where the ranked list is legitimately empty** — it is
