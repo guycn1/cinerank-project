@@ -3178,7 +3178,17 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     down, search itself fails and there is nothing to click. This works only
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
-  - [ ] **RS-3 · TMDB unreachable DURING a recommendation run** (added by R28).
+  - [ ] **RS-3 — HALF CAPTURED 2026-09-13. The in-app frame is done:
+    `docs/screenshots/rs-3-tmdb-down-during-recs.png`. STILL OWED: the AI call
+    log row that run wrote — a green `success` with empty `suggested_titles`.**
+    This is the only RS entry needing two frames, because the claim is split
+    across two surfaces: the page says the run produced nothing, and only the
+    log shows it succeeded and was charged anyway. Either frame alone is half
+    the story. Tick this when the second lands.
+    The captured frame also proves R26’s colour rule in passing: the hint is
+    `--ink-dim`, not the fainter `.is-caption`, because it is the only thing on
+    screen rather than a caption introducing content.
+    **TMDB unreachable DURING a recommendation run** (added by R28).
     Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
     Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
     call succeeds and is charged while the run still produces nothing.** Expect
