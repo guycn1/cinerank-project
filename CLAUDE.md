@@ -3208,11 +3208,26 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     cost, and — in the AI call log — a green `success` row whose
     `suggested_titles` is empty. Before R28 this state claimed the model had only
     named films already in the list. Costs one real OpenRouter call.
-  - [ ] **RS-4 — HALF CAPTURED 2026-09-13. In-app frame done:
-    `docs/screenshots/rs-4-openrouter-down-recs.png`. STILL OWED: the log row,
-    a red `failed` whose Result cell carries the real technical cause.** Two
-    frames for the same reason RS-3 needed two: the split between the calm
-    sentence and the recorded cause IS the claim, so one frame cannot carry it.
+  - [x] **RS-4 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-4-openrouter-down-recs.png` and
+    `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
+    same reason RS-3 needed two: the split between the calm sentence and the
+    recorded cause IS the claim, so one frame cannot carry it. The log row shows
+    `OpenRouter responded 401` in crimson beside a red `failed` badge, with `—`
+    in Tokens and Cost (nothing completed, so an em dash rather than a lying
+    `0`) and a 74 ms duration that says where it died: rejected at auth, never
+    reached inference.
+    **WHY THE TWO LOG FRAMES SHOW DIFFERENT TABLES, so it is not later read as
+    an inconsistency.** `rs-3-…-log.png` has no 17:54:01 failed row and
+    `rs-4-…-log.png` has it on top. Both were shot after the D-069 copy fix and
+    neither is scrolled; the RS-3 frame is near-certainly a cached
+    `/api/ai-log` response (the app fetches fresh on every open and the
+    endpoint sets no `Cache-Control`). **Kept deliberately rather than
+    re-shot:** a fresh RS-3 frame would put the failed row on top and push the
+    row its own caption points at into second place, making it a near-duplicate
+    of the RS-4 frame. Two visibly different tables — one before the failure,
+    one after — carry more than two near-identical ones, every figure in both
+    is a real state of that table, and neither asserts anything false.
     The captured frame shows the hint at `--ink-dim` rather than crimson (R24 —
     the amber link measured 2.48x brighter than crimson, so the pointer to
     details outshouted the statement of what broke), no metadata footer at all
