@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Twenty-one captures, in three families. Every one is the real application in the
+Twenty-two captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -13,6 +13,7 @@ take on trust.
 | `rs-*` | 13 | Nine resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
+| `ac-*` | 1 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
@@ -60,6 +61,16 @@ system-prompt exfiltration and output hijack in one string. Added with
 films whose reviews fed that prompt. Without it a reader would have to take on
 trust that the injection was ever delivered, and a system resisting something it
 was never sent proves nothing.
+
+## `ac-*` — acceptance criteria
+
+Evidence for the numbered criteria in `SPEC.md` § 7.1. The number in the
+filename is the criterion it belongs to, and each is embedded beneath that
+criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
+
+| File | Criterion | What it establishes |
+|---|---|---|
+| [`ac-1-search-real-results.png`](ac-1-search-real-results.png) | 1 | A live search for a real title returning real TMDB results, each with a poster, year and score |
 
 ## `readme-*` — product showcase
 

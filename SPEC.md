@@ -290,7 +290,7 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 
 ### 7.1 Must Pass Before Submission
 
-*Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — nine states, thirteen frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
+***Each criterion is walked one at a time, with its evidence attached, in `docs/ACCEPTANCE.md` — including an honest note where a criterion is only partly covered.*** *Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — nine states, thirteen frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
 
 * \[ ] Searching a real movie title returns real TMDB results with posters.
 * \[ ] Adding a movie already in the list is blocked with a clear message, not a duplicate row.

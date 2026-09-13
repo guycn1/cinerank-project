@@ -189,6 +189,7 @@ and each carries its own evidence.
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
+| [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached — and an honest note wherever one is only partly covered. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails. **Nine states, thirteen captures**, embedded and analysed against a stated definition of "graceful". |
 | [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Five criteria for whether this is fit to merge, and an honest standing verdict (Module 16). |
 | [`docs/screenshots/`](docs/screenshots/) | **Twenty-one captures**, indexed and described. Nothing in it is marked up. |
@@ -260,6 +261,7 @@ docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of s
 docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
 docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
+docs/ACCEPTANCE.md  SPEC 7.1 criterion by criterion, with evidence attached
 docs/RESILIENCE.md  what the user sees when each dependency fails, with the
                     captures embedded as evidence
 docs/DECISIONS.md   why the choices are what they are
