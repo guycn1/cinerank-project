@@ -2987,7 +2987,7 @@ below — this list is the smaller stuff.)
   revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
   misalign every poster's left edge down the list, trading a rare problem for a
   permanent one. 1000+ is unhandled by choice.
-* [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
+* [ ] **Demo seed list for submission.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
   1. One deliberate taste persona — a specific sensibility (e.g. "bold,
@@ -3075,8 +3075,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
     and the graded item is "the context files kept and maintained across
     sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own. An
-    audit of the notes also found they carried third-person references to the
-    grader, which a rule inside those very notes forbids anywhere in the repo, and
+    audit of the notes also found they carried third-person references of exactly the
+    kind a rule inside those very notes forbids anywhere in the repo, and
     that their technical content was already duplicated here.
   **What this does NOT mean.** The reconciliation ADDED documents; it ticked
   nothing below. Every remaining item in this list is still open and still owed.
