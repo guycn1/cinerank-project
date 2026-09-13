@@ -546,6 +546,10 @@ function renderRanked() {
   rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
+  // EMPTY LIST SHOWS NO SUBTITLE AT ALL, and the ternary is what makes that so.
+  // rankedCountLabel(0, 0) would return "0 films", which beside the empty-state
+  // line -- "No movies yet -- search for one above to get started." -- says
+  // nothing twice. Do not simplify this into an unconditional call.
   el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
 

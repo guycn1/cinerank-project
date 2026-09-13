@@ -30,7 +30,7 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 |---|---|---|---|
 | 1 | Search returns real TMDB results with posters | **yes** | Automated + captured + repeatable |
 | 2 | Duplicate add is blocked with a clear message | **yes** | Automated + captured, three layers |
-| 3 | Delete and re-rank at 0, 1 and many | not yet | — |
+| 3 | Delete and re-rank at 0, 1 and many | **yes** | Automated + captured at all three sizes |
 | 4 | Recommendations disabled below 3 rated films | not yet | — |
 | 5 | A full recommendation run: logged row, verified posters | not yet | — |
 | 6 | Verdict disabled below 2 rated films, logged row | not yet | — |
@@ -165,3 +165,85 @@ make unreachable.
 **Satisfied.** Automated coverage of the server contract, a capture proving both
 halves of the claim in one frame, and a schema constraint that makes the forbidden
 outcome impossible rather than merely handled.
+
+## 3 · Deleting and re-ranking works correctly with 0, 1, and many movies
+
+**Assessed 2026-09-13.** This is the criterion that explicitly asks for *edge
+cases, not just the happy path*, so the two edge sizes were produced deliberately
+rather than waited for: the demo list was emptied one film at a time, captured at
+one and at zero, and rebuilt from `scripts/seed-demo.js` afterwards.
+
+### Captured — one film
+
+![The application with a single rated film, showing rank 1, a "1 film" subtitle,
+and both AI features locked](screenshots/ac-3-ranking-one-film.png)
+
+The subtitle reads **"1 film"** — singular, and with no "not rated yet" clause,
+because every film present is rated. That is `rankedCountLabel()`’s all-rated
+branch, and getting the pluralisation right at exactly one is the kind of thing
+that is only ever seen in this state.
+
+The card holds rank **1** with no tie marker, which is `displayedRanking()`
+behaving at a list length of one.
+
+**This frame also evidences criteria 4 and 6**, and is referenced again there:
+with one rated film both AI features are below threshold, so each shows a
+disabled trigger beside an explanation naming the number required and the number
+held.
+
+### Captured — zero films
+
+![The application with an empty list, showing the empty-state line and no
+subtitle](screenshots/ac-3-ranking-empty.png)
+
+*"No movies yet — search for one above to get started."*, and **no subtitle at
+all** beside the heading.
+
+**That absence is deliberate, and it was checked rather than assumed.**
+`renderRanked()` guards the subtitle behind the count, because
+`rankedCountLabel(0, 0)` would return `"0 films"` — which, sitting directly above
+*"No movies yet"*, says nothing twice. The guard had no comment explaining itself
+until this capture prompted the question, and now does, so a later tidy-up cannot
+simplify it into an unconditional call and quietly restore the redundancy.
+
+### Captured — many
+
+Already evidenced by several existing frames rather than re-shot;
+`screenshots/readme-1-hero-ranked-list.png` shows seven films with ranks 1 to 3
+and the `7 films · 1 not rated yet` subtitle.
+
+### Automated
+
+`test/routes.test.js`, two tests, **both written on 2026-09-13 while assembling
+this entry** — the endpoint had no coverage at all before:
+
+* *"DELETE /api/movies/:id → 204 with no body"* — the status, an empty body, and
+  that a delete reaches the movies table.
+* *"DELETE /api/movies/:id when the database rejects it → 500, not a false 204"* —
+  the failure shape that matters. Without the route’s error guard a failed delete
+  would answer 204, telling the user a film is gone while it is still there.
+  Verified load-bearing: removing that guard fails this test and nothing else.
+
+**The gap was conspicuous once looked at.** `test/helpers.js` has defined a
+`del()` client method since it was written, and nothing had ever called it.
+
+### What is deliberately not asserted
+
+Two limits, stated rather than papered over:
+
+* **That the correct row was deleted.** The fake Supabase builder’s `.eq()` is a
+  no-op, so an assertion about the id would pass whatever the route filtered on.
+  That is the trap `D-046` records — a test that passed against buggy code because
+  the fake ignored the filter causing the bug. Writing it would manufacture false
+  confidence.
+* **`displayedRanking()` has no unit test.** It lives in `public/app.js`, a browser
+  script the Node runner cannot import, and the client has no test harness. Its
+  behaviour at 0, 1 and many is evidenced by the captures above rather than by
+  assertions.
+
+### Verdict
+
+**Satisfied.** Server-side deletion is covered by tests including its failure
+shape; the ranking is captured at all three sizes the criterion names; and the two
+places where evidence is observational rather than automated are named above
+instead of being left for a reader to discover.
