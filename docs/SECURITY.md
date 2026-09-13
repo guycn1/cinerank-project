@@ -319,10 +319,10 @@ never see each other's output and share no state. Multi-agent orchestration is t
 subject of the course's shared running project, which lives in a separate
 repository; this one is the independent application.
 
-## What is still owed
+## What was owed — nothing outstanding
 
-**Nothing.** This section listed two items on the morning of 2026-09-13 and both
-are now delivered.
+This section listed two items on the morning of 2026-09-13. **Both are
+delivered**, and nothing has replaced them.
 
 **Delivered:** the debug harness is unloaded — the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the

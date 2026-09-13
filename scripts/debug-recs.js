@@ -1,14 +1,15 @@
 /**
  * CineRank — recommendation UI debug harness. DEV ONLY.
  *
- * TEMPORARILY LOADED BY THE PAGE, so `debugRecs` is already defined in the
- * console — no pasting needed. Two lines make that happen and BOTH come out
- * before the final merge to main: the `<script src="/debug-recs.js">` tag at the
- * bottom of public/index.html, and the route that serves this file in
- * server/index.js (scripts/ is not inside the static root). The file itself
- * stays. Tracked as a checkbox under Pre-submission blockers in CLAUDE.md.
- * Once those two are gone it still works by pasting the whole file into the
- * console, which is how it was built.
+ * NOT LOADED BY THE PAGE. Paste this whole file into the browser console to use
+ * it, which is how it was built and how it worked for its first days.
+ *
+ * It WAS loaded automatically for a while, by two lines that were removed on
+ * 2026-09-13 before the final merge: a `<script>` tag at the bottom of
+ * public/index.html and a route in server/index.js serving this file (scripts/
+ * is not inside the static root, so it needed an explicit one). Verified after
+ * removal: that path answers 404 and the served HTML no longer mentions it.
+ * The file itself was always meant to stay — it is a real development tool.
  *
  * Either way, use it like this:
  *

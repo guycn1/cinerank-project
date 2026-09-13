@@ -2931,7 +2931,7 @@ rather than renumbered because "step 5" is referenced by name outside this file 
 including the two enforcement rules a memory file points at — and a silent
 renumber would send a future session to the wrong list.
 
-### Open issues / TODO
+### Open issues / TODO — ALL CLOSED as of 2026-09-14
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
@@ -3143,8 +3143,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     and the graded item is "the context files kept and maintained across
     sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own.
     Their technical content was also already duplicated here.
-  **What this does NOT mean.** The reconciliation ADDED documents; it ticked
-  nothing below. Every remaining item in this list is still open and still owed.
+  **What this did NOT mean, at the time.** The reconciliation ADDED documents; it
+  ticked nothing below, and on 2026-09-13 every remaining item in this list was
+  still open and still owed. *(They were closed over the following day. This
+  sentence is kept in the past tense rather than deleted, because it records what
+  the reconciliation did and did not achieve, which is the point of the entry.)*
 * [x] **Put the live URL on the project sheet — DONE 2026-09-14.**
   https://cinerank-g6lx.onrender.com is on the sheet. This used to be a "still to
   do" line *inside* the ticked deploy item above, where it did not show up as an
