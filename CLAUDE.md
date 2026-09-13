@@ -3317,7 +3317,21 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     “<query>”. Check the spelling, or try a different title." One shot, purely to
     show that an empty result and a failure are visibly different — which is the
     whole of D-033's argument, applied in Search.
-  - [ ] **RS-9 · A recommendation run that returns nothing.** Not a failure, and
+  - [ ] **RS-9 — HALF CAPTURED 2026-09-13. In-app frame done:
+    `docs/screenshots/rs-9-zero-recommendations.png`. STILL OWED: the log row, a
+    green `success` with real tokens and cost and “no suggestions” as its
+    result.** The temporary edit is still in the working tree while that second
+    frame is taken and MUST NOT be committed; four route tests fail while it is
+    in place, which is expected.
+    **It is the deliberate near-twin of RS-3, and they argue opposite things.**
+    Same layout, same empty grid, same real charge. RS-3 is a genuine outage the
+    app reported honestly instead of hiding behind this very sentence, which is
+    what it used to claim for every empty run before R28. RS-9 is that sentence
+    being TRUE: every key works, TMDB answers, the model performs, and the run
+    simply has nothing new to offer — and the cost is still accounted for. That
+    is why it is filed under SPEC § 7.2 rather than § 7.1: an app that reports
+    what it spent only when things go well is not an audit trail.
+    **A recommendation run that returns nothing.** Not a failure, and
     included deliberately: it is the clearest single frame proving the app reports
     an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
