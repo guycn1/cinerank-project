@@ -3562,44 +3562,6 @@ one run-on line and survived every render audit: every audit had been run in
 `gfm`. **Use the default mode for anything about paragraphs, layout or line
 breaks, and `gfm` only to confirm a task list.** When it genuinely matters, fetch
 the real blob from github.com and read that — it is the only authority.
-### One content rule, not a rendering one
-
-**Never refer to the course's assessor in the third person, anywhere in this
-repository.** Not "the grader", not "the lecturer", not "the marker". This is a
-public repo and it reads badly in one. The user rejected an edit that did it once;
-a sweep on 2026-09-13 found five more that had crept in since, **two of them added
-the day before by Claude**, and one of those was a sentence explaining why the
-agent's memory notes were not committed — which named the problem while
-demonstrating it.
-
-**Say what the person does instead.** `docs/FRAMING.md`'s stakeholder list calls
-them **the reader of the repository** and identifies them by capability rather
-than role: reads the repository, never the running app, cannot ask a question.
-That is more precise than the job title anyway, and it is what actually drives the
-trade-offs — it is why a markdown file that renders wrong is a defect here rather
-than a cosmetic complaint.
-
-**It applies to historical records too, and that is not a breach of the
-preservation rule.** `docs/DECISIONS.md` D-030 carried one inside a recorded
-argument, and it was changed on the user's instruction with the right reasoning:
-swapping the noun leaves the decision that entry exists to record — fixing an
-edge case rather than documenting it away — completely untouched. The
-preservation rule protects *what was argued*; it does not protect a word choice
-that was never part of the argument.
-
-**`DOSSIER.md` is exempt and must stay exempt.** It is the course's own text
-copied verbatim, so editing it would falsify a source document. Every check below
-excludes it.
-
-```
-grep -rniE "grader|lecturer|examiner" --include="*.md" . | grep -v DOSSIER.md
-```
-
-That should return nothing. It is not wired into `check-markdown`, because the
-checker is scoped to rendering defects and a rule about tone does not belong in a
-gate that exists to catch broken output — run it by hand when adding prose that
-talks about who reads this.
-
 ## Version Control Workflow (non-negotiable)
 
 * **Repo:** https://github.com/guycn1/cinerank-project.git (repo name: `cinerank-project`)
