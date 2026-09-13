@@ -78,11 +78,12 @@ claim belongs to the people submitting. A document cannot sign for them, and an
 agent marking its own homework as accepted would make the whole exercise
 circular.
 
-**Two submission items sit outside this criterion** and are tracked in
+**Two submission items sat outside this criterion** and were tracked in
 `CLAUDE.md` rather than here: putting the live URL on the project sheet, and the
-joint-project registration email. They are administration rather than functional
-completeness, and conflating the two would let a clerical task masquerade as an
-engineering one.
+joint-project registration email. **Both were completed on 2026-09-14.** They are
+recorded separately because they are administration rather than functional
+completeness, and conflating the two would have let a clerical task masquerade as
+an engineering one — in either direction.
 
 **This criterion is the pre-submission blocker list in `CLAUDE.md`.** It is not
 separately tracked here, because a checklist held in two places drifts.

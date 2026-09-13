@@ -29,11 +29,12 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 **Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
-boxes against `docs/ACCEPTANCE.md`. THE ONLY THINGS LEFT ARE THE USER'S OWN AND
-ARE NOT ENGINEERING: the live URL on the project sheet, the joint-project
-registration email, and the final `draft` → `main` merge, which still needs
-explicit confirmation. Everything Claude can do is done — evidence captured and
-written up, the debug harness unloaded, all four gates green.** What landed on
+boxes against `docs/ACCEPTANCE.md`. THE ONLY THING LEFT IS THE FINAL
+`draft` → `main` MERGE, which still needs explicit confirmation. The live URL is
+on the project sheet and the joint-project registration is emailed, both
+2026-09-14. Everything else is done — evidence captured and written up, the debug
+harness unloaded, all four gates green, and every other checkbox on this list
+ticked.** What landed on
 2026-09-13/14: twenty-six captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
@@ -3141,12 +3142,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     Their technical content was also already duplicated here.
   **What this does NOT mean.** The reconciliation ADDED documents; it ticked
   nothing below. Every remaining item in this list is still open and still owed.
-* [ ] **Put the live URL on the project sheet** —
-  https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
-  *inside* the ticked deploy item above, where it did not show up as an open
-  checkbox and could be missed on a skim. It is its own task: deploying and
-  submitting the address are two different things, and the second is what makes
-  the first count.
+* [x] **Put the live URL on the project sheet — DONE 2026-09-14.**
+  https://cinerank-g6lx.onrender.com is on the sheet. This used to be a "still to
+  do" line *inside* the ticked deploy item above, where it did not show up as an
+  open checkbox and could be missed on a skim. Splitting it out is what made it
+  get done: deploying and submitting the address are two different things, and
+  the second is what makes the first count.
 * [x] **Demo seed list — DONE 2026-09-13.** Loaded by the user with
   `npm run seed-demo -- --write`, which goes through the app’s own HTTP API,
   so the rows are exactly what the normal UI flow produces. The content is
@@ -3438,8 +3439,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   resilience frame — each captioned with what it PROVES rather than what it
   depicts. The README also gained a `## Documentation` map, because nine of the
   eleven deliverables had been reachable only from inside a code block.
-* [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
-  names) and both add cross-referencing comments to the project sheet.
+* [x] **Joint-project registration — DONE 2026-09-14.** Emailed with both names,
+  and both cross-referencing comments are on the project sheet.
 * [x] **Unload the recommendations debug harness — DONE 2026-09-13.** Deleted TWO
   lines and nothing else: the `<script src="/debug-recs.js">` tag at the bottom of
   `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
@@ -3512,7 +3513,13 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   match for the intended transforms — zero unintended changes. CLAUDE.md differed
   in exactly two lines, both of them escapes deliberately preserved in this entry
   as examples. Nothing else in either rendered file moved.
-* [ ] Final `draft → main` merge once the above land (needs explicit user OK).
+* [ ] **Final `draft → main` merge — THE ONLY THING LEFT ON THIS LIST.**
+  Everything above it is ticked as of 2026-09-14, and
+  `docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria.
+  **Still needs explicit user confirmation, exactly as every previous merge
+  did** — being merge-ready is a statement about the work, not permission to
+  act on it, and the rule in Version Control Workflow has no exception for the
+  last one.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
