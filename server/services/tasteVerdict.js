@@ -11,7 +11,7 @@ const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35
 //  - if still over the ceiling, cut at the last sentence end, else last word —
 //    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
 export function tidyVerdict(raw) {
-  let v = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
+  const v = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (v.length <= MAX_LEN) return v;
   const head = v.slice(0, MAX_LEN);
   const lastSentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));

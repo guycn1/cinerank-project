@@ -67,11 +67,18 @@ server/
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js         run before every commit
+scripts/check-markdown.js       run before every commit that touches a .md file;
+                                catches escapes that render literally and the two
+                                structural traps (see CLAUDE.md)
 scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
 scripts/debug-recs.js           dev only — fakes a recommendation response in the
                                 browser so UI work costs no OpenRouter credit
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
+eslint.config.js    defect rules + complexity ceilings; not a style linter
+docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of scope
+docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
+docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
 ```
@@ -120,6 +127,11 @@ it wakes. Subsequent loads are immediate. Worth opening the link shortly before
 demoing it.
 
 ## Security notes (course Module 17)
+
+**Mapped in full against the OWASP Top 10 for Agentic Applications (ASI01 to
+ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
+against the product and once against the agentic development environment that
+built it, including the ones that do not apply and why. The short version:
 
 - `.env` is gitignored from the first commit; `npm run scan-secrets` checks staged diffs.
 - Frontend uses the Supabase **anon key** only — least privilege, RLS-bounded.

@@ -5,7 +5,329 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
----
+## D-066 · The render audit had been running in the wrong GitHub API mode, and it masked a live defect for the life of the file
+
+*Written up the same day it was found, 2026-09-13, while unfreezing `SPEC.md`.*
+
+`CLAUDE.md`'s render-and-diff method told every session to post markdown to
+`https://api.github.com/markdown` with `"mode": "gfm"`. The justification written
+beside it was reasonable and is still true as far as it goes: the two constructs
+most at risk are tables and task lists, both GitHub extensions, so a plain
+CommonMark renderer can pass something that breaks in the repo.
+
+**What nobody checked is whether `gfm` renders a repo FILE the way the repo
+does.** It does not.
+
+**The finding.** `mode: gfm` inserts a `<br>` at every soft line break inside a
+paragraph. GitHub's blob view emits none — a soft break there is just a space, so
+consecutive source lines flow together into one rendered line. Measured against
+the HTML github.com actually serves for `SPEC.md` on `main`:
+
+```
+<p dir="auto">SPEC.md — CineRank
+<strong>Authors:</strong> Guy Cohen &amp; Michael Chernyak
+<strong>Course:</strong> LLM-Augmented Software Practice (ASE-26)
+<strong>Status:</strong> Draft v1</p>
+```
+
+No `<br>` anywhere. That header had been rendering as one run-on line since the
+file was written, and **every render audit we ever ran displayed it as three tidy
+lines**, because every audit ran in `gfm`.
+
+**The alternatives, and why neither is simply "the right mode".**
+
+* **Default mode** (omit `mode`) matches the blob view on line breaks, and emits
+  the same `markdown-heading` anchor wrappers the blob view does — but it does
+  **not** render task lists as checkboxes, returning a literal `<li>[ ] task</li>`.
+  `SPEC.md` § 7.1 and `CLAUDE.md`'s blocker list are task lists, so default mode
+  would report a false defect on both.
+* **`gfm`** renders task lists correctly and fakes the line breaks.
+
+So there is no single authoritative mode, which is the part worth remembering.
+The rule now in `CLAUDE.md` is to use the default for anything about paragraphs,
+layout or line breaks, `gfm` only to confirm a task list, and — when it genuinely
+matters — to fetch the real blob from github.com, which is the only authority.
+
+**Why this is a correction and not an update.** The old rule was wrong when it was
+written, not made wrong by later events, so it was fixed in place rather than
+preserved as history. The distinction is the one `CLAUDE.md` § Decision Logging
+already draws.
+
+**The generalisable lesson, and it is the same one twice.** D-065's audit found
+that the checker had learned the hyphen spelling of a thematic break and nothing
+else — generalising from the instance in hand instead of from rendered output.
+This is that mistake one level higher again: the *audit tool's own configuration*
+was never validated against the thing it was supposed to model. A tool that
+verifies your work is itself a claim, and it gets checked the same way everything
+else does.
+
+## D-065 · The markdown separators are DELETED, not unescaped — and two of the four suspected escaping defects turned out not to be defects at all
+
+CLAUDE.md and SPEC.md carried ~110 backslash escapes from an old paste. The
+2026-09-12 sweep flagged them as cosmetic and left them; the user pushed back,
+correctly, that for a course graded substantially on workflow documentation the
+RENDERED markdown IS the deliverable, and that a rendering fault in a 3,380-line
+file is the hardest kind to notice. That reframing is what made this worth doing.
+
+### What was actually broken, measured rather than assumed
+
+Every class was rendered through GitHub's own Markdown API before deciding.
+**Two of the four suspected defects were not defects**, and Claude had asserted
+both of them confidently:
+
+* `[ ]` — claimed to "kill the eight checkboxes" in SPEC § 7.1. **False.** An
+  escaped bracket in a list item renders as a working, tickable checkbox, byte
+  for byte identical to an unescaped one.
+* `1.` in headings — claimed to render as `1.`. **False.** `## 1. Test`
+  renders `<h2>1. Test</h2>`.
+* `&` and plain-text `_` also render correctly. All four classes: left alone.
+
+The two that were real: **the 17 section separators**, which rendered as a
+literal `---` paragraph instead of a rule, and **the 54 escaped underscores
+inside code spans**, which showed the backslash to the reader. The second is the
+one that mattered — it covered nearly every technical identifier in both files:
+all four env var names in § Security & Secrets (the Module 17 section), both log
+tables, every log column, all three check constraints, and every prompt file and
+version string. The user found it in a screenshot of the security section.
+
+### The decision: delete the separators rather than unescape them
+
+The obvious fix was `---` → `---`, turning each into a real horizontal rule.
+**The user rejected that from a screenshot and was right on both counts.**
+
+* **A rule there is redundant.** GitHub's stylesheet already puts a
+  `border-bottom` on every `h1` and `h2`, and all 17 separators sit immediately
+  above an `h2` — checked, no exceptions. Converting would have drawn a rule, a
+  gap, the heading, and then the heading's own rule: two rules a line apart
+  around every section break.
+* **Deleting is strictly SAFER than converting, which is the non-obvious half.**
+  An unescaped `---` directly under a text line is a setext heading, not a
+  thematic break — confirmed with the renderer, `text` + `---` → `<h2>text</h2>`.
+  All 17 happen to have a blank line above them today, so converting would have
+  been safe NOW and left a trap armed for whoever next edits one of those blank
+  lines. A deleted line cannot be mis-parsed later. The escaped paragraph being
+  removed is self-contained, with blank lines both sides, so its removal cannot
+  affect the paragraph above or the heading below either.
+
+### How the risk was actually retired
+
+The user's objection to eyeballing it was correct and is worth recording as a
+method: GitHub's "Display the rich diff" button shows the whole rendered file,
+so a subtle structural regression is about as findable there as by reading the
+source. **Rendering the file to HTML and diffing THAT** is the version that
+works — output is a few dozen lines, and structural regressions are loud in HTML
+even when they are quiet on screen: a paragraph promoted to a heading is a
+literal `<p>` → `<h2>`, a broken table loses its `<table>` element entirely.
+
+`POST https://api.github.com/markdown` rather than a local renderer, because the
+two things most at risk were task lists and tables — both GitHub extensions, so
+a CommonMark renderer could have passed something that breaks in the repo.
+
+Result: SPEC.md's rendered HTML was an EXACT match for the intended transforms,
+zero unintended changes. CLAUDE.md differed in exactly two lines, both escapes
+deliberately preserved inside the blocker entry that documents this work — which
+is itself the trap a blind find-and-replace would have sprung, since that entry
+quotes the escape sequences as examples.
+
+### Addendum: the second audit, and five false negatives the first one never looked for
+
+The user asked for the whole thing again — every markdown file rendered end to
+end, and the checker proved free of false positives AND false negatives. The
+first audit had verified the rules it had. It had never asked whether the rules
+it had were the rules it needed.
+
+**The method that found them.** Write nine plausible defects, **render all nine
+and read the output**, and only then ask whether the checker catches them. Five
+were genuinely broken and the checker caught none:
+
+* `===` under a text line — silently promotes that line to an `<h1>`. Identical
+  in kind to the `---` case the checker already had, and strictly worse, because
+  it makes a bigger heading. A pure false negative.
+* `***` and `___` before a heading — the same doubled rule around a heading that
+  rule 5 exists to prevent, in the two spellings it did not know.
+* An escaped `\***` — the same literal-debris paragraph rule 3 exists to prevent.
+* A table with no `|---|` separator row — GitHub renders the whole block as one
+  paragraph of pipe characters. Not a degraded table: no table. These files carry
+  84 table rows between them.
+
+The common cause is one habit: **the checker had learned the HYPHEN spelling of a
+thematic break and nothing else.** That is the same error as the `\[` defect the
+previous audit shipped — generalising from the instance in hand rather than from
+the rendered output — one level up, in the rules instead of in the prose.
+
+**Two hazards were deliberately NOT given rules**, and the reasoning is the same
+one that removed the separator rule for a day: a check that cries wolf buries the
+ones that matter. An unclosed `**` would need an odd-`**`-count test, which fires
+on an exponent like `2**8` and on a redaction written as an odd run of asterisks —
+`DOSSIER.md` carries `********` twice, deliberately. An unclosed inline link
+would need a line-scoped test, and CommonMark lets a link destination begin on
+the next line. Both render visibly wrong, both are caught by the render audit, and
+both are now written down as known limitations rather than papered over.
+
+**Verified in both directions, 57 cases: 26 that must fail, 31 that must pass.**
+The must-pass half is where the value is — escapes inside fenced blocks, escapes
+in plain text, a Windows path and a regex token as genuine content, a span
+wrapped across lines, double and triple delimiters, a valid table, an alignment
+row, a lone pipe line, `***` used as a legitimate mid-section break, CRLF line
+endings, and an empty file. Zero false positives across all 16 real files, and
+that was measured BEFORE the rules were written rather than hoped for after.
+
+**The render audit itself was wrong twice and both are worth recording.** Its
+first "leaked heading" probe used `\s*` after a newline anchor — and `\s` matches
+newlines, so `#` anywhere in the document matched and CLAUDE.md was reported as
+broken when it was not. Its "unconsumed bold" probe then flagged `DOSSIER.md`,
+which turned out to be the user's own eight-asterisk redaction of an email
+address rendering exactly as intended. **An audit tool gets the same treatment as
+the thing it audits: check its output against reality before believing it.**
+
+**And the checker caught this entry being written.** The paragraph above quoting
+`\***` inline tripped rule 1 — correctly, since an escape in a code span does
+render literally. The two remaining thematic-break spellings joined the
+whole-span allowlist, which was then probed to confirm it still fires on the same
+sequence embedded in a larger span.
+
+**Final state at the close of that audit: all 16 markdown files then in the repo
+were clean.** Every heading level, fenced block,
+table row, list item, horizontal rule and code span in every source file appears
+in its rendered output and nothing extra appears; and no markdown syntax —
+backtick, emphasis marker, link bracket, escape, heading, pipe row or comment —
+survives into the rendered prose of any of them.
+
+### Addendum: the full audit, and the defect that had been there for weeks
+
+The user asked for a proper verification pass — every markdown file rendered end
+to end, and the checker itself proved free of false positives and negatives. Both
+found something.
+
+**The render audit compared SOURCE STRUCTURE to RENDERED OUTPUT** for all 15
+markdown files (the five docs plus all ten prompt versions): heading counts,
+fenced blocks, table rows, list items and code spans on each side, plus a scan of
+the output for markdown that had leaked into a paragraph. Four files flagged.
+Three were detector artefacts — a deliberately numbered bold paragraph reading as
+a list, and code-span content counting as "visible prose" once tags were
+stripped. **The fourth was real, and nothing had ever caught it.**
+
+`docs/DECISIONS.md` D-011 tried to show the three characters `tidyVerdict()`
+strips, escaping the backtick with a backslash. Escapes do not work inside a code
+span (rule 1), so the run never closed and **GitHub swallowed the rest of the
+sentence into the code element.** It had rendered that way for weeks, through a
+full staleness sweep and two markdown passes.
+
+(Both forms are shown in a fenced block below, because quoting a broken delimiter
+inline is exactly the problem being described — the checker rejected a first
+attempt at this very paragraph, which is a fair advertisement for it.)
+
+```
+broken:  strips `* _ \``, and ...
+fixed :  strips `` * _ ` ``, and ...
+```
+
+**Worse: the checker was actively hiding it.** Its allowlist carried that exact
+span, justified as "the literal chars tidyVerdict() strips" — a guess that the
+backslash was content. It was a failed escape. The entry is removed, and the
+allowlist now warns that an addition must be a backslash which is genuinely part
+of what is being shown.
+
+**Why no existing rule caught it.** Rule 1 looks for a backslash FOLLOWED BY a
+punctuation character; here the backslash was the last character before the
+delimiter. A per-line backtick-parity check does not work either — a code span
+may legally wrap across lines, so 65 lines in these files carry an odd count and
+are all correct. The unit has to be the PARAGRAPH, and the test CommonMark's own:
+an opening run of N backticks is closed by the next run of EXACTLY N. Run at
+paragraph level across all 15 files, exactly one paragraph failed — this one.
+
+That is now rule 2 in `check-markdown`. **Its first implementation was wrong in a way
+worth recording**: it matched runs with a stack, which is not what CommonMark
+does, and it rejected the very fix it was meant to accept (double delimiters
+holding a literal backtick). Corrected to forward-scanning.
+
+**The checker is now verified in both directions**: 19 cases, 8 that must fail and
+11 that must pass, covering every rule plus the traps around them — escapes inside
+fenced blocks, escapes in plain text, a Windows path and a regex token as real
+content, a span wrapped across lines, and the double-delimiter fix. 19/19.
+
+**And the final render audit passes on all 15 files**: code-span counts match
+exactly between source and output, and no escape or stray backtick reaches the
+prose in any file.
+
+**The pattern across this whole entry is one thing.** Every defect here was found
+by asking a question at the right unit — the class, not the character; the
+paragraph, not the line; the rendered HTML, not the source — and every one was
+missed by a check that looked green at the wrong unit.
+### Addendum, next day: the separators came out of every file, and the rule became enforceable
+
+This entry originally carved out an exception — `docs/DECISIONS.md` "keeps its 65
+between long entries by choice" — and the checker dropped its separator rule
+rather than fire 38 times against it. **The user then looked at how those
+actually rendered and overruled it, correctly.**
+
+Two things decided it, and the second is the one Claude had missed. The rule is
+REDUNDANT: GitHub already draws a border under every `h2`, so each entry opened
+with a horizontal line, a gap, a large bold heading, and then the heading's own
+line. And it was INCONSISTENT: only **38 of the 65** entries had one, so the same
+boundary was drawn two different ways with nothing behind the difference. A
+convention applied to 58% of cases is worse than either choice applied to all of
+them. The earlier figure of "65" was wrong as well.
+
+All 38 came out, plus one more in `docs/PROCESS.md` that nobody had noticed.
+Verified the way the rules now require: rendered before and after, and the
+BEFORE html with only its `<hr>` lines stripped is byte-identical to the AFTER.
+Heading, table and code-span counts unchanged — 65 h2, 45 h3, 5 tables, 951 code
+spans, before and after.
+
+**The payoff is that the rule became enforceable.** It was dropped from the
+checker only because it would have cried wolf 38 times; with zero left anywhere
+in the repo it can now fail the build on any reappearance, which is what it does.
+
+**And restoring it immediately caught two things, which is the argument for
+probing a check rather than trusting it.** First, the restored rule did not work
+at all: a heredoc ate a backslash and its regex became `/^#{1,6}s/`, matching a
+literal "s" after the hashes and therefore nothing — a check that passes",
+silently, forever. The probe caught it in one run. **That is the same failure as
+the tag-balance check in D-064: a green result from something that never tested
+what it claimed.** Second, once fixed, it found the `PROCESS.md` separator that
+three manual passes over "all the markdown files" had walked straight past.
+### The one that got through, and the check it produced
+
+The first pass fixed the separators and the code-span underscores, verified the
+HTML diff, and declared the other four escape classes safe. One was not. The user
+asked, plainly, whether Claude was confident about each remaining class — and for
+one of them the answer was no.
+
+`\[` had been verified in TWO contexts: a list item (it renders as a working
+checkbox) and a table cell (`uuid[]`). Both correct. It was then declared safe as
+a CLASS — and the single occurrence sitting inside a CODE SPAN, the JSON output
+contract in the Prompt Versioning section, shipped rendering as a visible
+backslash. The user screenshotted it.
+
+**The error was generalising from character class rather than from context.** An
+escape inside a code span always renders literally, whatever character follows
+it — so the question that finds these is not "is this character safe" but "does
+ANY code span contain a backslash". Asking it that way across all five markdown
+files returned five hits: four legitimate (a Windows path, two regex tokens, and
+the literal characters `tidyVerdict()` strips) and the one defect.
+
+**That question is now a script rather than a resolution.** `npm run
+check-markdown` enforces it plus the two structural traps, exits non-zero on a
+real defect, and reports the harmless plain-text escapes without failing. It was
+probed the way this project probes a test — each of the four defects it claims to
+catch was injected into a temporary file and confirmed to fail the check,
+including the exact bracket case that got through. One rule was deliberately
+REMOVED after it fired 65 times on `docs/DECISIONS.md` separators that render
+correctly: a check that cries wolf buries the three that matter.
+
+**This mattered more than an ordinary cleanup, and that is why it is a rule and
+not a note:** most of the remaining work on this project is writes to these same
+markdown files, so a convention living only in prose would have been re-broken
+within a session. The rules are in CLAUDE.md § Markdown Authoring Rules.
+**The reusable lesson is the sequencing.** Claude's first instinct was to warn
+about the edit's danger in the abstract, which produced anxiety and no
+information. Measuring each class against the real renderer shrank the job from
+~110 edits across two files to 71, removed two false premises, and turned
+"eyeball 3,380 lines" into a diff that fits on a screen. Measure the classes
+before estimating the risk, not after.
+
+
 ## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
 
 Step 4 of the agreed order, settled 2026-09-12. The user had sequenced it behind
@@ -129,7 +451,6 @@ geometry box (stroke excluded) and would have put the outer ring's edge within a
 rounding error of the mask boundary. And the file gained an XML prolog and
 explicit `width`/`height`.
 
----
 ## D-063 · R18 closed as won't-fix: the reserved-line premise was overstated, and the shift it describes is masked by the scroll that happens at the same instant
 
 Two decisions, reached in one investigation and kept together because
@@ -238,7 +559,6 @@ nothing warns — the double just quietly covers less than its comment claims. B
 the header and the branch in `debug-recs.js` now say so, including that the
 paragraph above the `setTimeout` is no longer a promise that it works.
 
----
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
 
 **Context: this one was found without trustworthy automated verification.**
@@ -321,7 +641,6 @@ silently measuring the wrong thing. Overriding defensively — every property
 in the same CATEGORY, not just the ones presently in play — is what would
 have prevented this from breaking at all.
 
----
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
 **Bug 1: soft hyphens reached placeholders and error messages on the verdict
@@ -372,7 +691,6 @@ flag alone only fixes the half of it that happens to be least common in
 practice (a lone emoji) while leaving the more common compound sequences
 (ZWJ, flags, skin-tone modifiers) still breakable.
 
----
 ## D-060 · D-059's premise was wrong — the "leave it" call is reversed, with a soft-hyphen fix that needs no JS resize logic at all
 
 **Supersedes D-059**, the same day. D-059 accepted the `hyphens: auto` gap
@@ -453,7 +771,6 @@ The threshold itself moved from `399px` (an exact reading of "narrower than
 here only so a future session does not "restore" 399 by reading the original
 paragraph above without this addendum.
 
----
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
 **The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
@@ -502,7 +819,6 @@ decision was already made with the cost stated plainly. Revisit only if the
 gap turns out to matter more than a screenshot at ~300px width — a real
 demo, a grading rubric complaint, anything beyond this.
 
----
 ## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
 
 **The ask.** "New verdict" was left to natural flex-wrap math and only dropped
@@ -552,7 +868,6 @@ reasoning.
 were tried and both are dead ends for the same underlying reason, not two
 independent bugs.
 
----
 ## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
 
 **The choice.** `#verdict-text`'s content is now written through ONE function,
@@ -604,7 +919,6 @@ then 15ms, then reverted to 18ms, all by eye, and none of that is logged as a
 decision; recorded here only so a future session does not "helpfully" retune
 it by misreading this entry.
 
----
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
 Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x
@@ -661,7 +975,6 @@ rather than ramping. That is a different artefact from a position jump, it reads
 as "it sped up", and the user approved it after looking. A rAF ramp of
 `playbackRate` is the fix if it is ever wanted.
 
----
 ## D-055 · The verdict glint: overcorrection, a revert, and a band that fades along a path
 
 The mechanism (an SVG stroke dash on `pathLength="100"`) was settled on
@@ -802,7 +1115,6 @@ explain; an afternoon of single-variable tests produced something they called
 an outcome, pick the lever yourself and own that choice — never attribute a
 mechanism to the person who only described a result.
 
----
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
 
 Backlog item R6 said `verifyTitle()` was overselling itself: it looks for a
@@ -878,7 +1190,6 @@ fallback (`Collateral` → Heat), so it would need rewriting to a pick that
 legitimately resolves to the same film — a green suite after tightening, without
 touching that stub, would mean the tightening did not take.
 
----
 ## D-053 · The taste verdict alone runs on a stronger model
 
 The user asked for the verdict to sound less formal. **Four prompt versions
@@ -941,7 +1252,6 @@ verdict model is ever moved back down a tier, move the prompt back to v6 with
 it — v7's four examples dilute the rules underneath them on a small model, which
 is exactly how the four-sentence break happened.
 
----
 ## D-052 · `--ink-faint` stays below WCAG AA, on purpose
 
 Claude flagged that `--ink-faint` (#6b6760) measured **3.49:1** on the page and
@@ -1014,7 +1324,6 @@ a signal from everybody, including the people the contrast rule is written for.
 token*, contrast against the background is not the whole specification. Measure
 the pair.
 
----
 ## D-051 · Card size comes from the viewport, never from the result count (R29)
 
 D-050 moved the recs grid's column count into JS but left the tracks filling the
@@ -1103,7 +1412,6 @@ meant to be on one card. The `:has()` anchor moved up to `.recs`, and the rule i
 now two selectors, scoped through `.recs__meta` so the verdict banner's own
 `.ai-meta` is untouched.
 
----
 ## D-050 · The recs grid picks its own column count, and deliberately stops short
 
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
@@ -1161,7 +1469,6 @@ adventurous. And `.rec-card` is `grid-column: auto / span 2`, not the shorter
 `span 2` — one value leaves `grid-column-end: auto`, so the moment JS writes a
 `grid-column-start` the card would collapse to a single half-width track.
 
----
 ## D-049 · The recs spotlight IS ported, at 0.70 — supersedes D-048's last section
 
 **D-048 records Claude rejecting the ranked list's spotlight dimming for the recs
@@ -1204,7 +1511,6 @@ the ranked list needed `z-index: 1` for: `opacity < 1` makes each dimmed sibling
 paint as though positioned at `z-index: 0`, which would otherwise clip the
 hovered card's glow.
 
----
 ## D-048 · The rec-card enter/exit is two CSS phases, not a View Transition (R27, R14)
 
 The user asked for "a smooth entering animation to recs-cards as they're being
@@ -1290,7 +1596,6 @@ a grid child: `:not(:hover)` over cards alone would leave the footer at full
 strength in the middle of a dimmed grid, and including it would dim the
 AI-call-log link, which is the section's only route into the audit trail.
 
----
 ## D-047 · A failure may only offer the AI call log when a row was actually written (R8, R9)
 
 The recommendations route answered every `RecommendationError` with
@@ -1356,7 +1661,6 @@ the same way it carries `short`.
   to a second feature that the user has not looked at yet. Do not "unify" the two
   by copying the verdict's version back over this one — that is backwards.
 
----
 ## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
 `generateRecommendations()` read the library with one query filtered
 `.not('rating', 'is', null)` and then built **two** things out of that one result:
@@ -1421,7 +1725,6 @@ had been written after the fix instead of before it.
 * This is the SERVER half only. The client half — rec cards never re-syncing
   their Add button when ownership changes — is R3 and is still open.
 
----
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400
 unbroken `f`s. The ranked list did not merely overflow: the card widened, the
@@ -1482,7 +1785,6 @@ by anything, including future non-text content with its own intrinsic width. The
 Both are marked in the CSS as defensive rather than corrective, so a later reader
 does not mistake them for evidence of bugs that happened.
 
----
 ## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
 Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
 pronounced, and more importantly - brighter. It's barely visible against the dark
@@ -1528,7 +1830,6 @@ D-043, per the rule in CLAUDE.md: D-043 records what was decided and why at the
 time, including the reasoning that turned out to be too blunt, and that record is
 worth more intact than tidied.
 
----
 ## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
 Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
 existing one as "too subtle - I can only notice it on the poster". That sentence
@@ -1607,7 +1908,6 @@ the app's amber. **The user chose C.**
   avoid. The deepened shadow, warm rim and border still respond, so the card is
   not left inert.
 
----
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
 Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
@@ -1700,7 +2000,6 @@ operation, names the film where one exists, says "couldn’t" exactly once and e
 in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
 `short` **and** that its `error` text is unchanged.
 
----
 ## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
 Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
 film that is unrated but carries a review drew the "Not rated yet" chip and its
@@ -1761,7 +2060,6 @@ any film that has a review. No UI path sends it.
   the common case, and backlog #20 is about labelling it in the UI, not
   forbidding it.
 
----
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
 Backlog #14. Expand a review with "view more…", then rate, add or remove a
 *different* film, and it snapped shut. `renderRanked()` opens with
@@ -1835,7 +2133,6 @@ list rebuild its HTML any more often than it already does. Verified rather than
 asserted: the diff touches no `replaceChildren`, `requestAnimationFrame`,
 `startViewTransition` or `refreshRanked` line.
 
----
 
 ## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
 Reported by the user within minutes of D-038 shipping. Two films were tied at
@@ -1888,7 +2185,6 @@ re-rating that crosses no neighbour, and an untouched tie among them — since a
 signature that is merely more sensitive would be its own bug. Related: [D-034],
 [D-038].
 
----
 
 ## D-038 · Tied films share a rank number, and say so
 Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
@@ -1955,7 +2251,6 @@ Verified by simulating the algorithm over nine cases rather than by reading it �
 ties at the top, middle and bottom, a three-way tie, everything tied, unrated
 films mixed in, 0.0 as a real rating, and the 99→100 `is-wide` boundary.
 
----
 
 ## D-037 · TMDB's `vote_average: 0` is an absence, not a score
 Found by the user immediately after D-036 shipped, from two screenshots of the
@@ -2000,7 +2295,6 @@ figure is re-derivable with `npm run backfill-tmdb-rating` at any time.
 This does not supersede [D-036]; the snapshot-at-add-time decision stands
 unchanged. It corrects what a stored value of `0` means.
 
----
 
 ## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
 Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
@@ -2051,7 +2345,6 @@ any film fails. Adding a nullable column is backward compatible with the
 already-deployed code, so the migration can and should be applied BEFORE the
 next merge to `main`.
 
----
 
 ## D-035 · The Remove button's label is light, and arithmetic decided that
 Yesterday's hover pass (#10) gave the confirm dialog's Remove button a darker
@@ -2105,7 +2398,6 @@ re-fails AA. If either token moves, re-measure; do not re-tune by eye. Related:
 D-030, where two eyeballed estimates were both wrong and only a measurement
 settled it.
 
----
 
 ## D-034 · "ranking updated" is checked before it is claimed
 The three confirmation toasts had three different shapes and two named no film
@@ -2155,7 +2447,6 @@ through by design, and prefixing it client-side produces doublings like
 `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
 the messages at the source; it stays on backlog #16.
 
----
 
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
 `.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
@@ -2207,7 +2498,6 @@ Not changed: the `?`, the missing score badge, and the button reading "Rate"
 instead of "Edit" are the card's other three unrated signals and are all correct
 as they stand.
 
----
 
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
 Testing the save-failure path (throttled to Offline) showed the crimson toast
@@ -2241,7 +2531,6 @@ time" on Skip, and "Saved — ranking updated"). Both are dimmed for the ~250ms 
 the dialog's fade-out. Both are confirmations rather than errors and remain
 readable for the other ~3s, so they are deliberately left alone.
 
----
 
 ## D-031 · The ranked list re-sorts with a View Transition, not a rewritten renderer
 `renderRanked()` opens with `replaceChildren()`, so every render destroys and
@@ -2333,7 +2622,6 @@ collapse stays open as its own item. This is a chosen trade, not an oversight.
   prefix on the UUID — a bare UUID can begin with a digit, which is not a valid
   CSS ident, and a duplicate aborts the entire transition.
 
----
 
 ## D-030 · Three-digit ranks are capped, not documented away
 A forced test (ranks rewritten to 250+ in the console) showed three-digit
@@ -2416,7 +2704,6 @@ the obvious move and it is wrong: cards with wider ranks get a wider first
 column, so poster left edges stop aligning down the list — trading a problem
 nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
 
----
 
 ## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
 The ranked list numbered every card `i + 1`, unrated films included. So an
@@ -2474,7 +2761,6 @@ a long list a just-skipped film is far out of sight. Raised with the user, who
 chose to leave it — noted here so the omission reads as a decision rather than an
 oversight.
 
----
 
 ## D-028 · Search stays typo-intolerant; the empty state explains instead
 Search is strict: "obamma" returns nothing, "obama" returns plenty. First
@@ -2865,7 +3151,7 @@ file; v1/v2 untouched.
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
 literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
-title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `* _ \``, and
+title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `` * _ ` ``, and
 if still over a 300-char ceiling truncates at the last sentence end (else last
 word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
 file; `taste_verdict_v1.md` untouched.

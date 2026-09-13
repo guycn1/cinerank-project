@@ -65,7 +65,6 @@ app.use('/api/ai-log', aiLogRouter);
 // bug nor on the server's side. A vaguer message that is true beats a specific
 // one that is not. The real cause is on the line above, in the server log,
 // where it can be read without being guessed at.
-// eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   console.error('[cinerank]', err);
   res.status(500).json({ error: 'Something went wrong.' });
