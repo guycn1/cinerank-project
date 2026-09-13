@@ -55,65 +55,137 @@ const KEEP = args.has('--keep');
 /* ------------------------------------------------------------------------- *
  * THE SEED SET — edit this block, not the code below it.
  *
- * Shape, per the blueprint:
- *   - ONE deliberate taste persona rather than a generic spread, so the verdict
- *     and the recommendations have something to latch onto.
- *   - A rating spread: two high, one mid, one low outlier. A flat set produces a
- *     flat verdict.
- *   - Reviews with real voice on some films and not others. They feed both
- *     prompts as taste signal, and the mix exercises a long review (the clamp
- *     and its show more toggle), a short one, and a rated film with no review at
- *     all, which is what draws #20's "No review yet" placeholder.
- *   - ONE FILM LEFT UNRATED on purpose: it demonstrates the "Not rated yet" chip
- *     and the faint "?" rank (D-029, D-033) and costs no AI feature, because the
- *     other four clear both thresholds on their own — recommendations need three
- *     rated films, the verdict needs two.
+ * Shape, and why every slot is here. Two things decide it: the blueprint in
+ * CLAUDE.md, and one measured fact about how the two AI features read the list
+ * that is NOT visible from the UI:
+ *
+ *   RECOMMENDATIONS SEE ONLY THE TOP FIVE RATED FILMS BY RATING
+ *   (config.recommendations.topN). THE VERDICT SEES EVERY RATED FILM.
+ *   So a sixth rated film shapes the verdict and is invisible to the
+ *   recommender. That is deliberate here, not an oversight: the low outlier
+ *   sits at the bottom to give the VERDICT something to push against, while the
+ *   five above it are the ones steering the picks.
+ *   Reviews are also truncated before they reach a prompt — 300 characters for
+ *   recommendations, 200 for the verdict — so a long review has to carry its
+ *   signal in its opening sentence.
+ *
+ *   - ONE PERSONA WITH TWO AXES, NOT ONE. This is the part that was got wrong
+ *     first. A single-axis taste ("likes bright, dislikes grim") gives the model
+ *     nothing to abstract from, so the verdict falls back to reciting film names
+ *     against their ratings — the exact failure taste_verdict_v4 was written to
+ *     end (D-014) — and the recommender can only return more of the same shelf.
+ *     The top four here span action, musical, whodunnit and cartoon and are
+ *     united by an ATTITUDE rather than a genre. That is what forces a verdict
+ *     to characterise instead of list.
+ *   - A rating spread from 9.1 to 1.5. A flat set produces a flat verdict.
+ *   - REVIEWS REJECT ON CRAFT, NEVER ON SUBJECT MATTER. Two reasons. It is the
+ *     sharper taste signal — "no second idea underneath the first" says more
+ *     about the viewer than "too nasty" does. And these strings are sent to a
+ *     model on a live button press in front of an audience, so a review dwelling
+ *     on what a film depicts is a needless chance of a hedge or a refusal
+ *     mid-demo.
+ *   - EVERY SLOT ALSO EARNS A PIECE OF UI EVIDENCE, named on the film below.
+ *     Between them the seven films draw the show-more toggle, the "No review
+ *     yet" placeholder, the "No TMDB rating" caption, the "Not rated yet" chip
+ *     and the faint "?" rank — five states that otherwise need hand-setup to
+ *     photograph.
  *   - Recommendation headroom: the obvious neighbours of these films are
  *     deliberately NOT seeded, so a run has real, TMDB-verifiable picks left to
  *     find and no card is silently dropped for being owned already.
  * ------------------------------------------------------------------------- */
 
 const PERSONA =
-  'Bold, stranger-than-fiction swings. Rewards nerve and a point of view; ' +
-  'bored by competent, safe, four-quadrant filmmaking.';
+  'Wants a film to commit to its swing — practical craft, real spectacle, a ' +
+  'point of view — and forgives silly far sooner than limp. Bored by committee ' +
+  'filmmaking, and unmoved by grimness offered in place of an idea.';
 
 const SEED = [
   {
-    title: 'Parasite',
-    year: 2019,
-    rating: 9.5,
-    review:
-      'The one I keep handing to people who tell me they do not watch subtitles. ' +
-      'It changes genre about four times and never once loses its footing, which ' +
-      'should not be possible. What stays with me is not the twist but the ' +
-      'staircases: the whole film is about going up and down them and I did not ' +
-      'notice until the second watch. That is the kind of nerve I want.',
-  },
-  {
+    // Rank 1, and the LONG review: this is the one that clips and draws the
+    // "show more" toggle (ranked-list item #5). Also the craft axis — practical
+    // effects, clarity, commitment — which is what stops the set reading as
+    // "likes bright colourful things" and nothing else.
     title: 'Mad Max: Fury Road',
     year: 2015,
-    rating: 9,
+    rating: 9.1,
     review:
-      'Two hours of practical stunts and about forty lines of dialogue, and it is ' +
-      'still clearer than most films carrying a hundred pages of exposition.',
+      'absolute peak and I will not be talked down from it. two hours of real ' +
+      'trucks doing real things in a real desert, about forty lines of dialogue ' +
+      'in the whole film, and it is still easier to follow than things carrying ' +
+      'three times the plot. they built a man on a bungee cord with a flamethrower ' +
+      'guitar and then just committed to him. no wink, no apology. that is the ' +
+      'whole thing for me.',
   },
   {
-    title: 'Arrival',
-    year: 2016,
-    rating: 8,
+    // The spectacle axis, and the emoji slot: a review with emoji in it is the
+    // only live proof of D-061's grapheme-safe hyphenation, which otherwise has
+    // no visible evidence anywhere in the app.
+    title: 'Wicked',
+    year: 2024,
+    rating: 8.6,
+    review:
+      'loved this so much 🔥 the songs are insane and elphaba and glinda ' +
+      'absolutely carried the whole thing. genuinely magical on a big screen.',
+  },
+  {
+    // RATED, NO REVIEW — this is what draws #20's "No review yet — edit to add
+    // one." placeholder, the last item of the ranked-list backlog.
+    // It is also the third genre: sharp, verbal and constructed rather than big
+    // and loud, which is what gives the recommender a direction to go in that
+    // is not "another musical".
+    title: 'Knives Out',
+    year: 2019,
+    rating: 8.2,
     review: null,
   },
   {
-    title: 'Jurassic World',
-    year: 2015,
-    rating: 3.5,
+    // The fourth flavour, and a second emoji. Docked on PACING, not on content:
+    // the point of the persona is that it rewards nerve and punishes limpness,
+    // so even a film it likes loses its point for sagging rather than for being
+    // dark.
+    title: 'The SpongeBob SquarePants Movie',
+    year: 2004,
+    rating: 7.6,
     review:
-      'Watched it on a plane and would again. Competent, expensive and completely ' +
-      'weightless — nobody involved seems to want anything.',
+      'absolute childhood classic and I am not taking questions. the goofy ' +
+      'goober rock scene still slaps harder than it has any right to 🤧 loses a ' +
+      'point because the shell city stretch drags and I just want to get back to ' +
+      'the dumb stuff.',
   },
   {
-    title: 'The Lighthouse',
-    year: 2019,
+    // AN UNRELEASED FILM, ON PURPOSE: TMDB reports no votes for it, so the card
+    // draws the muted "No TMDB rating" caption (D-037) instead of a bogus 0.0.
+    // Nothing else in this set exercises that path.
+    // If this has been released by the time the set is next touched, swap it for
+    // another unreleased title or the slot stops doing its job.
+    title: 'Shrek 5',
+    year: 2027,
+    rating: 4.5,
+    review:
+      'trailer looks like it was assembled by a committee working off a deck ' +
+      'about what people liked in 2004. will wait for streaming.',
+  },
+  {
+    // THE LOW OUTLIER, and deliberately SIXTH — below topN, so it reaches the
+    // verdict and not the recommender (see the note at the top of this block).
+    // Rejected for having one idea rather than for what it shows: that is the
+    // same axis as the Shrek 5 line, which is what lets a verdict generalise
+    // instead of listing two films it disliked.
+    title: 'Saw',
+    year: 2004,
+    rating: 1.5,
+    review:
+      'sold to me as a clever puzzle box and it is really a gimmick with a twist ' +
+      'stapled on the end. props for the swing, but there is no second idea ' +
+      'underneath the first one.',
+  },
+  {
+    // LEFT UNRATED on purpose: it draws the "Not rated yet" chip and the faint
+    // "?" rank (D-029, D-033) and costs no AI feature, because the six above
+    // clear both thresholds on their own — recommendations need three rated
+    // films, the verdict needs two.
+    title: 'Shrek',
+    year: 2001,
     rating: null,
     review: null,
   },

@@ -5,6 +5,107 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-068 · The demo seed list needs a two-axis persona, because a one-axis one starves both AI features at once
+
+*Written up 2026-09-13, when the seed content was settled.*
+
+Two candidate seed lists were built and compared by running the real features
+against them. The second was the user's, and it was better than the first on
+everything except the thing the list exists for.
+
+**The user's list won on UI coverage**, by some distance, and that half was kept
+almost intact. It had an unreleased film (Shrek 5, 2027), which is the only way
+to draw D-037's muted `No TMDB rating` caption, and the first list exercised that
+path zero times. It had a rated film with no review (#20's placeholder), an
+unrated film (the `Not rated yet` chip and the faint `?`), a review long enough
+to clip and draw the show-more toggle, and emoji in review text — which is the
+only live evidence anywhere in the app that D-061's grapheme-safe hyphenation
+works. Six of its seven cards were doing double duty as UI proof.
+
+**It lost on taste signal, and both AI features degraded together.** Its verdict
+came back as `Wicked and SpongeBob get the love, while Slumdog Millionaire and
+Saw get chucked out for being nasty about it` — four film names mapped to their
+ratings, which is precisely the failure `taste_verdict_v4` was written to end
+(D-014) after v3 did the same thing. Its recommendations were Hairspray,
+Cinderella, The Lego Movie and Moana, with two of the four reasons naming Wicked
+outright.
+
+### The diagnosis, which was not the prompts
+
+The cause was **a one-axis persona**: both top-rated films were bright family
+entertainment, and both low outliers were rejected for the same reason (too
+dark). There is nothing there to abstract from, so the verdict fills its word
+budget with names and the recommender can only return more of the same shelf.
+
+The first list worked better on this because its high ratings spanned genres —
+Korean class satire, an Australian car chase, a quiet science-fiction film —
+united by an **attitude** rather than a category. Abstraction is what reads as
+insight; a persona that needs no abstraction produces none.
+
+**Do not reach for a prompt change if a future verdict reads as a list.** v8 is
+ruled out (D-053: three structurally different prompts produced the same
+register, and the model was the lever, not the wording). Look at whether the seed
+set gives the model a second axis before touching anything else.
+
+### One measured fact that changed the shape of the set
+
+`generateRecommendations()` does `rated.slice(0, config.recommendations.topN)`
+with `topN: 5`. `generateTasteVerdict()` has no slice at all — it reads every
+rated film.
+
+**So the two features do not see the same list.** A sixth rated film shapes the
+verdict and is invisible to the recommender. That is not a defect and it is now
+used deliberately: the low outlier sits sixth on purpose, so it gives the verdict
+something to push against without spending one of the five slots that steer the
+picks. Reviews are also truncated before they reach a prompt — 300 characters for
+recommendations, 200 for the verdict — so a long review has to carry its signal
+in its opening sentence, which is why the longest one opens with its thesis
+rather than building to it.
+
+None of this is visible from the UI, and a future session rebalancing the set
+without knowing it would move films between the two features by accident.
+
+### Reviews reject on craft, never on subject matter
+
+The user's two low reviews rejected their films for what those films depict.
+Rewritten to reject on construction instead — the replacement for Saw is
+`props for the swing, but there is no second idea underneath the first one`.
+
+Two reasons, and the first is the stronger one:
+
+* **It is the sharper taste signal.** "No second idea underneath the first" says
+  something about the viewer; "too nasty" says something about the film. The
+  verdict can generalise from the first and can only quote the second. It also
+  puts the low outlier on the SAME axis as the rest of the set (commitment
+  versus committee), which is what lets a verdict characterise instead of listing
+  two films the viewer disliked.
+* **It removes a live failure mode.** These strings go into a prompt on a button
+  press, in front of an audience, with no recovery if the model hedges or
+  refuses. The original reviews put terms around child abuse and torture into
+  that prompt. Nothing was wrong with them as film criticism — they described
+  real plot content — and the verdict generated fine. But D-067, from the same
+  day, is the entry about a machine reacting to the shape of text rather than its
+  intent, and staking a graded live demo on that not recurring is a bad trade for
+  no gain.
+
+### What was deliberately not done
+
+**Not one film was dropped for being the user's choice.** Five of their seven
+survive (Wicked, SpongeBob, Shrek 5, Saw, Shrek); the two additions, Mad Max:
+Fury Road and Knives Out, exist only to add the second and third genre at the top
+of the list. Taking either list whole was the obvious move and was the wrong one
+— the two lists were good at different things.
+
+**The recommendation count was left alone.** A run typically returns three to
+five cards rather than six. That is the TMDB verification stage working as
+designed (SPEC § 2.2 step 4) — a title the model invents or misnames is dropped
+rather than shown as a broken card — so it is not an open issue and is
+deliberately not recorded as one.
+
+Related: D-014 and D-053 for the verdict register, D-037 for the TMDB caption,
+D-041 for the one-patch constraint the seeder works under, D-054 for the
+title matcher, D-061 for the emoji case, D-067 for the classifier lesson.
+
 ## D-067 · The hyphenation fix made the app's own output un-pasteable, and the failure surfaced two steps away from the cause
 
 *Written up 2026-09-13, the day it was found.*
