@@ -26,7 +26,13 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-12 (ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
+**Last updated:** 2026-09-13 (**THE `DOSSIER.md` RECONCILIATION IS DONE — see the
+first item under Pre-submission blockers, which records what it found and what it
+produced: `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a
+linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spiral
+turns recorded. The merge-readiness verdict is NOT YET MERGE-READY, failing only
+criterion 1, which is the blockers list itself. Nothing in that list was ticked by
+the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -3035,35 +3041,43 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   picked 26.8.1) because the dashboard service ignores `render.yaml`'s
   `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
   ever breaks on a new Node.
-* [ ] **RECONCILE THE BLOCKERS BELOW AGAINST `DOSSIER.md` — NOT YET DONE, and
-  this list predates that file.** `DOSSIER.md` arrived on 2026-09-13 and was
-  committed in `45fb828`. It is **the course's own grading rules, copied from
-  Moodle by the user**, and it is the authority on what is graded. Everything in
-  this Pre-submission section was written before it existed and has never been
-  checked against it. Read it before treating this checklist as complete.
-  **What it changes about how this repo should be judged:**
-  * **The repository IS the record.** It grades commit history, context files
-    (`CLAUDE.md` and the memory notes), specifications, prompts, verification
-    gates and their results, folder structure and the readme. It explicitly does
-    NOT grade a video, a verbal account, files outside the repo, or a repo
-    re-created after the fact with its history lost. That is why the markdown
-    rendering work was worth doing, and why `npm run check-markdown` exists.
-  * **The grade is three equal thirds** — class engagement, the shared running
-    project, and this one, the independent application. This repo is one third.
-  * **Up to 90 is defensible from the repo; 91–97 is the grader's judgement;
-    98–100 is for exceptional work and is not guaranteed.** So the checklist
-    below buys the defensible band, and nothing more is purchasable by ticking.
-  * **It grades the DISCIPLINE, not the app.** Its words: two students can ship
-    the same working product and earn different grades. What counts is how the
-    problem was framed, how the spec was written, how context was engineered,
-    how verification was designed, and how legible the trail was left.
-  **The concrete task:** walk `DOSSIER.md` end to end against this repo and this
-  checklist, and add any blocker it implies that is not already here. Do NOT
-  assume the overlap is complete — nobody has checked.
-  **Note on its content:** it carries two deliberate eight-asterisk redactions of
-  an email address, and was verified to contain zero emails and zero URLs before
-  being committed to a public repo. Do not "fix" those asterisks; they are the
-  user's redaction and they render exactly as intended.
+* [x] **RECONCILED AGAINST `DOSSIER.md` — DONE 2026-09-13. Do not redo this.**
+  `DOSSIER.md` is the course's own grading rules, copied from Moodle by the user,
+  and it is the authority on what is graded. Everything in this Pre-submission
+  section predated it, so it was walked end to end against the repo. **Five gaps
+  were found: four are closed, and the fifth was closed by the user's decision.**
+  * **`docs/FRAMING.md`** — Module 6's framing document, the artefact the DOSSIER
+    names as specific to the independent project. Three of its four parts already
+    existed (`SPEC.md` § 1 and § 7.1, since `aadaf18`); the **stakeholder list**
+    was genuinely missing. Writing it also surfaced a real divergence: `SPEC.md`
+    § 1 listed three out-of-scope exclusions and this file listed four. FRAMING is
+    now the authority on scope boundaries and `SPEC.md` § 1 is annotated to say so.
+  * **`SPEC.md` unfrozen** — `Status: Draft v1` is gone and the spiral turns are
+    recorded against real commit ranges, with the merges to `main` named as the
+    commit points and the three narratives as the coarser grouping. Verifying it
+    found a **live rendering defect** (the Authors/Course/Status header ran
+    together into one line on GitHub) and, behind it, a fault in the render-audit
+    method itself — `mode: gfm` fakes line breaks the blob view does not have
+    (D-066).
+  * **`docs/SECURITY.md`** — the OWASP Top 10 for Agentic Applications, which
+    Module 17 names as the working checklist and which nothing here referenced.
+    Every risk is mapped twice, once against the product and once against the
+    agentic development environment that built it. Incident 1 is ASI02.
+  * **`docs/MERGE-READINESS.md` plus a linter** — Module 16's five criteria. SE
+    hygiene was the one genuine hole, since the project had no static analysis at
+    all; `npm run lint` closed it and is now a commit gate. **The pack's standing
+    verdict is NOT YET MERGE-READY**, failing criterion 1 (functional completeness
+    shown end to end) — and that criterion is precisely the rest of this list.
+  * **Committing the agent's memory notes was considered and DECLINED by the
+    user. Do not re-propose it.** The DOSSIER lists context files "such as
+    `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
+    and the graded item is "the context files kept and maintained across
+    sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own. An
+    audit of the notes also found they carried third-person references to the
+    grader, which a rule inside those very notes forbids anywhere in the repo, and
+    that their technical content was already duplicated here.
+  **What this does NOT mean.** The reconciliation ADDED documents; it ticked
+  nothing below. Every remaining item in this list is still open and still owed.
 * [ ] **Put the live URL on the project sheet** —
   https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
   *inside* the ticked deploy item above, where it did not show up as an open
@@ -3319,7 +3333,7 @@ it.
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
    * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (Its sibling for documentation is `npm run check-markdown` — see § Markdown Authoring Rules.)
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has two siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — and `npm run lint` for code.)
 
 **This whole section is mapped against the OWASP Top 10 for Agentic Applications
 in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for
@@ -3459,11 +3473,14 @@ down would be re-broken within a session. See D-065.
    is now not one left anywhere in the repo**, so any appearance is a regression.
    This rule briefly carried an exception for `docs/DECISIONS.md` "keeping its 65
    by choice" — wrong twice over: there were 38, not 65, and they sat above only
-   38 of the 65 entries, so the same boundary was drawn two different ways for no
+   38 of the file’s 65 entries AT THAT TIME, so the same boundary was drawn two
+   different ways for no
    reason. The user called it, they are gone, and the file is uniform.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
    the whole block as one paragraph full of pipe characters — not a degraded
-   table, no table at all. These files carry 84 table rows between them.
+   table, no table at all. The repo’s markdown carries sixteen tables between them, 138 rows in all
+   (measured 2026-09-13; an earlier figure of 84 here did not match any definition
+   of the count and is corrected rather than preserved). This is not hypothetical.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.

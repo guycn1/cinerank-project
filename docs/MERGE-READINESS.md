@@ -88,9 +88,9 @@ the decision log where it happened rather than smoothed over.
 *Evidenced by static analysis, linting, and complexity checks.*
 
 **This criterion was the one genuine hole, and it was closed by measuring rather
-than by declaring.** There was no linter in the project until today.
+than by declaring.** There was no linter in the project until 2026-09-13.
 
-`npm run lint` runs ESLint 9 over all 21 JavaScript files (5,304 lines) across
+`npm run lint` runs ESLint 9 over all 22 JavaScript files (5,395 lines) across
 three environments — Node ES modules, the browser ES module, and the one browser
 *classic* script that `index.html` loads with a bare tag. **Current state: zero
 errors.**
@@ -178,7 +178,9 @@ fires is the thing this document exists to rule out.
   guardrails, and Incident 1.
 * **`docs/SECURITY.md`** — all ten OWASP agentic risks, including the ones that do
   not apply and why.
-* **Commit messages** explain *why*, not just what. 434 commits.
+* **Commit messages** explain *why*, not just what — across four hundred–odd
+  commits (`git rev-list --count main` for the exact figure; a number that moves
+  every commit is not written into a document).
 
 ## 5. Full auditability — MET
 
@@ -192,7 +194,7 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in `prompts/`, never overwritten. A
   past recommendation or verdict is traceable to the exact prompt text that
   produced it, because the version string is stored on every log row.
-* **Trajectory** — 434 commits with an unbroken history from the first, 19 merges
+* **Trajectory** — an unbroken commit history from the very first commit, 19 merges
   to `main`, and five revert commits plus one reapply, which is the safety layer
   visibly firing rather than merely existing.
 * **The product audits itself, which is unusual and is the point.** Every

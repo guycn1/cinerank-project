@@ -114,7 +114,10 @@ the anon-versus-service-role split already is one.
 
 *Compromised tools, plugins, or external components.*
 
-Three runtime dependencies: `express`, `@supabase/supabase-js`, `dotenv`. No MCP
+Three runtime dependencies: `express`, `@supabase/supabase-js`, `dotenv`. Two
+development dependencies as of 2026-09-13, `eslint` and `globals`, which are part of
+the supply chain even though they never ship — `npm audit` reports zero across every
+severity with both installed. No MCP
 servers are configured for this project and no third-party agent plugins are used
 — verified, the repository contains no MCP configuration.
 
@@ -181,10 +184,12 @@ scheduled for a screenshot as `RS-1` through `RS-9`. A failed AI call still writ
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** Three gates and a rollback layer: `npm test` (54 tests),
-`npm run scan-secrets`, `npm run check-markdown`, and git itself — 431 commits,
-five revert commits and one reapply, which is the safety net visibly firing rather
-than merely existing.
+**Build.** Four gates and a rollback layer: `npm test` (54 tests), `npm run lint`,
+`npm run scan-secrets`, `npm run check-markdown`, and git itself — an unbroken history
+from the first commit, with five revert commits and one reapply, which is the
+safety net visibly firing rather than merely existing. (`git rev-list --count main`
+for the commit count; it is deliberately not written down here, because a figure
+that changes every commit goes stale between one session and the next.)
 
 **Module 13's "verification theatre" is answered by probing the gates.** Each of
 the three filter rules in the recommendation service was deleted in turn, to

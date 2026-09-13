@@ -39,6 +39,14 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   kind of thing a later reader deletes. `npm audit` now reports zero across every
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
+- **Four gates, wired into the commit rules rather than left to memory.**
+  `npm test` (54 tests), `npm run lint` (ESLint, defect rules and complexity
+  ceilings — added 2026-09-13, the project had no static analysis before that),
+  `npm run scan-secrets` on every commit, and `npm run check-markdown` on every
+  commit touching a `.md` file. The last two exist because a real defect got past
+  human review: the markdown checker was written after both long documents were
+  found rendering wrong on GitHub for weeks (D-065). Each gate was proved to bite
+  before being trusted — see `docs/MERGE-READINESS.md` § 2.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
   reasons are clearest then and can't be reconstructed later). Entries record the

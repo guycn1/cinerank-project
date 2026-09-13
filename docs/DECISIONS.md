@@ -186,7 +186,8 @@ render literally. The two remaining thematic-break spellings joined the
 whole-span allowlist, which was then probed to confirm it still fires on the same
 sequence embedded in a larger span.
 
-**Final state: all 16 markdown files clean.** Every heading level, fenced block,
+**Final state at the close of that audit: all 16 markdown files then in the repo
+were clean.** Every heading level, fenced block,
 table row, list item, horizontal rule and code span in every source file appears
 in its rendered output and nothing extra appears; and no markdown syntax —
 backtick, emphasis marker, link bracket, escape, heading, pipe row or comment —
