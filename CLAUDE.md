@@ -3208,7 +3208,17 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     cost, and — in the AI call log — a green `success` row whose
     `suggested_titles` is empty. Before R28 this state claimed the model had only
     named films already in the list. Costs one real OpenRouter call.
-  - [ ] **RS-4 · OpenRouter down on recommendations.** Bogus
+  - [ ] **RS-4 — HALF CAPTURED 2026-09-13. In-app frame done:
+    `docs/screenshots/rs-4-openrouter-down-recs.png`. STILL OWED: the log row,
+    a red `failed` whose Result cell carries the real technical cause.** Two
+    frames for the same reason RS-3 needed two: the split between the calm
+    sentence and the recorded cause IS the claim, so one frame cannot carry it.
+    The captured frame shows the hint at `--ink-dim` rather than crimson (R24 —
+    the amber link measured 2.48x brighter than crimson, so the pointer to
+    details outshouted the statement of what broke), no metadata footer at all
+    (nothing succeeded, so there is no cost to report — the exact contrast with
+    RS-3, where there is), and the trigger back at rest rather than stuck busy.
+    **OpenRouter down on recommendations.** Bogus
     `OPENROUTER_API_KEY`, restart, 3+ rated films, click Get recommendations.
     Expect "Couldn’t generate recommendations right now. See the AI call log for
     details.", with **AI call log** as an amber link, and a red `failed` row in
