@@ -3004,7 +3004,20 @@ below — this list is the smaller stuff.)
   Build it as a small repeatable seed helper (hits the app's own
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
-  produces. Not started — user will kick this off later.
+  produces.
+  **THE HELPER IS BUILT — `scripts/seed-demo.js`, `npm run seed-demo` (2026-09-13).**
+  Dry run by default, `--write` to apply, `--reset` to remove, `--with-injection` to
+  add the Module 17 demo film whose review IS an injection attempt. It goes
+  through the app own HTTP API rather than Supabase, so the rows are exactly
+  what the UI produces, and films are declared by TITLE AND YEAR and resolved
+  through `/api/movies/search` rather than by hardcoded ids — verified end to end
+  on a throwaway port, all six titles resolving to an exact title-and-year
+  match with no fallback. `--reset` matches ONLY the declared set by title and
+  year, prints every row first, and needs `--write` to act.
+  **WHAT IS STILL THE USER CALL: the CONTENT.** The persona, the five films and
+  the review text are a proposal in an editable block at the top of the file,
+  not a decision — swap them freely. Running it against the live database is
+  also the user call and has NOT been done.
   **One hard constraint on that helper, from migration 004 (D-041): rating and
   review must go in the SAME `PATCH`.** A review-only patch on a film that is not
   yet rated now violates `review_requires_rating` and comes back as a 400 ("A
