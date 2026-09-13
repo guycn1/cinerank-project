@@ -7,6 +7,13 @@
 > while the instance wakes. Every load after that is immediate. Worth opening the
 > link shortly before you need it.
 
+![The CineRank ranked list, with an AI-generated taste verdict in a banner above
+it and the top three rated films below](docs/screenshots/readme-1-hero-ranked-list.png)
+
+*The verdict is generated from the list beneath it, and says so checkably:
+"real trucks in a real desert" and "Elphaba belting her lungs out" are both
+lifted from reviews visible in the same screenshot.*
+
 A personal movie-ranking app where the database and the AI each earn their place:
 
 - **The database** tracks a growing *taste profile* (your rated films + reviews) that
@@ -100,6 +107,39 @@ decoration:
 - **Two models on one transport.** `openrouter.js` takes an optional model and
   `tasteVerdict.js` is the only caller that overrides it (D-053), so the split
   costs no second client and shows up per row in the log.
+## Screenshots
+
+### Recommendations, grounded and costed
+
+![Four AI-recommended films as cards with posters, each with a one-line reason](docs/screenshots/readme-2-recommendations.png)
+
+The **Based on:** line names the five films that fed the prompt, and the footer
+declares what the call cost. Every title shown has been confirmed against TMDB
+first — one the database has never heard of is dropped rather than rendered as a
+broken card. *Into the Spider-Verse* is the interesting pick: it is reached from
+*Wicked* on the axis of spectacle rather than genre, which a similarity lookup
+would not do.
+
+### Every AI call, whether it worked or not
+
+![The AI call log dialog, a table of AI calls with tokens, cost, duration and
+status](docs/screenshots/readme-3-ai-call-log.png)
+
+Prompt version, model, token split, duration, status and estimated cost, for both
+features and both models. **The red row is a real failure with its real cause** —
+the calm sentence the user saw is not this text. Keeping that row is the point: a
+thin wrapper around an API does not maintain an audit trail of its own failures.
+
+### Degrading gracefully
+
+![The search panel showing a connection error while the ranked list below it
+renders normally](docs/screenshots/rs-1-tmdb-down-on-search.png)
+
+TMDB unreachable. Search says so in plain language, and the ranked list carries on
+— including each film’s stored TMDB score, which is a snapshot written when the
+film was added rather than a live call, precisely so an outage cannot empty the
+page. Eight more states like this one are in `docs/screenshots/`.
+
 ## Setup
 
 1. **Install**
@@ -155,7 +195,9 @@ docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and whi
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
-docs/screenshots/   resilience and state evidence, one file per RS-n recipe
+docs/screenshots/   21 captures: rs-* the nine resilience and state recipes,
+                    pi-* the prompt-injection evidence, readme-* the showcase
+                    shots embedded above
 ```
 
 ## Demo script (for grading)
