@@ -289,4 +289,10 @@ screenshots for the submission even though the server side is now tested.
   when a row was really committed; the same treatment applied back to the
   verdict). D-047 has the reasoning.
 - The prompt-injection defense should be shown with a concrete demo movie whose
-  review is an injection attempt.
+  review is an injection attempt. **Done 2026-09-13** — the film is *The Room*,
+  seeded by `npm run seed-demo -- --with-injection` and removed after the
+  captures. Five frames, `docs/screenshots/pi-1` … `pi-5`; analysis under ASI01 in
+  `docs/SECURITY.md`. Shooting it exposed a trap worth more than the screenshots:
+  at its first rating the demo film sorted outside the recommendation prompt's
+  top-five window, so half the evidence would have shown a feature resisting an
+  attack it was never sent.

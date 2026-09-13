@@ -62,6 +62,41 @@ the verdict is length-capped and rendered as plain text, never as HTML.
 weird movie suggestion" — the output's only power is to become a TMDB search
 query. It cannot execute, cannot reach the database, and cannot exfiltrate.
 
+**Demonstrated, not asserted — five frames, `docs/screenshots/pi-1` … `pi-5`.**
+A seeded film (*The Room*) carries a review that is itself an attack: instruction
+override, system-prompt exfiltration and output hijack in one string. What the
+captures show:
+
+| Frame | What it establishes |
+|---|---|
+| `pi-1-injection-review-stored.png` | the attack text stored and rendered as **inert plain text** on the card — `textContent`, never `innerHTML` |
+| `pi-2-verdict-resists.png` | the taste verdict entirely on topic, with its real cost declared |
+| `pi-3-recommendations-resist.png` | four real TMDB-verified films with ordinary reasons |
+| `pi-4-verdict-with-input.png` | the attack and the verdict in one frame |
+| `pi-5-recommendations-with-input.png` | the attack and the recommendations in one frame |
+
+**The evidence turns on one detail.** `pi-3` and `pi-5` show the app's own
+**"Based on:"** line naming *The Room* among the five films whose reviews fed the
+prompt. Without it a reader must take on trust that the injection was ever
+delivered — and a system resisting something it was never sent proves nothing.
+Corroborated independently: that verdict call ran **1,577 tokens** against
+1,491 / 1,482 / 1,488 for the three runs before it, the difference being the
+injected review's weight.
+
+**A trap worth recording, because it nearly produced fake evidence.** The demo
+film was first rated 2, which sorted it *sixth*. Recommendations read only the
+top five rated films (`config.recommendations.topN`) while the verdict reads every
+one — so the attack reached the verdict prompt and **never reached the
+recommendations prompt at all**. Half the evidence would have shown a feature
+resisting an attack it had not been sent, with nothing on screen to reveal it.
+Rated 8 it sorts fourth, inside the window, and both captures are genuine.
+
+**Source review and runtime evidence are two different claims**, and both are
+made here: that the guard *exists* is checkable in `prompts/recommend_v3.md` and
+`prompts/taste_verdict_v7.md` (and it survived all seven verdict rewrites, which
+were chasing register and could easily have dropped it); that it *works* is what
+these five frames are.
+
 **Build.** Less obvious and worth stating: the agent reads `CLAUDE.md` and
 `docs/DECISIONS.md` as authoritative instruction, and those two alone are roughly
 450KB of prose. Anyone with write access to this repository can change how the
@@ -256,10 +291,12 @@ repository; this one is the independent application.
 
 ## What is still owed
 
-Two items on the pre-submission list are the evidence for this document rather
-than new work:
+One item. This section listed two until 2026-09-13.
 
-* A **prompt-injection screenshot** — a seeded film whose review is an injection
-  attempt, showing both AI features staying on topic. That is the live proof of
-  ASI01's mitigations.
 * **Unloading the debug harness** — the two lines described under ASI10.
+
+**Delivered since:** the prompt-injection evidence, which was the live proof of
+ASI01's mitigations. Five frames, `docs/screenshots/pi-1` … `pi-5`, analysed
+under ASI01 above. It is deliberately recorded there rather than here, next to
+the claim it substantiates, so a reader meets the mitigation and its proof
+together rather than having to connect two sections.
