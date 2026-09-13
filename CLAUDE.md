@@ -2970,8 +2970,9 @@ below — this list is the smaller stuff.)
   commit, which destroyed the obvious way to eyeball the token and produced a
   confident false report that the two tiers were identical. When a token and one
   of its consumers move together, say what is left to compare against.
-* [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
-  exists.
+* [x] User re-adding lost movies (see Incident 1) — MOOT as of 2026-09-13. The
+  demo seed list exists and is loaded, so the list the submission ships with is
+  the seeded one and there is nothing left to re-add.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
   ranks were fine at every width (checked at ~350px with numerals forced to 20+,
   so the narrow `1` couldn't flatter the test). Three were not: the font clamps
@@ -3022,10 +3023,32 @@ below — this list is the smaller stuff.)
   on a throwaway port, all six titles resolving to an exact title-and-year
   match with no fallback. `--reset` matches ONLY the declared set by title and
   year, prints every row first, and needs `--write` to act.
-  **WHAT IS STILL THE USER CALL: the CONTENT.** The persona, the five films and
-  the review text are a proposal in an editable block at the top of the file,
-  not a decision — swap them freely. Running it against the live database is
-  also the user call and has NOT been done.
+  **THE CONTENT IS SETTLED — 2026-09-13 (D-068) — AND IT IS LOADED.** It is
+  still the user's to change and still lives in one editable block at the top
+  of the file, but it is no longer a proposal: two candidate lists were built
+  and each was run through the real features, and the shipped set merges both.
+  SEVEN films — Mad Max: Fury Road 9.1 (the long review, so the show-more
+  toggle is drawn), Wicked 8.6, Knives Out 8.2 (no review, so #20's placeholder
+  is drawn), The SpongeBob SquarePants Movie 7.6, Shrek 5 (2027) 4.5
+  (unreleased, so the muted "No TMDB rating" caption is drawn — D-037), Saw 1.5,
+  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). Six of
+  the seven cards double as UI evidence for states that otherwise need
+  hand-setup to photograph.
+  **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
+  FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
+  BOTH AI features at once, the verdict falling back to reciting film names
+  (the D-014 failure) and the recommender returning a single shelf. (2)
+  RECOMMENDATIONS SEE ONLY THE TOP FIVE RATED FILMS
+  (`config.recommendations.topN`) WHILE THE VERDICT SEES EVERY ONE, so Saw
+  sits sixth deliberately: it shapes the verdict without spending one of the
+  five slots that steer the picks.
+  **Measured over three runs of each feature before it was called settled.**
+  The verdict names no film in two runs of three; the third lists the two low
+  films, which is the weaker output — so re-roll before a screenshot, and note
+  it is NOT persisted across a page reload. The recommendations are effectively
+  fixed, three of four cards identical every run, each mapping to one seed
+  film. That one-to-one behaviour is intrinsic to the recommender and is not a
+  seed fault; do not chase it with a prompt change.
   **One hard constraint on that helper, from migration 004 (D-041): rating and
   review must go in the SAME `PATCH`.** A review-only patch on a film that is not
   yet rated now violates `review_requires_rating` and comes back as a 400 ("A
@@ -3105,7 +3128,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   checkbox and could be missed on a skim. It is its own task: deploying and
   submitting the address are two different things, and the second is what makes
   the first count.
-* [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
+* [x] **Demo seed list — DONE 2026-09-13.** Loaded by the user with
+  `npm run seed-demo -- --write`, which goes through the app’s own HTTP API,
+  so the rows are exactly what the normal UI flow produces. The content is
+  settled in D-068 and described under Open issues above, including the two
+  traps a future rebalance would undo.
 * [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
   missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
   Put them in `docs/`.
