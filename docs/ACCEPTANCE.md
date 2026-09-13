@@ -35,7 +35,7 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | 5 | A full recommendation run: logged row, verified posters | **yes** | Automated + captured |
 | 6 | Verdict disabled below 2 rated films, logged row | **yes** | Automated + captured |
 | 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + 13 captures |
-| 8 | `.env` gitignored from commit 1, no key in history | **yes, with one precise caveat** | Repeatable commands |
+| 8 | `.env` gitignored from commit 1, no key in history | **yes** | Repeatable commands + captured |
 
 Entries are added as each is worked through. A criterion marked *not yet* means
 nobody has assembled its evidence, **not** that it fails.
@@ -472,20 +472,20 @@ are not.
 
 ## 8 · `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history
 
-**Assessed 2026-09-13. Satisfied in substance, with one precise caveat that is
-stated rather than glossed.**
+**Assessed 2026-09-13. Satisfied.**
 
-Evidence here is **commands**, not a screenshot. A picture of a terminal proves
-less than the command itself, which anyone can re-run.
+Most of the evidence here is **commands** rather than pictures. A screenshot of a
+terminal proves less than the command itself, which anyone can re-run against this
+repository and check.
 
-### Was `.env` ever committed?
+### Has `.env` ever been committed?
 
 ```
 git log --all --diff-filter=A --name-only --format="" | grep -x "\.env"
 ```
 
-**No output.** `.env` appears in no commit’s file list, anywhere in history, on any
-branch. It has never been tracked.
+**No output.** `.env` appears in no commit’s file list, on any branch, at any point
+in history — **including the first commit**. It has never been tracked.
 
 ### Does any key-shaped string appear in any blob?
 
@@ -500,32 +500,42 @@ done
 
 **No output.** No blob in any commit contains a string of either shape.
 
-### The caveat
+### What the first commit actually contained
 
-**`.gitignore` is in the second commit, not the first.**
+![GitHub showing commit a93326c: zero parents, one file changed, README.md with a
+single added line](screenshots/ac-8-first-commit.png)
 
-| Commit | Date | Contents |
-|---|---|---|
-| `a93326c` | 2026-09-04 | *"Initial commit"* — `README.md`, **one line** |
-| `103c4be` | 2026-09-04 | *"project scaffold"* — `.gitignore` (with `.env` on line 2), `.env.example`, `package.json`, lockfile |
+`a93326c` — **`0 parents`**, so it is demonstrably the root commit — **one file
+changed**, `README.md`, **one line added**: `# cinerank-project`.
 
-So read literally — *"from the first commit"* — the criterion is off by one. Read
-for its substance, it is fully met: the first commit is the repository-creation
-commit containing a single line of README and no code, and `.gitignore` arrived
-with the **first commit that contained any project content at all**, in the same
-commit as `.env.example`.
+That is GitHub’s repository-creation commit. It contains no code, no configuration
+and no `.env`. **There was nothing there for a secret to be in.**
 
-There was never a window in which a secret could have been committed, because
-there was nothing to hold one. The two scans above confirm none ever was.
+`.gitignore` arrives in the very next commit, `103c4be`, with `.env` on its second
+line and `.env.example` alongside it — the first commit that contains any project
+content at all:
+
+```
+# Secrets — never commit (CLAUDE.md § Security & Secrets #1)
+.env
+.env.local
+*.local
+```
+
+**So the criterion reads cleanly**: from the first commit onward, `.env` is
+excluded and no key is present. The root commit needs no exemption from the scans
+above — it passes them, because it holds a single line of README.
 
 ### Ongoing enforcement
 
-The history being clean is a fact about the past. `npm run scan-secrets` runs
-before every commit and checks the **staged diff**, so the property is maintained
-rather than merely observed.
+A clean history is a fact about the past. `npm run scan-secrets` runs before every
+commit and inspects the **staged diff**, so the property is maintained rather than
+merely observed. It is one of four commit gates, alongside `npm test`,
+`npm run lint` and `npm run check-markdown`.
 
 ### Verdict
 
-**Satisfied.** No key has ever entered history, `.env` has never been tracked, and
-the one-commit discrepancy is recorded above so that a reader checking `git log`
-finds it already accounted for rather than appearing to be an oversight.
+**Satisfied.** `.env` has never been tracked in any commit, no key-shaped string
+exists in any blob in any commit, the root commit is shown to have held a single
+line of README, and the ignore rule has been in place since the first commit that
+contained anything to ignore.

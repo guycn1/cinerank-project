@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Twenty-five captures, in four families. Every one is the real application in the
+Twenty-six captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -13,7 +13,7 @@ take on trust.
 | `rs-*` | 13 | Nine resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
-| `ac-*` | 4 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
+| `ac-*` | 5 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
@@ -74,6 +74,7 @@ criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
 | [`ac-2-duplicate-add-blocked.png`](ac-2-duplicate-add-blocked.png) | 2 | A film already in the list showing a disabled "In your list" button beside live "+ Add" rows — with that film visible in the ranking below |
 | [`ac-3-ranking-one-film.png`](ac-3-ranking-one-film.png) | 3, 4, 6 | A single rated film: rank 1, a `1 film` subtitle, and both AI features locked with their thresholds explained |
 | [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png) | 3 | An empty list: the empty-state line, and deliberately no subtitle |
+| [`ac-8-first-commit.png`](ac-8-first-commit.png) | 8 | The repository root commit on GitHub: 0 parents, one file, one line of README — nothing a secret could hide in |
 
 ## `readme-*` — product showcase
 
