@@ -2,7 +2,7 @@
 
 **Authors:** Guy Cohen \& Michael Chernyak · **Course:** LLM-Augmented Software Practice (ASE-26)
 
-**Status:** Live specification — currently in the **third** turn of the co-evolution spiral. Annotated in place, never silently rewritten; see the next section.
+**Status:** Live specification — annotated in place, never silently rewritten. The work runs as a co-evolution spiral; the next section records both units it can honestly be counted in.
 
 
 ## Specification status — the co-evolution spiral (Module 10)
@@ -20,6 +20,22 @@ agree with the code: a spec revised into agreement with its own implementation c
 longer show where the two ever differed, which is the one thing it is uniquely able to
 show. Seven such annotations are in place — § 2.2, § 2.3, § 4.5, § 5.1, § 5.3, § 6
 and § 7.2.
+
+**On counting turns, because there are two honest units and neither is wrong.**
+Module 10 describes a spiral that runs fast inside a turn and pins intent at named
+commit points between turns. **In this repository the commit points are the merges
+to `main`** — each one follows a milestone that was framed, built, settled and then
+locked, after a working session of its own and dozens of commits on `draft`. Counted
+that way the project has been through as many turns as it has merges, and
+`git log --merges main` is the authority on that number. It is deliberately not
+repeated here: the same count already lives in two other files and has drifted
+once before.
+
+The three turns below are a **coarser grouping** — by the moments when the
+understanding of the PROBLEM changed, rather than by every point at which intent
+was pinned. It is the more conservative unit, and it is used because three
+narratives are more legible than a list of merges. Neither reading is the
+authority over the other. The merges are the record; the three are the story.
 
 ### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
 
@@ -63,9 +79,10 @@ caught by eye. That produced a new verification gate, `npm run check-markdown`
 (`d1dd505`), since proved in both directions across 57 cases, together with the
 authoring rules it enforces in `CLAUDE.md` § Markdown Authoring Rules.
 
-This turn is open. Its remaining scope is under "Pre-submission blockers" in
-`CLAUDE.md`, and § 7.1's acceptance checkboxes below are to be ticked as part of
-closing it.
+This turn is open, and **merging to `main` pins a commit point inside it rather than
+closing it** — several more merges are expected before the deadline. Its remaining
+scope is under "Pre-submission blockers" in `CLAUDE.md`, and § 7.1's acceptance
+checkboxes below are to be ticked as part of closing it.
 
 
 ## 1\. Overview \& Problem Statement

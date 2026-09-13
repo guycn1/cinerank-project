@@ -70,7 +70,7 @@ in two places drifts and then neither is trustworthy. § 7.1 is the authority.
 
 What § 7.1 does not carry, and belongs in the framing:
 
-* **Done means the gates pass, not that the code runs.** `npm test`,
+* **Done means the gates pass, not that the code runs.** `npm test`, `npm run lint`,
   `npm run scan-secrets` and `npm run check-markdown` all green. Module 10's
   warning is exact here: leave out success criteria and the agent stops when the
   code runs rather than when it works.
@@ -78,9 +78,10 @@ What § 7.1 does not carry, and belongs in the framing:
   feature that works and is undocumented is not finished. In practice: a
   non-obvious choice has a `docs/DECISIONS.md` entry, and `CLAUDE.md`'s living log
   reflects the current state.
-* **Done means merge-ready**, which for this project means `draft` merged to
-  `main` with explicit human confirmation, and that merge is also what closes the
-  third turn of the spiral (`SPEC.md` § Specification status).
+* **Done means merge-ready**, which the DOSSIER names as a criterion in its own
+  right. For this project that means `draft` merged to `main` with explicit human
+  confirmation. `main` is the default branch, so it is where a reader lands —
+  work left unmerged is work they will not see.
 
 **Deliberately not part of done:** visual perfection below ~350px viewport width,
 and anything at all below ~290px. That is a scope boundary set with a deadline in

@@ -184,7 +184,7 @@ fires is the thing this document exists to rule out.
 
 *A frozen record tying intent, context, tools, and trajectory to the output.*
 
-* **Intent** — `SPEC.md`, annotated in place across three recorded spiral turns
+* **Intent** — `SPEC.md`, annotated in place across the spiral's recorded turns
   rather than rewritten to agree with the code, so where the two diverged is still
   readable.
 * **Context** — `CLAUDE.md`, human-directed and version-controlled, with every
