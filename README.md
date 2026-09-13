@@ -33,36 +33,36 @@ visible in the audit trail.
 ## Architecture
 
 ```mermaid
-flowchart LR
-  B["Browser<br/>vanilla HTML, CSS, JS<br/>no framework"]
+flowchart TB
+  B["Browser<br/>vanilla HTML, CSS, JS"]
 
-  subgraph SRV["Node + Express — the only process that holds a secret"]
-    RT["routes/<br/>validate, map errors"]
-    REC["services/recommendations.js"]
-    TV["services/tasteVerdict.js"]
-    TMS["services/tmdb.js"]
-    ORS["services/openrouter.js"]
-    PR["prompts/*.md<br/>versioned, never overwritten"]
+  subgraph SRV["Node + Express — holds every secret"]
+    RT["routes/"]
+    REC["recommendations.js"]
+    TV["tasteVerdict.js"]
+    TMS["tmdb.js"]
+    ORS["openrouter.js"]
+    PR["prompts/*.md"]
   end
 
   DB[("Supabase / Postgres<br/>movies<br/>recommendation_logs<br/>taste_verdict_logs")]
   TAPI(["TMDB API"])
-  OAPI(["OpenRouter<br/>haiku-4.5 and sonnet-5"])
+  OAPI(["OpenRouter"])
 
-  B -->|"fetch /api/* — JSON only"| RT
+  B -->|"fetch /api/*"| RT
   RT --> REC
   RT --> TV
   RT --> TMS
+  PR -.-> REC
+  PR -.-> TV
+  REC -->|"verify every title"| TMS
   REC --> ORS
   TV --> ORS
-  ORS --> OAPI
+  RT --> DB
+  REC --> DB
+  TV --> DB
   TMS --> TAPI
-  PR -.->|"loaded at call time"| REC
-  PR -.->|"loaded at call time"| TV
-  REC -->|"verify EVERY suggested title<br/>unverified are dropped"| TMS
-  RT -->|"anon key, query builder only"| DB
-  REC -->|"one log row per call<br/>success OR failure"| DB
-  TV -->|"one log row per call<br/>success OR failure"| DB
+  ORS --> OAPI
 ```
 
 **What the picture is claiming**, since a diagram that only names files is
@@ -72,7 +72,9 @@ decoration:
   TMDB, to OpenRouter, or to the database, because there is no such call in the
   code. Every secret lives in `.env`, enters the process in exactly one module
   (`server/config.js`), and never reaches the client — so the frontend cannot
-  leak a key it was never given.
+  leak a key it was never given. Database access is the anon key only, never
+  `service_role`, and always through the query builder rather than a built SQL
+  string.
 - **The model’s output is not trusted as fact.** `recommendations.js` sends the
   titles the model invented straight back into `tmdb.js` before any of them
   reach a card, and a title TMDB has never heard of is dropped rather than
