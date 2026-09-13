@@ -6,26 +6,27 @@ appears.**
 
 ## Verdict as of 2026-09-14
 
-**STILL NOT MERGE-READY — but for one remaining reason instead of two, and the
-one left is a signature rather than missing work.**
+**MERGE-READY. All five criteria are met.**
 
-Criterion 1 required two things. **One is now fully closed**; the other is an
-action only the authors can take, on evidence that is complete and written down.
+| # | Criterion | Status |
+|---|---|---|
+| 1 | Functional completeness, shown end to end | **Met** (2026-09-14) |
+| 2 | Sound verification that probes real behaviour | **Met** |
+| 3 | SE hygiene: static analysis, linting, complexity | **Met** |
+| 4 | Rationale and communication | **Met** |
+| 5 | Full auditability | **Met** |
 
-| # | Criterion | Status | Closes when |
-|---|---|---|---|
-| 1 | Functional completeness, shown end to end | **Not met — one item** | § 7.1’s eight acceptance boxes are ticked by the authors |
-| 2 | Sound verification that probes real behaviour | **Met** | — |
-| 3 | SE hygiene: static analysis, linting, complexity | **Met** | — |
-| 4 | Rationale and communication | **Met** | — |
-| 5 | Full auditability | **Met** | — |
+**This is the first time this document has read merge-ready, and the sequence
+matters more than the verdict.** It was written on 2026-09-13 and immediately
+failed its own first criterion — at a point when the application was deployed,
+working, and covered by a green test suite. By the usual informal reading it
+looked finished. Criterion 1 is the one that refuses that reading, and holding it
+open for a day produced twenty-six captures, two evidence documents, three real
+defects and three untested happy paths.
 
-**The standard is deliberately binary and is being held to.** Four of five met
-is not merge-ready, however close it looks — that is the whole point of writing
-the criteria down before wanting to pass them. This document does not soften a
-"not met" into a "substantially met" on the last day.
+**A standard that had passed on the first attempt would have been worth nothing.**
 
-## 1. Functional completeness — NOT MET (one item)
+## 1. Functional completeness — MET
 
 *Shown by end-to-end results, not by passing tests alone.*
 
@@ -64,18 +65,18 @@ Every one of those six was invisible to the tests, the linter and the render
 audits, because each of those inspects **structure** and none of them puts the
 application into a state and looks at it.
 
-### Why it still fails
+### How it closed
 
-**`SPEC.md` § 7.1’s eight acceptance boxes are still unticked.**
+**`SPEC.md` § 7.1’s eight acceptance boxes were ticked by the authors on
+2026-09-14**, against the evidence assembled in
+[`ACCEPTANCE.md`](ACCEPTANCE.md).
 
-That is the whole of it. The evidence behind every one of them is assembled,
-classified and embedded in [`ACCEPTANCE.md`](ACCEPTANCE.md) — but **ticking an
-acceptance criterion is a claim that it was verified for submission**, and that
-claim belongs to the authors rather than to the agent that gathered the material.
-A document cannot sign for them.
-
-So this closes in about ten minutes, with `ACCEPTANCE.md` open beside `SPEC.md`:
-read each entry, agree or disagree, tick. It is a review, not a re-verification.
+**That division of labour is the point, not a formality.** The agent gathered the
+material, classified it by strength, and stopped there — because ticking an
+acceptance criterion is a claim that it was verified *for submission*, and that
+claim belongs to the people submitting. A document cannot sign for them, and an
+agent marking its own homework as accepted would make the whole exercise
+circular.
 
 **Two submission items sit outside this criterion** and are tracked in
 `CLAUDE.md` rather than here: putting the live URL on the project sheet, and the
@@ -255,6 +256,7 @@ npm run scan-secrets
 npm run check-markdown
 ```
 
-All four are wired into the commit rules in `CLAUDE.md`. Criterion 1 is the only
-one that cannot be re-run from a terminal, which is precisely why it is the one
-still open.
+All four are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
+one that cannot be re-run from a terminal** — which is precisely why it was the
+last to close, and why it needed twenty-six captures and two evidence documents
+rather than a command.

@@ -9,6 +9,11 @@ belongs to the authors, not to the agent that helped build the thing — so this
 file assembles the evidence and stops there. The boxes in `SPEC.md` are ticked by
 hand.
 
+**They were ticked on 2026-09-14**, by the authors, against what is written
+below. This document is the basis for that decision rather than a record of it:
+it was complete, and every criterion read a clean `yes`, before any box was
+marked.
+
 ## How evidence is classified here
 
 Not all evidence is the same strength, and saying which kind each criterion rests

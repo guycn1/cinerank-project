@@ -26,7 +26,21 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-13 (**THE `DOSSIER.md` RECONCILIATION IS DONE — see the
+**Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+reads MET on all five of Module 16's criteria for the first time — criterion 1
+closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
+boxes against `docs/ACCEPTANCE.md`. THE ONLY THINGS LEFT ARE THE USER'S OWN AND
+ARE NOT ENGINEERING: the live URL on the project sheet, the joint-project
+registration email, and the final `draft` → `main` merge, which still needs
+explicit confirmation. Everything Claude can do is done — evidence captured and
+written up, the debug harness unloaded, all four gates green.** What landed on
+2026-09-13/14: twenty-six captures across four families with an index; three new
+documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
+`docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
+real defects fixed, three of them found by LOOKING at the running app rather than
+by any tool (D-069, D-070, and the two in the database-down state); and six new
+tests taking the suite from 54 to 60, every one probed by breaking the source.
+Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE — see the
 first item under Pre-submission blockers, which records what it found and what it
 produced: `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a
 linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spiral
@@ -3416,7 +3430,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   instructions" shape explicitly. It survived all seven verdict rewrites, which
   were chasing register and could easily have dropped it. Source review and
   runtime evidence are two different claims; this checkbox is the second.
-* [ ] **README screenshots + architecture diagram** — currently text-only.
+* [x] **README screenshots + architecture diagram — DONE 2026-09-13.** The
+  diagram is Mermaid rather than an exported image, so it is text: diffable,
+  greppable, and unable to go stale silently the way a PNG would. Beneath it,
+  five claims it makes, each checkable against the code. Four screenshots are
+  embedded — the hero, the recommendations, the AI call log, and a reused
+  resilience frame — each captioned with what it PROVES rather than what it
+  depicts. The README also gained a `## Documentation` map, because nine of the
+  eleven deliverables had been reachable only from inside a code block.
 * [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
   names) and both add cross-referencing comments to the project sheet.
 * [x] **Unload the recommendations debug harness — DONE 2026-09-13.** Deleted TWO
@@ -3439,13 +3460,25 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   `GET /debug-recs.js` → **404**, `GET /` → **200**, zero occurrences of
   `debug-recs` in the served HTML, and `app.js` still referenced once. The file
   itself is untouched and still works by pasting into the console.
-* [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
-  Raised by the 2026-09-12 sweep and deliberately left for the user: most are
-  covered by `npm test` and by hand testing, but ticking an acceptance criterion
-  is a claim that it was *verified for submission*, which is the user's call and
-  not Claude's to make on their behalf. Walk them one at a time against the live
-  app — several can be ticked off in the same session as the `RS-n` screenshots,
-  since they exercise the same states.
+* [x] **Tick SPEC § 7.1's acceptance checkboxes — ALL EIGHT TICKED 2026-09-14.**
+  Raised by the 2026-09-12 sweep and deliberately left for the user: ticking an
+  acceptance criterion is a claim that it was *verified for submission*, which is
+  the user's call and not Claude's to make on their behalf. That division held to
+  the end — the agent assembled the evidence and stopped there.
+  **The evidence is `docs/ACCEPTANCE.md`**, written 2026-09-13/14: all eight
+  criteria walked one at a time, each with its proof embedded rather than named,
+  and evidence classified by strength (automated, captured, repeatable command,
+  hand-verified) so that no criterion claims more support than it has.
+  **Walking them found three untested happy paths**, and all three now have
+  tests: search returning results, deleting a film — which had no coverage at
+  all, while `test/helpers.js` had carried an unused `del()` helper since it was
+  written — and a verdict being logged on success. Every criterion that described
+  a SUCCESS turned out to have failure-path coverage only. The suite went 57 to
+  60, and each new test was probed by breaking the source rather than trusted for
+  being green.
+  Four captures were taken specifically for this list and are filed as `ac-*`;
+  two of the eight needed the demo list emptied to one film and then to zero,
+  which was done deliberately and reversed with the seed script afterwards.
   **This item once said the escaping fix had to come first, because the boxes
   were written with an escaped bracket and therefore "do not render as task-list
   checkboxes at all". THAT WAS WRONG** — measured against GitHub's own renderer
