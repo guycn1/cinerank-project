@@ -3317,6 +3317,13 @@ it.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
 6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (Its sibling for documentation is `npm run check-markdown` — see § Markdown Authoring Rules.)
 
+**This whole section is mapped against the OWASP Top 10 for Agentic Applications
+in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for
+agentic systems. It assesses all ten risks twice, once against the product and once
+against the agentic development environment that built this repo, and it is honest
+about the ones that do not apply. Incident 1 is ASI02 (Tool Misuse) landing for
+real. Read it before changing anything here.
+
 ### Security \& Scope (why no accounts ≠ no security story)
 
 This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the frontend key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.

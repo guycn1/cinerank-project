@@ -124,6 +124,11 @@ demoing it.
 
 ## Security notes (course Module 17)
 
+**Mapped in full against the OWASP Top 10 for Agentic Applications (ASI01 to
+ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
+against the product and once against the agentic development environment that
+built it, including the ones that do not apply and why. The short version:
+
 - `.env` is gitignored from the first commit; `npm run scan-secrets` checks staged diffs.
 - Frontend uses the Supabase **anon key** only — least privilege, RLS-bounded.
 - User review text feeds both prompts as *untrusted data*, clearly delimited; the

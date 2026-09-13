@@ -5,6 +5,62 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-066 · The render audit had been running in the wrong GitHub API mode, and it masked a live defect for the life of the file
+
+*Written up the same day it was found, 2026-09-13, while unfreezing `SPEC.md`.*
+
+`CLAUDE.md`'s render-and-diff method told every session to post markdown to
+`https://api.github.com/markdown` with `"mode": "gfm"`. The justification written
+beside it was reasonable and is still true as far as it goes: the two constructs
+most at risk are tables and task lists, both GitHub extensions, so a plain
+CommonMark renderer can pass something that breaks in the repo.
+
+**What nobody checked is whether `gfm` renders a repo FILE the way the repo
+does.** It does not.
+
+**The finding.** `mode: gfm` inserts a `<br>` at every soft line break inside a
+paragraph. GitHub's blob view emits none — a soft break there is just a space, so
+consecutive source lines flow together into one rendered line. Measured against
+the HTML github.com actually serves for `SPEC.md` on `main`:
+
+```
+<p dir="auto">SPEC.md — CineRank
+<strong>Authors:</strong> Guy Cohen &amp; Michael Chernyak
+<strong>Course:</strong> LLM-Augmented Software Practice (ASE-26)
+<strong>Status:</strong> Draft v1</p>
+```
+
+No `<br>` anywhere. That header had been rendering as one run-on line since the
+file was written, and **every render audit we ever ran displayed it as three tidy
+lines**, because every audit ran in `gfm`.
+
+**The alternatives, and why neither is simply "the right mode".**
+
+* **Default mode** (omit `mode`) matches the blob view on line breaks, and emits
+  the same `markdown-heading` anchor wrappers the blob view does — but it does
+  **not** render task lists as checkboxes, returning a literal `<li>[ ] task</li>`.
+  `SPEC.md` § 7.1 and `CLAUDE.md`'s blocker list are task lists, so default mode
+  would report a false defect on both.
+* **`gfm`** renders task lists correctly and fakes the line breaks.
+
+So there is no single authoritative mode, which is the part worth remembering.
+The rule now in `CLAUDE.md` is to use the default for anything about paragraphs,
+layout or line breaks, `gfm` only to confirm a task list, and — when it genuinely
+matters — to fetch the real blob from github.com, which is the only authority.
+
+**Why this is a correction and not an update.** The old rule was wrong when it was
+written, not made wrong by later events, so it was fixed in place rather than
+preserved as history. The distinction is the one `CLAUDE.md` § Decision Logging
+already draws.
+
+**The generalisable lesson, and it is the same one twice.** D-065's audit found
+that the checker had learned the hyphen spelling of a thematic break and nothing
+else — generalising from the instance in hand instead of from rendered output.
+This is that mistake one level higher again: the *audit tool's own configuration*
+was never validated against the thing it was supposed to model. A tool that
+verifies your work is itself a claim, and it gets checked the same way everything
+else does.
+
 ## D-065 · The markdown separators are DELETED, not unescaped — and two of the four suspected escaping defects turned out not to be defects at all
 
 CLAUDE.md and SPEC.md carried ~110 backslash escapes from an old paste. The
