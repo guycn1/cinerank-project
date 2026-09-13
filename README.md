@@ -30,6 +30,65 @@ plain spoken voice, and the model turned out to be the constraint, not the wordi
 (`docs/DECISIONS.md` D-053). The call log shows the model per row, so the split is
 visible in the audit trail.
 
+## Architecture
+
+```mermaid
+flowchart LR
+  B["Browser<br/>vanilla HTML, CSS, JS<br/>no framework"]
+
+  subgraph SRV["Node + Express — the only process that holds a secret"]
+    RT["routes/<br/>validate, map errors"]
+    REC["services/recommendations.js"]
+    TV["services/tasteVerdict.js"]
+    TMS["services/tmdb.js"]
+    ORS["services/openrouter.js"]
+    PR["prompts/*.md<br/>versioned, never overwritten"]
+  end
+
+  DB[("Supabase / Postgres<br/>movies<br/>recommendation_logs<br/>taste_verdict_logs")]
+  TAPI(["TMDB API"])
+  OAPI(["OpenRouter<br/>haiku-4.5 and sonnet-5"])
+
+  B -->|"fetch /api/* — JSON only"| RT
+  RT --> REC
+  RT --> TV
+  RT --> TMS
+  REC --> ORS
+  TV --> ORS
+  ORS --> OAPI
+  TMS --> TAPI
+  PR -.->|"loaded at call time"| REC
+  PR -.->|"loaded at call time"| TV
+  REC -->|"verify EVERY suggested title<br/>unverified are dropped"| TMS
+  RT -->|"anon key, query builder only"| DB
+  REC -->|"one log row per call<br/>success OR failure"| DB
+  TV -->|"one log row per call<br/>success OR failure"| DB
+```
+
+**What the picture is claiming**, since a diagram that only names files is
+decoration:
+
+- **The browser has exactly one arrow out of it.** There is no line from it to
+  TMDB, to OpenRouter, or to the database, because there is no such call in the
+  code. Every secret lives in `.env`, enters the process in exactly one module
+  (`server/config.js`), and never reaches the client — so the frontend cannot
+  leak a key it was never given.
+- **The model’s output is not trusted as fact.** `recommendations.js` sends the
+  titles the model invented straight back into `tmdb.js` before any of them
+  reach a card, and a title TMDB has never heard of is dropped rather than
+  rendered as a broken suggestion. That loop is the difference between this and
+  a chat wrapper.
+- **Both AI services write to the database on every call, not only the happy
+  ones.** A failed call still produces a row carrying the model, the prompt
+  version, the duration and the error text — which is why the in-app log can
+  show failures at all, and why an outage cannot quietly disappear.
+- **Prompts are files, loaded at call time.** Nothing is inlined in a `.js`
+  file, versions are never overwritten, and every log row records which version
+  produced it — so any past recommendation or verdict is traceable to the exact
+  text that generated it.
+- **Two models on one transport.** `openrouter.js` takes an optional model and
+  `tasteVerdict.js` is the only caller that overrides it (D-053), so the split
+  costs no second client and shows up per row in the log.
 ## Setup
 
 1. **Install**
@@ -45,7 +104,7 @@ visible in the audit trail.
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 54 tests — helpers, prompt loader, routes, resilience
+   npm test         # 56 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
 
@@ -73,6 +132,9 @@ scripts/check-markdown.js       run before every commit that touches a .md file;
 scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
 scripts/debug-recs.js           dev only — fakes a recommendation response in the
                                 browser so UI work costs no OpenRouter credit
+scripts/seed-demo.js            loads the demo list through the app own HTTP API,
+                                so the rows are what the UI would have produced;
+                                dry run by default, --write to apply
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 eslint.config.js    defect rules + complexity ceilings; not a style linter
@@ -82,6 +144,7 @@ docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and whi
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
+docs/screenshots/   resilience and state evidence, one file per RS-n recipe
 ```
 
 ## Demo script (for grading)
