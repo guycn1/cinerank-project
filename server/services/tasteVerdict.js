@@ -110,7 +110,16 @@ export async function generateTasteVerdict() {
     prompt_version: version,
     input_movie_ids: rated.map((m) => m.id),
     verdict_text: verdict,
-    model_used: result?.model ?? config.openrouter.model,
+    // THE FALLBACK MUST BE THIS FEATURE’S MODEL, NOT THE APP-WIDE ONE. On
+    // success `result.model` is whatever OpenRouter echoed back; on FAILURE
+    // there is no response to read, so the row falls back to a constant — and
+    // the verdict is the one call in the app that does not use the app-wide
+    // model (D-053, and the `chat()` call above says so).
+    // This line read `config.openrouter.model` until 2026-09-13 and was
+    // therefore logging FAILED verdicts as claude-haiku-4.5 while the call
+    // that actually failed was claude-sonnet-5. The identical-looking line in
+    // recommendations.js is correct there; do not "unify" the two.
+    model_used: result?.model ?? config.tasteVerdict.model,
     tokens_used: result?.tokensUsed ?? null,
     prompt_tokens: result?.promptTokens ?? null,
     completion_tokens: result?.completionTokens ?? null,

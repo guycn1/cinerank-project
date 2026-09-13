@@ -2,6 +2,7 @@ import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB, UNVOTED_TMDB } from './helpers.js';
+import { config } from '../server/config.js';
 
 // Route-level tests. The Supabase client is swapped for an in-memory fake so
 // nothing here touches the live database (CLAUDE.md § Working agreements).
@@ -587,8 +588,8 @@ const RATED_FOUR = {
 };
 
 for (const feature of [
-  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs' },
-  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs' },
+  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs', model: config.openrouter.model },
+  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs', model: config.tasteVerdict.model },
 ]) {
   test(`POST ${feature.path}: a logged 'failed' row is always advertised to the UI`, async () => {
     db.results['movies:select'] = RATED_FOUR;
@@ -612,6 +613,32 @@ for (const feature of [
       // R8's half of the same change: the cause belongs in the row, not the UI.
       assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
       assert.match(row.payload.error_text, /OpenRouter/);
+    } finally {
+      restore();
+    }
+  });
+
+  // A failed call has no OpenRouter response to read a model name from, so the
+  // row falls back to a constant. It has to be the constant THIS feature calls.
+  // Written as a loop over both because the bug this covers was exactly the two
+  // drifting: tasteVerdict.js carried recommendations.js’s fallback verbatim, so
+  // every failed verdict was logged as claude-haiku-4.5 while claude-sonnet-5
+  // was the model that actually failed (D-053 put the verdict off the default).
+  // Nothing asserted the contents of this column before — R23 checked that a
+  // failed row EXISTS and is advertised, never what is in it.
+  test(`POST ${feature.path}: a failed row names the model THIS feature calls`, async () => {
+    db.results['movies:select'] = RATED_FOUR;
+    db.results[`${feature.table}:insert`] = { data: null, error: null };
+    const restore = stubFetch({ 'openrouter.ai': 'throw' });
+    try {
+      await client.post(feature.path);
+      const row = db.calls.find((c) => c.table === feature.table && c.op === 'insert');
+      assert.ok(row, `${feature.name}: a failure must still be logged`);
+      assert.equal(
+        row.payload.model_used,
+        feature.model,
+        `${feature.name}: a failed row must name the model this feature calls`
+      );
     } finally {
       restore();
     }
