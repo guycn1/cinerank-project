@@ -5,6 +5,77 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-067 · The hyphenation fix made the app's own output un-pasteable, and the failure surfaced two steps away from the cause
+
+*Written up 2026-09-13, the day it was found.*
+
+`softHyphenate()` (D-060, D-061) puts a U+00AD soft hyphen between every adjacent
+pair of non-space characters, so a long title or review breaks at a sensible
+point instead of mid-word. It is applied to seven surfaces: ranked titles,
+reviews, search-row titles, recommendation titles, recommendation reasons, and
+both verdict paths.
+
+Soft hyphens are invisible on screen. **They are not invisible when copied.**
+
+**How it surfaced, which is the part worth recording.** Nobody noticed for days,
+because nothing in the workflow ever copied text out of the app. Then the user
+pasted a generated taste verdict into an LLM chat to discuss whether the seeded
+persona was landing — and the message was rejected by a safety classifier before
+any human read it. Twice. The verdict was about Mad Max and Parasite. There was
+nothing objectionable in it at all.
+
+**Text separated character by character is the SHAPE of a filter-evasion
+attempt**, which is a thing automated classifiers are specifically tuned to
+catch, and they fire on the shape rather than on the words. A layout fix had
+quietly made the application's output untrusted-looking to any machine that read
+it, and nothing in the app could possibly have reported that. It took a failure
+in a completely different system, twice, to expose it.
+
+**A second defect came out of the same paste.** `setVerdictText()` (D-057) writes
+the verdict TWICE by design — an `aria-hidden` span that animates on screen, and
+a `.sr-only` span carrying the full string from the first frame so assistive tech
+announces it once and complete. `.sr-only` hides with `clip-path: inset(50%)`,
+which removes it visually but leaves it in the SELECTION. So selecting a verdict
+and copying produced the entire thing twice.
+
+### What was done, and what was deliberately not
+
+**Not unpicked.** The obvious move is to stop inserting soft hyphens, and it is
+wrong: D-060 and D-061 cost two real bug fixes to settle (a scope leak into
+placeholder text, and grapheme-unsafe iteration that corrupted emoji), and the
+mid-word breaking they prevent is a genuine defect at the widths step 5 was
+fought over. The hyphens earn their place in the DOM.
+
+**Fixed at the clipboard instead.** A `copy` listener strips U+00AD from the
+payload, so the DOM keeps its hyphens and only what leaves the page is cleaned.
+`setData` requires the default prevented to take effect. Selections inside a form
+control are skipped: an input's own selection is not part of
+`window.getSelection()` in every engine, and nothing typed into one is
+hyphenated, so there is nothing to clean and a needless `preventDefault` over a
+native copy is risk with no upside.
+
+**`.sr-only` is now `user-select: none`**, which kills the duplication. Nothing
+is lost — a screen reader reads the accessibility tree and never needs that text
+in a selection.
+
+**The codepoint is now a named constant, `SOFT_HYPHEN`.** It was a LITERAL
+invisible character sitting in a string literal, where it could not be read,
+searched for, or told apart from an empty string — and the stripper and the
+inserter have to agree exactly, which is not something two invisible literals can
+be trusted to do. Built with `String.fromCharCode` rather than a backslash
+escape, because escapes in that file have been collapsed by tooling twice (R7,
+and the Environment traps section of `CLAUDE.md`).
+
+### The generalisable bit
+
+**An invisible character is invisible to review, not to machines.** Every check
+this project runs — the tests, the linter, the markdown checker, the render
+audits, and every human read of the diff — passed over seven surfaces emitting
+obfuscated-looking text, because none of them was looking at what the app puts on
+the clipboard. The bug was only observable outside the system that caused it.
+
+Related: D-057 for the two-span verdict, D-060 and D-061 for the hyphenation.
+
 ## D-066 · The render audit had been running in the wrong GitHub API mode, and it masked a live defect for the life of the file
 
 *Written up the same day it was found, 2026-09-13, while unfreezing `SPEC.md`.*
