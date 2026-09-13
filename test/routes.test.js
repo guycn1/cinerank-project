@@ -144,6 +144,40 @@ test('unknown route → 404', async () => {
   assert.equal(res.status, 404);
 });
 
+/* ---------- delete ------------------------------------------------------ */
+
+// DELETE had NO coverage at all until 2026-09-13, which the test helper made
+// conspicuous: helpers.js has defined a `del()` client method since it was
+// written, and nothing had ever called it. Found while assembling the evidence
+// for SPEC § 7.1's third criterion -- the one that asks for edge cases rather
+// than the happy path.
+//
+// WHAT THIS DELIBERATELY DOES NOT ASSERT: that the right ROW was targeted. The
+// fake Supabase builder's `.eq()` is a no-op (see the comment on it), so an
+// assertion about the id would pass whatever the route filtered on -- which is
+// exactly the trap D-046 records, where a test passed against buggy code because
+// the fake ignored the filter that caused the bug. Writing that assertion here
+// would produce false confidence, so it is left out and said so instead.
+test('DELETE /api/movies/:id → 204 with no body', async () => {
+  db.results['movies:delete'] = { data: null, error: null };
+  const res = await client.del('/api/movies/abc-123');
+  assert.equal(res.status, 204);
+  assert.equal(await res.text(), '', '204 must carry no body');
+
+  const call = db.calls.find((c) => c.table === 'movies' && c.op === 'delete');
+  assert.ok(call, 'the delete must reach the movies table');
+});
+
+// The `if (error) throw` in the route. Without it a failed delete would answer
+// 204 -- telling the user the film is gone while it is still there, which is the
+// worst shape this particular failure could take.
+test('DELETE /api/movies/:id when the database rejects it → 500, not a false 204', async () => {
+  db.results['movies:delete'] = { data: null, error: { message: 'connection refused' } };
+  const res = await client.del('/api/movies/abc-123');
+  assert.equal(res.status, 500);
+  assert.match((await res.json()).error, /Something went wrong/);
+});
+
 /* ---------- duplicate handling + happy add ----------------------------- */
 
 test('POST /api/movies for a movie already in the list → 409', async () => {
