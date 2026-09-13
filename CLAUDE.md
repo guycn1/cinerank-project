@@ -3157,7 +3157,13 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   - [ ] **RS-1 · TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
     anything. Expect the crimson note inside the results panel:
     "Couldn’t reach the movie database. Try again in a moment."
-  - [ ] **RS-2 · TMDB down on add.** **Order matters and is not obvious:** search
+  - [x] **RS-2 · CAPTURED 2026-09-13 — `docs/screenshots/rs-2-tmdb-down-on-add.png`.**
+    The ranked list is below the fold in that frame rather than in it, which is
+    a deliberate exception to the note above: the toast is the whole substance
+    of this shot and widening the frame to reach the list would shrink the one
+    string it exists to prove. The four search rows surviving the restart carry
+    the "nothing else fell over" point instead, and RS-1 shows the list.
+    **TMDB down on add.** **Order matters and is not obvious:** search
     FIRST with a good key so rows render, THEN swap in a bogus key, restart, and
     click Add on the rows still on screen. There is no other way in — with TMDB
     down, search itself fails and there is nothing to click. This works only
