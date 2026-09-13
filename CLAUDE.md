@@ -3178,13 +3178,24 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     down, search itself fails and there is nothing to click. This works only
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
-  - [ ] **RS-3 — HALF CAPTURED 2026-09-13. The in-app frame is done:
-    `docs/screenshots/rs-3-tmdb-down-during-recs.png`. STILL OWED: the AI call
-    log row that run wrote — a green `success` with empty `suggested_titles`.**
-    This is the only RS entry needing two frames, because the claim is split
-    across two surfaces: the page says the run produced nothing, and only the
-    log shows it succeeded and was charged anyway. Either frame alone is half
-    the story. Tick this when the second lands.
+  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, the only entry here that
+    needs two: `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
+    `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
+    across two surfaces — the page says the run produced nothing, and only the
+    log shows it succeeded and was charged anyway — so either frame alone is
+    half the story.
+    **The two tie together without annotation and must not be marked up.** The
+    page footer reads 1,043 tokens / 0.20¢ / 3,750 ms; the log row reads 1,043
+    / 0.20¢ / 3.8 s at 17:44:04. A reader can check the pair unaided, and an
+    unedited capture is stronger evidence than one carrying a drawn-on box. Any
+    pointer to the row belongs in the README caption, not in the pixels.
+    The row is self-marking anyway: `resultCell()` returns plain text for an
+    empty list, so it reads "no suggestions" in grey with no caret while every
+    other recommendation row is amber with a disclosure triangle.
+    **That log frame is also the best single piece of cost-logging evidence in
+    the repo** — per-call tokens split in/out, exact cost, duration, a 60-call
+    total, both log tables named, and D-053’s two-model split visible in one
+    column (haiku for recommendations, sonnet-5 for the verdict alone).
     The captured frame also proves R26’s colour rule in passing: the hint is
     `--ink-dim`, not the fainter `.is-caption`, because it is the only thing on
     screen rather than a caption introducing content.
