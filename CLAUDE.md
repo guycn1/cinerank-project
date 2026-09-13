@@ -3264,7 +3264,19 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     click New verdict. Expect "Couldn’t come up with a verdict right now. See the
     AI call log for details." Shoot it beside RS-4 if possible — the two features
     answering identically is what R23 was for.
-  - [ ] **RS-6 · CineRank itself unreachable.** **Load the page first, THEN stop
+  - [x] **RS-6 · CAPTURED 2026-09-13 —
+    `docs/screenshots/rs-6-cinerank-unreachable.png`.**
+    Distinct from RS-1 in the way that matters: there TMDB was down and the
+    SERVER told the client so; here nothing answers at all and `fetch` itself
+    rejects. The frame is `api()`’s network-level catch working — the engine’s
+    own wording (“Failed to fetch”, “NetworkError when attempting to fetch
+    resource”) never reaches the user.
+    Two things had to be true and are: NO log link in the message (R9/D-047 —
+    nothing reached the server, so no row was committed, so nothing may be
+    offered), and all seven films still rendering, because the list loaded
+    before the server died and nothing re-fetches it. RS-7 is the only frame
+    where an empty list is correct; this is emphatically not that frame.
+    **CineRank itself unreachable.** **Load the page first, THEN stop
     `npm start`**, then search. Stopping the server first means the document never
     loads and there is no UI to photograph — this cost time once already. Expect
     "Couldn’t reach CineRank. Check your connection and try again." The ranked
