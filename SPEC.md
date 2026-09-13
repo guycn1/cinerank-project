@@ -195,7 +195,7 @@ Beyond this priority order, the specific visual treatment — layout, styling, a
 * **Duplicate handling:** attempting to add a movie already in the list shows a clear "Already in your list" message instead of a duplicate entry or a raw DB constraint error.
 
 
-## 4\. Technical Architecture
+## 4\. Technical Architecture (Module 7)
 
 ### 4.1 Stack
 

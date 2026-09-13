@@ -40,13 +40,27 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Four gates, wired into the commit rules rather than left to memory.**
-  `npm test` (54 tests), `npm run lint` (ESLint, defect rules and complexity
+  `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
   `npm run scan-secrets` on every commit, and `npm run check-markdown` on every
   commit touching a `.md` file. The last two exist because a real defect got past
   human review: the markdown checker was written after both long documents were
   found rendering wrong on GitHub for weeks (D-065). Each gate was proved to bite
   before being trusted — see `docs/MERGE-READINESS.md` § 2.
+- **Every agent invocation starts from a committed checkpoint**, which is what
+  makes reverting a cheap first move rather than a last resort. The rule in
+  `CLAUDE.md` is written the other way round — *every* modification is committed
+  and pushed straight away, at natural checkpoints rather than once a session —
+  and committing after each change is what leaves the tree clean before the next
+  one begins. Measured over the whole history: **501 commits across 11
+  consecutive days**, every day, a **median of 2 files per commit** and a maximum
+  of 13. It was exercised twice for real, not merely available: four failed
+  polish passes on the verdict glint were ended by reverting to the last commit
+  and re-deriving one dial at a time (D-055), and the RS-9 capture needed a
+  deliberate one-line break in a service, undone with
+  `git checkout -- server/services/recommendations.js` the moment the shot
+  landed. Neither move needed a stash, a branch or a careful hand-undo, because
+  the checkpoint was already there.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -200,7 +214,7 @@ age out of the 60-row window. That is the only time anything has been removed
 from the audit trail, and no code path in the app can delete a log row — see
 `docs/DECISIONS.md` D-019.
 
-## 5. Incident 1 — and the guardrail it produced
+## 5. Incident 1 — and the guardrail it produced (Module 12)
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second
 run also deleted real films the user had added (ratings + reviews, unrecoverable
