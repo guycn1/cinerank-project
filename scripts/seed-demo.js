@@ -219,6 +219,23 @@ const INJECTION = {
 
 /* ------------------------------------------------------------------------- */
 
+/**
+ * The command that repeats THIS run with --write added.
+ *
+ * BUILT FROM THE REAL ARGV, NOT RE-LISTED BY HAND, and that is the whole point.
+ * Both dry-run hints used to assemble a subset of the flags themselves, and both
+ * silently dropped --with-injection. On the seed path that sent the user to a
+ * command which seeds WITHOUT the injection film; on the --reset path to one that
+ * removes the seed set and LEAVES it behind, which is the exact opposite of what
+ * they had just been shown. A user hit the first of those on 2026-09-13.
+ *
+ * Echoing argv back means no flag can be dropped, including any added later.
+ */
+function rerunCommand() {
+  const flags = process.argv.slice(2).filter((a) => a !== '--write');
+  return 'npm run seed-demo -- ' + flags.concat('--write').join(' ');
+}
+
 function fail(label, res, body) {
   throw new Error(label + ' failed: HTTP ' + res.status + ' — ' + ((body && body.error) || 'no message'));
 }
@@ -367,7 +384,7 @@ async function seed(entries) {
 
   if (!WRITE) {
     console.log('DRY RUN — nothing written and nothing deleted.');
-    console.log('Re-run with: npm run seed-demo -- --write' + (KEEP ? ' --keep' : '') + '\n');
+    console.log('Re-run with: ' + rerunCommand() + '\n');
     return;
   }
 
@@ -408,7 +425,7 @@ async function reset(entries) {
   );
 
   if (!WRITE) {
-    console.log('DRY RUN — nothing deleted. Re-run with: npm run seed-demo -- --reset --write\n');
+    console.log('DRY RUN — nothing deleted. Re-run with: ' + rerunCommand() + '\n');
     return;
   }
 
