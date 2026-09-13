@@ -4,58 +4,92 @@ Module 16's standard: five criteria, each with explicit evidence. **Satisfy all
 five and the work is merge-ready; fail one and it is not, however correct it
 appears.**
 
-## Verdict as of 2026-09-13
+## Verdict as of 2026-09-14
 
-**NOT YET MERGE-READY. Four of the five criteria are met; criterion 1 is not.**
+**STILL NOT MERGE-READY — but for one remaining reason instead of two, and the
+one left is a signature rather than missing work.**
 
-That is the point of having the standard. The app is deployed, working and
-covered by tests, so by the usual informal reading it looks finished — which is
-exactly the situation Module 16 warns about. What is missing is not
-functionality; it is the **end-to-end evidence** that criterion 1 asks for and
-passing tests explicitly do not substitute for.
+Criterion 1 required two things. **One is now fully closed**; the other is an
+action only the authors can take, on evidence that is complete and written down.
 
 | # | Criterion | Status | Closes when |
 |---|---|---|---|
-| 1 | Functional completeness, shown end to end | **Not met** | § 7.1's eight acceptance criteria are walked and ticked, and the nine `RS-n` state captures exist |
+| 1 | Functional completeness, shown end to end | **Not met — one item** | § 7.1’s eight acceptance boxes are ticked by the authors |
 | 2 | Sound verification that probes real behaviour | **Met** | — |
-| 3 | SE hygiene: static analysis, linting, complexity | **Met** (2026-09-13) | — |
+| 3 | SE hygiene: static analysis, linting, complexity | **Met** | — |
 | 4 | Rationale and communication | **Met** | — |
 | 5 | Full auditability | **Met** | — |
 
-## 1. Functional completeness — NOT MET
+**The standard is deliberately binary and is being held to.** Four of five met
+is not merge-ready, however close it looks — that is the whole point of writing
+the criteria down before wanting to pass them. This document does not soften a
+"not met" into a "substantially met" on the last day.
+
+## 1. Functional completeness — NOT MET (one item)
 
 *Shown by end-to-end results, not by passing tests alone.*
 
-**What exists.** The app is deployed on Render and has been verified live end to
-end: health probe, ranked list against Supabase, search against TMDB, and both AI
-features against OpenRouter. Every functional requirement in `SPEC.md` § 2 is
-implemented. Ten graceful-degradation paths have been hand-tested by the author,
-and the failure copy they produce is what the resilience states below are written
-against.
+### What changed on 2026-09-13
 
-**Why it still fails.** Two pieces of evidence are missing, and they are the
-difference between "it works" and "it is shown to work":
+This criterion had two blockers that morning. **The larger one is closed.**
 
-* **`SPEC.md` § 7.1's eight acceptance criteria are unticked.** Most are covered
-  by `npm test` and by hand testing, but ticking an acceptance criterion is a
-  claim that it was verified *for submission*. That is the author's call to make
-  against the live app, not something to infer from a green suite.
-* **The nine resilience state captures (`RS-1` to `RS-9`) have not been taken.**
-  They are specified in full — each with its own forcing recipe and the exact
-  string to expect — and deliberately scheduled for after the UI was finished,
-  which it now is. Two recipes are order-dependent and say so.
+* **All nine resilience states are captured** — thirteen frames, since four
+  states split their claim between the page and the audit trail. They are
+  embedded and analysed in [`RESILIENCE.md`](RESILIENCE.md), grouped by which
+  dependency failed and each measured against a stated definition of "graceful".
+* **`SPEC.md` § 7.1 has been walked end to end** and written up in
+  [`ACCEPTANCE.md`](ACCEPTANCE.md): all eight criteria, evidence classified by
+  strength, every one reading a clean `yes`.
+* **Twenty-six captures now exist**, indexed in `docs/screenshots/README.md`.
+  Beyond the resilience set: five frames of a real prompt-injection attempt with
+  both AI features resisting it, four tied to specific acceptance criteria, and
+  three product shots embedded in the README.
+* **The demo seed list is loaded**, so the deployed app is in the state the
+  evidence describes rather than empty.
 
-Deferring the captures was a schedule decision, not an oversight: shooting them
-mid-overhaul would have produced evidence of a UI that no longer exists.
+**Assembling that evidence found three untested happy paths and three real
+defects.** That is the return on this criterion existing at all, and it is worth
+stating precisely because passing tests had not revealed any of them:
+
+| Found | How |
+|---|---|
+| A failed verdict logged against a model it never called | reading a log screenshot taken for something else |
+| "Get recommendations" fully enabled above a list that had failed to load | shooting the database-down state |
+| The verdict placeholder never retiring on that same failure | the same frame |
+| Search returning results — untested | walking criterion 1 |
+| Deleting a film — **zero** coverage | walking criterion 3 |
+| A verdict being logged on success — untested | walking criterion 6 |
+
+Every one of those six was invisible to the tests, the linter and the render
+audits, because each of those inspects **structure** and none of them puts the
+application into a state and looks at it.
+
+### Why it still fails
+
+**`SPEC.md` § 7.1’s eight acceptance boxes are still unticked.**
+
+That is the whole of it. The evidence behind every one of them is assembled,
+classified and embedded in [`ACCEPTANCE.md`](ACCEPTANCE.md) — but **ticking an
+acceptance criterion is a claim that it was verified for submission**, and that
+claim belongs to the authors rather than to the agent that gathered the material.
+A document cannot sign for them.
+
+So this closes in about ten minutes, with `ACCEPTANCE.md` open beside `SPEC.md`:
+read each entry, agree or disagree, tick. It is a review, not a re-verification.
+
+**Two submission items sit outside this criterion** and are tracked in
+`CLAUDE.md` rather than here: putting the live URL on the project sheet, and the
+joint-project registration email. They are administration rather than functional
+completeness, and conflating the two would let a clerical task masquerade as an
+engineering one.
 
 **This criterion is the pre-submission blocker list in `CLAUDE.md`.** It is not
 separately tracked here, because a checklist held in two places drifts.
-
 ## 2. Sound verification — MET
 
 *A test plan that probes real behaviour.*
 
-`npm test` runs 54 tests on the Node built-in runner: pure helpers, the prompt
+`npm test` runs 60 tests on the Node built-in runner: pure helpers, the prompt
 loader, and route-level behaviour with Supabase swapped for an in-memory fake and
 TMDB and OpenRouter stubbed, so the suite never touches live data.
 
@@ -67,6 +101,11 @@ verification fails while looking rigorous, and each is answered concretely:
   cover it. A test that does not fail when you break the thing it tests is not a
   test. The same probing was done for R23's log-advertisement invariant (three
   ways) and R5's dual-failure stderr sink (both ways).
+  **Three more tests were added on 2026-09-13 while walking § 7.1, and each was
+  probed the same way**: the search happy path (break the poster guard, then the
+  year conversion), `DELETE` (drop the error guard so a failed delete answers a
+  false 204), and the verdict's success log row (make it ignore OpenRouter's
+  reported cost). Every probe failed exactly the intended test and nothing else.
 * **Verification theatre** — the markdown checker was proved in *both*
   directions across 57 cases, 26 that must fail and 31 that must pass. The
   must-pass half is the half that matters; a checker that fires on valid input
@@ -166,7 +205,7 @@ fires is the thing this document exists to rule out.
 
 *A human-readable account of approach and trade-offs.*
 
-* **`docs/DECISIONS.md`** — 66 entries, written at the moment each choice was made
+* **`docs/DECISIONS.md`** — 70 entries, written at the moment each choice was made
   and in the same commit as the change it explains. The standard it is held to is
   written into `CLAUDE.md`: an entry must name the alternatives and why each was
   rejected, record where the author overruled the agent *and* where the agent
@@ -194,9 +233,13 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in `prompts/`, never overwritten. A
   past recommendation or verdict is traceable to the exact prompt text that
   produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 19 merges
-  to `main`, and five revert commits plus one reapply, which is the safety layer
-  visibly firing rather than merely existing.
+* **Trajectory** — an unbroken commit history from the very first commit, 20 merges
+  to `main`, and **four** revert commits plus one reapply, which is the safety
+  layer visibly firing rather than merely existing.
+  *(This said five reverts until 2026-09-14. It was wrong when written, not merely
+  stale: a loose grep for "revert" had counted two commits that merely MENTION
+  reverting in their subject line. Corrected rather than preserved — the rule for
+  a claim that was false when written.)*
 * **The product audits itself, which is unusual and is the point.** Every
   OpenRouter call, success or failure, writes a row with prompt version, model,
   token split, cost and duration — and the in-app AI call log surfaces both tables
