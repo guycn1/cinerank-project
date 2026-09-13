@@ -2532,5 +2532,23 @@ document.addEventListener('copy', (e) => {
     await loadMovies();
   } catch (err) {
     toast(failureText('Couldn’t load your movies', err), true);
+    // THE PLACEHOLDER HAS TO BE RETIRED HERE, because nothing else will.
+    // 'Reading the room...' ships in the markup and is replaced by
+    // syncVerdictAvailability() -- which loadMovies() calls AFTER its await, so
+    // a failed load throws first and the placeholder sits there for the life of
+    // the page, still promising a verdict that is never coming. Same root cause
+    // as the recs trigger shipping enabled; both found 2026-09-13, shooting RS-7.
+    //
+    // SAFE BY CONSTRUCTION, not by judgement: this sits inside the catch, so it
+    // cannot run when loadMovies() succeeds. Every normal load, add, rate and
+    // remove is untouched. setVerdictText() is the single writer for this
+    // element (D-040), and its generation counter means any later write
+    // supersedes this one silently and cleanly.
+    //
+    // It deliberately states NO rated-film count. The app does not know one --
+    // the list never loaded -- and 'you have 0' would be a guess presented as a
+    // fact, which is exactly the error the recs hint used to make on this path.
+    el.verdictText.classList.add('is-muted');
+    setVerdictText('Couldn’t read the room — your movies didn’t load.');
   }
 })();
