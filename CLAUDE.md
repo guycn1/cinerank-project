@@ -3074,10 +3074,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     user. Do not re-propose it.** The DOSSIER lists context files "such as
     `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
     and the graded item is "the context files kept and maintained across
-    sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own. An
-    audit of the notes also found they carried third-person references of exactly the
-    kind a rule inside those very notes forbids anywhere in the repo, and
-    that their technical content was already duplicated here.
+    sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own.
+    Their technical content was also already duplicated here.
   **What this does NOT mean.** The reconciliation ADDED documents; it ticked
   nothing below. Every remaining item in this list is still open and still owed.
 * [ ] **Put the live URL on the project sheet** —
