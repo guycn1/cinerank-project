@@ -32,6 +32,30 @@ It is two claims made visible:
 Cost logging is a hard requirement of the course rather than a nice-to-have, and
 this dialog is where that requirement is discharged in public.
 
+### The component, for orientation only
+
+![The AI call log dialog: a table of AI calls with feature, prompt version, model,
+token split, cost, duration, status and result, above a pinned totals
+row](screenshots/readme-3-ai-call-log.png)
+
+**This is what the rest of the document is talking about. It is not how any of it
+works — and the gap between those two things is the reason this file exists.**
+
+Nothing visible above tells you that:
+
+* the totals row is pinned by a **second element** underneath it, because a
+  sticky `<tfoot>` cannot reach the dialog's edge on its own;
+* the rule above that row is **two background gradients**, not the border it
+  plainly resembles, because a border is left behind when the row pins;
+* the Result cells are collapsed `<details>` whose revealed panels are positioned
+  **out of flow**, so opening one cannot reflow the table;
+* the table is **not** the scroller, despite appearances and despite the name of
+  the element wrapping it.
+
+**Use the figure to know which element each section means. Do not use it to infer
+how any of them is built** — that inference is wrong in at least those four
+places, and the sections below say why in each case.
+
 ## 2. Where the data comes from
 
 `GET /api/ai-log` (`server/routes/aiLog.js`) reads **two tables** —
@@ -178,7 +202,7 @@ Each of these looks like it could be simplified. Each cannot.
 | **`--reveal-fade` is one property read by two elements** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
 | **The Result column is a fixed `8rem` with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
 | **`.log-dialog[open] { display: flex }` is a bare rule** | Without it the UA's `dialog:not([open])` hide is overridden and the dialog never closes |
-| **Failed rows render `—` for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum |
+| **Failed rows render `—` for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand (`D-019`)** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
 ## 6. What is safe to change
