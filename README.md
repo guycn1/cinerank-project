@@ -80,6 +80,15 @@ decoration:
   reach a card, and a title TMDB has never heard of is dropped rather than
   rendered as a broken suggestion. That loop is the difference between this and
   a chat wrapper.
+- **The edge that is missing is the other half of that claim.** There is no
+  arrow from `tasteVerdict.js` to `tmdb.js`, because there is no such import:
+  the verdict is never fact-checked. That is deliberate rather than an
+  oversight. A recommendation asserts that a film exists, so it is verified; a
+  verdict asserts only an opinion about the viewer, and there is nothing in it
+  to check against anything. It is contained differently instead: capped at 450
+  characters, stripped of markdown, and rendered with `textContent` — so the
+  worst case is an off-tone sentence rather than a false claim or an executable
+  payload.
 - **Both AI services write to the database on every call, not only the happy
   ones.** A failed call still produces a row carrying the model, the prompt
   version, the duration and the error text — which is why the in-app log can
