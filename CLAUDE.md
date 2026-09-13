@@ -152,8 +152,10 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs a
   real OpenRouter call, and the user ran their paid quota down doing exactly
-  that. **The page loads it temporarily**, so `debugRecs(4)` is available in the
-  console straight away and makes "Get recommendations" render four dummy cards.
+  that. **IT IS NO LONGER LOADED BY THE PAGE — unloaded 2026-09-13, see the ticked
+  checkbox under Pre-submission blockers.** Paste the file into the browser console
+  to use it; `debugRecs(4)` then makes "Get recommendations" render four dummy
+  cards. That was how it was written and how it worked for its first days.
   1–6 (`parseModelJson` slices at 6);
   `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
   latency.
@@ -196,13 +198,16 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   request — the app spent a day answering its own recommendation calls with six
   dummy cards, through hard refreshes and a cleared cache, because nothing was
   cached wrongly and the tag was doing exactly what it said.
-  **Two lines make it load, and both are temporary** — the
+  **TWO LINES USED TO MAKE IT LOAD AND BOTH ARE GONE (2026-09-13):** the
   `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
-  route serving it in `server/index.js` (the file lives in `scripts/`, which is
-  deliberately outside the static root). The FILE stays; only those two go. See
-  the checkbox under Pre-submission blockers. The harness also refuses to install
-  itself when the hostname ends in `onrender.com`, so the live site is protected
-  even if the removal is forgotten — a belt to that braces, not a substitute.
+  route serving it in `server/index.js`. The FILE stays, in `scripts/`, which is
+  deliberately outside the static root — so nothing serves it and nothing can
+  load it by accident. Verified after removal on a throwaway port:
+  `/debug-recs.js` answers 404, the page answers 200, and the served HTML
+  contains no reference to it.
+  The harness also refuses to install itself when the hostname ends in
+  `onrender.com`. That guard is now redundant and stays anyway: it costs
+  nothing, and it is the belt to a brace that has just been removed.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -3414,8 +3419,8 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * [ ] **README screenshots + architecture diagram** — currently text-only.
 * [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
   names) and both add cross-referencing comments to the project sheet.
-* [ ] **Unload the recommendations debug harness.** Delete TWO lines and nothing
-  else: the `<script src="/debug-recs.js">` tag at the bottom of
+* [x] **Unload the recommendations debug harness — DONE 2026-09-13.** Deleted TWO
+  lines and nothing else: the `<script src="/debug-recs.js">` tag at the bottom of
   `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
   `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
   tool and still works by pasting it into the console, which is how it was
@@ -3430,6 +3435,10 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   `onrender.com` host. So forgetting this ships an idle function rather than a
   hijacked app — but a debug tool wired into a submitted build is still its own
   kind of wrong.
+  **Verified live rather than by reading the diff**, on a throwaway port:
+  `GET /debug-recs.js` → **404**, `GET /` → **200**, zero occurrences of
+  `debug-recs` in the served HTML, and `app.js` still referenced once. The file
+  itself is untouched and still works by pasting into the console.
 * [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
   Raised by the 2026-09-12 sweep and deliberately left for the user: most are
   covered by `npm test` and by hand testing, but ticking an acceptance criterion

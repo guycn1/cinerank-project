@@ -297,8 +297,16 @@ Three independent mitigations now:
   is called explicitly.
 * It **refuses to install at all** when the hostname ends in `onrender.com`, so the
   deployed site is protected even if removal is forgotten.
-* The two lines that load it are tracked as a pre-submission blocker, and both are
-  commented as temporary and name that checkbox.
+* **The two lines that loaded it are GONE (2026-09-13).** The `<script>` tag and
+  the route that served it were removed before submission, and the removal was
+  verified live rather than by reading the diff: `/debug-recs.js` now answers 404,
+  the page answers 200, and the served HTML contains no reference to it. The file
+  stays in `scripts/`, which is outside the static root, so nothing serves it and
+  it can only be used by pasting it into a console deliberately.
+
+The first two mitigations are now redundant and are kept regardless. They cost
+nothing, and a control that only works while someone remembers to remove a line is
+exactly the shape this risk describes.
 
 **Build.** Nothing reaches `main` without explicit human confirmation, and `main`
 is never pushed to directly.
@@ -313,11 +321,13 @@ repository; this one is the independent application.
 
 ## What is still owed
 
-One item. This section listed two until 2026-09-13.
+**Nothing.** This section listed two items on the morning of 2026-09-13 and both
+are now delivered.
 
-* **Unloading the debug harness** — the two lines described under ASI10.
-
-**Delivered since:** the prompt-injection evidence, which was the live proof of
+**Delivered:** the debug harness is unloaded — the `<script>` tag and the route
+that served it are both gone, verified live (`/debug-recs.js` → 404), with the
+file itself kept in `scripts/` where nothing serves it. And the prompt-injection
+evidence, which was the live proof of
 ASI01's mitigations. Five frames, `docs/screenshots/pi-1` … `pi-5`, analysed
 under ASI01 above. It is deliberately recorded there rather than here, next to
 the claim it substantiates, so a reader meets the mitigation and its proof
