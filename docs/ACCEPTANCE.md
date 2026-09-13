@@ -31,7 +31,7 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | 1 | Search returns real TMDB results with posters | **yes** | Automated + captured + repeatable |
 | 2 | Duplicate add is blocked with a clear message | **yes** | Automated + captured, three layers |
 | 3 | Delete and re-rank at 0, 1 and many | **yes** | Automated + captured at all three sizes |
-| 4 | Recommendations disabled below 3 rated films | not yet | — |
+| 4 | Recommendations disabled below 3 rated films | **yes** | Automated + captured |
 | 5 | A full recommendation run: logged row, verified posters | not yet | — |
 | 6 | Verdict disabled below 2 rated films, logged row | not yet | — |
 | 7 | TMDB and OpenRouter killed independently, graceful each time | not yet | — |
@@ -247,3 +247,63 @@ Two limits, stated rather than papered over:
 shape; the ranking is captured at all three sizes the criterion names; and the two
 places where evidence is observational rather than automated are named above
 instead of being left for a reader to discover.
+
+## 4 · The recommendation action is disabled with an explanation below 3 rated movies
+
+**Assessed 2026-09-13.** The criterion has two halves — *disabled*, and *with an
+explanation* — and both are visible in one frame.
+
+### Captured
+
+![The recommendations section with its trigger greyed out and a line reading "Rate
+at least 3 movies to unlock recommendations (you have 1)"](screenshots/ac-3-ranking-one-film.png)
+
+*(The same capture appears under criterion 3, where it evidences ranking at a list
+length of one. It is embedded again here rather than cross-referenced, because an
+entry a reader has to leave in order to see its own evidence is doing half a job.)*
+
+Look at the **"What to watch next"** section:
+
+* **"Get recommendations" is greyed out** — and its sparkle icon is dimmed with it,
+  because the disabled rule is written as `button:disabled .ai-sparkle`. A locked
+  control that still twinkles invites a click that does nothing.
+* **The explanation names both numbers**: *"Rate at least 3 movies to unlock
+  recommendations (you have 1)."* Not just the requirement — the distance from it.
+* **The grid beneath is empty.** No stale cards from a previous run sit under a
+  message saying the feature is locked. That is `R16`: the section must not
+  contradict itself.
+
+### Automated
+
+`test/routes.test.js` — *"POST /api/recommendations below the rated-movie threshold
+→ 422, nothing logged"*. Three assertions, and the third is the interesting one:
+
+| Asserted | Why it matters |
+|---|---|
+| Status is **422** | Not a 500 — this is a state the user can act on, not a fault |
+| The body matches `/at least 3/` | The explanation reaches the client, rather than a bare status |
+| **No `recommendation_logs` row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
+
+`GET /api/config` is separately tested to serve the threshold numbers, which is
+what lets the client display the rule without hardcoding it. The server is the
+single source of truth for the number; the literals in the client are a documented
+fallback for that one request failing, not a second definition (`R20`).
+
+### Defence in depth, and one honest consequence
+
+The same shape as criterion 2: the **client prevents** (a disabled button cannot
+be clicked) and the **server refuses** (422 with a usable message). The server half
+is therefore not normally reachable through the interface — it exists for a direct
+API call, or a client that got its state wrong.
+
+That message is one of exactly two in the application flagged `userFacing` and
+passed to the user verbatim rather than replaced with a calm sentence. `R8`
+established the general rule — technical causes go to the log, not the screen — and
+this is a deliberate exception, because *"Need at least 3 rated movies"* is the
+answer to the question the user just asked, not a fault report.
+
+### Verdict
+
+**Satisfied.** Both halves captured in one frame, the server contract asserted
+including the absence of a spurious log row, and the threshold itself served from
+one place rather than duplicated.
