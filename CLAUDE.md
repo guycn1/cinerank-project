@@ -3133,8 +3133,18 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   so the rows are exactly what the normal UI flow produces. The content is
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
-* [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
-  missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
+* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13.**
+  Eleven files in `docs/screenshots/`: RS-3, RS-4, RS-5 and RS-9 each need two
+  frames, because each splits its claim across the page and the audit trail.
+  Server behaviour is covered by `npm test`; these are the *pictures*.
+  **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** — a
+  failed verdict logged against a model it never called (D-070), a fully
+  enabled "Get recommendations" sitting over a list that could not load, and a
+  verdict placeholder that never retired. All three were invisible to the
+  tests, the linter and the render audits, because every one of those inspects
+  STRUCTURE and none of them puts the app into a broken state and looks at it.
+  That is the argument for this list existing, and it is worth remembering
+  before the next evidence pass is treated as box-ticking.
   **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED FOR ITS RS KEY:**
   `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the first
   capture. The subdirectory rather than `docs/` itself so nine-plus PNGs do not
@@ -3317,12 +3327,20 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     “<query>”. Check the spelling, or try a different title." One shot, purely to
     show that an empty result and a failure are visibly different — which is the
     whole of D-033's argument, applied in Search.
-  - [ ] **RS-9 — HALF CAPTURED 2026-09-13. In-app frame done:
-    `docs/screenshots/rs-9-zero-recommendations.png`. STILL OWED: the log row, a
-    green `success` with real tokens and cost and “no suggestions” as its
-    result.** The temporary edit is still in the working tree while that second
-    frame is taken and MUST NOT be committed; four route tests fail while it is
-    in place, which is expected.
+  - [x] **RS-9 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-9-zero-recommendations.png` and
+    `docs/screenshots/rs-9-zero-recommendations-log.png`.** The temporary edit
+    was reverted the moment the second frame landed; 56/56 tests green and the
+    tree clean immediately after.
+    **The log frame is the most information-dense image in the set.** It holds
+    FOUR outcomes at once: this run (`success`, charged, no suggestions), the
+    RS-3 run (`success`, charged, no suggestions — but caused by a TMDB
+    outage), and both failures, `TV`/`claude-sonnet-5` and
+    `R`/`claude-haiku-4.5`.
+    **Its top and fourth rows are the whole argument of the RS-3/RS-9 pair:**
+    1,045 tokens / 0.20¢ and 1,043 tokens / 0.20¢ — visually indistinguishable
+    outcomes with completely different causes, which the app tells apart
+    correctly on the page (R28). Before R28 it called both the second thing.
     **It is the deliberate near-twin of RS-3, and they argue opposite things.**
     Same layout, same empty grid, same real charge. RS-3 is a genuine outage the
     app reported honestly instead of hiding behind this very sentence, which is
