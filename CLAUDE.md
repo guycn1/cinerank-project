@@ -3240,7 +3240,19 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     the log whose `error_text` names the real cause (e.g. `OpenRouter responded
     401`). The split is the point: calm sentence to the user, technical cause to
     the audit trail (R8/R9, D-047).
-  - [ ] **RS-5 · OpenRouter down on the verdict.** Same key, 2+ rated films,
+  - [ ] **RS-5 — HALF CAPTURED 2026-09-13. In-app frame done:
+    `docs/screenshots/rs-5-openrouter-down-verdict.png`. STILL OWED: the log row
+    — red `failed`, feature `TV`, prompt `TV_v7`, model `claude-sonnet-5`.**
+    That second frame is worth having for a reason beyond symmetry: RS-4 failed
+    on Haiku and this fails on Sonnet, so the pair shows D-053’s two-model split
+    in the FAILURE path, not only in the successes.
+    The captured frame is full-page rather than cropped to the banner, and is
+    kept that way: it is the only capture in the set showing the site header —
+    the wordmark and `.mark__reel`, the tagline, and the GitHub link from step 3
+    — and it shows the banner at the very top failing while everything below it
+    is untouched. What pairs with RS-4 is the SENTENCE, which is legible either
+    way. Useful when the README screenshots come up.
+    **OpenRouter down on the verdict.** Same key, 2+ rated films,
     click New verdict. Expect "Couldn’t come up with a verdict right now. See the
     AI call log for details." Shoot it beside RS-4 if possible — the two features
     answering identically is what R23 was for.
