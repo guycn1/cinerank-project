@@ -668,6 +668,54 @@ test('a run WITH suggestions carries no emptyReason at all', async () => {
 // Both features are asserted the same way and in the same place, because the
 // whole point of R23 was that they had drifted into two different answers to one
 // question.
+// THE VERDICT’S SUCCESS PATH HAD NO LOG COVERAGE until 2026-09-13. Every
+// taste_verdict_logs assertion in this file was a FAILURE path: the 422 below
+// threshold, the model recorded on a failed row, the advertise-the-log
+// invariant, and the lost-cause case when the log write itself fails. So SPEC
+// § 7.1’s sixth criterion -- "a triggered verdict produces a logged row with
+// real token/cost data" -- was the one verdict behaviour nothing checked.
+//
+// Mirrors the recommendations success-log test deliberately, so the two
+// features are held to the same standard rather than drifting the way their
+// error handling once did (D-047).
+test('POST /api/taste-verdict logs a success row with real token and cost data', async () => {
+  db.results['movies:select'] = RATED_FOUR;
+  db.results['taste_verdict_logs:insert'] = { data: null, error: null };
+  const restore = stubFetch({
+    'openrouter.ai': {
+      choices: [{ message: { content: 'You like films that commit to something.' } }],
+      usage: { total_tokens: 1480, prompt_tokens: 1385, completion_tokens: 95, cost: 0.0038 },
+      // The verdict is the one call NOT on the app-wide model (D-053).
+      // Asserting it here covers the SUCCESS half of the bug D-070 fixed on
+      // the failure half, where a failed verdict recorded the default instead.
+      model: 'anthropic/claude-sonnet-5',
+    },
+  });
+  try {
+    const res = await client.post('/api/taste-verdict');
+    assert.equal(res.status, 200);
+
+    const logged = db.calls.find((c) => c.table === 'taste_verdict_logs' && c.op === 'insert');
+    assert.ok(logged, 'a successful verdict must be logged too, not only a failure');
+    assert.equal(logged.payload.status, 'success');
+    assert.equal(logged.payload.error_text, null);
+    assert.match(logged.payload.verdict_text, /commit to something/);
+
+    // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions), and
+    // OpenRouter's own usage.cost is preferred over the per-model estimate table.
+    assert.equal(logged.payload.estimated_cost_usd, 0.0038);
+    assert.equal(logged.payload.tokens_used, 1480);
+    assert.equal(logged.payload.prompt_version, 'taste_verdict_v7');
+    assert.equal(
+      logged.payload.model_used,
+      'anthropic/claude-sonnet-5',
+      'the success path records the model OpenRouter echoed back, not the app-wide default'
+    );
+  } finally {
+    restore();
+  }
+});
+
 const RATED_FOUR = {
   data: [
     { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
