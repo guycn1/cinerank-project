@@ -62,6 +62,77 @@ human re-checks. Several rounds caught regressions the agent introduced
 `::details-content` stacking-context trap). The screenshot-in / explanation-out
 rhythm *is* the method for visual work — prose specs can't anticipate these.
 
+## The environment this ran in, and what it was allowed to do (Module 5)
+
+Unnumbered on purpose: `docs/PROCESS.md` § 1 and § 2 are referenced by name from
+`CLAUDE.md` and `SPEC.md`, so the numbered sections below keep their numbers.
+
+**The ADE.** Claude Code in a terminal, on Windows, with Git Bash for POSIX
+commands. That places this build in the **command-line family** — the one that
+exposes the agent loop in the open, hands the developer control over context and
+permissions, and composes with ordinary shell tools. The trade is real and went
+the way it was meant to: less polish than an IDE-integrated agent, and in
+exchange every tool call, every diff and every command was visible before it ran.
+
+**Which pillars were actually in play**, since naming them is the point of the
+typology rather than listing all six:
+
+* **Tool augmentation** — file read and write, shell execution, network fetches.
+  This is the pillar that carries the whole build, and it is the one that defines
+  the blast radius.
+* **Knowledge and memory** — `CLAUDE.md` is the durable briefing, re-read at the
+  start of every session. It is human-written and human-corrected, which is the
+  side of Module 11's finding worth being on.
+* **Multi-agent coordination — implicit only.** The tool decomposes and
+  parallelises internally on its own, which is Module 14's *implicit*
+  orchestration; explicit orchestration was never designed, and this project is
+  the case where it should not be. One codebase, one reviewer, work that is
+  mostly sequential because each step's output is what the next step reacts to.
+  Module 14's own rule is that explicit orchestration is right only when the
+  quality gain clears roughly fifteen times the tokens. It would not have here.
+* **Computer use** — not used. Headless Chrome was driven a few times for
+  screenshots, and it went badly enough to be written up (D-062): its reported
+  viewport width repeatedly disagreed with the real browser, and the user's own
+  screenshots were the authority that settled it.
+
+**The permission stance, and the honest order it was arrived at.** Module 5's
+principle is minimal footprint: grant only the permissions the task needs, prefer
+reversible actions, and do less when uncertain. That is almost word for word what
+the working agreements in `CLAUDE.md` now say — **and they were written after the
+damage, not before it.** Incident 1 is the whole reason they exist: the agent held
+write access to a live production database, used it exactly as designed for
+routine cleanup, and destroyed the user's own ratings and reviews with no
+point-in-time recovery to undo it. The stance below is a lesson, not a
+precaution:
+
+* No destructive operation against live data, ever. Tagged rows only, deleted by
+  that exact tag.
+* No broad process kills. Only a PID this session started, and test servers on a
+  non-default port.
+* Prefer not to touch the database at all for testing — which is why the
+  recommendations work has a browser debug harness instead.
+* No MCP servers and no third-party agent plugins, so the tool surface is the
+  one the ADE ships with and nothing more.
+
+**What stayed the human's, and could not be delegated.** Naming this is Module
+5's closing habit, and in this project it is not abstract — each of these was
+exercised, repeatedly, and is traceable in the log:
+
+* **The acceptance bar.** What "done" means, and when a thing is good enough to
+  stop. Step 5 closed against a ~350px target the user set; R18 closed as
+  won't-fix once measured.
+* **The merge decision.** Every `draft` to `main` merge required explicit
+  confirmation. None was automatic.
+* **Catching the agent's wrong claims.** This is the one that recurs. A
+  browser-support version, a font metric estimated twice and wrong twice, a
+  dialog-dismissal claim, a set of repro steps written against an empty
+  database — all caught by the user, none by a tool. `docs/DECISIONS.md` records
+  them where they happened rather than smoothing them out.
+* **Judging visual work.** Screenshot in, explanation out. Several effects were
+  built, measured, approved on paper and still rejected on sight — the verdict
+  glint took four failed passes and a revert before it was isolated one dial at a
+  time, on the user's call.
+
 ## 2. Prompt engineering as version control
 
 Neither AI feature's prompt is inlined in code — each is a numbered file under

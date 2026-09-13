@@ -77,6 +77,7 @@ test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 eslint.config.js    defect rules + complexity ceilings; not a style linter
 docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of scope
+docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
 docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/DECISIONS.md   why the choices are what they are
