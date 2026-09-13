@@ -32,10 +32,10 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | 2 | Duplicate add is blocked with a clear message | **yes** | Automated + captured, three layers |
 | 3 | Delete and re-rank at 0, 1 and many | **yes** | Automated + captured at all three sizes |
 | 4 | Recommendations disabled below 3 rated films | **yes** | Automated + captured |
-| 5 | A full recommendation run: logged row, verified posters | not yet | — |
-| 6 | Verdict disabled below 2 rated films, logged row | not yet | — |
-| 7 | TMDB and OpenRouter killed independently, graceful each time | not yet | — |
-| 8 | `.env` gitignored from commit 1, no key in history | not yet | — |
+| 5 | A full recommendation run: logged row, verified posters | **yes** | Automated + captured |
+| 6 | Verdict disabled below 2 rated films, logged row | **yes** | Automated + captured |
+| 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + 13 captures |
+| 8 | `.env` gitignored from commit 1, no key in history | **yes, with one precise caveat** | Repeatable commands |
 
 Entries are added as each is worked through. A criterion marked *not yet* means
 nobody has assembled its evidence, **not** that it fails.
@@ -307,3 +307,225 @@ answer to the question the user just asked, not a fault report.
 **Satisfied.** Both halves captured in one frame, the server contract asserted
 including the absence of a spurious log row, and the threshold itself served from
 one place rather than duplicated.
+
+## 5 · A full recommendation run logs a row with real token/cost data, and every shown suggestion is TMDB-verified
+
+**Assessed 2026-09-13.** Two claims: the run is **logged with real figures**, and
+the films shown are **real** rather than invented by the model.
+
+### Captured — what the user sees
+
+![Four recommended films as cards with real posters, above a footer declaring the
+call's prompt version, model, tokens, cost and duration](screenshots/readme-2-recommendations.png)
+
+Four films, each with a **real TMDB poster** — which is the point. The poster,
+year and id come from TMDB’s own record, not from the model, because each title
+the model names is looked up before a card is drawn and dropped if TMDB has never
+heard of it.
+
+The **"Based on:"** line names the five films that fed the prompt, and the footer
+declares `recommend_v3`, the model, the token count, the cost and the duration.
+
+### Captured — what the audit trail holds
+
+![The AI call log showing recommendation rows with token splits, per-call cost and
+status](screenshots/readme-3-ai-call-log.png)
+
+The same run, recorded: prompt version, model, tokens split in and out, cost,
+duration and status — beside rows for the other feature and rows that failed.
+
+### Automated
+
+Two tests carry this, and both were probed by deletion rather than trusted:
+
+**"POST /api/recommendations logs a success row holding exactly the shown titles"**
+asserts `status: success`, a null `error_text`, the real `estimated_cost_usd`
+taken from **OpenRouter’s own `usage.cost`** rather than the estimate table, the
+token count, and `prompt_version`. Its sharpest assertion is that
+`suggested_titles` holds **exactly what was shown** — three titles the model named
+and that were then dropped must not appear in the row. An audit trail recording
+what was asked for rather than what was delivered would be worse than none.
+
+**"POST /api/recommendations drops unverifiable, already-owned and duplicate
+picks"** is the verification claim. One run exercises all three drops: a title
+TMDB cannot confirm, a film the user already owns, and two picks resolving to the
+same film. Only the verified, unowned, non-duplicate one survives — and its year
+and `tmdb_id` come from TMDB, not from the model.
+
+**Both were verified load-bearing by deleting each of the three `continue` guards
+in turn; every deletion fails exactly these tests.**
+
+### Verdict
+
+**Satisfied.** The logged figures are asserted against OpenRouter’s own reported
+cost, and the "real, not invented" claim is enforced by a lookup the tests prove
+is load-bearing.
+
+## 6 · The verdict is disabled with an explanation below 2 rated movies, and a triggered verdict logs a row with real token/cost data
+
+**Assessed 2026-09-13.** Two halves again — the locked state, and the logged run.
+
+### Captured — locked below the threshold
+
+![The verdict banner reading "Rate at least 2 movies to get a verdict (you have
+1)" with its button greyed out](screenshots/ac-3-ranking-one-film.png)
+
+*(Third appearance of this capture — it is embedded rather than cross-referenced
+for the same reason as under criterion 4.)*
+
+The banner reads **"Rate at least 2 movies to get a verdict (you have 1)."** and
+**"New verdict" is greyed**, its sparkle dimmed with it.
+
+**The button is disabled rather than hidden, and that was a decision.** Below the
+threshold it used to be removed from the page entirely, so a new user saw a banner
+with a sentence and no sign anything would ever appear there. Every other locked
+control in the application is disabled rather than absent, so this is consistency
+rather than new design — and the greyed control shows *what* is locked while the
+sentence beside it explains *why*.
+
+### Captured — a real verdict, with its cost
+
+![The verdict banner holding generated text, with a footer declaring prompt
+version, model, tokens, cost and duration](screenshots/readme-1-hero-ranked-list.png)
+
+A generated verdict with `taste_verdict_v7`, `claude-sonnet-5`, its token count,
+its cost in cents and its duration declared directly beneath it. The verdict rows
+in `screenshots/readme-3-ai-call-log.png` are the same figures in the audit trail.
+
+### Automated
+
+* **"POST /api/taste-verdict below the rated-movie threshold → 422"** — the locked
+  half, asserting the status and that the message names the requirement.
+* **"POST /api/taste-verdict logs a success row with real token and cost data"** —
+  the logged half. `status: success`, no error, the stored verdict text, the cost
+  from OpenRouter’s `usage.cost`, the token count, `taste_verdict_v7`, and
+  `model_used` as `claude-sonnet-5`.
+
+**That second test was written on 2026-09-13 while assembling this entry, because
+it did not exist.** Every `taste_verdict_logs` assertion in the suite was a failure
+path. The one verdict behaviour this criterion names was the one nothing checked.
+Verified load-bearing: making the service ignore OpenRouter’s reported cost and
+fall back to the estimate table fails it.
+
+Its `model_used` assertion also closes the other half of `D-070`, where a **failed**
+verdict recorded the app-wide model instead of the one it called. Both halves of
+that column are now pinned.
+
+### Verdict
+
+**Satisfied**, and better evidenced than it was this morning.
+
+## 7 · Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error
+
+**Assessed 2026-09-13.** This criterion has its own document:
+**[`RESILIENCE.md`](RESILIENCE.md)** — nine states, thirteen captures, each
+measured against a stated definition of "graceful". Three are embedded here; the
+rest are there.
+
+*(Only three, deliberately. Embedding all thirteen under one checkbox would bury
+the criterion in its own evidence.)*
+
+### TMDB unreachable
+
+![The search panel showing a connection error while the ranked list below renders
+normally](screenshots/rs-1-tmdb-down-on-search.png)
+
+A plain-language message inside the results panel, and **the ranked list carries
+on** — including each film’s stored TMDB score, which survives the outage because
+it is a snapshot written at add time rather than a live call. `RESILIENCE.md`
+covers two further TMDB surfaces: adding a film, and verification failing
+mid-recommendation.
+
+### OpenRouter unreachable — recommendations
+
+![The recommendations section reporting it could not generate anything, with a link
+to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
+
+A calm sentence with no technical detail, and **no cost footer**, because nothing
+succeeded. The technical cause goes to the log row instead.
+
+### OpenRouter unreachable — the verdict banner
+
+![The verdict banner reporting it could not produce a verdict, with a link to the
+AI call log](screenshots/rs-5-openrouter-down-verdict.png)
+
+This is the criterion’s explicit sub-clause — *"this includes the banner falling
+back gracefully, not breaking the whole Home page"*. The banner reports the failure
+in the **same words** the recommendations section uses, and the page around it is
+untouched.
+
+### Automated
+
+* `GET /api/movies/search` with TMDB unreachable → **502** with a calm message.
+* `POST /api/movies` with TMDB unreachable → **502**, and no database write.
+* `POST /api/recommendations` with OpenRouter unreachable → **422 and a
+  `status: failed` row is written**.
+* An invariant written as a loop over **both** features: a logged failure is always
+  advertised to the interface, and a failure with no row never is.
+
+### Verdict
+
+**Satisfied, and exceeded.** The criterion asks for two dependencies; the captures
+cover four — TMDB, OpenRouter, Supabase, and the application’s own server
+unreachable from an already-open page — plus two states that resemble failures and
+are not.
+
+## 8 · `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history
+
+**Assessed 2026-09-13. Satisfied in substance, with one precise caveat that is
+stated rather than glossed.**
+
+Evidence here is **commands**, not a screenshot. A picture of a terminal proves
+less than the command itself, which anyone can re-run.
+
+### Was `.env` ever committed?
+
+```
+git log --all --diff-filter=A --name-only --format="" | grep -x "\.env"
+```
+
+**No output.** `.env` appears in no commit’s file list, anywhere in history, on any
+branch. It has never been tracked.
+
+### Does any key-shaped string appear in any blob?
+
+Every commit was scanned for an OpenRouter key prefix and for a JWT-shaped string,
+which is the form a Supabase anon key takes:
+
+```
+git rev-list --all | while read c; do
+  git grep -I -l -E "(sk-or-v1-[A-Za-z0-9]{20,}|eyJ[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{30,})" "$c" --
+done
+```
+
+**No output.** No blob in any commit contains a string of either shape.
+
+### The caveat
+
+**`.gitignore` is in the second commit, not the first.**
+
+| Commit | Date | Contents |
+|---|---|---|
+| `a93326c` | 2026-09-04 | *"Initial commit"* — `README.md`, **one line** |
+| `103c4be` | 2026-09-04 | *"project scaffold"* — `.gitignore` (with `.env` on line 2), `.env.example`, `package.json`, lockfile |
+
+So read literally — *"from the first commit"* — the criterion is off by one. Read
+for its substance, it is fully met: the first commit is the repository-creation
+commit containing a single line of README and no code, and `.gitignore` arrived
+with the **first commit that contained any project content at all**, in the same
+commit as `.env.example`.
+
+There was never a window in which a secret could have been committed, because
+there was nothing to hold one. The two scans above confirm none ever was.
+
+### Ongoing enforcement
+
+The history being clean is a fact about the past. `npm run scan-secrets` runs
+before every commit and checks the **staged diff**, so the property is maintained
+rather than merely observed.
+
+### Verdict
+
+**Satisfied.** No key has ever entered history, `.env` has never been tracked, and
+the one-commit discrepancy is recorded above so that a reader checking `git log`
+finds it already accounted for rather than appearing to be an oversight.
