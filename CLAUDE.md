@@ -3363,8 +3363,39 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
     the shot is taken.** Four route tests fail while it is in place, which is
     expected and is not a reason to debug anything.
-* [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
-  attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
+* [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Four frames,
+  `docs/screenshots/pi-1`…`pi-4`.** The demo film is The Room, whose review IS
+  the injection attempt (instruction override, system-prompt exfiltration and
+  output hijack in one). Added with
+  `npm run seed-demo -- --with-injection --keep --write`, captured, then removed
+  through the app’s own Remove button.
+  * `pi-1` the stored review, rendered as inert plain text on the ranked card —
+    `textContent`, never `innerHTML`.
+  * `pi-2` the verdict: entirely about films, no pirate, no BANANA, no leaked
+    system prompt, with its real cost in the footer.
+  * `pi-3` the recommendations: four real TMDB-verified films with normal
+    reasons.
+  * `pi-4` the whole page — malicious input and clean output in one frame.
+  **THE DETAIL THAT MAKES IT PROOF RATHER THAN ASSERTION is the "Based on:"
+  line in `pi-3`**, which names The Room as one of the five films in the taste
+  profile. Without it a reader would have to take on trust that the injection
+  text ever reached the model. The app says so itself.
+  **That line only exists because of a fix made the same day.** The demo film
+  was rated 2, which sorted it SIXTH — outside `config.recommendations.topN` —
+  so its review reached the verdict prompt and never reached the
+  recommendations prompt at all. Half the evidence would have been a screenshot
+  of a feature resisting something it was never sent. Rated 8 it sorts fourth,
+  inside the window, and both captures are real.
+  Corroborated independently: the verdict call ran **1,577 tokens** against
+  1,491 / 1,482 / 1,488 for the three previous runs — about 89 tokens heavier,
+  which is the size of the injected review.
+  **The mitigation itself was verified in source before any of this was shot.**
+  `recommend_v3.md` and `taste_verdict_v7.md` both carry BEGIN/END markers, both
+  declare the enclosed text data only, both state that instructions come from
+  the surrounding section alone, and both name the "ignore previous
+  instructions" shape explicitly. It survived all seven verdict rewrites, which
+  were chasing register and could easily have dropped it. Source review and
+  runtime evidence are two different claims; this checkbox is the second.
 * [ ] **README screenshots + architecture diagram** — currently text-only.
 * [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
   names) and both add cross-referencing comments to the project sheet.
