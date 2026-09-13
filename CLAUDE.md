@@ -3133,7 +3133,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   so the rows are exactly what the normal UI flow produces. The content is
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
-* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13.**
+* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
+  written up in `docs/RESILIENCE.md`.** That document is where they ARGUE
+  something: all thirteen frames embedded, grouped by which dependency failed,
+  each with the exact string it must show and the decision it evidences. The
+  recipes below stay here because they are working instructions; the analysis is
+  there because that is what a reader opens. `docs/screenshots/README.md` indexes
+  all 21 captures in the repo, and renders automatically when the folder is
+  browsed on GitHub.
   Eleven files in `docs/screenshots/`: RS-3, RS-4, RS-5 and RS-9 each need two
   frames, because each splits its claim across the page and the audit trail.
   Server behaviour is covered by `npm test`; these are the *pictures*.

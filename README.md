@@ -167,7 +167,13 @@ renders normally](docs/screenshots/rs-1-tmdb-down-on-search.png)
 TMDB unreachable. Search says so in plain language, and the ranked list carries on
 — including each film’s stored TMDB score, which is a snapshot written when the
 film was added rather than a live call, precisely so an outage cannot empty the
-page. Eight more states like this one are in `docs/screenshots/`.
+page.
+
+**Eight more states are captured and analysed in
+[docs/RESILIENCE.md](docs/RESILIENCE.md)** — TMDB, OpenRouter, Supabase and the
+app’s own server each failing independently, plus two states that look like
+failures and are not. Shooting that set found three real defects that the tests,
+the linter and the render audits had all passed over.
 
 ## Setup
 
@@ -222,6 +228,8 @@ docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of s
 docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
 docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
+docs/RESILIENCE.md  what the user sees when each dependency fails, with the
+                    captures embedded as evidence
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
 docs/screenshots/   21 captures: rs-* the nine resilience and state recipes,

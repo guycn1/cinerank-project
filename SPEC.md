@@ -290,13 +290,15 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 
 ### 7.1 Must Pass Before Submission
 
+*Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — nine states, thirteen frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
+
 * \[ ] Searching a real movie title returns real TMDB results with posters.
 * \[ ] Adding a movie already in the list is blocked with a clear message, not a duplicate row.
 * \[ ] Deleting and re-ranking works correctly with 0, 1, and many movies (edge cases, not just the happy path).
 * \[ ] Recommendation action is disabled with an explanation below 3 rated movies.
 * \[ ] A full recommendation run produces a logged row in `recommendation_logs` with real token/cost data, and shown suggestions have real, TMDB-verified posters — not AI-invented ones.
 * \[ ] The Taste Verdict Banner is disabled/shows an explanation below 2 rated movies, and a triggered verdict produces a logged row in `taste_verdict_logs` with real token/cost data.
-* \[ ] Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error, not a broken page — this includes the banner falling back gracefully, not breaking the whole Home page.
+* \[ ] Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error, not a broken page — this includes the banner falling back gracefully, not breaking the whole Home page. *(Captured and analysed in `docs/RESILIENCE.md`: TMDB down across three surfaces as RS-1, RS-2 and RS-3; OpenRouter down across both AI features as RS-4 and RS-5. Two further states go beyond what this criterion asks — the database unreachable, RS-7, and the app’s own server unreachable from an already-open page, RS-6.)*
 * \[ ] `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see CLAUDE.md § Security \& Secrets).
 
 ### 7.2 Manual Demo Script (for grading)
