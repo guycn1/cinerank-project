@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Twenty-two captures, in four families. Every one is the real application in the
+Twenty-three captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -13,7 +13,7 @@ take on trust.
 | `rs-*` | 13 | Nine resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
-| `ac-*` | 1 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
+| `ac-*` | 2 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
@@ -71,6 +71,7 @@ criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
 | File | Criterion | What it establishes |
 |---|---|---|
 | [`ac-1-search-real-results.png`](ac-1-search-real-results.png) | 1 | A live search for a real title returning real TMDB results, each with a poster, year and score |
+| [`ac-2-duplicate-add-blocked.png`](ac-2-duplicate-add-blocked.png) | 2 | A film already in the list showing a disabled "In your list" button beside live "+ Add" rows — with that film visible in the ranking below |
 
 ## `readme-*` — product showcase
 

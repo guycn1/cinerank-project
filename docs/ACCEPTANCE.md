@@ -29,7 +29,7 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | # | Criterion (abbreviated) | Assessed | Evidence |
 |---|---|---|---|
 | 1 | Search returns real TMDB results with posters | **yes** | Automated + captured + repeatable |
-| 2 | Duplicate add is blocked with a clear message | not yet | — |
+| 2 | Duplicate add is blocked with a clear message | **yes** | Automated + captured, three layers |
 | 3 | Delete and re-rank at 0, 1 and many | not yet | — |
 | 4 | Recommendations disabled below 3 rated films | not yet | — |
 | 5 | A full recommendation run: logged row, verified posters | not yet | — |
@@ -104,3 +104,64 @@ id. It writes nothing. Anyone can re-run it and read the output.
 **Satisfied.** Automated coverage that fails on regression, a capture of the real
 application against live TMDB, and a command anyone can re-run. This is currently
 the best-evidenced of the eight.
+
+## 2 · Adding a movie already in the list is blocked with a clear message, not a duplicate row
+
+**Assessed 2026-09-13. Satisfied at three independent layers**, which is worth
+stating separately because the criterion makes two claims — that the attempt is
+*blocked with a clear message*, and that no *duplicate row* results — and they are
+guaranteed by different things.
+
+### Captured
+
+![A search for "Mad Max" where the film already in the list shows a disabled "In
+your list" button while three others offer "+ Add", with that film also visible at
+rank 1 below](screenshots/ac-2-duplicate-add-blocked.png)
+
+One query, four results, and the contrast is the evidence:
+
+* **Mad Max: Fury Road** — already in the list. The button reads **"In your
+  list"** and is **disabled**. The action is not offered.
+* **Mad Max** (1979), **Furiosa**, **Beyond Thunderdome** — not in the list. Live
+  **"+ Add"** buttons.
+
+**And the same frame proves the premise.** Fury Road is visible at rank 1 in the
+ranking below, with its rating and review. A capture showing only the disabled
+button would prove the message appears; this one also proves the film really is
+already there, which is the other half of what the criterion asserts.
+
+### Automated
+
+`test/routes.test.js` — *"POST /api/movies for a movie already in the list → 409"*.
+Asserts the status **and** that the body carries `Already in your list`, so a
+regression to a bare 409, or to a generic 500, fails it.
+
+### The three layers
+
+| Layer | Mechanism | Which half of the criterion it guarantees |
+|---|---|---|
+| Database | `tmdb_id integer not null unique` (`db/schema.sql`) | **No duplicate row** — not discouraged, impossible |
+| Route | Postgres `23505` mapped to **409** with `Already in your list` (`server/routes/movies.js`) | A clear message rather than a generic failure |
+| Client | `setAddButtonState()` disables the button, labels it `In your list`, and sets an accessible name of *"{title} is already in your list"* | **Blocked** — the action is never offered |
+
+**The layers are not redundant.** The client prevents, the route explains, and the
+schema makes the bad outcome unreachable even if both were bypassed — by a direct
+API call, say, or by two tabs racing each other.
+
+### A note on what could not be captured
+
+The **409 toast** itself is not photographed here, and reaching it from the
+interface is genuinely awkward: the button is disabled, so it cannot normally be
+clicked. It was reachable through a stale-button race — adding a film from the
+search panel while a recommendation card still offered it — and `R3` closed that by
+making the Add-button sync document-wide rather than panel-scoped.
+
+So the path no camera caught is one the application no longer exposes. The route
+test covers it, which is the right place for a state the interface is designed to
+make unreachable.
+
+### Verdict
+
+**Satisfied.** Automated coverage of the server contract, a capture proving both
+halves of the claim in one frame, and a schema constraint that makes the forbidden
+outcome impossible rather than merely handled.
