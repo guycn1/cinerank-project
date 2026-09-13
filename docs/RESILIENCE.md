@@ -248,6 +248,43 @@ both of them the second thing.
 An application that reports what it spent only when things go well is not an audit
 trail.
 
+## Error paths the interface cannot reach
+
+The states above are every failure a user can put this application into. They are
+not every error its server can return. **Six more exist, and none of them has a
+frame** — because in each case the interface refuses the state before a request is
+ever sent.
+
+They are written down rather than left implicit for two reasons. The first is that
+an evidence set should say where its own edges are: a reader who counts nine
+states is entitled to ask whether that is all of them. The second matters more.
+**Each of these is unreachable only because of one specific client-side guard**,
+and the table's left column is therefore a constraint on the client, not a
+description of it.
+
+| Server error | The guard that makes it unreachable | Test that proves it is handled anyway |
+|---|---|---|
+| `400` `Missing search query` | The submit handler returns before any request when the trimmed query is empty, showing `Type a film title to search.` and putting the caret back in the input | `GET /api/movies/search with no query → 400` |
+| `400` `tmdb_id (integer) is required` | `addMovie()` has exactly two call sites — a search row and a recommendation card — and both pass an integer that came from TMDB. The value is never typed by anyone | `POST /api/movies with no tmdb_id → 400`, plus the non-integer case |
+| `400` `Your rating must be between 0 and 10.` | The rating control is `<input type="range" min="0" max="10" step="0.1">`, so the browser cannot emit an out-of-range value | `PATCH /api/movies/:id with rating out of range → 400`, plus the non-numeric case |
+| `400` `Nothing to update` | Save always sends both `rating` and `review`, so the body is never empty | `PATCH /api/movies/:id with an empty body → 400 (nothing to update)` |
+| `400` `A review needs a rating — rate the film first.` | The same line: a rating is always present. `POST` writes neither column, so a film cannot be created carrying a review either | `PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500` |
+| `422` `Need at least 3 rated movies` | The trigger ships `disabled` in the markup and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-movie threshold → 422, nothing logged` |
+
+**The guards are client-side and the tests are server-side, and that division is
+the whole point.** The guard is why no user meets the error; the test is why
+meeting it would be handled correctly regardless. Remove a guard — loosen the
+slider's bounds, let an empty query through, make the review field savable on its
+own — and an error moves from unreachable to reachable **while every test still
+passes**, because none of them exercises the client. Nothing in this repository
+would flag that.
+
+Exactly one of the six was ever *verified* unreachable rather than assumed. Before
+migration 004 added `review_requires_rating`, the state it forbids was traced
+through the interface and then checked against the live table, which held **zero**
+rows in it (`D-041`). The other five rest on reading the code, which is weaker,
+and is said here plainly rather than dressed up.
+
 ## What shooting these actually found
 
 Worth recording, because it is the argument for doing this work rather than
