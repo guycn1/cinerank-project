@@ -5,6 +5,83 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
+
+*Written up 2026-09-13, found while shooting the RS-4 evidence.*
+
+The AI call log dialog said:
+
+> Every OpenRouter call CineRank has made — both features, successes and failures.
+
+and the footer panel that opens it said `Every OpenRouter call`. Neither was true.
+`GET /api/ai-log` puts `.limit(60)` on each of the two log tables, merges them,
+`.slice(0, 60)`s the result, and computes the footer totals over that slice. Once
+the two tables hold more than 60 rows between them, the viewer shows the 60 most
+recent calls and the `Total · N calls` figure pins at 60.
+
+**Found by arithmetic, not by reading.** Two log screenshots taken seventeen
+minutes apart both read `Total · 60 calls / 67,759 tokens / 15.71¢` — identical —
+despite a new row being visible at the top of the second. A count that does not
+move when a row is added is either a stale render or a window, and the route said
+window.
+
+### Where the cap came from, and why it stays
+
+`git log -S` puts it in `b3e3446` (2026-09-04), the commit that introduced the
+viewer. **There is no decision entry for it and no sign it was ever discussed** —
+the user's own account was "we've always had a very manufactured 60-row cap, from
+day one, and I don't know why". So it was a default typed while building.
+
+It did not stay inert, which is the part worth recording. **D-019 reasons from
+it**: the argument for deleting the six pre-migration rows rather than building
+permanent partial-coverage markers was that "the viewer only ever shows the 60
+most recent calls, so those rows will fall out of the window on their own". An
+undeliberated default had become load-bearing in a recorded decision.
+
+**And `SPEC.md` § 4 already described it correctly** — "both log tables merged,
+newest 60 — the primary audit surface, and what the in-app viewer reads". So the
+application's own UI had been contradicting its own specification since the
+feature shipped.
+
+That is what settled the question. The obvious move on finding the sentence false
+is to delete the cap so the sentence becomes true; rejected, because the cap is
+specified, is doing real work bounding a payload and a client-side render that
+would otherwise grow without limit, and D-019 depends on the window existing.
+**The copy was the defect, not the cap.**
+
+### The fix, which is two different fixes
+
+The two strings needed different treatment, because they make different claims:
+
+* **The footer panel** describes what gets **logged**, and every call genuinely is
+  logged — only the viewer is capped. So `Every OpenRouter call` became
+  `Every OpenRouter call is logged`. One verb.
+* **The dialog blurb** *is* the capped viewer, so it has to say so: `The 60 most
+  recent OpenRouter calls`. The every-call claim is not dropped, it MOVES to the
+  clause where it is true — `Every call is persisted in recommendation_logs /
+  taste_verdict_logs`.
+
+Both true things now get said: everything is recorded, this window shows the last
+sixty.
+
+### The generalisable bit
+
+**A false sentence in the UI is invisible to every check this project runs.** The
+tests, the linter, the markdown checker and the render audits all look at
+structure; not one of them compares a claim the interface makes against the
+specification that describes the same thing. This survived because the two were
+never read side by side — and the SPEC line was correct the entire time, so there
+was nothing to find except by looking at both at once.
+
+It also matters more here than it would elsewhere: the whole argument these
+screenshots make is that the app is honest about what it did. A caption
+overstating its own coverage undercuts that specific claim in a way it would not
+undercut, say, a button label.
+
+Related: D-019, which relies on the window; D-018 for what the totals row
+deliberately does not surface; D-065 for the other class of defect that was
+invisible until something rendered it.
+
 ## D-068 · The demo seed list needs a two-axis persona, because a one-axis one starves both AI features at once
 
 *Written up 2026-09-13, when the seed content was settled.*

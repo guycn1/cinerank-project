@@ -215,7 +215,7 @@
     <div class="log-cta">
       <div class="log-cta__copy">
         <strong>AI call log</strong>
-        <span>Every OpenRouter call — prompt version, tokens, latency &amp; cost, successes and failures.</span>
+        <span>Every OpenRouter call is logged — prompt version, tokens, latency &amp; cost, successes and failures.</span>
       </div>
       <button type="button" class="log-cta__btn" id="open-log">
         <svg class="log-cta__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -302,8 +302,9 @@
       <button type="button" class="ghost" id="log-close">Close</button>
     </header>
     <p class="log-sub">
-      Every OpenRouter call CineRank has made — both features, successes and failures.
-      Persisted in <code>recommendation_logs</code> / <code>taste_verdict_logs</code>.
+      The 60 most recent OpenRouter calls — both features, successes and failures.
+      Every call is persisted in <code>recommendation_logs</code> /
+      <code>taste_verdict_logs</code>.
     </p>
     <div class="log-scroll">
       <table class="log-table" id="log-table">
