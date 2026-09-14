@@ -163,7 +163,33 @@ Each prompt file carries a "Change from vN" header explaining the delta. Server
 non-compliant model response is cleaned and truncated on a word boundary before
 it reaches the DOM.
 
-## 3. Guardrails against the model
+## 3. Guardrails against the model — naming the failure mode (Module 3)
+
+Module 3 catalogues the ways an agent fails — hallucination, misalignment,
+ambiguity collapse, sycophancy — and makes a claim about why the catalogue is
+worth learning: **"a student who can name the mode can reach for the fix."**
+
+This project meets one of them squarely, and in the product rather than in the
+build. **Hallucination invents plausible-sounding falsehoods**, and a recommender
+whose entire job is naming films will, sooner or later, name films that do not
+exist. It is not an edge case here; it is the expected behaviour of the component.
+
+**The remedy is not a better prompt.** `recommend_v3` does instruct the model to
+name only real, released films — and asking is not a guard, because the failure
+mode is precisely that the model believes it complied. The guard is that **nothing
+the model says is taken as fact**: every title it returns is looked up, and TMDB
+supplies every fact that reaches a card.
+
+**Measured rather than assumed.** Thirty probe titles were run against live TMDB
+(`D-054`): **seven of twelve realistic invented titles returned zero results** and
+were dropped exactly as the documentation claimed. The drop path is the common
+outcome, not the rare one — which is the opposite of what this project's own
+backlog had assumed in writing before anyone measured it.
+
+**And demonstrated, not only described.** `RS-16` in
+[`RESILIENCE.md`](RESILIENCE.md) is the guard firing on every pick of a run at
+once: a well-formed list of confident titles, none of which TMDB had heard of, and
+a page that says so and still declares what the call cost.
 
 - **Facts come from TMDB, never the model.** The recommendation prompt returns
   *titles only*; every title is looked up on TMDB, which supplies poster / year /
@@ -191,6 +217,29 @@ it reaches the DOM.
 - **Cost is logged, not estimated away.** `openrouter.js` sends
   `usage.include=true` and stores the exact `usage.cost`; a per-model price table
   in `config.js` is only the fallback. Unknown model → `null`, never a guess.
+
+**Module 13's discipline, running at product time.** "Verification before trust"
+is usually read as checking what the agent produced while you build. The same rule
+runs here in production, against the product's own model output: every suggestion
+is a hypothesis until TMDB confirms it, and one that cannot be confirmed never
+reaches a user. The two readings are the same discipline at two different moments.
+
+**Knowing where it does not apply is part of the same skill.** The taste verdict
+is never fact-checked, and that is deliberate rather than an omission — it asserts
+an opinion about the viewer, so there is nothing in it to check against anything.
+It is contained differently instead: capped at 450 characters, stripped of
+markdown, and rendered with `textContent`, so the worst case is an off-tone
+sentence rather than a false claim. Running a verification pass over it would be
+theatre, and Module 13 names theatre as one of the ways verification fails while
+looking rigorous.
+
+**The limit of the guard is stated rather than glossed.** The cross-check proves a
+card shows **a** real film; it does not prove it shows **the** film the model
+meant. `verifyTitle()` keeps TMDB's top result when nothing matches
+title-for-title, which rescues a missing "The" or a misplaced hyphen and
+occasionally substitutes a neighbour. That trade was taken with the numbers in
+front of it (`D-054`), and the documents that used to promise more were corrected
+rather than the matcher being tightened.
 
 ## 4. Making failure visible (Module 13)
 

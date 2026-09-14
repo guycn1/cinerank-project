@@ -86,7 +86,12 @@ decoration:
   titles the model invented straight back into `tmdb.js` before any of them
   reach a card, and a title TMDB has never heard of is dropped rather than
   rendered as a broken suggestion. That loop is the difference between this and
-  a chat wrapper.
+  a chat wrapper. **The failure mode has a name** — hallucination, the first entry
+  in Module 3's catalogue — and naming it is what makes the guard designed rather
+  than incidental: see [how it is built and where its limits
+  are](docs/PROCESS.md#3-guardrails-against-the-model--naming-the-failure-mode-module-3),
+  measured across thirty probe titles in `docs/DECISIONS.md` D-054, and caught in
+  the act as `RS-16` in [docs/RESILIENCE.md](docs/RESILIENCE.md).
 - **The edge that is missing is the other half of that claim.** There is no
   arrow from `tasteVerdict.js` to `tmdb.js`, because there is no such import:
   the verdict is never fact-checked. That is deliberate rather than an
