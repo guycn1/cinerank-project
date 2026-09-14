@@ -38,7 +38,7 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
 ticked.** What landed on
-2026-09-13/14: twenty-eight captures across four families with an index; three new
+2026-09-13/14: thirty-two captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
 real defects fixed, three of them found by LOOKING at the running app rather than
@@ -3159,17 +3159,19 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   so the rows are exactly what the normal UI flow produces. The content is
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
-* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and a
-  TENTH ADDED 2026-09-14 (RS-10), all written up in `docs/RESILIENCE.md`.** That
-  document is where they ARGUE something: all fifteen frames embedded, grouped by which dependency failed,
+* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
+  FOUR MORE ADDED 2026-09-14 (RS-10 through RS-13), all written up in
+  `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
+  nineteen frames embedded, grouped by which dependency failed,
   each with the exact string it must show and the decision it evidences. The
   recipes below stay here because they are working instructions; the analysis is
   there because that is what a reader opens. `docs/screenshots/README.md` indexes
-  all 28 captures in the repo, and renders automatically when the folder is
+  all 32 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
-  Fifteen files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9 and RS-10 each
-  need two frames. For the first four the claim splits across the page and the
-  audit trail; RS-10's splits across TIME, because it is a race.
+  Nineteen files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10 and RS-11
+  each need two frames. For the first four the claim splits across the page and
+  the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
+  one rule shown on BOTH AI features, because one alone reads as incidental.
   *(This line read "Eleven files" and the sentence above it read "21 captures" until
   2026-09-14. Both were wrong when written — there were already thirteen and
   twenty-six — so they are corrected rather than preserved.)*
@@ -3429,6 +3431,38 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     `8 films` with the film at `#1` while view 2 reads `7 films` without it.
     **It deletes exactly one row and it is a throwaway**, so the seed set is
     untouched and there is nothing to restore afterwards.
+  - [x] **RS-11, RS-12 and RS-13 · CAPTURED 2026-09-14 — FOUR frames from ONE
+    broken state, so they share a recipe:**
+    `rs-11-no-log-offered-verdict.png`, `rs-11-no-log-offered-recs.png`,
+    `rs-12-log-cannot-load.png` and `rs-13-write-fails-remove.png`.
+    **The database is unreachable while the page is already loaded** — the same
+    dependency as RS-7, but reached from the opposite direction, so all four
+    surfaces are live and clickable instead of locked at boot.
+    **ORDER IS EVERYTHING AND IT IS NOT THE OBVIOUS ONE.** Load the page with a
+    WORKING `.env` first, so the list renders and both AI buttons enable; THEN
+    break the key, restart, and **do not reload**. Reload and `/api/movies` fails,
+    both buttons render disabled, and every click below becomes impossible — that
+    is RS-7, a different frame.
+    **Break `SUPABASE_ANON_KEY`, never `SUPABASE_URL`.** `createClient` runs at
+    module load (`server/supabase.js`), so a malformed URL throws before the
+    server boots and leaves nothing to photograph. Do not blank either line
+    either: `required()` in `server/config.js` throws on an empty value. Append
+    junk to the KEY's value and nothing else.
+    Then, in this order — the log dialog covers the page, so it goes last:
+    **New verdict** (RS-11a), **Get recommendations** (RS-11b), **Remove** on any
+    card (RS-13), **View the AI call log** (RS-12).
+    Expect "Couldn’t come up with a verdict right now. Try again in a moment."
+    and "Couldn’t generate recommendations right now. Try again in a moment.",
+    **both with NO log link** — that absence is the whole of RS-11; then
+    "Couldn’t remove “<Title>” — Something went wrong."; then, inside the log
+    dialog, "Couldn’t load the log — Something went wrong."
+    **THE SESSION CANNOT LOSE DATA**, which is worth knowing given Incident 1:
+    every write fails at the database, so nothing can be deleted or altered.
+    Restoring is putting the real key back, restarting and reloading.
+    **One outage, three different sentences**, and that is why they are grouped:
+    the AI routes catch their own errors and answer calmly, while the CRUD and
+    log routes fall through to the central 500 handler. None of the four leaks a
+    `PGRST` code or a Postgres string.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and

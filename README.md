@@ -269,12 +269,12 @@ docs/RESILIENCE.md  what the user sees when each dependency fails, with the
                     captures embedded as evidence
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
-docs/screenshots/   21 captures: rs-* the nine resilience and state recipes,
+docs/screenshots/   32 captures: rs-* the thirteen resilience and state recipes,
                     pi-* the prompt-injection evidence, readme-* the showcase
                     shots embedded above
 ```
 
-## Demo script (for grading)
+## Demo script
 
 1. Start from an empty list → add 3–4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change; hit **New verdict** for

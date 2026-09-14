@@ -97,7 +97,7 @@ What closed it is what the turn was about. The problem had stopped being "does t
 application work" — it demonstrably did, deployed and green — and had become
 "can any of that be shown to someone who was not here". Answering it produced two
 evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
-[`docs/RESILIENCE.md`](docs/RESILIENCE.md), twenty-eight captures across four
+[`docs/RESILIENCE.md`](docs/RESILIENCE.md), thirty-two captures across four
 families, and an architecture diagram. **It also produced three real defects and
 three untested happy paths**, none of which the test suite, the linter or the
 render audits had revealed, because each of those inspects structure and none of
@@ -151,7 +151,7 @@ being silently extended.)*
   3. The model returns a **structured list** (title + one-sentence reason per suggestion) — not free-form prose the app has to parse with regex.
   4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms the card shows **a real film**, not that it shows **the** film the model meant: a title TMDB returns nothing for is dropped, while a near-miss resolves to TMDB's closest result, which is occasionally a different movie. Tightening the match was measured against live TMDB and deliberately rejected — see `docs/DECISIONS.md` D-054. The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
   5. Suggestions already in the user's list are filtered out before being shown.
-* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see § 5.2 *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for grading and for debugging.
+* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see § 5.2 *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
 * Recommendations are a **snapshot, not live** — they don't regenerate automatically when new movies are rated; the user explicitly re-triggers when they want fresh ones.
 
 ### 2.3 Taste Verdict Banner (the fun, low-stakes AI touch)
@@ -280,7 +280,7 @@ Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a
 
 *Five more columns were added by migration 001 and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in § 4 of `docs/PROCESS.md` expressible. `db/schema.sql` is canonical.*
 
-This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different (and gradeable) thing.
+This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different thing.
 
 ### 5.3 `taste_verdict_logs`
 
@@ -315,7 +315,7 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 
 ### 7.1 Must Pass Before Submission
 
-***All eight were ticked on 2026-09-14 by the authors, against the evidence assembled in `docs/ACCEPTANCE.md` — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — ten states, fifteen frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
+***All eight were ticked on 2026-09-14 by the authors, against the evidence assembled in `docs/ACCEPTANCE.md` — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — thirteen states, nineteen frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
 
 * \[x] Searching a real movie title returns real TMDB results with posters.
 * \[x] Adding a movie already in the list is blocked with a clear message, not a duplicate row.
@@ -326,7 +326,7 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 * \[x] Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error, not a broken page — this includes the banner falling back gracefully, not breaking the whole Home page. *(Captured and analysed in `docs/RESILIENCE.md`: TMDB down across three surfaces as RS-1, RS-2 and RS-3; OpenRouter down across both AI features as RS-4 and RS-5. Two further states go beyond what this criterion asks — the database unreachable, RS-7, and the app’s own server unreachable from an already-open page, RS-6.)*
 * \[x] `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see CLAUDE.md § Security \& Secrets).
 
-### 7.2 Manual Demo Script (for grading)
+### 7.2 Manual Demo Script
 
 *Two steps below have been overtaken by what got built, and the script in `README.md` is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on § 2.3). Step 4 no longer needs Supabase at all: the app has an in-app **AI call log** viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
 

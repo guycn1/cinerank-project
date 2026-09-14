@@ -7,7 +7,7 @@ being unreachable from a page already open in the browser.
 
 `npm test` covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
-can photograph. Ten states, fifteen frames.
+can photograph. Thirteen states, nineteen frames.
 
 ## What "graceful" is taken to mean here
 
@@ -187,6 +187,85 @@ empty list. And the verdict's `Reading the room…` placeholder, meant to last a
 fraction of a second, sat there for the life of the page still promising a verdict.
 Both are fixed; this frame is the fixed state.
 
+### RS-11 · Neither AI feature offers a log that was never written
+
+![The taste verdict banner reading that it could not come up with a verdict and
+to try again in a moment, with no link of any kind, above a ranked list still
+rendering normally](screenshots/rs-11-no-log-offered-verdict.png)
+
+![The recommendations section reading that it could not generate recommendations
+and to try again in a moment, with no link and no cost
+footer](screenshots/rs-11-no-log-offered-recs.png)
+
+**This is `R23`'s invariant running in the direction nothing else photographs.**
+`RS-4` and `RS-5` show its positive half: OpenRouter fails, a `status='failed'`
+row is written, and the message offers the log. Here the database is what is
+gone, so the read fails *before any AI call is made* — no row exists, and neither
+feature offers a log it knows cannot help.
+
+The difference is one word in the response. Both services throw without a
+`logged` flag when the read fails (`server/services/tasteVerdict.js`,
+`server/services/recommendations.js`), the routes answer with the
+"Try again in a moment." variant instead of the bare sentence, and
+`public/app.js` branches on `err.logged` to decide whether to build a link at
+all. Set the flag and the link appears; that is the whole mechanism.
+
+**Two frames because the rule is shared, not because the claim is split.** One
+feature alone reads as incidental. Both, side by side, saying different sentences
+with the same ending and the same absence, reads as a rule — which is what it is,
+and what a test asserts as a loop over both features so they cannot drift apart
+again.
+
+### RS-12 · The audit surface fails honestly too
+
+![The AI call log dialog open, its heading, description and nine column headers
+all rendering, with a single row reading that the log could not be
+loaded](screenshots/rs-12-log-cannot-load.png)
+
+The log reads from the same database, so it goes down with it — and this is the
+dead end `RS-11` exists to keep users out of.
+
+**What it must not do is come back empty.** An empty table and an unreachable one
+look alike and mean opposite things: *no AI calls have ever been made* against
+*we cannot tell you what was made*. The first would be a lie here. `public/app.js`
+writes a different sentence in each case, in the same slot — the failure reads
+"Couldn’t load the log — Something went wrong.", while a genuinely empty log reads
+"No AI calls logged yet — run a recommendation or a taste verdict." That is
+`D-033`'s rule, the one `RS-1` and `RS-8` argue in Search, holding on a third
+surface.
+
+Everything around the body still renders: the heading, the Close button, the
+description naming both log tables, and all nine column headers. Only the part
+that needs the database is missing.
+
+> **The honest blemish.** The cause it can show is `Something went wrong.` — the
+> generic `500`, and the least informative message in the application. This is
+> the one frame in this document where the app genuinely cannot say what broke,
+> because the central handler is what answers when Supabase vanishes mid-request.
+> It is recorded here rather than quietly framed as a success.
+
+### RS-13 · A write fails and says which film it was about
+
+![A toast reading that Shrek could not be removed because something went wrong,
+with the film still in the ranked list above
+it](screenshots/rs-13-write-fails-remove.png)
+
+Removing a film with the database gone. The toast is a **context plus a cause**
+(`D-042`): `failureText()` composes the app's own context with whatever the
+server sent, and the film is named. The two error toasts used to show the cause
+alone, so a failed add or remove named no film at all.
+
+The card is still there, which is worth stating precisely rather than
+overselling: `removeMovie()` has **no optimistic removal** — it awaits the
+`DELETE`, then reloads. The film survives because nothing ever removed it. The
+frame evidences the absence of a risky pattern, not the success of a rollback.
+
+**One outage, three sentences, and that is the point of grouping these.** The
+same unreachable database produces "Try again in a moment." from both AI features
+and "— Something went wrong." from the CRUD and log routes, because the AI routes
+catch their own errors and answer calmly while the others fall through to the
+central handler. Not one of the four leaks a `PGRST` code or a Postgres string.
+
 ## When CineRank itself is unreachable
 
 ### RS-6 · The app's own server is gone
@@ -359,7 +438,7 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-10`: `CLAUDE.md`, under Pre-submission
+* Recipes for every state, as `RS-1` … `RS-13`: `CLAUDE.md`, under Pre-submission
   blockers.
 * Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
 * The acceptance criteria these satisfy: `SPEC.md` § 7.1.
