@@ -236,14 +236,17 @@ Three structural answers:
 **Product.** Every external dependency fails independently without taking the page
 with it — TMDB down on search, TMDB down on add, TMDB down mid-recommendation,
 OpenRouter down on either feature, the database unreachable, and the app itself
-unreachable. Each is specified in `SPEC.md` § 2.4, covered by route tests, and
-scheduled for a screenshot as `RS-1` through `RS-9`. A failed AI call still writes
+unreachable. Each is specified in `SPEC.md` § 2.4 and covered by route tests, and
+all of them are now **captured and analysed** in
+[`RESILIENCE.md`](RESILIENCE.md) — `RS-1` through `RS-16`, which also reaches
+past this list to a row deleted under an open dialog and three ways the model can
+return nothing usable while every dependency is healthy. A failed AI call still writes
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
 **Build.** Four gates and a rollback layer: `npm test` (60 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, and git itself — an unbroken history
-from the first commit, with five revert commits and one reapply, which is the
+from the first commit, with four revert commits and one reapply, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure
 that changes every commit goes stale between one session and the next.)

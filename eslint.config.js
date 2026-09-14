@@ -11,12 +11,15 @@
  * complexity checks explicitly alongside linting.
  *
  * Three environments, because this repo ships code to two runtimes and a third
- * file that is loaded by the browser but lives outside the static root:
+ * file that the browser parses as a CLASSIC script but that nothing serves:
  *   - Node ES modules: server/, test/, and the three real scripts/ tools
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
- *   - Browser CLASSIC script: scripts/debug-recs.js, loaded by a bare <script>
- *     tag, so it is parsed as a script and not as a module. Getting this wrong
- *     makes ESLint report phantom parse errors.
+ *   - Browser CLASSIC script: scripts/debug-recs.js. It is pasted into the
+ *     browser console, so it is parsed as a script and not as a module. Getting
+ *     this wrong makes ESLint report phantom parse errors. (It was briefly
+ *     loaded by a bare <script> tag in index.html; that tag and the route that
+ *     served it were removed on 2026-09-13, and the parser setting still applies
+ *     because a console paste is a classic script too.)
  */
 
 import globals from 'globals';
@@ -75,9 +78,11 @@ export default [
     rules: defectRules,
   },
 
-  // The browser CLASSIC script. index.html loads it with a bare <script> tag, so
-  // it must be parsed as a script; parsing it as a module hides nothing but
-  // reports nonsense. It also deliberately defines one global, which is the whole
+  // The browser CLASSIC script. Pasted into the browser console, so it must be
+  // parsed as a script; parsing it as a module hides nothing but reports
+  // nonsense. (index.html loaded it with a bare <script> tag until 2026-09-13;
+  // that tag and the route serving it are gone, and this setting is unchanged
+  // because a console paste is a classic script too.) It also deliberately defines one global, which is the whole
   // point of a console harness — hence no-implicit-globals is off here only.
   {
     files: ['scripts/debug-recs.js'],

@@ -52,9 +52,10 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   `CLAUDE.md` is written the other way round — *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session —
   and committing after each change is what leaves the tree clean before the next
-  one begins. Measured over the whole history: **501 commits across 11
+  one begins. Measured over the whole history: **more than 500 commits across 11
   consecutive days**, every day, a **median of 2 files per commit** and a maximum
-  of 13. It was exercised twice for real, not merely available: four failed
+  of 13. (Deliberately not an exact figure: it moves with every commit, including
+  the ones that would be needed to correct it.) It was exercised twice for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
   and re-deriving one dial at a time (D-055), and the RS-9 capture needed a
   deliberate one-line break in a service, undone with
@@ -127,7 +128,7 @@ below is a file a reader can open.
 | **Specification** | `SPEC.md` — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | Module 10 |
 | **Context** | `CLAUDE.md` — human-written, re-read every session, corrected in place when it was wrong | Module 11 |
 | **Plan** | the backlogs inside `CLAUDE.md`, numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | 501 commits on `draft` across 11 consecutive days, median 2 files each | — |
+| **Execution** | more than 500 commits on `draft` across 11 consecutive days, median 2 files each | — |
 | **Verification** | four commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | Module 13 |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own AI call log | Module 4 |
 
@@ -397,9 +398,9 @@ screenshots for the submission even though the server side is now tested.
   pre-submission session, so the shots match the finished UI rather than a
   mid-overhaul one.~~ **CLOSED 2026-09-13/14.** The deferral held and then paid
   off: the shots were taken against a settled UI, and the set grew well past the
-  nine states this bullet anticipated. **Fifteen states, twenty-three frames**,
+  nine states this bullet anticipated. **Sixteen states, twenty-four frames**,
   embedded and argued in [`RESILIENCE.md`](RESILIENCE.md); the recipes are
-  greppable in `CLAUDE.md` as `RS-1` through `RS-15`. Shooting them found three
+  greppable in `CLAUDE.md` as `RS-1` through `RS-16`. Shooting them found three
   real defects that nothing else would have, which is the entry worth reading
   here rather than the count.
 - ~~**The recommendations error state is written and then immediately

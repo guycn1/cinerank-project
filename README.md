@@ -224,8 +224,10 @@ actually lives rather than where it is summarised:
   unaffected and the application’s own "Based on:" line confirming the attack
   text reached the prompt. Three frames embedded.
 * **[`docs/RESILIENCE.md`](docs/RESILIENCE.md)** — TMDB, OpenRouter, Supabase and
-  the app’s own server each broken independently and photographed, plus two
-  states that look like failures and are not. **Shooting that set found three
+  the app’s own server each broken independently and photographed; two states
+  that look like failures and are not; a row deleted underneath an open dialog;
+  and three ways the model can return nothing usable while every dependency is
+  healthy. **Shooting that set found three
   real defects** that the tests, the linter and the render audits had all passed
   over, because every one of those inspects structure and none of them puts the
   application into a broken state and looks at it.

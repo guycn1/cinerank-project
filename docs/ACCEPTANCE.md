@@ -50,8 +50,10 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + `RS-1` … `RS-5` |
 | 8 | `.env` gitignored from commit 1, no key in history | **yes** | Repeatable commands + captured |
 
-Entries are added as each is worked through. A criterion marked *not yet* means
-nobody has assembled its evidence, **not** that it fails.
+*(While this document was being assembled, a criterion could read “not yet”,
+meaning nobody had gathered its evidence rather than that it failed. None does
+now: all eight were walked and all eight read a clean `yes` before any box in
+`SPEC.md` was marked.)*
 
 ## 1 · Searching a real movie title returns real TMDB results with posters
 
@@ -109,8 +111,9 @@ npm run seed-demo
 ```
 
 A dry run resolves every seed film through `/api/movies/search` and prints what
-came back — eight films, eight exact title-and-year matches, each with its TMDB
-id. It writes nothing. Anyone can re-run it and read the output.
+came back — the seven seed films, seven exact title-and-year matches, each with
+its TMDB id. (`--with-injection` adds an eighth, the Module 17 demo film.) It
+writes nothing. Anyone can re-run it and read the output.
 
 ### Verdict
 

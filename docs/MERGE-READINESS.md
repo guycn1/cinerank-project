@@ -32,7 +32,8 @@ defects and three untested happy paths.
 
 ### What changed on 2026-09-13
 
-This criterion had two blockers that morning. **The larger one is closed.**
+This criterion had two blockers that morning. **Both are now closed** — the
+larger one on 2026-09-13, the second the following day.
 
 * **All sixteen resilience states are captured** — twenty-four frames, since eight
   states split their claim between the page and the audit trail. They are
@@ -41,10 +42,11 @@ This criterion had two blockers that morning. **The larger one is closed.**
 * **`SPEC.md` § 7.1 has been walked end to end** and written up in
   [`ACCEPTANCE.md`](ACCEPTANCE.md): all eight criteria, evidence classified by
   strength, every one reading a clean `yes`.
-* **Thirty-six captures now exist**, indexed in `docs/screenshots/README.md`.
+* **Thirty-seven captures now exist**, indexed in `docs/screenshots/README.md`.
   Beyond the resilience set: five frames of a real prompt-injection attempt with
-  both AI features resisting it, four tied to specific acceptance criteria, and
-  three product shots embedded in the README.
+  both AI features resisting it, five tied to specific acceptance criteria, and
+  three product shots embedded in the README. (Counts drift; the index is the
+  authority.)
 * **The demo seed list is loaded**, so the deployed app is in the state the
   evidence describes rather than empty.
 
@@ -131,7 +133,7 @@ the decision log where it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project until 2026-09-13.
 
-`npm run lint` runs ESLint 9 over all 22 JavaScript files (5,395 lines) across
+`npm run lint` runs ESLint 9 over all 23 JavaScript files (6,101 lines) across
 three environments — Node ES modules, the browser ES module, and the one browser
 *classic* script that `index.html` loads with a bare tag. **Current state: zero
 errors.**
@@ -219,7 +221,7 @@ fires is the thing this document exists to rule out.
   guardrails, and Incident 1.
 * **`docs/SECURITY.md`** — all ten OWASP agentic risks, including the ones that do
   not apply and why.
-* **Commit messages** explain *why*, not just what — across four hundred–odd
+* **Commit messages** explain *why*, not just what — across five hundred–odd
   commits (`git rev-list --count main` for the exact figure; a number that moves
   every commit is not written into a document).
 

@@ -48,9 +48,10 @@ Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE — see the
 first item under Pre-submission blockers, which records what it found and what it
 produced: `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a
 linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spiral
-turns recorded. The merge-readiness verdict is NOT YET MERGE-READY, failing only
-criterion 1, which is the blockers list itself. Nothing in that list was ticked by
-the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
+turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
+POINT, failing only criterion 1, which is the blockers list itself — it has since
+closed, and the top of this entry is the current verdict. Nothing in that list was
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked except the final merge itself. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -2910,21 +2911,24 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
-   **>>> START HERE. EVERY UI STEP IS NOW DONE — 1, 2, 3, 4, 4b and 5 — so this
-   is the only step left, and it is not UI work: it is evidence, registration and
-   cleanup. The checklist is under "Pre-submission blockers" below; the nine
-   resilience screenshots are greppable as `RS-1` through `RS-9`, each with its
-   own recipe and the exact string to expect. Two recipes are order-dependent and
-   will waste a session if skimmed (RS-2 needs a search run BEFORE the key is
-   broken; RS-6 needs the page loaded BEFORE the server is stopped).
-   The user is capturing screenshots only once the UI is finished — which it now
-   is — but that is still THEIR call to start, and it has been restated several
-   times. Do not push to shoot them early.
-   **READ `DOSSIER.md` FIRST — it is the course's own grading rules, it arrived
-   2026-09-13, and THIS CHECKLIST PREDATES IT AND HAS NEVER BEEN RECONCILED
-   AGAINST IT.** That reconciliation is the first checkbox below.
+   **>>> THIS STEP IS DONE — 2026-09-14. Every checkbox under "Pre-submission
+   blockers" is ticked except the final `draft` → `main` merge, which needs
+   explicit user confirmation and is the only thing left in the repository. What
+   follows is that instruction block corrected to the finished state; the recipes
+   it points at are still the working ones. <<<**
+   The checklist is under "Pre-submission blockers" below. The resilience
+   screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states, not
+   the nine this block named while it was open. **FIVE recipes are
+   order-dependent and will waste a session if skimmed:** RS-2 needs a search run
+   BEFORE the key is broken; RS-6 and RS-14 need the page loaded BEFORE the server
+   is stopped; RS-10 needs two views and a strict sequence; RS-11/12/13 need the
+   page loaded BEFORE the key is broken, or every control renders disabled and
+   nothing can be clicked. Three more — RS-9, RS-15 and RS-16 — need a temporary
+   one-line edit to a service and a `git checkout` afterwards.
+   `DOSSIER.md` is the course's own grading rules, it arrived 2026-09-13, and
+   **the reconciliation against it is DONE** — the first checkbox below.
    The narrow-viewport enforcement rules under step 5 are NOT retired by that
-   step closing; they still apply to anything that comes up. <<<**
+   step closing; they still apply to anything that comes up.
 
 **Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
 rather than renumbered because "step 5" is referenced by name outside this file —
@@ -3043,8 +3047,10 @@ below — this list is the smaller stuff.)
   through the app own HTTP API rather than Supabase, so the rows are exactly
   what the UI produces, and films are declared by TITLE AND YEAR and resolved
   through `/api/movies/search` rather than by hardcoded ids — verified end to end
-  on a throwaway port, all six titles resolving to an exact title-and-year
-  match with no fallback. `--reset` matches ONLY the declared set by title and
+  on a throwaway port when the helper was built, all six titles AS THE LIST STOOD
+  THEN resolving to an exact title-and-year match with no fallback. **The shipped
+  list is SEVEN films** (D-068, below), plus an eighth only under
+  `--with-injection`. `--reset` matches ONLY the declared set by title and
   year, prints every row first, and needs `--write` to act.
   **THE CONTENT IS SETTLED — 2026-09-13 (D-068) — AND IT IS LOADED.** It is
   still the user's to change and still lives in one editable block at the top
@@ -3079,14 +3085,24 @@ below — this list is the smaller stuff.)
   rather than silently storing a review no screen would ever display — but it
   will look like a mystery if it is met without knowing why.
 
-### Pre-submission blockers — DO NOT call the project a wrap until these are done
+### Pre-submission blockers — ALL TICKED as of 2026-09-14 except the final merge
 
-The code is functionally complete against SPEC §2–§6, but the submission is
-**not** ready. These are the known gaps. The user is deferring all
-screenshot/evidence capture to right before submission, in a dedicated session,
-so the shots match the finished UI rather than a mid-overhaul one. That is a
-deliberate schedule choice, restated more than once — do NOT push to capture
-them early.
+**Every item below is done except the last, the `draft` → `main` merge, which
+needs explicit user confirmation.** The entries are kept in full rather than
+collapsed: each records what was found and how, and several carry recipes that are
+still the working instructions.
+
+*The paragraph below is how this section read while the list was open. It is
+preserved because the schedule choice it describes is part of the record — the
+evidence capture really was deferred to a dedicated session, which is why the
+shots match a finished UI rather than a mid-overhaul one.*
+
+> The code is functionally complete against SPEC §2–§6, but the submission is
+> **not** ready. These are the known gaps. The user is deferring all
+> screenshot/evidence capture to right before submission, in a dedicated session,
+> so the shots match the finished UI rather than a mid-overhaul one. That is a
+> deliberate schedule choice, restated more than once — do NOT push to capture
+> them early.
 
 **But DO keep this list growing as the work happens.** The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
@@ -3614,10 +3630,10 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
   tool and still works by pasting it into the console, which is how it was
   written. Added 2026-09-09 at the user's request as a temporary but open-ended
-  convenience while the recommendations UI is being worked; the user asked for
-  the loading to be removed when that work is done, not the file.
-  Both lines are commented as temporary and both name this checkbox. **Two
-  independent protections if it is missed, added 2026-09-11 after the tag left
+  convenience while the recommendations UI was being worked; the user asked for
+  the loading to be removed when that work was done, not the file.
+  Both lines WERE commented as temporary and both named this checkbox. **Two
+  independent protections in case it was missed, added 2026-09-11 after the tag left
   the app permanently serving itself dummy recommendations for a day:** the
   harness now starts every page load DISARMED and intercepts nothing until
   `debugRecs()` is called, and it declines to install at all on the
@@ -3644,7 +3660,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   a SUCCESS turned out to have failure-path coverage only. The suite went 57 to
   60, and each new test was probed by breaking the source rather than trusted for
   being green.
-  Four captures were taken specifically for this list and are filed as `ac-*`;
+  Five captures were taken specifically for this list and are filed as `ac-*`;
   two of the eight needed the demo list emptied to one film and then to zero,
   which was done deliberately and reversed with the seed script afterwards.
   **This item once said the escaping fix had to come first, because the boxes
