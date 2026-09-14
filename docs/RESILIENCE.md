@@ -7,7 +7,7 @@ being unreachable from a page already open in the browser.
 
 `npm test` covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
-can photograph. Fourteen states, twenty-one frames.
+can photograph. Fifteen states, twenty-three frames.
 
 ## What "graceful" is taken to mean here
 
@@ -167,6 +167,63 @@ cheap tier) holds in the **failure** path, not only in the successes.
 logging the app-wide model rather than the one it had actually called. The bug was
 found by looking at an earlier version of this very screenshot, fixed, covered by
 a test per feature, and the wrong rows removed by hand (`D-070`).
+
+## When the model returns nothing usable
+
+Nothing is unreachable here. OpenRouter answers, TMDB answers, the database
+answers, every key is valid. What goes wrong is the *content* of a reply that
+arrived perfectly well — and there are two ways for that to happen, which the
+application deliberately does not treat alike.
+
+### RS-15 · Malformed output and empty output are not the same failure
+
+![The recommendations section reading that there were no suggestions this time
+because the model did not name any films, with a metadata footer beneath it
+declaring the prompt version, model, token count, cost and
+duration](screenshots/rs-15-nothing-usable-page.png)
+
+**The empty case, as the user meets it.** The model honoured its contract and
+returned a well-formed list with nothing in it. `SPEC` § 2.4's other clause — *"or
+returns malformed output"* — is the case where it did not, and the two land in
+different places.
+
+**The footer under that message is the part worth looking at.** A call was made,
+it took 4,221 ms, it cost 0.20¢, and the page says so *on a run that produced no
+cards at all*. It used to return before building that footer, so the one outcome
+that charged the user money and showed them nothing was also the only outcome
+that reported no cost anywhere (`R10`). An application that declares what it spent
+only when things go well is not an audit trail.
+
+![The AI call log with three rows in view: a success carrying real tokens and
+cost above a failure carrying real tokens and cost, and further down a failure
+whose tokens and cost are em dashes](screenshots/rs-15-nothing-usable-log.png)
+
+**This is the whole argument in one image, and it rests on the top two rows being
+adjacent.** Same feature, same prompt version, same model, 1,038 tokens against
+1,057, 0.20¢ against 0.21¢, four seconds against under four — and one is `success`
+while the other is `failed`.
+
+| Row | Status | Tokens | Cost | What actually happened |
+|---|---|---|---|---|
+| 15:02:18 | `success` | 1,038 | 0.20¢ | Valid JSON, empty. The contract held; there was simply nothing in it |
+| 14:58:59 | `failed` | 1,057 | 0.21¢ | Not JSON at all. `parseModelJson` threw, and the row carries the reason |
+| 19:00:52 | `failed` | — | — | Rejected at auth in 85 ms. Nothing ran, so there is nothing to report |
+
+**The line the application draws is the CONTRACT, not usefulness.** A reply that
+keeps its shape and says nothing is a call that succeeded and produced nothing. A
+reply that breaks its shape is a failure. Both were charged, both are in the
+trail, and the trail distinguishes them — which is the only reason anyone could
+later tell a quiet model from a broken one.
+
+**And the third row is why the first two matter.** `—` in Tokens and Cost is not
+a formatting choice, it is a claim: *this call never ran*. Rendering `0` there
+would be a lie the totals then sum. The rule is that those cells go blank **only
+when the value is genuinely null**, and the two failures in this one frame are
+what make the rule visible — identical red badges, completely different data,
+because they died at different points in the pipeline.
+
+The footer reads `Total · 60 calls`, which is the cap rather than the lifetime
+figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
 
 ## When the database is unreachable
 
@@ -495,7 +552,7 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-14`: `CLAUDE.md`, under Pre-submission
+* Recipes for every state, as `RS-1` … `RS-15`: `CLAUDE.md`, under Pre-submission
   blockers.
 * Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
 * The acceptance criteria these satisfy: `SPEC.md` § 7.1.

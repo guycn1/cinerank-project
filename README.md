@@ -269,7 +269,7 @@ docs/RESILIENCE.md  what the user sees when each dependency fails, with the
                     captures embedded as evidence
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
-docs/screenshots/   34 captures: rs-* the fourteen resilience and state recipes,
+docs/screenshots/   36 captures: rs-* the fifteen resilience and state recipes,
                     pi-* the prompt-injection evidence, readme-* the showcase
                     shots embedded above
 ```

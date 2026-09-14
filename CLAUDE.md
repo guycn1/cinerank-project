@@ -38,7 +38,7 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
 ticked.** What landed on
-2026-09-13/14: thirty-four captures across four families with an index; three new
+2026-09-13/14: thirty-six captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
 real defects fixed, three of them found by LOOKING at the running app rather than
@@ -3160,16 +3160,16 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
 * [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
-  FIVE MORE ADDED 2026-09-14 (RS-10 through RS-14), all written up in
+  SIX MORE ADDED 2026-09-14 (RS-10 through RS-15), all written up in
   `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
-  twenty-one frames embedded, grouped by which dependency failed,
+  twenty-three frames embedded, grouped by which dependency failed,
   each with the exact string it must show and the decision it evidences. The
   recipes below stay here because they are working instructions; the analysis is
   there because that is what a reader opens. `docs/screenshots/README.md` indexes
-  all 34 captures in the repo, and renders automatically when the folder is
+  all 36 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
-  Twenty-one files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10, RS-11
-  and RS-14 each need two frames. For the first four the claim splits across the page and
+  Twenty-three files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
+  RS-11, RS-14 and RS-15 each need two frames. For the first four the claim splits across the page and
   the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
   one rule shown on BOTH AI features, because one alone reads as incidental.
   *(This line read "Eleven files" and the sentence above it read "21 captures" until
@@ -3492,6 +3492,43 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     saved.` with NO "— ranking updated." clause, because the rating did not change
     and that clause is checked against a ranking signature rather than assumed
     (D-034).
+  - [x] **RS-15 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-15-nothing-usable-page.png` and
+    `docs/screenshots/rs-15-nothing-usable-log.png`.**
+    **The model returns nothing usable, in the TWO different ways that are not the
+    same failure.** Nothing is unreachable: every key is valid and OpenRouter,
+    TMDB and Supabase all answer. What is wrong is the CONTENT of a reply that
+    arrived fine. **This is the only evidence for SPEC § 2.4's other clause, "or
+    returns malformed output", which had none.**
+    **Needs a temporary code change, like RS-9 — TWO of them, one per run, and
+    BOTH make a real, charged OpenRouter call.** In
+    `generateRecommendations()`, the line is `picks = parseModelJson(result.text);`
+    and only its ARGUMENT changes; the `chat()` call on the line above stays
+    untouched, which is the whole point — the call completes and is billed, and
+    only what gets parsed is spoiled.
+    * **Malformed:** `picks = parseModelJson('Here are some films you might enjoy!');`
+      `JSON.parse` throws, `status` becomes `failed`, and the row carries
+      `Model did not return valid JSON` — **with REAL tokens, cost and duration**,
+      because `result` is assigned outside the try and every figure in the log row
+      reads from it after the catch.
+    * **Empty:** `picks = parseModelJson('[]');` Valid JSON, valid array, returns
+      `[]` without throwing, so the run is a **`success` that produced nothing**.
+      That surprises people and is correct: **the line the app draws is the
+      CONTRACT, not usefulness.**
+    **Shoot the LOG after BOTH runs, not after each.** One frame then holds the
+    success and the failure ADJACENT — same feature, prompt and model, 1,038
+    tokens against 1,057 — which is the argument. Also shoot the PAGE on the empty
+    run, for "No suggestions this time — the model didn’t name any films. Try
+    again." and the metadata footer beneath it (R10: a charged run that produced
+    nothing still declares its cost).
+    **The page on the MALFORMED run is deliberately NOT captured** — it is
+    byte-identical in shape to RS-4's, since the route throws with `logged: true`
+    before `renderRecommendations()` runs. A second log frame shot between the two
+    runs was also dropped: its only addition over the final one is a second 401
+    row, which is not a claim.
+    **Revert with `git checkout -- server/services/recommendations.js` the moment
+    the last shot lands**, and re-run `npm test` to confirm 60/60 — several route
+    tests fail while either edit is in place, which is expected.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
