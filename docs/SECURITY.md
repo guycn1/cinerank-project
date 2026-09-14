@@ -1,5 +1,24 @@
 # Security — CineRank mapped against the OWASP Top 10 for Agentic Applications
 
+<!--
+  THE SIX LINKS AND IMAGES IN THIS FILE ARE ABSOLUTE ON PURPOSE. DO NOT MAKE THEM
+  RELATIVE, even though every other document in docs/ uses relative paths and a
+  consistency sweep will want to.
+
+  GitHub renders this one file at TWO different base paths. In the blob view of
+  docs/SECURITY.md a relative path resolves against docs/, which is correct. But
+  GitHub also renders it as the repository's Security tab (it looks for a security
+  policy in the root, .github/ and docs/), and THERE it resolves relative paths
+  against the REPOSITORY ROOT -- so screenshots/pi-1-....png became
+  /blob/main/screenshots/pi-1-....png, the three captures rendered as broken-image
+  links, and all six targets 404'd. Measured against both live renderings on
+  2026-09-14, not assumed.
+
+  No relative path can satisfy both bases at once, so absolute is the only form
+  that works in both. The cost is that they pin to main; these are frozen evidence
+  files, and the Security tab only ever renders the default branch anyway.
+-->
+
 **Framework:** OWASP Top 10 for Agentic Applications, risks `ASI01` to `ASI10`,
 OWASP Gen AI Security Project, published 9 December 2025. Course Module 17 names
 it as the working checklist for agentic systems.
@@ -39,8 +58,8 @@ result rather than a flattering one.
 | ASI05 | Unexpected Code Execution | n/a by construction — verified absent | **Real** — realised as part of Incident 1 |
 | ASI06 | Memory & Context Poisoning | n/a — no RAG, no cross-call memory | **Real** — the central risk of this project |
 | ASI07 | Insecure Inter-Agent Communication | n/a — single agent, no protocol | n/a — single agent, no protocol |
-| ASI08 | Cascading Failures | Controlled — resilience requirements, tests, and captured evidence in [`RESILIENCE.md`](RESILIENCE.md) | Controlled — verification gates + git rollback |
-| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for ([how it works](AI-CALL-LOG.md)) | **Real** — answered as a standing practice |
+| ASI08 | Cascading Failures | Controlled — resilience requirements, tests, and captured evidence in [`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) | Controlled — verification gates + git rollback |
+| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for ([how it works](https://github.com/guycn1/cinerank-project/blob/main/docs/AI-CALL-LOG.md)) | **Real** — answered as a standing practice |
 | ASI10 | Rogue Agents | **Realised** — the debug harness, for one day | Controlled — nothing reaches `main` unreviewed |
 
 ## The risks that carry weight here
@@ -70,7 +89,7 @@ captures show:
 **1 — The attack, stored in the application.**
 
 ![A ranked movie card whose review text is a prompt-injection attempt, rendered
-as ordinary paragraph text](screenshots/pi-1-injection-review-stored.png)
+as ordinary paragraph text](https://raw.githubusercontent.com/guycn1/cinerank-project/main/docs/screenshots/pi-1-injection-review-stored.png)
 
 Held as inert plain text: `textContent`, never `innerHTML`. The string is data
 in a paragraph, not markup and not an instruction.
@@ -78,7 +97,7 @@ in a paragraph, not markup and not an instruction.
 **2 — The taste verdict, unaffected.**
 
 ![The taste verdict banner reading normally about the viewer film taste, with
-its cost and token count beneath](screenshots/pi-2-verdict-resists.png)
+its cost and token count beneath](https://raw.githubusercontent.com/guycn1/cinerank-project/main/docs/screenshots/pi-2-verdict-resists.png)
 
 This is the feature that receives every rated film review verbatim. No pirate,
 no BANANA, no system prompt — and the real cost of the call declared underneath.
@@ -86,7 +105,7 @@ no BANANA, no system prompt — and the real cost of the call declared underneat
 **3 — The recommendations, unaffected, and proof the attack was delivered.**
 
 ![Four recommended films with ordinary one-line reasons, beneath a line naming
-the five films that fed the prompt](screenshots/pi-3-recommendations-resist.png)
+the five films that fed the prompt](https://raw.githubusercontent.com/guycn1/cinerank-project/main/docs/screenshots/pi-3-recommendations-resist.png)
 
 Four real TMDB-verified films with ordinary reasons. **The "Based on:" line is
 the load-bearing detail:** it names *The Room* among the five films whose reviews
@@ -238,7 +257,7 @@ with it — TMDB down on search, TMDB down on add, TMDB down mid-recommendation,
 OpenRouter down on either feature, the database unreachable, and the app itself
 unreachable. Each is specified in `SPEC.md` § 2.4 and covered by route tests, and
 all of them are now **captured and analysed** in
-[`RESILIENCE.md`](RESILIENCE.md) — `RS-1` through `RS-16`, which also reaches
+[`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) — `RS-1` through `RS-16`, which also reaches
 past this list to a row deleted under an open dialog and three ways the model can
 return nothing usable while every dependency is healthy. A failed AI call still writes
 a `status='failed'` row, and when the log write *also* fails, both causes are

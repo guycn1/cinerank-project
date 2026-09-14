@@ -4001,6 +4001,18 @@ down would be re-broken within a session. See D-065.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
+8. **`docs/SECURITY.md` is rendered at TWO base paths, so its links and images
+   are ABSOLUTE and must stay that way.** GitHub renders it both as an ordinary
+   blob (relative paths resolve against `docs/`) and as the repository's Security
+   tab, which resolves them against the **repository root** instead — so the three
+   prompt-injection captures rendered as broken-image links and all six targets
+   404'd on the tab, while looking perfect in the file view. Found by the user on
+   2026-09-14, measured against both live renderings, and fixed by making all six
+   absolute; no relative path can satisfy both bases. The file carries a comment
+   at the top saying so. **Every OTHER document in `docs/` keeps relative paths** —
+   they are only ever rendered as blobs, and this is a one-file exception, not a
+   new convention. The checker cannot catch this class: the paths are valid
+   markdown and valid for the file they sit in.
 
 ### Two things the checker deliberately does NOT catch
 
