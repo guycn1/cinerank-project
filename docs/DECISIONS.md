@@ -5,6 +5,64 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-071 · SECURITY.md's links were made absolute rather than moving the file to the repo root
+
+*2026-09-14. Found by the user, who was looking at the rendered repository rather
+than at the source.*
+
+GitHub renders `docs/SECURITY.md` twice, and only one of the two had ever been
+checked. In the ordinary blob view a relative path resolves against `docs/`, which
+is correct and is what every render audit saw. But GitHub also serves that file as
+the repository's **Security tab** — it looks for a security policy in the root, in
+`.github/` and in `docs/` — and there it resolves the same relative paths against
+the **repository root**. Three prompt-injection captures rendered as broken-image
+links and all six relative targets 404'd on click, from source that is valid
+markdown and correct for the directory it sits in.
+
+Measured, not reasoned about: both live pages were fetched and their emitted URLs
+compared. The blob view emits `/raw/main/docs/screenshots/...`; the Security tab
+emits `/raw/main/screenshots/...` from the identical source line.
+
+### The fork
+
+No relative path can satisfy both bases at once, so there were two real options.
+
+**Move the file to the repository root.** Then both renderings share one base and
+plain relative paths work everywhere — no absolute URLs, no branch pinning, no
+hardcoded owner and repo name. **Rejected**, and not for effort: it would have
+rewritten roughly fourteen inbound references across eight files, and it would
+have broken the `docs/` grouping that `README.md`'s own documentation map
+describes to a reader. A large diff across the whole repository, days after the
+planned final merge, to fix six URLs.
+
+**Make the six targets absolute** — `raw.githubusercontent.com` for the captures,
+`github.com/blob` for the two document links. **Chosen.** Six lines, one file.
+
+The cost is honest and stated: they pin to `main`. That is acceptable here
+because the captures are frozen evidence and because the Security tab only ever
+renders the default branch, so a `draft` reader sees the same images either way.
+
+### The trap this creates, which is why it is written down
+
+Every other document in `docs/` correctly uses relative paths. A consistency
+sweep — exactly the kind this project has run repeatedly — would "fix" these six
+straight back into the defect. Two guards were added rather than one: a comment at
+the top of `docs/SECURITY.md`, and rule 8 under CLAUDE.md's Markdown Authoring
+Rules. It is a **one-file exception, not a new convention**.
+
+### Where the process failed, which is the part worth keeping
+
+`check-markdown` cannot catch this class and was not extended to try. The paths
+were valid markdown and valid for their own file; nothing about the source is
+wrong. The render audit could not catch it either, because every audit renders a
+file **in isolation**, where it passes.
+
+The generalisable finding: **a document can be correct in itself and still be
+broken by where it is displayed.** Verification that only ever exercises one
+rendering context cannot see a second one, and the second context here was one
+nobody had thought to look at — a tab GitHub populates automatically, from a file
+whose location we chose for unrelated reasons.
+
 ## D-070 · Log rows that misnamed their model were deleted by hand, not preserved as history
 
 *Written up 2026-09-13, the day the bug behind them was fixed.*

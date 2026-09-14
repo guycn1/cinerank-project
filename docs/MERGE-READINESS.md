@@ -209,7 +209,7 @@ fires is the thing this document exists to rule out.
 
 *A human-readable account of approach and trade-offs.*
 
-* **`docs/DECISIONS.md`** — 70 entries, written at the moment each choice was made
+* **`docs/DECISIONS.md`** — written at the moment each choice was made
   and in the same commit as the change it explains. The standard it is held to is
   written into `CLAUDE.md`: an entry must name the alternatives and why each was
   rejected, record where the author overruled the agent *and* where the agent
@@ -237,8 +237,10 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in `prompts/`, never overwritten. A
   past recommendation or verdict is traceable to the exact prompt text that
   produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 21 merges
-  to `main`, and **four** revert commits plus one reapply, which is the safety
+* **Trajectory** — an unbroken commit history from the very first commit, 22 merges
+  to `main` — the twenty-first was the last *planned* one, and the twenty-second
+  carried a fix for a rendering defect found afterwards on the repository's
+  Security tab — and **four** revert commits plus one reapply, which is the safety
   layer visibly firing rather than merely existing.
   *(This said five reverts until 2026-09-14. It was wrong when written, not merely
   stale: a loose grep for "revert" had counted two commits that merely MENTION

@@ -34,7 +34,7 @@ once before.
 **All three are now complete**, which is the form the course's requirement takes:
 a commit history across at least three *full* turns of the spiral. It holds under
 the conservative reading deliberately — the three narratives below are whole, with
-their own problem shifts, and none of the twenty merges to `main` is being counted
+their own problem shifts, and none of the merges to `main` is being counted
 as a turn in its own right. The merge-based count would satisfy the same
 requirement many times over and is the weaker claim, because a merge is a commit
 point rather than a change in the understanding of the problem.
@@ -79,7 +79,7 @@ D-054).
 ### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
 Commit points: `83a5da5` to `4ef7534` — **76 commits**, spanning three days and
-four merges to `main`.
+three merges to `main`, plus the merge that closed the turn.
 
 A staleness sweep across every markdown file and code comment (`83a5da5`) found claims
 that had quietly stopped being true. Following it, both this file and `CLAUDE.md` were
