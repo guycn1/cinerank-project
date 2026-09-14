@@ -17,8 +17,9 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Twenty merges to `main` so far (verify with
-  `git log --merges --oneline main`), each a deliberate decision.
+  human sign-off.** Twenty-one merges to `main` (verify with
+  `git log --merges --oneline main`), each a deliberate decision. The last of them
+  is the final *planned* one rather than a guarantee that no more follow.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as

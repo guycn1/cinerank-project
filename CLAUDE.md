@@ -32,8 +32,10 @@ closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
 closed 2026-09-14, see `SPEC.md` § Specification status, which satisfies the
 course's "at least three full turns" under the conservative reading that counts no
-merge as a turn. THE ONLY THING LEFT IS THE FINAL
-`draft` → `main` MERGE, which still needs explicit confirmation. The live URL is
+merge as a turn. THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE
+USER ON 2026-09-14 and is performed immediately after this commit — see the note
+under Build status for why the count and the checkbox are written just before it
+rather than just after. The live URL is
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
@@ -60,16 +62,30 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone — currently **"the DOSSIER
-  reconciliation: framing document, OWASP mapping, merge-readiness pack, a linter,
-  and an unfrozen SPEC"** (2026-09-13, `ba702c2`). The milestone before it was the
+* `main` is at the latest settled milestone — **the final planned merge, closing
+  the evidence and documentation work** (2026-09-14). The milestone before it was
+  the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty**
-  merges so far;
+  steps closed. **Twenty-one**
+  merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
-  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 — update both.
+  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 and
+  in `docs/MERGE-READINESS.md` § 5 — update all three.
   `draft` continues day to day.
+  **WHY THIS ONE WAS WRITTEN BEFORE THE MERGE RATHER THAN AFTER, since it breaks
+  the rule directly above it.** For the first twenty merges the order was: merge,
+  then a later commit corrects the figures, then a subsequent merge carries the
+  correction to `main`. That works only while more merges are coming. For a merge
+  intended as the last, it does not: the correcting commit would land on `draft`
+  after `main` already had the merge, so `main` — the branch a reader lands on —
+  would permanently show a count one short and an unticked checkbox, and fixing
+  that would need yet another merge, which is the outcome this ordering exists to
+  avoid. So the count and the checkbox were written and pushed to `draft` first,
+  deliberately, on the user's explicit instruction, with the merge following
+  within minutes. Anyone reading this between the two sees a figure that is true
+  of the very next commit rather than of the current one. That is the trade, and
+  it was made knowingly.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -3696,13 +3712,19 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   match for the intended transforms — zero unintended changes. CLAUDE.md differed
   in exactly two lines, both of them escapes deliberately preserved in this entry
   as examples. Nothing else in either rendered file moved.
-* [ ] **Final `draft → main` merge — THE ONLY THING LEFT ON THIS LIST.**
-  Everything above it is ticked as of 2026-09-14, and
-  `docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria.
-  **Still needs explicit user confirmation, exactly as every previous merge
-  did** — being merge-ready is a statement about the work, not permission to
-  act on it, and the rule in Version Control Workflow has no exception for the
-  last one.
+* [x] **Final planned `draft → main` merge — AUTHORISED 2026-09-14.**
+  Everything above it was ticked first, and `docs/MERGE-READINESS.md` reads MET on
+  all five of Module 16's criteria.
+  **It needed explicit user confirmation, exactly as every previous merge did** —
+  being merge-ready is a statement about the work, not permission to act on it,
+  and the rule in Version Control Workflow has no exception for the last one. That
+  confirmation was given.
+  **Ticked in the commit immediately BEFORE the merge, not after**, so that `main`
+  carries a ticked box rather than an open one. The reasoning is under Build
+  status and is not a licence to pre-tick anything else.
+  **"Final" here means the last PLANNED merge, not a promise that none follows.**
+  If a gap or a defect turns up later it gets fixed and merged like anything else;
+  what closes here is the planned programme of work, not the repository.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing

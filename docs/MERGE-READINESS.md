@@ -237,7 +237,7 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in `prompts/`, never overwritten. A
   past recommendation or verdict is traceable to the exact prompt text that
   produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 20 merges
+* **Trajectory** — an unbroken commit history from the very first commit, 21 merges
   to `main`, and **four** revert commits plus one reapply, which is the safety
   layer visibly firing rather than merely existing.
   *(This said five reverts until 2026-09-14. It was wrong when written, not merely
