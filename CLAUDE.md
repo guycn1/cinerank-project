@@ -35,7 +35,10 @@ course's "at least three full turns" under the conservative reading that counts 
 merge as a turn. THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE
 USER ON 2026-09-14 and is performed immediately after this commit — see the note
 under Build status for why the count and the checkbox are written just before it
-rather than just after. The live URL is
+rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
+carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
+links on GitHub's Security tab — which is "final planned" being tested rather
+than contradicted; the note at the end of the Build status bullet has it. The live URL is
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
@@ -62,11 +65,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone — **the final planned merge, closing
-  the evidence and documentation work** (2026-09-14). The milestone before it was
+* `main` is at the latest settled milestone. The final PLANNED merge closed the
+  evidence and documentation work (2026-09-14); a **twenty-second followed the
+  same day** with one defect fix, described at the end of this bullet. Before
+  those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-one**
+  steps closed. **Twenty-two**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -86,6 +91,19 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   within minutes. Anyone reading this between the two sees a figure that is true
   of the very next commit rather than of the current one. That is the trade, and
   it was made knowingly.
+  **AND A TWENTY-SECOND MERGE FOLLOWED ANYWAY (2026-09-14), which is the exact
+  outcome the paragraph above says this ordering exists to avoid.** It was not a
+  drifted figure or a missed checkbox — those were both correct. The user found
+  `docs/SECURITY.md` rendering with three broken images and six 404 links on
+  GitHub's **Security tab**, which resolves that file's relative paths against the
+  repository ROOT while the blob view resolves them against `docs/` (rule 8 under
+  Markdown Authoring Rules). A defect on the branch a reader lands on is worth a
+  merge, so one was made. The count and this note were again written and pushed to
+  `draft` FIRST, on the user's instruction, for the same reason as the last time.
+  **"Final" always meant the last PLANNED merge and never a promise that none
+  would follow.** That distinction was written into the merge message, into the
+  checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why nothing
+  here had to be retracted — only extended.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -2928,8 +2946,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
    **>>> THIS STEP IS DONE — 2026-09-14. Every checkbox under "Pre-submission
-   blockers" is ticked except the final `draft` → `main` merge, which needs
-   explicit user confirmation and is the only thing left in the repository. What
+   blockers" is now ticked, the final `draft` → `main` merge included: it was
+   authorised, performed, and followed the same day by a twenty-second merge
+   carrying one defect fix (the Security-tab image paths). What
    follows is that instruction block corrected to the finished state; the recipes
    it points at are still the working ones. <<<**
    The checklist is under "Pre-submission blockers" below. The resilience
@@ -3101,10 +3120,9 @@ below — this list is the smaller stuff.)
   rather than silently storing a review no screen would ever display — but it
   will look like a mystery if it is met without knowing why.
 
-### Pre-submission blockers — ALL TICKED as of 2026-09-14 except the final merge
+### Pre-submission blockers — ALL TICKED as of 2026-09-14
 
-**Every item below is done except the last, the `draft` → `main` merge, which
-needs explicit user confirmation.** The entries are kept in full rather than
+**Every item below is done, the final `draft` → `main` merge included.** The entries are kept in full rather than
 collapsed: each records what was found and how, and several carry recipes that are
 still the working instructions.
 
@@ -3725,6 +3743,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   **"Final" here means the last PLANNED merge, not a promise that none follows.**
   If a gap or a defect turns up later it gets fixed and merged like anything else;
   what closes here is the planned programme of work, not the repository.
+  **A gap turned up the same day, and that is precisely what happened to it.**
+  The user found `docs/SECURITY.md` rendering with broken images and dead links on
+  GitHub's Security tab (rule 8 under Markdown Authoring Rules). It was fixed and
+  merged under the identical procedure — figures and notes written to `draft`
+  first, explicit confirmation asked for and given, then a twenty-second merge.
+  The sentence above was written before any of this and needed no amendment.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
@@ -4001,6 +4025,18 @@ down would be re-broken within a session. See D-065.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
+8. **`docs/SECURITY.md` is rendered at TWO base paths, so its links and images
+   are ABSOLUTE and must stay that way.** GitHub renders it both as an ordinary
+   blob (relative paths resolve against `docs/`) and as the repository's Security
+   tab, which resolves them against the **repository root** instead — so the three
+   prompt-injection captures rendered as broken-image links and all six targets
+   404'd on the tab, while looking perfect in the file view. Found by the user on
+   2026-09-14, measured against both live renderings, and fixed by making all six
+   absolute; no relative path can satisfy both bases. The file carries a comment
+   at the top saying so. **Every OTHER document in `docs/` keeps relative paths** —
+   they are only ever rendered as blobs, and this is a one-file exception, not a
+   new convention. The checker cannot catch this class: the paths are valid
+   markdown and valid for the file they sit in.
 
 ### Two things the checker deliberately does NOT catch
 

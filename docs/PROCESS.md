@@ -17,9 +17,14 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Twenty-one merges to `main` (verify with
-  `git log --merges --oneline main`), each a deliberate decision. The last of them
-  is the final *planned* one rather than a guarantee that no more follow.
+  human sign-off.** Twenty-two merges to `main` (verify with
+  `git log --merges --oneline main`), each a deliberate decision. The
+  twenty-first was the final *planned* one rather than a guarantee that no more
+  would follow — and the twenty-second, later the same day, is that distinction
+  being demonstrated rather than asserted: a rendering defect in
+  `docs/SECURITY.md`, visible to any reader of the repository's Security tab, was
+  found, fixed, and merged under the same sign-off rule as the twenty-one before
+  it.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
