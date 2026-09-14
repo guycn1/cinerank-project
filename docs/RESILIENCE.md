@@ -15,9 +15,9 @@ Three claims, and every capture below is measured against them:
 
 1. **The app says what happened, in plain language.** No stack traces, no HTTP
    status codes, no library wording leaking into the interface.
-2. **One dependency failing does not take the page with it.** In eight of the nine
-   states the ranked list is still on screen and still correct. The ninth is the
-   one where the list itself is what broke.
+2. **One dependency failing does not take the page with it.** In twelve of the
+   thirteen states the ranked list is still on screen and still correct. The
+   exception is `RS-7`, the one where the list itself is what broke.
 3. **The failure is recorded where a failure belongs.** An AI call that failed
    still writes a row carrying the model, the prompt version, the duration and the
    real technical cause — which is the half the user never sees.
