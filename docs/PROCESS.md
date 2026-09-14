@@ -76,6 +76,69 @@ human re-checks. Several rounds caught regressions the agent introduced
 `::details-content` stacking-context trap). The screenshot-in / explanation-out
 rhythm *is* the method for visual work — prose specs can't anticipate these.
 
+## Who did what, and at which level of autonomy (Modules 1 and 2)
+
+**Module 1's autonomy scale runs manual → task assistance → goal assistance →
+specialised → general domain autonomy.** This build sat at **task and goal
+assistance throughout, and never above it.** The loop in § 1 is the evidence: a
+human set the goal and the acceptance bar, the agent drafted, and a human read
+every diff and ran the application before the next instruction. Nothing here was
+delegated to a level the tool could technically have reached.
+
+**Module 1's headline worry does not arise here, and the reason is structural
+rather than virtuous.** It reports that more than 68% of agent-written pull
+requests sit delayed or unreviewed, the surplus burying the people who must review
+it. **There is no queue in this repository to bury anyone.** Two branches, no
+long-lived feature branches, no pull requests: review is synchronous with
+production rather than a stage afterwards, so output cannot accumulate faster than
+it is judged. That works at one reviewer and one codebase, and would not survive
+either being scaled.
+
+**Module 2 sorts developer work into what erodes, what holds, and what compounds.
+The division in this project falls along that line closely enough to be worth
+stating plainly.** Routine implementation, boilerplate and pattern-matching across
+the codebase — the eroding group — went to the agent. Framing the problem,
+weighing trade-offs, taste, and judging what came back stayed human, and the
+decision log records the latter happening by name rather than in the abstract: the
+spotlight effect the agent argued against and the user overruled (`D-049`), the
+card-sizing rule the user dictated in their own words (`D-051`), the measured call
+to fix the documentation instead of the matcher (`D-054`), and the centring bug a
+human found with a screenshot after the agent's own automated attempts had
+repeatedly misreported it (`D-062`).
+
+**One uncomfortable reading of the same module, since the exercise is supposed to
+be uncomfortable.** Module 2 lists *documenting behaviour already known* among the
+work that erodes — and a large share of this repository is exactly that. The
+defence is not that the module is wrong but that the category shifts when the
+documentation **is** the deliverable: here the trail is what the course grades and
+what `DOSSIER.md` says is graded, so writing it is the work rather than a record of
+it. Where that defence does not apply, it should not be claimed.
+
+## The workflow, and where each stage lives (Module 4)
+
+Module 4 takes an agentic workflow apart and names its parts, then makes the claim
+this repository is arranged to answer: **a workflow that cannot be inspected,
+replayed, or judged after the fact is not engineering, it is craft.** Every stage
+below is a file a reader can open.
+
+| Stage | Where it lives | Studied by |
+|---|---|---|
+| **Intent** | [`FRAMING.md`](FRAMING.md) — problem, stakeholders, testable definition of done, out-of-scope list | Module 6 |
+| **Specification** | `SPEC.md` — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | Module 10 |
+| **Context** | `CLAUDE.md` — human-written, re-read every session, corrected in place when it was wrong | Module 11 |
+| **Plan** | the backlogs inside `CLAUDE.md`, numbered and worked in order, with withdrawn items kept rather than deleted | — |
+| **Execution** | 501 commits on `draft` across 11 consecutive days, median 2 files each | — |
+| **Verification** | four commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | Module 13 |
+| **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own AI call log | Module 4 |
+
+**The last row is the one this project can show twice.** Module 4 wants a frozen
+record linking intent to specification to context to trajectory to output — which
+is the repository. This application then keeps a second audit trail of its own, for
+its own AI calls, on the same principle and for the same reason: an output with no
+account of how it was produced cannot be trusted past the moment it ran. The
+discipline the course teaches about directing agents is the discipline the product
+applies to the agent inside it.
+
 ## The environment this ran in, and what it was allowed to do (Module 5)
 
 Unnumbered on purpose: `docs/PROCESS.md` § 1 and § 2 are referenced by name from

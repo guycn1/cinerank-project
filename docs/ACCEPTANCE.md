@@ -9,6 +9,14 @@ belongs to the authors, not to the agent that helped build the thing — so this
 file assembles the evidence and stops there. The boxes in `SPEC.md` are ticked by
 hand.
 
+**That is Module 2's accountability rule, applied rather than quoted.** It holds
+that acceptance criteria, the definition of done, and the bar the work must clear
+are human responsibilities that cannot be passed to the agent, and that a team
+which forgets it "ships whatever the agent happened to produce and calls it a
+decision". An agent marking its own homework as accepted is the cleanest possible
+way to make the whole exercise circular, which is why the division here is a
+structural one rather than a courtesy.
+
 **They were ticked on 2026-09-14**, by the authors, against what is written
 below. This document is the basis for that decision rather than a record of it:
 it was complete, and every criterion read a clean `yes`, before any box was
