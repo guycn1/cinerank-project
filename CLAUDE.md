@@ -38,7 +38,7 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
 ticked.** What landed on
-2026-09-13/14: thirty-two captures across four families with an index; three new
+2026-09-13/14: thirty-four captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
 real defects fixed, three of them found by LOOKING at the running app rather than
@@ -3160,16 +3160,16 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
 * [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
-  FOUR MORE ADDED 2026-09-14 (RS-10 through RS-13), all written up in
+  FIVE MORE ADDED 2026-09-14 (RS-10 through RS-14), all written up in
   `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
-  nineteen frames embedded, grouped by which dependency failed,
+  twenty-one frames embedded, grouped by which dependency failed,
   each with the exact string it must show and the decision it evidences. The
   recipes below stay here because they are working instructions; the analysis is
   there because that is what a reader opens. `docs/screenshots/README.md` indexes
-  all 32 captures in the repo, and renders automatically when the folder is
+  all 34 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
-  Nineteen files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10 and RS-11
-  each need two frames. For the first four the claim splits across the page and
+  Twenty-one files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10, RS-11
+  and RS-14 each need two frames. For the first four the claim splits across the page and
   the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
   one rule shown on BOTH AI features, because one alone reads as incidental.
   *(This line read "Eleven files" and the sentence above it read "21 captures" until
@@ -3463,6 +3463,35 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     the AI routes catch their own errors and answer calmly, while the CRUD and
     log routes fall through to the central 500 handler. None of the four leaks a
     `PGRST` code or a Postgres string.
+  - [x] **RS-14 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-14-failed-save-input-kept.png` and
+    `docs/screenshots/rs-14-failed-save-retry-succeeds.png`.**
+    **A save that fails while the server is gone, and the retry that works.** Same
+    outage as RS-6 and the opposite direction — that is a failed READ, this is a
+    failed WRITE with unsaved work in hand, and it is the only state in the set
+    where a failure could have cost the user something.
+    **Two frames because the distinguishing claim is RECOVERY, not preservation.**
+    RS-10 also keeps the typed text, but there the row was deleted and the save
+    can never succeed. Shoot only the error here and the difference between the
+    two states is asserted by a caption rather than shown.
+    **Recipe.** Everything working, page loaded. Use **Knives Out**: it is rated
+    8.2 with NO review, so its card reads "No review yet — edit to add one." and
+    the before/after is visible on the card itself. Click Edit, type a review,
+    then **stop `npm start`** and click Save — frame one. Do NOT touch the dialog
+    afterwards: no Cancel, no Esc, and above all **no reload**, since the typed
+    text lives only in the DOM. Restart `npm start`, click **Save** again — it
+    succeeds, the dialog closes, and the card carries the text. Frame two.
+    Expect inline and crimson: "Couldn’t reach CineRank. Check your connection and
+    try again." — **with no log link**, because nothing reached the server so no
+    row was committed (R9/D-047).
+    **RESTORE AFTERWARDS, and it matters:** Edit Knives Out, clear the review box
+    completely, Save. An empty string is falsy, so `renderRanked()` falls through
+    to the `no-review` branch and the placeholder returns — which is the seed
+    state D-068 chose deliberately and which other captures depend on.
+    A detail the second frame happens to prove: the toast reads `“Knives Out”
+    saved.` with NO "— ranking updated." clause, because the rating did not change
+    and that clause is checked against a ranking signature rather than assumed
+    (D-034).
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and

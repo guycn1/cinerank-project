@@ -7,20 +7,27 @@ being unreachable from a page already open in the browser.
 
 `npm test` covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
-can photograph. Thirteen states, nineteen frames.
+can photograph. Fourteen states, twenty-one frames.
 
 ## What "graceful" is taken to mean here
 
-Three claims, and every capture below is measured against them:
+Four claims, and every capture below is measured against them:
 
 1. **The app says what happened, in plain language.** No stack traces, no HTTP
    status codes, no library wording leaking into the interface.
-2. **One dependency failing does not take the page with it.** In twelve of the
-   thirteen states the ranked list is still on screen and still correct. The
-   exception is `RS-7`, the one where the list itself is what broke.
+2. **One dependency failing does not take the page with it.** In every state but
+   one the ranked list is still on screen and still correct. The exception is
+   `RS-7`, where the list itself is what broke. *(This was written as a count —
+   "eight of the nine" — and had gone stale twice by the time it was noticed. A
+   count of a set that grows is a maintenance burden the sentence did not need.)*
 3. **The failure is recorded where a failure belongs.** An AI call that failed
    still writes a row carrying the model, the prompt version, the duration and the
    real technical cause — which is the half the user never sees.
+4. **Work in progress survives a failure that had nothing to do with it.** A
+   write that fails leaves what the user typed exactly where they left it, so
+   recovering costs a click rather than retyping. This claim was added on
+   2026-09-14, when `RS-10` and `RS-14` turned out to evidence something the
+   first three did not mention.
 
 ## How these were produced
 
@@ -288,6 +295,56 @@ nothing re-fetches them. The app keeps showing what it has.
 was written, so nothing may be offered. Pointing a user at an audit log that
 cannot load either would be worse than saying nothing.
 
+### RS-14 · A save that fails while the server is gone, and the retry that works
+
+![The rate dialog open on Knives Out, rating 8.2, a typed review in the box, and
+a crimson line reading that CineRank could not be reached; behind the dimmed page
+the same film's card still reads No review
+yet](screenshots/rs-14-failed-save-input-kept.png)
+
+Same outage as `RS-6`, opposite direction: that one is a failed **read**, this is
+a failed **write** with unsaved work in hand. It is the only frame in this
+document where a failure could have cost the user something.
+
+**What it must not do is close.** The form is `method="dialog"`, so submitting
+closes it *by default* — and this application shipped that way once: the write
+went out invisibly, a failure produced an error toast about a dialog that was
+already gone, and the typed review was destroyed with no way to retry. The save
+handler now prevents the default, and reports **inline** rather than through the
+toast, because a modal `<dialog>` sits in the top layer where no `z-index` can
+lift a toast above it and the `::backdrop` dims it anyway (`D-032`).
+
+There is **no log link**, and that is `R9`/`D-047` again: nothing reached the
+server, so no row was committed, so nothing may be offered. The message itself is
+fabricated client-side — `api()` catches the network-level rejection so that
+"Failed to fetch" and "NetworkError when attempting to fetch resource" never
+reach a user.
+
+**Look at the card behind the dimmed page.** Knives Out at `#3` still reads *"No
+review yet — edit to add one."* The write genuinely did not land.
+
+![The same ranked list with the dialog gone, Knives Out now carrying that exact
+review text, and a toast reading that Knives Out was
+saved](screenshots/rs-14-failed-save-retry-succeeds.png)
+
+Then the server came back and **Save was pressed again** — no retyping, no reload,
+the dialog never closed. The card now carries the same sentence that was sitting
+in the box.
+
+**This is what separates it from `RS-10`, which also keeps the typed text.** There
+the row had been deleted, so the save could never succeed and the message says
+*refresh*; keeping the text was a courtesy. Here the failure is **transient and
+the work is recoverable**, which is the difference between losing an evening's
+review and pressing a button twice.
+
+> One detail worth reading in the second frame: the toast says `“Knives Out”
+> saved.` and **not** "— ranking updated." The rating never changed, so the
+> ranking did not either, and that clause is checked against a signature of the
+> displayed ranking rather than assumed (`D-034`). It was briefly deleted
+> outright and the user pushed back correctly — every save does recompute the
+> ranking, so the claim was never false; the objection was that it reads as a
+> claim about the outcome.
+
 ## When the data changes underneath you
 
 Every dependency here is healthy. Nothing is unplugged, no key is broken, and the
@@ -438,7 +495,7 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-13`: `CLAUDE.md`, under Pre-submission
+* Recipes for every state, as `RS-1` … `RS-14`: `CLAUDE.md`, under Pre-submission
   blockers.
 * Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
 * The acceptance criteria these satisfy: `SPEC.md` § 7.1.

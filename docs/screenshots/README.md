@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Thirty-two captures, in four families. Every one is the real application in the
+Thirty-four captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -10,15 +10,15 @@ take on trust.
 
 | Family | Count | What it is | Discussed in |
 |---|---|---|---|
-| `rs-*` | 19 | Thirteen resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
+| `rs-*` | 21 | Fourteen resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
 | `ac-*` | 5 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
-Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-13`.
-Six states need two frames. For four of them the claim is split between what the
+Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-14`.
+Seven states need two frames. For four of them the claim is split between what the
 user sees and what the audit trail records; for `RS-10` it is split across time,
 because the state is a race and a single still cannot show one.
 
@@ -43,6 +43,8 @@ because the state is a race and a single still cannot show one.
 | [`rs-11-no-log-offered-recs.png`](rs-11-no-log-offered-recs.png) | …and the recommendations | The same rule on the sibling feature, so it reads as a rule |
 | [`rs-12-log-cannot-load.png`](rs-12-log-cannot-load.png) | Database down, the AI call log | Failed to load is a different sentence from nothing logged |
 | [`rs-13-write-fails-remove.png`](rs-13-write-fails-remove.png) | Database down, removing a film | The failure names its film; the card survives |
+| [`rs-14-failed-save-input-kept.png`](rs-14-failed-save-input-kept.png) | Server gone, saving a review | The dialog stays open with the typed text intact; the card behind it is unchanged |
+| [`rs-14-failed-save-retry-succeeds.png`](rs-14-failed-save-retry-succeeds.png) | …and the retry | Server back, Save pressed again, the same text now on the card |
 
 **Two pairs are meant to be read against each other.** `rs-1` and `rs-8` are the
 same panel in the same position, one crimson because something failed and one
