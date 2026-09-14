@@ -7,7 +7,7 @@ being unreachable from a page already open in the browser.
 
 `npm test` covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
-can photograph. Fifteen states, twenty-three frames.
+can photograph. Sixteen states, twenty-four frames.
 
 ## What "graceful" is taken to mean here
 
@@ -31,10 +31,10 @@ Four claims, and every capture below is measured against them:
 
 ## How these were produced
 
-Each state has a recipe, kept as `RS-1` … `RS-15` in `CLAUDE.md` so that any of
+Each state has a recipe, kept as `RS-1` … `RS-16` in `CLAUDE.md` so that any of
 them can be reproduced exactly. TMDB and OpenRouter are called **server-side**, so
 browser devtools cannot simulate them: most recipes break the relevant key in
-`.env` and restart, and three force a state no key can produce by changing one
+`.env` and restart, and four force a state no key can produce by changing one
 line of a service and reverting it the moment the shot lands.
 
 **Five of them are order-dependent and each says so at the top**, because getting
@@ -242,6 +242,50 @@ because they died at different points in the pipeline.
 
 The footer reads `Total · 60 calls`, which is the cap rather than the lifetime
 figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
+
+### RS-16 · The model named films that do not exist
+
+![The recommendations section reading that none of the films it named could be
+verified, with a metadata footer declaring the prompt version, model, tokens,
+cost and duration](screenshots/rs-16-unverifiable-picks.png)
+
+The third way a reply can leave you with nothing, and the one the architecture was
+designed around. `RS-15` covers a reply that broke its contract and one that kept
+it while saying nothing. Here the model returned a well-formed list of confident,
+plausible titles — and **TMDB had never heard of any of them.**
+
+**This is `SPEC.md` § 2.2 step 4 and § 6 doing the job they exist for.** Both rest
+their argument on the same sentence: the application never trusts the model's
+output as fact, and every suggested title is cross-checked before a user sees it.
+A title TMDB returns nothing for is dropped rather than rendered as a broken card.
+This frame is that guard firing on every pick at once.
+
+**It is not a rare path.** Measured against live TMDB across thirty probe titles
+(`D-054`), **seven of twelve realistic invented titles returned zero results** and
+were dropped exactly this way. The drop is the common outcome, not the exotic one.
+
+**"Unverifiable" is narrower than the word sounds, and the narrowing matters.** It
+does not mean *TMDB was unsure*. `verifyTitle()` keeps TMDB's top result when
+nothing matches title-for-title, so a near-miss — a missing "The", a hyphen in the
+wrong place — resolves to a neighbouring real film rather than being dropped
+(`D-054`, deliberately kept). Reaching this state means TMDB returned **nothing at
+all** for every title, which is what a genuinely invented title looks like.
+
+**And the message says which of the five things went wrong.** Before `R28` this
+sentence read "the model only named films already in your list" for *every* empty
+run — it would have been a flat lie here. The five causes are now tallied per
+title and resolved to one reason, so a hallucinated set, an owned set, an empty
+reply and a TMDB outage each get their own sentence. `RS-3`, `RS-9`, `RS-15` and
+this frame are four of the five.
+
+The footer declares the cost of a run that produced nothing — `R10` again, and the
+same point `RS-15` makes: the model was paid whether or not its answer survived
+verification.
+
+> **Forced, and the caption says so rather than implying otherwise.** The state
+> cannot be produced from `.env`, so the verification call is skipped for one run
+> (`CLAUDE.md`, `RS-16`) and reverted immediately. The OpenRouter call is real and
+> was billed; what is simulated is TMDB's verdict, not the model's reply.
 
 ## When the database is unreachable
 
@@ -593,7 +637,7 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-15`: `CLAUDE.md`, under Pre-submission
+* Recipes for every state, as `RS-1` … `RS-16`: `CLAUDE.md`, under Pre-submission
   blockers.
 * Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
 * The acceptance criteria these satisfy: `SPEC.md` § 7.1.

@@ -423,7 +423,7 @@ that column are now pinned.
 ## 7 · Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error
 
 **Assessed 2026-09-13.** This criterion has its own document:
-**[`RESILIENCE.md`](RESILIENCE.md)** — fifteen states, twenty-three captures, each
+**[`RESILIENCE.md`](RESILIENCE.md)** — sixteen states, twenty-four captures, each
 measured against a stated definition of "graceful". Three are embedded here; the
 rest are there.
 

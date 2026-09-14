@@ -38,7 +38,7 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all four gates green, and every other checkbox on this list
 ticked.** What landed on
-2026-09-13/14: thirty-six captures across four families with an index; three new
+2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
 real defects fixed, three of them found by LOOKING at the running app rather than
@@ -3160,15 +3160,15 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   settled in D-068 and described under Open issues above, including the two
   traps a future rebalance would undo.
 * [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
-  SIX MORE ADDED 2026-09-14 (RS-10 through RS-15), all written up in
+  SEVEN MORE ADDED 2026-09-14 (RS-10 through RS-16), all written up in
   `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
-  twenty-three frames embedded, grouped by which dependency failed,
+  twenty-four frames embedded, grouped by which dependency failed,
   each with the exact string it must show and the decision it evidences. The
   recipes below stay here because they are working instructions; the analysis is
   there because that is what a reader opens. `docs/screenshots/README.md` indexes
-  all 36 captures in the repo, and renders automatically when the folder is
+  all 37 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
-  Twenty-three files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
+  Twenty-four files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
   RS-11, RS-14 and RS-15 each need two frames. For the first four the claim splits across the page and
   the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
   one rule shown on BOTH AI features, because one alone reads as incidental.
@@ -3529,6 +3529,34 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
     the last shot lands**, and re-run `npm test` to confirm 60/60 — several route
     tests fail while either edit is in place, which is expected.
+  - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
+    `docs/screenshots/rs-16-unverifiable-picks.png`.**
+    **The model named films that do not exist** — the THIRD way a reply leaves you
+    with nothing, after RS-15's malformed and empty. Here the list was well formed
+    and every title in it was fictional, so TMDB confirmed none of them.
+    **This is the state SPEC § 2.2 step 4 and § 6 both build their argument on:**
+    the app never trusts the model's output as fact, and a title TMDB returns
+    nothing for is dropped rather than rendered as a broken card. It is also NOT a
+    rare path — D-054 measured seven of twelve realistic invented titles returning
+    zero results.
+    **Recipe.** Everything working, 3+ rated films, page loaded. In the
+    verification loop of `generateRecommendations()`, change
+    `movie = await verifyTitle(pick.title);` to `movie = null;` — that leaves
+    `reached` true, so every pick falls to `tally.unmatched` and
+    `emptyReasonFor()` lands on `unverifiable` (the three checks above it all fall
+    through). Restart, click **Get recommendations** — one real, charged call.
+    Expect "No new suggestions this time — none of the films it named could be
+    verified.", muted rather than crimson (R24), with the metadata footer beneath
+    it declaring the real cost (R10) and an empty grid. Nothing scrolls or
+    animates; that is gated on `suggestions.length`.
+    **Shoot the PAGE only.** The log row would read `success` with real tokens and
+    "no suggestions" — identical in shape to RS-15's and RS-9's, because the log
+    does not render the CAUSE (the tally lives in `raw_model_output`, which
+    nothing displays). All empty-success rows look alike in that table.
+    **The caption says the state was FORCED**, because this edit skips the TMDB
+    call rather than faking a rejection. The OpenRouter call is real and was
+    billed; what is simulated is TMDB's verdict, not the model's reply.
+    **Revert and re-run `npm test` for 60/60**, as with RS-9 and RS-15.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and

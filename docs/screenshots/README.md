@@ -1,6 +1,6 @@
 # Screenshots — index
 
-Thirty-six captures, in four families. Every one is the real application in the
+Thirty-seven captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
@@ -10,14 +10,14 @@ take on trust.
 
 | Family | Count | What it is | Discussed in |
 |---|---|---|---|
-| `rs-*` | 23 | Fifteen resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
+| `rs-*` | 24 | Sixteen resilience and non-error states | [`../RESILIENCE.md`](../RESILIENCE.md) |
 | `pi-*` | 5 | Prompt-injection attempt and both features resisting it | [`../SECURITY.md`](../SECURITY.md) § ASI01 |
 | `readme-*` | 3 | Product showcase | [`../../README.md`](../../README.md) |
 | `ac-*` | 5 | Evidence for a `SPEC.md` § 7.1 acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
 ## `rs-*` — resilience and state
 
-Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-15`.
+Recipes for reproducing each of these are in `CLAUDE.md` as `RS-1` … `RS-16`.
 Eight states need two frames. For four of them the claim is split between what the
 user sees and what the audit trail records; for `RS-10` it is split across time,
 because the state is a race and a single still cannot show one.
@@ -47,6 +47,7 @@ because the state is a race and a single still cannot show one.
 | [`rs-14-failed-save-retry-succeeds.png`](rs-14-failed-save-retry-succeeds.png) | …and the retry | Server back, Save pressed again, the same text now on the card |
 | [`rs-15-nothing-usable-page.png`](rs-15-nothing-usable-page.png) | Model returned an empty list | A charged call that produced nothing still declares its cost |
 | [`rs-15-nothing-usable-log.png`](rs-15-nothing-usable-log.png) | …and the trail | Empty and malformed logged differently, and a third failure with genuinely null figures |
+| [`rs-16-unverifiable-picks.png`](rs-16-unverifiable-picks.png) | Model named films TMDB cannot find | The hallucination guard firing on every pick, with the cost still declared |
 
 **Two pairs are meant to be read against each other.** `rs-1` and `rs-8` are the
 same panel in the same position, one crimson because something failed and one

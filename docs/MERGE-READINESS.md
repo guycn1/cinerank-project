@@ -34,7 +34,7 @@ defects and three untested happy paths.
 
 This criterion had two blockers that morning. **The larger one is closed.**
 
-* **All fifteen resilience states are captured** — twenty-three frames, since eight
+* **All sixteen resilience states are captured** — twenty-four frames, since eight
   states split their claim between the page and the audit trail. They are
   embedded and analysed in [`RESILIENCE.md`](RESILIENCE.md), grouped by which
   dependency failed and each measured against a stated definition of "graceful".

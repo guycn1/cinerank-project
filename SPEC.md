@@ -97,7 +97,7 @@ What closed it is what the turn was about. The problem had stopped being "does t
 application work" — it demonstrably did, deployed and green — and had become
 "can any of that be shown to someone who was not here". Answering it produced two
 evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
-[`docs/RESILIENCE.md`](docs/RESILIENCE.md), thirty-six captures across four
+[`docs/RESILIENCE.md`](docs/RESILIENCE.md), thirty-seven captures across four
 families, and an architecture diagram. **It also produced three real defects and
 three untested happy paths**, none of which the test suite, the linter or the
 render audits had revealed, because each of those inspects structure and none of
@@ -315,7 +315,7 @@ Applies to **both** AI features (§2.2 Recommendations, §2.3 Taste Verdict Bann
 
 ### 7.1 Must Pass Before Submission
 
-***All eight were ticked on 2026-09-14 by the authors, against the evidence assembled in `docs/ACCEPTANCE.md` — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — fifteen states, twenty-three frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
+***All eight were ticked on 2026-09-14 by the authors, against the evidence assembled in `docs/ACCEPTANCE.md` — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by `npm test`. What a user SEES in each failing case is captured and analysed in `docs/RESILIENCE.md` — sixteen states, twenty-four frames — and the prompt-injection evidence is in `docs/SECURITY.md` under ASI01. `docs/screenshots/README.md` indexes every capture in the repository.*
 
 * \[x] Searching a real movie title returns real TMDB results with posters.
 * \[x] Adding a movie already in the list is blocked with a clear message, not a duplicate row.

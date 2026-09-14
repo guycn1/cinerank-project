@@ -191,9 +191,9 @@ and each carries its own evidence.
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached — and an honest note wherever one is only partly covered. |
-| [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Fifteen states, twenty-three captures**, embedded and analysed against a stated definition of "graceful". |
+| [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
 | [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Five criteria for whether this is fit to merge, and an honest standing verdict (Module 16). |
-| [`docs/screenshots/`](docs/screenshots/) | **Thirty-six captures**, indexed and described. Nothing in it is marked up. |
+| [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
 | [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the binding rules added after it destroyed real data. |
 
 **Two of those deserve singling out**, because they are where the evidence
@@ -269,7 +269,7 @@ docs/RESILIENCE.md  what the user sees when each dependency fails, with the
                     captures embedded as evidence
 docs/DECISIONS.md   why the choices are what they are
 docs/PROCESS.md     how it was built with an LLM in the loop
-docs/screenshots/   36 captures: rs-* the fifteen resilience and state recipes,
+docs/screenshots/   37 captures: rs-* the sixteen resilience and state recipes,
                     pi-* the prompt-injection evidence, readme-* the showcase
                     shots embedded above
 ```
