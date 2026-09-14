@@ -31,13 +31,31 @@ Four claims, and every capture below is measured against them:
 
 ## How these were produced
 
-Each state has a recipe, kept as `RS-1` … `RS-9` in `CLAUDE.md` so that any of
+Each state has a recipe, kept as `RS-1` … `RS-15` in `CLAUDE.md` so that any of
 them can be reproduced exactly. TMDB and OpenRouter are called **server-side**, so
-browser devtools cannot simulate them: the recipes break the relevant key in
-`.env` and restart. Two are order-dependent and say so.
+browser devtools cannot simulate them: most recipes break the relevant key in
+`.env` and restart, and three force a state no key can produce by changing one
+line of a service and reverting it the moment the shot lands.
 
-None of these are mock-ups. Every frame is the real application against a real
-broken dependency.
+**Five of them are order-dependent and each says so at the top**, because getting
+the order wrong does not produce a worse frame — it produces a different state
+entirely. Loading the page *before* breaking the key is what leaves a control
+enabled to click; breaking it first gives you `RS-7`.
+
+None of these are mock-ups. Every frame is the real application in the state
+described. Not every one involves a broken dependency: in `RS-10` and `RS-15`
+everything is reachable and working, and what fails is an assumption or a reply's
+content.
+
+**One behaviour in this application cannot be photographed at all**, and it is
+worth naming rather than quietly omitting. Under `prefers-reduced-motion` the
+interface takes a genuinely different path — the recommendation exit clears
+instantly instead of animating, the verdict's typing effect is structurally
+unreachable rather than merely suppressed, programmatic scrolling drops to
+`auto`, and the logo's notch rests at twelve o'clock. **A still of nothing moving
+is indistinguishable from a still of something about to move**, so no frame can
+carry any of it. The reasoning is in `docs/DECISIONS.md` and the rules are in
+`CLAUDE.md`; this document can only tell you the path exists.
 
 ## When TMDB is unreachable
 
@@ -249,7 +267,10 @@ and every element then keeps whatever the markup gave it. "Get recommendations"
 had shipped without a `disabled` attribute and so rendered fully live above an
 empty list. And the verdict's `Reading the room…` placeholder, meant to last a
 fraction of a second, sat there for the life of the page still promising a verdict.
-Both are fixed; this frame is the fixed state.
+Both are fixed, and this frame is the fixed state: the trigger is greyed, and the
+banner reads **"Couldn’t read the room — your movies didn’t load."** — an admission
+rather than a promise, and checkable against the picture rather than taken on
+trust.
 
 ### RS-11 · Neither AI feature offers a log that was never written
 
@@ -301,6 +322,13 @@ surface.
 Everything around the body still renders: the heading, the Close button, the
 description naming both log tables, and all nine column headers. Only the part
 that needs the database is missing.
+
+**The other half of that pair deliberately has no frame.** Reaching the genuinely
+empty state means emptying both log tables, and deleting rows wholesale from the
+live database is precisely what the working agreements in `CLAUDE.md` forbid after
+Incident 1. The sentence is quoted above rather than photographed, and the branch
+that writes it sits ten lines from the one that writes the failure in
+`public/app.js` — close enough to read both at once.
 
 > **The honest blemish.** The cause it can show is `Something went wrong.` — the
 > generic `500`, and the least informative message in the application. This is
@@ -499,12 +527,12 @@ trail.
 ## Error paths the interface cannot reach
 
 The states above are every failure a user can put this application into. They are
-not every error its server can return. **Six more exist, and none of them has a
-frame** — because in each case the interface refuses the state before a request is
-ever sent.
+not every error its server can return. **Seven more exist and none of them has a
+frame** — six because the interface refuses the state before a request is ever
+sent, and a seventh because the server never produces the response it handles.
 
 They are written down rather than left implicit for two reasons. The first is that
-an evidence set should say where its own edges are: a reader who counts nine
+an evidence set should say where its own edges are: a reader who counts fifteen
 states is entitled to ask whether that is all of them. The second matters more.
 **Each of these is unreachable only because of one specific client-side guard**,
 and the table's left column is therefore a constraint on the client, not a
@@ -526,6 +554,19 @@ slider's bounds, let an empty query through, make the review field savable on it
 own — and an error moves from unreachable to reachable **while every test still
 passes**, because none of them exercises the client. Nothing in this repository
 would flag that.
+
+**The seventh inverts that division, which is why it sits outside the table.**
+`api()` falls back to `Request failed (<status>)` when a response is not OK and
+carries no `error` in its body (`public/app.js`). No route in this application
+produces that shape — every error response sets `error`, the central handler
+included, checked by walking each `status(4xx|5xx)` call and its body rather than
+by counting — so the fallback exists for a server that is not this one. The
+one way to reach it is an unknown `/api/*` path, which falls through to Express's
+built-in finalhandler and answers with HTML rather than JSON; the client never
+requests such a path, and a test (`unknown route → 404`) covers the behaviour
+regardless. Here the guard is server-side and the fallback is client-side —
+exactly the opposite arrangement to the six above, and a reason to keep the
+fallback rather than delete it as dead code.
 
 Exactly one of the six was ever *verified* unreachable rather than assumed. Before
 migration 004 added `review_requires_rating`, the state it forbids was traced
