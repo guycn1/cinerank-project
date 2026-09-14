@@ -506,6 +506,15 @@ const graphemeSegmenter =
     ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
     : null;
 
+/** U+00AD, the soft hyphen. NAMED because it is INVISIBLE IN SOURCE: a literal
+ *  one sat in the string literal below, where it could not be read, searched
+ *  for, or told apart from an empty string. It also has to be stripped from the
+ *  clipboard by the copy handler further down, and the inserter and the stripper
+ *  must agree -- so they share this one definition. Built with fromCharCode
+ *  rather than a backslash escape: escapes in this file have been collapsed by
+ *  tooling twice (see CLAUDE.md Environment traps, and R7). */
+const SOFT_HYPHEN = String.fromCharCode(0xad);
+
 function softHyphenate(text) {
   if (!graphemeSegmenter) return text; // unsupported -- plain text, never the broken regex
   const graphemes = [...graphemeSegmenter.segment(text)].map((s) => s.segment);
@@ -513,7 +522,7 @@ function softHyphenate(text) {
   for (let i = 0; i < graphemes.length; i += 1) {
     out += graphemes[i];
     const next = graphemes[i + 1];
-    if (next && !/\s/.test(graphemes[i]) && !/\s/.test(next)) out += '­';
+    if (next && !/\s/.test(graphemes[i]) && !/\s/.test(next)) out += SOFT_HYPHEN;
   }
   return out;
 }
@@ -537,6 +546,10 @@ function renderRanked() {
   rankedPainted = true;
   el.rankedList.replaceChildren();
   const count = state.movies.length;
+  // EMPTY LIST SHOWS NO SUBTITLE AT ALL, and the ternary is what makes that so.
+  // rankedCountLabel(0, 0) would return "0 films", which beside the empty-state
+  // line -- "No movies yet -- search for one above to get started." -- says
+  // nothing twice. Do not simplify this into an unconditional call.
   el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
 
@@ -2472,6 +2485,41 @@ function pauseSheenOffscreen() {
   ).observe(banner);
 }
 
+/* ---------- copying text out of the app --------------------------- */
+// STRIP SOFT HYPHENS FROM THE CLIPBOARD. softHyphenate() (D-060/D-061) puts a
+// U+00AD between every adjacent pair of non-space characters, so a long title or
+// review breaks at a sensible point instead of mid-word. They are invisible on
+// screen. They are NOT invisible when copied: paste a review anywhere and every
+// letter arrives separated by a codepoint you cannot see, which breaks search,
+// breaks pasting into a document, and shows as visible junk in editors that
+// render it.
+//
+// HOW IT WAS FOUND, because the failure was two steps removed from the cause:
+// text separated character by character is the SHAPE of a filter-evasion
+// attempt, so pasting this app's own taste verdict into an LLM chat got the
+// message rejected by a safety classifier before a human ever read it. The words
+// were about Mad Max and Parasite; the shape was the problem. A layout fix had
+// quietly made the app's output un-pasteable, and nothing in the app could have
+// reported that.
+//
+// The DOM keeps its hyphens, so D-060/D-061 is untouched and the wrapping still
+// works; only the clipboard payload is cleaned. setData needs the default
+// prevented to take effect.
+//
+// Selections inside a form control are left alone: an input's own selection is
+// not part of window.getSelection() in every engine, and nothing typed into one
+// is hyphenated anyway -- so there is nothing to clean and a needless
+// preventDefault on a native copy is a risk with no upside.
+document.addEventListener('copy', (e) => {
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const sel = window.getSelection();
+  const selected = sel ? sel.toString() : '';
+  if (!selected.includes(SOFT_HYPHEN)) return; // nothing of ours in the selection
+  e.clipboardData.setData('text/plain', selected.split(SOFT_HYPHEN).join(''));
+  e.preventDefault();
+});
+
 /* ---------- boot ------------------------------------------------- */
 (async function init() {
   // Both AI triggers get the sparkle. Injected here, before anything can put a
@@ -2488,5 +2536,23 @@ function pauseSheenOffscreen() {
     await loadMovies();
   } catch (err) {
     toast(failureText('Couldn’t load your movies', err), true);
+    // THE PLACEHOLDER HAS TO BE RETIRED HERE, because nothing else will.
+    // 'Reading the room...' ships in the markup and is replaced by
+    // syncVerdictAvailability() -- which loadMovies() calls AFTER its await, so
+    // a failed load throws first and the placeholder sits there for the life of
+    // the page, still promising a verdict that is never coming. Same root cause
+    // as the recs trigger shipping enabled; both found 2026-09-13, shooting RS-7.
+    //
+    // SAFE BY CONSTRUCTION, not by judgement: this sits inside the catch, so it
+    // cannot run when loadMovies() succeeds. Every normal load, add, rate and
+    // remove is untouched. setVerdictText() is the single writer for this
+    // element (D-040), and its generation counter means any later write
+    // supersedes this one silently and cleanly.
+    //
+    // It deliberately states NO rated-film count. The app does not know one --
+    // the list never loaded -- and 'you have 0' would be a guess presented as a
+    // fact, which is exactly the error the recs hint used to make on this path.
+    el.verdictText.classList.add('is-muted');
+    setVerdictText('Couldn’t read the room — your movies didn’t load.');
   }
 })();

@@ -187,7 +187,21 @@
     <section class="recs">
       <div class="recs__head" id="recs-head">
         <h2>What to watch next</h2>
-        <button class="recs__trigger" id="recs-trigger" type="button">
+        <!-- STARTS DISABLED ON PURPOSE, exactly as #verdict-refresh does. Both
+             buttons are enabled by syncRecommendationsAvailability() /
+             syncVerdictAvailability(), which loadMovies() calls AFTER its
+             `await api("/api/movies")`. So when that request FAILS the function
+             throws before either sync runs, and a button keeps whatever state
+             this markup gave it. The verdict button shipped `disabled` with the
+             step-4b work and was therefore correct; this one did not, so a
+             database outage left a fully-enabled "Get recommendations" above an
+             empty ranked list (found 2026-09-13 while shooting RS-7).
+             It is also the right state before the first response has landed:
+             the rated count is not known yet. Do NOT remove this attribute to
+             "fix" a disabled button -- the sync writes disabled in BOTH
+             directions on every load, so the only way it stays off is if the
+             movie list never loaded at all, which is exactly when it should. -->
+        <button class="recs__trigger" id="recs-trigger" type="button" disabled>
           Get recommendations
         </button>
       </div>
@@ -215,7 +229,7 @@
     <div class="log-cta">
       <div class="log-cta__copy">
         <strong>AI call log</strong>
-        <span>Every OpenRouter call — prompt version, tokens, latency &amp; cost, successes and failures.</span>
+        <span>Every OpenRouter call is logged — prompt version, tokens, latency &amp; cost, successes and failures.</span>
       </div>
       <button type="button" class="log-cta__btn" id="open-log">
         <svg class="log-cta__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -302,8 +316,9 @@
       <button type="button" class="ghost" id="log-close">Close</button>
     </header>
     <p class="log-sub">
-      Every OpenRouter call CineRank has made — both features, successes and failures.
-      Persisted in <code>recommendation_logs</code> / <code>taste_verdict_logs</code>.
+      The 60 most recent OpenRouter calls — both features, successes and failures.
+      Every call is persisted in <code>recommendation_logs</code> /
+      <code>taste_verdict_logs</code>.
     </p>
     <div class="log-scroll">
       <table class="log-table" id="log-table">
@@ -369,21 +384,6 @@
       <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
     </svg>
   </template>
-
-  <!-- TEMPORARY — remove this tag before the final merge to main, together with
-       the /debug-recs.js route in server/index.js. Tracked as a checkbox under
-       Pre-submission blockers in CLAUDE.md.
-       Loads the recommendations debug harness so debugRecs(n) is available in
-       the console without pasting the file each time. It only defines that one
-       function; nothing is intercepted until it is called, and it declines to
-       install itself on the deployed host.
-       That "until it is called" is guarded by a flag INSIDE the harness, and it
-       had to be added — for a day this tag left the app permanently serving
-       itself dummy recommendations on every load, because the file arms its
-       fetch patch the moment it runs and pasting it into a console had always
-       been the arming. Deliberately BEFORE app.js so window.fetch is
-       already patched by the time anything can click. -->
-  <script src="/debug-recs.js"></script>
 
   <script type="module" src="app.js"></script>
 </body>

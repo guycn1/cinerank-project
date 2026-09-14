@@ -2,6 +2,7 @@ import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB, UNVOTED_TMDB } from './helpers.js';
+import { config } from '../server/config.js';
 
 // Route-level tests. The Supabase client is swapped for an in-memory fake so
 // nothing here touches the live database (CLAUDE.md § Working agreements).
@@ -143,6 +144,40 @@ test('unknown route → 404', async () => {
   assert.equal(res.status, 404);
 });
 
+/* ---------- delete ------------------------------------------------------ */
+
+// DELETE had NO coverage at all until 2026-09-13, which the test helper made
+// conspicuous: helpers.js has defined a `del()` client method since it was
+// written, and nothing had ever called it. Found while assembling the evidence
+// for SPEC § 7.1's third criterion -- the one that asks for edge cases rather
+// than the happy path.
+//
+// WHAT THIS DELIBERATELY DOES NOT ASSERT: that the right ROW was targeted. The
+// fake Supabase builder's `.eq()` is a no-op (see the comment on it), so an
+// assertion about the id would pass whatever the route filtered on -- which is
+// exactly the trap D-046 records, where a test passed against buggy code because
+// the fake ignored the filter that caused the bug. Writing that assertion here
+// would produce false confidence, so it is left out and said so instead.
+test('DELETE /api/movies/:id → 204 with no body', async () => {
+  db.results['movies:delete'] = { data: null, error: null };
+  const res = await client.del('/api/movies/abc-123');
+  assert.equal(res.status, 204);
+  assert.equal(await res.text(), '', '204 must carry no body');
+
+  const call = db.calls.find((c) => c.table === 'movies' && c.op === 'delete');
+  assert.ok(call, 'the delete must reach the movies table');
+});
+
+// The `if (error) throw` in the route. Without it a failed delete would answer
+// 204 -- telling the user the film is gone while it is still there, which is the
+// worst shape this particular failure could take.
+test('DELETE /api/movies/:id when the database rejects it → 500, not a false 204', async () => {
+  db.results['movies:delete'] = { data: null, error: { message: 'connection refused' } };
+  const res = await client.del('/api/movies/abc-123');
+  assert.equal(res.status, 500);
+  assert.match((await res.json()).error, /Something went wrong/);
+});
+
 /* ---------- duplicate handling + happy add ----------------------------- */
 
 test('POST /api/movies for a movie already in the list → 409', async () => {
@@ -212,6 +247,63 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 });
 
 /* ---------- resilience: TMDB unreachable ------------------------------- */
+
+// THE SEARCH HAPPY PATH, which had no coverage at all until 2026-09-13.
+// The only two search tests were the 400 for a missing query and the 502 below
+// for TMDB being unreachable -- both failure paths. MATRIX_TMDB, the one fixture
+// carrying a poster, was used exclusively by the ADD tests. So the single
+// behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
+// movie title returns real TMDB results with posters" -- was the one search
+// behaviour the suite never checked.
+//
+// Asserts the whole shaped contract rather than a truthy response, because every
+// field here is depended on downstream: the picker renders title, year and
+// poster, and `tmdb_id` is what the add path posts back.
+test('GET /api/movies/search returns shaped TMDB results, posters included', async () => {
+  const restore = stubFetch({
+    'query=matrix': {
+      results: [
+        MATRIX_TMDB,
+        // TMDB genuinely omits poster_path for some titles, and the client draws
+        // its own placeholder for that case (D-027). The shaped value must be
+        // null rather than an empty string or a URL ending in "null".
+        {
+          ...MATRIX_TMDB,
+          id: 604,
+          title: 'The Matrix Reloaded',
+          release_date: '2003-05-15',
+          poster_path: null,
+        },
+      ],
+    },
+  });
+  try {
+    const res = await client.get('/api/movies/search?q=matrix');
+    assert.equal(res.status, 200);
+    const { results } = await res.json();
+    assert.equal(results.length, 2);
+
+    const [first, second] = results;
+    assert.equal(first.tmdb_id, 603, 'the id the add path posts back');
+    assert.equal(first.title, 'The Matrix');
+    assert.equal(first.year, 1999, 'a NUMBER sliced out of release_date, not the raw date');
+    assert.match(
+      first.poster_url,
+      /^https?:\/\/\S+\/matrix\.jpg$/,
+      'an absolute poster URL built from the image base, not a bare TMDB path'
+    );
+    assert.equal(first.tmdb_rating, 8.2, 'rounded to one decimal');
+    assert.equal(typeof first.description, 'string');
+
+    assert.equal(
+      second.poster_url,
+      null,
+      "a missing poster_path must shape to null, never a URL ending in \"null\""
+    );
+  } finally {
+    restore();
+  }
+});
 
 test('GET /api/movies/search when TMDB is unreachable → 502, calm message', async () => {
   const restore = stubFetch({ 'themoviedb.org': 'throw' });
@@ -576,6 +668,54 @@ test('a run WITH suggestions carries no emptyReason at all', async () => {
 // Both features are asserted the same way and in the same place, because the
 // whole point of R23 was that they had drifted into two different answers to one
 // question.
+// THE VERDICT’S SUCCESS PATH HAD NO LOG COVERAGE until 2026-09-13. Every
+// taste_verdict_logs assertion in this file was a FAILURE path: the 422 below
+// threshold, the model recorded on a failed row, the advertise-the-log
+// invariant, and the lost-cause case when the log write itself fails. So SPEC
+// § 7.1’s sixth criterion -- "a triggered verdict produces a logged row with
+// real token/cost data" -- was the one verdict behaviour nothing checked.
+//
+// Mirrors the recommendations success-log test deliberately, so the two
+// features are held to the same standard rather than drifting the way their
+// error handling once did (D-047).
+test('POST /api/taste-verdict logs a success row with real token and cost data', async () => {
+  db.results['movies:select'] = RATED_FOUR;
+  db.results['taste_verdict_logs:insert'] = { data: null, error: null };
+  const restore = stubFetch({
+    'openrouter.ai': {
+      choices: [{ message: { content: 'You like films that commit to something.' } }],
+      usage: { total_tokens: 1480, prompt_tokens: 1385, completion_tokens: 95, cost: 0.0038 },
+      // The verdict is the one call NOT on the app-wide model (D-053).
+      // Asserting it here covers the SUCCESS half of the bug D-070 fixed on
+      // the failure half, where a failed verdict recorded the default instead.
+      model: 'anthropic/claude-sonnet-5',
+    },
+  });
+  try {
+    const res = await client.post('/api/taste-verdict');
+    assert.equal(res.status, 200);
+
+    const logged = db.calls.find((c) => c.table === 'taste_verdict_logs' && c.op === 'insert');
+    assert.ok(logged, 'a successful verdict must be logged too, not only a failure');
+    assert.equal(logged.payload.status, 'success');
+    assert.equal(logged.payload.error_text, null);
+    assert.match(logged.payload.verdict_text, /commit to something/);
+
+    // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions), and
+    // OpenRouter's own usage.cost is preferred over the per-model estimate table.
+    assert.equal(logged.payload.estimated_cost_usd, 0.0038);
+    assert.equal(logged.payload.tokens_used, 1480);
+    assert.equal(logged.payload.prompt_version, 'taste_verdict_v7');
+    assert.equal(
+      logged.payload.model_used,
+      'anthropic/claude-sonnet-5',
+      'the success path records the model OpenRouter echoed back, not the app-wide default'
+    );
+  } finally {
+    restore();
+  }
+});
+
 const RATED_FOUR = {
   data: [
     { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
@@ -587,8 +727,8 @@ const RATED_FOUR = {
 };
 
 for (const feature of [
-  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs' },
-  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs' },
+  { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs', model: config.openrouter.model },
+  { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs', model: config.tasteVerdict.model },
 ]) {
   test(`POST ${feature.path}: a logged 'failed' row is always advertised to the UI`, async () => {
     db.results['movies:select'] = RATED_FOUR;
@@ -612,6 +752,32 @@ for (const feature of [
       // R8's half of the same change: the cause belongs in the row, not the UI.
       assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
       assert.match(row.payload.error_text, /OpenRouter/);
+    } finally {
+      restore();
+    }
+  });
+
+  // A failed call has no OpenRouter response to read a model name from, so the
+  // row falls back to a constant. It has to be the constant THIS feature calls.
+  // Written as a loop over both because the bug this covers was exactly the two
+  // drifting: tasteVerdict.js carried recommendations.js’s fallback verbatim, so
+  // every failed verdict was logged as claude-haiku-4.5 while claude-sonnet-5
+  // was the model that actually failed (D-053 put the verdict off the default).
+  // Nothing asserted the contents of this column before — R23 checked that a
+  // failed row EXISTS and is advertised, never what is in it.
+  test(`POST ${feature.path}: a failed row names the model THIS feature calls`, async () => {
+    db.results['movies:select'] = RATED_FOUR;
+    db.results[`${feature.table}:insert`] = { data: null, error: null };
+    const restore = stubFetch({ 'openrouter.ai': 'throw' });
+    try {
+      await client.post(feature.path);
+      const row = db.calls.find((c) => c.table === feature.table && c.op === 'insert');
+      assert.ok(row, `${feature.name}: a failure must still be logged`);
+      assert.equal(
+        row.payload.model_used,
+        feature.model,
+        `${feature.name}: a failed row must name the model this feature calls`
+      );
     } finally {
       restore();
     }

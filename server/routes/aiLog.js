@@ -9,6 +9,26 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 aiLogRouter.get(
   '/',
   wrap(async (_req, res) => {
+    // THE 60-ROW CAP: `.limit(60)` on each table, then `.slice(0, 60)` on the
+    // merged set below, and `totals` reduces over THAT — so the footer sums the
+    // 60 calls shown, not every call ever made. Once the tables hold more than
+    // 60 rows between them the count pins at 60 and each new call pushes the
+    // oldest out of the window.
+    //
+    // It arrived undeliberated in b3e3446 (2026-09-04) with the viewer itself,
+    // and is KEPT: it bounds a payload and a client-side render that would
+    // otherwise grow without limit, SPEC.md documents the endpoint as "newest
+    // 60", and D-019 reasons from the window existing when it justified
+    // deleting the six pre-migration rows rather than building permanent
+    // partial-coverage markers.
+    //
+    // What was WRONG for the whole life of the feature was the UI copy, not
+    // this: the dialog said "Every OpenRouter call CineRank has made" and the
+    // footer panel said "Every OpenRouter call", both of which stopped being
+    // true the moment the cap bit. Fixed 2026-09-13 (D-069) — the viewer now
+    // says 60 and moves the every-call claim onto persistence, which is where
+    // it is actually true. If this number ever changes, those two strings in
+    // public/index.html and the SPEC line change with it.
     const [recs, verdicts] = await Promise.all([
       supabase
         .from('recommendation_logs')

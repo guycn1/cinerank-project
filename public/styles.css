@@ -3511,6 +3511,15 @@ body:has(dialog[open]) { overflow: hidden; }
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+  /* NOT SELECTABLE, and that is a fix rather than tidiness. The verdict renders
+     its text TWICE: an aria-hidden span that animates on screen (D-057 typing
+     effect) and this one, carrying the full string from the first frame so
+     assistive tech announces it once and complete. clip-path hides it visually
+     but leaves it in the SELECTION, so selecting a verdict and copying produced
+     the whole thing twice. A screen reader reads the accessibility tree and
+     never needs this text in a selection, so nothing is lost. */
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

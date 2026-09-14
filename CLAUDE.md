@@ -26,13 +26,34 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-13 (**THE `DOSSIER.md` RECONCILIATION IS DONE — see the
+**Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+reads MET on all five of Module 16's criteria for the first time — criterion 1
+closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
+boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
+closed 2026-09-14, see `SPEC.md` § Specification status, which satisfies the
+course's "at least three full turns" under the conservative reading that counts no
+merge as a turn. THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE
+USER ON 2026-09-14 and is performed immediately after this commit — see the note
+under Build status for why the count and the checkbox are written just before it
+rather than just after. The live URL is
+on the project sheet and the joint-project registration is emailed, both
+2026-09-14. Everything else is done — evidence captured and written up, the debug
+harness unloaded, all four gates green, and every other checkbox on this list
+ticked.** What landed on
+2026-09-13/14: thirty-seven captures across four families with an index; three new
+documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
+`docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
+real defects fixed, three of them found by LOOKING at the running app rather than
+by any tool (D-069, D-070, and the two in the database-down state); and six new
+tests taking the suite from 54 to 60, every one probed by breaking the source.
+Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE — see the
 first item under Pre-submission blockers, which records what it found and what it
 produced: `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a
 linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spiral
-turns recorded. The merge-readiness verdict is NOT YET MERGE-READY, failing only
-criterion 1, which is the blockers list itself. Nothing in that list was ticked by
-the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — is the only step left, and the next-session marker sits on it.**)
+turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
+POINT, failing only criterion 1, which is the blockers list itself — it has since
+closed, and the top of this entry is the current verdict. Nothing in that list was
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked except the final merge itself. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -41,14 +62,30 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled UI milestone — currently **"THE FRONT-END
-  OVERHAUL IS COMPLETE: every UI step of the agreed order (1, 2, 3, 4, 4b, 5) is
-  closed"** (2026-09-12, `d47c960`). **Nineteen**
-  merges so far;
+* `main` is at the latest settled milestone — **the final planned merge, closing
+  the evidence and documentation work** (2026-09-14). The milestone before it was
+  the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
+  front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
+  steps closed. **Twenty-one**
+  merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
-  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 — update both.
+  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 and
+  in `docs/MERGE-READINESS.md` § 5 — update all three.
   `draft` continues day to day.
+  **WHY THIS ONE WAS WRITTEN BEFORE THE MERGE RATHER THAN AFTER, since it breaks
+  the rule directly above it.** For the first twenty merges the order was: merge,
+  then a later commit corrects the figures, then a subsequent merge carries the
+  correction to `main`. That works only while more merges are coming. For a merge
+  intended as the last, it does not: the correcting commit would land on `draft`
+  after `main` already had the merge, so `main` — the branch a reader lands on —
+  would permanently show a count one short and an unticked checkbox, and fixing
+  that would need yet another merge, which is the outcome this ordering exists to
+  avoid. So the count and the checkbox were written and pushed to `draft` first,
+  deliberately, on the user's explicit instruction, with the merge following
+  within minutes. Anyone reading this between the two sees a figure that is true
+  of the very next commit rather than of the current one. That is the trade, and
+  it was made knowingly.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -112,7 +149,7 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 54 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -150,8 +187,10 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs a
   real OpenRouter call, and the user ran their paid quota down doing exactly
-  that. **The page loads it temporarily**, so `debugRecs(4)` is available in the
-  console straight away and makes "Get recommendations" render four dummy cards.
+  that. **IT IS NO LONGER LOADED BY THE PAGE — unloaded 2026-09-13, see the ticked
+  checkbox under Pre-submission blockers.** Paste the file into the browser console
+  to use it; `debugRecs(4)` then makes "Get recommendations" render four dummy
+  cards. That was how it was written and how it worked for its first days.
   1–6 (`parseModelJson` slices at 6);
   `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
   latency.
@@ -194,13 +233,16 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   request — the app spent a day answering its own recommendation calls with six
   dummy cards, through hard refreshes and a cleared cache, because nothing was
   cached wrongly and the tag was doing exactly what it said.
-  **Two lines make it load, and both are temporary** — the
+  **TWO LINES USED TO MAKE IT LOAD AND BOTH ARE GONE (2026-09-13):** the
   `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
-  route serving it in `server/index.js` (the file lives in `scripts/`, which is
-  deliberately outside the static root). The FILE stays; only those two go. See
-  the checkbox under Pre-submission blockers. The harness also refuses to install
-  itself when the hostname ends in `onrender.com`, so the live site is protected
-  even if the removal is forgotten — a belt to that braces, not a substitute.
+  route serving it in `server/index.js`. The FILE stays, in `scripts/`, which is
+  deliberately outside the static root — so nothing serves it and nothing can
+  load it by accident. Verified after removal on a throwaway port:
+  `/debug-recs.js` answers 404, the page answers 200, and the served HTML
+  contains no reference to it.
+  The harness also refuses to install itself when the hostname ends in
+  `onrender.com`. That guard is now redundant and stays anyway: it costs
+  nothing, and it is the belt to a brace that has just been removed.
 * `GET /api/health` liveness probe for a future host.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
@@ -2885,28 +2927,31 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
-   **>>> START HERE. EVERY UI STEP IS NOW DONE — 1, 2, 3, 4, 4b and 5 — so this
-   is the only step left, and it is not UI work: it is evidence, registration and
-   cleanup. The checklist is under "Pre-submission blockers" below; the nine
-   resilience screenshots are greppable as `RS-1` through `RS-9`, each with its
-   own recipe and the exact string to expect. Two recipes are order-dependent and
-   will waste a session if skimmed (RS-2 needs a search run BEFORE the key is
-   broken; RS-6 needs the page loaded BEFORE the server is stopped).
-   The user is capturing screenshots only once the UI is finished — which it now
-   is — but that is still THEIR call to start, and it has been restated several
-   times. Do not push to shoot them early.
-   **READ `DOSSIER.md` FIRST — it is the course's own grading rules, it arrived
-   2026-09-13, and THIS CHECKLIST PREDATES IT AND HAS NEVER BEEN RECONCILED
-   AGAINST IT.** That reconciliation is the first checkbox below.
+   **>>> THIS STEP IS DONE — 2026-09-14. Every checkbox under "Pre-submission
+   blockers" is ticked except the final `draft` → `main` merge, which needs
+   explicit user confirmation and is the only thing left in the repository. What
+   follows is that instruction block corrected to the finished state; the recipes
+   it points at are still the working ones. <<<**
+   The checklist is under "Pre-submission blockers" below. The resilience
+   screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states, not
+   the nine this block named while it was open. **FIVE recipes are
+   order-dependent and will waste a session if skimmed:** RS-2 needs a search run
+   BEFORE the key is broken; RS-6 and RS-14 need the page loaded BEFORE the server
+   is stopped; RS-10 needs two views and a strict sequence; RS-11/12/13 need the
+   page loaded BEFORE the key is broken, or every control renders disabled and
+   nothing can be clicked. Three more — RS-9, RS-15 and RS-16 — need a temporary
+   one-line edit to a service and a `git checkout` afterwards.
+   `DOSSIER.md` is the course's own grading rules, it arrived 2026-09-13, and
+   **the reconciliation against it is DONE** — the first checkbox below.
    The narrow-viewport enforcement rules under step 5 are NOT retired by that
-   step closing; they still apply to anything that comes up. <<<**
+   step closing; they still apply to anything that comes up.
 
 **Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
 rather than renumbered because "step 5" is referenced by name outside this file —
 including the two enforcement rules a memory file points at — and a silent
 renumber would send a future session to the wrong list.
 
-### Open issues / TODO
+### Open issues / TODO — ALL CLOSED as of 2026-09-14
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
 below — this list is the smaller stuff.)
 * [x] Migration 001 applied.
@@ -2931,7 +2976,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (54).
+  `review_requires_rating` guards all covered by `npm test` (60).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -2968,8 +3013,9 @@ below — this list is the smaller stuff.)
   commit, which destroyed the obvious way to eyeball the token and produced a
   confident false report that the two tiers were identical. When a token and one
   of its consumers move together, say what is left to compare against.
-* [ ] User re-adding lost movies (see Incident 1) — moot once the demo seed list
-  exists.
+* [x] User re-adding lost movies (see Incident 1) — MOOT as of 2026-09-13. The
+  demo seed list exists and is loaded, so the list the submission ships with is
+  the seeded one and there is nothing left to re-add.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
   ranks were fine at every width (checked at ~350px with numerals forced to 20+,
   so the narrow `1` couldn't flatter the test). Three were not: the font clamps
@@ -2985,7 +3031,7 @@ below — this list is the smaller stuff.)
   revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
   misalign every poster's left edge down the list, trading a rare problem for a
   permanent one. 1000+ is unhandled by choice.
-* [ ] **Demo seed list for lecturer submission.** Ship with 3–4 pre-rated movies
+* [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
   1. One deliberate taste persona — a specific sensibility (e.g. "bold,
@@ -3002,7 +3048,52 @@ below — this list is the smaller stuff.)
   Build it as a small repeatable seed helper (hits the app's own
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
-  produces. Not started — user will kick this off later.
+  produces.
+  **THE HELPER IS BUILT — `scripts/seed-demo.js`, `npm run seed-demo` (2026-09-13).**
+  **It REPLACES by default: the wipe is the first thing it does**, so the list
+  ends up as exactly the seed set rather than the seed set mixed into whatever
+  was already there. That is a DELIBERATE, USER-REQUESTED EXCEPTION to the
+  no-delete-all working agreement, and the agreement still binds Claude —
+  **Claude must never run this script with `--write`.** The safety is that the
+  wipe is never silent: a dry run prints every film it would destroy with its
+  rating, and says the ratings and reviews are not recoverable.
+  Dry run by default, `--write` to apply, `--keep` to add alongside instead of
+  replacing, `--reset` to remove ONLY the declared seed films, `--with-injection` to
+  add the Module 17 demo film whose review IS an injection attempt. It goes
+  through the app own HTTP API rather than Supabase, so the rows are exactly
+  what the UI produces, and films are declared by TITLE AND YEAR and resolved
+  through `/api/movies/search` rather than by hardcoded ids — verified end to end
+  on a throwaway port when the helper was built, all six titles AS THE LIST STOOD
+  THEN resolving to an exact title-and-year match with no fallback. **The shipped
+  list is SEVEN films** (D-068, below), plus an eighth only under
+  `--with-injection`. `--reset` matches ONLY the declared set by title and
+  year, prints every row first, and needs `--write` to act.
+  **THE CONTENT IS SETTLED — 2026-09-13 (D-068) — AND IT IS LOADED.** It is
+  still the user's to change and still lives in one editable block at the top
+  of the file, but it is no longer a proposal: two candidate lists were built
+  and each was run through the real features, and the shipped set merges both.
+  SEVEN films — Mad Max: Fury Road 9.1 (the long review, so the show-more
+  toggle is drawn), Wicked 8.6, Knives Out 8.2 (no review, so #20's placeholder
+  is drawn), The SpongeBob SquarePants Movie 7.6, Shrek 5 (2027) 4.5
+  (unreleased, so the muted "No TMDB rating" caption is drawn — D-037), Saw 1.5,
+  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). Six of
+  the seven cards double as UI evidence for states that otherwise need
+  hand-setup to photograph.
+  **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
+  FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
+  BOTH AI features at once, the verdict falling back to reciting film names
+  (the D-014 failure) and the recommender returning a single shelf. (2)
+  RECOMMENDATIONS SEE ONLY THE TOP FIVE RATED FILMS
+  (`config.recommendations.topN`) WHILE THE VERDICT SEES EVERY ONE, so Saw
+  sits sixth deliberately: it shapes the verdict without spending one of the
+  five slots that steer the picks.
+  **Measured over three runs of each feature before it was called settled.**
+  The verdict names no film in two runs of three; the third lists the two low
+  films, which is the weaker output — so re-roll before a screenshot, and note
+  it is NOT persisted across a page reload. The recommendations are effectively
+  fixed, three of four cards identical every run, each mapping to one seed
+  film. That one-to-one behaviour is intrinsic to the recommender and is not a
+  seed fault; do not chase it with a prompt change.
   **One hard constraint on that helper, from migration 004 (D-041): rating and
   review must go in the SAME `PATCH`.** A review-only patch on a film that is not
   yet rated now violates `review_requires_rating` and comes back as a 400 ("A
@@ -3010,14 +3101,24 @@ below — this list is the smaller stuff.)
   rather than silently storing a review no screen would ever display — but it
   will look like a mystery if it is met without knowing why.
 
-### Pre-submission blockers — DO NOT call the project a wrap until these are done
+### Pre-submission blockers — ALL TICKED as of 2026-09-14 except the final merge
 
-The code is functionally complete against SPEC §2–§6, but the submission is
-**not** ready. These are the known gaps. The user is deferring all
-screenshot/evidence capture to right before submission, in a dedicated session,
-so the shots match the finished UI rather than a mid-overhaul one. That is a
-deliberate schedule choice, restated more than once — do NOT push to capture
-them early.
+**Every item below is done except the last, the `draft` → `main` merge, which
+needs explicit user confirmation.** The entries are kept in full rather than
+collapsed: each records what was found and how, and several carry recipes that are
+still the working instructions.
+
+*The paragraph below is how this section read while the list was open. It is
+preserved because the schedule choice it describes is part of the record — the
+evidence capture really was deferred to a dedicated session, which is why the
+shots match a finished UI rather than a mid-overhaul one.*
+
+> The code is functionally complete against SPEC §2–§6, but the submission is
+> **not** ready. These are the known gaps. The user is deferring all
+> screenshot/evidence capture to right before submission, in a dedicated session,
+> so the shots match the finished UI rather than a mid-overhaul one. That is a
+> deliberate schedule choice, restated more than once — do NOT push to capture
+> them early.
 
 **But DO keep this list growing as the work happens.** The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
@@ -3072,22 +3173,57 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     user. Do not re-propose it.** The DOSSIER lists context files "such as
     `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
     and the graded item is "the context files kept and maintained across
-    sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own. An
-    audit of the notes also found they carried third-person references to the
-    grader, which a rule inside those very notes forbids anywhere in the repo, and
-    that their technical content was already duplicated here.
-  **What this does NOT mean.** The reconciliation ADDED documents; it ticked
-  nothing below. Every remaining item in this list is still open and still owed.
-* [ ] **Put the live URL on the project sheet** —
-  https://cinerank-g6lx.onrender.com. This used to be a "still to do" line
-  *inside* the ticked deploy item above, where it did not show up as an open
-  checkbox and could be missed on a skim. It is its own task: deploying and
-  submitting the address are two different things, and the second is what makes
-  the first count.
-* [ ] **Demo seed list** loaded via the normal UI flow (see the blueprint above).
-* [ ] **Resilience & state screenshots — the visual evidence for SPEC §7.1, still
-  missing.** Server behaviour is covered by `npm test`; these are the *pictures*.
-  Put them in `docs/`.
+    sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own.
+    Their technical content was also already duplicated here.
+  **What this did NOT mean, at the time.** The reconciliation ADDED documents; it
+  ticked nothing below, and on 2026-09-13 every remaining item in this list was
+  still open and still owed. *(They were closed over the following day. This
+  sentence is kept in the past tense rather than deleted, because it records what
+  the reconciliation did and did not achieve, which is the point of the entry.)*
+* [x] **Put the live URL on the project sheet — DONE 2026-09-14.**
+  https://cinerank-g6lx.onrender.com is on the sheet. This used to be a "still to
+  do" line *inside* the ticked deploy item above, where it did not show up as an
+  open checkbox and could be missed on a skim. Splitting it out is what made it
+  get done: deploying and submitting the address are two different things, and
+  the second is what makes the first count.
+* [x] **Demo seed list — DONE 2026-09-13.** Loaded by the user with
+  `npm run seed-demo -- --write`, which goes through the app’s own HTTP API,
+  so the rows are exactly what the normal UI flow produces. The content is
+  settled in D-068 and described under Open issues above, including the two
+  traps a future rebalance would undo.
+* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and
+  SEVEN MORE ADDED 2026-09-14 (RS-10 through RS-16), all written up in
+  `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
+  twenty-four frames embedded, grouped by which dependency failed,
+  each with the exact string it must show and the decision it evidences. The
+  recipes below stay here because they are working instructions; the analysis is
+  there because that is what a reader opens. `docs/screenshots/README.md` indexes
+  all 37 captures in the repo, and renders automatically when the folder is
+  browsed on GitHub.
+  Twenty-four files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
+  RS-11, RS-14 and RS-15 each need two frames. For the first four the claim splits across the page and
+  the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
+  one rule shown on BOTH AI features, because one alone reads as incidental.
+  *(This line read "Eleven files" and the sentence above it read "21 captures" until
+  2026-09-14. Both were wrong when written — there were already thirteen and
+  twenty-six — so they are corrected rather than preserved.)*
+  Server behaviour is covered by `npm test`; these are the *pictures*.
+  **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** — a
+  failed verdict logged against a model it never called (D-070), a fully
+  enabled "Get recommendations" sitting over a list that could not load, and a
+  verdict placeholder that never retired. All three were invisible to the
+  tests, the linter and the render audits, because every one of those inspects
+  STRUCTURE and none of them puts the app into a broken state and looks at it.
+  That is the argument for this list existing, and it is worth remembering
+  before the next evidence pass is treated as box-ticking.
+  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED FOR ITS RS KEY:**
+  `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the first
+  capture. The subdirectory rather than `docs/` itself so nine-plus PNGs do not
+  bury six prose files; the RS key in the filename so a reader's `grep "RS-"`
+  ties every image back to the recipe that produced it, and so the README and
+  SPEC can link them by a path that says what it is. A default
+  `Screenshot 2026-09-13 171841.png` says nothing and would have to be renamed
+  before submission anyway.
   **Every state has a stable `RS-n` marker, so `grep "RS-" CLAUDE.md` returns the
   whole set and each line is self-contained enough to shoot from without reading
   the history.** Add new ones with the next free number and never renumber.
@@ -3099,16 +3235,52 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   **The ranked list must still be working in every shot except RS-7** — that is
   the point of most of them: one thing broke, the app did not.
 
-  - [ ] **RS-1 · TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
+  - [x] **RS-1 · CAPTURED 2026-09-13 — `docs/screenshots/rs-1-tmdb-down-on-search.png`.**
+    Framed to match RS-8 deliberately: same panel, same position, one crimson
+    and one muted. The pair is the visual form of D-033 applied to Search, and
+    is worth more side by side than either shot alone.
+    **It is also the evidence D-036 predicted it would be.** The ranked card
+    still shows `TMDB 7.6` with TMDB unreachable, because that number is a
+    snapshot written at ADD time and never refreshed. A live refresh would have
+    made the whole ranked list depend on TMDB being up, and this frame is what
+    that would have cost.
+    **TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search
     anything. Expect the crimson note inside the results panel:
     "Couldn’t reach the movie database. Try again in a moment."
-  - [ ] **RS-2 · TMDB down on add.** **Order matters and is not obvious:** search
+  - [x] **RS-2 · CAPTURED 2026-09-13 — `docs/screenshots/rs-2-tmdb-down-on-add.png`.**
+    The ranked list is below the fold in that frame rather than in it, which is
+    a deliberate exception to the note above: the toast is the whole substance
+    of this shot and widening the frame to reach the list would shrink the one
+    string it exists to prove. The four search rows surviving the restart carry
+    the "nothing else fell over" point instead, and RS-1 shows the list.
+    **TMDB down on add.** **Order matters and is not obvious:** search
     FIRST with a good key so rows render, THEN swap in a bogus key, restart, and
     click Add on the rows still on screen. There is no other way in — with TMDB
     down, search itself fails and there is nothing to click. This works only
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
-  - [ ] **RS-3 · TMDB unreachable DURING a recommendation run** (added by R28).
+  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, the only entry here that
+    needs two: `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
+    `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
+    across two surfaces — the page says the run produced nothing, and only the
+    log shows it succeeded and was charged anyway — so either frame alone is
+    half the story.
+    **The two tie together without annotation and must not be marked up.** The
+    page footer reads 1,043 tokens / 0.20¢ / 3,750 ms; the log row reads 1,043
+    / 0.20¢ / 3.8 s at 17:44:04. A reader can check the pair unaided, and an
+    unedited capture is stronger evidence than one carrying a drawn-on box. Any
+    pointer to the row belongs in the README caption, not in the pixels.
+    The row is self-marking anyway: `resultCell()` returns plain text for an
+    empty list, so it reads "no suggestions" in grey with no caret while every
+    other recommendation row is amber with a disclosure triangle.
+    **That log frame is also the best single piece of cost-logging evidence in
+    the repo** — per-call tokens split in/out, exact cost, duration, a 60-call
+    total, both log tables named, and D-053’s two-model split visible in one
+    column (haiku for recommendations, sonnet-5 for the verdict alone).
+    The captured frame also proves R26’s colour rule in passing: the hint is
+    `--ink-dim`, not the fainter `.is-caption`, because it is the only thing on
+    screen rather than a caption introducing content.
+    **TMDB unreachable DURING a recommendation run** (added by R28).
     Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
     Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
     call succeeds and is charged while the run still produces nothing.** Expect
@@ -3117,23 +3289,102 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     cost, and — in the AI call log — a green `success` row whose
     `suggested_titles` is empty. Before R28 this state claimed the model had only
     named films already in the list. Costs one real OpenRouter call.
-  - [ ] **RS-4 · OpenRouter down on recommendations.** Bogus
+  - [x] **RS-4 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-4-openrouter-down-recs.png` and
+    `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
+    same reason RS-3 needed two: the split between the calm sentence and the
+    recorded cause IS the claim, so one frame cannot carry it. The log row shows
+    `OpenRouter responded 401` in crimson beside a red `failed` badge, with `—`
+    in Tokens and Cost (nothing completed, so an em dash rather than a lying
+    `0`) and a 74 ms duration that says where it died: rejected at auth, never
+    reached inference.
+    **WHY THE TWO LOG FRAMES SHOW DIFFERENT TABLES, so it is not later read as
+    an inconsistency.** `rs-3-…-log.png` has no 17:54:01 failed row and
+    `rs-4-…-log.png` has it on top. Both were shot after the D-069 copy fix and
+    neither is scrolled; the RS-3 frame is near-certainly a cached
+    `/api/ai-log` response (the app fetches fresh on every open and the
+    endpoint sets no `Cache-Control`). **Kept deliberately rather than
+    re-shot:** a fresh RS-3 frame would put the failed row on top and push the
+    row its own caption points at into second place, making it a near-duplicate
+    of the RS-4 frame. Two visibly different tables — one before the failure,
+    one after — carry more than two near-identical ones, every figure in both
+    is a real state of that table, and neither asserts anything false.
+    The captured frame shows the hint at `--ink-dim` rather than crimson (R24 —
+    the amber link measured 2.48x brighter than crimson, so the pointer to
+    details outshouted the statement of what broke), no metadata footer at all
+    (nothing succeeded, so there is no cost to report — the exact contrast with
+    RS-3, where there is), and the trigger back at rest rather than stuck busy.
+    **OpenRouter down on recommendations.** Bogus
     `OPENROUTER_API_KEY`, restart, 3+ rated films, click Get recommendations.
     Expect "Couldn’t generate recommendations right now. See the AI call log for
     details.", with **AI call log** as an amber link, and a red `failed` row in
     the log whose `error_text` names the real cause (e.g. `OpenRouter responded
     401`). The split is the point: calm sentence to the user, technical cause to
     the audit trail (R8/R9, D-047).
-  - [ ] **RS-5 · OpenRouter down on the verdict.** Same key, 2+ rated films,
+  - [x] **RS-5 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-5-openrouter-down-verdict.png` and
+    `docs/screenshots/rs-5-openrouter-down-verdict-log.png`.**
+    **The log frame is the single strongest image in the set.** It holds the
+    two failed rows ADJACENT — `TV`/`TV_v7`/`claude-sonnet-5` above
+    `R`/`R_v3`/`claude-haiku-4.5`, both `failed`, both `OpenRouter responded
+    401`, both with em dashes for tokens and cost. One image therefore carries
+    R23 (two features answering a failure identically, after they had drifted
+    into two error dialects) AND D-053’s two-model split holding in the
+    FAILURE path, not only in the successes.
+    **That second claim was false until the day this was shot.** The failed
+    verdict row named the app-wide model, not the one it called; the user
+    caught it in the first attempt at this frame. Fixed, covered by a test per
+    feature, and the wrong rows deleted by hand — D-070.
+    The captured frame is full-page rather than cropped to the banner, and is
+    kept that way: it is the only capture in the set showing the site header —
+    the wordmark and `.mark__reel`, the tagline, and the GitHub link from step 3
+    — and it shows the banner at the very top failing while everything below it
+    is untouched. What pairs with RS-4 is the SENTENCE, which is legible either
+    way. Useful when the README screenshots come up.
+    **OpenRouter down on the verdict.** Same key, 2+ rated films,
     click New verdict. Expect "Couldn’t come up with a verdict right now. See the
     AI call log for details." Shoot it beside RS-4 if possible — the two features
     answering identically is what R23 was for.
-  - [ ] **RS-6 · CineRank itself unreachable.** **Load the page first, THEN stop
+  - [x] **RS-6 · CAPTURED 2026-09-13 —
+    `docs/screenshots/rs-6-cinerank-unreachable.png`.**
+    Distinct from RS-1 in the way that matters: there TMDB was down and the
+    SERVER told the client so; here nothing answers at all and `fetch` itself
+    rejects. The frame is `api()`’s network-level catch working — the engine’s
+    own wording (“Failed to fetch”, “NetworkError when attempting to fetch
+    resource”) never reaches the user.
+    Two things had to be true and are: NO log link in the message (R9/D-047 —
+    nothing reached the server, so no row was committed, so nothing may be
+    offered), and all seven films still rendering, because the list loaded
+    before the server died and nothing re-fetches it. RS-7 is the only frame
+    where an empty list is correct; this is emphatically not that frame.
+    **CineRank itself unreachable.** **Load the page first, THEN stop
     `npm start`**, then search. Stopping the server first means the document never
     loads and there is no UI to photograph — this cost time once already. Expect
     "Couldn’t reach CineRank. Check your connection and try again." The ranked
     list keeps showing whatever it loaded before the server went away.
-  - [ ] **RS-7 · Database unreachable.** Bogus `SUPABASE_URL` /
+  - [x] **RS-7 · CAPTURED 2026-09-13 —
+    `docs/screenshots/rs-7-database-unreachable.png`.**
+    **Shooting it found two real defects, both fixed before the frame was
+    taken, and the frame is now the evidence for both.** One root cause:
+    `loadMovies()` destructures on its first line, so a failed `/api/movies`
+    throws before ANY of the four sync functions below that `await` can run,
+    and every element keeps whatever the markup gave it. `#recs-trigger`
+    shipped without `disabled` and so rendered fully live above an empty list
+    (fixed in the markup, mirroring `#verdict-refresh`, which the step-4b work
+    had already got right); and `Reading the room…` — a placeholder meant to
+    last a fraction of a second — sat there for the life of the page, still
+    promising a verdict (fixed with two lines inside `init()`’s existing
+    catch, which cannot run when the load succeeds).
+    **A THIRD ELEMENT IS SKIPPED THE SAME WAY AND IS CORRECT — DO NOT "FIX"
+    IT.** `#ranked-empty` reads "No movies yet — search for one above to get
+    started." and stays `hidden`, because `refreshRanked()` is below that
+    `await` too. That is the right outcome: the user may have a full list and
+    the app simply cannot reach it, so unhiding that sentence would assert
+    something false. A sweep for "the same bug" would introduce one here.
+    **Search stays live in the frame, and that is not an oversight** — it
+    calls TMDB, not Supabase, so one dependency being down while the other
+    works is exactly what the UI should show.
+    **Database unreachable.** Bogus `SUPABASE_URL` /
     `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
     movies — Something went wrong."
     **This is the ONE shot where the ranked list is legitimately empty** — it is
@@ -3141,12 +3392,35 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     Worth knowing why it earns a slot: finding this state is what caught the
     central 500 handler claiming a failure was "on our side" when it was neither
     a bug nor the server's fault.
-  - [ ] **RS-8 · The non-error empty state.** Everything working; search a
+  - [x] **RS-8 · CAPTURED 2026-09-13 — `docs/screenshots/rs-8-search-no-matches.png`.**
+    **The non-error empty state.** Everything working; search a
     nonsense string. Expect the MUTED note (not crimson): "No matches for
     “<query>”. Check the spelling, or try a different title." One shot, purely to
     show that an empty result and a failure are visibly different — which is the
     whole of D-033's argument, applied in Search.
-  - [ ] **RS-9 · A recommendation run that returns nothing.** Not a failure, and
+  - [x] **RS-9 · CAPTURED 2026-09-13 — two frames:
+    `docs/screenshots/rs-9-zero-recommendations.png` and
+    `docs/screenshots/rs-9-zero-recommendations-log.png`.** The temporary edit
+    was reverted the moment the second frame landed; 56/56 tests green and the
+    tree clean immediately after.
+    **The log frame is the most information-dense image in the set.** It holds
+    FOUR outcomes at once: this run (`success`, charged, no suggestions), the
+    RS-3 run (`success`, charged, no suggestions — but caused by a TMDB
+    outage), and both failures, `TV`/`claude-sonnet-5` and
+    `R`/`claude-haiku-4.5`.
+    **Its top and fourth rows are the whole argument of the RS-3/RS-9 pair:**
+    1,045 tokens / 0.20¢ and 1,043 tokens / 0.20¢ — visually indistinguishable
+    outcomes with completely different causes, which the app tells apart
+    correctly on the page (R28). Before R28 it called both the second thing.
+    **It is the deliberate near-twin of RS-3, and they argue opposite things.**
+    Same layout, same empty grid, same real charge. RS-3 is a genuine outage the
+    app reported honestly instead of hiding behind this very sentence, which is
+    what it used to claim for every empty run before R28. RS-9 is that sentence
+    being TRUE: every key works, TMDB answers, the model performs, and the run
+    simply has nothing new to offer — and the cost is still accounted for. That
+    is why it is filed under SPEC § 7.2 rather than § 7.1: an app that reports
+    what it spent only when things go well is not an audit trail.
+    **A recommendation run that returns nothing.** Not a failure, and
     included deliberately: it is the clearest single frame proving the app reports
     an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
@@ -3160,34 +3434,251 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
     the shot is taken.** Four route tests fail while it is in place, which is
     expected and is not a reason to debug anything.
-* [ ] **Prompt-injection screenshot** — a demo movie whose review is an injection
-  attempt, showing the verdict + recs staying on-topic (Module 17 evidence).
-* [ ] **README screenshots + architecture diagram** — currently text-only.
-* [ ] **Joint-project registration** — email `mail+ASE26003@mgorsky.net` (both
-  names) and both add cross-referencing comments to the project sheet.
-* [ ] **Unload the recommendations debug harness.** Delete TWO lines and nothing
-  else: the `<script src="/debug-recs.js">` tag at the bottom of
+  - [x] **RS-10 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-10-row-deleted-mid-edit-before.png` and
+    `docs/screenshots/rs-10-row-deleted-mid-edit-after.png`.**
+    **A row deleted while it was being edited — the only state in this set where
+    NOTHING is broken.** Every key is valid, the server is up and the database is
+    up. What fails is the assumption that the row a dialog opened still exists
+    when Save is pressed.
+    **THE ONLY RACE IN THE SET, so it is the only one needing two frames of the
+    SAME moment rather than two surfaces.** A single still cannot show an order of
+    events; a before and an after can.
+    **Recipe.** Everything working. Open the app TWICE side by side — two windows,
+    or one browser in split view, which is what the captured frames use. Add a
+    throwaway film that is not in the seed set and rate it **9.5**, so it lands at
+    `#1` and its disappearance is unmissable without scrolling. Reload the second
+    view. Match the scroll position in both. Then: view 1, click Edit on that film
+    and type a review, DO NOT save — shoot frame one. View 2, Remove that film and
+    confirm. View 1, click Save — shoot frame two.
+    **No timing pressure at any point.** `app.js` carries no `visibilitychange`
+    handler, no `focus` handler and no polling timer, so view 1 sits untouched
+    indefinitely: the dialog stays open and the typed text stays put. The ONE
+    thing on a clock is view 2's `“<Title>” removed.` toast, which lives 3.2s —
+    nice to catch (the captured frame has it) and not worth chasing.
+    Expect, inline and crimson in the dialog: "Couldn’t find that film — it may
+    have been removed. Refresh and try again." The rating and the typed review
+    must both still be there.
+    **The staleness is the mechanism and it is visible**: view 1 still reads
+    `8 films` with the film at `#1` while view 2 reads `7 films` without it.
+    **It deletes exactly one row and it is a throwaway**, so the seed set is
+    untouched and there is nothing to restore afterwards.
+  - [x] **RS-11, RS-12 and RS-13 · CAPTURED 2026-09-14 — FOUR frames from ONE
+    broken state, so they share a recipe:**
+    `rs-11-no-log-offered-verdict.png`, `rs-11-no-log-offered-recs.png`,
+    `rs-12-log-cannot-load.png` and `rs-13-write-fails-remove.png`.
+    **The database is unreachable while the page is already loaded** — the same
+    dependency as RS-7, but reached from the opposite direction, so all four
+    surfaces are live and clickable instead of locked at boot.
+    **ORDER IS EVERYTHING AND IT IS NOT THE OBVIOUS ONE.** Load the page with a
+    WORKING `.env` first, so the list renders and both AI buttons enable; THEN
+    break the key, restart, and **do not reload**. Reload and `/api/movies` fails,
+    both buttons render disabled, and every click below becomes impossible — that
+    is RS-7, a different frame.
+    **Break `SUPABASE_ANON_KEY`, never `SUPABASE_URL`.** `createClient` runs at
+    module load (`server/supabase.js`), so a malformed URL throws before the
+    server boots and leaves nothing to photograph. Do not blank either line
+    either: `required()` in `server/config.js` throws on an empty value. Append
+    junk to the KEY's value and nothing else.
+    Then, in this order — the log dialog covers the page, so it goes last:
+    **New verdict** (RS-11a), **Get recommendations** (RS-11b), **Remove** on any
+    card (RS-13), **View the AI call log** (RS-12).
+    Expect "Couldn’t come up with a verdict right now. Try again in a moment."
+    and "Couldn’t generate recommendations right now. Try again in a moment.",
+    **both with NO log link** — that absence is the whole of RS-11; then
+    "Couldn’t remove “<Title>” — Something went wrong."; then, inside the log
+    dialog, "Couldn’t load the log — Something went wrong."
+    **THE SESSION CANNOT LOSE DATA**, which is worth knowing given Incident 1:
+    every write fails at the database, so nothing can be deleted or altered.
+    Restoring is putting the real key back, restarting and reloading.
+    **One outage, three different sentences**, and that is why they are grouped:
+    the AI routes catch their own errors and answer calmly, while the CRUD and
+    log routes fall through to the central 500 handler. None of the four leaks a
+    `PGRST` code or a Postgres string.
+  - [x] **RS-14 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-14-failed-save-input-kept.png` and
+    `docs/screenshots/rs-14-failed-save-retry-succeeds.png`.**
+    **A save that fails while the server is gone, and the retry that works.** Same
+    outage as RS-6 and the opposite direction — that is a failed READ, this is a
+    failed WRITE with unsaved work in hand, and it is the only state in the set
+    where a failure could have cost the user something.
+    **Two frames because the distinguishing claim is RECOVERY, not preservation.**
+    RS-10 also keeps the typed text, but there the row was deleted and the save
+    can never succeed. Shoot only the error here and the difference between the
+    two states is asserted by a caption rather than shown.
+    **Recipe.** Everything working, page loaded. Use **Knives Out**: it is rated
+    8.2 with NO review, so its card reads "No review yet — edit to add one." and
+    the before/after is visible on the card itself. Click Edit, type a review,
+    then **stop `npm start`** and click Save — frame one. Do NOT touch the dialog
+    afterwards: no Cancel, no Esc, and above all **no reload**, since the typed
+    text lives only in the DOM. Restart `npm start`, click **Save** again — it
+    succeeds, the dialog closes, and the card carries the text. Frame two.
+    Expect inline and crimson: "Couldn’t reach CineRank. Check your connection and
+    try again." — **with no log link**, because nothing reached the server so no
+    row was committed (R9/D-047).
+    **RESTORE AFTERWARDS, and it matters:** Edit Knives Out, clear the review box
+    completely, Save. An empty string is falsy, so `renderRanked()` falls through
+    to the `no-review` branch and the placeholder returns — which is the seed
+    state D-068 chose deliberately and which other captures depend on.
+    A detail the second frame happens to prove: the toast reads `“Knives Out”
+    saved.` with NO "— ranking updated." clause, because the rating did not change
+    and that clause is checked against a ranking signature rather than assumed
+    (D-034).
+  - [x] **RS-15 · CAPTURED 2026-09-14 — two frames:
+    `docs/screenshots/rs-15-nothing-usable-page.png` and
+    `docs/screenshots/rs-15-nothing-usable-log.png`.**
+    **The model returns nothing usable, in the TWO different ways that are not the
+    same failure.** Nothing is unreachable: every key is valid and OpenRouter,
+    TMDB and Supabase all answer. What is wrong is the CONTENT of a reply that
+    arrived fine. **This is the only evidence for SPEC § 2.4's other clause, "or
+    returns malformed output", which had none.**
+    **Needs a temporary code change, like RS-9 — TWO of them, one per run, and
+    BOTH make a real, charged OpenRouter call.** In
+    `generateRecommendations()`, the line is `picks = parseModelJson(result.text);`
+    and only its ARGUMENT changes; the `chat()` call on the line above stays
+    untouched, which is the whole point — the call completes and is billed, and
+    only what gets parsed is spoiled.
+    * **Malformed:** `picks = parseModelJson('Here are some films you might enjoy!');`
+      `JSON.parse` throws, `status` becomes `failed`, and the row carries
+      `Model did not return valid JSON` — **with REAL tokens, cost and duration**,
+      because `result` is assigned outside the try and every figure in the log row
+      reads from it after the catch.
+    * **Empty:** `picks = parseModelJson('[]');` Valid JSON, valid array, returns
+      `[]` without throwing, so the run is a **`success` that produced nothing**.
+      That surprises people and is correct: **the line the app draws is the
+      CONTRACT, not usefulness.**
+    **Shoot the LOG after BOTH runs, not after each.** One frame then holds the
+    success and the failure ADJACENT — same feature, prompt and model, 1,038
+    tokens against 1,057 — which is the argument. Also shoot the PAGE on the empty
+    run, for "No suggestions this time — the model didn’t name any films. Try
+    again." and the metadata footer beneath it (R10: a charged run that produced
+    nothing still declares its cost).
+    **The page on the MALFORMED run is deliberately NOT captured** — it is
+    byte-identical in shape to RS-4's, since the route throws with `logged: true`
+    before `renderRecommendations()` runs. A second log frame shot between the two
+    runs was also dropped: its only addition over the final one is a second 401
+    row, which is not a claim.
+    **Revert with `git checkout -- server/services/recommendations.js` the moment
+    the last shot lands**, and re-run `npm test` to confirm 60/60 — several route
+    tests fail while either edit is in place, which is expected.
+  - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
+    `docs/screenshots/rs-16-unverifiable-picks.png`.**
+    **The model named films that do not exist** — the THIRD way a reply leaves you
+    with nothing, after RS-15's malformed and empty. Here the list was well formed
+    and every title in it was fictional, so TMDB confirmed none of them.
+    **This is the state SPEC § 2.2 step 4 and § 6 both build their argument on:**
+    the app never trusts the model's output as fact, and a title TMDB returns
+    nothing for is dropped rather than rendered as a broken card. It is also NOT a
+    rare path — D-054 measured seven of twelve realistic invented titles returning
+    zero results.
+    **Recipe.** Everything working, 3+ rated films, page loaded. In the
+    verification loop of `generateRecommendations()`, change
+    `movie = await verifyTitle(pick.title);` to `movie = null;` — that leaves
+    `reached` true, so every pick falls to `tally.unmatched` and
+    `emptyReasonFor()` lands on `unverifiable` (the three checks above it all fall
+    through). Restart, click **Get recommendations** — one real, charged call.
+    Expect "No new suggestions this time — none of the films it named could be
+    verified.", muted rather than crimson (R24), with the metadata footer beneath
+    it declaring the real cost (R10) and an empty grid. Nothing scrolls or
+    animates; that is gated on `suggestions.length`.
+    **Shoot the PAGE only.** The log row would read `success` with real tokens and
+    "no suggestions" — identical in shape to RS-15's and RS-9's, because the log
+    does not render the CAUSE (the tally lives in `raw_model_output`, which
+    nothing displays). All empty-success rows look alike in that table.
+    **The caption says the state was FORCED**, because this edit skips the TMDB
+    call rather than faking a rejection. The OpenRouter call is real and was
+    billed; what is simulated is TMDB's verdict, not the model's reply.
+    **Revert and re-run `npm test` for 60/60**, as with RS-9 and RS-15.
+* [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
+  `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
+  the injection attempt (instruction override, system-prompt exfiltration and
+  output hijack in one). Added with
+  `npm run seed-demo -- --with-injection --keep --write`, captured, then removed
+  through the app’s own Remove button.
+  * `pi-1` the stored review, rendered as inert plain text on the ranked card —
+    `textContent`, never `innerHTML`.
+  * `pi-2` the verdict: entirely about films, no pirate, no BANANA, no leaked
+    system prompt, with its real cost in the footer.
+  * `pi-3` the recommendations: four real TMDB-verified films with normal
+    reasons.
+  * `pi-4` the verdict AND the injection card in one frame.
+  * `pi-5` the recommendations AND the injection card in one frame.
+  **`pi-4` and `pi-5` are not two versions of the same shot**, which is how
+  they were first misread: each pairs the malicious INPUT with a different
+  feature’s OUTPUT, and `pi-2` and `pi-3` are cropped to their banners, so
+  without both of these nothing in the set shows what fed the verdict. The
+  redundancy test that matters is "what claim does this carry", not "what does
+  this look like". A sixth frame WAS dropped as genuinely redundant: a ranked
+  crop whose only claim, The Room’s position, appears in three others.
+  **THE DETAIL THAT MAKES IT PROOF RATHER THAN ASSERTION is the "Based on:"
+  line in `pi-3`**, which names The Room as one of the five films in the taste
+  profile. Without it a reader would have to take on trust that the injection
+  text ever reached the model. The app says so itself.
+  **That line only exists because of a fix made the same day.** The demo film
+  was rated 2, which sorted it SIXTH — outside `config.recommendations.topN` —
+  so its review reached the verdict prompt and never reached the
+  recommendations prompt at all. Half the evidence would have been a screenshot
+  of a feature resisting something it was never sent. Rated 8 it sorts fourth,
+  inside the window, and both captures are real.
+  Corroborated independently: the verdict call ran **1,577 tokens** against
+  1,491 / 1,482 / 1,488 for the three previous runs — about 89 tokens heavier,
+  which is the size of the injected review.
+  **The mitigation itself was verified in source before any of this was shot.**
+  `recommend_v3.md` and `taste_verdict_v7.md` both carry BEGIN/END markers, both
+  declare the enclosed text data only, both state that instructions come from
+  the surrounding section alone, and both name the "ignore previous
+  instructions" shape explicitly. It survived all seven verdict rewrites, which
+  were chasing register and could easily have dropped it. Source review and
+  runtime evidence are two different claims; this checkbox is the second.
+* [x] **README screenshots + architecture diagram — DONE 2026-09-13.** The
+  diagram is Mermaid rather than an exported image, so it is text: diffable,
+  greppable, and unable to go stale silently the way a PNG would. Beneath it,
+  five claims it makes, each checkable against the code. Four screenshots are
+  embedded — the hero, the recommendations, the AI call log, and a reused
+  resilience frame — each captioned with what it PROVES rather than what it
+  depicts. The README also gained a `## Documentation` map, because nine of the
+  eleven deliverables had been reachable only from inside a code block.
+* [x] **Joint-project registration — DONE 2026-09-14.** Emailed with both names,
+  and both cross-referencing comments are on the project sheet.
+* [x] **Unload the recommendations debug harness — DONE 2026-09-13.** Deleted TWO
+  lines and nothing else: the `<script src="/debug-recs.js">` tag at the bottom of
   `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
   `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
   tool and still works by pasting it into the console, which is how it was
   written. Added 2026-09-09 at the user's request as a temporary but open-ended
-  convenience while the recommendations UI is being worked; the user asked for
-  the loading to be removed when that work is done, not the file.
-  Both lines are commented as temporary and both name this checkbox. **Two
-  independent protections if it is missed, added 2026-09-11 after the tag left
+  convenience while the recommendations UI was being worked; the user asked for
+  the loading to be removed when that work was done, not the file.
+  Both lines WERE commented as temporary and both named this checkbox. **Two
+  independent protections in case it was missed, added 2026-09-11 after the tag left
   the app permanently serving itself dummy recommendations for a day:** the
   harness now starts every page load DISARMED and intercepts nothing until
   `debugRecs()` is called, and it declines to install at all on the
   `onrender.com` host. So forgetting this ships an idle function rather than a
   hijacked app — but a debug tool wired into a submitted build is still its own
   kind of wrong.
-* [ ] **Tick SPEC § 7.1's acceptance checkboxes — all EIGHT are still unticked.**
-  Raised by the 2026-09-12 sweep and deliberately left for the user: most are
-  covered by `npm test` and by hand testing, but ticking an acceptance criterion
-  is a claim that it was *verified for submission*, which is the user's call and
-  not Claude's to make on their behalf. Walk them one at a time against the live
-  app — several can be ticked off in the same session as the `RS-n` screenshots,
-  since they exercise the same states.
+  **Verified live rather than by reading the diff**, on a throwaway port:
+  `GET /debug-recs.js` → **404**, `GET /` → **200**, zero occurrences of
+  `debug-recs` in the served HTML, and `app.js` still referenced once. The file
+  itself is untouched and still works by pasting into the console.
+* [x] **Tick SPEC § 7.1's acceptance checkboxes — ALL EIGHT TICKED 2026-09-14.**
+  Raised by the 2026-09-12 sweep and deliberately left for the user: ticking an
+  acceptance criterion is a claim that it was *verified for submission*, which is
+  the user's call and not Claude's to make on their behalf. That division held to
+  the end — the agent assembled the evidence and stopped there.
+  **The evidence is `docs/ACCEPTANCE.md`**, written 2026-09-13/14: all eight
+  criteria walked one at a time, each with its proof embedded rather than named,
+  and evidence classified by strength (automated, captured, repeatable command,
+  hand-verified) so that no criterion claims more support than it has.
+  **Walking them found three untested happy paths**, and all three now have
+  tests: search returning results, deleting a film — which had no coverage at
+  all, while `test/helpers.js` had carried an unused `del()` helper since it was
+  written — and a verdict being logged on success. Every criterion that described
+  a SUCCESS turned out to have failure-path coverage only. The suite went 57 to
+  60, and each new test was probed by breaking the source rather than trusted for
+  being green.
+  Five captures were taken specifically for this list and are filed as `ac-*`;
+  two of the eight needed the demo list emptied to one film and then to zero,
+  which was done deliberately and reversed with the seed script afterwards.
   **This item once said the escaping fix had to come first, because the boxes
   were written with an escaped bracket and therefore "do not render as task-list
   checkboxes at all". THAT WAS WRONG** — measured against GitHub's own renderer
@@ -3221,7 +3712,19 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   match for the intended transforms — zero unintended changes. CLAUDE.md differed
   in exactly two lines, both of them escapes deliberately preserved in this entry
   as examples. Nothing else in either rendered file moved.
-* [ ] Final `draft → main` merge once the above land (needs explicit user OK).
+* [x] **Final planned `draft → main` merge — AUTHORISED 2026-09-14.**
+  Everything above it was ticked first, and `docs/MERGE-READINESS.md` reads MET on
+  all five of Module 16's criteria.
+  **It needed explicit user confirmation, exactly as every previous merge did** —
+  being merge-ready is a statement about the work, not permission to act on it,
+  and the rule in Version Control Workflow has no exception for the last one. That
+  confirmation was given.
+  **Ticked in the commit immediately BEFORE the merge, not after**, so that `main`
+  carries a ticked box rather than an open one. The reasoning is under Build
+  status and is not a licence to pre-tick anything else.
+  **"Final" here means the last PLANNED merge, not a promise that none follows.**
+  If a gap or a defect turns up later it gets fixed and merged like anything else;
+  what closes here is the planned programme of work, not the repository.
 
 ### Incident log
 * **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
@@ -3251,11 +3754,22 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
 * **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
-  **Two models, on purpose (D-053):** recommendations run on the cheap
+  **Two models, on purpose (D-053):** recommendations run on the cheaper
   `anthropic/claude-haiku-4.5`, the taste verdict alone on
-  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheap tier
+  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheaper tier
   to write in a plain spoken register, and the model turned out to be the
-  constraint rather than the wording. `chat()` takes an optional `model`
+  constraint rather than the wording.
+  **The split is NOT hard task versus easy task, and do not describe it that way.**
+  Recommendations are the larger job: read every rated film and its review, infer a
+  taste, exclude what is owned, and justify each pick in one second-person sentence
+  of 8–16 words tied to a specific rating or a pattern across them. What makes the
+  cheaper tier right there is that the output is **checkable** — structured JSON,
+  every title cross-checked against TMDB, so a bad pick is dropped rather than
+  shown. The verdict has nothing to check it against, so its only measure is
+  whether it sounds like a person, which is the axis the cheaper tier could not
+  reach. A comment in `server/config.js` used to summarise the recommendation task
+  as "name some films"; it was dismissive and inaccurate, and it is corrected in
+  place. `chat()` takes an optional `model`
   defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
   overrides it. Overridable per feature via `OPENROUTER_MODEL` and
   `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
@@ -3478,9 +3992,12 @@ down would be re-broken within a session. See D-065.
    reason. The user called it, they are gone, and the file is uniform.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
    the whole block as one paragraph full of pipe characters — not a degraded
-   table, no table at all. The repo’s markdown carries sixteen tables between them, 138 rows in all
-   (measured 2026-09-13; an earlier figure of 84 here did not match any definition
-   of the count and is corrected rather than preserved). This is not hypothetical.
+   table, no table at all. The repo’s markdown carries tables in most of its
+   files, so this is not hypothetical. **The count that used to sit here is gone
+   on purpose:** it read 84, was corrected to sixteen on 2026-09-13, and was
+   already 33 by the following day — a figure that drifts every time a document
+   gains a table, in a rule whose point does not depend on it. Count the
+   separator rows if the number is ever actually wanted.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.

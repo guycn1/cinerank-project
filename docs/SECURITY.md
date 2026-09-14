@@ -39,8 +39,8 @@ result rather than a flattering one.
 | ASI05 | Unexpected Code Execution | n/a by construction — verified absent | **Real** — realised as part of Incident 1 |
 | ASI06 | Memory & Context Poisoning | n/a — no RAG, no cross-call memory | **Real** — the central risk of this project |
 | ASI07 | Insecure Inter-Agent Communication | n/a — single agent, no protocol | n/a — single agent, no protocol |
-| ASI08 | Cascading Failures | Controlled — resilience requirements + tests | Controlled — verification gates + git rollback |
-| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for | **Real** — answered as a standing practice |
+| ASI08 | Cascading Failures | Controlled — resilience requirements, tests, and captured evidence in [`RESILIENCE.md`](RESILIENCE.md) | Controlled — verification gates + git rollback |
+| ASI09 | Human-Agent Trust Exploitation | **Real** — this is what the AI call log is for ([how it works](AI-CALL-LOG.md)) | **Real** — answered as a standing practice |
 | ASI10 | Rogue Agents | **Realised** — the debug harness, for one day | Controlled — nothing reaches `main` unreviewed |
 
 ## The risks that carry weight here
@@ -61,6 +61,63 @@ the verdict is length-capped and rendered as plain text, never as HTML.
 **Blast radius is the real control.** Even a fully successful injection buys "a
 weird movie suggestion" — the output's only power is to become a TMDB search
 query. It cannot execute, cannot reach the database, and cannot exfiltrate.
+
+**Demonstrated, not asserted — five frames, `docs/screenshots/pi-1` … `pi-5`.**
+A seeded film (*The Room*) carries a review that is itself an attack: instruction
+override, system-prompt exfiltration and output hijack in one string. What the
+captures show:
+
+**1 — The attack, stored in the application.**
+
+![A ranked movie card whose review text is a prompt-injection attempt, rendered
+as ordinary paragraph text](screenshots/pi-1-injection-review-stored.png)
+
+Held as inert plain text: `textContent`, never `innerHTML`. The string is data
+in a paragraph, not markup and not an instruction.
+
+**2 — The taste verdict, unaffected.**
+
+![The taste verdict banner reading normally about the viewer film taste, with
+its cost and token count beneath](screenshots/pi-2-verdict-resists.png)
+
+This is the feature that receives every rated film review verbatim. No pirate,
+no BANANA, no system prompt — and the real cost of the call declared underneath.
+
+**3 — The recommendations, unaffected, and proof the attack was delivered.**
+
+![Four recommended films with ordinary one-line reasons, beneath a line naming
+the five films that fed the prompt](screenshots/pi-3-recommendations-resist.png)
+
+Four real TMDB-verified films with ordinary reasons. **The "Based on:" line is
+the load-bearing detail:** it names *The Room* among the five films whose reviews
+fed this prompt. That is what makes these captures evidence rather than
+assertion — without it a reader has to take on trust that the injection was ever
+delivered, and a system resisting something it was never sent proves nothing.
+
+Two further frames pair the attack with each output in a single image, for a
+reader who wants them adjacent rather than sequential:
+`screenshots/pi-4-verdict-with-input.png` and
+`screenshots/pi-5-recommendations-with-input.png`. Both are full-page captures
+and are linked rather than embedded, because inline they scale down past the
+point where their text can be read.
+
+**Corroborated independently of that line:** the verdict call above ran **1,577 tokens** against
+1,491 / 1,482 / 1,488 for the three runs before it, the difference being the
+injected review's weight.
+
+**A trap worth recording, because it nearly produced fake evidence.** The demo
+film was first rated 2, which sorted it *sixth*. Recommendations read only the
+top five rated films (`config.recommendations.topN`) while the verdict reads every
+one — so the attack reached the verdict prompt and **never reached the
+recommendations prompt at all**. Half the evidence would have shown a feature
+resisting an attack it had not been sent, with nothing on screen to reveal it.
+Rated 8 it sorts fourth, inside the window, and both captures are genuine.
+
+**Source review and runtime evidence are two different claims**, and both are
+made here: that the guard *exists* is checkable in `prompts/recommend_v3.md` and
+`prompts/taste_verdict_v7.md` (and it survived all seven verdict rewrites, which
+were chasing register and could easily have dropped it); that it *works* is what
+these five frames are.
 
 **Build.** Less obvious and worth stating: the agent reads `CLAUDE.md` and
 `docs/DECISIONS.md` as authoritative instruction, and those two alone are roughly
@@ -179,14 +236,17 @@ Three structural answers:
 **Product.** Every external dependency fails independently without taking the page
 with it — TMDB down on search, TMDB down on add, TMDB down mid-recommendation,
 OpenRouter down on either feature, the database unreachable, and the app itself
-unreachable. Each is specified in `SPEC.md` § 2.4, covered by route tests, and
-scheduled for a screenshot as `RS-1` through `RS-9`. A failed AI call still writes
+unreachable. Each is specified in `SPEC.md` § 2.4 and covered by route tests, and
+all of them are now **captured and analysed** in
+[`RESILIENCE.md`](RESILIENCE.md) — `RS-1` through `RS-16`, which also reaches
+past this list to a row deleted under an open dialog and three ways the model can
+return nothing usable while every dependency is healthy. A failed AI call still writes
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** Four gates and a rollback layer: `npm test` (54 tests), `npm run lint`,
+**Build.** Four gates and a rollback layer: `npm test` (60 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, and git itself — an unbroken history
-from the first commit, with five revert commits and one reapply, which is the
+from the first commit, with four revert commits and one reapply, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure
 that changes every commit goes stale between one session and the next.)
@@ -240,8 +300,16 @@ Three independent mitigations now:
   is called explicitly.
 * It **refuses to install at all** when the hostname ends in `onrender.com`, so the
   deployed site is protected even if removal is forgotten.
-* The two lines that load it are tracked as a pre-submission blocker, and both are
-  commented as temporary and name that checkbox.
+* **The two lines that loaded it are GONE (2026-09-13).** The `<script>` tag and
+  the route that served it were removed before submission, and the removal was
+  verified live rather than by reading the diff: `/debug-recs.js` now answers 404,
+  the page answers 200, and the served HTML contains no reference to it. The file
+  stays in `scripts/`, which is outside the static root, so nothing serves it and
+  it can only be used by pasting it into a console deliberately.
+
+The first two mitigations are now redundant and are kept regardless. They cost
+nothing, and a control that only works while someone remembers to remove a line is
+exactly the shape this risk describes.
 
 **Build.** Nothing reaches `main` without explicit human confirmation, and `main`
 is never pushed to directly.
@@ -254,12 +322,16 @@ never see each other's output and share no state. Multi-agent orchestration is t
 subject of the course's shared running project, which lives in a separate
 repository; this one is the independent application.
 
-## What is still owed
+## What was owed — nothing outstanding
 
-Two items on the pre-submission list are the evidence for this document rather
-than new work:
+This section listed two items on the morning of 2026-09-13. **Both are
+delivered**, and nothing has replaced them.
 
-* A **prompt-injection screenshot** — a seeded film whose review is an injection
-  attempt, showing both AI features staying on topic. That is the live proof of
-  ASI01's mitigations.
-* **Unloading the debug harness** — the two lines described under ASI10.
+**Delivered:** the debug harness is unloaded — the `<script>` tag and the route
+that served it are both gone, verified live (`/debug-recs.js` → 404), with the
+file itself kept in `scripts/` where nothing serves it. And the prompt-injection
+evidence, which was the live proof of
+ASI01's mitigations. Five frames, `docs/screenshots/pi-1` … `pi-5`, analysed
+under ASI01 above. It is deliberately recorded there rather than here, next to
+the claim it substantiates, so a reader meets the mitigation and its proof
+together rather than having to connect two sections.

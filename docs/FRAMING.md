@@ -52,7 +52,7 @@ file; neither supersedes the other.
 | Stakeholder | Affected how | The trade-off it settles |
 |---|---|---|
 | **The list owner** (single user; the app has no accounts by design) | Their ratings and reviews are the entire value of the app, and they are not recoverable — the Supabase free tier has no point-in-time recovery | Durability and honesty about AI output beat feature count. This is the stakeholder who makes "never run destructive operations against live data" a binding rule rather than a preference |
-| **The course grader** | Reads the repository, never the running app. Cannot ask a question | Legibility is a deliverable. A markdown file that renders wrong is a defect, not a cosmetic issue — which is why `npm run check-markdown` exists and is a commit gate |
+| **The reader of the repository** | Reads the repository, never the running app. Cannot ask a question | Legibility is a deliverable. A markdown file that renders wrong is a defect, not a cosmetic issue — which is why `npm run check-markdown` exists and is a commit gate |
 | **The two authors, as future maintainers** | Return to the project across many sessions with no memory of why a choice was made | A decision that is not recoverable later will be silently undone. Hence `docs/DECISIONS.md`, written at the moment of the choice rather than afterwards |
 | **The agent (Claude Code), as executor** | Acts on this brief and on `CLAUDE.md`; ambiguity becomes a confident wrong guess | Precision in the brief is worth more than precision in any individual instruction. Where the spec is deliberately open, it says so explicitly (§ 3.2) so the openness is not mistaken for an omission |
 | **TMDB and OpenRouter** | Bear the request volume, and OpenRouter's calls are paid for out of the owner's own quota | Prefer one call to many. TMDB's rating is captured once at add time and never refreshed (D-036); the console debug harness exists so that UI work on the recommendations grid costs no OpenRouter calls at all |
@@ -127,8 +127,8 @@ something. Four places where it visibly did:
   target with known imperfections below ~310px, because the boundary was set in
   advance rather than argued each time. R18 closed as won't-fix on measurement for
   the same reason.
-* **Naming the grader as a stakeholder changed a whole class of work from
+* **Naming that reader as a stakeholder changed a whole class of work from
   cosmetic to blocking.** Both long markdown files were found rendering wrong on
   GitHub. If the only stakeholder had been the list owner, that would have been a
-  shrug; naming a reader who only ever sees the repository made it a defect, a
+  shrug; naming someone who only ever sees the repository made it a defect, a
   fix, and a permanent verification gate (D-065, D-066).

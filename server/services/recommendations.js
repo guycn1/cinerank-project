@@ -206,6 +206,11 @@ export async function generateRecommendations() {
     // routes/aiLog.js), so extending it needs no migration and breaks nothing.
     raw_model_output: result ? { text: result.text, parsed: picks, verification: tally } : null,
     suggested_titles: verified.map((v) => v.title),
+    // Correct HERE and only here: recommendations really do run on the
+    // app-wide model, so this fallback resolves to the model that was called.
+    // tasteVerdict.js has the same line with `config.tasteVerdict.model`
+    // because that one call is off the default (D-053). The two look like
+    // they should match and must not.
     model_used: result?.model ?? config.openrouter.model,
     tokens_used: result?.tokensUsed ?? null,
     prompt_tokens: result?.promptTokens ?? null,

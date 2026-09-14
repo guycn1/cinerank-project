@@ -17,8 +17,9 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Nineteen merges to `main` so far (verify with
-  `git log --merges --oneline main`), each a deliberate decision.
+  human sign-off.** Twenty-one merges to `main` (verify with
+  `git log --merges --oneline main`), each a deliberate decision. The last of them
+  is the final *planned* one rather than a guarantee that no more follow.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
@@ -40,13 +41,28 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Four gates, wired into the commit rules rather than left to memory.**
-  `npm test` (54 tests), `npm run lint` (ESLint, defect rules and complexity
+  `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
   `npm run scan-secrets` on every commit, and `npm run check-markdown` on every
   commit touching a `.md` file. The last two exist because a real defect got past
   human review: the markdown checker was written after both long documents were
   found rendering wrong on GitHub for weeks (D-065). Each gate was proved to bite
   before being trusted — see `docs/MERGE-READINESS.md` § 2.
+- **Every agent invocation starts from a committed checkpoint**, which is what
+  makes reverting a cheap first move rather than a last resort. The rule in
+  `CLAUDE.md` is written the other way round — *every* modification is committed
+  and pushed straight away, at natural checkpoints rather than once a session —
+  and committing after each change is what leaves the tree clean before the next
+  one begins. Measured over the whole history: **more than 500 commits across 11
+  consecutive days**, every day, a **median of 2 files per commit** and a maximum
+  of 13. (Deliberately not an exact figure: it moves with every commit, including
+  the ones that would be needed to correct it.) It was exercised twice for real, not merely available: four failed
+  polish passes on the verdict glint were ended by reverting to the last commit
+  and re-deriving one dial at a time (D-055), and the RS-9 capture needed a
+  deliberate one-line break in a service, undone with
+  `git checkout -- server/services/recommendations.js` the moment the shot
+  landed. Neither move needed a stash, a branch or a careful hand-undo, because
+  the checkpoint was already there.
 - **Every commit says why**, and design decisions go to the top of
   `docs/DECISIONS.md` (newest first) at the moment they're made (Module 8: the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -61,6 +77,140 @@ human re-checks. Several rounds caught regressions the agent introduced
 (specificity conflicts leaking a desktop rule into the mobile card view, a
 `::details-content` stacking-context trap). The screenshot-in / explanation-out
 rhythm *is* the method for visual work — prose specs can't anticipate these.
+
+## Who did what, and at which level of autonomy (Modules 1 and 2)
+
+**Module 1's autonomy scale runs manual → task assistance → goal assistance →
+specialised → general domain autonomy.** This build sat at **task and goal
+assistance throughout, and never above it.** The loop in § 1 is the evidence: a
+human set the goal and the acceptance bar, the agent drafted, and a human read
+every diff and ran the application before the next instruction. Nothing here was
+delegated to a level the tool could technically have reached.
+
+**Module 1's headline worry does not arise here, and the reason is structural
+rather than virtuous.** It reports that more than 68% of agent-written pull
+requests sit delayed or unreviewed, the surplus burying the people who must review
+it. **There is no queue in this repository to bury anyone.** Two branches, no
+long-lived feature branches, no pull requests: review is synchronous with
+production rather than a stage afterwards, so output cannot accumulate faster than
+it is judged. That works at one reviewer and one codebase, and would not survive
+either being scaled.
+
+**Module 2 sorts developer work into what erodes, what holds, and what compounds.
+The division in this project falls along that line closely enough to be worth
+stating plainly.** Routine implementation, boilerplate and pattern-matching across
+the codebase — the eroding group — went to the agent. Framing the problem,
+weighing trade-offs, taste, and judging what came back stayed human, and the
+decision log records the latter happening by name rather than in the abstract: the
+spotlight effect the agent argued against and the user overruled (`D-049`), the
+card-sizing rule the user dictated in their own words (`D-051`), the measured call
+to fix the documentation instead of the matcher (`D-054`), and the centring bug a
+human found with a screenshot after the agent's own automated attempts had
+repeatedly misreported it (`D-062`).
+
+**One uncomfortable reading of the same module, since the exercise is supposed to
+be uncomfortable.** Module 2 lists *documenting behaviour already known* among the
+work that erodes — and a large share of this repository is exactly that. The
+defence is not that the module is wrong but that the category shifts when the
+documentation **is** the deliverable: here the trail is what the course grades and
+what `DOSSIER.md` says is graded, so writing it is the work rather than a record of
+it. Where that defence does not apply, it should not be claimed.
+
+## The workflow, and where each stage lives (Module 4)
+
+Module 4 takes an agentic workflow apart and names its parts, then makes the claim
+this repository is arranged to answer: **a workflow that cannot be inspected,
+replayed, or judged after the fact is not engineering, it is craft.** Every stage
+below is a file a reader can open.
+
+| Stage | Where it lives | Studied by |
+|---|---|---|
+| **Intent** | [`FRAMING.md`](FRAMING.md) — problem, stakeholders, testable definition of done, out-of-scope list | Module 6 |
+| **Specification** | `SPEC.md` — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | Module 10 |
+| **Context** | `CLAUDE.md` — human-written, re-read every session, corrected in place when it was wrong | Module 11 |
+| **Plan** | the backlogs inside `CLAUDE.md`, numbered and worked in order, with withdrawn items kept rather than deleted | — |
+| **Execution** | more than 500 commits on `draft` across 11 consecutive days, median 2 files each | — |
+| **Verification** | four commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | Module 13 |
+| **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own AI call log | Module 4 |
+
+**The last row is the one this project can show twice.** Module 4 wants a frozen
+record linking intent to specification to context to trajectory to output — which
+is the repository. This application then keeps a second audit trail of its own, for
+its own AI calls, on the same principle and for the same reason: an output with no
+account of how it was produced cannot be trusted past the moment it ran. The
+discipline the course teaches about directing agents is the discipline the product
+applies to the agent inside it.
+
+## The environment this ran in, and what it was allowed to do (Module 5)
+
+Unnumbered on purpose: `docs/PROCESS.md` § 1 and § 2 are referenced by name from
+`CLAUDE.md` and `SPEC.md`, so the numbered sections below keep their numbers.
+
+**The ADE.** Claude Code in a terminal, on Windows, with Git Bash for POSIX
+commands. That places this build in the **command-line family** — the one that
+exposes the agent loop in the open, hands the developer control over context and
+permissions, and composes with ordinary shell tools. The trade is real and went
+the way it was meant to: less polish than an IDE-integrated agent, and in
+exchange every tool call, every diff and every command was visible before it ran.
+
+**Which pillars were actually in play**, since naming them is the point of the
+typology rather than listing all six:
+
+* **Tool augmentation** — file read and write, shell execution, network fetches.
+  This is the pillar that carries the whole build, and it is the one that defines
+  the blast radius.
+* **Knowledge and memory** — `CLAUDE.md` is the durable briefing, re-read at the
+  start of every session. It is human-written and human-corrected, which is the
+  side of Module 11's finding worth being on.
+* **Multi-agent coordination — implicit only.** The tool decomposes and
+  parallelises internally on its own, which is Module 14's *implicit*
+  orchestration; explicit orchestration was never designed, and this project is
+  the case where it should not be. One codebase, one reviewer, work that is
+  mostly sequential because each step's output is what the next step reacts to.
+  Module 14's own rule is that explicit orchestration is right only when the
+  quality gain clears roughly fifteen times the tokens. It would not have here.
+* **Computer use** — not used. Headless Chrome was driven a few times for
+  screenshots, and it went badly enough to be written up (D-062): its reported
+  viewport width repeatedly disagreed with the real browser, and the user's own
+  screenshots were the authority that settled it.
+
+**The permission stance, and the honest order it was arrived at.** Module 5's
+principle is minimal footprint: grant only the permissions the task needs, prefer
+reversible actions, and do less when uncertain. That is almost word for word what
+the working agreements in `CLAUDE.md` now say — **and they were written after the
+damage, not before it.** Incident 1 is the whole reason they exist: the agent held
+write access to a live production database, used it exactly as designed for
+routine cleanup, and destroyed the user's own ratings and reviews with no
+point-in-time recovery to undo it. The stance below is a lesson, not a
+precaution:
+
+* No destructive operation against live data, ever. Tagged rows only, deleted by
+  that exact tag.
+* No broad process kills. Only a PID this session started, and test servers on a
+  non-default port.
+* Prefer not to touch the database at all for testing — which is why the
+  recommendations work has a browser debug harness instead.
+* No MCP servers and no third-party agent plugins, so the tool surface is the
+  one the ADE ships with and nothing more.
+
+**What stayed the human's, and could not be delegated.** Naming this is Module
+5's closing habit, and in this project it is not abstract — each of these was
+exercised, repeatedly, and is traceable in the log:
+
+* **The acceptance bar.** What "done" means, and when a thing is good enough to
+  stop. Step 5 closed against a ~350px target the user set; R18 closed as
+  won't-fix once measured.
+* **The merge decision.** Every `draft` to `main` merge required explicit
+  confirmation. None was automatic.
+* **Catching the agent's wrong claims.** This is the one that recurs. A
+  browser-support version, a font metric estimated twice and wrong twice, a
+  dialog-dismissal claim, a set of repro steps written against an empty
+  database — all caught by the user, none by a tool. `docs/DECISIONS.md` records
+  them where they happened rather than smoothing them out.
+* **Judging visual work.** Screenshot in, explanation out. Several effects were
+  built, measured, approved on paper and still rejected on sight — the verdict
+  glint took four failed passes and a revert before it was isolated one dial at a
+  time, on the user's call.
 
 ## 2. Prompt engineering as version control
 
@@ -78,7 +228,33 @@ Each prompt file carries a "Change from vN" header explaining the delta. Server
 non-compliant model response is cleaned and truncated on a word boundary before
 it reaches the DOM.
 
-## 3. Guardrails against the model
+## 3. Guardrails against the model — naming the failure mode (Module 3)
+
+Module 3 catalogues the ways an agent fails — hallucination, misalignment,
+ambiguity collapse, sycophancy — and makes a claim about why the catalogue is
+worth learning: **"a student who can name the mode can reach for the fix."**
+
+This project meets one of them squarely, and in the product rather than in the
+build. **Hallucination invents plausible-sounding falsehoods**, and a recommender
+whose entire job is naming films will, sooner or later, name films that do not
+exist. It is not an edge case here; it is the expected behaviour of the component.
+
+**The remedy is not a better prompt.** `recommend_v3` does instruct the model to
+name only real, released films — and asking is not a guard, because the failure
+mode is precisely that the model believes it complied. The guard is that **nothing
+the model says is taken as fact**: every title it returns is looked up, and TMDB
+supplies every fact that reaches a card.
+
+**Measured rather than assumed.** Thirty probe titles were run against live TMDB
+(`D-054`): **seven of twelve realistic invented titles returned zero results** and
+were dropped exactly as the documentation claimed. The drop path is the common
+outcome, not the rare one — which is the opposite of what this project's own
+backlog had assumed in writing before anyone measured it.
+
+**And demonstrated, not only described.** `RS-16` in
+[`RESILIENCE.md`](RESILIENCE.md) is the guard firing on every pick of a run at
+once: a well-formed list of confident titles, none of which TMDB had heard of, and
+a page that says so and still declares what the call cost.
 
 - **Facts come from TMDB, never the model.** The recommendation prompt returns
   *titles only*; every title is looked up on TMDB, which supplies poster / year /
@@ -107,6 +283,29 @@ it reaches the DOM.
   `usage.include=true` and stores the exact `usage.cost`; a per-model price table
   in `config.js` is only the fallback. Unknown model → `null`, never a guess.
 
+**Module 13's discipline, running at product time.** "Verification before trust"
+is usually read as checking what the agent produced while you build. The same rule
+runs here in production, against the product's own model output: every suggestion
+is a hypothesis until TMDB confirms it, and one that cannot be confirmed never
+reaches a user. The two readings are the same discipline at two different moments.
+
+**Knowing where it does not apply is part of the same skill.** The taste verdict
+is never fact-checked, and that is deliberate rather than an omission — it asserts
+an opinion about the viewer, so there is nothing in it to check against anything.
+It is contained differently instead: capped at 450 characters, stripped of
+markdown, and rendered with `textContent`, so the worst case is an off-tone
+sentence rather than a false claim. Running a verification pass over it would be
+theatre, and Module 13 names theatre as one of the ways verification fails while
+looking rigorous.
+
+**The limit of the guard is stated rather than glossed.** The cross-check proves a
+card shows **a** real film; it does not prove it shows **the** film the model
+meant. `verifyTitle()` keeps TMDB's top result when nothing matches
+title-for-title, which rescues a missing "The" or a misplaced hyphen and
+occasionally substitutes a neighbour. That trade was taken with the numbers in
+front of it (`D-054`), and the documents that used to promise more were corrected
+rather than the matcher being tightened.
+
 ## 4. Making failure visible (Module 13)
 
 Once an AI call is attempted, a log row is **always** written — success *or*
@@ -129,7 +328,7 @@ age out of the 60-row window. That is the only time anything has been removed
 from the audit trail, and no code path in the app can delete a log row — see
 `docs/DECISIONS.md` D-019.
 
-## 5. Incident 1 — and the guardrail it produced
+## 5. Incident 1 — and the guardrail it produced (Module 12)
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second
 run also deleted real films the user had added (ratings + reviews, unrecoverable
@@ -144,7 +343,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 54 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 60 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -195,13 +394,16 @@ screenshots for the submission even though the server side is now tested.
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
   first request then takes anywhere from a few seconds to a minute while the
   instance wakes; every load after that is immediate.
-- Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
-  screenshots for the submission. Deliberately deferred to a dedicated
+- ~~Resilience (TMDB down, OpenRouter down) is implemented but should be captured
+  as screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a
-  mid-overhaul one. **That precondition is now met** — the front-end overhaul
-  finished on 2026-09-12 — so the shots can be taken against a settled UI
-  whenever the authors choose to. Nine states are enumerated with their exact
-  recipes in `CLAUDE.md` (greppable as `RS-1` through `RS-9`).
+  mid-overhaul one.~~ **CLOSED 2026-09-13/14.** The deferral held and then paid
+  off: the shots were taken against a settled UI, and the set grew well past the
+  nine states this bullet anticipated. **Sixteen states, twenty-four frames**,
+  embedded and argued in [`RESILIENCE.md`](RESILIENCE.md); the recipes are
+  greppable in `CLAUDE.md` as `RS-1` through `RS-16`. Shooting them found three
+  real defects that nothing else would have, which is the entry worth reading
+  here rather than the count.
 - ~~**The recommendations error state is written and then immediately
   overwritten** by the availability-sync that runs in the same `finally`, so a
   failed run shows the user nothing. The verdict side already does it properly —
@@ -218,4 +420,10 @@ screenshots for the submission even though the server side is now tested.
   when a row was really committed; the same treatment applied back to the
   verdict). D-047 has the reasoning.
 - The prompt-injection defense should be shown with a concrete demo movie whose
-  review is an injection attempt.
+  review is an injection attempt. **Done 2026-09-13** — the film is *The Room*,
+  seeded by `npm run seed-demo -- --with-injection` and removed after the
+  captures. Five frames, `docs/screenshots/pi-1` … `pi-5`; analysis under ASI01 in
+  `docs/SECURITY.md`. Shooting it exposed a trap worth more than the screenshots:
+  at its first rating the demo film sorted outside the recommendation prompt's
+  top-five window, so half the evidence would have shown a feature resisting an
+  attack it was never sent.

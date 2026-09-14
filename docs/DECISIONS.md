@@ -5,6 +5,319 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-070 · Log rows that misnamed their model were deleted by hand, not preserved as history
+
+*Written up 2026-09-13, the day the bug behind them was fixed.*
+
+The bug is in the commit that precedes this: `tasteVerdict.js` fell back to the
+app-wide model when writing a log row for a FAILED call, so every failed verdict
+recorded `claude-haiku-4.5` while the call that actually failed was
+`claude-sonnet-5`. Successful rows were always correct, because they read the
+model back out of OpenRouter's own response.
+
+That left a handful of wrong rows already in `taste_verdict_logs`.
+
+### The disagreement, which is the content of this entry
+
+**Claude's position was that they should stay** — that they were "a record of what
+the app wrote at the time", and that the project's own staleness rule says
+historical records are preserved rather than maintained.
+
+**The user overruled it, and was right.** Their argument: the log exists to
+provide the historical reality of every AI call the app performed. Rows that
+misname the model are not documenting reality; they are false about precisely the
+thing they exist to record.
+
+The mistake was conflating two different kinds of artifact. D-010's
+preserve-don't-maintain rule governs **narrative** — decision entries, and code
+comments that explicitly describe a past state. Those record a *belief held at a
+time*, and they stay valuable as records even when the belief turned out wrong.
+
+A row in the AI call log is not narrative. It **asserts a fact about an external
+event**: this call used model M. When the call used model N, the row is not a
+preserved belief, it is wrong data about something that really happened — sitting
+in the one artifact in this project whose entire value is factual accuracy about
+external events. The dialog's own blurb says these are the calls the app made.
+Keeping a row that misstates one preserves an error, not a history.
+
+### The precedent, and the obligation that comes with it
+
+This is the **second** time rows have been removed from the log by hand. D-019
+was the first: six pre-migration rows with no token split and no duration,
+deleted for presentation rather than correctness.
+
+D-019 recorded that deletion as *"a deliberate exception, recorded because the
+log's whole argument is that it is an append-only audit trail"*. That set the
+discipline this entry follows. **The rule, now that it has happened twice: rows
+may be removed from the log by hand only for a reason that is written down, and
+the app itself still has no code path that can delete one.**
+
+The two exceptions differ in kind, which is worth keeping straight. D-019 removed
+rows that were INCOMPLETE — true as far as they went, deleted so the footer would
+not need permanent partial-coverage markers. This removed rows that were FALSE.
+The second is the stronger justification of the two.
+
+### Scope, checked rather than assumed
+
+No committed screenshot contains any deleted row. The bad rows were written at
+18:25:22 and 18:43:14; `rs-4-openrouter-down-recs-log.png` tops out at 17:54:01
+and `rs-3-tmdb-down-during-recs-log.png` at 17:44:04. Nothing in the repository
+shows a row that no longer exists, so no evidence needed re-shooting on account
+of the deletion — only on account of the fix.
+
+Related: D-019 for the first hand-deletion and the append-only argument, D-053 for
+the two-model split that created the bug, D-010 for the preserve-don't-maintain
+rule this entry marks the boundary of.
+
+## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
+
+*Written up 2026-09-13, found while shooting the RS-4 evidence.*
+
+The AI call log dialog said:
+
+> Every OpenRouter call CineRank has made — both features, successes and failures.
+
+and the footer panel that opens it said `Every OpenRouter call`. Neither was true.
+`GET /api/ai-log` puts `.limit(60)` on each of the two log tables, merges them,
+`.slice(0, 60)`s the result, and computes the footer totals over that slice. Once
+the two tables hold more than 60 rows between them, the viewer shows the 60 most
+recent calls and the `Total · N calls` figure pins at 60.
+
+**Found by arithmetic, not by reading.** Two log screenshots taken seventeen
+minutes apart both read `Total · 60 calls / 67,759 tokens / 15.71¢` — identical —
+despite a new row being visible at the top of the second. A count that does not
+move when a row is added is either a stale render or a window, and the route said
+window.
+
+### Where the cap came from, and why it stays
+
+`git log -S` puts it in `b3e3446` (2026-09-04), the commit that introduced the
+viewer. **There is no decision entry for it and no sign it was ever discussed** —
+the user's own account was "we've always had a very manufactured 60-row cap, from
+day one, and I don't know why". So it was a default typed while building.
+
+It did not stay inert, which is the part worth recording. **D-019 reasons from
+it**: the argument for deleting the six pre-migration rows rather than building
+permanent partial-coverage markers was that "the viewer only ever shows the 60
+most recent calls, so those rows will fall out of the window on their own". An
+undeliberated default had become load-bearing in a recorded decision.
+
+**And `SPEC.md` § 4 already described it correctly** — "both log tables merged,
+newest 60 — the primary audit surface, and what the in-app viewer reads". So the
+application's own UI had been contradicting its own specification since the
+feature shipped.
+
+That is what settled the question. The obvious move on finding the sentence false
+is to delete the cap so the sentence becomes true; rejected, because the cap is
+specified, is doing real work bounding a payload and a client-side render that
+would otherwise grow without limit, and D-019 depends on the window existing.
+**The copy was the defect, not the cap.**
+
+### The fix, which is two different fixes
+
+The two strings needed different treatment, because they make different claims:
+
+* **The footer panel** describes what gets **logged**, and every call genuinely is
+  logged — only the viewer is capped. So `Every OpenRouter call` became
+  `Every OpenRouter call is logged`. One verb.
+* **The dialog blurb** *is* the capped viewer, so it has to say so: `The 60 most
+  recent OpenRouter calls`. The every-call claim is not dropped, it MOVES to the
+  clause where it is true — `Every call is persisted in recommendation_logs /
+  taste_verdict_logs`.
+
+Both true things now get said: everything is recorded, this window shows the last
+sixty.
+
+### The generalisable bit
+
+**A false sentence in the UI is invisible to every check this project runs.** The
+tests, the linter, the markdown checker and the render audits all look at
+structure; not one of them compares a claim the interface makes against the
+specification that describes the same thing. This survived because the two were
+never read side by side — and the SPEC line was correct the entire time, so there
+was nothing to find except by looking at both at once.
+
+It also matters more here than it would elsewhere: the whole argument these
+screenshots make is that the app is honest about what it did. A caption
+overstating its own coverage undercuts that specific claim in a way it would not
+undercut, say, a button label.
+
+Related: D-019, which relies on the window; D-018 for what the totals row
+deliberately does not surface; D-065 for the other class of defect that was
+invisible until something rendered it.
+
+## D-068 · The demo seed list needs a two-axis persona, because a one-axis one starves both AI features at once
+
+*Written up 2026-09-13, when the seed content was settled.*
+
+Two candidate seed lists were built and compared by running the real features
+against them. The second was the user's, and it was better than the first on
+everything except the thing the list exists for.
+
+**The user's list won on UI coverage**, by some distance, and that half was kept
+almost intact. It had an unreleased film (Shrek 5, 2027), which is the only way
+to draw D-037's muted `No TMDB rating` caption, and the first list exercised that
+path zero times. It had a rated film with no review (#20's placeholder), an
+unrated film (the `Not rated yet` chip and the faint `?`), a review long enough
+to clip and draw the show-more toggle, and emoji in review text — which is the
+only live evidence anywhere in the app that D-061's grapheme-safe hyphenation
+works. Six of its seven cards were doing double duty as UI proof.
+
+**It lost on taste signal, and both AI features degraded together.** Its verdict
+came back as `Wicked and SpongeBob get the love, while Slumdog Millionaire and
+Saw get chucked out for being nasty about it` — four film names mapped to their
+ratings, which is precisely the failure `taste_verdict_v4` was written to end
+(D-014) after v3 did the same thing. Its recommendations were Hairspray,
+Cinderella, The Lego Movie and Moana, with two of the four reasons naming Wicked
+outright.
+
+### The diagnosis, which was not the prompts
+
+The cause was **a one-axis persona**: both top-rated films were bright family
+entertainment, and both low outliers were rejected for the same reason (too
+dark). There is nothing there to abstract from, so the verdict fills its word
+budget with names and the recommender can only return more of the same shelf.
+
+The first list worked better on this because its high ratings spanned genres —
+Korean class satire, an Australian car chase, a quiet science-fiction film —
+united by an **attitude** rather than a category. Abstraction is what reads as
+insight; a persona that needs no abstraction produces none.
+
+**Do not reach for a prompt change if a future verdict reads as a list.** v8 is
+ruled out (D-053: three structurally different prompts produced the same
+register, and the model was the lever, not the wording). Look at whether the seed
+set gives the model a second axis before touching anything else.
+
+### One measured fact that changed the shape of the set
+
+`generateRecommendations()` does `rated.slice(0, config.recommendations.topN)`
+with `topN: 5`. `generateTasteVerdict()` has no slice at all — it reads every
+rated film.
+
+**So the two features do not see the same list.** A sixth rated film shapes the
+verdict and is invisible to the recommender. That is not a defect and it is now
+used deliberately: the low outlier sits sixth on purpose, so it gives the verdict
+something to push against without spending one of the five slots that steer the
+picks. Reviews are also truncated before they reach a prompt — 300 characters for
+recommendations, 200 for the verdict — so a long review has to carry its signal
+in its opening sentence, which is why the longest one opens with its thesis
+rather than building to it.
+
+None of this is visible from the UI, and a future session rebalancing the set
+without knowing it would move films between the two features by accident.
+
+### Reviews reject on craft, never on subject matter
+
+The user's two low reviews rejected their films for what those films depict.
+Rewritten to reject on construction instead — the replacement for Saw is
+`props for the swing, but there is no second idea underneath the first one`.
+
+Two reasons, and the first is the stronger one:
+
+* **It is the sharper taste signal.** "No second idea underneath the first" says
+  something about the viewer; "too nasty" says something about the film. The
+  verdict can generalise from the first and can only quote the second. It also
+  puts the low outlier on the SAME axis as the rest of the set (commitment
+  versus committee), which is what lets a verdict characterise instead of listing
+  two films the viewer disliked.
+* **It removes a live failure mode.** These strings go into a prompt on a button
+  press, in front of an audience, with no recovery if the model hedges or
+  refuses. The original reviews put terms around child abuse and torture into
+  that prompt. Nothing was wrong with them as film criticism — they described
+  real plot content — and the verdict generated fine. But D-067, from the same
+  day, is the entry about a machine reacting to the shape of text rather than its
+  intent, and staking a graded live demo on that not recurring is a bad trade for
+  no gain.
+
+### What was deliberately not done
+
+**Not one film was dropped for being the user's choice.** Five of their seven
+survive (Wicked, SpongeBob, Shrek 5, Saw, Shrek); the two additions, Mad Max:
+Fury Road and Knives Out, exist only to add the second and third genre at the top
+of the list. Taking either list whole was the obvious move and was the wrong one
+— the two lists were good at different things.
+
+**The recommendation count was left alone.** A run typically returns three to
+five cards rather than six. That is the TMDB verification stage working as
+designed (SPEC § 2.2 step 4) — a title the model invents or misnames is dropped
+rather than shown as a broken card — so it is not an open issue and is
+deliberately not recorded as one.
+
+Related: D-014 and D-053 for the verdict register, D-037 for the TMDB caption,
+D-041 for the one-patch constraint the seeder works under, D-054 for the
+title matcher, D-061 for the emoji case, D-067 for the classifier lesson.
+
+## D-067 · The hyphenation fix made the app's own output un-pasteable, and the failure surfaced two steps away from the cause
+
+*Written up 2026-09-13, the day it was found.*
+
+`softHyphenate()` (D-060, D-061) puts a U+00AD soft hyphen between every adjacent
+pair of non-space characters, so a long title or review breaks at a sensible
+point instead of mid-word. It is applied to seven surfaces: ranked titles,
+reviews, search-row titles, recommendation titles, recommendation reasons, and
+both verdict paths.
+
+Soft hyphens are invisible on screen. **They are not invisible when copied.**
+
+**How it surfaced, which is the part worth recording.** Nobody noticed for days,
+because nothing in the workflow ever copied text out of the app. Then the user
+pasted a generated taste verdict into an LLM chat to discuss whether the seeded
+persona was landing — and the message was rejected by a safety classifier before
+any human read it. Twice. The verdict was about Mad Max and Parasite. There was
+nothing objectionable in it at all.
+
+**Text separated character by character is the SHAPE of a filter-evasion
+attempt**, which is a thing automated classifiers are specifically tuned to
+catch, and they fire on the shape rather than on the words. A layout fix had
+quietly made the application's output untrusted-looking to any machine that read
+it, and nothing in the app could possibly have reported that. It took a failure
+in a completely different system, twice, to expose it.
+
+**A second defect came out of the same paste.** `setVerdictText()` (D-057) writes
+the verdict TWICE by design — an `aria-hidden` span that animates on screen, and
+a `.sr-only` span carrying the full string from the first frame so assistive tech
+announces it once and complete. `.sr-only` hides with `clip-path: inset(50%)`,
+which removes it visually but leaves it in the SELECTION. So selecting a verdict
+and copying produced the entire thing twice.
+
+### What was done, and what was deliberately not
+
+**Not unpicked.** The obvious move is to stop inserting soft hyphens, and it is
+wrong: D-060 and D-061 cost two real bug fixes to settle (a scope leak into
+placeholder text, and grapheme-unsafe iteration that corrupted emoji), and the
+mid-word breaking they prevent is a genuine defect at the widths step 5 was
+fought over. The hyphens earn their place in the DOM.
+
+**Fixed at the clipboard instead.** A `copy` listener strips U+00AD from the
+payload, so the DOM keeps its hyphens and only what leaves the page is cleaned.
+`setData` requires the default prevented to take effect. Selections inside a form
+control are skipped: an input's own selection is not part of
+`window.getSelection()` in every engine, and nothing typed into one is
+hyphenated, so there is nothing to clean and a needless `preventDefault` over a
+native copy is risk with no upside.
+
+**`.sr-only` is now `user-select: none`**, which kills the duplication. Nothing
+is lost — a screen reader reads the accessibility tree and never needs that text
+in a selection.
+
+**The codepoint is now a named constant, `SOFT_HYPHEN`.** It was a LITERAL
+invisible character sitting in a string literal, where it could not be read,
+searched for, or told apart from an empty string — and the stripper and the
+inserter have to agree exactly, which is not something two invisible literals can
+be trusted to do. Built with `String.fromCharCode` rather than a backslash
+escape, because escapes in that file have been collapsed by tooling twice (R7,
+and the Environment traps section of `CLAUDE.md`).
+
+### The generalisable bit
+
+**An invisible character is invisible to review, not to machines.** Every check
+this project runs — the tests, the linter, the markdown checker, the render
+audits, and every human read of the diff — passed over seven surfaces emitting
+obfuscated-looking text, because none of them was looking at what the app puts on
+the clipboard. The bug was only observable outside the system that caused it.
+
+Related: D-057 for the two-span verdict, D-060 and D-061 for the hyphenation.
+
 ## D-066 · The render audit had been running in the wrong GitHub API mode, and it masked a live defect for the life of the file
 
 *Written up the same day it was found, 2026-09-13, while unfreezing `SPEC.md`.*
@@ -2634,7 +2947,7 @@ overflow.
 **Claude first recommended NOT fixing it**, and wrote that up as a measured
 non-fix: unreachable below 100 films, demo seed list is 3–4, and each candidate
 fix looked more expensive than the defect. **The user overruled it on grounds
-Claude had not weighed** — that a grader reading an unchecked TODO box may not
+Claude had not weighed** — that a reader who meets an unchecked TODO box may not
 read the paragraph under it, and will score "documented limitation" as "too lazy
 to fix edge cases". That is a judgement about the audience, and the audience is
 the point of the artefact. Recorded because the reasoning is invisible in the

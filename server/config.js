@@ -30,8 +30,17 @@ export const config = {
   openrouter: {
     apiKey: required('OPENROUTER_API_KEY'),
     base: 'https://openrouter.ai/api/v1/chat/completions',
-    // The app-wide default, and what RECOMMENDATIONS use. Deliberately the cheap
-    // tier: that task is "name some films" and Haiku does it well.
+    // The app-wide default, and what RECOMMENDATIONS use. The cheaper tier here is
+    // deliberate and is NOT a judgement that the task is small. This comment used
+    // to read 'that task is "name some films"', which was both dismissive and
+    // wrong: the run reads every rated film and its review, infers a taste from
+    // the set, excludes everything already owned, and justifies each pick in one
+    // second-person sentence of 8-16 words tied to a specific rating or a pattern
+    // across them (prompts/recommend_v3.md).
+    // What makes the cheaper tier right is that the output is CHECKABLE --
+    // structured JSON, every title cross-checked against TMDB, so a bad pick is
+    // dropped rather than shown. The verdict has nothing to check it against,
+    // which is the actual reason it alone moved up a tier (D-053).
     model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
   },
 
