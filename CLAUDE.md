@@ -3716,11 +3716,22 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
 * **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
-  **Two models, on purpose (D-053):** recommendations run on the cheap
+  **Two models, on purpose (D-053):** recommendations run on the cheaper
   `anthropic/claude-haiku-4.5`, the taste verdict alone on
-  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheap tier
+  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheaper tier
   to write in a plain spoken register, and the model turned out to be the
-  constraint rather than the wording. `chat()` takes an optional `model`
+  constraint rather than the wording.
+  **The split is NOT hard task versus easy task, and do not describe it that way.**
+  Recommendations are the larger job: read every rated film and its review, infer a
+  taste, exclude what is owned, and justify each pick in one second-person sentence
+  of 8–16 words tied to a specific rating or a pattern across them. What makes the
+  cheaper tier right there is that the output is **checkable** — structured JSON,
+  every title cross-checked against TMDB, so a bad pick is dropped rather than
+  shown. The verdict has nothing to check it against, so its only measure is
+  whether it sounds like a person, which is the axis the cheaper tier could not
+  reach. A comment in `server/config.js` used to summarise the recommendation task
+  as "name some films"; it was dismissive and inaccurate, and it is corrected in
+  place. `chat()` takes an optional `model`
   defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
   overrides it. Overridable per feature via `OPENROUTER_MODEL` and
   `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.

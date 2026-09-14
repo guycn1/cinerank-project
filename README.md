@@ -20,8 +20,12 @@ A personal movie-ranking app where the database and the AI each earn their place
   is read back to ground AI recommendations, and it keeps an **audit log of every AI
   call** — prompt version, model, token split, duration, success/failure, estimated
   cost. Viewable in-app via the "AI call log" button in the footer.
-- **The AI** (via OpenRouter) has one narrow job: given your top-rated films, name
-  similar ones you haven't added — and it is **never trusted for facts**. Every
+- **The AI** (via OpenRouter) has one narrow job — narrow in *scope*, not in
+  effort. From your top-rated films and the reviews you wrote about them it infers
+  what you actually respond to, names films you have not added, and writes a
+  reason per pick in second person that points at a specific film you rated or a
+  pattern across your ratings — one sentence, 8–16 words, no plot summary. And it
+  is **never trusted for facts**. Every
   suggested title is cross-checked against TMDB, which supplies the real poster,
   year and overview; a title TMDB has never heard of is dropped rather than shown
   as a broken card.
@@ -30,12 +34,23 @@ A personal movie-ranking app where the database and the AI each earn their place
 
 Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
 
-Two models are routed through OpenRouter on purpose: recommendations use the cheap
-`claude-haiku-4.5` (the task is "name some films"), while the taste verdict uses
-`claude-sonnet-5` — four prompt versions could not get the cheap tier to write in a
-plain spoken voice, and the model turned out to be the constraint, not the wording
-(`docs/DECISIONS.md` D-053). The call log shows the model per row, so the split is
-visible in the audit trail.
+Two models are routed through OpenRouter on purpose, and **the split is not a
+hard-task / easy-task one.** Recommendations are the larger job of the two: read
+every rated film and the review attached to it, infer a sensibility from the set,
+exclude everything already owned, and compress the justification for each pick
+into one second-person sentence of 8–16 words that points at something real in the
+profile. The verdict writes two or three sentences.
+
+**The split is about what can be checked.** A recommendation's output is
+structurally constrained and externally verifiable — a JSON array whose every
+title is cross-checked against TMDB — so a bad pick is dropped before anyone sees
+it, and `claude-haiku-4.5` is enough precisely *because* it works under that
+supervision. A verdict has nothing to check it against: its only measure is
+whether it sounds like a person, and that is exactly the axis four prompt versions
+failed to move on the cheaper tier, until the model turned out to be the
+constraint rather than the wording (`docs/DECISIONS.md` D-053). It alone runs on
+`claude-sonnet-5`, at about 0.29¢ a call. The log shows the model per row, so the
+split is visible in the audit trail rather than buried in config.
 
 ## Architecture
 
