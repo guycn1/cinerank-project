@@ -229,7 +229,7 @@ of the practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 54 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 60 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -280,13 +280,16 @@ screenshots for the submission even though the server side is now tested.
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
   first request then takes anywhere from a few seconds to a minute while the
   instance wakes; every load after that is immediate.
-- Resilience (TMDB down, OpenRouter down) is implemented but should be captured as
-  screenshots for the submission. Deliberately deferred to a dedicated
+- ~~Resilience (TMDB down, OpenRouter down) is implemented but should be captured
+  as screenshots for the submission. Deliberately deferred to a dedicated
   pre-submission session, so the shots match the finished UI rather than a
-  mid-overhaul one. **That precondition is now met** — the front-end overhaul
-  finished on 2026-09-12 — so the shots can be taken against a settled UI
-  whenever the authors choose to. Nine states are enumerated with their exact
-  recipes in `CLAUDE.md` (greppable as `RS-1` through `RS-9`).
+  mid-overhaul one.~~ **CLOSED 2026-09-13/14.** The deferral held and then paid
+  off: the shots were taken against a settled UI, and the set grew well past the
+  nine states this bullet anticipated. **Fifteen states, twenty-three frames**,
+  embedded and argued in [`RESILIENCE.md`](RESILIENCE.md); the recipes are
+  greppable in `CLAUDE.md` as `RS-1` through `RS-15`. Shooting them found three
+  real defects that nothing else would have, which is the entry worth reading
+  here rather than the count.
 - ~~**The recommendations error state is written and then immediately
   overwritten** by the availability-sync that runs in the same `finally`, so a
   failed run shows the user nothing. The verdict side already does it properly —

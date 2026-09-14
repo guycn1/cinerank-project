@@ -41,7 +41,7 @@ This criterion had two blockers that morning. **The larger one is closed.**
 * **`SPEC.md` § 7.1 has been walked end to end** and written up in
   [`ACCEPTANCE.md`](ACCEPTANCE.md): all eight criteria, evidence classified by
   strength, every one reading a clean `yes`.
-* **Twenty-six captures now exist**, indexed in `docs/screenshots/README.md`.
+* **Thirty-six captures now exist**, indexed in `docs/screenshots/README.md`.
   Beyond the resilience set: five frames of a real prompt-injection attempt with
   both AI features resisting it, four tied to specific acceptance criteria, and
   three product shots embedded in the README.

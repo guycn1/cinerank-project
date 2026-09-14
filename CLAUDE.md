@@ -132,7 +132,7 @@ the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**;
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 54 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -2956,7 +2956,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (54).
+  `review_requires_rating` guards all covered by `npm test` (60).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
@@ -3915,9 +3915,12 @@ down would be re-broken within a session. See D-065.
    reason. The user called it, they are gone, and the file is uniform.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
    the whole block as one paragraph full of pipe characters — not a degraded
-   table, no table at all. The repo’s markdown carries sixteen tables between them, 138 rows in all
-   (measured 2026-09-13; an earlier figure of 84 here did not match any definition
-   of the count and is corrected rather than preserved). This is not hypothetical.
+   table, no table at all. The repo’s markdown carries tables in most of its
+   files, so this is not hypothetical. **The count that used to sit here is gone
+   on purpose:** it read 84, was corrected to sixteen on 2026-09-13, and was
+   already 33 by the following day — a figure that drifts every time a document
+   gains a table, in a rule whose point does not depend on it. Count the
+   separator rows if the number is ever actually wanted.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.

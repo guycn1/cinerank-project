@@ -39,7 +39,7 @@ that claimed uniform coverage would be worth less than the criteria themselves.
 | 4 | Recommendations disabled below 3 rated films | **yes** | Automated + captured |
 | 5 | A full recommendation run: logged row, verified posters | **yes** | Automated + captured |
 | 6 | Verdict disabled below 2 rated films, logged row | **yes** | Automated + captured |
-| 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + 13 captures |
+| 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + `RS-1` … `RS-5` |
 | 8 | `.env` gitignored from commit 1, no key in history | **yes** | Repeatable commands + captured |
 
 Entries are added as each is worked through. A criterion marked *not yet* means
