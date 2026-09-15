@@ -189,10 +189,11 @@ TMDB unreachable. Search says so in plain language, and the ranked list carries 
 film was added rather than a live call, precisely so an outage cannot empty the
 page.
 
-**Eight more states are captured and analysed in
-[docs/RESILIENCE.md](docs/RESILIENCE.md)** — TMDB, OpenRouter, Supabase and the
-app’s own server each failing independently, plus two states that look like
-failures and are not. Shooting that set found three real defects that the tests,
+**Fifteen more states are captured and analysed in
+[docs/RESILIENCE.md](docs/RESILIENCE.md)**, sixteen in all — TMDB, OpenRouter,
+Supabase and the app’s own server each failing independently, a row deleted
+underneath an open dialog, a reply that arrives fine and says nothing usable,
+plus two states that look like failures and are not. Shooting that set found three real defects that the tests,
 the linter and the render audits had all passed over.
 
 ## Documentation
