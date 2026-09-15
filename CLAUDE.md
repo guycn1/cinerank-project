@@ -71,12 +71,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
-  documentation-accuracy work, and a **twenty-fourth the same day** carrying the
-  sweep that followed it — all three described at the end of this bullet.
+  documentation-accuracy work, a **twenty-fourth the same day** carrying the
+  sweep that followed it, and a **twenty-fifth** carrying the merge rule itself
+  — all four described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-four**
+  steps closed. **Twenty-five**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -147,9 +148,28 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   five recipes. The first and the third were found by opening the other frames
   and reading the other recipes, which is the only thing that can find them. The count was written to `draft`
   first, on the user's instruction, for the fourth time running.
-  **The pattern across all four is one sentence:** a check can be sound and its
-  BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
-  direction of reading — and no amount of care inside the boundary finds that.
+  **AND A TWENTY-FIFTH, still 2026-09-15**, whose subject is the merge rule that
+  governs all of them. The user asked whether the run of non-milestone merges
+  since `0cdc4ec` meant the "settled milestone only" rule had quietly died.
+  Measured rather than accepted: merges 1–21 are all completed work, and 22–24
+  each cleared a SECOND criterion — a defect already published on `main` — stated
+  at `94f5325` before it was used. The practice had been consistent; the RULE
+  TEXT was what was out of date. So the rule now names its grounds (D-073): a
+  settled milestone, a published defect, and one close-out sync when the work is
+  declared finished. **What triggered the merge is not the rule edit but
+  `50d5670`:** `SPEC.md` told a reader that EACH merge follows a milestone,
+  `README.md` and `render.yaml` said milestones only, and the same repository's
+  `git log --merges` showed three that were not. **Claude classified the whole
+  `draft` stack by its first commit and never re-ran the test as the stack grew
+  to contain a real defect fix — the user caught that too.**
+  **The pattern across every one of them is one sentence:** a check can be sound
+  and its BOUNDARY wrong — the wrong render context (22), the wrong file types
+  and the wrong direction of reading (23), a claim whose falsifier it never names
+  (24), and a test applied once and not re-applied as its subject changed (25) —
+  and no amount of care inside the boundary finds that. (That sentence read
+  "across all four" while listing three causes, which is a count raised without
+  extending its own list — the defect this file found in `docs/PROCESS.md` once
+  already. The count is gone and the list is complete.)
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -4244,7 +4264,10 @@ the real blob from github.com and read that — it is the only authority.
   which reads as erosion whether or not it is. Written 2026-09-15, when a wording
   correction (`671f74a`) needed judging and there was nothing to judge it with.
   It fails ground 2 — the sentence it fixes is over-compressed, not misinforming
-  — and stays on `draft`.
+  — so it never TRIGGERED a merge. It reached `main` by riding along with
+  `50d5670`, which did clear ground 2. **That is the rule working as intended,
+  not an exception to it:** the grounds decide WHETHER to merge, never what the
+  branch may carry.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
