@@ -765,8 +765,14 @@ are the running record of how each piece got there and stay as written.
     UI, while an HTTP error response still surfaces the server's user-facing
     message. "No matches" moved from `makeError` to the muted `searchNote` — an
     empty result set is not a failure and should not be crimson.
-  - `.search button:disabled` no longer relies on opacity. It is the only FILLED
-    button; amber at 55% still composites to an unmistakably amber ~#8c6f39, so
+  - `.search button:disabled` no longer relies on opacity. It was believed at the
+    time to be the only FILLED button — **that was never true, and R13 is where it
+    was corrected**: THREE amber-filled buttons can be disabled (this one,
+    `.rate-dialog button.primary`, and the rec card's), audited against every
+    `disabled =` assignment in `app.js`. The CSS comment carrying the same false
+    claim was fixed then; this bullet was missed until 2026-09-16.
+    What was right here is the mechanism:
+    amber at 55% still composites to an unmistakably amber ~#8c6f39, so
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
@@ -3553,9 +3559,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   - [x] **RS-10 · CAPTURED 2026-09-14 — two frames:
     `docs/screenshots/rs-10-row-deleted-mid-edit-before.png` and
     `docs/screenshots/rs-10-row-deleted-mid-edit-after.png`.**
-    **A row deleted while it was being edited — the only state in this set where
-    NOTHING is broken.** Every key is valid, the server is up and the database is
-    up. What fails is the assumption that the row a dialog opened still exists
+    **A row deleted while it was being edited.** Every key is valid, the server is
+    up and the database is up — nothing is broken anywhere. **That is not unique to
+    it:** `docs/RESILIENCE.md` names `RS-15` in the same breath for the same
+    reason, and `RS-8`, `RS-9` and `RS-16` are all states where nothing is broken
+    either. This entry claimed to be the only one until 2026-09-16. What IS unique
+    to it is the next paragraph. What fails is the assumption that the row a dialog opened still exists
     when Save is pressed.
     **THE ONLY RACE IN THE SET, so it is the only one needing two frames of the
     SAME moment rather than two surfaces.** A single still cannot show an order of

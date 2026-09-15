@@ -212,7 +212,7 @@ and each carries its own evidence.
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
-| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Five criteria for whether this is fit to merge, and an honest standing verdict (Module 16). |
+| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Module 16’s five criteria for whether this is fit to merge, each with its evidence — and the standing verdict: **MERGE-READY, all five met**. |
 | [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
 | [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the binding rules added after it destroyed real data. |
 
