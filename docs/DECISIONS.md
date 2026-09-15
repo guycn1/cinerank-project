@@ -5,7 +5,7 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
-## D-073 · The merge rule gained a second ground, and the correction that prompted it stays on `draft`
+## D-073 · The merge rule gained a second and a third ground, and the correction that prompted it stays on `draft`
 
 *2026-09-15, after the user asked whether a wording correction was worth a
 twenty-fifth merge — and said they feared it would be too blatant a deviation
@@ -68,6 +68,46 @@ accuracy: the rule shipped with "the three merges since" in five files — a cou
 of an OPEN set, which is the exact thing this project had already removed five
 times over. The user caught it. `check-claims` could not have: its ten checks all
 resolve a token that names something, and a bare numeral in prose names nothing.
+
+**A THIRD ground was added the same day, and the user's first wording of it was
+turned down.** They proposed that when `draft` has stood ahead of `main` and
+gained no new commits for "a reasonably long period", that alone should authorise
+a merge — the worry being that with the project essentially finished, nothing
+meeting ground 1 or 2 might ever arrive again and `draft` would sit ahead
+forever. The worry is real and is why a third ground exists at all. **The form
+was not**, for three reasons, all of which the same conversation had just
+demonstrated:
+
+* **An undefined period has no test**, so every merge under it re-argues what the
+  phrase means. That is exactly the state ground 2 was written to cure, and
+  putting it back deliberately is worse than having arrived there by omission.
+* **Time is a lossy proxy for the thing actually meant.** A quiet fortnight
+  because the work is finished and a quiet fortnight because the authors were
+  busy elsewhere are identical to a clock and opposite in meaning. Only the
+  second must not merge.
+* **Nothing here would notice.** Grounds 1 and 2 fire when a human looks at
+  content; a clock-based ground fires when a clock elapses, and this repo has no
+  CI, no cron and nobody running a timer on it. The ground would sit permanently
+  satisfied by no one. It would also be the one merge in twenty-five whose
+  justification says nothing about the work, in a repository where the process is
+  the graded deliverable.
+
+**What was written instead: a CLOSE-OUT SYNC.** The operative condition is not
+elapsed time but *the work having ended*, so the rule names that directly —
+submission, handover, archival — fires once, and carries whatever is already
+settled on `draft`. It is checkable, since "is the project being closed out" has
+a yes-or-no answer, and it cannot be stretched to cover ordinary work in
+progress. **The user's insight survives as a PROMPT rather than a ground:** a
+long quiet stretch with `draft` ahead obliges Claude to ASK whether the work has
+ended. The asking is the mechanism; the answer authorises the merge, never the
+silence. A concrete figure ("thirty days") was offered as a middle path and also
+declined — testable, which "reasonably long" is not, but still measuring the
+wrong quantity.
+
+**This project has a named terminal event**, which is why the close-out form is
+sufficient here rather than merely tidier: `CLAUDE.md` is built around a
+submission deadline. The fallback matters only for a project that ends by
+petering out, and there the fallback is a question, not a merge.
 
 **Traps that follow.**
 

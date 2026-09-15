@@ -4191,10 +4191,10 @@ the real blob from github.com and read that — it is the only authority.
 * **Working branch:** `draft` — all day-to-day work happens here.
 * **`main` is the repo's default branch, but treated as protected in practice:** nothing gets pushed to `main` directly, ever.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
-* **Merging `draft` → `main` happens on one of TWO grounds and never on any
+* **Merging `draft` → `main` happens on one of THREE grounds and never on any
   other.** (D-073 records the alternatives weighed, and the two things Claude got
   wrong while writing this.) **Claude must ask the user for explicit confirmation before merging,
-  on either ground.** Never merge automatically, even if the case looks obvious.
+  on any of the three.** Never merge automatically, even if the case looks obvious.
   1. **A notable, settled milestone** — a UI milestone or a backend milestone
      believed to be genuinely complete, not a small incremental change. **ALL
      TWENTY-ONE OF THE FIRST TWENTY-ONE MERGES WERE THIS ONE**, and nothing
@@ -4207,12 +4207,29 @@ the real blob from github.com and read that — it is the only authority.
      stated in its own note at the time rather than invented afterwards (Build
      status, end of the `main` bullet). **Every merge after `0cdc4ec`, the final
      planned one, has been made on this ground, and no merge has ever been made
-     on any third.** Written without a COUNT of them on purpose: a count of a set
+     on grounds outside this list.** Written without a COUNT of them on purpose: a count of a set
      that is still open goes stale at the next merge, and `check-claims` resolves
      tokens that NAME something — a bare numeral in prose names nothing, so
      nothing would catch it. This rule had a drifting "three merges since" in it
      for one commit; the user caught it, not the gate.
-  **What does NOT qualify, under either ground:** wording that is loose but whose
+  3. **A close-out sync.** When the work is declared finished — submission,
+     handover, archival — `draft` is merged once so that `main` is the FINISHED
+     state rather than the last state that happened to clear ground 1 or 2. It
+     fires ONCE, at a named event, and carries whatever is already settled on
+     `draft`. It is never a reason to batch changes up for later, and never a way
+     to merge work in progress.
+     **Quiescence is a PROMPT, not a ground.** If `draft` stands ahead and
+     unchanged for a long stretch with no such event declared, Claude must ASK
+     whether the work has ended. The asking is the mechanism: silence alone never
+     authorises a merge, the answer to that question does.
+     **"Enough time has passed" was the form first proposed, and it was
+     rejected** — D-073 has the argument. An undefined period puts the rule back
+     in the state ground 2 was written to cure, where every merge re-argues its
+     own bar; a quiet fortnight because the work is finished and a quiet
+     fortnight because the authors were busy elsewhere are indistinguishable to a
+     clock and opposite in meaning; and nothing here runs a timer, so the ground
+     would sit satisfied by nobody noticing.
+  **What does NOT qualify, under any of the three:** wording that is loose but whose
   substance is right; a clarification, an improvement or a tidier phrasing; and
   anything whose correction is already legible in `draft`'s history. **A
   correction sitting unmerged on `draft` is not a loose end** — `draft` running

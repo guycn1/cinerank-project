@@ -16,8 +16,9 @@ acceptance bar, the agent drafts code and prompts, the human reviews every diff
 and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
-- **Everything on `draft`; `main` only at a settled milestone or to fix a defect
-  already published there, only with explicit human sign-off.** The first
+- **Everything on `draft`; `main` only at a settled milestone, to fix a defect
+  already published there, or as one close-out sync when the work is declared
+  finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
   every merge since has been the latter. Twenty-four merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
