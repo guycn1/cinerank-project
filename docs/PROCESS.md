@@ -48,11 +48,16 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 - **Five gates, wired into the commit rules rather than left to memory.**
   `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
-  `npm run scan-secrets` on every commit, and `npm run check-markdown` on every
-  commit touching a `.md` file. The last two exist because a real defect got past
-  human review: the markdown checker was written after both long documents were
-  found rendering wrong on GitHub for weeks (D-065). Each gate was proved to bite
-  before being trusted — see `docs/MERGE-READINESS.md` § 2.
+  `npm run scan-secrets` on every commit, `npm run check-markdown` on every commit
+  touching a `.md` file, and `npm run check-claims` on every commit, which
+  re-resolves every claim in the repository that points at something — a path, a
+  decision entry, a commit SHA, an identifier, a capture, a retired phrasing.
+  **Two of them exist because a real defect got past human review**, which is the
+  pattern worth naming: the markdown checker was written after both long documents
+  were found rendering wrong on GitHub for weeks (D-065), and the claims checker
+  after `README.md` was found describing another file's verdict sixteen hours
+  after that verdict changed — by a reader, not by a sweep (D-072). Each gate was
+  proved to bite before being trusted — see `docs/MERGE-READINESS.md` § 2.
 - **Every agent invocation starts from a committed checkpoint**, which is what
   makes reverting a cheap first move rather than a last resort. The rule in
   `CLAUDE.md` is written the other way round — *every* modification is committed

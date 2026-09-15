@@ -243,6 +243,11 @@ actually lives rather than where it is summarised:
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (the anon key only — never `service_role`)
    - `TMDB_API_KEY` (free, instant approval at themoviedb.org)
    - `OPENROUTER_API_KEY`
+
+   Those four are the only ones the app *requires* — `server/config.js` refuses to
+   start without them. `.env.example` carries three more, all optional with
+   working defaults and documented in that file: `OPENROUTER_MODEL`,
+   `OPENROUTER_VERDICT_MODEL` and `PORT`.
 4. **Run**
    ```
    npm start        # http://localhost:3000
@@ -254,14 +259,16 @@ actually lives rather than where it is summarised:
 
 **Every directory below that is listed file by file is listed in full.** The ones
 summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
-`docs/screenshots/` — are deliberate summaries, not truncations. Not shown, because
-they are covered elsewhere or carry nothing worth a line here: this file
-(`README.md`), the documentation mapped in the table above, `package.json` and
-`package-lock.json`, `render.yaml` (described under Deployment), `.env.example`
-(under Setup), and
-`DOSSIER.md`, which is the course's own grading brief rather than part of the
-build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That is
-every tracked entry in the repository root accounted for.
+`docs/screenshots/` — are deliberate summaries, not truncations.
+
+**Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
+a line here, and listed by name so the omission can be checked rather than
+guessed at: this file (`README.md`); `CLAUDE.md`, `SPEC.md` and all nine
+`docs/*.md`, mapped in the Documentation table above; `package.json` and
+`package-lock.json`; `render.yaml` (described under Deployment); `.env.example`
+(under Setup); `DOSSIER.md`, the course's own grading brief rather than part of
+the build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That
+is every tracked entry in the repository root accounted for.
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
