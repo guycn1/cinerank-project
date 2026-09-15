@@ -4192,7 +4192,8 @@ the real blob from github.com and read that — it is the only authority.
 * **`main` is the repo's default branch, but treated as protected in practice:** nothing gets pushed to `main` directly, ever.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
 * **Merging `draft` → `main` happens on one of TWO grounds and never on any
-  other.** **Claude must ask the user for explicit confirmation before merging,
+  other.** (D-073 records the alternatives weighed, and the two things Claude got
+  wrong while writing this.) **Claude must ask the user for explicit confirmation before merging,
   on either ground.** Never merge automatically, even if the case looks obvious.
   1. **A notable, settled milestone** — a UI milestone or a backend milestone
      believed to be genuinely complete, not a small incremental change. **ALL
