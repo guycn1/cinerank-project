@@ -27,9 +27,10 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   it. The twenty-third, the next day, carried the answer to the question that
   defect raised — a fifth gate that re-resolves every claim pointing at something,
   and the accuracy sweeps that went with it. The twenty-fourth, the same day,
-  carried what that gate cannot reach: claims with no referent to resolve, where
-  the only check is to go and look at the other things the claim implicitly
-  describes.
+  carried what that gate cannot reach: claims whose falsifier is not the thing
+  they name. A uniqueness or coverage claim asserts something about everything
+  the sentence leaves out, so checking it means going and looking at those
+  — re-resolving what the sentence points at can never disprove it.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as

@@ -118,18 +118,31 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   count; and an audit of every enumeration in the project against its source of
   truth. The count was again written to `draft` first, on the user's instruction.
   **AND A TWENTY-FOURTH THE SAME DAY**, which is the twenty-third's own method
-  turned on the classes it had not covered. The gate resolves claims that POINT
-  at something; a uniqueness claim points at nothing — it is an assertion about
-  everything it did not look at, so reading the item it sits on can never
-  falsify it. The sweep that this merge carries went at those by hand: ten
+  turned on the classes it had not covered. The gate resolves a claim by looking
+  up the thing the claim NAMES. A uniqueness claim names one thing and asserts
+  something about everything else, so its falsifier is never the item in the
+  sentence — "the only capture in the set showing X" is disproved by some OTHER
+  capture, which the sentence does not mention — and a resolver that follows the
+  addresses in the text walks straight past it however well it resolves them.
+  **An earlier version of this note said such a claim "points at nothing", and
+  the merge message on `main` still does. That is wrong and is corrected here
+  rather than preserved:** it points at something perfectly well, and it is
+  checkable — it WAS checked, by opening the other frames. Checking it just
+  costs an enumeration of the set plus a predicate the gate cannot evaluate,
+  where a resolvable claim costs one lookup. The merge message is left as
+  written, the way `619ed64` was.
+  The sweep that this merge carries went at those by hand: ten
   self-referential "the comment says so" pointers resolved against the comments
   they name (all ten held), every `§` reference and all 86 internal markdown
   links re-resolved (all clean), and three real defects fixed — a capture called
   the only one showing the site header when a second one does too, a count of
   recipes given as four in one file and three in another, and a coverage claim
-  that credited five recipes with a warning only three carry. The first and the
-  third were found by opening the other frames and reading the other recipes,
-  which is the only thing that can find them. The count was written to `draft`
+  that credited five recipes with a warning only three carry. **Only the first is
+  a uniqueness claim**; the second is a cross-file contradiction, where both
+  figures resolve fine and nothing had ever compared two files on the same
+  subject, and the third is a coverage claim, checkable in text by reading the
+  five recipes. The first and the third were found by opening the other frames
+  and reading the other recipes, which is the only thing that can find them. The count was written to `draft`
   first, on the user's instruction, for the fourth time running.
   **The pattern across all four is one sentence:** a check can be sound and its
   BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
