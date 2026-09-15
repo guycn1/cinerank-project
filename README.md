@@ -260,16 +260,22 @@ actually lives rather than where it is summarised:
 
 **Every directory below that is listed file by file is listed in full.** The ones
 summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
-`docs/screenshots/` — are deliberate summaries, not truncations.
+`docs/screenshots/` — are deliberate summaries, not truncations, and `prompts/`
+is compacted to its version ranges for the same reason. Between those three
+forms — listed, summarised, compacted — plus the paragraph below, every tracked
+file in the repository is accounted for.
 
 **Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
 a line here, and listed by name so the omission can be checked rather than
-guessed at: this file (`README.md`); `CLAUDE.md`, `SPEC.md` and all nine
-`docs/*.md`, mapped in the Documentation table above; `package.json` and
+guessed at: this file (`README.md`); `CLAUDE.md` and `SPEC.md`, both mapped in
+the Documentation table above; `package.json` and
 `package-lock.json`; `render.yaml` (described under Deployment); `.env.example`
 (under Setup); `DOSSIER.md`, the course's own grading brief rather than part of
 the build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That
-is every tracked entry in the repository root accounted for.
+is every tracked entry in the repository root accounted for. **The nine
+`docs/*.md` were named in this list until 2026-09-16 and should not have been:**
+every one of them is in the tree below, so the paragraph was excluding the files
+the tree lists.
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
