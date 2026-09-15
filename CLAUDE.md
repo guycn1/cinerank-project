@@ -65,7 +65,9 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone. The final PLANNED merge closed the
+* `main` is at the latest settled milestone, plus the three defect merges made
+  since it (ground 2 of the merge rule under Version Control Workflow).
+  The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
   documentation-accuracy work, and a **twenty-fourth the same day** carrying the

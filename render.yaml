@@ -17,8 +17,9 @@ services:
     region: frankfurt
 
     # Deploys from `main`, not `draft`. CLAUDE.md treats `main` as the settled
-    # branch, so the public URL only ever moves at a milestone merge — the live
-    # site can never be a half-finished afternoon's work.
+    # branch and merges to it on two grounds only — a settled milestone, or a fix
+    # for a defect already published there — so the public URL only ever moves for
+    # one of those. The live site can never be a half-finished afternoon's work.
     branch: main
 
     buildCommand: npm ci
