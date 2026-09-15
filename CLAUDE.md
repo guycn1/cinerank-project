@@ -591,9 +591,10 @@ are the running record of how each piece got there and stay as written.
     text node, so the browser could break at ANY space in it — including the one
     inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
     ~340px and under. A NON-BREAKING space now glues the label to its number,
-    written as a ` ` ESCAPE rather than a literal character so it cannot be
-    mistaken for an ordinary space and tidied away. The break around " · " is
-    deliberately left, so a narrow row wraps as "2013 ·" / "TMDB 7.0".
+    written as a `u00A0` ESCAPE (backslash-u) rather than a literal character,
+    so it cannot be mistaken for an ordinary space and tidied away. The break
+    around " · " is deliberately left, so a narrow row wraps as "2013 ·" /
+    "TMDB 7.0".
     **Provably invisible at any width that is not already breaking there:** U+00A0
     renders identically to U+0020 and only removes a break OPPORTUNITY. The
     ranked card needs no equivalent — `.score-tmdb` is `white-space: nowrap`,
@@ -1370,7 +1371,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that make them findable.
      **The shared `setAddButtonState()` did not get to decide R7 on the way
      through.** Its unowned label is now read from `btn.dataset.addLabel` (default
-     `+ Add`), so the rec card kept `Add to my list` until the wording was
+     `+ Add`), so the rec card kept `Add to my list` until the wording was
      settled — R7 has since done that, as `+ Add to my list`. The OWNED labels are shared, which is right: both surfaces
      should settle identically. Note the rec card's `aria-label` moved from "to my
      list" to the shared "to your list". R7 looked at that and LEFT it: each voice is
@@ -3845,11 +3846,11 @@ under 400px) and the user does not mind. `In your list` breaking across two line
 is fine; `✓` on one line and `Added` on the next is not.
 
 **How it is enforced:** the glyph is glued to its word with a non-breaking space
-**in the string itself**, written as a ` ` escape, never as a literal
-character. In the string and not in CSS because the same labels are rendered on
-two surfaces — the search row and the recommendation card — and only one of them
-has `white-space: nowrap`. A guard that travels with the text cannot be missed by
-a stylesheet that was never updated. `busyButton()` does the same for every
+**in the string itself**, written as a `u00A0` escape (backslash-u), never as a
+literal character. In the string and not in CSS because the same labels are
+rendered on two surfaces — the search row and the recommendation card — and only
+one of them has `white-space: nowrap`. A guard that travels with the text cannot
+be missed by a stylesheet that was never updated. `busyButton()` does the same for every
 spinner label in one line, since every busy label in the app is built there.
 
 **One standing exception:** `Get recommendations` is out of scope for this rule
@@ -4144,8 +4145,9 @@ the real blob from github.com and read that — it is the only authority.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   every claim in the repository that POINTS AT SOMETHING — a path, a script, a
   `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
-  backticks, a capture and its count, an `RS-n` key, and a short list of retired
-  phrasings — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
+  backticks, a capture and its count, an `RS-n` key, a short list of retired
+  phrasings, and any invisible character (U+00A0 and friends, which no reviewer
+  can see by eye) — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
   file, which a per-file staleness sweep structurally cannot see: `README.md`
   spent sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open"
   after that file went MERGE-READY, and a sweep that edited BOTH files in one

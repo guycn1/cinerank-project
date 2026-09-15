@@ -12,9 +12,9 @@
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
  * path, a script, a decision entry, a commit, a line number, an identifier, a
- * capture, an RS key, or a phrase the project has retired. Every one of those can be
- * resolved against the thing it names, so drift in them is a fact, not a matter
- * of taste.
+ * capture, an RS key, a phrase the project has retired, or an invisible
+ * character that no reviewer can see. Every one of those can be resolved against
+ * the thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
  * the prose is true: a sentence with no referent. "The glow reads as lopsided"
@@ -213,7 +213,35 @@ function checkResilienceKeys() {
 }
 
 /**
- * 9. Retired phrasing must not come back.
+ * 9. No invisible characters anywhere in the repository.
+ *
+ * A standing rule (CLAUDE.md § Button labels) says the non-breaking space that
+ * glues a glyph to its word is written as an ESCAPE in the string, never as a
+ * literal character — and the tooling trap under § Environment traps records
+ * that escape being collapsed into a literal twice while people tried to write
+ * it down. On 2026-09-15 the user found a third: the sentence STATING the rule
+ * contained a literal U+00A0 inside its own code span, so the document forbidding
+ * the character demonstrated it with one, and rendered as an empty chip.
+ *
+ * `public/app.js` was clean throughout — the code always obeyed the rule; only
+ * the prose describing it did not. Checked here rather than trusted, because an
+ * invisible character cannot be reviewed by eye and the repo-wide count is zero,
+ * so this can never cry wolf. Zero-width and BOM characters ride along: they are
+ * the same hazard, arrive the same way (a paste), and are equally unreviewable.
+ */
+const INVISIBLE = { 'U+00A0': ' ', 'U+200B': '​', 'U+FEFF': '﻿', 'U+2028': ' ' };
+function checkInvisibleCharacters() {
+  for (const [f, s] of corpus) {
+    if (f === SELF) continue;
+    for (const [name, ch] of Object.entries(INVISIBLE)) {
+      const n = s.split(ch).length - 1;
+      if (n) add('invisible-char', `${f} contains ${n} literal ${name}`);
+    }
+  }
+}
+
+/**
+ * 10. Retired phrasing must not come back.
  *
  * "name some films" undersold the recommendation run (it reads every rated film
  * and review, infers a taste, excludes owned titles and justifies each pick);
@@ -240,7 +268,7 @@ function checkRetiredPhrasing() {
 }
 
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
-  checkLineRefs, checkIdentifiers, checkCaptures, checkResilienceKeys,
+  checkLineRefs, checkIdentifiers, checkCaptures, checkResilienceKeys, checkInvisibleCharacters,
   checkRetiredPhrasing]) {
   check();
 }
