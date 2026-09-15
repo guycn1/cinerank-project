@@ -210,7 +210,7 @@ and each carries its own evidence.
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
-| [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached — and an honest note wherever one is only partly covered. |
+| [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
 | [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Five criteria for whether this is fit to merge, and an honest standing verdict (Module 16). |
 | [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
