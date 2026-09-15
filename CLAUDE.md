@@ -67,11 +67,12 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled milestone. The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
-  same day** with one defect fix, described at the end of this bullet. Before
-  those, the milestone was
+  same day** with one defect fix, and a **twenty-third on 2026-09-15** carrying
+  the documentation-accuracy work — both described at the end of this bullet.
+  Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-two**
+  steps closed. **Twenty-three**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -104,6 +105,20 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   would follow.** That distinction was written into the merge message, into the
   checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why nothing
   here had to be retracted — only extended.
+  **AND A TWENTY-THIRD FOLLOWED ON 2026-09-15**, for the same reason one layer up.
+  The user found `README.md` describing another document's verdict sixteen hours
+  after that verdict changed, and found it by accident — so the question stopped
+  being "is this claim stale" and became "how many others are". What that merge
+  carries is the answer: a fifth commit gate, `npm run check-claims`, which
+  re-resolves every claim that points at something and is proved to fire against
+  a probe; ten defects it and the sweeps around it found, including two
+  self-contradictions inside single paragraphs, a rule that broke itself three
+  times over, and a list this file's own author had shortened while raising its
+  count; and an audit of every enumeration in the project against its source of
+  truth. The count was again written to `draft` first, on the user's instruction.
+  **The pattern across all three is one sentence:** a check can be sound and its
+  BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
+  direction of reading — and no amount of care inside the boundary finds that.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
