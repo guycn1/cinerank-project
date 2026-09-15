@@ -12,7 +12,7 @@
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
  * path, a script, a decision entry, a commit, a line number, an identifier, a
- * capture, or a phrase the project has retired. Every one of those can be
+ * capture, an RS key, or a phrase the project has retired. Every one of those can be
  * resolved against the thing it names, so drift in them is a fact, not a matter
  * of taste.
  *
@@ -188,7 +188,32 @@ function checkCaptures() {
 }
 
 /**
- * 8. Retired phrasing must not come back.
+ * 8. Every RS-n cited in prose must have at least one capture on disk.
+ *
+ * Narrow on purpose. The tempting neighbour — "does every 'N states' claim match
+ * the real count" — was considered and REJECTED, because "two states that look
+ * like failures and are not" is a perfectly good sentence that such a rule would
+ * flag. A check that cries wolf buries the ones that matter (CLAUDE.md §
+ * Markdown Authoring Rules makes the same argument for what the markdown checker
+ * deliberately skips). Scope drift inside a prose claim — "all nine" surviving
+ * until the set reached sixteen — stays a reading job, and is named here so
+ * nobody assumes a green run covered it.
+ */
+function checkResilienceKeys() {
+  const pngs = readdirSync(join(root, 'docs/screenshots'));
+  const cited = new Set();
+  for (const [, s] of corpus) {
+    for (const [, n] of s.matchAll(/\bRS-(\d{1,2})\b/g)) cited.add(n);
+  }
+  for (const n of cited) {
+    if (!pngs.some((p) => p.startsWith(`rs-${n}-`))) {
+      add('resilience-key', `RS-${n} is cited but has no rs-${n}-*.png capture`);
+    }
+  }
+}
+
+/**
+ * 9. Retired phrasing must not come back.
  *
  * "name some films" undersold the recommendation run (it reads every rated film
  * and review, infers a taste, excludes owned titles and justifies each pick);
@@ -215,7 +240,8 @@ function checkRetiredPhrasing() {
 }
 
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
-  checkLineRefs, checkIdentifiers, checkCaptures, checkRetiredPhrasing]) {
+  checkLineRefs, checkIdentifiers, checkCaptures, checkResilienceKeys,
+  checkRetiredPhrasing]) {
   check();
 }
 

@@ -296,8 +296,19 @@ greyed out](screenshots/rs-7-database-unreachable.png)
 
 > Couldn't load your movies — Something went wrong.
 
-**This is the one state where an empty ranked list is correct** — the list is what
-broke. Both AI triggers are greyed, because the rated-film count comes from data
+**This is the one state IN THIS DOCUMENT where an empty ranked list is correct** —
+the list is what broke. The scope matters: an empty list is also correct when the
+user simply has not added a film yet, which is a healthy state rather than a
+failure and is captured separately as `ac-3-ranking-empty.png`.
+
+**The two are told apart by what sits under the empty list, and the difference is
+not cosmetic.** A genuinely empty list shows "No movies yet — search for one above
+to get started."; this frame shows NOTHING there. `loadMovies()` destructures on
+its first line, so a failed `/api/movies` throws before `refreshRanked()` can
+unhide that line — and that is the right outcome, because the user may have a full
+list the app simply cannot reach. Unhiding it here would assert something false.
+
+Both AI triggers are greyed, because the rated-film count comes from data
 that never arrived.
 
 **Search is still live**, and that is not an oversight in the capture: search calls

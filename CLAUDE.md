@@ -3251,7 +3251,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   whole set and each line is self-contained enough to shoot from without reading
   the history.** Add new ones with the next free number and never renumber.
   **Tick each `RS-n` as it is captured** — the parent checkbox is done only when
-  all nine are.
+  every one of them is. (This read "all nine" until 2026-09-15, which was the
+  set's size when the instruction was written and stopped being true at RS-10.
+  A count that grows with the set does not belong in a rule about the set.)
   **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
   request blocking do NOT simulate them. Forcing means editing `.env` and
   restarting, except where noted.
@@ -3282,8 +3284,10 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     down, search itself fails and there is nothing to click. This works only
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
-  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, the only entry here that
-    needs two: `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
+  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
+    two (it read "the only entry here that needs two" until 2026-09-15; seven
+    others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11, RS-14 and
+    RS-15): `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
     `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
     across two surfaces — the page says the run produced nothing, and only the
     log shows it succeeded and was charged anyway — so either frame alone is
@@ -3378,8 +3382,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     Two things had to be true and are: NO log link in the message (R9/D-047 —
     nothing reached the server, so no row was committed, so nothing may be
     offered), and all seven films still rendering, because the list loaded
-    before the server died and nothing re-fetches it. RS-7 is the only frame
-    where an empty list is correct; this is emphatically not that frame.
+    before the server died and nothing re-fetches it. RS-7 is the only frame IN THIS
+    SET where an empty list is correct; this is emphatically not that frame. (A
+    genuinely empty list is correct too, and is captured as
+    `ac-3-ranking-empty.png` — it differs by showing the empty-state line, which
+    RS-7 deliberately does not.)
     **CineRank itself unreachable.** **Load the page first, THEN stop
     `npm start`**, then search. Stopping the server first means the document never
     loads and there is no UI to photograph — this cost time once already. Expect
@@ -3410,8 +3417,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Database unreachable.** Bogus `SUPABASE_URL` /
     `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
     movies — Something went wrong."
-    **This is the ONE shot where the ranked list is legitimately empty** — it is
-    the thing that broke — so it does not belong in the set above.
+    **This is the ONE shot IN THIS SET where the ranked list is legitimately
+    empty** — it is the thing that broke — so it does not belong in the set above.
+    Scoped on purpose: an empty list is ALSO correct for a user who has added
+    nothing, which `ac-3-ranking-empty.png` captures. The two differ by the
+    empty-state line, shown there and deliberately absent here.
     Worth knowing why it earns a slot: finding this state is what caught the
     central 500 handler claiming a failure was "on our side" when it was neither
     a bug nor the server's fault.
@@ -3447,7 +3457,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     included deliberately: it is the clearest single frame proving the app reports
     an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
-    **The only one of the nine that needs a temporary code change**, because the
+    **The only one of the ORIGINAL NINE that needs a temporary code change** —
+    RS-15 and RS-16 were added later and need one too, so this is no longer the
+    only such recipe in the set — because the
     state cannot be forced from `.env`. In `generateRecommendations()`, make every
     verified film look owned:
     `if (true || ownedTmdbIds.has(movie.tmdb_id)) { tally.owned += 1; continue; }`
@@ -4132,8 +4144,8 @@ the real blob from github.com and read that — it is the only authority.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   every claim in the repository that POINTS AT SOMETHING — a path, a script, a
   `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
-  backticks, a capture, and a short list of retired phrasings — against the thing
-  it names. It exists because a claim can be falsified by an edit to a DIFFERENT
+  backticks, a capture and its count, an `RS-n` key, and a short list of retired
+  phrasings — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
   file, which a per-file staleness sweep structurally cannot see: `README.md`
   spent sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open"
   after that file went MERGE-READY, and a sweep that edited BOTH files in one
