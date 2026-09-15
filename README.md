@@ -260,10 +260,10 @@ actually lives rather than where it is summarised:
 
 **Every directory below that is listed file by file is listed in full.** The ones
 summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
-`docs/screenshots/` — are deliberate summaries, not truncations, and `prompts/`
-is compacted to its version ranges for the same reason. Between those three
-forms — listed, summarised, compacted — plus the paragraph below, every tracked
-file in the repository is accounted for.
+`docs/screenshots/`, `docs/*.md` — are deliberate summaries, not truncations,
+and `prompts/` is compacted to its version ranges for the same reason. Between
+those three forms — listed, summarised, compacted — plus the paragraph below,
+every tracked file in the repository is accounted for.
 
 **Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
 a line here, and listed by name so the omission can be checked rather than
@@ -273,9 +273,11 @@ the Documentation table above; `package.json` and
 (under Setup); `DOSSIER.md`, the course's own grading brief rather than part of
 the build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That
 is every tracked entry in the repository root accounted for. **The nine
-`docs/*.md` were named in this list until 2026-09-16 and should not have been:**
-every one of them is in the tree below, so the paragraph was excluding the files
-the tree lists.
+`docs/*.md` sat in this list until 2026-09-16 while the tree below listed all
+nine individually** — the paragraph excluded exactly what the tree enumerated.
+Settled in this paragraph's favour rather than the tree's: the tree now
+summarises them on one line, so each document is described in exactly one
+place, the Documentation table.
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
@@ -313,18 +315,12 @@ scripts/seed-demo.js            loads the demo list through the app own HTTP API
 test/              npm test — helpers, prompt loader, routes, resilience
                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 eslint.config.js    defect rules + complexity ceilings; not a style linter
-docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of scope
-docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
-docs/AI-CALL-LOG.md  what the documentation brief commissioned: the call log's
-                    load-bearing rules and what breaks if they are undone
-docs/MERGE-READINESS.md  Module 16 five criteria, each with its evidence and the
-                    standing verdict the document itself carries
-docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
-docs/ACCEPTANCE.md  SPEC 7.1 criterion by criterion, with evidence attached
-docs/RESILIENCE.md  what the user sees when each dependency fails, with the
-                    captures embedded as evidence
-docs/DECISIONS.md   why the choices are what they are
-docs/PROCESS.md     how it was built with an LLM in the loop
+docs/*.md           nine prose documents — framing, briefs, the call-log
+                    write-up, merge-readiness, security, acceptance, resilience,
+                    decisions, process. Described one at a time in the
+                    Documentation table above, which is the ONLY place each one
+                    is described: they were listed here too until 2026-09-16,
+                    and two of the nine pairs had already drifted apart
 docs/screenshots/   37 captures: rs-* the sixteen resilience and state recipes,
                     pi-* the prompt-injection evidence, readme-* the showcase
                     shots embedded above
