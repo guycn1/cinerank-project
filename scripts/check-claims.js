@@ -217,7 +217,8 @@ function checkResilienceKeys() {
  *
  * A standing rule (CLAUDE.md § Button labels) says the non-breaking space that
  * glues a glyph to its word is written as an ESCAPE in the string, never as a
- * literal character — and the tooling trap under § Environment traps records
+ * literal character — and the tooling trap under § Environment & tooling traps
+ * records
  * that escape being collapsed into a literal twice while people tried to write
  * it down. On 2026-09-15 the user found a third: the sentence STATING the rule
  * contained a literal U+00A0 inside its own code span, so the document forbidding

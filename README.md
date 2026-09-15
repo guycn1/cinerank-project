@@ -263,6 +263,8 @@ server/
   services/
     tmdb.js         all TMDB HTTP; the trusted source of movie facts
     openrouter.js   low-level OpenRouter transport
+    promptLoader.js loads a versioned prompt at call time: strips the leading
+                    dev-note comment, splits # System / # User, fills {{VARS}}
     recommendations.js  reads taste profile → prompt → parse JSON → verify vs TMDB → log
     tasteVerdict.js     rated movies → prompt → plain-text verdict → log
   routes/           thin Express routes; no inline fetch(), no inline SQL

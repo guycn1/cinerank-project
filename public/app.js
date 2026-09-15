@@ -1975,7 +1975,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     // discarded `err.message`, so CineRank being unreachable produced "See the AI
     // call log for details" pointing at a log that could not load either, with
     // the real cause thrown away (R23, D-047).
-    // Built from nodes, never innerHTML (CLAUDE.md § Security 4).
+    // Built from nodes, never innerHTML (CLAUDE.md § Security & Secrets, item 4).
     // Bypasses setVerdictText() on purpose: this content is a link plus two
     // text nodes, not a single string, so there is nothing plausible to type.
     // Safe to write directly -- the busy branch above already cancelled any
