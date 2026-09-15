@@ -252,12 +252,26 @@ actually lives rather than where it is summarised:
 
 ## Project layout
 
+**Every directory below that is listed file by file is listed in full.** The ones
+summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
+`docs/screenshots/` — are deliberate summaries, not truncations. Not shown, because
+they are covered elsewhere or carry nothing worth a line here: this file
+(`README.md`), the documentation mapped in the table above, `package.json` and
+`package-lock.json`, `render.yaml` (described under Deployment), `.env.example`
+(under Setup), and
+`DOSSIER.md`, which is the course's own grading brief rather than part of the
+build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That is
+every tracked entry in the repository root accounted for.
+
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
                     taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
 db/schema.sql       Supabase schema + RLS — fresh installs
 db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
+  index.js          the Express app: mounts the routes, serves public/, and the
+                    central error handler. Exports `app` and only listens when
+                    run directly, which is what lets the tests import it
   config.js         the only place env/secrets enter the process
   supabase.js       one anon-key client; all DB access via the query builder
   services/
