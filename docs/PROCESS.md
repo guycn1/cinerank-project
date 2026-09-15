@@ -17,7 +17,7 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Twenty-three merges to `main` (verify with
+  human sign-off.** Twenty-four merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -26,7 +26,10 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   found, fixed, and merged under the same sign-off rule as the twenty-one before
   it. The twenty-third, the next day, carried the answer to the question that
   defect raised — a fifth gate that re-resolves every claim pointing at something,
-  and the accuracy sweeps that went with it.
+  and the accuracy sweeps that went with it. The twenty-fourth, the same day,
+  carried what that gate cannot reach: claims with no referent to resolve, where
+  the only check is to go and look at the other things the claim implicitly
+  describes.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as

@@ -34,13 +34,18 @@ Four claims, and every capture below is measured against them:
 Each state has a recipe, kept as `RS-1` … `RS-16` in `CLAUDE.md` so that any of
 them can be reproduced exactly. TMDB and OpenRouter are called **server-side**, so
 browser devtools cannot simulate them: most recipes break the relevant key in
-`.env` and restart, and four force a state no key can produce by changing one
-line of a service and reverting it the moment the shot lands.
+`.env` and restart, and three — `RS-9`, `RS-15` and `RS-16` — force a state no
+key can produce by changing one line of a service and reverting it the moment the
+shot lands. `RS-15` does it twice, once per half, which is why the number of such
+EDITS is four and the number of such recipes is three.
 
-**Five of them are order-dependent and each says so at the top**, because getting
-the order wrong does not produce a worse frame — it produces a different state
-entirely. Loading the page *before* breaking the key is what leaves a control
-enabled to click; breaking it first gives you `RS-7`.
+**Five of them are order-dependent**, because getting the order wrong does not
+produce a worse frame — it produces a different state entirely. Loading the page
+*before* breaking the key is what leaves a control enabled to click; breaking it
+first gives you `RS-7`. Every one of the five spells its sequence out step by
+step, and three of them — `RS-2`, `RS-6` and the shared
+`RS-11`/`RS-12`/`RS-13` recipe — flag it in bold before the steps begin;
+`RS-10` and `RS-14` carry the order in the steps alone.
 
 None of these are mock-ups. Every frame is the real application in the state
 described. Not every one involves a broken dependency: in `RS-10` and `RS-15`
