@@ -195,6 +195,16 @@ Beyond this priority order, the specific visual treatment — layout, styling, a
 * **Failure state:** TMDB or OpenRouter failures produce a specific, calm inline message (see § 2.4, the resilience requirements — this pointed at § 2.3, which specifies only the verdict banner's own fallback) — never a raw error dump or a silently broken button.
 * **Duplicate handling:** attempting to add a movie already in the list shows a clear "Already in your list" message instead of a duplicate entry or a raw DB constraint error.
 
+*A SIXTH feedback state exists as built and is not in the list above: submitting an EMPTY
+search. It answers with the muted note "Type a film title to search." and returns the caret
+to the input, rather than the silent no-op it was until 2026-09-07. It is the nearest sibling
+of Duplicate handling — a user-input mistake answered inline rather than ignored — and it is
+absent here because it emerged from using the app rather than from this specification. What it
+does, and the `400` `Missing search query` it makes unreachable, are in `docs/RESILIENCE.md`
+under the errors the interface cannot reach. Deliberately annotated rather than added as a
+sixth bullet: a new bullet would read as though it had been specified all along, and where the
+spec and the build diverged is what this document exists to keep readable.*
+
 
 ## 4\. Technical Architecture (Module 7)
 
