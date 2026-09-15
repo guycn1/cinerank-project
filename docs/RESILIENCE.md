@@ -233,12 +233,12 @@ reply that breaks its shape is a failure. Both were charged, both are in the
 trail, and the trail distinguishes them — which is the only reason anyone could
 later tell a quiet model from a broken one.
 
-**And the third row is why the first two matter.** `—` in Tokens and Cost is not
-a formatting choice, it is a claim: *this call never ran*. Rendering `0` there
-would be a lie the totals then sum. The rule is that those cells go blank **only
-when the value is genuinely null**, and the two failures in this one frame are
-what make the rule visible — identical red badges, completely different data,
-because they died at different points in the pipeline.
+**And the third row is why the first two matter.** The em dash (`—`) standing in
+the Tokens and Cost cells is not a formatting choice, it is a claim: *this call
+never ran*. Rendering `0` there would be a lie the totals then sum. The rule is
+that those cells go blank **only when the value is genuinely null**, and the two
+failures in this one frame are what make the rule visible — identical red badges,
+completely different data, because they died at different points in the pipeline.
 
 The footer reads `Total · 60 calls`, which is the cap rather than the lifetime
 figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
