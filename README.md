@@ -326,9 +326,11 @@ docs/*.md           nine prose documents — framing, briefs, the call-log
                     Documentation table above; they were listed individually
                     here as well until 2026-09-16, and two of those nine pairs
                     had already drifted apart
-docs/screenshots/   37 captures: rs-* the sixteen resilience and state recipes,
-                    pi-* the prompt-injection evidence, readme-* the showcase
-                    shots embedded above
+docs/screenshots/   37 captures in four families, with a README.md index that
+                    renders when the folder is opened on GitHub: rs-* the sixteen
+                    resilience and state recipes, ac-* the acceptance-criteria
+                    evidence, pi-* the prompt-injection evidence, readme-* the
+                    showcase shots embedded above
 ```
 
 ## Demo script
