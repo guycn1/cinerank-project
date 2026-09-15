@@ -65,8 +65,9 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone, plus the three defect merges made
-  since it (ground 2 of the merge rule under Version Control Workflow).
+* `main` is at the latest settled milestone, plus the defect merges made since it
+  (ground 2 of the merge rule under Version Control Workflow — no count here on
+  purpose, since that set is still open).
   The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
@@ -4203,8 +4204,13 @@ the real blob from github.com and read that — it is the only authority.
      `main` would be MISINFORMED — a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, end of the `main` bullet). Merges 22, 23 and 24 are all this ground
-     and nothing else has been.
+     status, end of the `main` bullet). **Every merge after `0cdc4ec`, the final
+     planned one, has been made on this ground, and no merge has ever been made
+     on any third.** Written without a COUNT of them on purpose: a count of a set
+     that is still open goes stale at the next merge, and `check-claims` resolves
+     tokens that NAME something — a bare numeral in prose names nothing, so
+     nothing would catch it. This rule had a drifting "three merges since" in it
+     for one commit; the user caught it, not the gate.
   **What does NOT qualify, under either ground:** wording that is loose but whose
   substance is right; a clarification, an improvement or a tidier phrasing; and
   anything whose correction is already legible in `draft`'s history. **A

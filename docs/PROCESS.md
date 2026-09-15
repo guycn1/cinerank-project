@@ -19,7 +19,7 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 - **Everything on `draft`; `main` only at a settled milestone or to fix a defect
   already published there, only with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  the three since have all been the latter. Twenty-four merges to `main` (verify with
+  every merge since has been the latter. Twenty-four merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
