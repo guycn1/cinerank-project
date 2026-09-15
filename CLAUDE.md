@@ -1877,9 +1877,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `status='success'` and exactly the SHOWN titles.
      **Verified load-bearing, not just green:** each of the three `continue` guards
      in `generateRecommendations()` was deleted in turn, and every deletion failed
-     exactly these two tests. Deliberately written against CURRENT behaviour, so
-     R2's unrated-owner case is NOT yet asserted — that assertion is what should
-     fail before the R2 fix and pass after it.
+     exactly these two tests. Deliberately written against the behaviour AS IT
+     STOOD THAT DAY, so R2's unrated-owner case was not asserted here — that
+     assertion was what should fail before the R2 fix and pass after it.
+     **It landed with R2 and the suite has carried it since:**
+     `test/routes.test.js` holds "never suggests a film already in the list but
+     UNRATED", commented at itself as R2, and D-046 records that rebuilding the
+     owned set from `rated` fails exactly that one test. Corrected rather than
+     preserved, on R27's precedent: this was advice about work still to come,
+     not a record of a past state, and the work came.
    * **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
      the others do not shift.** It claimed the client hardcodes the thresholds the
      server owns. It does not: `init()` in `app.js` does
@@ -3928,9 +3934,14 @@ be missed by a stylesheet that was never updated. `busyButton()` does the same f
 spinner label in one line, since every busy label in the app is built there.
 
 **One standing exception:** `Get recommendations` is out of scope for this rule
-by the user's instruction — it is parked for the recommendations overhaul. Its
-BUSY label is nonetheless covered, because that comes from the shared
-`busyButton()`; only its resting label is exempt.
+by the user's instruction. Its BUSY label is nonetheless covered, because that
+comes from the shared `busyButton()`; only its resting label is exempt.
+**The exemption is moot in practice, and has been since R11:** that item gave
+`.recs__trigger` `white-space: nowrap`, so the label cannot break at all — the
+rule's outcome reached by a different mechanism. The exemption is left standing
+rather than retired because it is the user's to lift, not Claude's. (This read
+"parked for the recommendations overhaul" until 2026-09-16; that overhaul closed
+on 2026-09-12 and R11 is what closed this along with it.)
 
 **And one case the in-string technique cannot cover at all** (found by R15, which
 put a sparkle icon on that same trigger): an ICON is an element, not a character,

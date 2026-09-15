@@ -347,10 +347,14 @@ on it; the merged log is what the app and the demo use.
 
 One honest caveat: six of the earliest log rows predated the migration that
 added the token split and duration columns, so they showed blanks in those
-fields. They were deleted by hand once, for presentation, rather than left to
-age out of the 60-row window. That is the only time anything has been removed
-from the audit trail, and no code path in the app can delete a log row — see
-`docs/DECISIONS.md` D-019.
+fields. They were deleted by hand, for presentation, rather than left to age out
+of the 60-row window. **Rows have been removed by hand exactly twice in this
+project's life, and both times are written up:** these six (`docs/DECISIONS.md`
+D-019), and, on 2026-09-13, a set of failed-verdict rows that named a model the
+call never used (D-070 — wrong data about a real event, rather than history worth
+preserving). No code path in the app can delete a log row; both removals were
+deliberate, by hand, and recorded as exceptions to the append-only argument the
+log rests on.
 
 ## 5. Incident 1 — and the guardrail it produced (Module 12)
 

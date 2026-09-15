@@ -592,8 +592,8 @@ frame** — six because the interface refuses the state before a request is ever
 sent, and a seventh because the server never produces the response it handles.
 
 They are written down rather than left implicit for two reasons. The first is that
-an evidence set should say where its own edges are: a reader who counts fifteen
-states is entitled to ask whether that is all of them. The second matters more.
+an evidence set should say where its own edges are: a reader who counts the
+sixteen states above is entitled to ask whether that is all of them. The second matters more.
 **Each of these is unreachable only because of one specific client-side guard**,
 and the table's left column is therefore a constraint on the client, not a
 description of it.
