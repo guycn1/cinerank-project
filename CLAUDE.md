@@ -3384,11 +3384,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     caught it in the first attempt at this frame. Fixed, covered by a test per
     feature, and the wrong rows deleted by hand — D-070.
     The captured frame is full-page rather than cropped to the banner, and is
-    kept that way: it is the only capture in the set showing the site header —
-    the wordmark and `.mark__reel`, the tagline, and the GitHub link from step 3
-    — and it shows the banner at the very top failing while everything below it
-    is untouched. What pairs with RS-4 is the SENTENCE, which is legible either
-    way. Useful when the README screenshots come up.
+    kept that way: it is one of only TWO captures in the RS set that show the
+    site header — the wordmark and `.mark__reel`, the tagline, and the GitHub
+    link from step 3 — and it is the only one of the two where everything below
+    the failing banner is intact. (The other is `rs-7-database-unreachable.png`,
+    which shows the same header above a list that could not load; this line read
+    "the only capture" until 2026-09-15, when the two were compared frame by
+    frame.) What pairs with RS-4 is the SENTENCE, which is legible either way.
+    Useful when the README screenshots come up.
     **OpenRouter down on the verdict.** Same key, 2+ rated films,
     click New verdict. Expect "Couldn’t come up with a verdict right now. See the
     AI call log for details." Shoot it beside RS-4 if possible — the two features
