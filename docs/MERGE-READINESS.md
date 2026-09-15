@@ -21,7 +21,7 @@ matters more than the verdict.** It was written on 2026-09-13 and immediately
 failed its own first criterion — at a point when the application was deployed,
 working, and covered by a green test suite. By the usual informal reading it
 looked finished. Criterion 1 is the one that refuses that reading, and holding it
-open for a day produced twenty-six captures, two evidence documents, three real
+open for a day produced the whole capture set, two evidence documents, three real
 defects and three untested happy paths.
 
 **A standard that had passed on the first attempt would have been worth nothing.**
@@ -133,7 +133,7 @@ the decision log where it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project until 2026-09-13.
 
-`npm run lint` runs ESLint 9 over all 23 JavaScript files (6,101 lines) across
+`npm run lint` runs ESLint 9 over all 23 JavaScript files across
 three environments — Node ES modules, the browser ES module, and the one browser
 *classic* script that `index.html` loads with a bare tag. **Current state: zero
 errors.**
@@ -263,5 +263,5 @@ npm run check-markdown
 
 All four are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
 one that cannot be re-run from a terminal** — which is precisely why it was the
-last to close, and why it needed twenty-six captures and two evidence documents
+last to close, and why it needed a capture set and two evidence documents
 rather than a command.

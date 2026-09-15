@@ -205,7 +205,7 @@ and each carries its own evidence.
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the co-evolution spiral (Module 10). |
 | [`docs/FRAMING.md`](docs/FRAMING.md) | Problem, stakeholders, definition of done, and what is deliberately **not** being built (Module 6). The authority on scope boundaries. |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Seventy entries** on why the choices are what they are — including the ones that were wrong, reversed, or argued down by the user (Module 8). A log that only recorded wins would not be evidence of process. |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user (Module 8). A log that only recorded wins would not be evidence of process. |
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
@@ -284,7 +284,8 @@ docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of s
 docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
 docs/AI-CALL-LOG.md  what the documentation brief commissioned: the call log's
                     load-bearing rules and what breaks if they are undone
-docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
+docs/MERGE-READINESS.md  Module 16 five criteria, each with its evidence and the
+                    standing verdict the document itself carries
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/ACCEPTANCE.md  SPEC 7.1 criterion by criterion, with evidence attached
 docs/RESILIENCE.md  what the user sees when each dependency fails, with the
