@@ -65,15 +65,19 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone. The final PLANNED merge closed the
+* `main` is at the latest settled milestone, plus the defect merges made since it
+  (ground 2 of the merge rule under Version Control Workflow — no count here on
+  purpose, since that set is still open).
+  The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
-  documentation-accuracy work, and a **twenty-fourth the same day** carrying the
-  sweep that followed it — all three described at the end of this bullet.
+  documentation-accuracy work, a **twenty-fourth the same day** carrying the
+  sweep that followed it, and a **twenty-fifth** carrying the merge rule itself
+  — all four described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-four**
+  steps closed. **Twenty-five**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -118,22 +122,54 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   count; and an audit of every enumeration in the project against its source of
   truth. The count was again written to `draft` first, on the user's instruction.
   **AND A TWENTY-FOURTH THE SAME DAY**, which is the twenty-third's own method
-  turned on the classes it had not covered. The gate resolves claims that POINT
-  at something; a uniqueness claim points at nothing — it is an assertion about
-  everything it did not look at, so reading the item it sits on can never
-  falsify it. The sweep that this merge carries went at those by hand: ten
+  turned on the classes it had not covered. The gate resolves a claim by looking
+  up the thing the claim NAMES. A uniqueness claim names one thing and asserts
+  something about everything else, so its falsifier is never the item in the
+  sentence — "the only capture in the set showing X" is disproved by some OTHER
+  capture, which the sentence does not mention — and a resolver that follows the
+  addresses in the text walks straight past it however well it resolves them.
+  **An earlier version of this note said such a claim "points at nothing", and
+  the merge message on `main` still does. That is wrong and is corrected here
+  rather than preserved:** it points at something perfectly well, and it is
+  checkable — it WAS checked, by opening the other frames. Checking it just
+  costs an enumeration of the set plus a predicate the gate cannot evaluate,
+  where a resolvable claim costs one lookup. The merge message is left as
+  written, the way `619ed64` was.
+  The sweep that this merge carries went at those by hand: ten
   self-referential "the comment says so" pointers resolved against the comments
   they name (all ten held), every `§` reference and all 86 internal markdown
   links re-resolved (all clean), and three real defects fixed — a capture called
   the only one showing the site header when a second one does too, a count of
   recipes given as four in one file and three in another, and a coverage claim
-  that credited five recipes with a warning only three carry. The first and the
-  third were found by opening the other frames and reading the other recipes,
-  which is the only thing that can find them. The count was written to `draft`
+  that credited five recipes with a warning only three carry. **Only the first is
+  a uniqueness claim**; the second is a cross-file contradiction, where both
+  figures resolve fine and nothing had ever compared two files on the same
+  subject, and the third is a coverage claim, checkable in text by reading the
+  five recipes. The first and the third were found by opening the other frames
+  and reading the other recipes, which is the only thing that can find them. The count was written to `draft`
   first, on the user's instruction, for the fourth time running.
-  **The pattern across all four is one sentence:** a check can be sound and its
-  BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
-  direction of reading — and no amount of care inside the boundary finds that.
+  **AND A TWENTY-FIFTH, still 2026-09-15**, whose subject is the merge rule that
+  governs all of them. The user asked whether the run of non-milestone merges
+  since `0cdc4ec` meant the "settled milestone only" rule had quietly died.
+  Measured rather than accepted: merges 1–21 are all completed work, and 22–24
+  each cleared a SECOND criterion — a defect already published on `main` — stated
+  at `94f5325` before it was used. The practice had been consistent; the RULE
+  TEXT was what was out of date. So the rule now names its grounds (D-073): a
+  settled milestone, a published defect, and one close-out sync when the work is
+  declared finished. **What triggered the merge is not the rule edit but
+  `50d5670`:** `SPEC.md` told a reader that EACH merge follows a milestone,
+  `README.md` and `render.yaml` said milestones only, and the same repository's
+  `git log --merges` showed three that were not. **Claude classified the whole
+  `draft` stack by its first commit and never re-ran the test as the stack grew
+  to contain a real defect fix — the user caught that too.**
+  **The pattern across every one of them is one sentence:** a check can be sound
+  and its BOUNDARY wrong — the wrong render context (22), the wrong file types
+  and the wrong direction of reading (23), a claim whose falsifier it never names
+  (24), and a test applied once and not re-applied as its subject changed (25) —
+  and no amount of care inside the boundary finds that. (That sentence read
+  "across all four" while listing three causes, which is a count raised without
+  extending its own list — the defect this file found in `docs/PROCESS.md` once
+  already. The count is gone and the list is complete.)
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -4175,7 +4211,63 @@ the real blob from github.com and read that — it is the only authority.
 * **Working branch:** `draft` — all day-to-day work happens here.
 * **`main` is the repo's default branch, but treated as protected in practice:** nothing gets pushed to `main` directly, ever.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
-* **Merging `draft` → `main` only happens at a notable, settled milestone** — a UI milestone or a backend milestone believed to be genuinely complete, not a small incremental change. **Claude must ask the user for explicit confirmation before merging to `main`.** Never merge automatically, even if the milestone seems obviously done.
+* **Merging `draft` → `main` happens on one of THREE grounds and never on any
+  other.** (D-073 records the alternatives weighed, and the two things Claude got
+  wrong while writing this.) **Claude must ask the user for explicit confirmation before merging,
+  on any of the three.** Never merge automatically, even if the case looks obvious.
+  1. **A notable, settled milestone** — a UI milestone or a backend milestone
+     believed to be genuinely complete, not a small incremental change. **ALL
+     TWENTY-ONE OF THE FIRST TWENTY-ONE MERGES WERE THIS ONE**, and nothing
+     weaker was ever merged under it: an app verified end to end, a section
+     overhaul, a backlog closed, the deployment, the DOSSIER reconciliation, the
+     final planned merge. `git log --merges --oneline main` is the check.
+  2. **A defect ALREADY PUBLISHED on `main`.** The test is whether a reader of
+     `main` would be MISINFORMED — a broken render, a claim that misstates the
+     state of the work, a wrong figure. Added at the twenty-second merge and
+     stated in its own note at the time rather than invented afterwards (Build
+     status, end of the `main` bullet). **Every merge after `0cdc4ec`, the final
+     planned one, has been made on this ground, and no merge has ever been made
+     on grounds outside this list.** Written without a COUNT of them on purpose: a count of a set
+     that is still open goes stale at the next merge, and `check-claims` resolves
+     tokens that NAME something — a bare numeral in prose names nothing, so
+     nothing would catch it. This rule had a drifting "three merges since" in it
+     for one commit; the user caught it, not the gate.
+  3. **A close-out sync.** When the work is declared finished — submission,
+     handover, archival — `draft` is merged once so that `main` is the FINISHED
+     state rather than the last state that happened to clear ground 1 or 2. It
+     fires ONCE, at a named event, and carries whatever is already settled on
+     `draft`. It is never a reason to batch changes up for later, and never a way
+     to merge work in progress.
+     **Quiescence is a PROMPT, not a ground.** If `draft` stands ahead and
+     unchanged for a long stretch with no such event declared, Claude must ASK
+     whether the work has ended. The asking is the mechanism: silence alone never
+     authorises a merge, the answer to that question does.
+     **"Enough time has passed" was the form first proposed, and it was
+     rejected** — D-073 has the argument. An undefined period puts the rule back
+     in the state ground 2 was written to cure, where every merge re-argues its
+     own bar; a quiet fortnight because the work is finished and a quiet
+     fortnight because the authors were busy elsewhere are indistinguishable to a
+     clock and opposite in meaning; and nothing here runs a timer, so the ground
+     would sit satisfied by nobody noticing.
+  **What does NOT qualify, under any of the three:** wording that is loose but whose
+  substance is right; a clarification, an improvement or a tidier phrasing; and
+  anything whose correction is already legible in `draft`'s history. **A
+  correction sitting unmerged on `draft` is not a loose end** — `draft` running
+  ahead of `main` is this repo's documented normal state, and a correction visible
+  there, with its reasoning in the commit message, is the workflow showing rather
+  than untidiness.
+  **Why this is written out at all, since the practice was already consistent:**
+  the rule used to state ground 1 alone while three merges had in fact been made
+  on ground 2 — each argued in its own Build-status note, none of them written
+  into the rule. So there was no bar to hold a candidate against, and every merge
+  after the twenty-first had to re-derive its own justification from nothing,
+  which reads as erosion whether or not it is. Written 2026-09-15, when a wording
+  correction (`671f74a`) needed judging and there was nothing to judge it with.
+  It fails ground 2 — the sentence it fixes is over-compressed, not misinforming
+  — so it never TRIGGERED a merge. It reached `main` by riding along with
+  `50d5670`, which did clear ground 2. **That is the rule working as intended,
+  not an exception to it:** the grounds decide WHETHER to merge, never what the
+  branch may carry.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see

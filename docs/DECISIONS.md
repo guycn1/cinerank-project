@@ -5,6 +5,125 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-073 · The merge rule gained a second and a third ground, and the correction that prompted it stays on `draft`
+
+*2026-09-15, after the user asked whether a wording correction was worth a
+twenty-fifth merge — and said they feared it would be too blatant a deviation
+from the milestone rule even by post-`0cdc4ec` standards.*
+
+Two worries, and they pulled opposite ways: a correction (`671f74a`) was sitting
+on `draft` and might never be merged if no further work came, while merging for
+it looked like the clearest breach yet of "only at a notable, settled milestone".
+
+**The premise was measured before it was accepted, and it was half wrong.** The
+first twenty-one merges, read off `git log --merges --oneline main`: an app
+verified end to end, the AI-call-log table and card views, the taste-verdict and
+search sections, the ranked-list overhaul, the live deployment, four merges of
+the recommendations overhaul, the front-end overhaul completing, the DOSSIER
+reconciliation, and `0cdc4ec`, the final planned merge. Not one incremental
+change among them. And the merges after it each cleared a *different* criterion
+— a defect already published on `main` — which was stated at `94f5325` in its own
+Build-status note **before** it was used, not reached for afterwards. So the
+practice had been consistent the whole time. **What was out of date was the rule
+TEXT**, which still named ground 1 alone.
+
+**Decided: write the second ground into the rule, with a test sharp enough to
+exclude things.** Ground 1, a notable settled milestone. Ground 2, a defect
+already published on `main`, the test being whether a reader of `main` would be
+MISINFORMED — a broken render, a claim that misstates the state of the work, a
+wrong figure. The load-bearing half is the third clause, what qualifies under
+neither: wording that is loose but substantively right, a clarification or an
+improvement, and anything whose correction is already legible in `draft`'s
+history.
+
+**The alternatives, and why each was rejected.**
+
+* **Merge `671f74a` as a twenty-fifth.** The obvious move, and the one three
+  consecutive defect merges invited. Rejected on the merits — the sentence it
+  fixes is over-compressed rather than misinforming, since the clause after the
+  dash carries the argument correctly — and on cost: a merge needs the count
+  updated in three files plus a "twenty-fifth" note explaining why a wording fix
+  warranted one, which would be longer than the fix and the most self-undermining
+  paragraph in `CLAUDE.md`.
+* **Leave the rule at ground 1 and keep arguing each merge in its own note.**
+  That is precisely what produced the *appearance* of erosion: with no written
+  bar to hold a candidate against, every merge after the twenty-first had to
+  re-derive its justification from nothing. Consistent practice that reads as
+  drift is still a documentation defect, and this repo's documentation is graded.
+* **Let `671f74a` sit unmerged and say nothing.** Indistinguishable from an
+  oversight. Failing a written test is a different thing from being forgotten.
+* **Rewrite the merge message on `main`,** which still carries the loose
+  phrasing. Rejected: force-pushing over pushed history. The same call was made
+  for `619ed64` and it was left as written; the correction lives in `CLAUDE.md`
+  and points at the message instead.
+
+**Where Claude was wrong, twice, inside the one exchange.** First, the phrase
+that started it: "a uniqueness claim points at nothing" is false, and the
+disproof sat in the same paragraph — that claim had just been checked and
+disproved by opening four captures. It had borrowed the category this repo uses
+for TASTE claims, which genuinely have no referent because no lookup settles
+them. A uniqueness claim has a referent; what it lacks is a falsifier the
+sentence NAMES. Second, and worse for having happened while writing about
+accuracy: the rule shipped with "the three merges since" in five files — a count
+of an OPEN set, which is the exact thing this project had already removed five
+times over. The user caught it. `check-claims` could not have: its ten checks all
+resolve a token that names something, and a bare numeral in prose names nothing.
+
+**A THIRD ground was added the same day, and the user's first wording of it was
+turned down.** They proposed that when `draft` has stood ahead of `main` and
+gained no new commits for "a reasonably long period", that alone should authorise
+a merge — the worry being that with the project essentially finished, nothing
+meeting ground 1 or 2 might ever arrive again and `draft` would sit ahead
+forever. The worry is real and is why a third ground exists at all. **The form
+was not**, for three reasons, all of which the same conversation had just
+demonstrated:
+
+* **An undefined period has no test**, so every merge under it re-argues what the
+  phrase means. That is exactly the state ground 2 was written to cure, and
+  putting it back deliberately is worse than having arrived there by omission.
+* **Time is a lossy proxy for the thing actually meant.** A quiet fortnight
+  because the work is finished and a quiet fortnight because the authors were
+  busy elsewhere are identical to a clock and opposite in meaning. Only the
+  second must not merge.
+* **Nothing here would notice.** Grounds 1 and 2 fire when a human looks at
+  content; a clock-based ground fires when a clock elapses, and this repo has no
+  CI, no cron and nobody running a timer on it. The ground would sit permanently
+  satisfied by no one. It would also be the one merge in twenty-five whose
+  justification says nothing about the work, in a repository where the process is
+  the graded deliverable.
+
+**What was written instead: a CLOSE-OUT SYNC.** The operative condition is not
+elapsed time but *the work having ended*, so the rule names that directly —
+submission, handover, archival — fires once, and carries whatever is already
+settled on `draft`. It is checkable, since "is the project being closed out" has
+a yes-or-no answer, and it cannot be stretched to cover ordinary work in
+progress. **The user's insight survives as a PROMPT rather than a ground:** a
+long quiet stretch with `draft` ahead obliges Claude to ASK whether the work has
+ended. The asking is the mechanism; the answer authorises the merge, never the
+silence. A concrete figure ("thirty days") was offered as a middle path and also
+declined — testable, which "reasonably long" is not, but still measuring the
+wrong quantity.
+
+**This project has a named terminal event**, which is why the close-out form is
+sufficient here rather than merely tidier: `CLAUDE.md` is built around a
+submission deadline. The fallback matters only for a project that ends by
+petering out, and there the fallback is a question, not a merge.
+
+**Traps that follow.**
+
+* **Never restore a count of the merges made "since" anything.** That set is
+  open, so the figure is false one merge later and no gate will say so. "The
+  first twenty-one" is CLOSED and is safe to state; anchor the tail to `0cdc4ec`
+  instead of counting it.
+* **Do not answer this by teaching the gate to check bare numerals.** It would
+  fire on hundreds of legitimate ones, and a check that cries wolf buries the
+  ones that matter — already a rule here. The fix for a drifting count is
+  deletion, not a checker.
+* **A correction sitting unmerged on `draft` is not a loose end.** `draft`
+  running ahead of `main` is this repo's documented normal state, and a
+  correction visible there with its reasoning in the commit message is the
+  workflow showing rather than untidiness.
+
 ## D-072 · Claim-checking became a commit gate, and a file-type filter is why it was needed
 
 *2026-09-15, after the user found two stale claims by accident within a day.*

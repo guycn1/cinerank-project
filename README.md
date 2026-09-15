@@ -388,6 +388,9 @@ built it, including the ones that do not apply and why. The short version:
 
 ## Workflow
 
-Day-to-day work happens on `draft`; `main` is merged only at settled milestones and
-only with explicit sign-off. Every change is committed with a message that says
-*why*.
+Day-to-day work happens on `draft`. `main` is merged on three grounds only, and
+never without explicit sign-off: a settled milestone, a fix for a defect already
+published on `main`, or a single close-out sync when the work is declared
+finished. The first twenty-one merges were all milestones; every merge since has
+been a defect fix. Every change is committed with a
+message that says *why*.
