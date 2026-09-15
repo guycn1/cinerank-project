@@ -202,6 +202,11 @@ The screenshots above are the surface of a good deal of written work. Each
 document below is a deliverable in its own right rather than a README appendix,
 and each carries its own evidence.
 
+**Two markdown files in the repository are deliberately not rows here**, named so
+the omission can be checked rather than guessed at: this file (`README.md`), and
+`DOSSIER.md` — the course's own grading brief, which is an input to this project
+rather than a deliverable of it.
+
 | Document | What it is |
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the co-evolution spiral (Module 10). |
