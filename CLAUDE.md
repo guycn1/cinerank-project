@@ -4188,7 +4188,37 @@ the real blob from github.com and read that — it is the only authority.
 * **Working branch:** `draft` — all day-to-day work happens here.
 * **`main` is the repo's default branch, but treated as protected in practice:** nothing gets pushed to `main` directly, ever.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
-* **Merging `draft` → `main` only happens at a notable, settled milestone** — a UI milestone or a backend milestone believed to be genuinely complete, not a small incremental change. **Claude must ask the user for explicit confirmation before merging to `main`.** Never merge automatically, even if the milestone seems obviously done.
+* **Merging `draft` → `main` happens on one of TWO grounds and never on any
+  other.** **Claude must ask the user for explicit confirmation before merging,
+  on either ground.** Never merge automatically, even if the case looks obvious.
+  1. **A notable, settled milestone** — a UI milestone or a backend milestone
+     believed to be genuinely complete, not a small incremental change. **ALL
+     TWENTY-ONE OF THE FIRST TWENTY-ONE MERGES WERE THIS ONE**, and nothing
+     weaker was ever merged under it: an app verified end to end, a section
+     overhaul, a backlog closed, the deployment, the DOSSIER reconciliation, the
+     final planned merge. `git log --merges --oneline main` is the check.
+  2. **A defect ALREADY PUBLISHED on `main`.** The test is whether a reader of
+     `main` would be MISINFORMED — a broken render, a claim that misstates the
+     state of the work, a wrong figure. Added at the twenty-second merge and
+     stated in its own note at the time rather than invented afterwards (Build
+     status, end of the `main` bullet). Merges 22, 23 and 24 are all this ground
+     and nothing else has been.
+  **What does NOT qualify, under either ground:** wording that is loose but whose
+  substance is right; a clarification, an improvement or a tidier phrasing; and
+  anything whose correction is already legible in `draft`'s history. **A
+  correction sitting unmerged on `draft` is not a loose end** — `draft` running
+  ahead of `main` is this repo's documented normal state, and a correction visible
+  there, with its reasoning in the commit message, is the workflow showing rather
+  than untidiness.
+  **Why this is written out at all, since the practice was already consistent:**
+  the rule used to state ground 1 alone while three merges had in fact been made
+  on ground 2 — each argued in its own Build-status note, none of them written
+  into the rule. So there was no bar to hold a candidate against, and every merge
+  after the twenty-first had to re-derive its own justification from nothing,
+  which reads as erosion whether or not it is. Written 2026-09-15, when a wording
+  correction (`671f74a`) needed judging and there was nothing to judge it with.
+  It fails ground 2 — the sentence it fixes is over-compressed, not misinforming
+  — and stays on `draft`.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
