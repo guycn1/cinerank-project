@@ -67,12 +67,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled milestone. The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
-  same day** with one defect fix, and a **twenty-third on 2026-09-15** carrying
-  the documentation-accuracy work — both described at the end of this bullet.
+  same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
+  documentation-accuracy work, and a **twenty-fourth the same day** carrying the
+  sweep that followed it — all three described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-three**
+  steps closed. **Twenty-four**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -116,7 +117,21 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   times over, and a list this file's own author had shortened while raising its
   count; and an audit of every enumeration in the project against its source of
   truth. The count was again written to `draft` first, on the user's instruction.
-  **The pattern across all three is one sentence:** a check can be sound and its
+  **AND A TWENTY-FOURTH THE SAME DAY**, which is the twenty-third's own method
+  turned on the classes it had not covered. The gate resolves claims that POINT
+  at something; a uniqueness claim points at nothing — it is an assertion about
+  everything it did not look at, so reading the item it sits on can never
+  falsify it. The sweep that this merge carries went at those by hand: ten
+  self-referential "the comment says so" pointers resolved against the comments
+  they name (all ten held), every `§` reference and all 86 internal markdown
+  links re-resolved (all clean), and three real defects fixed — a capture called
+  the only one showing the site header when a second one does too, a count of
+  recipes given as four in one file and three in another, and a coverage claim
+  that credited five recipes with a warning only three carry. The first and the
+  third were found by opening the other frames and reading the other recipes,
+  which is the only thing that can find them. The count was written to `draft`
+  first, on the user's instruction, for the fourth time running.
+  **The pattern across all four is one sentence:** a check can be sound and its
   BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
   direction of reading — and no amount of care inside the boundary finds that.
 
