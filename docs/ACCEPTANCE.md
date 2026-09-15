@@ -546,8 +546,8 @@ above — it passes them, because it holds a single line of README.
 
 A clean history is a fact about the past. `npm run scan-secrets` runs before every
 commit and inspects the **staged diff**, so the property is maintained rather than
-merely observed. It is one of four commit gates, alongside `npm test`,
-`npm run lint` and `npm run check-markdown`.
+merely observed. It is one of five commit gates, alongside `npm test`,
+`npm run lint`, `npm run check-markdown` and `npm run check-claims`.
 
 ### Verdict
 

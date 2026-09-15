@@ -268,6 +268,9 @@ server/
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js         run before every commit
+scripts/check-claims.js         run before EVERY commit; resolves every claim
+                                that points at something -- paths, D-0NN entries,
+                                commit SHAs, identifiers, captures, retired wording
 scripts/check-markdown.js       run before every commit that touches a .md file;
                                 catches escapes that render literally and the two
                                 structural traps (see CLAUDE.md)

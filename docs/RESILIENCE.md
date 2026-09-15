@@ -179,7 +179,7 @@ models](screenshots/rs-5-openrouter-down-verdict-log.png)
 
 One image carrying two claims: the two features answer a failure identically, and
 the deliberate two-model split (`D-053` — the verdict is the one call not on the
-cheap tier) holds in the **failure** path, not only in the successes.
+cheaper tier) holds in the **failure** path, not only in the successes.
 
 **That second claim was false until the day this was shot.** A failed verdict was
 logging the app-wide model rather than the one it had actually called. The bug was

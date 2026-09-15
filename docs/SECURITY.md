@@ -263,8 +263,8 @@ return nothing usable while every dependency is healthy. A failed AI call still 
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** Four gates and a rollback layer: `npm test` (60 tests), `npm run lint`,
-`npm run scan-secrets`, `npm run check-markdown`, and git itself — an unbroken history
+**Build.** Five gates and a rollback layer: `npm test` (60 tests), `npm run lint`,
+`npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
 from the first commit, with four revert commits and one reapply, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure

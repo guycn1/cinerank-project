@@ -259,9 +259,10 @@ npm test
 npm run lint
 npm run scan-secrets
 npm run check-markdown
+npm run check-claims
 ```
 
-All four are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
+All five are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
 one that cannot be re-run from a terminal** — which is precisely why it was the
 last to close, and why it needed a capture set and two evidence documents
 rather than a command.
