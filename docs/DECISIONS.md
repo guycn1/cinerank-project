@@ -5,6 +5,63 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-072 · Claim-checking became a commit gate, and a file-type filter is why it was needed
+
+*2026-09-15, after the user found two stale claims by accident within a day.*
+
+Two sweeps that called themselves thorough had each missed something a one-line
+command finds. The pattern in both is the same, and it is not carelessness:
+**the check was sound and its BOUNDARY was wrong.**
+
+* The staleness sweep read each document forwards — is what this file says about
+  itself still true. `README.md` was describing ANOTHER file's verdict, so no
+  forward pass could see it. It stayed wrong for sixteen hours, through a commit
+  that edited both files.
+* The "name some films" sweep searched documentation and source. `.env.example`
+  is a config template — neither `*.md` nor `*.js` — so a type-filtered search
+  skipped it silently, and the retired wording sat in the file a reader opens
+  FIRST when setting the project up. Worse, that commit's message asserted the
+  sweep had been exhaustive: "every other `cheap tier` … describes the VERDICT".
+  `.env.example` used it for recommendations. A claim about a search's own
+  coverage is still a claim, and nothing checked it.
+
+### The fork
+
+**Keep sweeping by hand, more carefully.** Rejected, and the two misses are the
+argument: both sweeps WERE careful. Care does not fix a boundary, and neither
+miss was findable by re-reading the files that were already being read.
+
+**Write a checker.** Chosen, as `scripts/check-claims.js`, a fifth commit gate.
+It walks EVERY text file — the extension list is deliberately wide and
+`.env.example` is named in the source comment, because that file is the reason
+the gate exists — and resolves each claim that points at something: paths,
+scripts, `D-0NN` entries, quoted SHAs, `file:line` references, identifiers in
+backticks, captures, and a list of retired phrasings.
+
+### The boundary, stated in the tool itself so a green run is not over-read
+
+It checks claims with a REFERENT. "The glow reads as lopsided" has none, and no
+harness can call it stale. Writing that into the header matters more than any
+individual check: a gate that is believed to prove more than it does is worse
+than no gate, which is the verification-theatre failure Module 13 names and the
+same trap the markdown checker was proved in both directions to avoid.
+
+### Two exemptions, both principled rather than convenient
+
+`docs/DECISIONS.md` is skipped by the identifier check, and lines carrying
+"is now", "GONE", "renamed from" and their kin are skipped everywhere. This file
+is a preserved record, not a maintained one (CLAUDE.md § Decision Logging), so a
+retired function name inside it is correct BY CONSTRUCTION. Without that the
+gate would have demanded the destruction of exactly the history it is meant to
+protect — and it did, on the first run, naming seven such lines.
+
+### It earned its place on the first run
+
+The retired-phrase check found an occurrence of "cheap tier" that a hand grep had
+just missed: it sat at the end of a 2,900-character table row in `PROCESS.md`,
+outside the fixed context window the grep printed. The tool reads whole lines and
+does not care how long they are.
+
 ## D-071 · SECURITY.md's links were made absolute rather than moving the file to the repo root
 
 *2026-09-14. Found by the user, who was looking at the rendered repository rather

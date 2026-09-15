@@ -51,7 +51,7 @@ export const config = {
   },
   tasteVerdict: {
     minRatedMovies: 2,
-    // The ONE feature that does not run on the cheap tier (D-053). Four prompt
+    // The ONE feature that does not run on the cheaper tier (D-053). Four prompt
     // versions failed to get Haiku to write in a plain spoken register; the
     // model turned out to be the constraint, not the wording. Sonnet-5 is the
     // cheapest real-time Sonnet on OpenRouter ($2/$10 per Mtok against Haiku's

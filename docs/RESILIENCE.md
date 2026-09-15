@@ -179,7 +179,7 @@ models](screenshots/rs-5-openrouter-down-verdict-log.png)
 
 One image carrying two claims: the two features answer a failure identically, and
 the deliberate two-model split (`D-053` — the verdict is the one call not on the
-cheap tier) holds in the **failure** path, not only in the successes.
+cheaper tier) holds in the **failure** path, not only in the successes.
 
 **That second claim was false until the day this was shot.** A failed verdict was
 logging the app-wide model rather than the one it had actually called. The bug was
@@ -233,12 +233,12 @@ reply that breaks its shape is a failure. Both were charged, both are in the
 trail, and the trail distinguishes them — which is the only reason anyone could
 later tell a quiet model from a broken one.
 
-**And the third row is why the first two matter.** `—` in Tokens and Cost is not
-a formatting choice, it is a claim: *this call never ran*. Rendering `0` there
-would be a lie the totals then sum. The rule is that those cells go blank **only
-when the value is genuinely null**, and the two failures in this one frame are
-what make the rule visible — identical red badges, completely different data,
-because they died at different points in the pipeline.
+**And the third row is why the first two matter.** The em dash (`—`) standing in
+the Tokens and Cost cells is not a formatting choice, it is a claim: *this call
+never ran*. Rendering `0` there would be a lie the totals then sum. The rule is
+that those cells go blank **only when the value is genuinely null**, and the two
+failures in this one frame are what make the rule visible — identical red badges,
+completely different data, because they died at different points in the pipeline.
 
 The footer reads `Total · 60 calls`, which is the cap rather than the lifetime
 figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
@@ -296,8 +296,19 @@ greyed out](screenshots/rs-7-database-unreachable.png)
 
 > Couldn't load your movies — Something went wrong.
 
-**This is the one state where an empty ranked list is correct** — the list is what
-broke. Both AI triggers are greyed, because the rated-film count comes from data
+**This is the one state IN THIS DOCUMENT where an empty ranked list is correct** —
+the list is what broke. The scope matters: an empty list is also correct when the
+user simply has not added a film yet, which is a healthy state rather than a
+failure and is captured separately as `ac-3-ranking-empty.png`.
+
+**The two are told apart by what sits under the empty list, and the difference is
+not cosmetic.** A genuinely empty list shows "No movies yet — search for one above
+to get started."; this frame shows NOTHING there. `loadMovies()` destructures on
+its first line, so a failed `/api/movies` throws before `refreshRanked()` can
+unhide that line — and that is the right outcome, because the user may have a full
+list the app simply cannot reach. Unhiding it here would assert something false.
+
+Both AI triggers are greyed, because the rated-film count comes from data
 that never arrived.
 
 **Search is still live**, and that is not an oversight in the capture: search calls

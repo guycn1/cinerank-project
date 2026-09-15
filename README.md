@@ -205,7 +205,7 @@ and each carries its own evidence.
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the co-evolution spiral (Module 10). |
 | [`docs/FRAMING.md`](docs/FRAMING.md) | Problem, stakeholders, definition of done, and what is deliberately **not** being built (Module 6). The authority on scope boundaries. |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Seventy entries** on why the choices are what they are — including the ones that were wrong, reversed, or argued down by the user (Module 8). A log that only recorded wins would not be evidence of process. |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user (Module 8). A log that only recorded wins would not be evidence of process. |
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
@@ -243,6 +243,11 @@ actually lives rather than where it is summarised:
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (the anon key only — never `service_role`)
    - `TMDB_API_KEY` (free, instant approval at themoviedb.org)
    - `OPENROUTER_API_KEY`
+
+   Those four are the only ones the app *requires* — `server/config.js` refuses to
+   start without them. `.env.example` carries three more, all optional with
+   working defaults and documented in that file: `OPENROUTER_MODEL`,
+   `OPENROUTER_VERDICT_MODEL` and `PORT`.
 4. **Run**
    ```
    npm start        # http://localhost:3000
@@ -252,22 +257,43 @@ actually lives rather than where it is summarised:
 
 ## Project layout
 
+**Every directory below that is listed file by file is listed in full.** The ones
+summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
+`docs/screenshots/` — are deliberate summaries, not truncations.
+
+**Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
+a line here, and listed by name so the omission can be checked rather than
+guessed at: this file (`README.md`); `CLAUDE.md`, `SPEC.md` and all nine
+`docs/*.md`, mapped in the Documentation table above; `package.json` and
+`package-lock.json`; `render.yaml` (described under Deployment); `.env.example`
+(under Setup); `DOSSIER.md`, the course's own grading brief rather than part of
+the build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That
+is every tracked entry in the repository root accounted for.
+
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
                     taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
 db/schema.sql       Supabase schema + RLS — fresh installs
 db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
 server/
+  index.js          the Express app: mounts the routes, serves public/, and the
+                    central error handler. Exports `app` and only listens when
+                    run directly, which is what lets the tests import it
   config.js         the only place env/secrets enter the process
   supabase.js       one anon-key client; all DB access via the query builder
   services/
     tmdb.js         all TMDB HTTP; the trusted source of movie facts
     openrouter.js   low-level OpenRouter transport
+    promptLoader.js loads a versioned prompt at call time: strips the leading
+                    dev-note comment, splits # System / # User, fills {{VARS}}
     recommendations.js  reads taste profile → prompt → parse JSON → verify vs TMDB → log
     tasteVerdict.js     rated movies → prompt → plain-text verdict → log
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
 scripts/scan-secrets.js         run before every commit
+scripts/check-claims.js         run before EVERY commit; resolves every claim
+                                that points at something -- paths, D-0NN entries,
+                                commit SHAs, identifiers, captures, retired wording
 scripts/check-markdown.js       run before every commit that touches a .md file;
                                 catches escapes that render literally and the two
                                 structural traps (see CLAUDE.md)
@@ -284,7 +310,8 @@ docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of s
 docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
 docs/AI-CALL-LOG.md  what the documentation brief commissioned: the call log's
                     load-bearing rules and what breaks if they are undone
-docs/MERGE-READINESS.md  Module 16 five criteria — four met, one open, and which
+docs/MERGE-READINESS.md  Module 16 five criteria, each with its evidence and the
+                    standing verdict the document itself carries
 docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
 docs/ACCEPTANCE.md  SPEC 7.1 criterion by criterion, with evidence attached
 docs/RESILIENCE.md  what the user sees when each dependency fails, with the

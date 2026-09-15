@@ -33,7 +33,7 @@ because the state is a race and a single still cannot show one.
 | [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same words as the first |
 | [`rs-5-openrouter-down-verdict-log.png`](rs-5-openrouter-down-verdict-log.png) | …its log row | Two failures adjacent, two features, two models |
 | [`rs-6-cinerank-unreachable.png`](rs-6-cinerank-unreachable.png) | The app's own server stopped | `fetch` itself rejects; engine wording never surfaces; list survives |
-| [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The one state where an empty list is correct; both AI triggers locked |
+| [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The only FAILING state where an empty list is correct — and the only empty list with no empty-state line under it (compare `ac-3-ranking-empty.png`); both AI triggers locked |
 | [`rs-8-search-no-matches.png`](rs-8-search-no-matches.png) | No matches (**not** a failure) | Muted, not crimson — compare directly with `rs-1` |
 | [`rs-9-zero-recommendations.png`](rs-9-zero-recommendations.png) | Nothing to suggest (**not** a failure) | Cost still declared for a run that returned nothing |
 | [`rs-9-zero-recommendations-log.png`](rs-9-zero-recommendations-log.png) | …its log row | Near-identical to `rs-3`'s row, opposite meaning |

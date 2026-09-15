@@ -44,7 +44,7 @@ services:
         sync: false
 
       # Not secrets, so they can live here. TWO models on purpose (D-053):
-      # recommendations run on the cheap tier, the taste verdict alone on a
+      # recommendations run on the cheaper tier, the taste verdict alone on a
       # stronger one, after four prompt versions failed to move its register and
       # the model turned out to be the constraint rather than the wording.
       # Both are optional — server/config.js carries these exact defaults — and

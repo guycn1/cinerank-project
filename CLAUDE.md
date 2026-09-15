@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-15 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -41,7 +41,7 @@ links on GitHub's Security tab — which is "final planned" being tested rather
 than contradicted; the note at the end of the Build status bullet has it. The live URL is
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
-harness unloaded, all four gates green, and every other checkbox on this list
+harness unloaded, all five gates green, and every other checkbox on this list
 ticked.** What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
@@ -56,7 +56,7 @@ linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spir
 turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
 POINT, failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list was
-ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheap tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked except the final merge itself. The top of this entry is the current state.**)
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember** (that pointer was true when written on 2026-09-12 and is NOT an instruction now — step 5 closed the same day, as this very entry says further down; the two enforcement rules do still stand); the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked except the final merge itself. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -67,11 +67,12 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * AI call log viewer confirmed working in-browser.
 * `main` is at the latest settled milestone. The final PLANNED merge closed the
   evidence and documentation work (2026-09-14); a **twenty-second followed the
-  same day** with one defect fix, described at the end of this bullet. Before
-  those, the milestone was
+  same day** with one defect fix, and a **twenty-third on 2026-09-15** carrying
+  the documentation-accuracy work — both described at the end of this bullet.
+  Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-two**
+  steps closed. **Twenty-three**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -104,6 +105,20 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   would follow.** That distinction was written into the merge message, into the
   checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why nothing
   here had to be retracted — only extended.
+  **AND A TWENTY-THIRD FOLLOWED ON 2026-09-15**, for the same reason one layer up.
+  The user found `README.md` describing another document's verdict sixteen hours
+  after that verdict changed, and found it by accident — so the question stopped
+  being "is this claim stale" and became "how many others are". What that merge
+  carries is the answer: a fifth commit gate, `npm run check-claims`, which
+  re-resolves every claim that points at something and is proved to fire against
+  a probe; ten defects it and the sweeps around it found, including two
+  self-contradictions inside single paragraphs, a rule that broke itself three
+  times over, and a list this file's own author had shortened while raising its
+  count; and an audit of every enumeration in the project against its source of
+  truth. The count was again written to `draft` first, on the user's instruction.
+  **The pattern across all three is one sentence:** a check can be sound and its
+  BOUNDARY wrong — the wrong render context, the wrong file types, the wrong
+  direction of reading — and no amount of care inside the boundary finds that.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -132,7 +147,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   either side. The AI metadata footer sits in its own slot BELOW the grid, not
   inside it, so it stays full width whatever the cards do.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` **on `anthropic/claude-sonnet-5` — the one feature not
-  on the cheap tier (D-053)** (2–3
+  on the cheaper tier (D-053)** (2–3
   sentences, ~35–60 words, characterise the viewer — not recite ratings — in
   plain spoken English rather than review prose; v5–v7 changed the REGISTER
   only. **v7 is the one that matters as a lesson: v5 and v6 tried to get there
@@ -591,9 +606,10 @@ are the running record of how each piece got there and stay as written.
     text node, so the browser could break at ANY space in it — including the one
     inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
     ~340px and under. A NON-BREAKING space now glues the label to its number,
-    written as a ` ` ESCAPE rather than a literal character so it cannot be
-    mistaken for an ordinary space and tidied away. The break around " · " is
-    deliberately left, so a narrow row wraps as "2013 ·" / "TMDB 7.0".
+    written as a `u00A0` ESCAPE (backslash-u) rather than a literal character,
+    so it cannot be mistaken for an ordinary space and tidied away. The break
+    around " · " is deliberately left, so a narrow row wraps as "2013 ·" /
+    "TMDB 7.0".
     **Provably invisible at any width that is not already breaking there:** U+00A0
     renders identically to U+0020 and only removes a break OPPORTUNITY. The
     ranked card needs no equivalent — `.score-tmdb` is `white-space: nowrap`,
@@ -1370,7 +1386,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      that make them findable.
      **The shared `setAddButtonState()` did not get to decide R7 on the way
      through.** Its unowned label is now read from `btn.dataset.addLabel` (default
-     `+ Add`), so the rec card kept `Add to my list` until the wording was
+     `+ Add`), so the rec card kept `Add to my list` until the wording was
      settled — R7 has since done that, as `+ Add to my list`. The OWNED labels are shared, which is right: both surfaces
      should settle identically. Note the rec card's `aria-label` moved from "to my
      list" to the shared "to your list". R7 looked at that and LEFT it: each voice is
@@ -1450,7 +1466,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      than find it — only a query-side change would find it. Left as a known
      residual, written down so it is not rediscovered as a new bug.
      **The user's call, made on the measurements: leave the code, fix the claim.**
-     The blast-radius claim in CLAUDE.md § Security 5 was never affected and is
+     The blast-radius claim in CLAUDE.md § Security & Secrets, item 5, was never
+     affected and is
      untouched — the output still only ever drives a title lookup. Full numbers,
      and the tiered matcher that was designed and rejected, are in D-054; do not
      re-derive them by eye.
@@ -1472,7 +1489,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      its spaces — explicitly allowed; "+" leaving "Add" is not.
      **That escape was collapsed into a literal NBSP on the first attempt and had
      to be rebuilt without typing a backslash at all** — the tooling trap under
-     § Environment traps, now hit twice. Verified after: zero literal U+00A0
+     § Environment & tooling traps. **Hit THREE times now:** twice here, and again
+     on 2026-09-15, when the statement of the rule in § Button labels was found to
+     contain a literal U+00A0 inside its own code span. `npm run check-claims` now
+     fails on any invisible character, because that is the one defect class
+     reading cannot catch. Verified after: zero literal U+00A0
      codepoints in `app.js`, and the label's second codepoint reads `A0` at
      runtime.
      **The my/your split is deliberate and stays.** The visible label says "my
@@ -3095,9 +3116,12 @@ below — this list is the smaller stuff.)
   toggle is drawn), Wicked 8.6, Knives Out 8.2 (no review, so #20's placeholder
   is drawn), The SpongeBob SquarePants Movie 7.6, Shrek 5 (2027) 4.5
   (unreleased, so the muted "No TMDB rating" caption is drawn — D-037), Saw 1.5,
-  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). Six of
-  the seven cards double as UI evidence for states that otherwise need
-  hand-setup to photograph.
+  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). FOUR of
+  the seven cards double as UI evidence — the four annotated above — and between
+  them they draw FIVE states that otherwise need hand-setup to photograph, since
+  Shrek (2001) draws two. This read "six" until 2026-09-15 and contradicted its
+  own list one sentence earlier; `scripts/seed-demo.js` had the five right all
+  along.
   **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
   FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
   BOTH AI features at once, the verdict falling back to reciting film names
@@ -3184,9 +3208,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     agentic development environment that built it. Incident 1 is ASI02.
   * **`docs/MERGE-READINESS.md` plus a linter** — Module 16's five criteria. SE
     hygiene was the one genuine hole, since the project had no static analysis at
-    all; `npm run lint` closed it and is now a commit gate. **The pack's standing
-    verdict is NOT YET MERGE-READY**, failing criterion 1 (functional completeness
-    shown end to end) — and that criterion is precisely the rest of this list.
+    all; `npm run lint` closed it and is now a commit gate. **The pack's verdict ON
+    THAT DAY was NOT YET MERGE-READY**, failing criterion 1 (functional
+    completeness shown end to end) — and that criterion was precisely the rest of
+    this list. It has since closed; the top of this file carries the current
+    verdict, and this sentence is the record of where the pack started.
   * **Committing the agent's memory notes was considered and DECLINED by the
     user. Do not re-propose it.** The DOSSIER lists context files "such as
     `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
@@ -3246,7 +3272,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   whole set and each line is self-contained enough to shoot from without reading
   the history.** Add new ones with the next free number and never renumber.
   **Tick each `RS-n` as it is captured** — the parent checkbox is done only when
-  all nine are.
+  every one of them is. (This read "all nine" until 2026-09-15, which was the
+  set's size when the instruction was written and stopped being true at RS-10.
+  A count that grows with the set does not belong in a rule about the set.)
   **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
   request blocking do NOT simulate them. Forcing means editing `.env` and
   restarting, except where noted.
@@ -3277,8 +3305,10 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     down, search itself fails and there is nothing to click. This works only
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
-  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, the only entry here that
-    needs two: `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
+  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
+    two (it read "the only entry here that needs two" until 2026-09-15; seven
+    others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11, RS-14 and
+    RS-15): `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
     `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
     across two surfaces — the page says the run produced nothing, and only the
     log shows it succeeded and was charged anyway — so either frame alone is
@@ -3373,8 +3403,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     Two things had to be true and are: NO log link in the message (R9/D-047 —
     nothing reached the server, so no row was committed, so nothing may be
     offered), and all seven films still rendering, because the list loaded
-    before the server died and nothing re-fetches it. RS-7 is the only frame
-    where an empty list is correct; this is emphatically not that frame.
+    before the server died and nothing re-fetches it. RS-7 is the only frame IN THIS
+    SET where an empty list is correct; this is emphatically not that frame. (A
+    genuinely empty list is correct too, and is captured as
+    `ac-3-ranking-empty.png` — it differs by showing the empty-state line, which
+    RS-7 deliberately does not.)
     **CineRank itself unreachable.** **Load the page first, THEN stop
     `npm start`**, then search. Stopping the server first means the document never
     loads and there is no UI to photograph — this cost time once already. Expect
@@ -3405,8 +3438,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **Database unreachable.** Bogus `SUPABASE_URL` /
     `SUPABASE_ANON_KEY`, restart, reload. Expect the toast "Couldn’t load your
     movies — Something went wrong."
-    **This is the ONE shot where the ranked list is legitimately empty** — it is
-    the thing that broke — so it does not belong in the set above.
+    **This is the ONE shot IN THIS SET where the ranked list is legitimately
+    empty** — it is the thing that broke — so it does not belong in the set above.
+    Scoped on purpose: an empty list is ALSO correct for a user who has added
+    nothing, which `ac-3-ranking-empty.png` captures. The two differ by the
+    empty-state line, shown there and deliberately absent here.
     Worth knowing why it earns a slot: finding this state is what caught the
     central 500 handler claiming a failure was "on our side" when it was neither
     a bug nor the server's fault.
@@ -3442,7 +3478,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     included deliberately: it is the clearest single frame proving the app reports
     an AI call it paid for even when that call yielded no cards — SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
-    **The only one of the nine that needs a temporary code change**, because the
+    **The only one of the ORIGINAL NINE that needs a temporary code change** —
+    RS-15 and RS-16 were added later and need one too, so this is no longer the
+    only such recipe in the set — because the
     state cannot be forced from `.env`. In `generateRecommendations()`, make every
     verified film look owned:
     `if (true || ownedTmdbIds.has(movie.tmdb_id)) { tally.owned += 1; continue; }`
@@ -3828,11 +3866,11 @@ under 400px) and the user does not mind. `In your list` breaking across two line
 is fine; `✓` on one line and `Added` on the next is not.
 
 **How it is enforced:** the glyph is glued to its word with a non-breaking space
-**in the string itself**, written as a ` ` escape, never as a literal
-character. In the string and not in CSS because the same labels are rendered on
-two surfaces — the search row and the recommendation card — and only one of them
-has `white-space: nowrap`. A guard that travels with the text cannot be missed by
-a stylesheet that was never updated. `busyButton()` does the same for every
+**in the string itself**, written as a `u00A0` escape (backslash-u), never as a
+literal character. In the string and not in CSS because the same labels are
+rendered on two surfaces — the search row and the recommendation card — and only
+one of them has `white-space: nowrap`. A guard that travels with the text cannot
+be missed by a stylesheet that was never updated. `busyButton()` does the same for every
 spinner label in one line, since every busy label in the app is built there.
 
 **One standing exception:** `Get recommendations` is out of scope for this rule
@@ -3871,7 +3909,7 @@ it.
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
    * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has two siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — and `npm run lint` for code.)
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has three siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for every claim that points at something resolvable.)
 
 **This whole section is mapped against the OWASP Top 10 for Agentic Applications
 in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for
@@ -4124,6 +4162,18 @@ the real blob from github.com and read that — it is the only authority.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
+* **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
+  every claim in the repository that POINTS AT SOMETHING — a path, a script, a
+  `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
+  backticks, a capture and its count, an `RS-n` key, a short list of retired
+  phrasings, and any invisible character (U+00A0 and friends, which no reviewer
+  can see by eye) — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
+  file, which a per-file staleness sweep structurally cannot see: `README.md`
+  spent sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open"
+  after that file went MERGE-READY, and a sweep that edited BOTH files in one
+  commit still missed it. **It cannot check a sentence with no referent** — taste
+  and judgement claims are still the reader's job, and a green run says nothing
+  about them. See `scripts/check-claims.js`, whose header carries the reasoning.
 * **Any commit that touches a `.md` file runs `npm run check-markdown` first,
   the same way every commit runs `npm run scan-secrets`.** The markdown is a graded
   deliverable, and a rendering fault in a file this long is close to unfindable

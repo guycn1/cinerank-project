@@ -21,7 +21,7 @@ matters more than the verdict.** It was written on 2026-09-13 and immediately
 failed its own first criterion — at a point when the application was deployed,
 working, and covered by a green test suite. By the usual informal reading it
 looked finished. Criterion 1 is the one that refuses that reading, and holding it
-open for a day produced twenty-six captures, two evidence documents, three real
+open for a day produced the whole capture set, two evidence documents, three real
 defects and three untested happy paths.
 
 **A standard that had passed on the first attempt would have been worth nothing.**
@@ -133,7 +133,7 @@ the decision log where it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project until 2026-09-13.
 
-`npm run lint` runs ESLint 9 over all 23 JavaScript files (6,101 lines) across
+`npm run lint` runs ESLint 9 over all 23 JavaScript files across
 three environments — Node ES modules, the browser ES module, and the one browser
 *classic* script that `index.html` loads with a bare tag. **Current state: zero
 errors.**
@@ -237,10 +237,11 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in `prompts/`, never overwritten. A
   past recommendation or verdict is traceable to the exact prompt text that
   produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 22 merges
-  to `main` — the twenty-first was the last *planned* one, and the twenty-second
+* **Trajectory** — an unbroken commit history from the very first commit, 23 merges
+  to `main` — the twenty-first was the last *planned* one, the twenty-second
   carried a fix for a rendering defect found afterwards on the repository's
-  Security tab — and **four** revert commits plus one reapply, which is the safety
+  Security tab, and the twenty-third carried the claim-checking gate that defect
+  argued for — and **four** revert commits plus one reapply, which is the safety
   layer visibly firing rather than merely existing.
   *(This said five reverts until 2026-09-14. It was wrong when written, not merely
   stale: a loose grep for "revert" had counted two commits that merely MENTION
@@ -259,9 +260,10 @@ npm test
 npm run lint
 npm run scan-secrets
 npm run check-markdown
+npm run check-claims
 ```
 
-All four are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
+All five are wired into the commit rules in `CLAUDE.md`. **Criterion 1 is the only
 one that cannot be re-run from a terminal** — which is precisely why it was the
-last to close, and why it needed twenty-six captures and two evidence documents
+last to close, and why it needed a capture set and two evidence documents
 rather than a command.

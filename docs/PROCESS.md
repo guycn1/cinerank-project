@@ -17,14 +17,16 @@ and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in `CLAUDE.md`:
 
 - **Everything on `draft`; `main` only at a settled milestone, only with explicit
-  human sign-off.** Twenty-two merges to `main` (verify with
+  human sign-off.** Twenty-three merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
   being demonstrated rather than asserted: a rendering defect in
   `docs/SECURITY.md`, visible to any reader of the repository's Security tab, was
   found, fixed, and merged under the same sign-off rule as the twenty-one before
-  it.
+  it. The twenty-third, the next day, carried the answer to the question that
+  defect raised — a fifth gate that re-resolves every claim pointing at something,
+  and the accuracy sweeps that went with it.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
@@ -45,14 +47,19 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   kind of thing a later reader deletes. `npm audit` now reports zero across every
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
-- **Four gates, wired into the commit rules rather than left to memory.**
+- **Five gates, wired into the commit rules rather than left to memory.**
   `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
-  `npm run scan-secrets` on every commit, and `npm run check-markdown` on every
-  commit touching a `.md` file. The last two exist because a real defect got past
-  human review: the markdown checker was written after both long documents were
-  found rendering wrong on GitHub for weeks (D-065). Each gate was proved to bite
-  before being trusted — see `docs/MERGE-READINESS.md` § 2.
+  `npm run scan-secrets` on every commit, `npm run check-markdown` on every commit
+  touching a `.md` file, and `npm run check-claims` on every commit, which
+  re-resolves every claim in the repository that points at something — a path, a
+  decision entry, a commit SHA, an identifier, a capture, a retired phrasing.
+  **Two of them exist because a real defect got past human review**, which is the
+  pattern worth naming: the markdown checker was written after both long documents
+  were found rendering wrong on GitHub for weeks (D-065), and the claims checker
+  after `README.md` was found describing another file's verdict sixteen hours
+  after that verdict changed — by a reader, not by a sweep (D-072). Each gate was
+  proved to bite before being trusted — see `docs/MERGE-READINESS.md` § 2.
 - **Every agent invocation starts from a committed checkpoint**, which is what
   makes reverting a cheap first move rather than a last resort. The rule in
   `CLAUDE.md` is written the other way round — *every* modification is committed
@@ -135,7 +142,7 @@ below is a file a reader can open.
 | **Context** | `CLAUDE.md` — human-written, re-read every session, corrected in place when it was wrong | Module 11 |
 | **Plan** | the backlogs inside `CLAUDE.md`, numbered and worked in order, with withdrawn items kept rather than deleted | — |
 | **Execution** | more than 500 commits on `draft` across 11 consecutive days, median 2 files each | — |
-| **Verification** | four commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | Module 13 |
+| **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | Module 13 |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own AI call log | Module 4 |
 
 **The last row is the one this project can show twice.** Module 4 wants a frozen
@@ -226,7 +233,7 @@ it. The iteration history *is* the evidence of prompt engineering:
 | Feature | Versions | What each change fixed |
 |---|---|---|
 | Recommendations | `recommend_v1` → `v2` → `v3` | v1 read like a plot blurb → v2 second-person voice tied to the user's own ratings → v3 tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
-| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the honest finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheapest tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheap tier (D-053) |
+| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the honest finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier (D-053) |
 
 Each prompt file carries a "Change from vN" header explaining the delta. Server
 -side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
