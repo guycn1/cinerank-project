@@ -318,9 +318,9 @@ eslint.config.js    defect rules + complexity ceilings; not a style linter
 docs/*.md           nine prose documents — framing, briefs, the call-log
                     write-up, merge-readiness, security, acceptance, resilience,
                     decisions, process. Described one at a time in the
-                    Documentation table above, which is the ONLY place each one
-                    is described: they were listed here too until 2026-09-16,
-                    and two of the nine pairs had already drifted apart
+                    Documentation table above; they were listed individually
+                    here as well until 2026-09-16, and two of those nine pairs
+                    had already drifted apart
 docs/screenshots/   37 captures: rs-* the sixteen resilience and state recipes,
                     pi-* the prompt-injection evidence, readme-* the showcase
                     shots embedded above
