@@ -58,7 +58,8 @@ SPEC" — the stopping condition § 7.1 defines had been reached.
 
 ### Turn 2 — the interface requirement emerged from use (2026-09-06 to 2026-09-12)
 
-Commit points: `49738c2` to `d47c960`, sixteen merges to `main`.
+Commit points: `49738c2` to `d47c960` — both of them merges to `main`, with
+fourteen more between them.
 
 § 3.2 deliberately declined to prescribe the visual treatment, leaving layout, motion
 and typography to design judgement. Using the finished app is what turned that open

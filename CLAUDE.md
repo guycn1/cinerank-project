@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-14 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-15 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -3095,9 +3095,12 @@ below — this list is the smaller stuff.)
   toggle is drawn), Wicked 8.6, Knives Out 8.2 (no review, so #20's placeholder
   is drawn), The SpongeBob SquarePants Movie 7.6, Shrek 5 (2027) 4.5
   (unreleased, so the muted "No TMDB rating" caption is drawn — D-037), Saw 1.5,
-  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). Six of
-  the seven cards double as UI evidence for states that otherwise need
-  hand-setup to photograph.
+  and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). FOUR of
+  the seven cards double as UI evidence — the four annotated above — and between
+  them they draw FIVE states that otherwise need hand-setup to photograph, since
+  Shrek (2001) draws two. This read "six" until 2026-09-15 and contradicted its
+  own list one sentence earlier; `scripts/seed-demo.js` had the five right all
+  along.
   **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
   FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
   BOTH AI features at once, the verdict falling back to reciting film names
@@ -3184,9 +3187,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     agentic development environment that built it. Incident 1 is ASI02.
   * **`docs/MERGE-READINESS.md` plus a linter** — Module 16's five criteria. SE
     hygiene was the one genuine hole, since the project had no static analysis at
-    all; `npm run lint` closed it and is now a commit gate. **The pack's standing
-    verdict is NOT YET MERGE-READY**, failing criterion 1 (functional completeness
-    shown end to end) — and that criterion is precisely the rest of this list.
+    all; `npm run lint` closed it and is now a commit gate. **The pack's verdict ON
+    THAT DAY was NOT YET MERGE-READY**, failing criterion 1 (functional
+    completeness shown end to end) — and that criterion was precisely the rest of
+    this list. It has since closed; the top of this file carries the current
+    verdict, and this sentence is the record of where the pack started.
   * **Committing the agent's memory notes was considered and DECLINED by the
     user. Do not re-propose it.** The DOSSIER lists context files "such as
     `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
