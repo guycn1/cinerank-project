@@ -20,7 +20,7 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-five merges to `main` (verify with
+  every merge since has been the latter. Twenty-six merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -38,7 +38,10 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   non-milestone merges meant it had quietly died: the practice turned out to have
   been consistent and the rule TEXT out of date, and four files were still
   telling a reader that every merge follows a milestone while the log beside them
-  showed three that did not.
+  showed three that did not. The twenty-sixth carried eleven accuracy defects
+  found by the user asking, one at a time, whether particular claims resolve —
+  including two that survived a sweep Claude had already run, because the
+  sweep's own filter could not express them.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
@@ -347,10 +350,14 @@ on it; the merged log is what the app and the demo use.
 
 One honest caveat: six of the earliest log rows predated the migration that
 added the token split and duration columns, so they showed blanks in those
-fields. They were deleted by hand once, for presentation, rather than left to
-age out of the 60-row window. That is the only time anything has been removed
-from the audit trail, and no code path in the app can delete a log row — see
-`docs/DECISIONS.md` D-019.
+fields. They were deleted by hand, for presentation, rather than left to age out
+of the 60-row window. **Rows have been removed by hand exactly twice in this
+project's life, and both times are written up:** these six (`docs/DECISIONS.md`
+D-019), and, on 2026-09-13, a set of failed-verdict rows that named a model the
+call never used (D-070 — wrong data about a real event, rather than history worth
+preserving). No code path in the app can delete a log row; both removals were
+deliberate, by hand, and recorded as exceptions to the append-only argument the
+log rests on.
 
 ## 5. Incident 1 — and the guardrail it produced (Module 12)
 

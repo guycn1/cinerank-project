@@ -34,8 +34,11 @@ on is more useful than a uniform tick:
 | **Repeatable command** | Something anyone can re-run and read the output of. |
 | **Hand-verified** | Someone used the application and saw it. Weakest, and stated as such where it is all there is. |
 
-**Where a criterion is only partly covered, this document says so.** A mapping
-that claimed uniform coverage would be worth less than the criteria themselves.
+**Where the evidence for part of a criterion is observational rather than
+automated, this document says so** rather than leaving a reader to find it. A
+mapping that claimed uniform coverage would be worth less than the criteria
+themselves. What varies across the eight is the STRENGTH of the evidence, never
+whether the criterion is met — all eight read satisfied.
 
 ## Status
 
@@ -438,8 +441,10 @@ that column are now pinned.
 measured against a stated definition of "graceful". Three are embedded here; the
 rest are there.
 
-*(Only three, deliberately. Embedding all thirteen under one checkbox would bury
-the criterion in its own evidence.)*
+*(Only three, deliberately. Embedding every one of them under one checkbox would
+bury the criterion in its own evidence. This read "all thirteen" until
+2026-09-16 — a count from when the set was smaller, and one the sentence above it
+had already contradicted.)*
 
 ### TMDB unreachable
 

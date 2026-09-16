@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-15 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-16 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -72,12 +72,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
-  sweep that followed it, and a **twenty-fifth** carrying the merge rule itself
-  — all four described at the end of this bullet.
+  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, and
+  a **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it
+  — all five described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-five**
+  steps closed. **Twenty-six**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -162,10 +163,23 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   `git log --merges` showed three that were not. **Claude classified the whole
   `draft` stack by its first commit and never re-ran the test as the stack grew
   to contain a real defect fix — the user caught that too.**
+  **AND A TWENTY-SIXTH ON 2026-09-16.** The user drove it by asking, one
+  question at a time, whether things this repository asserts are actually true:
+  whether `docs/ACCEPTANCE.md` really carries the caveats `README.md` advertised
+  (it does not — all eight criteria read satisfied), which of the twenty-four
+  markdown enumerations are short, what every numeric figure resolves to, and
+  whether the Project layout tree accounts for all 100 tracked files. **The
+  useful half of the answer is what it found in the questions Claude had already
+  answered once:** a first numeric pass filtered 3,681 figures through an
+  allowlist of sixty nouns and therefore could not see "the three real scripts/
+  tools" at all, and a uniqueness claim planted while consolidating duplicate
+  descriptions was false forty lines from where it was written. Eleven defects,
+  and D-074 for the one real decision underneath them.
   **The pattern across every one of them is one sentence:** a check can be sound
   and its BOUNDARY wrong — the wrong render context (22), the wrong file types
   and the wrong direction of reading (23), a claim whose falsifier it never names
-  (24), and a test applied once and not re-applied as its subject changed (25) —
+  (24), a test applied once and not re-applied as its subject changed (25), and
+  a filter whose vocabulary decides what it can find (26) —
   and no amount of care inside the boundary finds that. (That sentence read
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once
@@ -765,8 +779,14 @@ are the running record of how each piece got there and stay as written.
     UI, while an HTTP error response still surfaces the server's user-facing
     message. "No matches" moved from `makeError` to the muted `searchNote` — an
     empty result set is not a failure and should not be crimson.
-  - `.search button:disabled` no longer relies on opacity. It is the only FILLED
-    button; amber at 55% still composites to an unmistakably amber ~#8c6f39, so
+  - `.search button:disabled` no longer relies on opacity. It was believed at the
+    time to be the only FILLED button — **that was never true, and R13 is where it
+    was corrected**: THREE amber-filled buttons can be disabled (this one,
+    `.rate-dialog button.primary`, and the rec card's), audited against every
+    `disabled =` assignment in `app.js`. The CSS comment carrying the same false
+    claim was fixed then; this bullet was missed until 2026-09-16.
+    What was right here is the mechanism:
+    amber at 55% still composites to an unmistakably amber ~#8c6f39, so
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
     keep opacity, where it works.
@@ -1877,9 +1897,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `status='success'` and exactly the SHOWN titles.
      **Verified load-bearing, not just green:** each of the three `continue` guards
      in `generateRecommendations()` was deleted in turn, and every deletion failed
-     exactly these two tests. Deliberately written against CURRENT behaviour, so
-     R2's unrated-owner case is NOT yet asserted — that assertion is what should
-     fail before the R2 fix and pass after it.
+     exactly these two tests. Deliberately written against the behaviour AS IT
+     STOOD THAT DAY, so R2's unrated-owner case was not asserted here — that
+     assertion was what should fail before the R2 fix and pass after it.
+     **It landed with R2 and the suite has carried it since:**
+     `test/routes.test.js` holds "never suggests a film already in the list but
+     UNRATED", commented at itself as R2, and D-046 records that rebuilding the
+     owned set from `rated` fails exactly that one test. Corrected rather than
+     preserved, on R27's precedent: this was advice about work still to come,
+     not a record of a past state, and the work came.
    * **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
      the others do not shift.** It claimed the client hardcodes the thresholds the
      server owns. It does not: `init()` in `app.js` does
@@ -3547,9 +3573,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   - [x] **RS-10 · CAPTURED 2026-09-14 — two frames:
     `docs/screenshots/rs-10-row-deleted-mid-edit-before.png` and
     `docs/screenshots/rs-10-row-deleted-mid-edit-after.png`.**
-    **A row deleted while it was being edited — the only state in this set where
-    NOTHING is broken.** Every key is valid, the server is up and the database is
-    up. What fails is the assumption that the row a dialog opened still exists
+    **A row deleted while it was being edited.** Every key is valid, the server is
+    up and the database is up — nothing is broken anywhere. **That is not unique to
+    it:** `docs/RESILIENCE.md` names `RS-15` in the same breath for the same
+    reason, and `RS-8`, `RS-9` and `RS-16` are all states where nothing is broken
+    either. This entry claimed to be the only one until 2026-09-16. What IS unique
+    to it is the next paragraph. What fails is the assumption that the row a dialog opened still exists
     when Save is pressed.
     **THE ONLY RACE IN THE SET, so it is the only one needing two frames of the
     SAME moment rather than two surfaces.** A single still cannot show an order of
@@ -3928,9 +3957,14 @@ be missed by a stylesheet that was never updated. `busyButton()` does the same f
 spinner label in one line, since every busy label in the app is built there.
 
 **One standing exception:** `Get recommendations` is out of scope for this rule
-by the user's instruction — it is parked for the recommendations overhaul. Its
-BUSY label is nonetheless covered, because that comes from the shared
-`busyButton()`; only its resting label is exempt.
+by the user's instruction. Its BUSY label is nonetheless covered, because that
+comes from the shared `busyButton()`; only its resting label is exempt.
+**The exemption is moot in practice, and has been since R11:** that item gave
+`.recs__trigger` `white-space: nowrap`, so the label cannot break at all — the
+rule's outcome reached by a different mechanism. The exemption is left standing
+rather than retired because it is the user's to lift, not Claude's. (This read
+"parked for the recommendations overhaul" until 2026-09-16; that overhaul closed
+on 2026-09-12 and R11 is what closed this along with it.)
 
 **And one case the in-string technique cannot cover at all** (found by R15, which
 put a sparkle icon on that same trigger): an ICON is an element, not a character,

@@ -12,7 +12,10 @@
  *
  * Three environments, because this repo ships code to two runtimes and a third
  * file that the browser parses as a CLASSIC script but that nothing serves:
- *   - Node ES modules: server/, test/, and the three real scripts/ tools
+ *   - Node ES modules: server/, test/, and the five Node tools in scripts/
+ *     (the glob is `scripts/*.js` minus debug-recs.js, so this needs no count
+ *     kept in step -- the comment said "three" until 2026-09-16, from before
+ *     check-claims.js and backfill-tmdb-rating.js existed)
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
  *   - Browser CLASSIC script: scripts/debug-recs.js. It is pasted into the
  *     browser console, so it is parsed as a script and not as a module. Getting

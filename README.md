@@ -189,10 +189,11 @@ TMDB unreachable. Search says so in plain language, and the ranked list carries 
 film was added rather than a live call, precisely so an outage cannot empty the
 page.
 
-**Eight more states are captured and analysed in
-[docs/RESILIENCE.md](docs/RESILIENCE.md)** — TMDB, OpenRouter, Supabase and the
-app’s own server each failing independently, plus two states that look like
-failures and are not. Shooting that set found three real defects that the tests,
+**Fifteen more states are captured and analysed in
+[docs/RESILIENCE.md](docs/RESILIENCE.md)**, sixteen in all — TMDB, OpenRouter,
+Supabase and the app’s own server each failing independently, a row deleted
+underneath an open dialog, a reply that arrives fine and says nothing usable,
+plus two states that look like failures and are not. Shooting that set found three real defects that the tests,
 the linter and the render audits had all passed over.
 
 ## Documentation
@@ -200,6 +201,11 @@ the linter and the render audits had all passed over.
 The screenshots above are the surface of a good deal of written work. Each
 document below is a deliverable in its own right rather than a README appendix,
 and each carries its own evidence.
+
+**Two markdown files in the repository are deliberately not rows here**, named so
+the omission can be checked rather than guessed at: this file (`README.md`), and
+`DOSSIER.md` — the course's own grading brief, which is an input to this project
+rather than a deliverable of it.
 
 | Document | What it is |
 |---|---|
@@ -210,9 +216,9 @@ and each carries its own evidence.
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
-| [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached — and an honest note wherever one is only partly covered. |
+| [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | `SPEC.md` § 7.1’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
-| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Five criteria for whether this is fit to merge, and an honest standing verdict (Module 16). |
+| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Module 16’s five criteria for whether this is fit to merge, each with its evidence — and the standing verdict: **MERGE-READY, all five met**. |
 | [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
 | [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the binding rules added after it destroyed real data. |
 
@@ -258,23 +264,34 @@ actually lives rather than where it is summarised:
 ## Project layout
 
 **Every directory below that is listed file by file is listed in full.** The ones
-summarised on one line — `routes/`, `public/`, `test/`, `db/migrations/`,
-`docs/screenshots/` — are deliberate summaries, not truncations.
+summarised on one line — `server/routes/`, `public/`, `test/`, `db/migrations/`,
+`docs/screenshots/`, `docs/*.md` — are deliberate summaries, not truncations,
+and `prompts/` is compacted to its version ranges for the same reason. Between
+those three forms — listed, summarised, compacted — plus the paragraph below,
+every tracked file in the repository is accounted for. D-074 records why the
+section is shaped this way, including the convention that a directory with more
+than one shown entry becomes a node rather than a repeated prefix.
 
 **Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
 a line here, and listed by name so the omission can be checked rather than
-guessed at: this file (`README.md`); `CLAUDE.md`, `SPEC.md` and all nine
-`docs/*.md`, mapped in the Documentation table above; `package.json` and
+guessed at: this file (`README.md`); `CLAUDE.md` and `SPEC.md`, both mapped in
+the Documentation table above; `package.json` and
 `package-lock.json`; `render.yaml` (described under Deployment); `.env.example`
 (under Setup); `DOSSIER.md`, the course's own grading brief rather than part of
 the build; and the dotfiles `.gitignore`, `.gitattributes` and `.vscode/`. That
-is every tracked entry in the repository root accounted for.
+is every tracked entry in the repository root accounted for. **The nine
+`docs/*.md` sat in this list until 2026-09-16 while the tree below listed all
+nine individually** — the paragraph excluded exactly what the tree enumerated.
+Settled in this paragraph's favour rather than the tree's: the tree now
+summarises them on one line, so each document is described in exactly one
+place, the Documentation table.
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
                     taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
-db/schema.sql       Supabase schema + RLS — fresh installs
-db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
+db/
+  schema.sql        Supabase schema + RLS — fresh installs
+  migrations/       numbered, re-runnable; applied by hand in the SQL editor
 server/
   index.js          the Express app: mounts the routes, serves public/, and the
                     central error handler. Exports `app` and only listens when
@@ -290,37 +307,35 @@ server/
     tasteVerdict.js     rated movies → prompt → plain-text verdict → log
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
-scripts/scan-secrets.js         run before every commit
-scripts/check-claims.js         run before EVERY commit; resolves every claim
-                                that points at something -- paths, D-0NN entries,
-                                commit SHAs, identifiers, captures, retired wording
-scripts/check-markdown.js       run before every commit that touches a .md file;
-                                catches escapes that render literally and the two
-                                structural traps (see CLAUDE.md)
-scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
-scripts/debug-recs.js           dev only — fakes a recommendation response in the
-                                browser so UI work costs no OpenRouter credit
-scripts/seed-demo.js            loads the demo list through the app own HTTP API,
-                                so the rows are what the UI would have produced;
-                                dry run by default, --write to apply
-test/              npm test — helpers, prompt loader, routes, resilience
-                   (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
+scripts/
+  scan-secrets.js   run before every commit
+  check-claims.js   run before EVERY commit; resolves every claim that points at
+                    something -- paths, D-0NN entries, commit SHAs, identifiers,
+                    captures, retired wording
+  check-markdown.js  run before every commit that touches a .md file; catches
+                    escapes that render literally and the two structural traps
+                    (see CLAUDE.md)
+  backfill-tmdb-rating.js  one-off fill for rows predating migration 002
+  debug-recs.js     dev only — fakes a recommendation response in the browser so
+                    UI work costs no OpenRouter credit
+  seed-demo.js      loads the demo list through the app own HTTP API, so the rows
+                    are what the UI would have produced; dry run by default,
+                    --write to apply
+test/               npm test — helpers, prompt loader, routes, resilience
+                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 eslint.config.js    defect rules + complexity ceilings; not a style linter
-docs/FRAMING.md     the Module 6 brief — problem, stakeholders, done, out of scope
-docs/BRIEFS.md      Module 8 two directing documents — interface + documentation
-docs/AI-CALL-LOG.md  what the documentation brief commissioned: the call log's
-                    load-bearing rules and what breaks if they are undone
-docs/MERGE-READINESS.md  Module 16 five criteria, each with its evidence and the
-                    standing verdict the document itself carries
-docs/SECURITY.md    OWASP Top 10 for Agentic Applications, mapped
-docs/ACCEPTANCE.md  SPEC 7.1 criterion by criterion, with evidence attached
-docs/RESILIENCE.md  what the user sees when each dependency fails, with the
-                    captures embedded as evidence
-docs/DECISIONS.md   why the choices are what they are
-docs/PROCESS.md     how it was built with an LLM in the loop
-docs/screenshots/   37 captures: rs-* the sixteen resilience and state recipes,
-                    pi-* the prompt-injection evidence, readme-* the showcase
-                    shots embedded above
+docs/
+  *.md              nine prose documents — framing, briefs, the call-log
+                    write-up, merge-readiness, security, acceptance, resilience,
+                    decisions, process. Described one at a time in the
+                    Documentation table above; they were listed individually
+                    here as well until 2026-09-16, and two of those nine pairs
+                    had already drifted apart
+  screenshots/      37 captures in four families, with a README.md index that
+                    renders when the folder is opened on GitHub: rs-* the sixteen
+                    resilience and state recipes, ac-* the acceptance-criteria
+                    evidence, pi-* the prompt-injection evidence, readme-* the
+                    showcase shots embedded above
 ```
 
 ## Demo script
