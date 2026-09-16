@@ -268,7 +268,9 @@ summarised on one line — `server/routes/`, `public/`, `test/`, `db/migrations/
 `docs/screenshots/`, `docs/*.md` — are deliberate summaries, not truncations,
 and `prompts/` is compacted to its version ranges for the same reason. Between
 those three forms — listed, summarised, compacted — plus the paragraph below,
-every tracked file in the repository is accounted for.
+every tracked file in the repository is accounted for. D-074 records why the
+section is shaped this way, including the convention that a directory with more
+than one shown entry becomes a node rather than a repeated prefix.
 
 **Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
 a line here, and listed by name so the omission can be checked rather than

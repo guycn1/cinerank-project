@@ -5,6 +5,84 @@ reasons behind a choice are clearest at the moment it's made, and the agent can'
 recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-074 · What the README's Project layout section is FOR: descriptions live in the table, containment is a node, identifiers resolve
+
+*2026-09-16, over a run of questions from the user, each of which reversed or
+widened the answer before it. Three rulings, settled together because they
+answer one question.*
+
+The section had drifted into doing three jobs at once: mapping the repository,
+describing each document, and asserting its own completeness. Each ruling below
+gives one of those back to whichever part of the README already does it better.
+
+**1. Per-file descriptions live in the Documentation table; the tree points at
+it.** Found as a contradiction: the "deliberately not in the tree" paragraph
+listed the nine `docs/*.md` as omissions a reader could verify, while the tree
+directly below listed all nine individually. **Claude resolved it the wrong way
+first** (`673702d`), striking them from the paragraph — which removed the
+contradiction and kept the thing that caused it: nine files each carrying TWO
+hand-maintained descriptions. The user asked whether the tree should have
+matched the paragraph instead, and it should have (`a473b29`).
+
+**What settled it was measurable, not editorial.** The duplication had already
+drifted, that same day, by Claude's own hand, in commits whose subject was
+accuracy: `docs/MERGE-READINESS.md`'s table row was rewritten in `c2aed57` to
+say "MERGE-READY, all five met" while its tree line kept the vaguer "the
+standing verdict the document itself carries"; `docs/ACCEPTANCE.md`'s row gained
+"classified by strength ... All eight read satisfied" in `565e5f8` while its
+tree line stayed at "with evidence attached". Two of nine pairs, inside one
+session, while auditing for exactly this.
+
+**2. Containment is expressed by a node, never by a repeated prefix.** Six
+`scripts/*` entries each repeated the same nine characters; `db/` and `docs/`
+did the same with two each. Claude recommended nesting `scripts/` alone and
+flagged the cost — the tree would then carry two idioms chosen by size, nest
+when a directory has several children and inline the prefix when it has one or
+two, a convention stated nowhere. **The user overrode that narrower scope and
+extended it to `db/` and `docs/`** (`25b7415`), which is the better call: one
+visible rule instead of two, and no unstated size threshold for a later session
+to guess at.
+
+**3. Every identifier in the section's prose resolves from the repository
+root.** `routes/` became `server/routes/` (`0c206ff`). Claude looked first for
+a mechanical argument — whether `check-claims` resolves one spelling and not
+the other — and there is none: `checkPaths` only matches paths ending in a file
+extension, so a bare directory is invisible to the gate either way. What decided
+it is that the paragraph's function is to let a reader confirm those entries are
+summaries rather than truncations, which means resolving each one, and
+seventeen of the eighteen identifiers in the two paragraphs already did.
+
+**Where Claude was wrong, beyond resolving 1 backwards.** The consolidation
+commit introduced *"the Documentation table above, which is the ONLY place each
+one is described"* — an exclusivity claim planted in the very edit that
+consolidated duplicate descriptions, and false in both readings. Inside the
+README, `docs/SECURITY.md` is described again at README:375 in wording almost
+identical to its table row, and `docs/RESILIENCE.md` at README:192 in a
+description Claude had written hours earlier. Outside it, `SPEC.md` and
+`docs/MERGE-READINESS.md` both describe `docs/ACCEPTANCE.md`. Corrected in
+`707b7f2` after the user asked for it to be verified rather than trusted.
+
+**Traps.**
+
+* **Do not re-expand the nine `docs/*.md` into individual tree lines.** They were
+  there, and two of the nine drifted from the table within a single session. The
+  tree line says so at the point of temptation; this entry is why.
+* **Do not flatten a nested directory back to repeated prefixes.** The node form
+  IS the convention now, and this entry is the only place it is written down —
+  the tree can otherwise only show its shape, not its rule.
+* **Do not write a bare directory name in that section's prose.** Every
+  identifier there resolves from the root, and that is what makes the
+  completeness claim checkable rather than decorative.
+
+**Deliberately not in this entry: the formatting.** Column alignment, wrap
+points, the `test/` line that sat one column left of its siblings, the missing
+`ac-*` family in the screenshots description (`2b49ba4`), the Documentation
+table's two declared omissions (`006983e`). All obviously correct once raised,
+all recoverable by reading the file, all in their commit messages. The
+distinction drawn here, after the user caught it being drawn too coarsely: the
+formatting is presentation, the CONVENTION the formatting established is a rule,
+and only the rule belongs in a decision log.
+
 ## D-073 · The merge rule gained a second and a third ground, and the correction that prompted it stays on `draft`
 
 *2026-09-15, after the user asked whether a wording correction was worth a
