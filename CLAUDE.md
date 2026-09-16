@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-15 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-16 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -72,12 +72,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
-  sweep that followed it, and a **twenty-fifth** carrying the merge rule itself
-  — all four described at the end of this bullet.
+  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, and
+  a **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it
+  — all five described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-five**
+  steps closed. **Twenty-six**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -162,10 +163,23 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   `git log --merges` showed three that were not. **Claude classified the whole
   `draft` stack by its first commit and never re-ran the test as the stack grew
   to contain a real defect fix — the user caught that too.**
+  **AND A TWENTY-SIXTH ON 2026-09-16.** The user drove it by asking, one
+  question at a time, whether things this repository asserts are actually true:
+  whether `docs/ACCEPTANCE.md` really carries the caveats `README.md` advertised
+  (it does not — all eight criteria read satisfied), which of the twenty-four
+  markdown enumerations are short, what every numeric figure resolves to, and
+  whether the Project layout tree accounts for all 100 tracked files. **The
+  useful half of the answer is what it found in the questions Claude had already
+  answered once:** a first numeric pass filtered 3,681 figures through an
+  allowlist of sixty nouns and therefore could not see "the three real scripts/
+  tools" at all, and a uniqueness claim planted while consolidating duplicate
+  descriptions was false forty lines from where it was written. Eleven defects,
+  and D-074 for the one real decision underneath them.
   **The pattern across every one of them is one sentence:** a check can be sound
   and its BOUNDARY wrong — the wrong render context (22), the wrong file types
   and the wrong direction of reading (23), a claim whose falsifier it never names
-  (24), and a test applied once and not re-applied as its subject changed (25) —
+  (24), a test applied once and not re-applied as its subject changed (25), and
+  a filter whose vocabulary decides what it can find (26) —
   and no amount of care inside the boundary finds that. (That sentence read
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once

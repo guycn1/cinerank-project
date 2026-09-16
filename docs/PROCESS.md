@@ -20,7 +20,7 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-five merges to `main` (verify with
+  every merge since has been the latter. Twenty-six merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -38,7 +38,10 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   non-milestone merges meant it had quietly died: the practice turned out to have
   been consistent and the rule TEXT out of date, and four files were still
   telling a reader that every merge follows a milestone while the log beside them
-  showed three that did not.
+  showed three that did not. The twenty-sixth carried eleven accuracy defects
+  found by the user asking, one at a time, whether particular claims resolve —
+  including two that survived a sweep Claude had already run, because the
+  sweep's own filter could not express them.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
