@@ -287,8 +287,9 @@ place, the Documentation table.
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
                     taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
-db/schema.sql       Supabase schema + RLS — fresh installs
-db/migrations/      numbered, re-runnable; applied by hand in the SQL editor
+db/
+  schema.sql        Supabase schema + RLS — fresh installs
+  migrations/       numbered, re-runnable; applied by hand in the SQL editor
 server/
   index.js          the Express app: mounts the routes, serves public/, and the
                     central error handler. Exports `app` and only listens when
@@ -304,29 +305,31 @@ server/
     tasteVerdict.js     rated movies → prompt → plain-text verdict → log
   routes/           thin Express routes; no inline fetch(), no inline SQL
 public/             the cinematic frontend
-scripts/scan-secrets.js         run before every commit
-scripts/check-claims.js         run before EVERY commit; resolves every claim
-                                that points at something -- paths, D-0NN entries,
-                                commit SHAs, identifiers, captures, retired wording
-scripts/check-markdown.js       run before every commit that touches a .md file;
-                                catches escapes that render literally and the two
-                                structural traps (see CLAUDE.md)
-scripts/backfill-tmdb-rating.js  one-off fill for rows predating migration 002
-scripts/debug-recs.js           dev only — fakes a recommendation response in the
-                                browser so UI work costs no OpenRouter credit
-scripts/seed-demo.js            loads the demo list through the app own HTTP API,
-                                so the rows are what the UI would have produced;
-                                dry run by default, --write to apply
-test/              npm test — helpers, prompt loader, routes, resilience
-                   (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
+scripts/
+  scan-secrets.js   run before every commit
+  check-claims.js   run before EVERY commit; resolves every claim that points at
+                    something -- paths, D-0NN entries, commit SHAs, identifiers,
+                    captures, retired wording
+  check-markdown.js  run before every commit that touches a .md file; catches
+                    escapes that render literally and the two structural traps
+                    (see CLAUDE.md)
+  backfill-tmdb-rating.js  one-off fill for rows predating migration 002
+  debug-recs.js     dev only — fakes a recommendation response in the browser so
+                    UI work costs no OpenRouter credit
+  seed-demo.js      loads the demo list through the app own HTTP API, so the rows
+                    are what the UI would have produced; dry run by default,
+                    --write to apply
+test/               npm test — helpers, prompt loader, routes, resilience
+                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
 eslint.config.js    defect rules + complexity ceilings; not a style linter
-docs/*.md           nine prose documents — framing, briefs, the call-log
+docs/
+  *.md              nine prose documents — framing, briefs, the call-log
                     write-up, merge-readiness, security, acceptance, resilience,
                     decisions, process. Described one at a time in the
                     Documentation table above; they were listed individually
                     here as well until 2026-09-16, and two of those nine pairs
                     had already drifted apart
-docs/screenshots/   37 captures in four families, with a README.md index that
+  screenshots/      37 captures in four families, with a README.md index that
                     renders when the folder is opened on GitHub: rs-* the sixteen
                     resilience and state recipes, ac-* the acceptance-criteria
                     evidence, pi-* the prompt-injection evidence, readme-* the
