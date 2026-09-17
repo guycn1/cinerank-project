@@ -476,7 +476,8 @@ are the running record of how each piece got there and stay as written.
   - **Failed rows.** `status` badge goes red; error text in a `.log-error`
     span at `0.7em` with `white-space: normal` + `overflow-wrap: anywhere` so
     it wraps and never widens the pinned Result column. Missing Tokens/Cost
-    render `—` in `--ink-faint` (a `log-empty-val` class, only when null).
+    render an em dash (`—`) in `--ink-faint` (a `log-empty-val` class, only
+    when null).
   - **Totals** sum the in/out split and durations; nulls on failed rows count
     as 0. `(summed model latency, not elapsed time)` note fills the trailing
     gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
@@ -3419,10 +3420,10 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
     same reason RS-3 needed two: the split between the calm sentence and the
     recorded cause IS the claim, so one frame cannot carry it. The log row shows
-    `OpenRouter responded 401` in crimson beside a red `failed` badge, with `—`
-    in Tokens and Cost (nothing completed, so an em dash rather than a lying
-    `0`) and a 74 ms duration that says where it died: rejected at auth, never
-    reached inference.
+    `OpenRouter responded 401` in crimson beside a red `failed` badge, an em
+    dash (`—`) in Tokens and Cost rather than a lying `0` since nothing
+    completed, and a 74 ms duration that says where it died: rejected at auth,
+    never reached inference.
     **WHY THE TWO LOG FRAMES SHOW DIFFERENT TABLES, so it is not later read as
     an inconsistency.** `rs-3-…-log.png` has no 17:54:01 failed row and
     `rs-4-…-log.png` has it on top. Both were shot after the D-069 copy fix and
