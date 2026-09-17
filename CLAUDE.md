@@ -4081,6 +4081,16 @@ and explicitly-past narration do not. When a decision is genuinely superseded,
 write a NEW entry that says so and references the old number — never rewrite the
 old one.
 
+**What "preserved" protects is the DECISION, not the prose** (the user's
+clarification, 2026-09-17, after Claude over-applied this rule and declined a
+wording fix in D-029 on these grounds). A `docs/DECISIONS.md` entry is not
+read-only. A purely cosmetic edit that alters no claim — rewrapping a
+paragraph, naming a glyph the entry only showed, fixing something that renders
+badly — is allowed and welcome, because an entry nobody can read comfortably is
+not much of a record. The test is the same one above, applied to the EDIT rather
+than to the file: does this change what the entry says happened, or only how
+easily it reads? The first is forbidden; the second is maintenance.
+
 **One exception: a claim that was WRONG when written gets corrected**, because it
 was never a valid record — the merge count that had drifted, or the magnifier
 orientation Claude asserted backwards. Fix the fact and say in the commit message
