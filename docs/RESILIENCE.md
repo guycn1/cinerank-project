@@ -32,12 +32,13 @@ Four claims, and every capture below is measured against them:
 ## How these were produced
 
 Each state has a recipe, kept as `RS-1` … `RS-16` in `CLAUDE.md` so that any of
-them can be reproduced exactly. TMDB and OpenRouter are called **server-side**, so
-browser devtools cannot simulate them: most recipes break the relevant key in
-`.env` and restart, and three — `RS-9`, `RS-15` and `RS-16` — force a state no
-key can produce by changing one line of a service and reverting it the moment the
-shot lands. `RS-15` does it twice, once per half, which is why the number of such
-EDITS is four and the number of such recipes is three.
+them can be reproduced exactly. TMDB, OpenRouter and Supabase are all called
+**server-side** — the browser never talks to any of them, so browser devtools
+cannot simulate them: most recipes break the relevant key in `.env` and restart,
+and three — `RS-9`, `RS-15` and `RS-16` — force a state no key can produce by
+changing one line of a service and reverting it the moment the shot lands.
+`RS-15` does it twice, once per half, which is why the number of such EDITS is
+four and the number of such recipes is three.
 
 **Five of them are order-dependent**, because getting the order wrong does not
 produce a worse frame — it produces a different state entirely. Loading the page

@@ -3352,9 +3352,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   every one of them is. (This read "all nine" until 2026-09-15, which was the
   set's size when the instruction was written and stopped being true at RS-10.
   A count that grows with the set does not belong in a rule about the set.)
-  **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
-  request blocking do NOT simulate them. Forcing means editing `.env` and
-  restarting, except where noted.
+  **TMDB, OpenRouter and Supabase are ALL called SERVER-side** — the browser
+  talks only to this app — so DevTools offline mode and request blocking do NOT
+  simulate them. Forcing means editing `.env` and restarting, except where noted.
   **The ranked list must still be working in every shot except RS-7** — that is
   the point of most of them: one thing broke, the app did not.
 
