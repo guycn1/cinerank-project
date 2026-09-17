@@ -414,7 +414,11 @@ when run directly, so a test can drive it on an ephemeral port.
 Still manual: the resilience *UI* states (the calm inline messages) — worth a few
 screenshots for the submission even though the server side is now tested.
 
-## 7. Known gaps / next
+## 7. Gaps named while building, and how each one closed
+
+Every item here was written down while it was still open, and every one is now
+closed. They are kept rather than deleted because *when* a gap was named is part
+of the record this document exists to show.
 
 - ~~Not yet deployed.~~ **Deployed 2026-09-07 to Render:
   https://cinerank-g6lx.onrender.com** — no application changes were needed,

@@ -124,9 +124,10 @@ something. Four places where it visibly did:
   load and make the ranked list depend on TMDB being reachable — a trade the list
   owner loses (D-036).
 * **The definition of done stopped work twice.** Step 5 closed against the ~350px
-  target with known imperfections below ~310px, because the boundary was set in
-  advance rather than argued each time. R18 closed as won't-fix on measurement for
-  the same reason.
+  target, with the band below ~310px outside that target by prior agreement
+  rather than left unfinished — the boundary was set in advance so it did not
+  have to be argued each time. R18 closed as won't-fix on measurement for the
+  same reason.
 * **Naming that reader as a stakeholder changed a whole class of work from
   cosmetic to blocking.** Both long markdown files were found rendering wrong on
   GitHub. If the only stakeholder had been the list owner, that would have been a

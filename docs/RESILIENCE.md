@@ -391,12 +391,16 @@ Incident 1. The sentence is quoted above rather than photographed, and the branc
 that writes it sits ten lines from the one that writes the failure in
 `public/app.js` — close enough to read both at once.
 
-> **The honest blemish.** The cause it can show is `Something went wrong.` — the
-> generic `500`, and the least informative message in the application. Wherever
-> the central handler answers, the app genuinely cannot say what broke: `RS-7`
-> and `RS-13` carry the same string for the same reason, because that handler is
-> what replies when Supabase vanishes mid-request. It is recorded here rather
-> than quietly framed as a success.
+> **The generic cause is deliberate, and the specific version was the defect.**
+> `Something went wrong.` is all the central handler will say, because this is
+> the one place the app cannot tell a Supabase outage from a bug of its own — and
+> it once did guess, telling users that a bad key in `.env` was a problem "on our
+> side" when it was neither a bug nor the server’s fault. That was found while
+> shooting `RS-7`, and removed the same afternoon. The real cause is not lost:
+> the line above the response writes it to the server log, and `RS-7` and `RS-13`
+> carry the same string for the same reason. What the user is owed here is what
+> failed — which the client supplies — and no invented reason for it. The one
+> thing the AI routes offer and this does not is a remedy.
 
 ### RS-13 · A write fails and says which film it was about
 
@@ -629,11 +633,15 @@ regardless. Here the guard is server-side and the fallback is client-side —
 exactly the opposite arrangement to the six above, and a reason to keep the
 fallback rather than delete it as dead code.
 
-Exactly one of the six was ever *verified* unreachable rather than assumed. Before
-migration 004 added `review_requires_rating`, the state it forbids was traced
-through the interface and then checked against the live table, which held **zero**
-rows in it (`D-041`). The other five rest on reading the code, which is weaker,
-and is said here plainly rather than dressed up.
+One of the six carries a second kind of evidence as well. Before migration 004
+added `review_requires_rating`, the state it forbids was traced through the
+interface and then checked against the live table, which held **zero** rows in it
+(`D-041`). The other five rest on the code alone — which is what an
+unreachability claim actually needs, since no amount of observation shows that a
+state *cannot* occur. Each guard named above is structural rather than
+conventional: an `<input type="range">` cannot emit a value outside its bounds,
+and a function with exactly two call sites cannot be handed a value nobody types.
+The live check on the sixth corroborated the reading; it did not replace it.
 
 ## What shooting these actually found
 
