@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-16 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-17 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -72,13 +72,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
-  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, and
-  a **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it
-  — all five described at the end of this bullet.
+  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
+  **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
+  and a **twenty-seventh on 2026-09-17** carrying two false claims and the
+  legibility work around them — all six described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-six**
+  steps closed. **Twenty-seven**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -175,12 +176,32 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   tools" at all, and a uniqueness claim planted while consolidating duplicate
   descriptions was false forty lines from where it was written. Eleven defects,
   and D-074 for the one real decision underneath them.
+  **AND A TWENTY-SEVENTH ON 2026-09-17.** Two claims on `main` were false, which
+  is the ground it was merged on. `docs/RESILIENCE.md` called RS-12 "the one
+  frame in this document where the app genuinely cannot say what broke" while
+  THREE frames show that same generic `500` message, and called RS-14 "the only
+  frame where a failure could have cost the user something" when `RS-10` is the
+  other one. **Each was contradicted inside its own section** — 22 lines later
+  and 28 lines later, by sentences that had been sitting there the whole time.
+  Riding along: thirty navigation links in `README.md`, where exactly one
+  in-page link had existed; Supabase added to the "called server-side"
+  enumeration, which named two of the three dependencies whose recipes the same
+  sentence then explained; four honesty framings that called correct behaviour a
+  flaw, the worst of them apologising for the generic 500 handler, which is the
+  FIX that shooting `RS-7` produced; and a legibility pass on glyphs the prose
+  only showed instead of naming.
   **The pattern across every one of them is one sentence:** a check can be sound
   and its BOUNDARY wrong — the wrong render context (22), the wrong file types
   and the wrong direction of reading (23), a claim whose falsifier it never names
   (24), a test applied once and not re-applied as its subject changed (25), and
   a filter whose vocabulary decides what it can find (26) —
-  and no amount of care inside the boundary finds that. (That sentence read
+  and no amount of care inside the boundary finds that.
+  **The twenty-seventh is the first that does NOT fit that sentence, and the
+  difference is worth keeping.** Its sweep had the right boundary: `8271443`
+  found every site, quoted two of them verbatim, and cleared them anyway — on
+  a criterion ("anchored by a preceding verb or preposition") read off the
+  SOURCE, where the backticks are visible, rather than the render, where they
+  are gone. A boundary can be right and the test inside it still wrong. (That sentence read
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once
   already. The count is gone and the list is complete.)
