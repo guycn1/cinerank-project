@@ -810,8 +810,8 @@ are the running record of how each piece got there and stay as written.
   Claude's audit produced items 1–17 and the user
   added 18–20; **all 20 are done** and the canonical table with every
   status is further down this section. Done so far:
-  - Only a rated film earns a rank number; unrated cards show a faint `?`, and
-    the #1 crown moved off `:first-child` onto a class (D-029).
+  - Only a rated film earns a rank number; unrated cards show a faint question
+    mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared
     twice, now one `--poster-w` the grid track and the image both read.
   - Card buttons stay bottom-right on unrated cards in card mode

@@ -3119,9 +3119,9 @@ Alternatives weighed and dropped:
   the rank numerals, and lighting it up would undo that. One marker, in the body,
   next to the button that resolves it.
 
-Not changed: the `?`, the missing score badge, and the button reading "Rate"
-instead of "Edit" are the card's other three unrated signals and are all correct
-as they stand.
+Not changed: the question mark (`?`), the missing score badge, and the button
+reading "Rate" instead of "Edit" are the card's other three unrated signals and
+are all correct as they stand.
 
 
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
