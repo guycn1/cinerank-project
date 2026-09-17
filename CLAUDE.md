@@ -3398,22 +3398,22 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     The row is self-marking anyway: `resultCell()` returns plain text for an
     empty list, so it reads "no suggestions" in grey with no caret while every
     other recommendation row is amber with a disclosure triangle.
-    **That log frame is also the best single piece of cost-logging evidence in
-    the repo** — per-call tokens split in/out, exact cost, duration, a 60-call
-    total, both log tables named, and D-053’s two-model split visible in one
-    column (haiku for recommendations, sonnet-5 for the verdict alone).
+    **That log frame is where the cost logging is visible end to end** —
+    per-call tokens split in/out, exact cost, duration, a 60-call total, both
+    log tables named, and D-053’s two-model split visible in one column (haiku
+    for recommendations, sonnet-5 for the verdict alone).
     The captured frame also proves R26’s colour rule in passing: the hint is
     `--ink-dim`, not the fainter `.is-caption`, because it is the only thing on
     screen rather than a caption introducing content.
     **TMDB unreachable DURING a recommendation run** (added by R28).
     Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
-    Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
-    call succeeds and is charged while the run still produces nothing.** Expect
-    the hint "Couldn’t check any of the suggestions — the movie database is
-    unreachable. Try again in a moment.", the metadata footer showing the real
-    cost, and — in the AI call log — a green `success` row whose
-    `suggested_titles` is empty. Before R28 this state claimed the model had only
-    named films already in the list. Costs one real OpenRouter call.
+    Distinct from RS-1 and RS-2: **the AI call succeeds and is charged while
+    the run still produces nothing.** Expect the hint "Couldn’t check any of
+    the suggestions — the movie database is unreachable. Try again in a
+    moment.", the metadata footer showing the real cost, and — in the AI call
+    log — a green `success` row whose `suggested_titles` is empty. Before R28
+    this state claimed the model had only named films already in the list.
+    Costs one real OpenRouter call.
   - [x] **RS-4 · CAPTURED 2026-09-13 — two frames:
     `docs/screenshots/rs-4-openrouter-down-recs.png` and
     `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
@@ -3449,13 +3449,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   - [x] **RS-5 · CAPTURED 2026-09-13 — two frames:
     `docs/screenshots/rs-5-openrouter-down-verdict.png` and
     `docs/screenshots/rs-5-openrouter-down-verdict-log.png`.**
-    **The log frame is the single strongest image in the set.** It holds the
-    two failed rows ADJACENT — `TV`/`TV_v7`/`claude-sonnet-5` above
-    `R`/`R_v3`/`claude-haiku-4.5`, both `failed`, both `OpenRouter responded
-    401`, both with em dashes for tokens and cost. One image therefore carries
-    R23 (two features answering a failure identically, after they had drifted
-    into two error dialects) AND D-053’s two-model split holding in the
-    FAILURE path, not only in the successes.
+    **The log frame holds the two failed rows ADJACENT** —
+    `TV`/`TV_v7`/`claude-sonnet-5` above `R`/`R_v3`/`claude-haiku-4.5`, both
+    `failed`, both `OpenRouter responded 401`, both with em dashes for tokens
+    and cost. One image therefore carries R23 (two features answering a failure
+    identically, after they had drifted into two error dialects) AND D-053’s
+    two-model split holding in the FAILURE path, not only in the successes.
     **That second claim was false until the day this was shot.** The failed
     verdict row named the app-wide model, not the one it called; the user
     caught it in the first attempt at this frame. Fixed, covered by a test per
@@ -3639,8 +3638,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     `docs/screenshots/rs-14-failed-save-retry-succeeds.png`.**
     **A save that fails while the server is gone, and the retry that works.** Same
     outage as RS-6 and the opposite direction — that is a failed READ, this is a
-    failed WRITE with unsaved work in hand, and it is the only state in the set
-    where a failure could have cost the user something.
+    failed WRITE with unsaved work in hand.
     **Two frames because the distinguishing claim is RECOVERY, not preservation.**
     RS-10 also keeps the typed text, but there the row was deleted and the save
     can never succeed. Shoot only the error here and the difference between the

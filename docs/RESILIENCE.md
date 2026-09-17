@@ -108,7 +108,7 @@ checked, with the call cost shown](screenshots/rs-3-tmdb-down-during-recs.png)
 > Couldn't check any of the suggestions — the movie database is unreachable. Try
 > again in a moment.
 
-**This is the most interesting state in the set, because the AI call succeeded.**
+**What makes this state worth capturing is that the AI call succeeded.**
 The model was reached, it answered, it was charged for. TMDB then could not
 confirm a single title, so nothing could be shown. The metadata footer declares
 the real cost of a run that produced nothing.
@@ -176,7 +176,7 @@ independent code paths, one vocabulary. That is what `R23` was for.
 ![The AI call log showing two failed rows, one per feature, on two different
 models](screenshots/rs-5-openrouter-down-verdict-log.png)
 
-**This is the strongest single frame in the set.** Two failed rows, adjacent:
+**Two failed rows, adjacent:**
 
 | Feature | Prompt | Model | Status |
 |---|---|---|---|
@@ -392,10 +392,11 @@ that writes it sits ten lines from the one that writes the failure in
 `public/app.js` — close enough to read both at once.
 
 > **The honest blemish.** The cause it can show is `Something went wrong.` — the
-> generic `500`, and the least informative message in the application. This is
-> the one frame in this document where the app genuinely cannot say what broke,
-> because the central handler is what answers when Supabase vanishes mid-request.
-> It is recorded here rather than quietly framed as a success.
+> generic `500`, and the least informative message in the application. Wherever
+> the central handler answers, the app genuinely cannot say what broke: `RS-7`
+> and `RS-13` carry the same string for the same reason, because that handler is
+> what replies when Supabase vanishes mid-request. It is recorded here rather
+> than quietly framed as a success.
 
 ### RS-13 · A write fails and says which film it was about
 
@@ -449,8 +450,7 @@ the same film's card still reads No review
 yet](screenshots/rs-14-failed-save-input-kept.png)
 
 Same outage as `RS-6`, opposite direction: that one is a failed **read**, this is
-a failed **write** with unsaved work in hand. It is the only frame in this
-document where a failure could have cost the user something.
+a failed **write** with unsaved work in hand.
 
 **What it must not do is close.** The form is `method="dialog"`, so submitting
 closes it *by default* — and this application shipped that way once: the write
