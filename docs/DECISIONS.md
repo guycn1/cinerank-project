@@ -3119,9 +3119,9 @@ Alternatives weighed and dropped:
   the rank numerals, and lighting it up would undo that. One marker, in the body,
   next to the button that resolves it.
 
-Not changed: the `?`, the missing score badge, and the button reading "Rate"
-instead of "Edit" are the card's other three unrated signals and are all correct
-as they stand.
+Not changed: the question mark (`?`), the missing score badge, and the button
+reading "Rate" instead of "Edit" are the card's other three unrated signals and
+are all correct as they stand.
 
 
 ## D-032 · A failed save reports inside the rate dialog, not via the toast
@@ -3355,13 +3355,15 @@ Four options were weighed:
   (`rankNo`) that increments only when `m.rating != null`; unrated cards show a
   glyph in the rank slot instead.
 
-**The glyph: `?`, not `—`.** Claude proposed `—` in `--ink-faint`, reusing the AI
-call log's missing-Tokens/Cost vocabulary (D-021, shared UI vocabulary). The user
-chose `?` instead. It is the better call: `—` means "this value does not exist",
-which is what an empty log cell means, but an unrated film's rank is not absent —
-it is *undetermined pending an action the user can take*. `?` says "unknown, ask
-me" where `—` says "nothing here". Styled much smaller and faint so it reads as
-an absence beside the ranking rather than an entry competing within it.
+**The glyph: a question mark (`?`), not an em dash (`—`).** Claude proposed the em
+dash in `--ink-faint`, reusing the AI call log's missing-Tokens/Cost vocabulary
+(D-021, shared UI vocabulary). The user chose the question mark instead. It is
+the better call: an em dash means "this value does not exist", which is what an
+empty log cell means, but an unrated film's rank is not absent — it is
+*undetermined pending an action the user can take*. A question mark says
+"unknown, ask me" where a dash says "nothing here". Styled much smaller and
+faint so it reads as an absence beside the ranking rather than an entry
+competing within it.
 
 **Two traps this decision creates, both handled and both easy to undo later:**
 
@@ -3376,10 +3378,10 @@ an absence beside the ranking rather than an entry competing within it.
    The counter states the rule; `i` merely happens to match it.
 
 Screen readers: the `<ol>` still numbers every `<li>` implicitly, so an unrated
-card could be announced as "list item 7" while showing `?`. The rank slot is
-therefore `aria-hidden` on unrated cards and the "Not rated yet" line carries the
-meaning. Splitting the list into two elements purely to fix the announcement was
-considered and judged disproportionate.
+card could be announced as "list item 7" while showing a question mark. The rank
+slot is therefore `aria-hidden` on unrated cards and the "Not rated yet" line
+carries the meaning. Splitting the list into two elements purely to fix the
+announcement was considered and judged disproportionate.
 
 Deliberately **not** changed: unrated films still sort to the very bottom, so on
 a long list a just-skipped film is far out of sight. Raised with the user, who

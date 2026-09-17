@@ -32,12 +32,13 @@ Four claims, and every capture below is measured against them:
 ## How these were produced
 
 Each state has a recipe, kept as `RS-1` … `RS-16` in `CLAUDE.md` so that any of
-them can be reproduced exactly. TMDB and OpenRouter are called **server-side**, so
-browser devtools cannot simulate them: most recipes break the relevant key in
-`.env` and restart, and three — `RS-9`, `RS-15` and `RS-16` — force a state no
-key can produce by changing one line of a service and reverting it the moment the
-shot lands. `RS-15` does it twice, once per half, which is why the number of such
-EDITS is four and the number of such recipes is three.
+them can be reproduced exactly. TMDB, OpenRouter and Supabase are all called
+**server-side** — the browser never talks to any of them, so browser devtools
+cannot simulate them: most recipes break the relevant key in `.env` and restart,
+and three — `RS-9`, `RS-15` and `RS-16` — force a state no key can produce by
+changing one line of a service and reverting it the moment the shot lands.
+`RS-15` does it twice, once per half, which is why the number of such EDITS is
+four and the number of such recipes is three.
 
 **Five of them are order-dependent**, because getting the order wrong does not
 produce a worse frame — it produces a different state entirely. Loading the page
@@ -107,7 +108,7 @@ checked, with the call cost shown](screenshots/rs-3-tmdb-down-during-recs.png)
 > Couldn't check any of the suggestions — the movie database is unreachable. Try
 > again in a moment.
 
-**This is the most interesting state in the set, because the AI call succeeded.**
+**What makes this state worth capturing is that the AI call succeeded.**
 The model was reached, it answered, it was charged for. TMDB then could not
 confirm a single title, so nothing could be shown. The metadata footer declares
 the real cost of a run that produced nothing.
@@ -175,7 +176,7 @@ independent code paths, one vocabulary. That is what `R23` was for.
 ![The AI call log showing two failed rows, one per feature, on two different
 models](screenshots/rs-5-openrouter-down-verdict-log.png)
 
-**This is the strongest single frame in the set.** Two failed rows, adjacent:
+**Two failed rows, adjacent:**
 
 | Feature | Prompt | Model | Status |
 |---|---|---|---|
@@ -390,11 +391,16 @@ Incident 1. The sentence is quoted above rather than photographed, and the branc
 that writes it sits ten lines from the one that writes the failure in
 `public/app.js` — close enough to read both at once.
 
-> **The honest blemish.** The cause it can show is `Something went wrong.` — the
-> generic `500`, and the least informative message in the application. This is
-> the one frame in this document where the app genuinely cannot say what broke,
-> because the central handler is what answers when Supabase vanishes mid-request.
-> It is recorded here rather than quietly framed as a success.
+> **The generic cause is deliberate, and the specific version was the defect.**
+> `Something went wrong.` is all the central handler will say, because this is
+> the one place the app cannot tell a Supabase outage from a bug of its own — and
+> it once did guess, telling users that a bad key in `.env` was a problem "on our
+> side" when it was neither a bug nor the server’s fault. That was found while
+> shooting `RS-7`, and removed the same afternoon. The real cause is not lost:
+> the line above the response writes it to the server log, and `RS-7` and `RS-13`
+> carry the same string for the same reason. What the user is owed here is what
+> failed — which the client supplies — and no invented reason for it. The one
+> thing the AI routes offer and this does not is a remedy.
 
 ### RS-13 · A write fails and says which film it was about
 
@@ -448,8 +454,7 @@ the same film's card still reads No review
 yet](screenshots/rs-14-failed-save-input-kept.png)
 
 Same outage as `RS-6`, opposite direction: that one is a failed **read**, this is
-a failed **write** with unsaved work in hand. It is the only frame in this
-document where a failure could have cost the user something.
+a failed **write** with unsaved work in hand.
 
 **What it must not do is close.** The form is `method="dialog"`, so submitting
 closes it *by default* — and this application shipped that way once: the write
@@ -628,11 +633,15 @@ regardless. Here the guard is server-side and the fallback is client-side —
 exactly the opposite arrangement to the six above, and a reason to keep the
 fallback rather than delete it as dead code.
 
-Exactly one of the six was ever *verified* unreachable rather than assumed. Before
-migration 004 added `review_requires_rating`, the state it forbids was traced
-through the interface and then checked against the live table, which held **zero**
-rows in it (`D-041`). The other five rest on reading the code, which is weaker,
-and is said here plainly rather than dressed up.
+One of the six carries a second kind of evidence as well. Before migration 004
+added `review_requires_rating`, the state it forbids was traced through the
+interface and then checked against the live table, which held **zero** rows in it
+(`D-041`). The other five rest on the code alone — which is what an
+unreachability claim actually needs, since no amount of observation shows that a
+state *cannot* occur. Each guard named above is structural rather than
+conventional: an `<input type="range">` cannot emit a value outside its bounds,
+and a function with exactly two call sites cannot be handed a value nobody types.
+The live check on the sixth corroborated the reading; it did not replace it.
 
 ## What shooting these actually found
 

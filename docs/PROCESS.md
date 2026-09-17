@@ -20,7 +20,7 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-six merges to `main` (verify with
+  every merge since has been the latter. Twenty-seven merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -41,7 +41,11 @@ the reasoning. Rules that keep this honest live in `CLAUDE.md`:
   showed three that did not. The twenty-sixth carried eleven accuracy defects
   found by the user asking, one at a time, whether particular claims resolve —
   including two that survived a sweep Claude had already run, because the
-  sweep's own filter could not express them.
+  sweep's own filter could not express them. The twenty-seventh carried two
+  claims that were simply false on `main` — each contradicted by a sentence in
+  its own section — and, with them, the legibility work that found them: a
+  sweep two days earlier had reached the same sites, quoted them, and cleared
+  them on a criterion read off the source rather than the rendered page.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   `npm run scan-secrets` scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: `render.yaml` declares the four secrets as
@@ -414,7 +418,11 @@ when run directly, so a test can drive it on an ephemeral port.
 Still manual: the resilience *UI* states (the calm inline messages) — worth a few
 screenshots for the submission even though the server side is now tested.
 
-## 7. Known gaps / next
+## 7. Gaps named while building, and how each one closed
+
+Every item here was written down while it was still open, and every one is now
+closed. They are kept rather than deleted because *when* a gap was named is part
+of the record this document exists to show.
 
 - ~~Not yet deployed.~~ **Deployed 2026-09-07 to Render:
   https://cinerank-g6lx.onrender.com** — no application changes were needed,

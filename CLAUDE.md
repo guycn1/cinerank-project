@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-16 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-17 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -72,13 +72,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   evidence and documentation work (2026-09-14); a **twenty-second followed the
   same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
-  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, and
-  a **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it
-  — all five described at the end of this bullet.
+  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
+  **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
+  and a **twenty-seventh on 2026-09-17** carrying two false claims and the
+  legibility work around them — all six described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-six**
+  steps closed. **Twenty-seven**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -175,12 +176,32 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   tools" at all, and a uniqueness claim planted while consolidating duplicate
   descriptions was false forty lines from where it was written. Eleven defects,
   and D-074 for the one real decision underneath them.
+  **AND A TWENTY-SEVENTH ON 2026-09-17.** Two claims on `main` were false, which
+  is the ground it was merged on. `docs/RESILIENCE.md` called RS-12 "the one
+  frame in this document where the app genuinely cannot say what broke" while
+  THREE frames show that same generic `500` message, and called RS-14 "the only
+  frame where a failure could have cost the user something" when `RS-10` is the
+  other one. **Each was contradicted inside its own section** — 22 lines later
+  and 28 lines later, by sentences that had been sitting there the whole time.
+  Riding along: thirty navigation links in `README.md`, where exactly one
+  in-page link had existed; Supabase added to the "called server-side"
+  enumeration, which named two of the three dependencies whose recipes the same
+  sentence then explained; four honesty framings that called correct behaviour a
+  flaw, the worst of them apologising for the generic 500 handler, which is the
+  FIX that shooting `RS-7` produced; and a legibility pass on glyphs the prose
+  only showed instead of naming.
   **The pattern across every one of them is one sentence:** a check can be sound
   and its BOUNDARY wrong — the wrong render context (22), the wrong file types
   and the wrong direction of reading (23), a claim whose falsifier it never names
   (24), a test applied once and not re-applied as its subject changed (25), and
   a filter whose vocabulary decides what it can find (26) —
-  and no amount of care inside the boundary finds that. (That sentence read
+  and no amount of care inside the boundary finds that.
+  **The twenty-seventh is the first that does NOT fit that sentence, and the
+  difference is worth keeping.** Its sweep had the right boundary: `8271443`
+  found every site, quoted two of them verbatim, and cleared them anyway — on
+  a criterion ("anchored by a preceding verb or preposition") read off the
+  SOURCE, where the backticks are visible, rather than the render, where they
+  are gone. A boundary can be right and the test inside it still wrong. (That sentence read
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once
   already. The count is gone and the list is complete.)
@@ -476,7 +497,8 @@ are the running record of how each piece got there and stay as written.
   - **Failed rows.** `status` badge goes red; error text in a `.log-error`
     span at `0.7em` with `white-space: normal` + `overflow-wrap: anywhere` so
     it wraps and never widens the pinned Result column. Missing Tokens/Cost
-    render `—` in `--ink-faint` (a `log-empty-val` class, only when null).
+    render an em dash (`—`) in `--ink-faint` (a `log-empty-val` class, only
+    when null).
   - **Totals** sum the in/out split and durations; nulls on failed rows count
     as 0. `(summed model latency, not elapsed time)` note fills the trailing
     gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
@@ -809,8 +831,8 @@ are the running record of how each piece got there and stay as written.
   Claude's audit produced items 1–17 and the user
   added 18–20; **all 20 are done** and the canonical table with every
   status is further down this section. Done so far:
-  - Only a rated film earns a rank number; unrated cards show a faint `?`, and
-    the #1 crown moved off `:first-child` onto a class (D-029).
+  - Only a rated film earns a rank number; unrated cards show a faint question
+    mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared
     twice, now one `--poster-w` the grid track and the image both read.
   - Card buttons stay bottom-right on unrated cards in card mode
@@ -3352,9 +3374,9 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   every one of them is. (This read "all nine" until 2026-09-15, which was the
   set's size when the instruction was written and stopped being true at RS-10.
   A count that grows with the set does not belong in a rule about the set.)
-  **TMDB and OpenRouter are called SERVER-side**, so DevTools offline mode and
-  request blocking do NOT simulate them. Forcing means editing `.env` and
-  restarting, except where noted.
+  **TMDB, OpenRouter and Supabase are ALL called SERVER-side** — the browser
+  talks only to this app — so DevTools offline mode and request blocking do NOT
+  simulate them. Forcing means editing `.env` and restarting, except where noted.
   **The ranked list must still be working in every shot except RS-7** — that is
   the point of most of them: one thing broke, the app did not.
 
@@ -3398,31 +3420,31 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     The row is self-marking anyway: `resultCell()` returns plain text for an
     empty list, so it reads "no suggestions" in grey with no caret while every
     other recommendation row is amber with a disclosure triangle.
-    **That log frame is also the best single piece of cost-logging evidence in
-    the repo** — per-call tokens split in/out, exact cost, duration, a 60-call
-    total, both log tables named, and D-053’s two-model split visible in one
-    column (haiku for recommendations, sonnet-5 for the verdict alone).
+    **That log frame is where the cost logging is visible end to end** —
+    per-call tokens split in/out, exact cost, duration, a 60-call total, both
+    log tables named, and D-053’s two-model split visible in one column (haiku
+    for recommendations, sonnet-5 for the verdict alone).
     The captured frame also proves R26’s colour rule in passing: the hint is
     `--ink-dim`, not the fainter `.is-caption`, because it is the only thing on
     screen rather than a caption introducing content.
     **TMDB unreachable DURING a recommendation run** (added by R28).
     Bogus `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations.
-    Distinct from RS-1 and RS-2, and the most interesting of the set: **the AI
-    call succeeds and is charged while the run still produces nothing.** Expect
-    the hint "Couldn’t check any of the suggestions — the movie database is
-    unreachable. Try again in a moment.", the metadata footer showing the real
-    cost, and — in the AI call log — a green `success` row whose
-    `suggested_titles` is empty. Before R28 this state claimed the model had only
-    named films already in the list. Costs one real OpenRouter call.
+    Distinct from RS-1 and RS-2: **the AI call succeeds and is charged while
+    the run still produces nothing.** Expect the hint "Couldn’t check any of
+    the suggestions — the movie database is unreachable. Try again in a
+    moment.", the metadata footer showing the real cost, and — in the AI call
+    log — a green `success` row whose `suggested_titles` is empty. Before R28
+    this state claimed the model had only named films already in the list.
+    Costs one real OpenRouter call.
   - [x] **RS-4 · CAPTURED 2026-09-13 — two frames:
     `docs/screenshots/rs-4-openrouter-down-recs.png` and
     `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
     same reason RS-3 needed two: the split between the calm sentence and the
     recorded cause IS the claim, so one frame cannot carry it. The log row shows
-    `OpenRouter responded 401` in crimson beside a red `failed` badge, with `—`
-    in Tokens and Cost (nothing completed, so an em dash rather than a lying
-    `0`) and a 74 ms duration that says where it died: rejected at auth, never
-    reached inference.
+    `OpenRouter responded 401` in crimson beside a red `failed` badge, an em
+    dash (`—`) in Tokens and Cost rather than a lying `0` since nothing
+    completed, and a 74 ms duration that says where it died: rejected at auth,
+    never reached inference.
     **WHY THE TWO LOG FRAMES SHOW DIFFERENT TABLES, so it is not later read as
     an inconsistency.** `rs-3-…-log.png` has no 17:54:01 failed row and
     `rs-4-…-log.png` has it on top. Both were shot after the D-069 copy fix and
@@ -3449,13 +3471,12 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   - [x] **RS-5 · CAPTURED 2026-09-13 — two frames:
     `docs/screenshots/rs-5-openrouter-down-verdict.png` and
     `docs/screenshots/rs-5-openrouter-down-verdict-log.png`.**
-    **The log frame is the single strongest image in the set.** It holds the
-    two failed rows ADJACENT — `TV`/`TV_v7`/`claude-sonnet-5` above
-    `R`/`R_v3`/`claude-haiku-4.5`, both `failed`, both `OpenRouter responded
-    401`, both with em dashes for tokens and cost. One image therefore carries
-    R23 (two features answering a failure identically, after they had drifted
-    into two error dialects) AND D-053’s two-model split holding in the
-    FAILURE path, not only in the successes.
+    **The log frame holds the two failed rows ADJACENT** —
+    `TV`/`TV_v7`/`claude-sonnet-5` above `R`/`R_v3`/`claude-haiku-4.5`, both
+    `failed`, both `OpenRouter responded 401`, both with em dashes for tokens
+    and cost. One image therefore carries R23 (two features answering a failure
+    identically, after they had drifted into two error dialects) AND D-053’s
+    two-model split holding in the FAILURE path, not only in the successes.
     **That second claim was false until the day this was shot.** The failed
     verdict row named the app-wide model, not the one it called; the user
     caught it in the first attempt at this frame. Fixed, covered by a test per
@@ -3639,8 +3660,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     `docs/screenshots/rs-14-failed-save-retry-succeeds.png`.**
     **A save that fails while the server is gone, and the retry that works.** Same
     outage as RS-6 and the opposite direction — that is a failed READ, this is a
-    failed WRITE with unsaved work in hand, and it is the only state in the set
-    where a failure could have cost the user something.
+    failed WRITE with unsaved work in hand.
     **Two frames because the distinguishing claim is RECOVERY, not preservation.**
     RS-10 also keeps the typed text, but there the row was deleted and the save
     can never succeed. Shoot only the error here and the difference between the
@@ -4081,6 +4101,16 @@ and comments on live code claim the present and get corrected. Decision entries
 and explicitly-past narration do not. When a decision is genuinely superseded,
 write a NEW entry that says so and references the old number — never rewrite the
 old one.
+
+**What "preserved" protects is the DECISION, not the prose** (the user's
+clarification, 2026-09-17, after Claude over-applied this rule and declined a
+wording fix in D-029 on these grounds). A `docs/DECISIONS.md` entry is not
+read-only. A purely cosmetic edit that alters no claim — rewrapping a
+paragraph, naming a glyph the entry only showed, fixing something that renders
+badly — is allowed and welcome, because an entry nobody can read comfortably is
+not much of a record. The test is the same one above, applied to the EDIT rather
+than to the file: does this change what the entry says happened, or only how
+easily it reads? The first is forbidden; the second is maintenance.
 
 **One exception: a claim that was WRONG when written gets corrected**, because it
 was never a valid record — the merge count that had drifted, or the magnifier
