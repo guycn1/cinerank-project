@@ -4332,7 +4332,29 @@ the real blob from github.com and read that — it is the only authority.
   `50d5670`, which did clear ground 2. **That is the rule working as intended,
   not an exception to it:** the grounds decide WHETHER to merge, never what the
   branch may carry.
+* **A `draft` → `main` merge runs all five gates, whatever the diff touched.**
+  Two of them are scoped to what a commit CHANGED — `npm run lint` to `.js`,
+  `npm run check-markdown` to `.md` — which is right for a commit and wrong for
+  a merge: this is the one moment the branch a reader lands on and the live
+  Render deploy both move, and the whole set costs under a second. **Added
+  2026-09-17, after the twenty-seventh merge went through without the suite
+  being run.** That merge touched eight files, every one of them `.md`, so
+  nothing could have broken and 60/60 passed when it was finally run — but "it
+  cannot have broken" is reasoning offered after the fact, not a check made
+  before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
+* **Every commit runs `npm test`, and 60/60 is the bar.** The scope is EVERY
+  commit rather than every `.js` commit, which is not obvious and is load-bearing:
+  `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
+  MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking
+  the BEGIN marker in `prompts/taste_verdict_v7.md` takes it to 59/60. The whole
+  run is under 300ms.
+  **This bullet was missing until 2026-09-17, and its absence is why the
+  twenty-seventh merge went unrun.** `docs/PROCESS.md`, `docs/SECURITY.md` and
+  `docs/ACCEPTANCE.md` have all called `npm test` one of FIVE gates "wired into
+  the commit rules rather than left to memory" — and it was the one gate not
+  wired in here. Claude worked from this list, which had four, and told the user
+  the suite was not a documented gate. Three documents said otherwise.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
