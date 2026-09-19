@@ -2333,7 +2333,15 @@ async function renderAiLog() {
     if (r.prompt_tokens != null || r.completion_tokens != null) {
       const sub = document.createElement('span');
       sub.className = 'sub';
-      sub.textContent = `${r.prompt_tokens ?? '?'} in / ${r.completion_tokens ?? '?'} out`;
+      // Digit-grouped, like the total above it and like the footer's summed
+      // split: a bare `1466` sitting under a `1,577` reads as two different
+      // kinds of number. `toLocaleString()` with no argument, so both lines
+      // follow the reader's locale together. The `?` rather than fmtTokens'
+      // em dash is deliberate and still means "this half is missing while the
+      // other is present" — the span only exists when one of them is non-null.
+      sub.textContent =
+        `${r.prompt_tokens?.toLocaleString() ?? '?'} in / ` +
+        `${r.completion_tokens?.toLocaleString() ?? '?'} out`;
       tok.append(sub);
     }
     tr.append(tok);

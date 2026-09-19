@@ -2941,6 +2941,20 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
+/* Body rows only, and the size is SOLVED rather than picked. Digit grouping
+   costs the split about 3% of its width, which would push the Tokens column
+   out, so the type comes down to pay for it. Measured in Inter at the real
+   computed sizes: the binding string is `1,466 in / 111 out`, which is
+   88.86px at 0.84em against 89.17px for today's un-grouped `1466 in / 111
+   out` at 0.87em — so the column does not move, and the body row stays the
+   cell that sets its width (the footer's split measures 87.06px, just under).
+   Anything below ~0.83em hands that role to the footer instead, which is the
+   arrangement the note on `tfoot td` exists to prevent.
+   The footer is deliberately NOT included: its `.sub` is 0.87em of a 0.8em
+   cell, so it is already the smaller of the two.
+   The out side never carries a comma — `maxTokens` is 600 for
+   recommendations and 180 for the verdict, so it cannot reach four digits. */
+.log-table tbody .sub { font-size: 0.84em; }
 /* the footer cells are bold; its sub-lines shouldn't inherit that */
 /* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
    white-space is a safety net: the summed split is a few characters longer

@@ -499,6 +499,18 @@ are the running record of how each piece got there and stay as written.
     it wraps and never widens the pinned Result column. Missing Tokens/Cost
     render an em dash (`—`) in `--ink-faint` (a `log-empty-val` class, only
     when null).
+  - **The in/out split is digit-grouped too** (2026-09-19, user-raised from a
+    screenshot): a body row read `1,577` over `1466 in / 111 out`, grouping
+    the total and not the split beneath it, while the footer grouped both.
+    Both lines now go through `toLocaleString()` with no argument, so they
+    follow the reader's locale together. **The comma is paid for in type size,
+    and the value is solved rather than picked:** `.log-table tbody .sub`
+    drops 0.87em to 0.84em, measured in Inter at the real computed sizes so
+    that the binding string `1,466 in / 111 out` comes to 88.86px against the
+    un-grouped 89.17px — the Tokens column does not move. Body rows ONLY: the
+    footer's `.sub` is 0.87em of a 0.8em cell and is already the smaller of
+    the two, which is why the selector names `tbody`. The declaration carries
+    the arithmetic; read it before changing either number.
   - **Totals** sum the in/out split and durations; nulls on failed rows count
     as 0. `(summed model latency, not elapsed time)` note fills the trailing
     gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
