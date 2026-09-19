@@ -36,10 +36,11 @@ Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · O
 
 Two models are routed through OpenRouter on purpose, and **the split is not a
 hard-task / easy-task one.** Recommendations are the larger job of the two: read
-every rated film and the review attached to it, infer a sensibility from the set,
-exclude everything already owned, and compress the justification for each pick
-into one second-person sentence of 8–16 words that points at something real in the
-profile. The verdict writes two or three sentences.
+the whole list, infer a sensibility from the top five rated films and the reviews
+attached to them, exclude everything already in the list, and compress the
+justification for each pick into one second-person sentence of 8–16 words that
+points at something real in the profile. The verdict writes two or three
+sentences.
 
 **The split is about what can be checked.** A recommendation's output is
 structurally constrained and externally verifiable — a JSON array whose every

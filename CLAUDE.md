@@ -3937,9 +3937,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   to write in a plain spoken register, and the model turned out to be the
   constraint rather than the wording.
   **The split is NOT hard task versus easy task, and do not describe it that way.**
-  Recommendations are the larger job: read every rated film and its review, infer a
-  taste, exclude what is owned, and justify each pick in one second-person sentence
-  of 8–16 words tied to a specific rating or a pattern across them. What makes the
+  Recommendations are the larger job: read the whole list, infer a taste from the
+  top five rated films and the reviews attached to them
+  (`config.recommendations.topN`), exclude every film already in the list whether
+  rated or not, and justify each pick in one second-person sentence of 8–16 words
+  tied to a specific rating or a pattern across them. What makes the
   cheaper tier right there is that the output is **checkable** — structured JSON,
   every title cross-checked against TMDB, so a bad pick is dropped rather than
   shown. The verdict has nothing to check it against, so its only measure is
