@@ -306,7 +306,10 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
   both tables; in-app viewer via the footer `.log-cta` button.
-* Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
+* Security: `.env` gitignored from the first commit carrying any project
+  content (`103c4be`; the root commit is a one-line README, so there was nothing
+  for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
+  never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
 * Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
