@@ -1749,6 +1749,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      card mode anchors the block LEFT, so the same reasoning inverts. A blanket
      flex-end does not fix the defect, it MIRRORS it into card mode; that was
      built and measured before this was written. Do not collapse the two.
+     D-076 has the measurements, the `text-align: right` alternative that was
+     rejected, and the one width the verification could NOT reach.
      It was flex-end originally (0b3864c) and became flex-start in f69b069,
      whose subject is a narrow-width wrap fix -- but that fix is the
      `grid-column-start: 1` rule further down, and the commit message says this
@@ -1892,7 +1894,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      margin, so the score block is anchored LEFT -- the inverse of desktop.
      Its contents follow the edge it sits on, or the rating hangs off the
      widest caption, which is the desktop defect this exists to avoid
-     mirroring. See the reasoning on `.score-block` above. */
+     mirroring. See the reasoning on `.score-block` above, and D-076. */
   .score-block { align-items: flex-start; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
