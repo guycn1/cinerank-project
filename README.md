@@ -294,9 +294,9 @@ the [Documentation](#documentation) table above; `package.json` and
 `.env.example` (under [Setup](#setup)); `DOSSIER.md`, the course's own grading
 brief rather than part of the build; and the dotfiles `.gitignore`,
 `.gitattributes` and `.vscode/`. That is every tracked entry in the repository
-root accounted for. The nine documents in `docs/*.md` are summarised on one
-line in the tree below rather than listed individually, and each of them is
-described in the [Documentation](#documentation) table.
+root accounted for. The nine documents in `docs/*.md` are summarised as a
+single entry in the tree below rather than listed individually, and each of
+them is described in the [Documentation](#documentation) table.
 
 ```
 prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
