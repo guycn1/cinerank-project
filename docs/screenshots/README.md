@@ -108,9 +108,15 @@ criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
 
 | File | What it shows |
 |---|---|
-| [`readme-1-hero-ranked-list.png`](readme-1-hero-ranked-list.png) | The whole product in one glance, with a live verdict above the list |
+| [`readme-1-hero-ranked-list.png`](readme-1-hero-ranked-list.png) | The page as it lands: a live verdict above the ranking, and the top three of seven films |
 | [`readme-2-recommendations.png`](readme-2-recommendations.png) | Four recommendations, grounded in a named taste profile, cost declared |
 | [`readme-3-ai-call-log.png`](readme-3-ai-call-log.png) | The audit trail: prompt version, model, token split, duration, status, cost |
+
+**No one frame here holds the whole product.** `readme-1` is the landing view,
+so the recommendations section and the AI call log sit below its fold, and it
+shows three of the seven ranked films — those two features are what
+[`readme-2`](readme-2-recommendations.png) and
+[`readme-3`](readme-3-ai-call-log.png) are for.
 
 [`readme-1`](readme-1-hero-ranked-list.png) is self-proving and worth a second
 look: the verdict's phrases *"real trucks in a real desert"* and *"Elphaba
