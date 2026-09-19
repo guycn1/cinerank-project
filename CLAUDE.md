@@ -65,24 +65,28 @@ findings are corrected in place, and the ones worth knowing are that
 `docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
 when it is 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
 credited "ESLint 9 over 23 files" when the dependency has never been 9 and
-there are 24. **THE PRE-MERGE STALENESS SWEEP IS PART-DONE — RESUME IT FIRST, and do not
-re-do the covered half.** COVERED AND CLEAN: all 255 `§` references (183
-numbered, 72 named) resolve or are deliberate; `file:line` citations (there is
-exactly ONE in the repo, a generic example in this file, so that class cannot
-drift); 37 documented CSS/JS constants checked against `public/styles.css` and
-`public/app.js`; merge count 27, tests 60, gates 5, captures 37 = 24 rs + 5 ac +
-5 pi + 3 readme, prompt versions, thresholds, both models, the price table, four
-reverts plus one reapply; `SPEC.md` § 4.5 against the 11 real routes; `SPEC.md`
-§ 5 against `db/schema.sql`; and `README.md`'s Project layout tree against every
-tracked root entry and every directory it names. NOT YET COVERED: a line-by-line
-read of `docs/RESILIENCE.md`, `docs/SECURITY.md`, `docs/ACCEPTANCE.md` and
-`README.md` from the Architecture section down; the ~160 "the only / no other"
-uniqueness claims outside code and `docs/RESILIENCE.md`, which is the class no
-gate can resolve; and a contradiction pass across files on shared subjects.
-`DOSSIER.md` is out of scope — it is the course's brief, copied. **The upcoming
-merge is NOT to be called "final"** (user, 2026-09-19); the 2026-09-14 one was
-the last PLANNED merge and every later reference to "final planned" means that
-one. What landed on
+there are 24. **THE PRE-MERGE STALENESS SWEEP IS COMPLETE (2026-09-19) — do not re-run it
+from scratch.** It covered every markdown file and every code comment, and its
+corrections are in six commits. CHECKED MECHANICALLY AND CLEAN: all 255 `§`
+references; the single `file:line` citation in the repo; 880 hrefs and embedded
+images; 37 documented CSS/JS constants against source; every user-facing
+sentence quoted in the docs against the real strings; `SPEC.md` § 4.5 against
+the 11 routes and § 5 against `db/schema.sql`; the Project layout tree against
+every tracked root entry; twenty scoped uniqueness claims; a cross-file numeric
+comparison over seventeen counted subjects; and the counts for merges (27),
+tests (60), gates (5), captures (37 = 24 rs + 5 ac + 5 pi + 3 readme), prompts,
+models, dependencies and reverts. WHAT IT FOUND, as a pattern worth keeping: the
+defects were never in the figures anyone re-reads. They were a value changed in
+source with three prose descriptions left behind (the 2px/1.5px divider), a
+README claim its own embedded screenshot disproved (the verdict cost), four
+documents describing ONE enumerable set four different and mutually
+contradictory ways (the eight two-frame RS states), and three enumerations that
+were complete when written and went short when the project grew under them (the
+gate list, the sweep dates, the markdown-files omission). **A count is safest
+when it names its members**, which is why several of them now do.
+**The upcoming merge is NOT to be called "final"** (user, 2026-09-19); the
+2026-09-14 one was the last PLANNED merge and every "final planned" in this
+repository refers to that one. What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
