@@ -415,6 +415,67 @@ never used
 path in the app can delete a log row; both removals were deliberate, by hand,
 and recorded as exceptions to the append-only argument the log rests on.
 
+## Keeping the record true, and what the 2026-09-19 sweep did differently
+
+The deliverable here is the repository, so its failure mode is not a crash — it
+is a sentence that was true when written and quietly stopped being true. Ten
+separate days between 2026-09-07 and 2026-09-19 carry a staleness sweep
+(`git log --oneline --grep=sweep`). This section is about why the last one found
+things the earlier ones had walked past for two weeks, because the method is
+more reusable than the fixes.
+
+**The diagnostic case.** On 2026-09-11 commit `cc41020` thinned the AI call
+log's totals divider from 2px to 1.5px. The declaration changed; **three prose
+descriptions of it did not** — two comments in
+[`public/styles.css`](../public/styles.css), one of them nine lines above the
+declaration it contradicted, and a sentence in
+[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) that disagreed with the code block
+quoted five lines beneath it. Every sweep between then and 2026-09-19 read those
+files and passed over all three.
+
+**Why they did.** A sweep that reads each file forwards asking *"is this still
+true?"* requires the reader to already know the truth. It also reads prose and
+code in different modes, so a comment asserting `2px` directly above
+`background-size: 100% 1.5px` does not register as a contradiction — it registers
+as a comment, and then as a declaration.
+
+**What changed was the direction of reading.** The claim was taken first and
+resolved against its referent, with the worklist generated mechanically so
+nothing was skipped for looking boring:
+
+| Technique | What it is for |
+|---|---|
+| **Claim → source, never file → doubt** | Turns *"do I know this is wrong?"* into *"does this resolve?"* |
+| **Vocabulary derived from the corpus** | 4,448 number-plus-noun pairs and 1,264 distinct noun heads, read off a frequency table. An allowlist decided in advance is a filter on what can be found — a 2026-09-16 pass proved that by filtering 3,681 figures through sixty nouns and therefore being unable to see three of them |
+| **Cross-file comparison as its own pass** | A per-file sweep structurally cannot see two documents disagreeing. This is what surfaced one enumerable set described four mutually contradictory ways |
+| **Enumerate the referent set** | *"These eight are all X"* is never falsified by any of the eight. It took listing the directory |
+| **Open the artifacts, run the commands** | Reading the embedded log capture is what disproved a cost figure in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md) criterion 8 were re-run rather than quoted |
+
+**The finding, which is the part worth reusing.** Every defect sat in a claim
+with **no resolvable referent** — a described value, a figure contradicted by an
+embedded image, a set characterised in the abstract, an enumeration that was
+complete when written. The counts everyone re-checks were correct in every file:
+merges, tests, gates, captures, prompt versions, models, dependencies, reverts.
+**Attention had been going where verification was already cheap.**
+
+So: **a count is safest when it names its members.** Several now do — the gate
+list, the nine decision entries behind the AI call log, the five RS states whose
+second frame is an audit-trail shot. A named list is falsified by reading it; a
+bare numeral is falsified only by someone independently recounting, which nobody
+does.
+
+**Three things this owes to earlier work, since the method was not invented from
+nothing.** The [living log](../CLAUDE.md#project-status--living-log) already
+recorded how merges 22 to 27 each failed — wrong render context, wrong file
+types, a claim whose falsifier it never names, a test not re-applied as its
+subject changed, a filter whose vocabulary limits its reach — and that list was
+used as the specification for where to look. The earlier sweeps built
+[`check-claims`](../scripts/check-claims.js), which had already eliminated
+paths, commits, identifiers and capture counts as a class, so the whole budget
+could go on claims nothing can resolve, which is exactly where the defects were.
+And one find was luck: the divider surfaced only because a document happened to
+quote its own source adjacent to its prose.
+
 ## 5. Incident 1 — and the guardrail it produced (Module 12)
 
 During AI-path testing the agent ran a "delete all movies" cleanup step; a second
