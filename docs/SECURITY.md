@@ -271,8 +271,12 @@ Three structural answers:
   it is a diff someone can read. Agent-written scratch notes are not treated as
   authority and are not part of the record.
 * **Staleness is actively swept, not assumed away.** Full sweeps across every
-  markdown file and code comment ran on 2026-09-11, 2026-09-12 and 2026-09-13,
-  each one finding and correcting claims that had quietly stopped being true.
+  markdown file and code comment ran repeatedly rather than once: **ten separate
+  days between 2026-09-07 and 2026-09-19** carry one, each finding and correcting
+  claims that had quietly stopped being true. (`git log --oneline --grep=sweep`
+  is the check. This listed three dates, which was the count when it was written
+  and went short every time another sweep ran — the figure is given with its own
+  date for that reason.)
 * **A claim that was wrong when written gets corrected, not preserved.**
   Historical records are kept as history; live claims are kept accurate. The
   rule, and the line between the two, are written down in

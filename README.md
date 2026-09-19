@@ -219,10 +219,14 @@ The screenshots above are the surface of a good deal of written work. Each
 document below is a deliverable in its own right rather than a README appendix,
 and each carries its own evidence.
 
-**Two markdown files in the repository are deliberately not rows here**, named
-so the omission can be checked rather than guessed at: this file (`README.md`),
-and [`DOSSIER.md`](DOSSIER.md) — the course's own grading brief, which is an
-input to this project rather than a deliverable of it.
+**Three sets of markdown in the repository are deliberately not rows here**,
+named so the omission can be checked rather than guessed at: this file
+(`README.md`); [`DOSSIER.md`](DOSSIER.md) — the course's own grading brief,
+which is an input to this project rather than a deliverable of it; and the ten
+versioned files in [`prompts/`](prompts/), which are program input rather than
+prose and are covered in the [Project layout](#project-layout) tree instead.
+*(This said "two markdown files", which invited exactly the check it fails: the
+prompt files are markdown and are in the repository.)*
 
 | Document | What it is |
 |---|---|
