@@ -3396,9 +3396,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   all 37 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
   Twenty-four files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
-  RS-11, RS-14 and RS-15 each need two frames. For the first four the claim splits across the page and
-  the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
-  one rule shown on BOTH AI features, because one alone reads as incidental.
+  RS-11, RS-14 and RS-15 each need two frames, on FOUR different axes. For five
+  of them - RS-3, RS-4, RS-5, RS-9 and RS-15 - the claim splits across the page
+  and the audit trail (RS-15 is on that axis too despite being listed last, so do
+  not read "the first four" off the order, which is what this sentence used to
+  say); RS-10's splits across TIME, because it is a race; RS-11's is one rule
+  shown on BOTH AI features, because one alone reads as incidental; and RS-14's
+  pairs the failure with the retry that succeeds, because recovery is what a
+  single error frame cannot show.
   *(This line read "Eleven files" and the sentence above it read "21 captures" until
   2026-09-14. Both were wrong when written — there were already thirteen and
   twenty-six — so they are corrected rather than preserved.)*

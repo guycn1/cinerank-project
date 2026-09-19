@@ -18,11 +18,14 @@ take on trust.
 ## `rs-*` — resilience and state
 
 Recipes for reproducing each of these are in [`CLAUDE.md`](../../CLAUDE.md) as
-`RS-1` … `RS-16`. Eight states need two frames. For four of them the claim is
+`RS-1` … `RS-16`. Eight states need two frames, on four different axes. For
+five of them — `RS-3`, `RS-4`, `RS-5`, `RS-9` and `RS-15` — the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
 split across time, because the state is a race and a single still cannot show
-one.
+one; `RS-11` shows one rule holding on BOTH AI features, because either alone
+reads as incidental; and `RS-14` pairs the failed save with the retry that
+works, because recovery is the claim a single error frame cannot make.
 
 | File | State | What it establishes |
 |---|---|---|

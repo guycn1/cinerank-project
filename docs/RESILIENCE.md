@@ -614,8 +614,12 @@ Save from that stale view is what produces the `404`.
    — so the failure is recoverable by pressing Save again once the cause is
    gone, rather than by retyping.
 
-**Why this state gets two frames of one moment, rather than two surfaces.** Every
-other pair in this document splits a claim between the page and the audit trail.
+**Why this state gets two frames of one moment, rather than two surfaces.** Most
+other pairs here split a claim between the page and the audit trail — `RS-3`,
+`RS-4`, `RS-5`, `RS-9` and `RS-15` all do. (`RS-11` and `RS-14` do not either:
+one shows a single rule holding on both AI features, the other pairs a failure
+with the retry that succeeds. This sentence used to say *every* other pair was
+page-versus-audit-trail, which was false of two of the seven.)
 This claim is *temporal* — it is about an order of events — and the honest way to
 evidence that in still images is a before and an after. The second frame happens
 to carry the whole story on its own, since the left view's stale `8 films` sits

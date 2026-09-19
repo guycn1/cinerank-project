@@ -36,7 +36,10 @@ This criterion had two blockers that morning. **Both are now closed** — the
 larger one on 2026-09-13, the second the following day.
 
 * **All sixteen resilience states are captured** — twenty-four frames, since
-  eight states split their claim between the page and the audit trail. They are
+  eight states need a second one: five split the claim between the page and
+  the audit trail, `RS-10` splits it across time because the state is a race,
+  `RS-11` shows one rule on both AI features, and `RS-14` pairs the failed
+  save with the retry that works. They are
   embedded and analysed in [`RESILIENCE.md`](RESILIENCE.md), grouped by which
   dependency failed and each measured against a stated definition of "graceful".
 * **[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) has been walked
