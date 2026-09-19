@@ -106,7 +106,7 @@ decoration:
   before any of them reach a card, and a title TMDB has never heard of is
   dropped rather than rendered as a broken suggestion. That loop is the
   difference between this and a chat wrapper. **The failure mode has a name** —
-  hallucination, the first entry in Module 3's catalogue — and naming it is what
+  hallucination, the first entry in [Module 3](DOSSIER.md#module-3-mental-models-of-agents)'s catalogue — and naming it is what
   makes the guard designed rather than incidental: see [how it is built and
   where its limits
   are](docs/PROCESS.md#3-guardrails-against-the-model--naming-the-failure-mode-module-3),
@@ -133,7 +133,7 @@ decoration:
   text that generated it.
 - **Two models on one transport.**
   [`openrouter.js`](server/services/openrouter.js) takes an optional model and
-  `tasteVerdict.js` is the only caller that overrides it (D-053), so the split
+  `tasteVerdict.js` is the only caller that overrides it ([D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), so the split
   costs no second client and shows up per row in the log.
 
 ## Screenshots
@@ -171,13 +171,14 @@ in; the feature ignored it. Without that line a reader would have to take on
 trust that the injection ever reached the model, and a screenshot of a system
 resisting something it was never sent proves nothing.
 
-The mitigation itself is visible in the prompt files: review text is fenced in
-`BEGIN` / `END` markers labelled *untrusted data*, with a standing instruction
-that the model's instructions come only from outside them. Five frames in total
-— [`docs/screenshots/pi-1` through
-`pi-5`](docs/screenshots/README.md#pi---prompt-injection) — cover the stored
-review rendered inert, both AI features resisting, and the input paired with
-each output. Full analysis in [docs/SECURITY.md](docs/SECURITY.md) under
+The mitigation itself is visible in the [prompt files](prompts/): review text is
+fenced in `BEGIN` / `END` markers labelled *untrusted data*, with a standing
+instruction that the model's instructions come only from outside them. Five
+frames in total —
+[`docs/screenshots/pi-1` through `pi-5`](docs/screenshots/README.md#pi---prompt-injection)
+— cover the stored review rendered inert, both AI features resisting, and the
+input paired with each output. Full analysis in
+[docs/SECURITY.md](docs/SECURITY.md) under
 [ASI01](docs/SECURITY.md#asi01--agent-goal-hijack).
 
 ### Every AI call, whether it worked or not
@@ -214,25 +215,25 @@ The screenshots above are the surface of a good deal of written work. Each
 document below is a deliverable in its own right rather than a README appendix,
 and each carries its own evidence.
 
-**Two markdown files in the repository are deliberately not rows here**, named so
-the omission can be checked rather than guessed at: this file (`README.md`), and
-`DOSSIER.md` — the course's own grading brief, which is an input to this project
-rather than a deliverable of it.
+**Two markdown files in the repository are deliberately not rows here**, named
+so the omission can be checked rather than guessed at: this file (`README.md`),
+and [`DOSSIER.md`](DOSSIER.md) — the course's own grading brief, which is an
+input to this project rather than a deliverable of it.
 
 | Document | What it is |
 |---|---|
-| [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the co-evolution spiral (Module 10). |
-| [`docs/FRAMING.md`](docs/FRAMING.md) | Problem, stakeholders, definition of done, and what is deliberately **not** being built (Module 6). The authority on scope boundaries. |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user (Module 8). A log that only recorded wins would not be evidence of process. |
+| [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the [co-evolution spiral](SPEC.md#specification-status--the-co-evolution-spiral-module-10) ([Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral)). |
+| [`docs/FRAMING.md`](docs/FRAMING.md) | Problem, stakeholders, definition of done, and what is deliberately **not** being built ([Module 6](DOSSIER.md#module-6-intent-and-the-discipline-of-problem-framing)). The authority on scope boundaries. |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). A log that only recorded wins would not be evidence of process. |
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
-| [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by (Module 8). |
-| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What the brief above commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why (Module 17). Carries the prompt-injection evidence. |
+| [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). |
+| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | [`SPEC.md` § 7.1](SPEC.md#71-must-pass-before-submission)’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
-| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | Module 16’s five criteria for whether this is fit to merge, each with its evidence — and the [standing verdict](docs/MERGE-READINESS.md#verdict-as-of-2026-09-14): **MERGE-READY, all five met**. |
+| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)’s five criteria for whether this is fit to merge, each with its evidence — and the [standing verdict](docs/MERGE-READINESS.md#verdict-as-of-2026-09-14): **MERGE-READY, all five met**. |
 | [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
-| [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the binding rules added after it destroyed real data. |
+| [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the [binding rules](CLAUDE.md#working-agreements-binding--added-after-incident-1) added after it destroyed real data. |
 
 **Two of those deserve singling out**, because they are where the evidence
 actually lives rather than where it is summarised:
@@ -290,12 +291,15 @@ prefix.
 
 **Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
 a line here, and listed by name so the omission can be checked rather than
-guessed at: this file (`README.md`); `CLAUDE.md` and `SPEC.md`, both mapped in
-the [Documentation](#documentation) table above; `package.json` and
-`package-lock.json`; `render.yaml` (described under [Deployment](#deployment));
-`.env.example` (under [Setup](#setup)); `DOSSIER.md`, the course's own grading
-brief rather than part of the build; and the dotfiles `.gitignore`,
-`.gitattributes` and `.vscode/`. That is every tracked entry in the repository
+guessed at: this file (`README.md`); [`CLAUDE.md`](CLAUDE.md) and
+[`SPEC.md`](SPEC.md), both mapped in the [Documentation](#documentation) table
+above; [`package.json`](package.json) and
+[`package-lock.json`](package-lock.json); [`render.yaml`](render.yaml)
+(described under [Deployment](#deployment)); [`.env.example`](.env.example)
+(under [Setup](#setup)); [`DOSSIER.md`](DOSSIER.md), the course's own grading
+brief rather than part of the build; and the dotfiles
+[`.gitignore`](.gitignore), [`.gitattributes`](.gitattributes) and
+[`.vscode/`](.vscode). That is every tracked entry in the repository
 root accounted for. The nine documents in `docs/*.md` are summarised as a
 single entry in the tree below rather than listed individually, and each of
 them is described in the [Documentation](#documentation) table.
