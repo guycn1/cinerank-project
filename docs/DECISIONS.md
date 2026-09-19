@@ -1859,11 +1859,17 @@ break a live request.
 
 **Per-FEATURE, not app-wide, because the user is short on quota.** `chat()` takes
 an optional `model` defaulting to the app-wide one; only `tasteVerdict.js`
-overrides it. Recommendations stay on Haiku deliberately: that task is "name some
-films", nothing about it depends on voice, and it is the feature that burns
-tokens. The AI call log already renders model per row, so the split is visible in
-the audit trail rather than buried in config — which turns a cost decision into
-demonstrable evidence.
+overrides it. Recommendations stay on Haiku deliberately, and not because that
+task is the smaller one: a run reads the top rated films with the user's own
+review text, infers a sensibility from the set, excludes what is already owned,
+and justifies each pick in one second-person sentence tied to a specific rating.
+What makes the cheaper tier right there is that the output is CHECKABLE —
+structured JSON, every title cross-checked against TMDB, so a bad pick is
+dropped rather than shown. The verdict has nothing to check it against, so its
+only measure is whether it sounds like a person, which is the axis Haiku could
+not reach. The AI call log already renders model per row, so the split is
+visible in the audit trail rather than buried in config — which turns a cost
+decision into demonstrable evidence.
 
 **The honest cost of getting here:** four real OpenRouter calls spent on prompt
 versions that moved nothing, and a wrong conclusion published in v6's commit
