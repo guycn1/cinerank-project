@@ -239,8 +239,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 /* The link out to the public repo (step 3). There are TWO of these — one in the
    header, one at the right edge of the footer's credit line — so THIS rule is
-   the shared look and nothing else. Placement and size live with each instance
-   below, because size is the only thing that differs between them.
+   the shared look and nothing else. Placement lives with each instance below,
+   along with the TWO things that genuinely differ: the size, and the halo
+   multiplier the footer needs to read as lit at its smaller scale. (This said
+   size was the only difference; `--gh-halo` falsified that when it arrived in
+   7bef762, one commit after the comment.)
    One dial for the size at each site: the <a> carries a font-size and the SVG is
    1em, so the icon and its padded hit area scale together. */
 .gh-link {
@@ -328,8 +331,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
-   line. Size is the ONLY declaration it needs: everything else arrives from
-   .gh-link, and the hover halo is in `em` so it scales itself. `rem` and not
+   line. It needs TWO declarations and no more — the size, and the halo dial
+   below it. Everything else arrives from .gh-link, and the hover halo is in
+   `em` so it scales itself. (This read "Size is the ONLY declaration it needs",
+   which the `--gh-halo` three lines below contradicted from the day it was
+   added.) `rem` and not
    `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
    the icon depend on a value chosen for body copy. */
 .site-foot__credit .gh-link {
@@ -1737,7 +1743,26 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .score-block {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  /* Contents align to the edge the BLOCK ITSELF is anchored to. Here that is
+     the right: `.movie-card__score` above is `align-items: flex-end`, so the
+     block's right edge is the card's right edge. Left-aligning instead makes
+     the amber figure hang off whichever caption is widest -- "No TMDB rating"
+     measures 90.2px against "TMDB 7.1"'s 50.9px, so an unvoted title's rating
+     sat 28.1px left of its neighbours' and the score column stopped being a
+     straight line to scan (measured 2026-09-19: three cards, three different
+     badge right edges; one after this).
+     RESET TO flex-start IN THE 620px BLOCK, and that reset is load-bearing --
+     card mode anchors the block LEFT, so the same reasoning inverts. A blanket
+     flex-end does not fix the defect, it MIRRORS it into card mode; that was
+     built and measured before this was written. Do not collapse the two.
+     D-076 has the measurements, the `text-align: right` alternative that was
+     rejected, and the one width the verification could NOT reach.
+     It was flex-end originally (0b3864c) and became flex-start in f69b069,
+     whose subject is a narrow-width wrap fix -- but that fix is the
+     `grid-column-start: 1` rule further down, and the commit message says this
+     hunk rode along as a separate change. Nothing here was ever load-bearing
+     for that bug. */
+  align-items: flex-end;
 }
 /* TMDB's own score. Faint and small on purpose: the amber figure above is the
    user's, this is context for it, and the size gap is what keeps the two from
@@ -1871,6 +1896,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Card mode centres the score row (align-items: center), so the desktop nudge
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
+  /* The column is a ROW here and `.card-actions` is pushed right by an auto
+     margin, so the score block is anchored LEFT -- the inverse of desktop.
+     Its contents follow the edge it sits on, or the rating hangs off the
+     widest caption, which is the desktop defect this exists to avoid
+     mirroring. See the reasoning on `.score-block` above, and D-076. */
+  .score-block { align-items: flex-start; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
 }
@@ -2941,7 +2972,20 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .num { font-variant-numeric: tabular-nums; }
 .log-table tbody tr:hover { background: var(--bg-card); }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
-/* the footer cells are bold; its sub-lines shouldn't inherit that */
+/* Body rows only, and the size is SOLVED rather than picked. Digit grouping
+   costs the split about 3% of its width, which would push the Tokens column
+   out, so the type comes down to pay for it. Measured in Inter at the real
+   computed sizes: the binding string is `1,466 in / 111 out`, which is
+   88.86px at 0.84em against 89.17px for today's un-grouped `1466 in / 111
+   out` at 0.87em — so the column does not move, and the body row stays the
+   cell that sets its width (the footer's split measures 87.06px, just under).
+   Anything below ~0.83em hands that role to the footer instead, which is the
+   arrangement the note on `tfoot td` exists to prevent.
+   The footer is deliberately NOT included: its `.sub` is 0.87em of a 0.8em
+   cell, so it is already the smaller of the two.
+   The out side never carries a comma — `maxTokens` is 600 for
+   recommendations and 180 for the verdict, so it cannot reach four digits. */
+.log-table tbody .sub { font-size: 0.84em; }
 /* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
    white-space is a safety net: the summed split is a few characters longer
    than any body row's, so if it ever would outgrow the column it wraps onto a
@@ -3140,7 +3184,7 @@ body:has(dialog[open]) { overflow: hidden; }
      to the cell's own paint area, and under `border-collapse: collapse` that
      area STOPS at the collapsed column border — which is what broke the rule
      into segments. So: take the collapsed borders off this row entirely (below)
-     and paint BOTH rules as backgrounds — a 2px divider across the top and a 1px
+     and paint BOTH rules as backgrounds — a 1.5px divider across the top and a 1px
      column separator at each cell's right edge. Cells are then truly adjacent,
      so the divider is continuous, the separators are still there, and both
      travel with the cell when it pins. */
@@ -3177,7 +3221,8 @@ body:has(dialog[open]) { overflow: hidden; }
   background-size: 100% 1.5px;
   background-position: left top;
 }
-/* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
+/* …and drop the collapsed border the rule now overlaps, so the divider stays a
+   single clean 1.5px rule instead of doubling with a border underneath it. */
 .log-table tbody tr:last-child td { border-bottom: none; }
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;

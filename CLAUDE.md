@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-17 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-19 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -42,7 +42,51 @@ than contradicted; the note at the end of the Build status bullet has it. The li
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
-ticked.** What landed on
+ticked.**
+**WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
+behaviour changed. It is the twenty-eighth merge's payload.** A
+navigation rule the user set and named: **every document reference is a link,
+and where a section is named the link goes to the SECTION** — applied to twelve
+files, with `prompts/`, `DOSSIER.md` and THIS FILE deliberately exempt
+(D-075; the rule and its three exemptions are under § Markdown Authoring Rules,
+and the deciding line is that this file is injected into context every session
+while `docs/DECISIONS.md` is opened on demand). Then a project-wide audit of
+every href and embedded image — 880 references, resolved case-exactly, with
+fragments checked against real rendered heading ids and `docs/SECURITY.md`'s
+absolute URLs checked against `main` rather than the working tree; it found one
+broken link. Three UI/accuracy fixes: the AI call log's `x in / y out` token
+split is digit-grouped, paid for with a solved 0.84em on `tbody .sub` alone;
+the ranked score badge now aligns to the edge its block is anchored to, which
+is a DIFFERENT edge in card mode, so it is two rules and not one (D-076); and
+the `readme-1` capture is no longer captioned "the whole product", since the
+recommendations section and the AI call log both sit below its fold. Closed
+with a full staleness sweep of every markdown file and code comment — the
+findings are corrected in place, and the ones worth knowing are that
+`docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
+when it is 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
+credited "ESLint 9 over 23 files" when the dependency has never been 9 and
+there are 24. **THE PRE-MERGE STALENESS SWEEP IS COMPLETE (2026-09-19) — do not re-run it
+from scratch.** It covered every markdown file and every code comment, and its
+corrections are in six commits. CHECKED MECHANICALLY AND CLEAN: all 255 `§`
+references; the single `file:line` citation in the repo; 880 hrefs and embedded
+images; 37 documented CSS/JS constants against source; every user-facing
+sentence quoted in the docs against the real strings; `SPEC.md` § 4.5 against
+the 11 routes and § 5 against `db/schema.sql`; the Project layout tree against
+every tracked root entry; twenty scoped uniqueness claims; a cross-file numeric
+comparison over seventeen counted subjects; and the counts for merges (27),
+tests (60), gates (5), captures (37 = 24 rs + 5 ac + 5 pi + 3 readme), prompts,
+models, dependencies and reverts. WHAT IT FOUND, as a pattern worth keeping: the
+defects were never in the figures anyone re-reads. They were a value changed in
+source with three prose descriptions left behind (the 2px/1.5px divider), a
+README claim its own embedded screenshot disproved (the verdict cost), four
+documents describing ONE enumerable set four different and mutually
+contradictory ways (the eight two-frame RS states), and three enumerations that
+were complete when written and went short when the project grew under them (the
+gate list, the sweep dates, the markdown-files omission). **A count is safest
+when it names its members**, which is why several of them now do.
+**The upcoming merge is NOT to be called "final"** (user, 2026-09-19); the
+2026-09-14 one was the last PLANNED merge and every "final planned" in this
+repository refers to that one. What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
@@ -56,7 +100,7 @@ linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spir
 turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
 POINT, failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list was
-ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember** (that pointer was true when written on 2026-09-12 and is NOT an instruction now — step 5 closed the same day, as this very entry says further down; the two enforcement rules do still stand); the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked except the final merge itself. The top of this entry is the current state.**)
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember** (that pointer was true when written on 2026-09-12 and is NOT an instruction now — step 5 closed the same day, as this very entry says further down; the two enforcement rules do still stand); the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked, the final merge included. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -74,12 +118,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
   sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
   **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
-  and a **twenty-seventh on 2026-09-17** carrying two false claims and the
-  legibility work around them — all six described at the end of this bullet.
+  a **twenty-seventh on 2026-09-17** carrying two false claims and the
+  legibility work around them, and a **twenty-eighth on 2026-09-19** carrying a
+  visible UI defect plus the largest accuracy sweep the project has run — all
+  seven described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-seven**
+  steps closed. **Twenty-eight**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -205,6 +251,29 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once
   already. The count is gone and the list is complete.)
+  **AND A TWENTY-EIGHTH ON 2026-09-19.** The first since the twenty-second whose
+  ground includes a defect a reader could SEE rather than read: the ranked
+  list's score badges were out of line by **28.1px** on the deployed site
+  wherever a film had no TMDB rating, because `.score-block` shrink-wrapped to
+  its widest child and left-aligned inside it (D-076). The one-line fix the user
+  tried in devtools was built and REJECTED on measurement — it mirrors the
+  defect into card mode, where the block is anchored to the opposite edge — so
+  it shipped as two rules. Riding along: the linking rule applied to twelve
+  files (D-075), an audit of all 880 hrefs and embedded images, the AI call
+  log's token split digit-grouped, and the largest accuracy sweep the project
+  has run.
+  **What that sweep says about the previous twelve is the part worth keeping.**
+  Fourteen defects, and the counts everyone re-checks — merges, tests, gates,
+  captures, models — were right in every file. Every defect sat in a claim with
+  no resolvable referent: a value changed in source with three prose
+  descriptions left behind (a 2px/1.5px divider that had survived eight days of
+  sweeps), a `README.md` cost figure its own embedded screenshot disproved, three
+  enumerations complete when written and short once the project grew under them,
+  and ONE ENUMERABLE SET DESCRIBED FOUR MUTUALLY CONTRADICTORY WAYS ACROSS FOUR
+  FILES. **So the sentence for this one is not about boundaries at all: attention
+  had been going where verification was already cheap.** A count is safest when
+  it names its members, and several now do. Method written up in
+  `docs/PROCESS.md`.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -266,7 +335,10 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   markdown strip, explicit-trigger.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
   both tables; in-app viewer via the footer `.log-cta` button.
-* Security: `.env` gitignored from commit 1, `npm run scan-secrets` pre-commit,
+* Security: `.env` gitignored from the first commit carrying any project
+  content (`103c4be`; the root commit is a one-line README, so there was nothing
+  for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
+  never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
 * Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
@@ -499,6 +571,18 @@ are the running record of how each piece got there and stay as written.
     it wraps and never widens the pinned Result column. Missing Tokens/Cost
     render an em dash (`—`) in `--ink-faint` (a `log-empty-val` class, only
     when null).
+  - **The in/out split is digit-grouped too** (2026-09-19, user-raised from a
+    screenshot): a body row read `1,577` over `1466 in / 111 out`, grouping
+    the total and not the split beneath it, while the footer grouped both.
+    Both lines now go through `toLocaleString()` with no argument, so they
+    follow the reader's locale together. **The comma is paid for in type size,
+    and the value is solved rather than picked:** `.log-table tbody .sub`
+    drops 0.87em to 0.84em, measured in Inter at the real computed sizes so
+    that the binding string `1,466 in / 111 out` comes to 88.86px against the
+    un-grouped 89.17px — the Tokens column does not move. Body rows ONLY: the
+    footer's `.sub` is 0.87em of a 0.8em cell and is already the smaller of
+    the two, which is why the selector names `tbody`. The declaration carries
+    the arithmetic; read it before changing either number.
   - **Totals** sum the in/out split and durations; nulls on failed rows count
     as 0. `(summed model latency, not elapsed time)` note fills the trailing
     gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
@@ -626,7 +710,7 @@ are the running record of how each piece got there and stay as written.
     from `loadMovies()`, so removals re-open the offer too — that pass was
     `syncSearchResultButtons()` when this was written and is now the document-wide
     `syncAddButtons()`, see R3); Search + Add gaining the shared `busyButton()` treatment; the
-    last inline `element.style` writes in app.js replaced by `searchNote()` +
+    last PRESENTATIONAL inline `element.style` writes in app.js replaced by `searchNote()` +
     `.search-note`; the panel gaining an Escape dismissal; and an empty query,
     which used to be a silent no-op, now saying so and focusing the input.
   - **The panel is persistent, not a dropdown (D-024).** Outside-click dismissal
@@ -3344,9 +3428,14 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   all 37 captures in the repo, and renders automatically when the folder is
   browsed on GitHub.
   Twenty-four files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
-  RS-11, RS-14 and RS-15 each need two frames. For the first four the claim splits across the page and
-  the audit trail; RS-10's splits across TIME, because it is a race; RS-11's is
-  one rule shown on BOTH AI features, because one alone reads as incidental.
+  RS-11, RS-14 and RS-15 each need two frames, on FOUR different axes. For five
+  of them - RS-3, RS-4, RS-5, RS-9 and RS-15 - the claim splits across the page
+  and the audit trail (RS-15 is on that axis too despite being listed last, so do
+  not read "the first four" off the order, which is what this sentence used to
+  say); RS-10's splits across TIME, because it is a race; RS-11's is one rule
+  shown on BOTH AI features, because one alone reads as incidental; and RS-14's
+  pairs the failure with the retry that succeeds, because recovery is what a
+  single error frame cannot show.
   *(This line read "Eleven files" and the sentence above it read "21 captures" until
   2026-09-14. Both were wrong when written — there were already thirteen and
   twenty-six — so they are corrected rather than preserved.)*
@@ -3925,9 +4014,11 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
   to write in a plain spoken register, and the model turned out to be the
   constraint rather than the wording.
   **The split is NOT hard task versus easy task, and do not describe it that way.**
-  Recommendations are the larger job: read every rated film and its review, infer a
-  taste, exclude what is owned, and justify each pick in one second-person sentence
-  of 8–16 words tied to a specific rating or a pattern across them. What makes the
+  Recommendations are the larger job: read the whole list, infer a taste from the
+  top five rated films and the reviews attached to them
+  (`config.recommendations.topN`), exclude every film already in the list whether
+  rated or not, and justify each pick in one second-person sentence of 8–16 words
+  tied to a specific rating or a pattern across them. What makes the
   cheaper tier right there is that the output is **checkable** — structured JSON,
   every title cross-checked against TMDB, so a bad pick is dropped rather than
   shown. The verdict has nothing to check it against, so its only measure is
@@ -4194,6 +4285,54 @@ down would be re-broken within a session. See D-065.
    new convention. The checker cannot catch this class: the paths are valid
    markdown and valid for the file they sit in.
 
+### Every document reference is a link (the user's rule, 2026-09-19)
+
+**If the prose names another document, that name is a link; if it names a
+SECTION of one, the link goes to the SECTION rather than the file.** It is a
+navigation rule, not a rendering one, so `check-markdown` does not enforce it
+and nothing fails when it is ignored — which is exactly why it is written here.
+
+**Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
+repository* as a stakeholder who never runs the app and cannot ask a question.
+For that reader an unlinked "see D-046" is a number and a scroll bar. Applied
+to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
+104 entry-to-entry cross-references became clickable in a file that had exactly
+one link in it.
+
+**Three files are deliberately EXEMPT. Do not "finish the job" on them.**
+
+* **`prompts/*.md`** — the loader sends the body to the model, so a link is
+  tokens the model pays for and prose it may act on. Two harder reasons: a
+  prompt version is never overwritten (§ Prompt Versioning), so editing `v1`
+  to `v6` breaks that rule outright, and `test/prompt-loader.test.js` reads the
+  real files, so a slip there fails the suite.
+* **`DOSSIER.md`** — the course's own brief, copied from Moodle; links absent
+  from the source are a deviation from it. Moot in practice: it holds three
+  project-file references in total, all the bare string `CLAUDE.md`.
+* **THIS FILE.** Measured before deciding rather than asserted: the rule would
+  add about 647 links and 44KB, +14%, and 451 of those are `D-0NN`, `R-n` and
+  `RS-n` references that an agent resolves by grepping and never by clicking.
+  **The deciding difference from `docs/DECISIONS.md`** — nearly as long and NOT
+  exempt — **is that this file is injected into context every session while that
+  one is read on demand.** A byte here is a permanent per-session cost; a byte
+  there is paid only when someone opens it. The user also holds, reasonably,
+  that a very long `CLAUDE.md` is likelier to have instructions skimmed past,
+  which argues against growing it for a reader who gains nothing from links.
+
+**How a pass is verified, because the diffs are large and every failure mode
+here is silent.** Render the file through GitHub's API before and after, strip
+every `<a>` tag from both, normalise whitespace, and require the two to be
+byte-identical — that, not reading the diff, is what proves only links changed.
+In one sitting it caught an `<h3>` absorbed into the paragraph above it by a
+re-wrapper, six silent `§7.2` to `§ 7.2` spacing edits inside preserved
+decision entries, four dropped closing parentheses, and an unterminated link
+that swallowed a whole clause into its own URL. None of those shows in a diff
+and `check-markdown` passes every one.
+
+**One check the checker cannot do, so do it by hand:** no link destination may
+contain whitespace. An unclosed `](` hunts for the next `)` and silently eats
+the prose in between — the second of the two classes named directly below.
+
 ### Two things the checker deliberately does NOT catch
 
 Both were found by the 2026-09-13 audit, both render visibly wrong, and both were
@@ -4332,7 +4471,29 @@ the real blob from github.com and read that — it is the only authority.
   `50d5670`, which did clear ground 2. **That is the rule working as intended,
   not an exception to it:** the grounds decide WHETHER to merge, never what the
   branch may carry.
+* **A `draft` → `main` merge runs all five gates, whatever the diff touched.**
+  Two of them are scoped to what a commit CHANGED — `npm run lint` to `.js`,
+  `npm run check-markdown` to `.md` — which is right for a commit and wrong for
+  a merge: this is the one moment the branch a reader lands on and the live
+  Render deploy both move, and the whole set costs under a second. **Added
+  2026-09-17, after the twenty-seventh merge went through without the suite
+  being run.** That merge touched eight files, every one of them `.md`, so
+  nothing could have broken and 60/60 passed when it was finally run — but "it
+  cannot have broken" is reasoning offered after the fact, not a check made
+  before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
+* **Every commit runs `npm test`, and 60/60 is the bar.** The scope is EVERY
+  commit rather than every `.js` commit, which is not obvious and is load-bearing:
+  `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
+  MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking
+  the BEGIN marker in `prompts/taste_verdict_v7.md` takes it to 59/60. The whole
+  run is under 300ms.
+  **This bullet was missing until 2026-09-17, and its absence is why the
+  twenty-seventh merge went unrun.** `docs/PROCESS.md`, `docs/SECURITY.md` and
+  `docs/ACCEPTANCE.md` have all called `npm test` one of FIVE gates "wired into
+  the commit rules rather than left to memory" — and it was the one gate not
+  wired in here. Claude worked from this list, which had four, and told the user
+  the suite was not a documented gate. Three documents said otherwise.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.

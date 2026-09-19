@@ -244,8 +244,9 @@ function checkInvisibleCharacters() {
 /**
  * 10. Retired phrasing must not come back.
  *
- * "name some films" undersold the recommendation run (it reads every rated film
- * and review, infers a taste, excludes owned titles and justifies each pick);
+ * "name some films" undersold the recommendation run (it reads the whole list,
+ * infers a taste from the top five rated films and their reviews, excludes every
+ * title already in it, and justifies each pick);
  * "cheap tier" was both dismissive AND inaccurate, since Haiku is a PAID tier and
  * OpenRouter has free models this project never uses. "Cheaper" is the honest
  * comparative against the Sonnet the verdict runs on. A line may still quote the
