@@ -264,7 +264,7 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in [`prompts/`](../prompts), never
   overwritten. A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 27
+* **Trajectory** — an unbroken commit history from the very first commit, 28
   merges to `main` — the twenty-first was the last *planned* one, the
   twenty-second carried a fix for a rendering defect found afterwards on the
   repository's Security tab, the twenty-third carried the claim-checking gate
@@ -274,7 +274,9 @@ fires is the thing this document exists to rule out.
   and the twenty-sixth carried eleven accuracy defects the user surfaced by
   asking whether particular claims resolve, and the twenty-seventh carried two
   claims that were false on `main`, each contradicted a few lines below itself —
-  and **four** revert commits plus one reapply, which is the safety layer
+  and the twenty-eighth carried a misaligned score badge on the deployed site
+  together with fourteen documentation defects — and **four** revert commits
+  plus one reapply, which is the safety layer
   visibly firing rather than merely existing. *(This said five reverts until
   2026-09-14. It was wrong when written, not merely stale: a loose grep for
   "revert" had counted two commits that merely MENTION reverting in their

@@ -21,7 +21,7 @@ the reasoning. Rules that keep this honest live in
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-seven merges to `main` (verify with
+  every merge since has been the latter. Twenty-eight merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -46,7 +46,12 @@ the reasoning. Rules that keep this honest live in
   claims that were simply false on `main` — each contradicted by a sentence in
   its own section — and, with them, the legibility work that found them: a
   sweep two days earlier had reached the same sites, quoted them, and cleared
-  them on a criterion read off the source rather than the rendered page.
+  them on a criterion read off the source rather than the rendered page. The
+  twenty-eighth carried a defect a reader could SEE — the ranked list's score
+  badges out of line by 28.1px on the deployed site — and, with it, the sweep
+  written up [below](#keeping-the-record-true-and-what-the-2026-09-19-sweep-did-differently):
+  fourteen documentation defects, of which the most instructive was one
+  enumerable set described four mutually contradictory ways across four files.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   [`npm run scan-secrets`](../scripts/scan-secrets.js) scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: [`render.yaml`](../render.yaml) declares the four secrets as

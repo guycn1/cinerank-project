@@ -44,7 +44,7 @@ on the project sheet and the joint-project registration is emailed, both
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
 **WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
-behaviour changed, and `main` still stands at twenty-seven merges.** A
+behaviour changed. It is the twenty-eighth merge's payload.** A
 navigation rule the user set and named: **every document reference is a link,
 and where a section is named the link goes to the SECTION** — applied to twelve
 files, with `prompts/`, `DOSSIER.md` and THIS FILE deliberately exempt
@@ -118,12 +118,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   documentation-accuracy work, a **twenty-fourth the same day** carrying the
   sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
   **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
-  and a **twenty-seventh on 2026-09-17** carrying two false claims and the
-  legibility work around them — all six described at the end of this bullet.
+  a **twenty-seventh on 2026-09-17** carrying two false claims and the
+  legibility work around them, and a **twenty-eighth on 2026-09-19** carrying a
+  visible UI defect plus the largest accuracy sweep the project has run — all
+  seven described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-seven**
+  steps closed. **Twenty-eight**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -249,6 +251,29 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   "across all four" while listing three causes, which is a count raised without
   extending its own list — the defect this file found in `docs/PROCESS.md` once
   already. The count is gone and the list is complete.)
+  **AND A TWENTY-EIGHTH ON 2026-09-19.** The first since the twenty-second whose
+  ground includes a defect a reader could SEE rather than read: the ranked
+  list's score badges were out of line by **28.1px** on the deployed site
+  wherever a film had no TMDB rating, because `.score-block` shrink-wrapped to
+  its widest child and left-aligned inside it (D-076). The one-line fix the user
+  tried in devtools was built and REJECTED on measurement — it mirrors the
+  defect into card mode, where the block is anchored to the opposite edge — so
+  it shipped as two rules. Riding along: the linking rule applied to twelve
+  files (D-075), an audit of all 880 hrefs and embedded images, the AI call
+  log's token split digit-grouped, and the largest accuracy sweep the project
+  has run.
+  **What that sweep says about the previous twelve is the part worth keeping.**
+  Fourteen defects, and the counts everyone re-checks — merges, tests, gates,
+  captures, models — were right in every file. Every defect sat in a claim with
+  no resolvable referent: a value changed in source with three prose
+  descriptions left behind (a 2px/1.5px divider that had survived eight days of
+  sweeps), a `README.md` cost figure its own embedded screenshot disproved, three
+  enumerations complete when written and short once the project grew under them,
+  and ONE ENUMERABLE SET DESCRIBED FOUR MUTUALLY CONTRADICTORY WAYS ACROSS FOUR
+  FILES. **So the sentence for this one is not about boundaries at all: attention
+  had been going where verification was already cheap.** A count is safest when
+  it names its members, and several now do. Method written up in
+  `docs/PROCESS.md`.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
