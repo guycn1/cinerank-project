@@ -321,7 +321,7 @@ server/
 public/             the cinematic frontend
 scripts/
   scan-secrets.js   run before every commit
-  check-claims.js   run before EVERY commit; resolves every claim that points at
+  check-claims.js   run before every commit; resolves every claim that points at
                     something -- paths, D-0NN entries, commit SHAs, identifiers,
                     captures, retired wording
   check-markdown.js  run before every commit that touches a .md file; catches
