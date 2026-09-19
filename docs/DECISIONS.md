@@ -6,6 +6,84 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
+
+*2026-09-19, established by the user mid-session and then applied file by file
+at their direction. Claude partly disagreed with the one exemption it is
+mostly about, measured it, and was talked round by an argument it had not
+made.*
+
+**The rule.** If prose names another document, that name is a link; if it names
+a SECTION of one, the link goes to the section rather than the file. It exists
+for the stakeholder [`docs/FRAMING.md`](FRAMING.md#stakeholders) already names
+— the reader of the repository, who never runs the app and cannot ask a
+question. For that reader an unlinked "see D-046" is a number and a scroll bar.
+
+Applied to twelve files: this one, `README.md`, `SPEC.md` and the nine others
+under `docs/`. The largest single gain was here — 104 entry-to-entry
+cross-references made clickable in a 3,860-line file that had exactly one link
+in it.
+
+**The fork was the thirteenth file, and there were three options.** Apply it
+uniformly; exempt `CLAUDE.md`; or a narrow middle — link only its outbound
+document references and skip the intra-project identifiers.
+
+**Measured before arguing, which is what made the argument short:**
+
+| option | links added | size | note |
+|---|---|---|---|
+| uniform | 647 | +44KB, +14% | 451 of them `D-0NN`, `R-n` and `RS-n` |
+| narrow | 78 | +4.2KB, +1.3% | outbound document references only |
+| exempt | 0 | — | what was chosen |
+
+**Claude's position was that the exemption was right for about 95% of the rule
+and slightly over-broad for the rest**, and it said so rather than agreeing
+flatly: the 451 identifier references are ones an agent resolves by grepping
+and never by clicking, but the 78 outbound ones are where a human reading the
+file would benefit, at a cost of 1.3%. The argument Claude gave for exempting
+was AUDIENCE — that this file is read by the agent and `docs/DECISIONS.md` by
+humans.
+
+**That framing was the weaker one, and the user's replacement is what settled
+it.** Audience does not separate the two files cleanly; both are read by both.
+What separates them is WHEN they are read: **`CLAUDE.md` is injected into
+context at the start of every session, and `docs/DECISIONS.md` is opened on
+demand.** A byte in `CLAUDE.md` is a permanent per-session cost paid whether
+anyone needs it; a byte here is paid only when someone reads this file. That is
+why a 4,488-line file is exempt while a 3,860-line one, nearly as long, was
+never a candidate for exemption. Size was never the reason.
+
+**One input is recorded as unverified rather than as fact.** The user had read
+that Claude Code may skim past instructions in a `CLAUDE.md` beyond roughly 400
+lines. Claude could not confirm any documented threshold and said so: nothing
+truncates at a line count, and the real effect is the soft degradation of recall
+across a long context rather than a cliff. The DIRECTION is sound and it is a
+fair reason not to grow the file for a reader that gains nothing; the NUMBER
+should not be cited from this entry as though it were established.
+
+**Both of us then declined the narrow version too**, which is the part that
+makes this a settled decision rather than a deferred one. The reader who would
+benefit lands on `README.md`, and `README.md` already deep-links into this
+file's sections — so the marginal gain is thin even at 1.3%.
+
+**The other two exemptions were not contested and are recorded for
+completeness.** [`prompts/`](../prompts) — the loader sends the body to the
+model, so a link is tokens the model pays for; harder still, a prompt version is
+never overwritten ([§ Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline)), so editing `v1` to `v6` would
+break that rule outright, and [`test/prompt-loader.test.js`](../test/prompt-loader.test.js)
+reads the real files, so a slip fails the suite. [`DOSSIER.md`](../DOSSIER.md)
+— the course's own brief, copied from Moodle, where links absent from the source
+are a deviation from it; moot in practice, since it holds three project-file
+references in total and all three are the bare string `CLAUDE.md`.
+
+**The trap, and why the rule is written down rather than left as practice.**
+Twelve files uniformly linked and one not is exactly the shape a later sweep
+"corrects". The rule and its three exemptions now live in
+[`CLAUDE.md` § Markdown Authoring Rules](../CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo), stated as a navigation
+convention that `check-markdown` does not enforce — nothing fails when it is
+ignored, which is precisely why it needed writing down. Do not finish the job
+on the three exempt sets.
+
 ## D-074 · What the README's Project layout section is FOR: descriptions live in the table, containment is a node, identifiers resolve
 
 *2026-09-16, over a run of questions from the user, each of which reversed or
