@@ -447,9 +447,64 @@ nothing was skipped for looking boring:
 |---|---|
 | **Claim → source, never file → doubt** | Turns *"do I know this is wrong?"* into *"does this resolve?"* |
 | **Vocabulary derived from the corpus** | 4,448 number-plus-noun pairs and 1,264 distinct noun heads, read off a frequency table. An allowlist decided in advance is a filter on what can be found — a 2026-09-16 pass proved that by filtering 3,681 figures through sixty nouns and therefore being unable to see three of them |
-| **Cross-file comparison as its own pass** | A per-file sweep structurally cannot see two documents disagreeing. This is what surfaced one enumerable set described four mutually contradictory ways |
+| **Cross-file comparison as its own pass** | The upgrade that matters most, and the one with a completeness argument behind it rather than a diligence one — see [below](#a-per-file-sweep-is-structurally-incomplete-not-merely-less-thorough) |
 | **Enumerate the referent set** | *"These eight are all X"* is never falsified by any of the eight. It took listing the directory |
 | **Open the artifacts, run the commands** | Reading the embedded log capture is what disproved a cost figure in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md) criterion 8 were re-run rather than quoted |
+
+### A per-file sweep is structurally incomplete, not merely less thorough
+
+This is the difference worth carrying forward, and it is a stronger claim than
+"we looked harder". Every other technique above finds defects a sufficiently
+diligent per-file reader could also have found. **Cross-file comparison finds a
+class that a per-file sweep cannot reach even when executed perfectly**, because
+each file is individually self-consistent and the contradiction exists only
+*between* them. No amount of care inside one document gets you there; the unit
+of inspection is simply wrong.
+
+**This repository diagnosed that in September and then only half-acted on it.**
+[`check-claims`](../scripts/check-claims.js) exists because
+[`README.md`](../README.md) described another file's verdict sixteen hours
+after it changed, and its header says why a sweep had missed it: a staleness
+sweep *"reads each document forwards ('is what this file says about itself still
+true') and cannot see a claim ABOUT ANOTHER FILE that the other file has since
+falsified."* The gate closed that gap for every claim that **points at
+something** — a path, an entry, a capture, an identifier. Nothing closed it for
+claims that merely **characterise** something, and that is the half the
+2026-09-19 sweep worked.
+
+**The worked example.** Four documents described one enumerable set — the eight
+`RS-n` states needing two captures — and all four disagreed:
+
+| Document | What it said | Reality |
+|---|---|---|
+| [`MERGE-READINESS.md`](MERGE-READINESS.md) | all eight split page vs audit trail | five do |
+| [`RESILIENCE.md`](RESILIENCE.md) | *every* other pair splits page vs audit trail | false of two of seven |
+| [`screenshots/README.md`](screenshots/README.md) | "for four of them" | five, and three states went unexplained |
+| [`CLAUDE.md`](../CLAUDE.md) | "the first four" | a listing-order artefact; the fifth is listed last |
+
+**Be precise about what was invisible and what was merely unread**, because the
+honest version is more useful than the flattering one. Only the
+`MERGE-READINESS.md` sentence was strictly unfalsifiable from inside its own
+file — it names no member of the set, so nothing in that document could
+contradict it. The other three were falsifiable in principle and went unread in
+practice for the same reason: checking a sentence that characterises an
+eight-member set in the abstract means holding all eight in mind while reading
+prose, which nobody does on the twelfth pass through a file they have read
+eleven times.
+
+**What actually broke it open was the combination.** A cross-file numeric
+comparison over seventeen counted subjects flagged that two documents said
+`8` and `4` about the same thing — that was the *trigger*, and without it the
+set would not have been looked at. Listing the directory was the *resolution*:
+eight states have two frames, and the second frame is an audit-trail shot for
+five of them, a before-and-after for one, a second feature for one, and a
+successful retry for one. **Neither step finds it alone.** The comparison says
+*something here is wrong*; only enumerating the referent says *what*.
+
+**By raw count this was not the most productive technique** — re-resolving a
+claim against its source found more defects. It was the most *irreplaceable*
+one, which is a different and more important property in a repository whose
+documents cross-reference each other as heavily as these do.
 
 **The finding, which is the part worth reusing.** Every defect sat in a claim
 with **no resolvable referent** — a described value, a figure contradicted by an
