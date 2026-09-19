@@ -1737,7 +1737,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .score-block {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  /* Contents align to the edge the BLOCK ITSELF is anchored to. Here that is
+     the right: `.movie-card__score` above is `align-items: flex-end`, so the
+     block's right edge is the card's right edge. Left-aligning instead makes
+     the amber figure hang off whichever caption is widest -- "No TMDB rating"
+     measures 90.2px against "TMDB 7.1"'s 50.9px, so an unvoted title's rating
+     sat 28.1px left of its neighbours' and the score column stopped being a
+     straight line to scan (measured 2026-09-19: three cards, three different
+     badge right edges; one after this).
+     RESET TO flex-start IN THE 620px BLOCK, and that reset is load-bearing --
+     card mode anchors the block LEFT, so the same reasoning inverts. A blanket
+     flex-end does not fix the defect, it MIRRORS it into card mode; that was
+     built and measured before this was written. Do not collapse the two.
+     It was flex-end originally (0b3864c) and became flex-start in f69b069,
+     whose subject is a narrow-width wrap fix -- but that fix is the
+     `grid-column-start: 1` rule further down, and the commit message says this
+     hunk rode along as a separate change. Nothing here was ever load-bearing
+     for that bug. */
+  align-items: flex-end;
 }
 /* TMDB's own score. Faint and small on purpose: the amber figure above is the
    user's, this is context for it, and the size gap is what keeps the two from
@@ -1871,6 +1888,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   /* Card mode centres the score row (align-items: center), so the desktop nudge
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
+  /* The column is a ROW here and `.card-actions` is pushed right by an auto
+     margin, so the score block is anchored LEFT -- the inverse of desktop.
+     Its contents follow the edge it sits on, or the rating hangs off the
+     widest caption, which is the desktop defect this exists to avoid
+     mirroring. See the reasoning on `.score-block` above. */
+  .score-block { align-items: flex-start; }
   .score-block > .score-tmdb:first-child { margin-top: 0; }
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
 }

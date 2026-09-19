@@ -6,6 +6,82 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-076 · The score block aligns to the edge it is anchored to, which is a different edge in card mode — so the fix is two rules, not one
+
+*2026-09-19, user-raised from a screenshot with a ruler drawn on it. The user
+also proposed the one-line fix, asked whether it was safe, and was right to
+ask — the one-line version mirrors the defect instead of removing it.*
+
+**The defect.** In the ranked list the amber rating did not form a straight
+column: an unvoted title's badge sat visibly left of its neighbours'.
+Measured at 1368px against the real stylesheet — three rated cards, badge right
+edges at 1159.4, **1131.3** and 1159.4, so **28.1px** out. The cause is that
+`.score-block` shrink-wraps to its widest child and its contents were
+left-aligned, so the badge hangs off whichever caption is widest:
+`No TMDB rating` measures 90.2px against `TMDB 7.1`'s 50.9px, and that
+difference IS the 28.1px. It matters for the same reason top-aligning the body
+did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
+neighbourhood in `public/styles.css`): this is a ranked LIST, and a column that
+does not line up is a column you cannot scan.
+
+**The user's worry, and why it was justified but misdirected.** The comments
+around that declaration look like they are defending it, so touching it felt
+unsafe. They are not: they cover `align-self: stretch` on the column, the
+`margin-top: auto` that drops the buttons, and why `.score-block` exists at
+all — every one about the VERTICAL axis or about structure, none about
+horizontal alignment.
+
+**What the history actually says.** `align-items` was `flex-end` from
+`0b3864c`, the commit that added TMDB's score. It became `flex-start` in
+`f69b069`, whose subject line is *"fix the rating wrap and button overflow
+below 400px"* — which is exactly why it reads as load-bearing. It is not. That
+commit's own message says the alignment hunk was a separate change riding
+along, and the narrow-width fix is a different declaration entirely, the
+`grid-column-start: 1` under `@media (max-width: 400px)`. So the property had
+never been protecting anything.
+
+**The fork: a blanket flip, or a scoped one.** The obvious fix is one character
+— `flex-start` to `flex-end` on the base rule, which is what the user tried in
+devtools and which does fix the screenshot. **Built, measured, and rejected.**
+At 548px the score column becomes a ROW and `.card-actions` is pushed right by
+an auto margin, so the block is anchored LEFT there. Under a blanket
+`flex-end` the same card's badge moved from 99.7 to **127.8** — the identical
+28.1px, mirrored. The one-line fix does not remove the defect, it relocates it
+to phones, where nothing in the screenshot would have shown it.
+
+**What shipped: `flex-end` on the base, `flex-start` restored inside the
+existing 620px block.** The principle, which is what the comment states rather
+than the values: *the block's contents align to the edge the block itself is
+anchored to.* Right on desktop, where the column is `align-items: flex-end`;
+left in card mode, where the auto margin puts the block at the row's left.
+
+**One alternative not taken.** `align-items: stretch` plus `text-align: right`
+would also right-align the two lines. Rejected without measuring, on the
+grounds that it answers one alignment question with a second mechanism, and
+that stretching the children discards the shrink-wrap the block's width
+currently comes from. `align-items` is already the property doing this job on
+the parent; the block should not answer it differently.
+
+**Trap: do not collapse the two rules.** A base and a card-mode override that
+set the same property to opposite values is exactly the shape a later tidy-up
+"simplifies". Both declarations carry a comment saying so, and this entry is
+the third place.
+
+**How it was verified, and the one gap.** A static harness reproducing the real
+card markup against the real `public/styles.css`, measured in headless Chrome
+with the webfonts explicitly loaded first — Fraunces 900 sets the badge's
+width, so a run that measures before the swap measures the wrong face. Each
+variant was measured at desktop and at card width, and card mode came back
+**byte-identical** to the pre-change numbers, which is the claim that matters.
+**Chrome would not honour a viewport below ~548px** — requests for 500px and
+350px both reported `innerWidth=548`, the same unreliability
+[D-062](#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)
+records — so the range at or below 400px was NOT measured. It is covered by the
+cascade instead: the 620px block's override applies to every width beneath it,
+and the 400px query sets only `grid-column-start` and `row-gap`, so nothing
+there can reach `align-items`. That is a proof about the cascade, not an
+observation, and it is written as such.
+
 ## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
 
 *2026-09-19, established by the user mid-session and then applied file by file
