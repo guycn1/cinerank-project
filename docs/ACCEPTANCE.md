@@ -1,21 +1,24 @@
 # Acceptance — `SPEC.md` § 7.1, criterion by criterion
 
-`SPEC.md` § 7.1 lists eight things that must pass before submission. This document
-walks them one at a time and attaches the evidence for each, so that ticking a box
-is a review of something written down rather than a recollection.
+[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) lists eight things
+that must pass before submission. This document walks them one at a time and
+attaches the evidence for each, so that ticking a box is a review of something
+written down rather than a recollection.
 
 **Ticking an acceptance criterion is a claim that it was verified.** That claim
 belongs to the authors, not to the agent that helped build the thing — so this
-file assembles the evidence and stops there. The boxes in `SPEC.md` are ticked by
-hand.
+file assembles the evidence and stops there. The boxes in
+[`SPEC.md`](../SPEC.md#71-must-pass-before-submission) are ticked by hand.
 
-**That is Module 2's accountability rule, applied rather than quoted.** It holds
-that acceptance criteria, the definition of done, and the bar the work must clear
-are human responsibilities that cannot be passed to the agent, and that a team
-which forgets it "ships whatever the agent happened to produce and calls it a
-decision". An agent marking its own homework as accepted is the cleanest possible
-way to make the whole exercise circular, which is why the division here is a
-structural one rather than a courtesy.
+**That is
+[Module 2](../DOSSIER.md#module-2-the-human-role-what-erodes-and-what-compounds)'s
+accountability rule, applied rather than quoted.** It holds that acceptance
+criteria, the definition of done, and the bar the work must clear are human
+responsibilities that cannot be passed to the agent, and that a team which
+forgets it "ships whatever the agent happened to produce and calls it a
+decision". An agent marking its own homework as accepted is the cleanest
+possible way to make the whole exercise circular, which is why the division here
+is a structural one rather than a courtesy.
 
 **They were ticked on 2026-09-14**, by the authors, against what is written
 below. This document is the basis for that decision rather than a record of it:
@@ -50,13 +53,13 @@ whether the criterion is met — all eight read satisfied.
 | 4 | Recommendations disabled below 3 rated films | **yes** | Automated + captured |
 | 5 | A full recommendation run: logged row, verified posters | **yes** | Automated + captured |
 | 6 | Verdict disabled below 2 rated films, logged row | **yes** | Automated + captured |
-| 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + `RS-1` … `RS-5` |
+| 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + [`RS-1` … `RS-5`](RESILIENCE.md) |
 | 8 | `.env` gitignored from commit 1, no key in history | **yes** | Repeatable commands + captured |
 
 *(While this document was being assembled, a criterion could read “not yet”,
 meaning nobody had gathered its evidence rather than that it failed. None does
-now: all eight were walked and all eight read a clean `yes` before any box in
-`SPEC.md` was marked.)*
+now: all eight were walked and all eight read a clean `yes` before any box
+in [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) was marked.)*
 
 ## 1 · Searching a real movie title returns real TMDB results with posters
 
@@ -77,9 +80,10 @@ its job, not a cropping artefact; the scrollbar shows more results below.
 
 ### Automated
 
-`test/routes.test.js` — *"GET /api/movies/search returns shaped TMDB results,
-posters included"*. It asserts the whole shaped contract rather than a truthy
-response, because every field is depended on downstream:
+[`test/routes.test.js`](../test/routes.test.js) — *"GET /api/movies/search
+returns shaped TMDB results, posters included"*. It asserts the whole shaped
+contract rather than a truthy response, because every field is depended on
+downstream:
 
 | Field | Asserted |
 |---|---|
@@ -92,8 +96,9 @@ response, because every field is depended on downstream:
 
 A second fixture result deliberately carries **no** `poster_path`, because TMDB
 genuinely omits it for some titles and the client draws its own placeholder
-(`D-027`). The shaped value must be `null` — not an empty string, and not a URL
-ending in the word "null".
+([`D-027`](DECISIONS.md#d-027--icons-are-inline-svg-or-plain-characters--never-emoji)).
+The shaped value must be `null` — not an empty string, and not a URL ending in
+the word "null".
 
 **Verified load-bearing rather than merely green.** Removing the null guard in
 `toPosterUrl()` fails this test. Returning `year` as a string instead of a number
@@ -115,8 +120,9 @@ npm run seed-demo
 
 A dry run resolves every seed film through `/api/movies/search` and prints what
 came back — the seven seed films, seven exact title-and-year matches, each with
-its TMDB id. (`--with-injection` adds an eighth, the Module 17 demo film.) It
-writes nothing. Anyone can re-run it and read the output.
+its TMDB id. (`--with-injection` adds an eighth, the
+[Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems) demo
+film.) It writes nothing. Anyone can re-run it and read the output.
 
 ### Verdict
 
@@ -151,16 +157,17 @@ already there, which is the other half of what the criterion asserts.
 
 ### Automated
 
-`test/routes.test.js` — *"POST /api/movies for a movie already in the list → 409"*.
-Asserts the status **and** that the body carries `Already in your list`, so a
-regression to a bare 409, or to a generic 500, fails it.
+[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/movies for a movie
+already in the list → 409"*. Asserts the status **and** that the body carries
+`Already in your list`, so a regression to a bare 409, or to a generic 500,
+fails it.
 
 ### The three layers
 
 | Layer | Mechanism | Which half of the criterion it guarantees |
 |---|---|---|
-| Database | `tmdb_id integer not null unique` (`db/schema.sql`) | **No duplicate row** — not discouraged, impossible |
-| Route | Postgres `23505` mapped to **409** with `Already in your list` (`server/routes/movies.js`) | A clear message rather than a generic failure |
+| Database | `tmdb_id integer not null unique` ([`db/schema.sql`](../db/schema.sql)) | **No duplicate row** — not discouraged, impossible |
+| Route | Postgres `23505` mapped to **409** with `Already in your list` ([`server/routes/movies.js`](../server/routes/movies.js)) | A clear message rather than a generic failure |
 | Client | `setAddButtonState()` disables the button, labels it `In your list`, and sets an accessible name of *"{title} is already in your list"* | **Blocked** — the action is never offered |
 
 **The layers are not redundant.** The client prevents, the route explains, and the
@@ -172,8 +179,10 @@ API call, say, or by two tabs racing each other.
 The **409 toast** itself is not photographed here, and reaching it from the
 interface is genuinely awkward: the button is disabled, so it cannot normally be
 clicked. It was reachable through a stale-button race — adding a film from the
-search panel while a recommendation card still offered it — and `R3` closed that by
-making the Add-button sync document-wide rather than panel-scoped.
+search panel while a recommendation card still offered it — and
+[`R3`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+closed that by making the Add-button sync document-wide rather than
+panel-scoped.
 
 So the path no camera caught is one the application no longer exposes. The route
 test covers it, which is the right place for a state the interface is designed to
@@ -188,9 +197,10 @@ outcome impossible rather than merely handled.
 ## 3 · Deleting and re-ranking works correctly with 0, 1, and many movies
 
 **Assessed 2026-09-13.** This is the criterion that explicitly asks for *edge
-cases, not just the happy path*, so the two edge sizes were produced deliberately
-rather than waited for: the demo list was emptied one film at a time, captured at
-one and at zero, and rebuilt from `scripts/seed-demo.js` afterwards.
+cases, not just the happy path*, so the two edge sizes were produced
+deliberately rather than waited for: the demo list was emptied one film at a
+time, captured at one and at zero, and rebuilt from
+[`scripts/seed-demo.js`](../scripts/seed-demo.js) afterwards.
 
 ### Captured — one film
 
@@ -205,10 +215,13 @@ that is only ever seen in this state.
 The card holds rank **1** with no tie marker, which is `displayedRanking()`
 behaving at a list length of one.
 
-**This frame also evidences criteria 4 and 6**, and is referenced again there:
-with one rated film both AI features are below threshold, so each shows a
-disabled trigger beside an explanation naming the number required and the number
-held.
+**This frame also evidences criteria
+[4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-movies)
+and
+[6](#6--the-verdict-is-disabled-with-an-explanation-below-2-rated-movies-and-a-triggered-verdict-logs-a-row-with-real-tokencost-data)**,
+and is referenced again there: with one rated film both AI features are below
+threshold, so each shows a disabled trigger beside an explanation naming the
+number required and the number held.
 
 ### Captured — zero films
 
@@ -228,13 +241,15 @@ simplify it into an unconditional call and quietly restore the redundancy.
 ### Captured — many
 
 Already evidenced by several existing frames rather than re-shot;
-`screenshots/readme-1-hero-ranked-list.png` shows seven films with ranks 1 to 3
-and the `7 films · 1 not rated yet` subtitle.
+[`screenshots/readme-1-hero-ranked-list.png`](screenshots/readme-1-hero-ranked-list.png)
+shows seven films with ranks 1 to 3 and the `7 films · 1 not rated yet`
+subtitle.
 
 ### Automated
 
-`test/routes.test.js`, two tests, **both written on 2026-09-13 while assembling
-this entry** — the endpoint had no coverage at all before:
+[`test/routes.test.js`](../test/routes.test.js), two tests, **both written on
+2026-09-13 while assembling this entry** — the endpoint had no coverage at all
+before:
 
 * *"DELETE /api/movies/:id → 204 with no body"* — the status, an empty body, and
   that a delete reaches the movies table.
@@ -243,8 +258,9 @@ this entry** — the endpoint had no coverage at all before:
   would answer 204, telling the user a film is gone while it is still there.
   Verified load-bearing: removing that guard fails this test and nothing else.
 
-**The gap was conspicuous once looked at.** `test/helpers.js` has defined a
-`del()` client method since it was written, and nothing had ever called it.
+**The gap was conspicuous once looked at.**
+[`test/helpers.js`](../test/helpers.js) has defined a `del()` client method
+since it was written, and nothing had ever called it.
 
 ### What is deliberately not asserted
 
@@ -252,13 +268,14 @@ Two limits, stated rather than papered over:
 
 * **That the correct row was deleted.** The fake Supabase builder’s `.eq()` is a
   no-op, so an assertion about the id would pass whatever the route filtered on.
-  That is the trap `D-046` records — a test that passed against buggy code because
-  the fake ignored the filter causing the bug. Writing it would manufacture false
-  confidence.
-* **`displayedRanking()` has no unit test.** It lives in `public/app.js`, a browser
-  script the Node runner cannot import, and the client has no test harness. Its
-  behaviour at 0, 1 and many is evidenced by the captures above rather than by
-  assertions.
+  That is the trap
+  [`D-046`](DECISIONS.md#d-046--the-recommendations-read-stopped-filtering-in-sql-because-the-test-could-not-see-the-bug-otherwise-r2)
+  records — a test that passed against buggy code because the fake ignored the
+  filter causing the bug. Writing it would manufacture false confidence.
+* **`displayedRanking()` has no unit test.** It lives in
+  [`public/app.js`](../public/app.js), a browser script the Node runner cannot
+  import, and the client has no test harness. Its behaviour at 0, 1 and many is
+  evidenced by the captures above rather than by assertions.
 
 ### Verdict
 
@@ -277,25 +294,30 @@ explanation* — and both are visible in one frame.
 ![The recommendations section with its trigger greyed out and a line reading "Rate
 at least 3 movies to unlock recommendations (you have 1)"](screenshots/ac-3-ranking-one-film.png)
 
-*(The same capture appears under criterion 3, where it evidences ranking at a list
-length of one. It is embedded again here rather than cross-referenced, because an
-entry a reader has to leave in order to see its own evidence is doing half a job.)*
+*(The same capture appears under
+[criterion 3](#3--deleting-and-re-ranking-works-correctly-with-0-1-and-many-movies),
+where it evidences ranking at a list length of one. It is embedded again here
+rather than cross-referenced, because an entry a reader has to leave in order to
+see its own evidence is doing half a job.)*
 
 Look at the **"What to watch next"** section:
 
-* **"Get recommendations" is greyed out** — and its sparkle icon is dimmed with it,
-  because the disabled rule is written as `button:disabled .ai-sparkle`. A locked
-  control that still twinkles invites a click that does nothing.
+* **"Get recommendations" is greyed out** — and its sparkle icon is dimmed with
+  it, because the disabled rule is written as `button:disabled .ai-sparkle`. A
+  locked control that still twinkles invites a click that does nothing.
 * **The explanation names both numbers**: *"Rate at least 3 movies to unlock
-  recommendations (you have 1)."* Not just the requirement — the distance from it.
+  recommendations (you have 1)."* Not just the requirement — the distance from
+  it.
 * **The grid beneath is empty.** No stale cards from a previous run sit under a
-  message saying the feature is locked. That is `R16`: the section must not
-  contradict itself.
+  message saying the feature is locked. That is
+  [`R16`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09):
+  the section must not contradict itself.
 
 ### Automated
 
-`test/routes.test.js` — *"POST /api/recommendations below the rated-movie threshold
-→ 422, nothing logged"*. Three assertions, and the third is the interesting one:
+[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+below the rated-movie threshold → 422, nothing logged"*. Three assertions, and
+the third is the interesting one:
 
 | Asserted | Why it matters |
 |---|---|
@@ -305,21 +327,25 @@ Look at the **"What to watch next"** section:
 
 `GET /api/config` is separately tested to serve the threshold numbers, which is
 what lets the client display the rule without hardcoding it. The server is the
-single source of truth for the number; the literals in the client are a documented
-fallback for that one request failing, not a second definition (`R20`).
+single source of truth for the number; the literals in the client are a
+documented fallback for that one request failing, not a second definition
+([`R20`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
 
 ### Defence in depth, and one honest consequence
 
-The same shape as criterion 2: the **client prevents** (a disabled button cannot
-be clicked) and the **server refuses** (422 with a usable message). The server half
-is therefore not normally reachable through the interface — it exists for a direct
-API call, or a client that got its state wrong.
+The same shape as
+[criterion 2](#2--adding-a-movie-already-in-the-list-is-blocked-with-a-clear-message-not-a-duplicate-row):
+the **client prevents** (a disabled button cannot be clicked) and the **server
+refuses** (422 with a usable message). The server half is therefore not normally
+reachable through the interface — it exists for a direct API call, or a client
+that got its state wrong.
 
 That message is one of exactly two in the application flagged `userFacing` and
-passed to the user verbatim rather than replaced with a calm sentence. `R8`
-established the general rule — technical causes go to the log, not the screen — and
-this is a deliberate exception, because *"Need at least 3 rated movies"* is the
-answer to the question the user just asked, not a fault report.
+passed to the user verbatim rather than replaced with a calm sentence.
+[`R8`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+established the general rule — technical causes go to the log, not the screen —
+and this is a deliberate exception, because *"Need at least 3 rated movies"* is
+the answer to the question the user just asked, not a fault report.
 
 ### Verdict
 
@@ -390,7 +416,8 @@ is load-bearing.
 1)" with its button greyed out](screenshots/ac-3-ranking-one-film.png)
 
 *(Third appearance of this capture — it is embedded rather than cross-referenced
-for the same reason as under criterion 4.)*
+for the same reason as under
+[criterion 4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-movies).)*
 
 The banner reads **"Rate at least 2 movies to get a verdict (you have 1)."** and
 **"New verdict" is greyed**, its sparkle dimmed with it.
@@ -408,8 +435,10 @@ sentence beside it explains *why*.
 version, model, tokens, cost and duration](screenshots/readme-1-hero-ranked-list.png)
 
 A generated verdict with `taste_verdict_v7`, `claude-sonnet-5`, its token count,
-its cost in cents and its duration declared directly beneath it. The verdict rows
-in `screenshots/readme-3-ai-call-log.png` are the same figures in the audit trail.
+its cost in cents and its duration declared directly beneath it. The verdict
+rows in
+[`screenshots/readme-3-ai-call-log.png`](screenshots/readme-3-ai-call-log.png)
+are the same figures in the audit trail.
 
 ### Automated
 
@@ -426,9 +455,10 @@ path. The one verdict behaviour this criterion names was the one nothing checked
 Verified load-bearing: making the service ignore OpenRouter’s reported cost and
 fall back to the estimate table fails it.
 
-Its `model_used` assertion also closes the other half of `D-070`, where a **failed**
-verdict recorded the app-wide model instead of the one it called. Both halves of
-that column are now pinned.
+Its `model_used` assertion also closes the other half of
+[`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
+where a **failed** verdict recorded the app-wide model instead of the one it
+called. Both halves of that column are now pinned.
 
 ### Verdict
 
@@ -452,10 +482,10 @@ had already contradicted.)*
 normally](screenshots/rs-1-tmdb-down-on-search.png)
 
 A plain-language message inside the results panel, and **the ranked list carries
-on** — including each film’s stored TMDB score, which survives the outage because
-it is a snapshot written at add time rather than a live call. `RESILIENCE.md`
-covers two further TMDB surfaces: adding a film, and verification failing
-mid-recommendation.
+on** — including each film’s stored TMDB score, which survives the outage
+because it is a snapshot written at add time rather than a live call.
+[`RESILIENCE.md`](RESILIENCE.md) covers two further TMDB surfaces: adding a
+film, and verification failing mid-recommendation.
 
 ### OpenRouter unreachable — recommendations
 
@@ -532,9 +562,9 @@ changed**, `README.md`, **one line added**: `# cinerank-project`.
 That is GitHub’s repository-creation commit. It contains no code, no configuration
 and no `.env`. **There was nothing there for a secret to be in.**
 
-`.gitignore` arrives in the very next commit, `103c4be`, with `.env` on its second
-line and `.env.example` alongside it — the first commit that contains any project
-content at all:
+[`.gitignore`](../.gitignore) arrives in the very next commit, `103c4be`, with
+`.env` on its second line and [`.env.example`](../.env.example) alongside it —
+the first commit that contains any project content at all:
 
 ```
 # Secrets — never commit (CLAUDE.md § Security & Secrets #1)
@@ -549,10 +579,13 @@ above — it passes them, because it holds a single line of README.
 
 ### Ongoing enforcement
 
-A clean history is a fact about the past. `npm run scan-secrets` runs before every
-commit and inspects the **staged diff**, so the property is maintained rather than
-merely observed. It is one of five commit gates, alongside `npm test`,
-`npm run lint`, `npm run check-markdown` and `npm run check-claims`.
+A clean history is a fact about the past.
+[`npm run scan-secrets`](../scripts/scan-secrets.js) runs before every commit
+and inspects the **staged diff**, so the property is maintained rather than
+merely observed. It is one of
+[five commit gates](../CLAUDE.md#version-control-workflow-non-negotiable),
+alongside `npm test`, `npm run lint`, `npm run check-markdown` and `npm run
+check-claims`.
 
 ### Verdict
 
