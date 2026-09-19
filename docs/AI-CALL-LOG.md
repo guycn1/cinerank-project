@@ -143,7 +143,7 @@ and at rest, so it cannot go missing mid-scroll or double up at rest.
 
 ### The totals divider is painted as backgrounds, not drawn as a border
 
-The 2px rule above the totals row, and the 1px separators between its cells, are
+The 1.5px rule above the totals row, and the 1px separators between its cells, are
 `linear-gradient` backgrounds:
 
 ```css

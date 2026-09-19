@@ -3184,7 +3184,7 @@ body:has(dialog[open]) { overflow: hidden; }
      to the cell's own paint area, and under `border-collapse: collapse` that
      area STOPS at the collapsed column border — which is what broke the rule
      into segments. So: take the collapsed borders off this row entirely (below)
-     and paint BOTH rules as backgrounds — a 2px divider across the top and a 1px
+     and paint BOTH rules as backgrounds — a 1.5px divider across the top and a 1px
      column separator at each cell's right edge. Cells are then truly adjacent,
      so the divider is continuous, the separators are still there, and both
      travel with the cell when it pins. */
@@ -3221,7 +3221,8 @@ body:has(dialog[open]) { overflow: hidden; }
   background-size: 100% 1.5px;
   background-position: left top;
 }
-/* …and drop the collapsed border the rule now overlaps, so it stays a clean 2px. */
+/* …and drop the collapsed border the rule now overlaps, so the divider stays a
+   single clean 1.5px rule instead of doubling with a border underneath it. */
 .log-table tbody tr:last-child td { border-bottom: none; }
 .log-badge {
   display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.84em; font-weight: 600;

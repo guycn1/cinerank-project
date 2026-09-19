@@ -2125,7 +2125,11 @@ back into bounds — the second symptom resolving with the first is what makes
 
 **Cheapest real-time Sonnet, checked rather than remembered.** OpenRouter's
 public model list (free, no key, no quota) prices sonnet-5 at **$2/$10 per Mtok**
-against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict**.
+against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict** at the list length of 2026-09-11.
+*(The demo seed list two days later lengthened the prompt, and the verdict
+reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
+that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
+this decision turned on is unaffected.)*
 The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
 variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
 break a live request.

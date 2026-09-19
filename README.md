@@ -51,7 +51,11 @@ whether it sounds like a person, and that is exactly the axis four prompt
 versions failed to move on the cheaper tier, until the model turned out to be
 the constraint rather than the wording ([`docs/DECISIONS.md`
 D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)).
-It alone runs on `claude-sonnet-5`, at about 0.29¢ a call. The log shows the
+It alone runs on `claude-sonnet-5`, at 0.37–0.40¢ a call against 0.20¢ for a
+recommendation — both readable in the [log capture
+below](#every-ai-call-whether-it-worked-or-not), which shows six verdict rows in
+that band. The verdict reads *every* rated film, so its cost grows with the
+list; recommendations read only the top five and stay flat. The log shows the
 model per row, so the split is visible in the audit trail rather than buried in
 config.
 

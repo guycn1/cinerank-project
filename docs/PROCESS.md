@@ -346,8 +346,11 @@ still declares what the call cost.
   the model turned out to be the constraint rather than the wording
   ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)).
   OpenRouter's public model list was queried for the actual prices rather than
-  guessed — $2/$10 per Mtok against Haiku's $1/$5, about 0.29¢ a verdict — and
-  the call log renders the model per row, so the split is auditable rather than
+  guessed — $2/$10 per Mtok against Haiku's $1/$5, which worked out at about
+  0.29¢ a verdict on the list as it stood that day. The shipped demo list is
+  longer and the verdict reads all of it, so the figure in the call log is now
+  0.37–0.40¢; the ratio this decision turned on is unchanged. The call log
+  renders the model per row, so the split is auditable rather than
   buried in config.
 - **Cost is logged, not estimated away.**
   [`openrouter.js`](../server/services/openrouter.js) sends `usage.include=true`

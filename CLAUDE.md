@@ -65,7 +65,24 @@ findings are corrected in place, and the ones worth knowing are that
 `docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
 when it is 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
 credited "ESLint 9 over 23 files" when the dependency has never been 9 and
-there are 24. What landed on
+there are 24. **THE PRE-MERGE STALENESS SWEEP IS PART-DONE — RESUME IT FIRST, and do not
+re-do the covered half.** COVERED AND CLEAN: all 255 `§` references (183
+numbered, 72 named) resolve or are deliberate; `file:line` citations (there is
+exactly ONE in the repo, a generic example in this file, so that class cannot
+drift); 37 documented CSS/JS constants checked against `public/styles.css` and
+`public/app.js`; merge count 27, tests 60, gates 5, captures 37 = 24 rs + 5 ac +
+5 pi + 3 readme, prompt versions, thresholds, both models, the price table, four
+reverts plus one reapply; `SPEC.md` § 4.5 against the 11 real routes; `SPEC.md`
+§ 5 against `db/schema.sql`; and `README.md`'s Project layout tree against every
+tracked root entry and every directory it names. NOT YET COVERED: a line-by-line
+read of `docs/RESILIENCE.md`, `docs/SECURITY.md`, `docs/ACCEPTANCE.md` and
+`README.md` from the Architecture section down; the ~160 "the only / no other"
+uniqueness claims outside code and `docs/RESILIENCE.md`, which is the class no
+gate can resolve; and a contradiction pass across files on shared subjects.
+`DOSSIER.md` is out of scope — it is the course's brief, copied. **The upcoming
+merge is NOT to be called "final"** (user, 2026-09-19); the 2026-09-14 one was
+the last PLANNED merge and every later reference to "final planned" means that
+one. What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
