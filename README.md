@@ -225,8 +225,6 @@ named so the omission can be checked rather than guessed at: this file
 which is an input to this project rather than a deliverable of it; and the ten
 versioned files in [`prompts/`](prompts/), which are program input rather than
 prose and are covered in the [Project layout](#project-layout) tree instead.
-*(This said "two markdown files", which invited exactly the check it fails: the
-prompt files are markdown and are in the repository.)*
 
 | Document | What it is |
 |---|---|
