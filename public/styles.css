@@ -2955,7 +2955,6 @@ body:has(dialog[open]) { overflow: hidden; }
    The out side never carries a comma — `maxTokens` is 600 for
    recommendations and 180 for the verdict, so it cannot reach four digits. */
 .log-table tbody .sub { font-size: 0.84em; }
-/* the footer cells are bold; its sub-lines shouldn't inherit that */
 /* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
    white-space is a safety net: the summed split is a few characters longer
    than any body row's, so if it ever would outgrow the column it wraps onto a
