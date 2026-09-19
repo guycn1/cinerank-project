@@ -18,10 +18,11 @@ take on trust.
 ## `rs-*` — resilience and state
 
 Recipes for reproducing each of these are in [`CLAUDE.md`](../../CLAUDE.md) as
-`RS-1` … `RS-16`.
-Eight states need two frames. For four of them the claim is split between what the
-user sees and what the audit trail records; for `RS-10` it is split across time,
-because the state is a race and a single still cannot show one.
+`RS-1` … `RS-16`. Eight states need two frames. For four of them the claim is
+split between what the user sees and what the audit trail records; for
+[`RS-10`](RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
+split across time, because the state is a race and a single still cannot show
+one.
 
 | File | State | What it establishes |
 |---|---|---|

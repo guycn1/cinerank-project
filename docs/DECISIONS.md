@@ -400,7 +400,8 @@ preserve-don't-maintain rule this entry marks the boundary of.
 
 ## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
 
-*Written up 2026-09-13, found while shooting the [RS-4](RESILIENCE.md) evidence.*
+*Written up 2026-09-13, found while shooting the
+[RS-4](RESILIENCE.md#rs-4--recommendations) evidence.*
 
 The AI call log dialog said:
 

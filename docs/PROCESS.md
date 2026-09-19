@@ -92,7 +92,7 @@ the reasoning. Rules that keep this honest live in
   of 13. (Deliberately not an exact figure: it moves with every commit, including
   the ones that would be needed to correct it.) It was exercised twice for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
-  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md) capture needed a
+  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) capture needed a
   deliberate one-line break in a service, undone with
   `git checkout -- server/services/recommendations.js` the moment the shot
   landed. Neither move needed a stash, a branch or a careful hand-undo, because
@@ -315,10 +315,11 @@ dropped exactly as the documentation claimed. The drop path is the common
 outcome, not the rare one — which is the opposite of what this project's own
 backlog had assumed in writing before anyone measured it.
 
-**And demonstrated, not only described.** `RS-16` in
-[`RESILIENCE.md`](RESILIENCE.md) is the guard firing on every pick of a run at
-once: a well-formed list of confident titles, none of which TMDB had heard of, and
-a page that says so and still declares what the call cost.
+**And demonstrated, not only described.**
+[`RS-16` in `RESILIENCE.md`](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist)
+is the guard firing on every pick of a run at once: a well-formed list of
+confident titles, none of which TMDB had heard of, and a page that says so and
+still declares what the call cost.
 
 - **Facts come from TMDB, never the model.** The recommendation prompt returns
   *titles only*; every title is looked up on TMDB, which supplies poster / year

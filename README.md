@@ -112,7 +112,8 @@ decoration:
   are](docs/PROCESS.md#3-guardrails-against-the-model--naming-the-failure-mode-module-3),
   measured across thirty probe titles in [`docs/DECISIONS.md`
   D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened),
-  and caught in the act as `RS-16` in [docs/RESILIENCE.md](docs/RESILIENCE.md).
+  and caught in the act as
+  [`RS-16` in docs/RESILIENCE.md](docs/RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist).
 - **The edge that is missing is the other half of that claim.** There is no
   arrow from [`tasteVerdict.js`](server/services/tasteVerdict.js) to `tmdb.js`,
   because there is no such import: the verdict is never fact-checked. That is
