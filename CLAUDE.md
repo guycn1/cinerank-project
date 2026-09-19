@@ -4208,6 +4208,54 @@ down would be re-broken within a session. See D-065.
    new convention. The checker cannot catch this class: the paths are valid
    markdown and valid for the file they sit in.
 
+### Every document reference is a link (the user's rule, 2026-09-19)
+
+**If the prose names another document, that name is a link; if it names a
+SECTION of one, the link goes to the SECTION rather than the file.** It is a
+navigation rule, not a rendering one, so `check-markdown` does not enforce it
+and nothing fails when it is ignored — which is exactly why it is written here.
+
+**Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
+repository* as a stakeholder who never runs the app and cannot ask a question.
+For that reader an unlinked "see D-046" is a number and a scroll bar. Applied
+to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
+104 entry-to-entry cross-references became clickable in a 3,860-line file that
+had exactly one link in it.
+
+**Three files are deliberately EXEMPT. Do not "finish the job" on them.**
+
+* **`prompts/*.md`** — the loader sends the body to the model, so a link is
+  tokens the model pays for and prose it may act on. Two harder reasons: a
+  prompt version is never overwritten (§ Prompt Versioning), so editing `v1`
+  to `v6` breaks that rule outright, and `test/prompt-loader.test.js` reads the
+  real files, so a slip there fails the suite.
+* **`DOSSIER.md`** — the course's own brief, copied from Moodle; links absent
+  from the source are a deviation from it. Moot in practice: it holds three
+  project-file references in total, all the bare string `CLAUDE.md`.
+* **THIS FILE.** Measured before deciding rather than asserted: the rule would
+  add about 647 links and 44KB, +14%, and 451 of those are `D-0NN`, `R-n` and
+  `RS-n` references that an agent resolves by grepping and never by clicking.
+  **The deciding difference from `docs/DECISIONS.md`** — nearly as long and NOT
+  exempt — **is that this file is injected into context every session while that
+  one is read on demand.** A byte here is a permanent per-session cost; a byte
+  there is paid only when someone opens it. The user also holds, reasonably,
+  that a very long `CLAUDE.md` is likelier to have instructions skimmed past,
+  which argues against growing it for a reader who gains nothing from links.
+
+**How a pass is verified, because the diffs are large and every failure mode
+here is silent.** Render the file through GitHub's API before and after, strip
+every `<a>` tag from both, normalise whitespace, and require the two to be
+byte-identical — that, not reading the diff, is what proves only links changed.
+In one sitting it caught an `<h3>` absorbed into the paragraph above it by a
+re-wrapper, six silent `§7.2` to `§ 7.2` spacing edits inside preserved
+decision entries, four dropped closing parentheses, and an unterminated link
+that swallowed a whole clause into its own URL. None of those shows in a diff
+and `check-markdown` passes every one.
+
+**One check the checker cannot do, so do it by hand:** no link destination may
+contain whitespace. An unclosed `](` hunts for the next `)` and silently eats
+the prose in between — the second of the two classes named directly below.
+
 ### Two things the checker deliberately does NOT catch
 
 Both were found by the 2026-09-13 audit, both render visibly wrong, and both were
