@@ -17,51 +17,66 @@ Four claims, and every capture below is measured against them:
    status codes, no library wording leaking into the interface.
 2. **One dependency failing does not take the page with it.** In every state but
    one the ranked list is still on screen and still correct. The exception is
-   `RS-7`, where the list itself is what broke. *(This was written as a count —
-   "eight of the nine" — and had gone stale twice by the time it was noticed. A
-   count of a set that grows is a maintenance burden the sentence did not need.)*
+   [`RS-7`](#rs-7--supabase-down), where the list itself is what broke. *(This
+   was written as a count — "eight of the nine" — and had gone stale twice by
+   the time it was noticed. A count of a set that grows is a maintenance burden
+   the sentence did not need.)*
 3. **The failure is recorded where a failure belongs.** An AI call that failed
-   still writes a row carrying the model, the prompt version, the duration and the
-   real technical cause — which is the half the user never sees.
+   still writes a row carrying the model, the prompt version, the duration and
+   the real technical cause — which is the half the user never sees.
 4. **Work in progress survives a failure that had nothing to do with it.** A
    write that fails leaves what the user typed exactly where they left it, so
    recovering costs a click rather than retyping. This claim was added on
-   2026-09-14, when `RS-10` and `RS-14` turned out to evidence something the
-   first three did not mention.
+   2026-09-14, when [`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited)
+   and
+   [`RS-14`](#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works)
+   turned out to evidence something the first three did not mention.
 
 ## How these were produced
 
-Each state has a recipe, kept as `RS-1` … `RS-16` in `CLAUDE.md` so that any of
-them can be reproduced exactly. TMDB, OpenRouter and Supabase are all called
-**server-side** — the browser never talks to any of them, so browser devtools
-cannot simulate them: most recipes break the relevant key in `.env` and restart,
-and three — `RS-9`, `RS-15` and `RS-16` — force a state no key can produce by
-changing one line of a service and reverting it the moment the shot lands.
-`RS-15` does it twice, once per half, which is why the number of such EDITS is
-four and the number of such recipes is three.
+Each state has a recipe, kept as [`RS-1`](#rs-1--searching) …
+[`RS-16`](#rs-16--the-model-named-films-that-do-not-exist) in
+[`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
+so that any of them can be reproduced exactly. TMDB, OpenRouter and Supabase are
+all called **server-side** — the browser never talks to any of them, so browser
+devtools cannot simulate them: most recipes break the relevant key in `.env` and
+restart, and three —
+[`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest),
+[`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+and `RS-16` — force a state no key can produce by changing one line of a service
+and reverting it the moment the shot lands. `RS-15` does it twice, once per
+half, which is why the number of such EDITS is four and the number of such
+recipes is three.
 
 **Five of them are order-dependent**, because getting the order wrong does not
 produce a worse frame — it produces a different state entirely. Loading the page
 *before* breaking the key is what leaves a control enabled to click; breaking it
-first gives you `RS-7`. Every one of the five spells its sequence out step by
-step, and three of them — `RS-2`, `RS-6` and the shared
-`RS-11`/`RS-12`/`RS-13` recipe — flag it in bold before the steps begin;
-`RS-10` and `RS-14` carry the order in the steps alone.
+first gives you [`RS-7`](#rs-7--supabase-down). Every one of the five spells its
+sequence out step by step, and three of them — [`RS-2`](#rs-2--adding-a-film),
+[`RS-6`](#rs-6--the-apps-own-server-is-gone) and the shared
+[`RS-11`](#rs-11--neither-ai-feature-offers-a-log-that-was-never-written)/[`RS-12`](#rs-12--the-audit-surface-fails-honestly-too)/[`RS-13`](#rs-13--a-write-fails-and-says-which-film-it-was-about)
+recipe — flag it in bold before the steps begin;
+[`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited) and
+[`RS-14`](#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works)
+carry the order in the steps alone.
 
 None of these are mock-ups. Every frame is the real application in the state
-described. Not every one involves a broken dependency: in `RS-10` and `RS-15`
-everything is reachable and working, and what fails is an assumption or a reply's
-content.
+described. Not every one involves a broken dependency: in
+[`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited) and
+[`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+everything is reachable and working, and what fails is an assumption or a
+reply's content.
 
 **One behaviour in this application cannot be photographed at all**, and it is
 worth naming rather than quietly omitting. Under `prefers-reduced-motion` the
 interface takes a genuinely different path — the recommendation exit clears
 instantly instead of animating, the verdict's typing effect is structurally
 unreachable rather than merely suppressed, programmatic scrolling drops to
-`auto`, and the logo's notch rests at twelve o'clock. **A still of nothing moving
-is indistinguishable from a still of something about to move**, so no frame can
-carry any of it. The reasoning is in `docs/DECISIONS.md` and the rules are in
-`CLAUDE.md`; this document can only tell you the path exists.
+`auto`, and the logo's notch rests at twelve o'clock. **A still of nothing
+moving is indistinguishable from a still of something about to move**, so no
+frame can carry any of it. The reasoning is in
+[`docs/DECISIONS.md`](DECISIONS.md) and the rules are in
+[`CLAUDE.md`](../CLAUDE.md); this document can only tell you the path exists.
 
 ## When TMDB is unreachable
 
@@ -77,11 +92,13 @@ normally below it](screenshots/rs-1-tmdb-down-on-search.png)
 
 Crimson, inside the results panel. The ranked list underneath is untouched.
 
-**The detail worth noticing is the `TMDB 7.6` on the card.** TMDB is unreachable,
-and each film's TMDB score still renders — because that number is a **snapshot
-written when the film was added**, never re-fetched. That was a deliberate design
-decision (`docs/DECISIONS.md` D-036), taken partly so an outage could not empty
-the ranked list. This frame is that decision paying off.
+**The detail worth noticing is the `TMDB 7.6` on the card.** TMDB is
+unreachable, and each film's TMDB score still renders — because that number is a
+**snapshot written when the film was added**, never re-fetched. That was a
+deliberate design decision
+([`docs/DECISIONS.md` D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)),
+taken partly so an outage could not empty the ranked list. This frame is that
+decision paying off.
 
 ### RS-2 · Adding a film
 
@@ -92,13 +109,17 @@ above the search results](screenshots/rs-2-tmdb-down-on-add.png)
 
 **The film's name in that sentence is the point, not decoration.** The server
 sends a short machine-readable cause; the client prefixes the context it already
-knows. Before that mechanism (`D-042`) a failed add named no film at all, and a
-naive fix produced doubled messages like "Couldn't add 'Heat' — Couldn't reach the
-movie database". The two halves compose exactly once.
+knows. Before that mechanism
+([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form))
+a failed add named no film at all, and a naive fix produced doubled messages
+like "Couldn't add 'Heat' — Couldn't reach the movie database". The two halves
+compose exactly once.
 
 This state is only reachable *at all* because the search results panel is
-persistent rather than a dropdown (`D-024`) — with TMDB down, a fresh search
-returns nothing to click, so the rows must have survived from before the outage.
+persistent rather than a dropdown
+([`D-024`](DECISIONS.md#d-024--the-search-results-panel-is-a-persistent-surface-not-a-dropdown))
+— with TMDB down, a fresh search returns nothing to click, so the rows must have
+survived from before the outage.
 
 ### RS-3 · Verifying recommendations
 
@@ -140,11 +161,14 @@ a link to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
 
 > Couldn't generate recommendations right now. See the AI call log for details.
 
-**Two absences are the substance.** There is no technical detail in the message —
-before `R8`, the route wrapped every cause into the user-facing text, so people
-saw `OpenRouter responded 401`, and worse, `DB read failed:` followed by raw
-Postgres output. And there is **no cost footer**, because nothing succeeded. That
-is the exact inverse of RS-3, where a call *did* succeed and its cost is shown.
+**Two absences are the substance.** There is no technical detail in the message
+— before
+[`R8`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+the route wrapped every cause into the user-facing text, so people saw
+`OpenRouter responded 401`, and worse, `DB read failed:` followed by raw
+Postgres output. And there is **no cost footer**, because nothing succeeded.
+That is the exact inverse of [RS-3](#rs-3--verifying-recommendations), where a
+call *did* succeed and its cost is shown.
 
 **The log link is conditional**, which is the subtle half: it appears only because
 a `recommendation_logs` row was really committed. The server sends a flag saying
@@ -170,8 +194,10 @@ the AI call log](screenshots/rs-5-openrouter-down-verdict.png)
 
 > Couldn't come up with a verdict right now. See the AI call log for details.
 
-**The resemblance to RS-4 is the entire point.** Two independent features, two
-independent code paths, one vocabulary. That is what `R23` was for.
+**The resemblance to [RS-4](#rs-4--recommendations) is the entire point.** Two
+independent features, two independent code paths, one vocabulary. That is what
+[`R23`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+was for.
 
 ![The AI call log showing two failed rows, one per feature, on two different
 models](screenshots/rs-5-openrouter-down-verdict-log.png)
@@ -183,14 +209,17 @@ models](screenshots/rs-5-openrouter-down-verdict-log.png)
 | `TV` | `TV_v7` | `claude-sonnet-5` | `failed` |
 | `R` | `R_v3` | `claude-haiku-4.5` | `failed` |
 
-One image carrying two claims: the two features answer a failure identically, and
-the deliberate two-model split (`D-053` — the verdict is the one call not on the
-cheaper tier) holds in the **failure** path, not only in the successes.
+One image carrying two claims: the two features answer a failure identically,
+and the deliberate two-model split
+([`D-053`](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)
+— the verdict is the one call not on the cheaper tier) holds in the **failure**
+path, not only in the successes.
 
-**That second claim was false until the day this was shot.** A failed verdict was
-logging the app-wide model rather than the one it had actually called. The bug was
-found by looking at an earlier version of this very screenshot, fixed, covered by
-a test per feature, and the wrong rows removed by hand (`D-070`).
+**That second claim was false until the day this was shot.** A failed verdict
+was logging the app-wide model rather than the one it had actually called. The
+bug was found by looking at an earlier version of this very screenshot, fixed,
+covered by a test per feature, and the wrong rows removed by hand
+([`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history)).
 
 ## When the model returns nothing usable
 
@@ -207,7 +236,8 @@ declaring the prompt version, model, token count, cost and
 duration](screenshots/rs-15-nothing-usable-page.png)
 
 **The empty case, as the user meets it.** The model honoured its contract and
-returned a well-formed list with nothing in it. `SPEC` § 2.4's other clause — *"or
+returned a well-formed list with nothing in it.
+[`SPEC` § 2.4](../SPEC.md#24-resilience-requirements)'s other clause — *"or
 returns malformed output"* — is the case where it did not, and the two land in
 different places.
 
@@ -215,8 +245,10 @@ different places.
 it took 4,221 ms, it cost 0.20¢, and the page says so *on a run that produced no
 cards at all*. It used to return before building that footer, so the one outcome
 that charged the user money and showed them nothing was also the only outcome
-that reported no cost anywhere (`R10`). An application that declares what it spent
-only when things go well is not an audit trail.
+that reported no cost anywhere
+([`R10`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
+An application that declares what it spent only when things go well is not an
+audit trail.
 
 ![The AI call log with three rows in view: a success carrying real tokens and
 cost above a failure carrying real tokens and cost, and further down a failure
@@ -247,7 +279,9 @@ failures in this one frame are what make the rule visible — identical red badg
 completely different data, because they died at different points in the pipeline.
 
 The footer reads `Total · 60 calls`, which is the cap rather than the lifetime
-figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
+figure; see
+[`docs/AI-CALL-LOG.md` § 2](AI-CALL-LOG.md#2-where-the-data-comes-from) and
+[`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 
 ### RS-16 · The model named films that do not exist
 
@@ -255,43 +289,58 @@ figure; see `docs/AI-CALL-LOG.md` § 2 and `D-069`.
 verified, with a metadata footer declaring the prompt version, model, tokens,
 cost and duration](screenshots/rs-16-unverifiable-picks.png)
 
-The third way a reply can leave you with nothing, and the one the architecture was
-designed around. `RS-15` covers a reply that broke its contract and one that kept
-it while saying nothing. Here the model returned a well-formed list of confident,
-plausible titles — and **TMDB had never heard of any of them.**
+The third way a reply can leave you with nothing, and the one the architecture
+was designed around.
+[`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+covers a reply that broke its contract and one that kept it while saying
+nothing. Here the model returned a well-formed list of confident, plausible
+titles — and **TMDB had never heard of any of them.**
 
-**This is `SPEC.md` § 2.2 step 4 and § 6 doing the job they exist for.** Both rest
-their argument on the same sentence: the application never trusts the model's
-output as fact, and every suggested title is cross-checked before a user sees it.
-A title TMDB returns nothing for is dropped rather than rendered as a broken card.
-This frame is that guard firing on every pick at once.
+**This is
+[`SPEC.md` § 2.2 step 4](../SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
+and [§ 6](../SPEC.md#6-ai-features--prompt-discipline) doing the job they exist
+for.** Both rest their argument on the same sentence: the application never
+trusts the model's output as fact, and every suggested title is cross-checked
+before a user sees it. A title TMDB returns nothing for is dropped rather than
+rendered as a broken card. This frame is that guard firing on every pick at
+once.
 
 **It is not a rare path.** Measured against live TMDB across thirty probe titles
-(`D-054`), **seven of twelve realistic invented titles returned zero results** and
-were dropped exactly this way. The drop is the common outcome, not the exotic one.
+([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
+**seven of twelve realistic invented titles returned zero results** and were
+dropped exactly this way. The drop is the common outcome, not the exotic one.
 
-**"Unverifiable" is narrower than the word sounds, and the narrowing matters.** It
-does not mean *TMDB was unsure*. `verifyTitle()` keeps TMDB's top result when
-nothing matches title-for-title, so a near-miss — a missing "The", a hyphen in the
-wrong place — resolves to a neighbouring real film rather than being dropped
-(`D-054`, deliberately kept). Reaching this state means TMDB returned **nothing at
-all** for every title, which is what a genuinely invented title looks like.
+**"Unverifiable" is narrower than the word sounds, and the narrowing matters.**
+It does not mean *TMDB was unsure*. `verifyTitle()` keeps TMDB's top result when
+nothing matches title-for-title, so a near-miss — a missing "The", a hyphen in
+the wrong place — resolves to a neighbouring real film rather than being dropped
+([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened),
+deliberately kept). Reaching this state means TMDB returned **nothing at all**
+for every title, which is what a genuinely invented title looks like.
 
-**And the message says which of the five things went wrong.** Before `R28` this
-sentence read "the model only named films already in your list" for *every* empty
-run — it would have been a flat lie here. The five causes are now tallied per
-title and resolved to one reason, so a hallucinated set, an owned set, an empty
-reply and a TMDB outage each get their own sentence. `RS-3`, `RS-9`, `RS-15` and
-this frame are four of the five.
+**And the message says which of the five things went wrong.** Before
+[`R28`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+this sentence read "the model only named films already in your list" for *every*
+empty run — it would have been a flat lie here. The five causes are now tallied
+per title and resolved to one reason, so a hallucinated set, an owned set, an
+empty reply and a TMDB outage each get their own sentence.
+[`RS-3`](#rs-3--verifying-recommendations),
+[`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest),
+[`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+and this frame are four of the five.
 
-The footer declares the cost of a run that produced nothing — `R10` again, and the
-same point `RS-15` makes: the model was paid whether or not its answer survived
-verification.
+The footer declares the cost of a run that produced nothing —
+[`R10`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+again, and the same point
+[`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+makes: the model was paid whether or not its answer survived verification.
 
 > **Forced, and the caption says so rather than implying otherwise.** The state
-> cannot be produced from `.env`, so the verification call is skipped for one run
-> (`CLAUDE.md`, `RS-16`) and reverted immediately. The OpenRouter call is real and
-> was billed; what is simulated is TMDB's verdict, not the model's reply.
+> cannot be produced from `.env`, so the verification call is skipped for one
+> run
+> ([`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14),
+> `RS-16`) and reverted immediately. The OpenRouter call is real and was billed;
+> what is simulated is TMDB's verdict, not the model's reply.
 
 ## When the database is unreachable
 
@@ -305,7 +354,8 @@ greyed out](screenshots/rs-7-database-unreachable.png)
 **This is the one state IN THIS DOCUMENT where an empty ranked list is correct** —
 the list is what broke. The scope matters: an empty list is also correct when the
 user simply has not added a film yet, which is a healthy state rather than a
-failure and is captured separately as `ac-3-ranking-empty.png`.
+failure and is captured separately as
+[`ac-3-ranking-empty.png`](screenshots/ac-3-ranking-empty.png).
 
 **The two are told apart by what sits under the empty list, and the difference is
 not cosmetic.** A genuinely empty list shows "No movies yet — search for one above
@@ -343,18 +393,23 @@ rendering normally](screenshots/rs-11-no-log-offered-verdict.png)
 and to try again in a moment, with no link and no cost
 footer](screenshots/rs-11-no-log-offered-recs.png)
 
-**This is `R23`'s invariant running in the direction nothing else photographs.**
-`RS-4` and `RS-5` show its positive half: OpenRouter fails, a `status='failed'`
-row is written, and the message offers the log. Here the database is what is
-gone, so the read fails *before any AI call is made* — no row exists, and neither
-feature offers a log it knows cannot help.
+**This is
+[`R23`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+invariant running in the direction nothing else photographs.**
+[`RS-4`](#rs-4--recommendations) and [`RS-5`](#rs-5--the-taste-verdict) show its
+positive half: OpenRouter fails, a `status='failed'` row is written, and the
+message offers the log. Here the database is what is gone, so the read fails
+*before any AI call is made* — no row exists, and neither feature offers a log
+it knows cannot help.
 
 The difference is one word in the response. Both services throw without a
-`logged` flag when the read fails (`server/services/tasteVerdict.js`,
-`server/services/recommendations.js`), the routes answer with the
-"Try again in a moment." variant instead of the bare sentence, and
-`public/app.js` branches on `err.logged` to decide whether to build a link at
-all. Set the flag and the link appears; that is the whole mechanism.
+`logged` flag when the read fails
+([`server/services/tasteVerdict.js`](../server/services/tasteVerdict.js),
+[`server/services/recommendations.js`](../server/services/recommendations.js)),
+the routes answer with the "Try again in a moment." variant instead of the bare
+sentence, and [`public/app.js`](../public/app.js) branches on `err.logged` to
+decide whether to build a link at all. Set the flag and the link appears; that
+is the whole mechanism.
 
 **Two frames because the rule is shared, not because the claim is split.** One
 feature alone reads as incidental. Both, side by side, saying different sentences
@@ -369,38 +424,47 @@ all rendering, with a single row reading that the log could not be
 loaded](screenshots/rs-12-log-cannot-load.png)
 
 The log reads from the same database, so it goes down with it — and this is the
-dead end `RS-11` exists to keep users out of.
+dead end
+[`RS-11`](#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) exists
+to keep users out of.
 
-**What it must not do is come back empty.** An empty table and an unreachable one
-look alike and mean opposite things: *no AI calls have ever been made* against
-*we cannot tell you what was made*. The first would be a lie here. `public/app.js`
-writes a different sentence in each case, in the same slot — the failure reads
-"Couldn’t load the log — Something went wrong.", while a genuinely empty log reads
-"No AI calls logged yet — run a recommendation or a taste verdict." That is
-`D-033`'s rule, the one `RS-1` and `RS-8` argue in Search, holding on a third
+**What it must not do is come back empty.** An empty table and an unreachable
+one look alike and mean opposite things: *no AI calls have ever been made*
+against *we cannot tell you what was made*. The first would be a lie here.
+[`public/app.js`](../public/app.js) writes a different sentence in each case, in
+the same slot — the failure reads "Couldn’t load the log — Something went
+wrong.", while a genuinely empty log reads "No AI calls logged yet — run a
+recommendation or a taste verdict." That is
+[`D-033`](DECISIONS.md#d-033--the-unrated-line-is-a-chip-because-muting-it-was-the-wrong-correction)'s
+rule, the one [`RS-1`](#rs-1--searching) and
+[`RS-8`](#rs-8--a-search-with-no-matches) argue in Search, holding on a third
 surface.
 
 Everything around the body still renders: the heading, the Close button, the
 description naming both log tables, and all nine column headers. Only the part
 that needs the database is missing.
 
-**The other half of that pair deliberately has no frame.** Reaching the genuinely
-empty state means emptying both log tables, and deleting rows wholesale from the
-live database is precisely what the working agreements in `CLAUDE.md` forbid after
-Incident 1. The sentence is quoted above rather than photographed, and the branch
-that writes it sits ten lines from the one that writes the failure in
-`public/app.js` — close enough to read both at once.
+**The other half of that pair deliberately has no frame.** Reaching the
+genuinely empty state means emptying both log tables, and deleting rows
+wholesale from the live database is precisely what the
+[working agreements in `CLAUDE.md`](../CLAUDE.md#working-agreements-binding--added-after-incident-1)
+forbid after [Incident 1](../CLAUDE.md#incident-log). The sentence is quoted
+above rather than photographed, and the branch that writes it sits ten lines
+from the one that writes the failure in [`public/app.js`](../public/app.js) —
+close enough to read both at once.
 
 > **The generic cause is deliberate, and the specific version was the defect.**
 > `Something went wrong.` is all the central handler will say, because this is
-> the one place the app cannot tell a Supabase outage from a bug of its own — and
-> it once did guess, telling users that a bad key in `.env` was a problem "on our
-> side" when it was neither a bug nor the server’s fault. That was found while
-> shooting `RS-7`, and removed the same afternoon. The real cause is not lost:
-> the line above the response writes it to the server log, and `RS-7` and `RS-13`
-> carry the same string for the same reason. What the user is owed here is what
-> failed — which the client supplies — and no invented reason for it. The one
-> thing the AI routes offer and this does not is a remedy.
+> the one place the app cannot tell a Supabase outage from a bug of its own —
+> and it once did guess, telling users that a bad key in `.env` was a problem
+> "on our side" when it was neither a bug nor the server’s fault. That was found
+> while shooting [`RS-7`](#rs-7--supabase-down), and removed the same afternoon.
+> The real cause is not lost: the line above the response writes it to the
+> server log, and `RS-7` and
+> [`RS-13`](#rs-13--a-write-fails-and-says-which-film-it-was-about) carry the
+> same string for the same reason. What the user is owed here is what failed —
+> which the client supplies — and no invented reason for it. The one thing the
+> AI routes offer and this does not is a remedy.
 
 ### RS-13 · A write fails and says which film it was about
 
@@ -409,9 +473,10 @@ with the film still in the ranked list above
 it](screenshots/rs-13-write-fails-remove.png)
 
 Removing a film with the database gone. The toast is a **context plus a cause**
-(`D-042`): `failureText()` composes the app's own context with whatever the
-server sent, and the film is named. The two error toasts used to show the cause
-alone, so a failed add or remove named no film at all.
+([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form)):
+`failureText()` composes the app's own context with whatever the server sent,
+and the film is named. The two error toasts used to show the cause alone, so a
+failed add or remove named no film at all.
 
 The card is still there, which is worth stating precisely rather than
 overselling: `removeMovie()` has **no optimistic removal** — it awaits the
@@ -433,11 +498,11 @@ still listed below](screenshots/rs-6-cinerank-unreachable.png)
 
 > Couldn't reach CineRank. Check your connection and try again.
 
-**Different from RS-1 in the way that matters.** There, TMDB was down and the
-*server* explained what had gone wrong. Here nothing answers at all — `fetch`
-itself rejects. The client catches that specific case so the browser's own
-engine-specific wording ("Failed to fetch", "NetworkError when attempting to fetch
-resource") never reaches a user.
+**Different from [RS-1](#rs-1--searching) in the way that matters.** There, TMDB
+was down and the *server* explained what had gone wrong. Here nothing answers at
+all — `fetch` itself rejects. The client catches that specific case so the
+browser's own engine-specific wording ("Failed to fetch", "NetworkError when
+attempting to fetch resource") never reaches a user.
 
 **All seven films are still on screen.** They loaded before the server died and
 nothing re-fetches them. The app keeps showing what it has.
@@ -453,8 +518,9 @@ a crimson line reading that CineRank could not be reached; behind the dimmed pag
 the same film's card still reads No review
 yet](screenshots/rs-14-failed-save-input-kept.png)
 
-Same outage as `RS-6`, opposite direction: that one is a failed **read**, this is
-a failed **write** with unsaved work in hand.
+Same outage as [`RS-6`](#rs-6--the-apps-own-server-is-gone), opposite direction:
+that one is a failed **read**, this is a failed **write** with unsaved work in
+hand.
 
 **What it must not do is close.** The form is `method="dialog"`, so submitting
 closes it *by default* — and this application shipped that way once: the write
@@ -462,13 +528,15 @@ went out invisibly, a failure produced an error toast about a dialog that was
 already gone, and the typed review was destroyed with no way to retry. The save
 handler now prevents the default, and reports **inline** rather than through the
 toast, because a modal `<dialog>` sits in the top layer where no `z-index` can
-lift a toast above it and the `::backdrop` dims it anyway (`D-032`).
+lift a toast above it and the `::backdrop` dims it anyway
+([`D-032`](DECISIONS.md#d-032--a-failed-save-reports-inside-the-rate-dialog-not-via-the-toast)).
 
-There is **no log link**, and that is `R9`/`D-047` again: nothing reached the
-server, so no row was committed, so nothing may be offered. The message itself is
-fabricated client-side — `api()` catches the network-level rejection so that
-"Failed to fetch" and "NetworkError when attempting to fetch resource" never
-reach a user.
+There is **no log link**, and that is
+[`R9`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)/[`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
+again: nothing reached the server, so no row was committed, so nothing may be
+offered. The message itself is fabricated client-side — `api()` catches the
+network-level rejection so that "Failed to fetch" and "NetworkError when
+attempting to fetch resource" never reach a user.
 
 **Look at the card behind the dimmed page.** Knives Out at `#3` still reads *"No
 review yet — edit to add one."* The write genuinely did not land.
@@ -481,19 +549,21 @@ Then the server came back and **Save was pressed again** — no retyping, no rel
 the dialog never closed. The card now carries the same sentence that was sitting
 in the box.
 
-**This is what separates it from `RS-10`, which also keeps the typed text.** There
-the row had been deleted, so the save could never succeed and the message says
-*refresh*; keeping the text was a courtesy. Here the failure is **transient and
-the work is recoverable**, which is the difference between losing an evening's
-review and pressing a button twice.
+**This is what separates it from
+[`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited), which also keeps the
+typed text.** There the row had been deleted, so the save could never succeed
+and the message says *refresh*; keeping the text was a courtesy. Here the
+failure is **transient and the work is recoverable**, which is the difference
+between losing an evening's review and pressing a button twice.
 
 > One detail worth reading in the second frame: the toast says `“Knives Out”
 > saved.` and **not** "— ranking updated." The rating never changed, so the
 > ranking did not either, and that clause is checked against a signature of the
-> displayed ranking rather than assumed (`D-034`). It was briefly deleted
-> outright and the user pushed back correctly — every save does recompute the
-> ranking, so the claim was never false; the objection was that it reads as a
-> claim about the outcome.
+> displayed ranking rather than assumed
+> ([`D-034`](DECISIONS.md#d-034--ranking-updated-is-checked-before-it-is-claimed)).
+> It was briefly deleted outright and the user pushed back correctly — every
+> save does recompute the ranking, so the claim was never false; the objection
+> was that it reads as a claim about the outcome.
 
 ## When the data changes underneath you
 
@@ -519,28 +589,30 @@ reading that the film could not be
 found](screenshots/rs-10-row-deleted-mid-edit-after.png)
 
 The right view removed the film — its `“Titanic” removed.` toast is still on
-screen and its count has dropped to seven. **The left view has not noticed.** Its
-ranked list still shows Titanic at `#1` and still says eight films, because
-nothing re-fetches while a dialog is open: `app.js` carries no `visibilitychange`
-handler, no `focus` handler and no polling timer. Pressing Save from that stale
-view is what produces the `404`.
+screen and its count has dropped to seven. **The left view has not noticed.**
+Its ranked list still shows Titanic at `#1` and still says eight films, because
+nothing re-fetches while a dialog is open: [`app.js`](../public/app.js) carries
+no `visibilitychange` handler, no `focus` handler and no polling timer. Pressing
+Save from that stale view is what produces the `404`.
 
 **Three things this establishes, and the third is the one that needed a picture.**
 
 1. **It is a `404`, not a `500`.** The route tests `PGRST116` explicitly and
    answers with a message about the film rather than letting the central handler
    blame the server for something that is not its fault
-   (`server/routes/movies.js`). Asserted by
-   `PATCH /api/movies/:id for a row that no longer exists → 404, not 500`.
+   ([`server/routes/movies.js`](../server/routes/movies.js)). Asserted by `PATCH
+   /api/movies/:id for a row that no longer exists → 404, not 500`.
 2. **The message names both the cause and the remedy** — *“Couldn’t find that
-   film — it may have been removed. Refresh and try again.”* It is the only error
-   in the application that tells the user what happened to their data and what to
-   do about it, because it is the only one where the app knows.
+   film — it may have been removed. Refresh and try again.”* It is the only
+   error in the application that tells the user what happened to their data and
+   what to do about it, because it is the only one where the app knows.
 3. **The typed review survived.** It is still in the box, word for word, and the
-   rating is still at 9.5. A modal `<dialog>` submits and closes by default, which
-   would have taken the text with it; the save handler prevents that and reports
-   inline instead (`D-032`) — so the failure is recoverable by pressing Save
-   again once the cause is gone, rather than by retyping.
+   rating is still at 9.5. A modal `<dialog>` submits and closes by default,
+   which would have taken the text with it; the save handler prevents that and
+   reports inline instead
+   ([`D-032`](DECISIONS.md#d-032--a-failed-save-reports-inside-the-rate-dialog-not-via-the-toast))
+   — so the failure is recoverable by pressing Save again once the cause is
+   gone, rather than by retyping.
 
 **Why this state gets two frames of one moment, rather than two surfaces.** Every
 other pair in this document splits a claim between the page and the audit trail.
@@ -562,10 +634,11 @@ below](screenshots/rs-8-search-no-matches.png)
 
 > No matches for "zzzqwerty". Check the spelling, or try a different title.
 
-**Muted grey, not crimson.** Compare it directly with RS-1 at the top of this
-document: same panel, same position, same shape of message — one is a failure and
-one is not, and they do not look alike. The query is echoed back so a typo becomes
-self-evident, and it is escaped on the way (`textContent`, never `innerHTML`).
+**Muted grey, not crimson.** Compare it directly with [RS-1](#rs-1--searching)
+at the top of this document: same panel, same position, same shape of message —
+one is a failure and one is not, and they do not look alike. The query is echoed
+back so a typo becomes self-evident, and it is escaped on the way
+(`textContent`, never `innerHTML`).
 
 ### RS-9 · A recommendation run with nothing to suggest
 
@@ -580,11 +653,13 @@ simply had nothing new to offer, and **the cost is still accounted for.**
 ![The AI call log showing the run as a success with zero suggestions, alongside
 earlier runs](screenshots/rs-9-zero-recommendations-log.png)
 
-**Read this frame against RS-3's log row.** They are nearly identical — both
-`success`, both charged about 0.20¢, both "no suggestions" — and they mean opposite
-things. One is an outage the app could easily have hidden; one is an honest, boring
-result. The app distinguishes them correctly on the page. Before `R28` it called
-both of them the second thing.
+**Read this frame against [RS-3](#rs-3--verifying-recommendations)'s log row.**
+They are nearly identical — both `success`, both charged about 0.20¢, both "no
+suggestions" — and they mean opposite things. One is an outage the app could
+easily have hidden; one is an honest, boring result. The app distinguishes them
+correctly on the page. Before
+[`R28`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+it called both of them the second thing.
 
 An application that reports what it spent only when things go well is not an audit
 trail.
@@ -622,26 +697,28 @@ would flag that.
 
 **The seventh inverts that division, which is why it sits outside the table.**
 `api()` falls back to `Request failed (<status>)` when a response is not OK and
-carries no `error` in its body (`public/app.js`). No route in this application
-produces that shape — every error response sets `error`, the central handler
-included, checked by walking each `status(4xx|5xx)` call and its body rather than
-by counting — so the fallback exists for a server that is not this one. The
-one way to reach it is an unknown `/api/*` path, which falls through to Express's
-built-in finalhandler and answers with HTML rather than JSON; the client never
-requests such a path, and a test (`unknown route → 404`) covers the behaviour
-regardless. Here the guard is server-side and the fallback is client-side —
-exactly the opposite arrangement to the six above, and a reason to keep the
-fallback rather than delete it as dead code.
+carries no `error` in its body ([`public/app.js`](../public/app.js)). No route
+in this application produces that shape — every error response sets `error`, the
+central handler included, checked by walking each `status(4xx|5xx)` call and its
+body rather than by counting — so the fallback exists for a server that is not
+this one. The one way to reach it is an unknown `/api/*` path, which falls
+through to Express's built-in finalhandler and answers with HTML rather than
+JSON; the client never requests such a path, and a test (`unknown route → 404`)
+covers the behaviour regardless. Here the guard is server-side and the fallback
+is client-side — exactly the opposite arrangement to the six above, and a reason
+to keep the fallback rather than delete it as dead code.
 
-One of the six carries a second kind of evidence as well. Before migration 004
-added `review_requires_rating`, the state it forbids was traced through the
-interface and then checked against the live table, which held **zero** rows in it
-(`D-041`). The other five rest on the code alone — which is what an
-unreachability claim actually needs, since no amount of observation shows that a
-state *cannot* occur. Each guard named above is structural rather than
-conventional: an `<input type="range">` cannot emit a value outside its bounds,
-and a function with exactly two call sites cannot be handed a value nobody types.
-The live check on the sixth corroborated the reading; it did not replace it.
+One of the six carries a second kind of evidence as well. Before
+[migration 004](../db/migrations/004_review_requires_rating.sql) added
+`review_requires_rating`, the state it forbids was traced through the interface
+and then checked against the live table, which held **zero** rows in it
+([`D-041`](DECISIONS.md#d-041--a-rating-less-review-is-forbidden-by-the-database-not-displayed-by-the-renderer)).
+The other five rest on the code alone — which is what an unreachability claim
+actually needs, since no amount of observation shows that a state *cannot*
+occur. Each guard named above is structural rather than conventional: an `<input
+type="range">` cannot emit a value outside its bounds, and a function with
+exactly two call sites cannot be handed a value nobody types. The live check on
+the sixth corroborated the reading; it did not replace it.
 
 ## What shooting these actually found
 
@@ -650,7 +727,8 @@ asserting the behaviour:
 
 * A **failed taste verdict was logged against a model it never called** — the
   app-wide default instead of the verdict's own. Found by reading a log
-  screenshot. `D-070`.
+  screenshot.
+  [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history).
 * **"Get recommendations" rendered fully enabled** above a ranked list that had
   failed to load.
 * **The verdict placeholder never retired** when that load failed, leaving the
@@ -662,9 +740,14 @@ state and looks at it. That is what this set is for.
 
 ## Where to find the rest
 
-* Recipes for every state, as `RS-1` … `RS-16`: `CLAUDE.md`, under Pre-submission
-  blockers.
-* Server-side behaviour for the same cases: `npm test`, `test/routes.test.js`.
-* The acceptance criteria these satisfy: `SPEC.md` § 7.1.
-* OWASP mapping, including the prompt-injection evidence: `docs/SECURITY.md`.
-* An index of every capture in the repository: `docs/screenshots/README.md`.
+* Recipes for every state, as [`RS-1`](#rs-1--searching) …
+  [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist):
+  [`CLAUDE.md`, under Pre-submission blockers](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14).
+* Server-side behaviour for the same cases: `npm test`,
+  [`test/routes.test.js`](../test/routes.test.js).
+* The acceptance criteria these satisfy:
+  [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission).
+* OWASP mapping, including the prompt-injection evidence:
+  [`docs/SECURITY.md`](SECURITY.md).
+* An index of every capture in the repository:
+  [`docs/screenshots/README.md`](screenshots/README.md).
