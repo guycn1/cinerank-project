@@ -57,6 +57,13 @@ things, which the application tells apart correctly on the page.
 
 ## `pi-*` — prompt injection
 
+Evidence for **Module 17**, *Security and risk in agentic systems*, which names
+prompt injection as "the foundational one" of the risks belonging specifically
+to agentic systems. The analysis is in
+[`../SECURITY.md`](../SECURITY.md#asi01--agent-goal-hijack) under `ASI01 — Agent
+Goal Hijack`, which maps this project against the OWASP Top 10 for Agentic
+Applications — the checklist that module closes on.
+
 A seeded film (*The Room*) whose review is itself an attack: instruction override,
 system-prompt exfiltration and output hijack in one string. Added with
 `npm run seed-demo -- --with-injection`, captured, then removed.
