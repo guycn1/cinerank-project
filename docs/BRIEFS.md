@@ -70,10 +70,16 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 ### Purpose
 
 To stop the next change from silently undoing a fix. This component has the
-highest ratio of non-obvious-decision to line-of-code in the project: roughly
-100 lines of route, five cell builders in [`public/app.js`](../public/app.js),
-about 160 stylesheet lines, and **[nine decision-log entries](DECISIONS.md)**
-behind them. Several of its rules look like they could be simplified and cannot.
+highest ratio of non-obvious-decision to line-of-code in the project: 124
+lines of route, five cell builders in [`public/app.js`](../public/app.js)
+(`cell`, `abbrCell`, `modelCell`, `timeCell`, `resultCell`), about 160
+stylesheet lines, and **nine decision-log entries** behind them —
+[`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
+[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history). *(The route was given as "roughly 100" lines; it was 124 when this brief
+was written and is 124 now. The nine are named rather than counted so the
+figure can be checked, and so `check-claims` resolves each one.)*
+
+Several of its rules look like they could be simplified and cannot.
 
 ### Why descriptive documentation is not enough here
 

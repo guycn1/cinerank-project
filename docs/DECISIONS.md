@@ -1264,7 +1264,11 @@ for a factual claim about behaviour, go to the authority, do not aggregate.**
 
 So SVG-only is safe on every current browser. Safari 18.7 and older still probe
 `/favicon.ico` and still 404 — **the same error as before rather than a new one**,
-and closing it costs a binary asset in a repo that currently has none.
+and closing it costs a binary asset in a repo that, on 2026-09-12, had none.
+*(The 37 screenshot PNGs landed the next day, so "has none" stopped being true
+almost immediately. The reason still holds in the form that mattered: a .ico
+would be the only binary the APPLICATION ships — everything under public/,
+server/, scripts/, prompts/, db/ and test/ is text.)*
 
 ### What the console error actually was
 

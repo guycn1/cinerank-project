@@ -80,8 +80,12 @@ What [§ 7.1](../SPEC.md#71-must-pass-before-submission) does not carry, and
 belongs in the framing:
 
 * **Done means [the gates](../CLAUDE.md#version-control-workflow-non-negotiable)
-  pass, not that the code runs.** `npm test`, `npm run lint`, `npm run
-  scan-secrets` and `npm run check-markdown` all green.
+  pass, not that the code runs.** All FIVE green: `npm test`, `npm run lint`,
+  `npm run scan-secrets`, `npm run check-markdown` and
+  [`npm run check-claims`](../scripts/check-claims.js). (This listed four. It
+  was complete when written on 2026-09-13 and went short two days later, when
+  the claims checker became the fifth gate — the exact failure mode a short
+  enumeration has, since nothing about the sentence looks wrong.)
   [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral)'s
   warning is exact here: leave out success criteria and the agent stops when the
   code runs rather than when it works.
