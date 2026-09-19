@@ -276,7 +276,7 @@ actually lives rather than where it is summarised:
 ## Project layout
 
 **Every directory below that is listed file by file is listed in full.** The
-ones summarised on one line — `server/routes/`, `public/`, `test/`,
+ones summarised as one entry each — `server/routes/`, `public/`, `test/`,
 `db/migrations/`, `docs/screenshots/`, `docs/*.md` — are deliberate summaries,
 not truncations, and `prompts/` is compacted to its version ranges for the same
 reason. Between those three forms — listed, summarised, compacted — plus the
