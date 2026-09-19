@@ -104,7 +104,7 @@ These are recommendations, not requirements. They suit the kind of small web pro
 
 ## Course modules
 
-### Moudle 1: What is Agentic Software Engineering?
+### Module 1: What is Agentic Software Engineering?
 
 This module explains what changed, and why the change is a shift in discipline rather than in tooling. It sets agentic engineering in its own history: rule-based systems, then statistical machine learning, then transformers, and at last the agent loop. Across that arc the work moves from writing code to directing a workflow. The history matters because a shift that feels sudden in fact had a decade of preparation behind it, and a student who sees the preparation can read where the trajectory points next.
 

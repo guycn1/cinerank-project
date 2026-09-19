@@ -115,7 +115,7 @@ rhythm *is* the method for visual work — prose specs can't anticipate these.
 
 ## Who did what, and at which level of autonomy (Modules 1 and 2)
 
-**[Module 1](../DOSSIER.md#moudle-1-what-is-agentic-software-engineering)'s
+**[Module 1](../DOSSIER.md#module-1-what-is-agentic-software-engineering)'s
 autonomy scale runs manual → task assistance → goal assistance → specialised →
 general domain autonomy.** This build sat at **task and goal assistance
 throughout, and never above it.** The loop in [§ 1](#1-working-method) is the
@@ -123,7 +123,7 @@ evidence: a human set the goal and the acceptance bar, the agent drafted, and a
 human read every diff and ran the application before the next instruction.
 Nothing here was delegated to a level the tool could technically have reached.
 
-**[Module 1](../DOSSIER.md#moudle-1-what-is-agentic-software-engineering)'s
+**[Module 1](../DOSSIER.md#module-1-what-is-agentic-software-engineering)'s
 headline worry does not arise here, and the reason is structural rather than
 virtuous.** It reports that more than 68% of agent-written pull requests sit
 delayed or unreviewed, the surplus burying the people who must review it.
