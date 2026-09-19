@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-17 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-19 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -42,7 +42,30 @@ than contradicted; the note at the end of the Build status bullet has it. The li
 on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
-ticked.** What landed on
+ticked.**
+**WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
+behaviour changed, and `main` still stands at twenty-seven merges.** A
+navigation rule the user set and named: **every document reference is a link,
+and where a section is named the link goes to the SECTION** — applied to twelve
+files, with `prompts/`, `DOSSIER.md` and THIS FILE deliberately exempt
+(D-075; the rule and its three exemptions are under § Markdown Authoring Rules,
+and the deciding line is that this file is injected into context every session
+while `docs/DECISIONS.md` is opened on demand). Then a project-wide audit of
+every href and embedded image — 880 references, resolved case-exactly, with
+fragments checked against real rendered heading ids and `docs/SECURITY.md`'s
+absolute URLs checked against `main` rather than the working tree; it found one
+broken link. Three UI/accuracy fixes: the AI call log's `x in / y out` token
+split is digit-grouped, paid for with a solved 0.84em on `tbody .sub` alone;
+the ranked score badge now aligns to the edge its block is anchored to, which
+is a DIFFERENT edge in card mode, so it is two rules and not one (D-076); and
+the `readme-1` capture is no longer captioned "the whole product", since the
+recommendations section and the AI call log both sit below its fold. Closed
+with a full staleness sweep of every markdown file and code comment — the
+findings are corrected in place, and the ones worth knowing are that
+`docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
+when it is 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
+credited "ESLint 9 over 23 files" when the dependency has never been 9 and
+there are 24. What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
 documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068); four
@@ -638,7 +661,7 @@ are the running record of how each piece got there and stay as written.
     from `loadMovies()`, so removals re-open the offer too — that pass was
     `syncSearchResultButtons()` when this was written and is now the document-wide
     `syncAddButtons()`, see R3); Search + Add gaining the shared `busyButton()` treatment; the
-    last inline `element.style` writes in app.js replaced by `searchNote()` +
+    last PRESENTATIONAL inline `element.style` writes in app.js replaced by `searchNote()` +
     `.search-note`; the panel gaining an Escape dismissal; and an empty query,
     which used to be a silent no-op, now saying so and focusing the input.
   - **The panel is persistent, not a dropdown (D-024).** Outside-click dismissal
@@ -4219,8 +4242,8 @@ and nothing fails when it is ignored — which is exactly why it is written here
 repository* as a stakeholder who never runs the app and cannot ask a question.
 For that reader an unlinked "see D-046" is a number and a scroll bar. Applied
 to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
-104 entry-to-entry cross-references became clickable in a 3,860-line file that
-had exactly one link in it.
+104 entry-to-entry cross-references became clickable in a file that had exactly
+one link in it.
 
 **Three files are deliberately EXEMPT. Do not "finish the job" on them.**
 

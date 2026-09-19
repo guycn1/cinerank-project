@@ -126,8 +126,15 @@ What separates them is WHEN they are read: **`CLAUDE.md` is injected into
 context at the start of every session, and `docs/DECISIONS.md` is opened on
 demand.** A byte in `CLAUDE.md` is a permanent per-session cost paid whether
 anyone needs it; a byte here is paid only when someone reads this file. That is
-why a 4,488-line file is exempt while a 3,860-line one, nearly as long, was
-never a candidate for exemption. Size was never the reason.
+why the file that is injected is the exempt one, while this file — within a few
+hundred lines of the same length — was never a candidate for exemption. Size was
+never the reason. *(This sentence first gave the two lengths as 4,488 and 3,860.
+Both were wrong when written, not merely stale: `CLAUDE.md` stood at 4,487, and
+3,860 described THIS file as it was BEFORE the link pass D-075 records — by the
+time the entry existed inside it, it was past 4,000. Corrected rather than
+preserved, per the rule for a claim that was false when written. Exact counts are
+left out now because they move with every entry, and nothing in the argument
+needs them.)*
 
 **One input is recorded as unverified rather than as fact.** The user had read
 that Claude Code may skim past instructions in a `CLAUDE.md` beyond roughly 400

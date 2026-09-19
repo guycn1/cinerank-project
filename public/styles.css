@@ -239,8 +239,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 
 /* The link out to the public repo (step 3). There are TWO of these — one in the
    header, one at the right edge of the footer's credit line — so THIS rule is
-   the shared look and nothing else. Placement and size live with each instance
-   below, because size is the only thing that differs between them.
+   the shared look and nothing else. Placement lives with each instance below,
+   along with the TWO things that genuinely differ: the size, and the halo
+   multiplier the footer needs to read as lit at its smaller scale. (This said
+   size was the only difference; `--gh-halo` falsified that when it arrived in
+   7bef762, one commit after the comment.)
    One dial for the size at each site: the <a> carries a font-size and the SVG is
    1em, so the icon and its padded hit area scale together. */
 .gh-link {
@@ -328,8 +331,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 }
 
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
-   line. Size is the ONLY declaration it needs: everything else arrives from
-   .gh-link, and the hover halo is in `em` so it scales itself. `rem` and not
+   line. It needs TWO declarations and no more — the size, and the halo dial
+   below it. Everything else arrives from .gh-link, and the hover halo is in
+   `em` so it scales itself. (This read "Size is the ONLY declaration it needs",
+   which the `--gh-halo` three lines below contradicted from the day it was
+   added.) `rem` and not
    `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
    the icon depend on a value chosen for body copy. */
 .site-foot__credit .gh-link {

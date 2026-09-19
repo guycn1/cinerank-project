@@ -87,10 +87,13 @@ the reasoning. Rules that keep this honest live in
   [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round — *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session —
   and committing after each change is what leaves the tree clean before the next
-  one begins. Measured over the whole history: **more than 500 commits across 11
-  consecutive days**, every day, a **median of 2 files per commit** and a maximum
-  of 13. (Deliberately not an exact figure: it moves with every commit, including
-  the ones that would be needed to correct it.) It was exercised twice for real, not merely available: four failed
+  one begins. Measured over the whole history on 2026-09-19: **more than 500 commits across
+  15 of the 16 days** the project has run, a **median of 2 files per commit** and
+  a maximum of 14. (Deliberately not exact figures: they move with every commit,
+  including the ones that would be needed to correct them. The single gap is
+  2026-09-18 — this read "11 consecutive days, every day" until the figure was
+  re-measured, by which point both the count and the word "consecutive" had
+  stopped being true.) It was exercised twice for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
   and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) capture needed a
   deliberate one-line break in a service, undone with
@@ -175,7 +178,7 @@ stage below is a file a reader can open.
 | **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) — human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
 | **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | more than 500 commits on `draft` across 11 consecutive days, median 2 files each | — |
+| **Execution** | more than 500 commits on `draft` across 15 of the project's 16 days, median 2 files each | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
 

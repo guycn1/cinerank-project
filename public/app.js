@@ -974,9 +974,14 @@ document.addEventListener('keydown', (e) => {
   closeSearchResults();
 });
 
-// A line inside the search-results panel: loading, "no matches", an error, or
-// the nudge for an empty query. Class-driven — these were the only inline
-// element.style writes left in this file.
+  // A line inside the search-results panel: loading, "no matches", an error, or
+  // the nudge for an empty query. Class-driven: this is where the last
+  // PRESENTATIONAL inline element.style writes in this file went. The writes
+  // that remain all carry a measured or computed value CSS cannot express -- a
+  // locked button width, a stagger delay in ms, a grid offset, a custom
+  // property. (This said "these were the only inline element.style writes left
+  // in this file", which was too strong even when written: busyButton()'s
+  // min-width was already here.)
 function searchNote(text, kind) {
   const d = document.createElement('div');
   d.className = kind ? `search-note ${kind}` : 'search-note';
