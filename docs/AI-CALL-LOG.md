@@ -12,7 +12,7 @@ the version that was built first, and each failed. A description of what the
 component *does* would be entirely accurate and would not save you from any of
 them.
 
-Commissioned by [`BRIEFS.md`](BRIEFS.md) § 2.
+Commissioned by [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log).
 
 ## 1. What it is and why it exists
 
@@ -22,12 +22,14 @@ prompt version, model, token split, duration, status and estimated cost per row.
 
 It is two claims made visible:
 
-* **`SPEC.md` § 7.2's "not a wrapper" proof.** Anyone can assert their app logs
-  its AI usage. This is the assertion rendered, in the product, for the person
-  being asked to trust the output — not for someone with database access.
+* **[`SPEC.md` § 7.2](../SPEC.md#72-manual-demo-script)'s "not a wrapper"
+  proof.** Anyone can assert their app logs its AI usage. This is the assertion
+  rendered, in the product, for the person being asked to trust the output — not
+  for someone with database access.
 * **The answer to OWASP `ASI09`, Human-Agent Trust Exploitation**, in
-  [`SECURITY.md`](SECURITY.md). A user cannot calibrate trust in a system that
-  will not say what it did. This is what saying looks like.
+  [`SECURITY.md`](SECURITY.md#asi09--human-agent-trust-exploitation). A user
+  cannot calibrate trust in a system that will not say what it did. This is what
+  saying looks like.
 
 Cost logging is a hard requirement of the course rather than a nice-to-have, and
 this dialog is where that requirement is discharged in public.
@@ -58,21 +60,23 @@ places, and the sections below say why in each case.
 
 ## 2. Where the data comes from
 
-`GET /api/ai-log` (`server/routes/aiLog.js`) reads **two tables** —
-`recommendation_logs` and `taste_verdict_logs` — normalises them into one row
-shape, merges, sorts by `created_at` descending, and returns the newest 60 with a
-totals object.
+`GET /api/ai-log` ([`server/routes/aiLog.js`](../server/routes/aiLog.js)) reads
+**two tables** — `recommendation_logs` and `taste_verdict_logs` — normalises
+them into one row shape, merges, sorts by `created_at` descending, and returns
+the newest 60 with a totals object.
 
 **It shows the 60 most recent calls, not all of them.** Each table is queried with
 `.limit(60)`, the merged set is sliced to 60, and the footer totals are computed
 over *that slice*. Once the two tables hold more than 60 rows between them, the
 `Total · N calls` figure pins at 60 and each new call pushes the oldest out.
 
-That cap is deliberate and is documented at the query. **If you change it, change
-the two strings in `public/index.html` that describe the dialog with it** — the
-blurb inside it and the footer panel that opens it. Those two said "every
-OpenRouter call CineRank has made" for the entire life of the feature, which
-stopped being true the day the cap first bit; see `D-069`.
+That cap is deliberate and is documented at the query. **If you change it,
+change the two strings in [`public/index.html`](../public/index.html) that
+describe the dialog with it** — the blurb inside it and the footer panel that
+opens it. Those two said "every OpenRouter call CineRank has made" for the
+entire life of the feature, which stopped being true the day the cap first bit;
+see
+[`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 
 ### What the route sends structured, and why it matters
 
@@ -89,7 +93,7 @@ a `<details>` and reveal a list.
 Titles the model invented that TMDB could not confirm, films already owned, and
 duplicates within one run are all dropped before this column is written. An audit
 row recording what was *asked for* rather than what was *delivered* would be worse
-than none, and a test asserts exactly this.
+than none, and [a test](../test/routes.test.js) asserts exactly this.
 
 ## 3. The scrolling and pinning model
 
@@ -203,7 +207,7 @@ Each of these looks like it could be simplified. Each cannot.
 | **The Result column is a fixed `8rem` with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
 | **`.log-dialog[open] { display: flex }` is a bare rule** | Without it the UA's `dialog:not([open])` hide is overridden and the dialog never closes |
 | **Failed rows render an em dash (`—`) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
-| **Six pre-migration-001 rows were deleted by hand (`D-019`)** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
+| **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
 ## 6. What is safe to change
 
@@ -215,13 +219,15 @@ This document should not read as *touch nothing*.
   figures cannot set a wider max-content than the body rows and shift the
   columns.
 * **`--reveal-fade`** — one number, both durations.
-* **Column widths**, except the Result column's fixed `8rem`, which is structural.
+* **Column widths**, except the Result column's fixed `8rem`, which is
+  structural.
 * **The breakpoints** (850px, 1040px) — they were chosen by narrowing the window
   until the table stopped fitting, not derived.
-* **Adding a column.** It flows through `norm()` in the route, the row builder in
-  `public/app.js`, and a `data-label` for card view. Nothing about the pinning
-  model needs to know.
-* **The 60-row cap** — but change the two description strings with it (§ 2).
+* **Adding a column.** It flows through `norm()` in the route, the row builder
+  in [`public/app.js`](../public/app.js), and a `data-label` for card view.
+  Nothing about the pinning model needs to know.
+* **The 60-row cap** — but change the two description strings with it
+  ([§ 2](#2-where-the-data-comes-from)).
 
 ## 7. How to tell this document worked
 
@@ -236,8 +242,15 @@ The brief that commissioned it set the test, and it is a good one:
 
 ## Related
 
-* [`BRIEFS.md`](BRIEFS.md) § 2 — the brief this answers
-* [`DECISIONS.md`](DECISIONS.md) — `D-010`, `D-018`, `D-019`, `D-069` and the
-  reveal-panel entries carry the reasoning in the form it was recorded
-* [`SECURITY.md`](SECURITY.md) — `ASI09`, which this component answers
-* `SPEC.md` § 5.2 and § 5.3 — the two log table schemas
+* [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) — the
+  brief this answers
+* [`DECISIONS.md`](DECISIONS.md) —
+  [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001),
+  [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db),
+  [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever),
+  [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along)
+  and the reveal-panel entries carry the reasoning in the form it was recorded
+* [`SECURITY.md` — `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
+  which this component answers
+* [`SPEC.md` § 5.2](../SPEC.md#52-recommendation_logs) and
+  [§ 5.3](../SPEC.md#53-taste_verdict_logs) — the two log table schemas
