@@ -172,7 +172,8 @@ resisting something it was never sent proves nothing.
 The mitigation itself is visible in the prompt files: review text is fenced in
 `BEGIN` / `END` markers labelled *untrusted data*, with a standing instruction
 that the model's instructions come only from outside them. Five frames in total
-— [`docs/screenshots/pi-1` through `pi-5`](docs/screenshots/) — cover the stored
+— [`docs/screenshots/pi-1` through
+`pi-5`](docs/screenshots/README.md#pi---prompt-injection) — cover the stored
 review rendered inert, both AI features resisting, and the input paired with
 each output. Full analysis in [docs/SECURITY.md](docs/SECURITY.md) under
 [ASI01](docs/SECURITY.md#asi01--agent-goal-hijack).
@@ -411,7 +412,8 @@ built it, including the ones that do not apply and why. The short version:
   unaffected and the app's own "Based on:" line confirming the attack text
   reached the prompt. Shown in [§
   Screenshots](#resisting-a-prompt-injection-module-17) above; five frames in
-  [`docs/screenshots/pi-1` … `pi-5`](docs/screenshots/).
+  [`docs/screenshots/pi-1` …
+  `pi-5`](docs/screenshots/README.md#pi---prompt-injection).
 - All DB access is through the Supabase query builder — no string-concatenated
   SQL.
 - User/model text is rendered with `textContent`, never `innerHTML`.
