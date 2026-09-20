@@ -4299,7 +4299,10 @@ to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
 104 entry-to-entry cross-references became clickable in a file that had exactly
 one link in it.
 
-**Three files are deliberately EXEMPT. Do not "finish the job" on them.**
+**Three exemptions — one of them a whole directory, so TWELVE files today.
+Do not "finish the job" on any of them.** (A different twelve from the one
+above, which counts the files the rule was applied TO. Coincidence, not a
+copy-paste: those twelve and these twelve are every tracked `.md` here.)
 
 * **`prompts/*.md`** — the loader sends the body to the model, so a link is
   tokens the model pays for and prose it may act on. Two harder reasons: a
