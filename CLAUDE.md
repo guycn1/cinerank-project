@@ -460,9 +460,11 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
 sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
 4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
-under 500px, closed by the user against the ~350px target). **Step 6, the only
-step left, is pre-submission evidence and cleanup — not UI.** The bullets below
-are the running record of how each piece got there and stay as written.
+under 500px, closed by the user against the ~350px target). **Step 6 —
+pre-submission evidence and cleanup, not UI — was the only step left when this
+paragraph was written, and it closed on 2026-09-14. NOTHING in the agreed order
+is open.** The bullets below are the running record of how each piece got there
+and stay as written.
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -2668,8 +2670,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    closed the same day (D-057), tuned to **18**ms/char by the user's eye. (This line said 15ms, which was wrong when written — 15ms was tried and REVERTED, the user preferring the slower read. `VERDICT_TYPE_MS` in `app.js` is 18, the item below says 18, and D-057 says 18.)
    **That pointer used to say "next session starts on step 5, the portrait
    overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
-   the agreed order is closed and the only one left is STEP 6 — pre-submission
-   evidence and cleanup. Step 5's two narrow-viewport enforcement rules still
+   the agreed order is closed and the only one left was STEP 6 — pre-submission
+   evidence and cleanup, itself closed 2026-09-14. Step 5's two narrow-viewport enforcement rules still
    stand and are not retired by it closing.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
