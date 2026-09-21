@@ -33,7 +33,7 @@ boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn
 closed 2026-09-14, see `SPEC.md` § Specification status, which satisfies the
 course's "at least three full turns" under the conservative reading that counts no
 merge as a turn. THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE
-USER ON 2026-09-14 and is performed immediately after this commit — see the note
+USER ON 2026-09-14 and was performed immediately after that commit — see the note
 under Build status for why the count and the checkbox are written just before it
 rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
 carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
@@ -1449,8 +1449,8 @@ and stay as written.
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
 18–20. **This list is the source of truth** — it previously existed only in chat
-and would have been lost to a compact. Keep the statuses current as items land,
-and do not renumber: the numbers are how the user refers to them.
+and would have been lost to a compact. Keep the statuses current if anything
+reopens, and do not renumber: the numbers are how the user refers to them.
 
 | # | Item | Status |
 |---|---|---|
@@ -1476,6 +1476,12 @@ and do not renumber: the numbers are how the user refers to them.
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
 ##### Agreed order of work from here (set by the user, 2026-09-09)
+
+**Every step below is closed** — the last UI step on 2026-09-12, step 6 on
+2026-09-14 — so what follows is the record of the order the work was done in,
+not a queue. (Step 3 carries one parked measurement question, dated in place.)
+The sequencing rules governed the list while it was open and would apply again
+if anything reopened.
 
 Work this top to bottom. It is the user's own sequencing, not Claude's — do not
 re-prioritise it, and do not start further down because something looks quicker.
@@ -1510,8 +1516,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    sub-backlog is outstanding.** Every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
-   these are how the items get referred to. Keep the statuses current as they
-   land.
+   these are how the items get referred to. Keep the statuses current if
+   anything reopens.
 
    **Group A — functional bugs**
 
