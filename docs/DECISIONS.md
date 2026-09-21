@@ -160,8 +160,7 @@ question. For that reader an unlinked "see D-046" is a number and a scroll bar.
 
 Applied to twelve files: this one, `README.md`, `SPEC.md` and the nine others
 under `docs/`. The largest single gain was here — 104 entry-to-entry
-cross-references made clickable in a 3,860-line file that had exactly one link
-in it.
+cross-references made clickable in a file that had exactly one link in it.
 
 **The fork was the thirteenth file, and there were three options.** Apply it
 uniformly; exempt `CLAUDE.md`; or a narrow middle — link only its outbound
@@ -2736,7 +2735,8 @@ unfixed bug if it had been written after the fix instead of before it.
   rows are filtered out of `rated` anyway, but a DESC sort puts NULLs first in
   Postgres by default and `topN` should not depend on that being remembered.
 * This is the SERVER half only. The client half — rec cards never re-syncing
-  their Add button when ownership changes — is R3 and is still open.
+  their Add button when ownership changes — was R3, open when this was written
+  and closed the same day.
 
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400

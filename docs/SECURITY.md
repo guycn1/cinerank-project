@@ -152,7 +152,8 @@ could easily have dropped it); that it *works* is what these five frames are.
 [`CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md)
 and
 [`docs/DECISIONS.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md)
-as authoritative instruction, and those two alone are roughly 450KB of prose.
+as authoritative instruction, and those two alone run to well over half a
+megabyte of prose.
 Anyone with write access to this repository can change how the agent behaves by
 editing English. The control is that every context file is version-controlled,
 every change to one is a reviewable diff, `main` is never pushed to directly,
