@@ -434,7 +434,9 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   The harness also refuses to install itself when the hostname ends in
   `onrender.com`. That guard is now redundant and stays anyway: it costs
   nothing, and it is the belt to a brace that has just been removed.
-* `GET /api/health` liveness probe for a future host.
+* `GET /api/health` liveness probe. Render's health check has pointed at it
+  since the deploy (2026-09-07); the entry under Pre-submission blockers has the
+  service settings.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
 * Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
@@ -509,13 +511,15 @@ and stay as written.
   `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never
   closes. `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
-  scroll. Done so far:
+  scroll. DONE; the Responsive bullet below records where it landed. What it
+  took, in order:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
   - table font trimmed ~10% (`.log-table` 0.86→0.77rem; header/sub/badge → `em`).
   - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
     `--line-faint` = white 0.035). A short "floating tick" variant was tried to
     make the row/column hierarchy clearer and reverted — user preferred the plain
-    hairline; hierarchy parked.
+    hairline; hierarchy parked — and it stayed parked. The plain hairline is
+    what shipped and nothing has reopened it.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
@@ -695,7 +699,8 @@ and stay as written.
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
 * **Search section — overhauled 2026-09-07, then REOPENED and worked again on
-  2026-09-08/09**, so this is not a closed section. The 2026-09-07 pass below is
+  2026-09-08/09**, so it was not a closed section for that stretch. The
+  2026-09-07 pass below is
   behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
   and is recorded in the ranked-list bullets further down, since it came out of
   the same whole-app sweep: the Add button breaking in two, the input refusing to
@@ -910,13 +915,16 @@ and stay as written.
     document), so desktop is provably unchanged. The case it fixes is the
     keyboard's own Go/Search key, which submits without moving focus — tapping
     the Search button already blurred the input by itself.
-* **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
-  NOT closed: the user is still raising off-backlog refinements and bugs found
-  by using it ("a few more things to settle before calling the whole ranked-list
-  overhaul a wrap"). Do not treat the empty backlog as the finish line.
+* **Ranked list — all 20 backlog items DONE** (2026-09-08), and the section
+  stayed open past that date: the user went on raising off-backlog refinements
+  and bugs found by using it ("a few more things to settle before calling the
+  whole ranked-list overhaul a wrap"), which is why the bullets below run well
+  past the twenty. **It closed with the rest of the front-end overhaul on
+  2026-09-12** — the status paragraph under that heading is the current state,
+  and the empty backlog is no longer the only thing saying so.
   Claude's audit produced items 1–17 and the user
   added 18–20; **all 20 are done** and the canonical table with every
-  status is further down this section. Done so far:
+  status is further down this section. What landed:
   - Only a rated film earns a rank number; unrated cards show a faint question
     mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared
@@ -1548,8 +1556,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **Do not push the filter back into the query** and **do not rebuild the owned
      set from `rated`** — either one restores the bug, and the second fails
      exactly one test (verified by doing it).
-     **R3 is the still-open client half**: rec cards never re-sync their Add
-     button, so the UI can still offer a film the list already has.
+     **R3 was the client half, open when this was written and DONE the same
+     day** (the next item): rec cards did not re-sync their Add button, so the UI
+     could still offer a film the list already had.
    * **R3. DONE 2026-09-09 — the Add-button sync now runs in every direction.**
      Reported live by the user, who found BOTH directions of it. The sync swept
      only `.search-results`, so: adding from a REC CARD refreshed the search rows
@@ -1699,7 +1708,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      qualifies. It travels as `logged: true` beside `error` — exactly D-042's
      `short` mechanism, additive and invisible to anything reading only
      `body.error` — and `api()` carries it onto the thrown error the same way.
-     **The verdict's own version of this is still wrong: see R23.**
+     **The verdict's own version of this was still wrong when this was written;
+     R23 fixed it the same day.**
    * **R10. DONE 2026-09-09.** The empty branch returned before `aiMetaFooter`,
      so a call that really was made, really cost money and really was logged
      showed no cost, tokens or duration anywhere on the page — the only AI outcome
@@ -3347,11 +3357,13 @@ shots match a finished UI rather than a mid-overhaul one.*
 > deliberate schedule choice, restated more than once — do NOT push to capture
 > them early.
 
-**But DO keep this list growing as the work happens.** The user is explicitly
+**DO keep this list growing as the work happens.** That governed the list while
+it was open and is still the habit for anything new. The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
 something demo-able or provable — a new failure state, a guardrail worth
 showing, a before/after worth contrasting — append it here the moment it
-appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
+appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
+"the end" happened on 2026-09-13/14, and every item above is ticked.
 
 * [x] **Deployed to Render** (2026-09-07) — **https://cinerank-g6lx.onrender.com**
   URL is at the very top of the README. Web service created through the Render
