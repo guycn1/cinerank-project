@@ -6,6 +6,69 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-077 · `/api/recommendations/history` is kept for good, and its coverage gap is closed with a test rather than a deletion
+
+*2026-09-21. The user asked what the endpoint is for and what removing it would
+break, then chose on the answer. This closes the "revisit as post-submission
+cleanup" that [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it) left open — the last UNDATED open item in
+[`CLAUDE.md`](../CLAUDE.md). One open item remains there and is fine as it
+stands: the headless-Chrome icon-clipping question under step 3, which opens
+with "STILL UNRESOLVED as of 2026-09-12" and so cannot be mistaken for
+current.*
+
+**What it is.** A read-only `GET` returning the last 25 recommendation runs as
+JSON. No UI calls it. Its seven columns are a strict subset of what
+`GET /api/ai-log` returns, verified by diffing the two `.select()` calls rather
+than by trusting D-017's word for it: ai-log reads BOTH log tables, 60 rows
+each, twelve columns including `status`, `error_text`, `duration_ms` and the
+token split.
+
+**The fork.** Delete it, keep it silently, or keep it and close the gap that
+made it a candidate.
+
+| option | cost | what it buys |
+|---|---|---|
+| delete | five documentary edits + a superseding entry | removes 11 lines of route nothing calls |
+| keep, silent | none | leaves the file with one open item |
+| **keep + test** | **two tests** | **closes the only untested route** |
+
+**Deleting was the option that looked tidy and measured worst.** Five places
+described the endpoint when this was weighed (there are more now, this entry
+among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
+it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), D-017, and a
+checkbox in [`CLAUDE.md`](../CLAUDE.md). Two of those are awkward rather than trivial:
+`SPEC.md` is **annotated in place, never rewritten**, so the table row would have
+to stay and gain a note; and a decision entry is preserved, so D-017 would need a
+superseding entry regardless.
+
+**The part that decided it: no gate catches the aftermath.**
+[`scripts/check-claims.js`](../scripts/check-claims.js)'s identifier check matches backticked names WITH
+PARENTHESES — `someFunction()`. A bare `/api/recommendations/history` in prose
+matches nothing. So a deletion would leave three documents, one of them graded,
+describing a URL that answers 404, with all five gates green. That is exactly
+the no-resolvable-referent class the 2026-09-19 sweep was about, and it would
+have been self-inflicted.
+
+**What was real, and is fixed.** `/history` was the only one of the eleven
+routes with no test — checked by enumerating all eleven against the request
+paths in [`test/routes.test.js`](../test/routes.test.js), not assumed. Two tests now cover it: the
+response shape with recommendation-only scope (a `taste_verdict_logs` row is
+seeded and must NOT appear, so a regression pointing it at the merged read
+fails here), and a DB error surfacing as a 500 without leaking the postgres
+text. Probed by breaking the source, as the suite's standard requires: swapping
+the table fails both, deleting the error guard fails only the second.
+
+**Claude recommended keep-and-test and said so before the user chose**, having
+first argued the opposite framing was tempting — dead code on a graded repo
+reads badly. The measurement reversed it: the documentation cost of removal
+exceeded the code it removed, and the untested-route complaint was never an
+argument for deletion, only for a test.
+
+**One of D-017's three reasons has expired and the other two have not.** It
+cited dangling-reference risk from a PRE-submission deletion; submission has
+happened, so that one is gone. The SPEC-table deviation and the "buys nothing
+on the grading axes" arguments both still hold.
+
 ## D-076 · The score block aligns to the edge it is anchored to, which is a different edge in card mode — so the fix is two rules, not one
 
 *2026-09-19, user-raised from a screenshot with a ruler drawn on it. The user
@@ -4089,6 +4152,10 @@ pre-submission deletion carries dangling-reference risk. Instead: one sentence i
 [`docs/PROCESS.md`](PROCESS.md) frames `/api/ai-log` as the primary audit surface and
 `/history` as the narrower per-feature JSON view. Revisit as post-submission
 cleanup.
+*(That revisit happened on 2026-09-21 and confirmed the decision — see
+[D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
+The "unused and untested" above was true when written; it is still unused, and
+it is no longer untested.)*
 
 ## D-016 · Accessibility pass
 Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific

@@ -48,7 +48,12 @@ recommendationsRouter.post(
   })
 );
 
-// GET /api/recommendations/history — the audit trail, surfaced (SPEC § 4.5)
+// GET /api/recommendations/history — the NARROWER per-feature log view
+// (SPEC § 4.5). Not the primary audit surface: GET /api/ai-log is, and it is the
+// only one the UI calls. This returns recommendation runs only, 25 of them,
+// with seven of ai-log's twelve columns. Kept deliberately rather than deleted
+// (D-017, confirmed D-077); its two tests are in test/routes.test.js, which is
+// what closed the gap that kept making it a deletion candidate.
 recommendationsRouter.get(
   '/history',
   wrap(async (_req, res) => {

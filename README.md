@@ -278,7 +278,7 @@ actually lives rather than where it is summarised:
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 60 tests — helpers, prompt loader, routes, resilience
+   npm test         # 62 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
 

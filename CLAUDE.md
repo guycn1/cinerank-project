@@ -340,7 +340,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 62 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -374,6 +374,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
+  **And `/api/recommendations/history`'s two, added 2026-09-21 (D-077)** — the
+  shape and recommendation-only scope of the narrower log view, and its DB
+  failure surfacing as a 500 without leaking the postgres text. It was the one
+  route of the eleven that no test touched, which is why it kept resurfacing as
+  a deletion candidate; the gap is closed rather than the route. Probed both
+  ways: pointing it at `taste_verdict_logs` fails both, dropping its error
+  guard fails only the second.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs a
@@ -3220,7 +3227,15 @@ below — this list is the smaller stuff.)
   `review_requires_rating` guards all covered by `npm test` (60).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
-  narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
+  narrower per-feature JSON view per SPEC §4.5. **D-017 said "revisit as
+  post-submission cleanup"; that revisit happened on 2026-09-21 and the answer
+  is KEEP, permanently (D-077).** Deleting it would have cost five documentary
+  edits across `SPEC.md`, `docs/PROCESS.md` and this file to remove ELEVEN
+  lines of route nothing calls (measured, not estimated) — and none of the five
+  gates would have caught the three
+  documents left describing a 404. The one real defect underneath it, that
+  `/history` was the only route with no test, is closed instead: two tests in
+  `test/routes.test.js`, both probed by breaking the route.
 * [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
   under **R1**, which is the entry being worked from. **The 2026-09-08 wording
@@ -3827,7 +3842,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     runs was also dropped: its only addition over the final one is a second 401
     row, which is not a claim.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
-    the last shot lands**, and re-run `npm test` to confirm 60/60 — several route
+    the last shot lands**, and re-run `npm test` to confirm 62/62 — several route
     tests fail while either edit is in place, which is expected.
   - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
     `docs/screenshots/rs-16-unverifiable-picks.png`.**
@@ -3856,7 +3871,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     **The caption says the state was FORCED**, because this edit skips the TMDB
     call rather than faking a rejection. The OpenRouter call is real and was
     billed; what is simulated is TMDB's verdict, not the model's reply.
-    **Revert and re-run `npm test` for 60/60**, as with RS-9 and RS-15.
+    **Revert and re-run `npm test` for 62/62**, as with RS-9 and RS-15.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
@@ -4505,7 +4520,7 @@ the real blob from github.com and read that — it is the only authority.
   cannot have broken" is reasoning offered after the fact, not a check made
   before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
-* **Every commit runs `npm test`, and 60/60 is the bar.** The scope is EVERY
+* **Every commit runs `npm test`, and 62/62 is the bar.** The scope is EVERY
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
   MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking

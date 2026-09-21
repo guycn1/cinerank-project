@@ -73,7 +73,7 @@ the reasoning. Rules that keep this honest live in
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Five gates, wired into the commit rules rather than left to memory.**
-  `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
+  `npm test` (62 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
   `npm run scan-secrets` on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
@@ -552,7 +552,7 @@ practice.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 60 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 62 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the

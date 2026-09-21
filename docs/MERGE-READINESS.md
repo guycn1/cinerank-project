@@ -99,7 +99,7 @@ drifts.
 
 *A test plan that probes real behaviour.*
 
-`npm test` runs 60 tests on the Node built-in runner: pure helpers, the prompt
+`npm test` runs 62 tests on the Node built-in runner: pure helpers, the prompt
 loader, and route-level behaviour with Supabase swapped for an in-memory fake and
 TMDB and OpenRouter stubbed, so the suite never touches live data.
 
