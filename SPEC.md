@@ -194,6 +194,11 @@ being silently extended.)*
 
 ## 3\. Interface Design (Module 8)
 
+**This section is the Module 8 interface brief itself**, not a summary of one —
+[`docs/BRIEFS.md` § 1](docs/BRIEFS.md#1-interface-brief--the-home-screen)
+nominates it and deliberately does not reproduce it, because a brief held in two
+places drifts.
+
 ### 3.1 Flow
 
 **Home (ranked list) → Add movie (search → pick result → rate) → back to Home.** Recommendations live as a secondary panel/tab off the Home view, not a separate flow the user has to hunt for.
