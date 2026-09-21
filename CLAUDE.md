@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-19 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-21 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -43,6 +43,33 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
+published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
+false on `main`: fourteen describing finished work as still open, and five
+figures that had drifted. **SIX OF THE FOURTEEN WERE CONTRADICTED BY `main`
+ITSELF within a few lines** — "R3 is the still-open client half" two lines
+above "R3. DONE", "the verdict's own version of this is still wrong: see R23"
+against R23's own DONE, "this is not a closed section" nine lines above
+"Nothing further is scheduled for this section", "Step 6, the only step left"
+against "THIS STEP IS DONE", the ranked list "NOT closed: the user is still
+raising", and `/api/health` "for a future host" when Render's health check has
+pointed at it since the deploy. **THE PATTERN, and it is a new one:** every one
+is a claim about a DIFFERENT item's status. A sweep that reads entry by entry
+verifies the entry it is on, and each of these is correct about itself and
+wrong about its neighbour — the cross-file lesson of 2026-09-19 one level
+down, inside a single file. The five figures: "three files are exempt" when
+the exemption covers twelve, `SPEC.md`'s index of its own annotations reading
+seven when eleven are in place, a line count contradicted by its own entry's
+correction note, `docs/SECURITY.md`'s "roughly 450KB" against an actual 589KB,
+and a 3,300-line file that is now 4,598. **Two of the five were self-indexes**
+— a document counting its own contents — which nothing mechanical can check,
+because the referent is the file itself. Riding along, and NOT the ground this
+was merged on: `/api/recommendations/history` kept permanently and its coverage
+gap closed with two tests rather than by deleting the route (D-077), which took
+the suite to 62; the linking rule applied to `SPEC.md`, which had never linked
+`DOSSIER.md` or `docs/AI-CALL-LOG.md`; and every module reference in the
+repository audited, after which every module named in a heading is also linked
+from the body of its own document.
 **WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
 behaviour changed. It is the twenty-eighth merge's payload.** A
 navigation rule the user set and named: **every document reference is a link,
@@ -119,13 +146,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
   **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
   a **twenty-seventh on 2026-09-17** carrying two false claims and the
-  legibility work around them, and a **twenty-eighth on 2026-09-19** carrying a
-  visible UI defect plus the largest accuracy sweep the project has run — all
-  seven described at the end of this bullet.
+  legibility work around them, a **twenty-eighth on 2026-09-19** carrying a
+  visible UI defect plus the largest accuracy sweep the project had run at that
+  point, and a **twenty-ninth on 2026-09-21** carrying nineteen claims that
+  were false on `main` — all eight described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-eight**
+  steps closed. **Twenty-nine**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -274,6 +302,17 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   had been going where verification was already cheap.** A count is safest when
   it names its members, and several now do. Method written up in
   `docs/PROCESS.md`.
+  **AND A TWENTY-NINTH ON 2026-09-21.** Nineteen claims false on `main`, and
+  the useful half is what they have in common: fourteen of them describe a
+  DIFFERENT item's status, and six of those are contradicted by `main` within
+  a few lines of the sentence making the claim. **So the sentence for this one
+  is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
+  one of the six is correct about itself and wrong about its neighbour, which
+  is the 2026-09-19 cross-file finding one level down. The other five are
+  drifted figures, and two of those are self-indexes — a document counting
+  its own contents, which no gate can resolve because the referent is the file
+  itself. `check-claims` was green throughout, correctly: none of the nineteen
+  points at anything it can look up.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
