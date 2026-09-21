@@ -19,12 +19,27 @@ promised, the original text **stays exactly as written** and the correction is a
 beside it as an italic parenthetical. Nothing is quietly edited to agree with the
 code: a spec revised into agreement with its own implementation can no longer show
 where the two ever differed, which is the one thing it is uniquely able to show.
-Seven such annotations are in place —
+**Eleven sections carry such an annotation**, and they are named rather than
+counted, because a bare number goes short as more are added — which is exactly
+what happened here. This sentence read "Seven such annotations are in place" and
+listed seven while eleven were in place, having been written when it was true and
+never extended as the spiral added more. Corrected 2026-09-21.
+[§ 1](#1-overview--problem-statement),
 [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part),
 [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch),
+[§ 3.4](#34-feedback-including-bad-states), [§ 4.3](#43-why-supabase),
 [§ 4.5](#45-api-endpoints-draft), [§ 5.1](#51-movies),
-[§ 5.3](#53-taste_verdict_logs), [§ 6](#6-ai-features--prompt-discipline) and
-[§ 7.2](#72-manual-demo-script).
+[§ 5.2](#52-recommendation_logs), [§ 5.3](#53-taste_verdict_logs),
+[§ 6](#6-ai-features--prompt-discipline) and [§ 7.2](#72-manual-demo-script).
+**The omission that proved the list had gone short was [§ 5.2](#52-recommendation_logs)**, whose
+annotation and [§ 5.3](#53-taste_verdict_logs)'s are a deliberate pair — "five more columns" and
+"carries the same five" — and only the second was listed. No selection rule could
+have included one and excluded the other.
+**[§ 7.1](#71-must-pass-before-submission) is deliberately NOT among the eleven**, and
+this is the judgement to preserve rather than round away: its italic note records
+that the eight criteria were MET and where the evidence sits. That is a status,
+not a place the build diverged from the spec, and this convention is about
+divergence. Do not add it to make the count tidier.
 
 **On counting turns, because there are two honest units and neither is wrong.**
 Module 10 describes a spiral that runs fast inside a turn and pins intent at named
