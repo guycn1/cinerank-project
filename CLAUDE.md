@@ -4354,6 +4354,26 @@ down would be re-broken within a session. See D-065.
    they are only ever rendered as blobs, and this is a one-file exception, not a
    new convention. The checker cannot catch this class: the paths are valid
    markdown and valid for the file they sit in.
+9. **A HEADING NEVER CONTAINS A LINK** (the user's rule, 2026-09-21, stated
+   after Claude proposed putting one in a heading). Zero of the headings in
+   this repository carry one, so any appearance is a regression. Put the link
+   in the body prose beneath instead; where nothing there names the target,
+   write a sentence that genuinely says something rather than one that exists
+   to host a link. `check-markdown` does not enforce this. The stakes are not
+   only stylistic: `SPEC.md`'s heading anchors alone carry 56 inbound links
+   from nine files, and `CLAUDE.md`'s carry 92.
+10. **EDIT HISTORY BELONGS IN THE COMMIT MESSAGE, NOT IN THE FILE** (the user's
+   rule, restated four times across `a1eebd2`, `98a2c76`, `375c4cd` and
+   `5b481ff` before it was written down here — which is why it is). A live
+   document says what is true now. It does not say what it used to say, that a
+   figure was corrected, or when. **The distinction from the annotation
+   conventions this repo DOES have:** a `docs/DECISIONS.md` entry records a
+   past decision, and a `SPEC.md` italic parenthetical records where the BUILD
+   diverged from the SPEC — both are about the product. A note about the
+   DOCUMENT's own editing is not, and belongs in the diff. The one carve-out is
+   a correction a reader would otherwise re-introduce: state the rule going
+   forward, not the history (rule 6 above is the model — it says the count is
+   gone on purpose, without narrating the three values it passed through).
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
