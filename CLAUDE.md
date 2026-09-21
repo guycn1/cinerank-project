@@ -3227,15 +3227,11 @@ below — this list is the smaller stuff.)
   `review_requires_rating` guards all covered by `npm test` (60).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
-  narrower per-feature JSON view per SPEC §4.5. **D-017 said "revisit as
-  post-submission cleanup"; that revisit happened on 2026-09-21 and the answer
-  is KEEP, permanently (D-077).** Deleting it would have cost five documentary
-  edits across `SPEC.md`, `docs/PROCESS.md` and this file to remove ELEVEN
-  lines of route nothing calls (measured, not estimated) — and none of the five
-  gates would have caught the three
-  documents left describing a 404. The one real defect underneath it, that
-  `/history` was the only route with no test, is closed instead: two tests in
-  `test/routes.test.js`, both probed by breaking the route.
+  narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
+  permanently (D-077, which carries the measurements and the rejected
+  alternative).** The one real defect underneath it — `/history` was the only
+  route of the eleven with no test — is closed: two tests in
+  `test/routes.test.js`.
 * [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
   under **R1**, which is the entry being worked from. **The 2026-09-08 wording
