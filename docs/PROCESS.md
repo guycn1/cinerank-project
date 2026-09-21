@@ -550,6 +550,14 @@ data, never bulk-kill processes, tag any unavoidable test rows and delete only
 those. Documenting the failure and the resulting rule is itself part of the
 practice.
 
+[Module 12](../DOSSIER.md#module-12-safety-control-and-recovery) makes Git the
+primary safety layer, and this is the case Git cannot reach: what was lost was
+rows, not files, so there was nothing in the working tree to roll back to and no
+point-in-time recovery behind it. Where recovery is unavailable the only
+remaining layer is control — a rule about what the agent may do at all — which is
+why the agreements above are written as prohibitions rather than as a cleanup
+procedure.
+
 ## 6. Tests
 
 `npm test` (Node's built-in runner, no dependency, 62 tests) covers:

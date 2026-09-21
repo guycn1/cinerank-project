@@ -237,6 +237,13 @@ spec and the build diverged is what this document exists to keep readable.*
 
 ## 4\. Technical Architecture (Module 7)
 
+**[Module 7](DOSSIER.md#module-7-modern-web-application-architecture) is about
+holding the whole request cycle in mind rather than the details of any one
+framework**, which is why [§ 4.4](#44-high-level-data-flow) traces a
+recommendation run hop by hop rather than stopping at a list of parts. The hops
+are where an agent's work has to be reviewed, so that trace is the part of this
+section that gets used; §§ 4.1–4.3 name the pieces it passes through.
+
 ### 4.1 Stack
 
 * **Backend:** Node.js + Express.
