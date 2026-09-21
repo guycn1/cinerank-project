@@ -21,7 +21,7 @@ the reasoning. Rules that keep this honest live in
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-eight merges to `main` (verify with
+  every merge since has been the latter. Twenty-nine merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -52,6 +52,10 @@ the reasoning. Rules that keep this honest live in
   written up [below](#keeping-the-record-true-and-what-the-2026-09-19-sweep-did-differently):
   fourteen documentation defects, of which the most instructive was one
   enumerable set described four mutually contradictory ways across four files.
+  The twenty-ninth is the same ground reached from a different direction:
+  fourteen claims that described finished work as still open and five figures
+  that had drifted — six of the fourteen contradicted by `main` itself
+  within a few lines of the sentence making them.
 - **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
   [`npm run scan-secrets`](../scripts/scan-secrets.js) scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: [`render.yaml`](../render.yaml) declares the four secrets as
@@ -73,7 +77,7 @@ the reasoning. Rules that keep this honest live in
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Five gates, wired into the commit rules rather than left to memory.**
-  `npm test` (60 tests), `npm run lint` (ESLint, defect rules and complexity
+  `npm test` (62 tests), `npm run lint` (ESLint, defect rules and complexity
   ceilings — added 2026-09-13, the project had no static analysis before that),
   `npm run scan-secrets` on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
@@ -550,9 +554,17 @@ data, never bulk-kill processes, tag any unavoidable test rows and delete only
 those. Documenting the failure and the resulting rule is itself part of the
 practice.
 
+[Module 12](../DOSSIER.md#module-12-safety-control-and-recovery) makes Git the
+primary safety layer, and this is the case Git cannot reach: what was lost was
+rows, not files, so there was nothing in the working tree to roll back to and no
+point-in-time recovery behind it. Where recovery is unavailable the only
+remaining layer is control — a rule about what the agent may do at all — which is
+why the agreements above are written as prohibitions rather than as a cleanup
+procedure.
+
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 60 tests) covers:
+`npm test` (Node's built-in runner, no dependency, 62 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the

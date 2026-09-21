@@ -17,8 +17,9 @@ there.** It is not reproduced here, for the same reason the definition of done
 is not reproduced in [`docs/FRAMING.md`](FRAMING.md#definition-of-done): a brief
 held in two places drifts, and then neither is the brief.
 
-It was written **before any UI existed**, which is the only time an interface
-brief is worth anything, and it breaks the screen into the four parts
+It was written as a **governing document alongside the first scaffold** rather
+than retrofitted to a UI, which is the only time an interface brief is worth
+anything, and it breaks the screen into the four parts
 [Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation)
 names so each could be decided on purpose rather than absorbed from whatever the
 training data treats as ordinary:

@@ -152,7 +152,8 @@ could easily have dropped it); that it *works* is what these five frames are.
 [`CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md)
 and
 [`docs/DECISIONS.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md)
-as authoritative instruction, and those two alone are roughly 450KB of prose.
+as authoritative instruction, and those two alone run to well over half a
+megabyte of prose.
 Anyone with write access to this repository can change how the agent behaves by
 editing English. The control is that every context file is version-controlled,
 every change to one is a reviewable diff, `main` is never pushed to directly,
@@ -297,7 +298,7 @@ return nothing usable while every dependency is healthy. A failed AI call still 
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (60 tests), `npm run lint`,
+**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (62 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
 from the first commit, with four revert commits and one reapply, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`

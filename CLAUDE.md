@@ -26,14 +26,14 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-19 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-21 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
 closed 2026-09-14, see `SPEC.md` § Specification status, which satisfies the
 course's "at least three full turns" under the conservative reading that counts no
 merge as a turn. THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE
-USER ON 2026-09-14 and is performed immediately after this commit — see the note
+USER ON 2026-09-14 and was performed immediately after that commit — see the note
 under Build status for why the count and the checkbox are written just before it
 rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
 carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
@@ -43,6 +43,33 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
+published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
+false on `main`: fourteen describing finished work as still open, and five
+figures that had drifted. **SIX OF THE FOURTEEN WERE CONTRADICTED BY `main`
+ITSELF within a few lines** — "R3 is the still-open client half" two lines
+above "R3. DONE", "the verdict's own version of this is still wrong: see R23"
+against R23's own DONE, "this is not a closed section" nine lines above
+"Nothing further is scheduled for this section", "Step 6, the only step left"
+against "THIS STEP IS DONE", the ranked list "NOT closed: the user is still
+raising", and `/api/health` "for a future host" when Render's health check has
+pointed at it since the deploy. **THE PATTERN, and it is a new one:** every one
+is a claim about a DIFFERENT item's status. A sweep that reads entry by entry
+verifies the entry it is on, and each of these is correct about itself and
+wrong about its neighbour — the cross-file lesson of 2026-09-19 one level
+down, inside a single file. The five figures: "three files are exempt" when
+the exemption covers twelve, `SPEC.md`'s index of its own annotations reading
+seven when eleven are in place, a line count contradicted by its own entry's
+correction note, `docs/SECURITY.md`'s "roughly 450KB" against an actual 589KB,
+and a 3,300-line file that is now 4,598. **Two of the five were self-indexes**
+— a document counting its own contents — which nothing mechanical can check,
+because the referent is the file itself. Riding along, and NOT the ground this
+was merged on: `/api/recommendations/history` kept permanently and its coverage
+gap closed with two tests rather than by deleting the route (D-077), which took
+the suite to 62; the linking rule applied to `SPEC.md`, which had never linked
+`DOSSIER.md` or `docs/AI-CALL-LOG.md`; and every module reference in the
+repository audited, after which every module named in a heading is also linked
+from the body of its own document.
 **WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
 behaviour changed. It is the twenty-eighth merge's payload.** A
 navigation rule the user set and named: **every document reference is a link,
@@ -119,13 +146,14 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
   **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
   a **twenty-seventh on 2026-09-17** carrying two false claims and the
-  legibility work around them, and a **twenty-eighth on 2026-09-19** carrying a
-  visible UI defect plus the largest accuracy sweep the project has run — all
-  seven described at the end of this bullet.
+  legibility work around them, a **twenty-eighth on 2026-09-19** carrying a
+  visible UI defect plus the largest accuracy sweep the project had run at that
+  point, and a **twenty-ninth on 2026-09-21** carrying nineteen claims that
+  were false on `main` — all eight described at the end of this bullet.
   Before those, the milestone was
   the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
   front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-eight**
+  steps closed. **Twenty-nine**
   merges;
   `git log --merges --oneline main` is the source of truth, do NOT increment a
   number in a doc without checking it (that is exactly how PROCESS.md drifted to
@@ -274,6 +302,17 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   had been going where verification was already cheap.** A count is safest when
   it names its members, and several now do. Method written up in
   `docs/PROCESS.md`.
+  **AND A TWENTY-NINTH ON 2026-09-21.** Nineteen claims false on `main`, and
+  the useful half is what they have in common: fourteen of them describe a
+  DIFFERENT item's status, and six of those are contradicted by `main` within
+  a few lines of the sentence making the claim. **So the sentence for this one
+  is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
+  one of the six is correct about itself and wrong about its neighbour, which
+  is the 2026-09-19 cross-file finding one level down. The other five are
+  drifted figures, and two of those are self-indexes — a document counting
+  its own contents, which no gate can resolve because the referent is the file
+  itself. `check-claims` was green throughout, correctly: none of the nineteen
+  points at anything it can look up.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -340,7 +379,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 60 tests). Pure helpers
+* Tests: `npm test` (Node built-in runner, 62 tests). Pure helpers
   (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'`
@@ -374,6 +413,13 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   Supabase is swapped for an in-memory fake (`test/helpers.js`)
   so tests never touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
   `server/index.js` exports `app` and only `listen()`s when run directly.
+  **And `/api/recommendations/history`'s two, added 2026-09-21 (D-077)** — the
+  shape and recommendation-only scope of the narrower log view, and its DB
+  failure surfacing as a 500 without leaking the postgres text. It was the one
+  route of the eleven that no test touched, which is why it kept resurfacing as
+  a deletion candidate; the gap is closed rather than the route. Probed both
+  ways: pointing it at `taste_verdict_logs` fails both, dropping its error
+  guard fails only the second.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs a
@@ -434,7 +480,9 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   The harness also refuses to install itself when the hostname ends in
   `onrender.com`. That guard is now redundant and stays anyway: it costs
   nothing, and it is the belt to a brace that has just been removed.
-* `GET /api/health` liveness probe for a future host.
+* `GET /api/health` liveness probe. Render's health check has pointed at it
+  since the deploy (2026-09-07); the entry under Pre-submission blockers has the
+  service settings.
 * `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
 * Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
@@ -460,9 +508,11 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
 sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
 4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
-under 500px, closed by the user against the ~350px target). **Step 6, the only
-step left, is pre-submission evidence and cleanup — not UI.** The bullets below
-are the running record of how each piece got there and stay as written.
+under 500px, closed by the user against the ~350px target). **Step 6 —
+pre-submission evidence and cleanup, not UI — was the only step left when this
+paragraph was written, and it closed on 2026-09-14. NOTHING in the agreed order
+is open.** The bullets below are the running record of how each piece got there
+and stay as written.
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -507,13 +557,15 @@ are the running record of how each piece got there and stay as written.
   `display: flex`; a bare rule overrides the UA `dialog:not([open])` hide → never
   closes. `body:has(dialog[open]) { overflow: hidden }` freezes the page.
 * AI call log table — narrowing it column by column to kill the horizontal
-  scroll. Done so far:
+  scroll. DONE; the Responsive bullet below records where it landed. What it
+  took, in order:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
   - table font trimmed ~10% (`.log-table` 0.86→0.77rem; header/sub/badge → `em`).
   - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
     `--line-faint` = white 0.035). A short "floating tick" variant was tried to
     make the row/column hierarchy clearer and reverted — user preferred the plain
-    hairline; hierarchy parked.
+    hairline; hierarchy parked — and it stayed parked. The plain hairline is
+    what shipped and nothing has reopened it.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
@@ -693,7 +745,8 @@ are the running record of how each piece got there and stay as written.
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
 * **Search section — overhauled 2026-09-07, then REOPENED and worked again on
-  2026-09-08/09**, so this is not a closed section. The 2026-09-07 pass below is
+  2026-09-08/09**, so it was not a closed section for that stretch. The
+  2026-09-07 pass below is
   behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
   and is recorded in the ranked-list bullets further down, since it came out of
   the same whole-app sweep: the Add button breaking in two, the input refusing to
@@ -908,13 +961,16 @@ are the running record of how each piece got there and stay as written.
     document), so desktop is provably unchanged. The case it fixes is the
     keyboard's own Go/Search key, which submits without moving focus — tapping
     the Search button already blurred the input by itself.
-* **Ranked list — all 20 backlog items DONE** (2026-09-08), but the section is
-  NOT closed: the user is still raising off-backlog refinements and bugs found
-  by using it ("a few more things to settle before calling the whole ranked-list
-  overhaul a wrap"). Do not treat the empty backlog as the finish line.
+* **Ranked list — all 20 backlog items DONE** (2026-09-08), and the section
+  stayed open past that date: the user went on raising off-backlog refinements
+  and bugs found by using it ("a few more things to settle before calling the
+  whole ranked-list overhaul a wrap"), which is why the bullets below run well
+  past the twenty. **It closed with the rest of the front-end overhaul on
+  2026-09-12** — the status paragraph under that heading is the current state,
+  and the empty backlog is no longer the only thing saying so.
   Claude's audit produced items 1–17 and the user
   added 18–20; **all 20 are done** and the canonical table with every
-  status is further down this section. Done so far:
+  status is further down this section. What landed:
   - Only a rated film earns a rank number; unrated cards show a faint question
     mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
   - Poster no longer overflows its column below 620px — the width was declared
@@ -1439,8 +1495,8 @@ are the running record of how each piece got there and stay as written.
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
 18–20. **This list is the source of truth** — it previously existed only in chat
-and would have been lost to a compact. Keep the statuses current as items land,
-and do not renumber: the numbers are how the user refers to them.
+and would have been lost to a compact. Keep the statuses current if anything
+reopens, and do not renumber: the numbers are how the user refers to them.
 
 | # | Item | Status |
 |---|---|---|
@@ -1466,6 +1522,12 @@ and do not renumber: the numbers are how the user refers to them.
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
 ##### Agreed order of work from here (set by the user, 2026-09-09)
+
+**Every step below is closed** — the last UI step on 2026-09-12, step 6 on
+2026-09-14 — so what follows is the record of the order the work was done in,
+not a queue. (Step 3 carries one parked measurement question, dated in place.)
+The sequencing rules governed the list while it was open and would apply again
+if anything reopened.
 
 Work this top to bottom. It is the user's own sequencing, not Claude's — do not
 re-prioritise it, and do not start further down because something looks quicker.
@@ -1500,8 +1562,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    sub-backlog is outstanding.** Every
    status is on the item itself. The user's original seed items are folded in and
    marked **(user)**. The groups are ordered by severity. **Do not renumber** —
-   these are how the items get referred to. Keep the statuses current as they
-   land.
+   these are how the items get referred to. Keep the statuses current if
+   anything reopens.
 
    **Group A — functional bugs**
 
@@ -1546,8 +1608,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **Do not push the filter back into the query** and **do not rebuild the owned
      set from `rated`** — either one restores the bug, and the second fails
      exactly one test (verified by doing it).
-     **R3 is the still-open client half**: rec cards never re-sync their Add
-     button, so the UI can still offer a film the list already has.
+     **R3 was the client half, open when this was written and DONE the same
+     day** (the next item): rec cards did not re-sync their Add button, so the UI
+     could still offer a film the list already had.
    * **R3. DONE 2026-09-09 — the Add-button sync now runs in every direction.**
      Reported live by the user, who found BOTH directions of it. The sync swept
      only `.search-results`, so: adding from a REC CARD refreshed the search rows
@@ -1697,7 +1760,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      qualifies. It travels as `logged: true` beside `error` — exactly D-042's
      `short` mechanism, additive and invisible to anything reading only
      `body.error` — and `api()` carries it onto the thrown error the same way.
-     **The verdict's own version of this is still wrong: see R23.**
+     **The verdict's own version of this was still wrong when this was written;
+     R23 fixed it the same day.**
    * **R10. DONE 2026-09-09.** The empty branch returned before `aiMetaFooter`,
      so a call that really was made, really cost money and really was logged
      showed no cost, tokens or duration anywhere on the page — the only AI outcome
@@ -2668,8 +2732,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    closed the same day (D-057), tuned to **18**ms/char by the user's eye. (This line said 15ms, which was wrong when written — 15ms was tried and REVERTED, the user preferring the slower read. `VERDICT_TYPE_MS` in `app.js` is 18, the item below says 18, and D-057 says 18.)
    **That pointer used to say "next session starts on step 5, the portrait
    overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
-   the agreed order is closed and the only one left is STEP 6 — pre-submission
-   evidence and cleanup. Step 5's two narrow-viewport enforcement rules still
+   the agreed order is closed and the only one left was STEP 6 — pre-submission
+   evidence and cleanup, itself closed 2026-09-14. Step 5's two narrow-viewport enforcement rules still
    stand and are not retired by it closing.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
@@ -3202,7 +3266,11 @@ below — this list is the smaller stuff.)
   `review_requires_rating` guards all covered by `npm test` (60).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
-  narrower per-feature JSON view per SPEC §4.5. Post-submission cleanup candidate.
+  narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
+  permanently (D-077, which carries the measurements and the rejected
+  alternative).** The one real defect underneath it — `/history` was the only
+  route of the eleven with no test — is closed: two tests in
+  `test/routes.test.js`.
 * [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
   under **R1**, which is the entry being worked from. **The 2026-09-08 wording
@@ -3345,11 +3413,13 @@ shots match a finished UI rather than a mid-overhaul one.*
 > deliberate schedule choice, restated more than once — do NOT push to capture
 > them early.
 
-**But DO keep this list growing as the work happens.** The user is explicitly
+**DO keep this list growing as the work happens.** That governed the list while
+it was open and is still the habit for anything new. The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
 something demo-able or provable — a new failure state, a guardrail worth
 showing, a before/after worth contrasting — append it here the moment it
-appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
+appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
+"the end" happened on 2026-09-13/14, and every item above is ticked.
 
 * [x] **Deployed to Render** (2026-09-07) — **https://cinerank-g6lx.onrender.com**
   URL is at the very top of the README. Web service created through the Render
@@ -3807,7 +3877,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     runs was also dropped: its only addition over the final one is a second 401
     row, which is not a claim.
     **Revert with `git checkout -- server/services/recommendations.js` the moment
-    the last shot lands**, and re-run `npm test` to confirm 60/60 — several route
+    the last shot lands**, and re-run `npm test` to confirm 62/62 — several route
     tests fail while either edit is in place, which is expected.
   - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
     `docs/screenshots/rs-16-unverifiable-picks.png`.**
@@ -3836,7 +3906,7 @@ appears, unprompted. *Capturing* is deferred to the end; *noticing* is not.
     **The caption says the state was FORCED**, because this edit skips the TMDB
     call rather than faking a rejection. The OpenRouter call is real and was
     billed; what is simulated is TMDB's verdict, not the model's reply.
-    **Revert and re-run `npm test` for 60/60**, as with RS-9 and RS-15.
+    **Revert and re-run `npm test` for 62/62**, as with RS-9 and RS-15.
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
@@ -4299,7 +4369,10 @@ to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
 104 entry-to-entry cross-references became clickable in a file that had exactly
 one link in it.
 
-**Three files are deliberately EXEMPT. Do not "finish the job" on them.**
+**Three exemptions — one of them a whole directory, so TWELVE files today.
+Do not "finish the job" on any of them.** (A different twelve from the one
+above, which counts the files the rule was applied TO. Coincidence, not a
+copy-paste: those twelve and these twelve are every tracked `.md` here.)
 
 * **`prompts/*.md`** — the loader sends the body to the model, so a link is
   tokens the model pays for and prose it may act on. Two harder reasons: a
@@ -4482,7 +4555,7 @@ the real blob from github.com and read that — it is the only authority.
   cannot have broken" is reasoning offered after the fact, not a check made
   before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
-* **Every commit runs `npm test`, and 60/60 is the bar.** The scope is EVERY
+* **Every commit runs `npm test`, and 62/62 is the bar.** The scope is EVERY
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
   MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking

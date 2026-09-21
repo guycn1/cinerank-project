@@ -8,7 +8,7 @@
 // code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on, including
 // all four env var names in the Module 17 security section). The docs are a
 // graded deliverable here, so "it only looks wrong" is not a small problem, and a
-// rendering fault in a 3,300-line file is close to unfindable by eye.
+// rendering fault in a file this long is close to unfindable by eye.
 //
 // The rules below are the ones that were established by measuring every case
 // against GitHub's own Markdown API, not by assumption. See D-065.

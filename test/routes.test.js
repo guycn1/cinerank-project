@@ -856,6 +856,56 @@ for (const feature of [
   });
 }
 
+/* ---------- /api/recommendations/history ------------------------------ */
+
+// The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
+// is the one route no test touched, which is the whole reason the endpoint kept
+// coming back up as a deletion candidate -- so the gap is closed here rather
+// than by deleting a route SPEC 4.5 lists. Deliberately asserts the SHAPE and
+// the recommendation-only scope, not the column list: the point is that the
+// route answers and is narrower than /api/ai-log, and pinning all seven columns
+// would just restate the select() a line below it.
+test('GET /api/recommendations/history returns recommendation runs only', async () => {
+  db.results['recommendation_logs:select'] = {
+    data: [
+      { id: 'r1', created_at: '2026-09-04T10:00:00Z', prompt_version: 'recommend_v3', model_used: 'anthropic/claude-haiku-4.5', tokens_used: 1000, estimated_cost_usd: 0.002, suggested_titles: ['Hostel', 'Saw'] },
+    ],
+    error: null,
+  };
+  // Present, and must not leak in: /history reads ONE table where /api/ai-log
+  // merges two. A regression that pointed it at the merged read would show up
+  // here as a second row.
+  db.results['taste_verdict_logs:select'] = {
+    data: [
+      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v7', model_used: 'x', tokens_used: 900, estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
+    ],
+    error: null,
+  };
+
+  const res = await client.get('/api/recommendations/history');
+  assert.equal(res.status, 200);
+  const body = await res.json();
+
+  assert.ok(Array.isArray(body.history), 'history is an array');
+  assert.equal(body.history.length, 1);
+  assert.equal(body.history[0].id, 'r1');
+  assert.deepEqual(body.history[0].suggested_titles, ['Hostel', 'Saw']);
+  // No verdict row crossed over.
+  assert.equal(body.history.some((r) => r.verdict_text !== undefined), false);
+});
+
+test('GET /api/recommendations/history surfaces a DB failure as a 500, not a crash', async () => {
+  db.results['recommendation_logs:select'] = { data: null, error: { message: 'boom' } };
+
+  const res = await client.get('/api/recommendations/history');
+  assert.equal(res.status, 500);
+  const body = await res.json();
+  // The central handler's calm sentence, never the postgres text (R8's rule,
+  // applied to the one route that had no test proving it holds here).
+  assert.ok(body.error);
+  assert.equal(/boom/.test(JSON.stringify(body)), false);
+});
+
 /* ---------- /api/ai-log shape ---------------------------------------- */
 
 test('GET /api/ai-log returns structured result data per row', async () => {
