@@ -194,7 +194,8 @@ being silently extended.)*
 
 ## 3\. Interface Design (Module 8)
 
-**This section is the Module 8 interface brief itself**, not a summary of one —
+**This section is the [Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)
+interface brief itself**, not a summary of one —
 [`docs/BRIEFS.md` § 1](docs/BRIEFS.md#1-interface-brief--the-home-screen)
 nominates it and deliberately does not reproduce it, because a brief held in two
 places drifts.
