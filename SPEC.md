@@ -34,7 +34,8 @@ sits, which is a status rather than a place the build diverged from the spec.
 Do not add it to round the list up.
 
 **On counting turns, because there are two honest units and neither is wrong.**
-Module 10 describes a spiral that runs fast inside a turn and pins intent at named
+[Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral) describes a spiral that runs fast inside a turn and pins
+intent at named
 commit points between turns. **In this repository the commit points are the merges
 to `main`** — the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
@@ -114,7 +115,7 @@ blocker list in
 [`CLAUDE.md`](CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14) and
 [§ 7.1](#71-must-pass-before-submission)'s acceptance checkboxes below; both were
 met on 2026-09-14, and [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) reads
-MET on all five of Module 16's criteria as a result.
+MET on all five of [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)'s criteria as a result.
 
 What closed it is what the turn was about. The problem had stopped being "does the
 application work" — it demonstrably did, deployed and green — and had become
@@ -273,7 +274,7 @@ User requests recommendations → Express route →
 |GET|`/api/recommendations/history`|(optional) view past recommendation runs|
 |POST|`/api/taste-verdict`|Generate a new taste verdict banner message|
 
-*Three more endpoints exist as built and are not in the draft above: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the in-app viewer reads), `GET /api/config` (the three public threshold numbers, so the client never hardcodes a rule the server owns) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it).*
+*Three more endpoints exist as built and are not in the draft above: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the three public threshold numbers, so the client never hardcodes a rule the server owns) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it).*
 
 
 ## 5\. Data Model (Supabase / Postgres)
@@ -361,7 +362,7 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 
 ### 7.2 Manual Demo Script
 
-*Two steps below have been overtaken by what got built, and the script in [`README.md`](README.md) is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app **AI call log** viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
+*Two steps below have been overtaken by what got built, and the script in [`README.md`](README.md) is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
 
 1. Show an empty list → add 3-4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change, and the Taste Verdict Banner generating a fresh one-liner about the taste profile so far.
