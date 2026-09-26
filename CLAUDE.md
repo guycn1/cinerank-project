@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-26 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-27 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -43,6 +43,25 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
+load-bearing, tests only, on `draft` and not merged.** The user asked whether
+each test actually fails when its condition is broken. Answered by mutation
+rather than by reading: 94 probes, each breaking ONE condition a test claims to
+guard, the whole suite run after each, in a throwaway worktree with dummy keys
+and every outbound request blocked. **Before: nine probes survived, and one test
+could not fail at all** — `tidyVerdict`'s over-the-ceiling test accepted any
+output ending in `…`, which every cutting path appends. Six more carried one
+assertion that could not fail, and in every case the FIXTURE, not the
+assertion, was the cause: a 130-character ceiling that `'word '` happens to
+divide evenly, a rating already at one decimal, an echoed model identical to
+the configured one, a success row whose `error_text` was already null, and no
+real prompt that repeats a placeholder in one section or names a section
+heading inside its dev comment. Two of those needed a fixture prompt, served
+by mocking `node:fs/promises` inside `test/prompt-loader.test.js` only.
+**After: 94 of 94 caught, and every test fails under a probe aimed at it.** The
+verdict test also asserts the model the app REQUESTS now, which is what D-053
+is about; nothing checked it before. **The lesson: an assertion is only as
+strong as the fixture's ability to tell the bug from the fix.**
 **WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
 on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and

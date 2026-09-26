@@ -279,6 +279,9 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
           title: 'The Matrix Reloaded',
           release_date: '2003-05-15',
           poster_path: null,
+          // Unrounded, as TMDB really sends it. The Matrix's 8.2 already has one
+          // decimal, so it cannot show whether rounding happens at all.
+          vote_average: 7.456,
         },
       ],
     },
@@ -298,7 +301,7 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
       /^https?:\/\/\S+\/matrix\.jpg$/,
       'an absolute poster URL built from the image base, not a bare TMDB path'
     );
-    assert.equal(first.tmdb_rating, 8.2, 'rounded to one decimal');
+    assert.equal(first.tmdb_rating, 8.2);
     assert.equal(typeof first.description, 'string');
 
     assert.equal(
@@ -306,6 +309,7 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
       null,
       "a missing poster_path must shape to null, never a URL ending in \"null\""
     );
+    assert.equal(second.tmdb_rating, 7.5, 'rounded to one decimal');
   } finally {
     restore();
   }
@@ -713,15 +717,29 @@ test('POST /api/taste-verdict logs a success row with real token and cost data',
     'openrouter.ai': {
       choices: [{ message: { content: 'You like films that commit to something.' } }],
       usage: { total_tokens: 1480, prompt_tokens: 1385, completion_tokens: 95, cost: 0.0038 },
-      // The verdict is the one call NOT on the app-wide model (D-053).
-      // Asserting it here covers the SUCCESS half of the bug D-070 fixed on
-      // the failure half, where a failed verdict recorded the default instead.
-      model: 'anthropic/claude-sonnet-5',
+      // Deliberately NOT the model requested. OpenRouter echoes the model that
+      // actually served the call, and the row must record that echo; were this
+      // the configured slug, a row that ignored the echo and logged the constant
+      // would be indistinguishable from a correct one. It is also a model the
+      // estimate table PRICES (at 0.01332 for these tokens), so a row that
+      // preferred the estimate over usage.cost would show a different figure.
+      model: 'anthropic/claude-sonnet-4.5',
     },
   });
+  // Record what the app ASKED for. The verdict is the one call NOT on the
+  // app-wide model (D-053), and only the request can show which model was
+  // requested; the echo above is the stub's, whatever was sent.
+  let requested;
+  const stubbed = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    if (String(input).includes('openrouter.ai')) requested = JSON.parse(init.body).model;
+    return stubbed(input, init);
+  };
   try {
     const res = await client.post('/api/taste-verdict');
     assert.equal(res.status, 200);
+    assert.equal(requested, config.tasteVerdict.model, 'the verdict must ask for its own model (D-053)');
+    assert.notEqual(requested, config.openrouter.model);
 
     const logged = db.calls.find((c) => c.table === 'taste_verdict_logs' && c.op === 'insert');
     assert.ok(logged, 'a successful verdict must be logged too, not only a failure');
@@ -734,13 +752,15 @@ test('POST /api/taste-verdict logs a success row with real token and cost data',
     assert.equal(logged.payload.estimated_cost_usd, 0.0038);
     assert.equal(logged.payload.tokens_used, 1480);
     assert.equal(logged.payload.prompt_version, 'taste_verdict_v7');
+    // Covers the SUCCESS half of the bug D-070 fixed on the failure half, where
+    // a failed verdict recorded the default instead.
     assert.equal(
       logged.payload.model_used,
-      'anthropic/claude-sonnet-5',
-      'the success path records the model OpenRouter echoed back, not the app-wide default'
+      'anthropic/claude-sonnet-4.5',
+      'the success path records the model OpenRouter echoed back, not a configured constant'
     );
   } finally {
-    restore();
+    restore(); // puts back the fetch from before stubFetch(), dropping the recorder too
   }
 });
 
@@ -949,7 +969,10 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   };
   db.results['taste_verdict_logs:select'] = {
     data: [
-      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: null, estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
+      // A SUCCESS row that still carries error text. The route reports error
+      // text only for rows that failed, so this must come back null; with a null
+      // in the fixture, the assertion below could not tell.
+      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: 'stale text from an earlier attempt', estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
       // pre-migration-001 shape: no token split, no duration recorded
       { id: 'v0', created_at: '2026-09-04T08:00:00Z', prompt_version: 'taste_verdict_v1', model_used: 'x', tokens_used: 400, prompt_tokens: null, completion_tokens: null, duration_ms: null, status: 'success', error_text: null, estimated_cost_usd: 0.0005, verdict_text: 'Old row.' },
     ],

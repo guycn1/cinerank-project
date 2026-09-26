@@ -52,12 +52,30 @@ test('tidyReason: strips markdown emphasis', () => {
   assert.equal(tidyReason('you love **bold** _weird_ `swings`'), 'you love bold weird swings');
 });
 
+/**
+ * Assert that `out` is `input` cut at a WORD BOUNDARY and marked with "…": the
+ * text before the ellipsis must be a prefix of the input that stops right before
+ * a space. Checking the ending alone cannot work, because every cutting path ends
+ * in "…" whether it cut mid-word or not.
+ *
+ * @param {string} out  The tidied text.
+ * @param {string} input  What it was made from.
+ * @param {number} ceiling  The most characters allowed before the ellipsis.
+ */
+function assertCutAtWordBoundary(out, input, ceiling) {
+  assert.ok(out.endsWith('…'), 'a cut is marked with an ellipsis');
+  const kept = out.slice(0, -1);
+  assert.ok(kept.length <= ceiling, `${kept.length} characters kept, ceiling ${ceiling}`);
+  assert.ok(input.startsWith(kept), 'the kept text is the start of the input');
+  assert.equal(input[kept.length], ' ', `cut mid-word: "${kept.slice(-12)}|${input.slice(kept.length, kept.length + 8)}"`);
+}
+
+// Seven-character words, so that the 130-character ceiling falls INSIDE a word
+// (130 = 18 x 7 + 4). With 'word ' it fell exactly on a space, and a naive cut
+// at the ceiling passed.
 test('tidyReason: never cuts mid-word when over the ceiling', () => {
-  const long = 'word '.repeat(60).trim();
-  const out = tidyReason(long);
-  assert.ok(out.length <= 131);
-  assert.ok(!/\bwor$/.test(out), 'should not end on a fragment');
-  assert.match(out, /(word|…)$/);
+  const long = 'cinema '.repeat(30).trim();
+  assertCutAtWordBoundary(tidyReason(long), long, 130);
 });
 
 test('tidyVerdict: leaves a compliant 2-3 sentence verdict intact', () => {
@@ -67,11 +85,17 @@ test('tidyVerdict: leaves a compliant 2-3 sentence verdict intact', () => {
   assert.equal(tidyVerdict(v), v);
 });
 
+// Two inputs, one per cutting path. The first has sentence ends in reach, so the
+// verdict must stop on the last WHOLE sentence that fits (ten of them, 419
+// characters) with no ellipsis. The second has none, so it falls back to a word
+// boundary and says so with "…".
 test('tidyVerdict: over the 450-char ceiling, ends on a sentence boundary not mid-word', () => {
-  const v = ('This is a full sentence about your taste. ').repeat(20).trim();
-  const out = tidyVerdict(v);
-  assert.ok(out.length <= 451);
-  assert.match(out, /[.!?]$|…$/);
+  const sentence = 'This is a full sentence about your taste. ';
+  const out = tidyVerdict(sentence.repeat(20).trim());
+  assert.equal(out, sentence.repeat(10).trim());
+
+  const words = 'cinema '.repeat(80).trim();
+  assertCutAtWordBoundary(tidyVerdict(words), words, 450);
 });
 
 test('estimateCostUsd: known model, unknown model, zero tokens', () => {
