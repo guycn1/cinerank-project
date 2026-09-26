@@ -62,6 +62,11 @@ by mocking `node:fs/promises` inside `test/prompt-loader.test.js` only.
 verdict test also asserts the model the app REQUESTS now, which is what D-053
 is about; nothing checked it before. **The lesson: an assertion is only as
 strong as the fixture's ability to tell the bug from the fix.**
+**Same day: the README's Project layout became a connector tree** (D-078): one line per entry,
+one description column, the root files inside it rather than listed in a
+paragraph above, and `server/routes/`, `public/` and `test/` expanded. A route
+file carries its mount path and a few verbs, never its method list, which
+stays in `SPEC.md` § 4.5 alone.
 **WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
 on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and

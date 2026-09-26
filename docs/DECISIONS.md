@@ -6,6 +6,44 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-078 · The README's Project layout is a connector tree that includes the root, and a route file carries its mount path, not its endpoints
+
+*2026-09-27. Raised by the user with a screenshot of another project's layout
+tree; the scope was settled over two exchanges.*
+
+**The form changed and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)'s
+three rules did not.** That entry set formatting aside as presentation, and the
+`├──` / `│` connectors are its second rule drawn rather than implied. What the
+old tree got wrong was legibility: nesting shown by indentation alone, a
+description column that started at a different position on three lines, and
+wrapped descriptions whose continuation lines sat at the name column, where
+they read as entries of their own. The tree now has one line per entry and one
+description column, and every line fits 100 characters.
+
+**The root is in the tree.** Root files used to be listed in a paragraph above
+it, headed "deliberately not in the tree", so that their omission could be
+checked. Listing them makes the tree itself the check, and the paragraph is
+gone. `SPEC.md` and `CLAUDE.md` are pointed at rather than described, because
+the Documentation table already describes them, which is D-074's first rule.
+
+**The fork was over `server/routes/`, `public/` and `test/`**, which had been
+summarised as one line each. Claude recommended expanding `public/` and
+`test/`, and giving each route file a purpose line rather than its endpoints:
+endpoints in the tree would be a second copy of
+[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which `b486c10` had just
+made the README's single pointer for the API, and D-074 records two of nine
+duplicated descriptions drifting within one session. **The user chose to expand
+all three and to annotate the route files with their endpoints, on one
+condition: short, and never the full list of eleven.** So each route file
+carries its mount path and a few verbs (`/api/movies — list, search, add, rate,
+remove`), while methods and sub-paths stay in § 4.5 alone. `/api/health` and
+`/api/config`, registered in `server/index.js` rather than in a route file,
+appear nowhere in the tree.
+
+**Trap.** Do not grow a route line into its method list. The mount path is
+stable, being where `server/index.js` mounts the router; the method list is
+what § 4.5 maintains, and a second copy of it is the drift D-074 measured.
+
 ## D-077 · `/api/recommendations/history` is kept for good, and its coverage gap is closed with a test rather than a deletion
 
 *2026-09-21. The user asked what the endpoint is for and what removing it would

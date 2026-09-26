@@ -292,80 +292,74 @@ actually lives rather than where it is summarised:
 
 ## Project layout
 
-**Every directory below that is listed file by file is listed in full.** The
-ones summarised as one entry each — `server/routes/`, `public/`, `test/`,
-`db/migrations/`, `docs/screenshots/`, `docs/*.md` — are deliberate summaries,
-not truncations, and `prompts/` is compacted to its version ranges for the same
-reason. Between those three forms — listed, summarised, compacted — plus the
-paragraph below, every tracked file in the repository is accounted for.
+**Every tracked file in the repository is accounted for below.** A directory
+listed file by file is listed in full. Four entries are deliberate summaries
+rather than truncations: `prompts/`, compacted to its two version ranges;
+`db/migrations/`, one numbered series; `docs/screenshots/`, which carries
+its own index; and `docs/*.md`, whose nine documents are each described in the
+[Documentation](#documentation) table. `SPEC.md` and `CLAUDE.md` are
+described there too, so the tree points at the table rather than describing
+them twice.
 [D-074](docs/DECISIONS.md#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)
 records why the section is shaped this way, including the convention that a
 directory with more than one shown entry becomes a node rather than a repeated
-prefix.
-
-**Deliberately not in the tree**, each covered elsewhere or carrying nothing worth
-a line here, and listed by name so the omission can be checked rather than
-guessed at: this file (`README.md`); [`CLAUDE.md`](CLAUDE.md) and
-[`SPEC.md`](SPEC.md), both mapped in the [Documentation](#documentation) table
-above; [`package.json`](package.json) and
-[`package-lock.json`](package-lock.json); [`render.yaml`](render.yaml)
-(described under [Deployment](#deployment)); [`.env.example`](.env.example)
-(under [Setup](#setup)); [`DOSSIER.md`](DOSSIER.md), the course's own grading
-brief rather than part of the build; and the dotfiles
-[`.gitignore`](.gitignore), [`.gitattributes`](.gitattributes) and
-[`.vscode/`](.vscode). That is every tracked entry in the repository
-root accounted for. The nine documents in `docs/*.md` are summarised as a
-single entry in the tree below rather than listed individually, and each of
-them is described in the [Documentation](#documentation) table.
+prefix; [D-078](docs/DECISIONS.md#d-078--the-readmes-project-layout-is-a-connector-tree-that-includes-the-root-and-a-route-file-carries-its-mount-path-not-its-endpoints)
+records why the root is in the tree and why each route file names its mount
+path rather than its endpoints.
 
 ```
-prompts/            versioned prompt files, never overwritten — recommend_v1..v3,
-                    taste_verdict_v1..v7 (live: recommend_v3, taste_verdict_v7)
-db/
-  schema.sql        Supabase schema + RLS — fresh installs
-  migrations/       numbered, re-runnable; applied by hand in the SQL editor
-server/
-  index.js          the Express app: mounts the routes, serves public/, and the
-                    central error handler. Exports `app` and only listens when
-                    run directly, which is what lets the tests import it
-  config.js         the only place env/secrets enter the process
-  supabase.js       one anon-key client; all DB access via the query builder
-  services/
-    tmdb.js         all TMDB HTTP; the trusted source of movie facts
-    openrouter.js   low-level OpenRouter transport
-    promptLoader.js loads a versioned prompt at call time: strips the leading
-                    dev-note comment, splits # System / # User, fills {{VARS}}
-    recommendations.js  reads taste profile → prompt → parse JSON → verify vs TMDB → log
-    tasteVerdict.js     rated movies → prompt → plain-text verdict → log
-  routes/           thin Express routes; no inline fetch(), no inline SQL
-public/             the cinematic frontend
-scripts/
-  scan-secrets.js   run before every commit
-  check-claims.js   run before every commit; resolves every claim that points at
-                    something -- paths, D-0NN entries, commit SHAs, identifiers,
-                    captures, retired wording
-  check-markdown.js  run before every commit that touches a .md file; catches
-                    escapes that render literally and the two structural traps
-                    (see CLAUDE.md)
-  backfill-tmdb-rating.js  one-off fill for rows predating migration 002
-  debug-recs.js     dev only — fakes a recommendation response in the browser so
-                    UI work costs no OpenRouter credit
-  seed-demo.js      loads the demo list through the app own HTTP API, so the rows
-                    are what the UI would have produced; dry run by default,
-                    --write to apply
-test/               npm test — helpers, prompt loader, routes, resilience
-                    (Supabase faked, TMDB/OpenRouter stubbed — never hits live data)
-eslint.config.js    defect rules + complexity ceilings; not a style linter
-docs/
-  *.md              nine prose documents — framing, briefs, the call-log
-                    write-up, merge-readiness, security, acceptance, resilience,
-                    decisions, process — described one at a time in the
-                    Documentation table above
-  screenshots/      37 captures in four families, with a README.md index that
-                    renders when the folder is opened on GitHub: rs-* the sixteen
-                    resilience and state recipes, ac-* the acceptance-criteria
-                    evidence, pi-* the prompt-injection evidence, readme-* the
-                    showcase shots embedded above
+.
+├── public/                      the frontend, served as-is — no build step
+│   ├── index.html               markup, the three dialogs, the inline-SVG templates
+│   ├── app.js                   all client logic: search, ranking, both AI features, the call log
+│   ├── styles.css               every style and animation
+│   └── favicon.svg              a re-draw of the logo reel that still reads at 16px
+├── server/                      the Express app behind every /api/* call
+│   ├── index.js                 mounts the routes, serves public/, the central error handler
+│   ├── config.js                the only place the server reads env vars and secrets
+│   ├── supabase.js              one anon-key client; all DB access via the query builder
+│   ├── routes/                  thin routes — no inline fetch(), no inline SQL
+│   │   ├── movies.js            /api/movies — list, search, add, rate, remove
+│   │   ├── recommendations.js   /api/recommendations — a run, plus its /history
+│   │   ├── tasteVerdict.js      /api/taste-verdict — a new verdict
+│   │   └── aiLog.js             /api/ai-log — both log tables, merged
+│   └── services/
+│       ├── tmdb.js              all TMDB HTTP; the trusted source of movie facts
+│       ├── openrouter.js        the OpenRouter transport both AI features share
+│       ├── promptLoader.js      loads a versioned prompt at call time, fills {{VARS}}
+│       ├── recommendations.js   taste profile → prompt → JSON → verify vs TMDB → log
+│       └── tasteVerdict.js      rated films → prompt → plain-text verdict → log
+├── prompts/                     versioned prompt files, never overwritten
+│   ├── recommend_v1..v3.md      live: recommend_v3
+│   └── taste_verdict_v1..v7.md  live: taste_verdict_v7
+├── db/
+│   ├── schema.sql               Supabase schema + RLS, for fresh installs
+│   └── migrations/              001..004, numbered, re-runnable, applied by hand
+├── scripts/
+│   ├── scan-secrets.js          run before every commit
+│   ├── check-claims.js          run before every commit; resolves claims that point at things
+│   ├── check-markdown.js        run before every .md commit; catches markdown that renders wrong
+│   ├── seed-demo.js             loads the demo list via the app’s own API; dry run by default
+│   ├── backfill-tmdb-rating.js  one-off fill for rows predating migration 002
+│   └── debug-recs.js            dev only: fakes recommendation responses in the browser
+├── test/                        npm test — Supabase faked, TMDB and OpenRouter stubbed
+│   ├── routes.test.js           the API over real HTTP: validation, failures, AI logging
+│   ├── text-helpers.test.js     model-JSON parsing, text tidying, cost estimates
+│   ├── prompt-loader.test.js    the real prompt files, plus one in-memory fixture
+│   └── helpers.js               the fake Supabase, the fetch stub, the HTTP client
+├── docs/
+│   ├── *.md                     nine documents, each described in the Documentation table
+│   └── screenshots/             thirty-seven captures in four families, indexed in its README.md
+├── eslint.config.js             defect rules + complexity ceilings; not a style linter
+├── render.yaml                  the Render blueprint — see Deployment
+├── .env.example                 every env var the server reads — see Setup
+├── package.json, package-lock.json
+├── .gitignore, .gitattributes
+├── .vscode/settings.json        turns format-on-save off for this workspace
+├── SPEC.md                      in the Documentation table
+├── CLAUDE.md                    in the Documentation table
+├── DOSSIER.md                   the course’s grading brief — an input, not a deliverable
+└── README.md                    this file
 ```
 
 ## Demo script
