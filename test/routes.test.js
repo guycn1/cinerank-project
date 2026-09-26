@@ -972,8 +972,7 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   // coverage as `detailed` / `timed`. NOTE what those two are actually for: the
   // viewer does NOT print them (D-018 settled that), it only uses them as
   // truthiness tests — draw the in/out sub-line at all, draw a duration or an
-  // em dash. This comment used to say the viewer "can say the in+out doesn't
-  // cover every call", which it never does.
+  // em dash.
   assert.equal(totals.tokens, 2300);            // 1000 + 900 + 400 (r2 is null)
   assert.equal(totals.promptTokens, 1500);      // r1 700 + v1 800
   assert.equal(totals.completionTokens, 400);   // r1 300 + v1 100

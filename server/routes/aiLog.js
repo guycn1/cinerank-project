@@ -136,16 +136,12 @@ aiLogRouter.get(
     // and a duration, so a caller can tell whether the sums below cover every
     // row or only some of them.
     //
-    // TWO THINGS THIS COMMENT USED TO GET WRONG, both corrected here rather than
-    // left, because it described behaviour that does not exist:
-    //   1. It said "the viewer says so". It does not. `renderAiLog()` in
-    //      public/app.js deliberately does NOT surface either count — see D-018
-    //      — it only uses `detailed` as a truthiness test for whether to draw the
-    //      in/out sub-line at all, and `timed` the same way for the duration.
-    //   2. It said rows written before migration 001 "have neither", present
-    //      tense. Those six rows were deleted by hand once, for presentation
-    //      (D-019), so no row in the table is missing a split or a duration
-    //      today and neither count can currently come back short.
+    // The viewer deliberately does NOT surface either count (D-018):
+    // `renderAiLog()` in public/app.js uses `detailed` only as a truthiness test
+    // for whether to draw the in/out sub-line at all, and `timed` the same way
+    // for the duration. Neither count can currently come back short, either:
+    // the six rows written before migration 001, which had no split or
+    // duration, were deleted by hand for presentation (D-019).
     // Both fields are kept anyway: they cost nothing, and they are what stops a
     // future partial-coverage row from silently showing an in/out split that
     // does not add up to the token total.

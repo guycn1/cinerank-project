@@ -6,8 +6,7 @@
  * single place they enter the process; nothing else reads a SECRET out of
  * process.env. The one other process.env read in the repository is
  * scripts/seed-demo.js's CINERANK_URL, which is a base URL and not a
- * credential. (This said "nothing else reads process.env directly", which that
- * line has falsified since the seed helper was written.)
+ * credential.
  *
  * Importing this module throws if any secret is missing or still holds its
  * .env.example placeholder, so a misconfigured server fails at boot rather than
@@ -58,9 +57,8 @@ export const config = {
     apiKey: required('OPENROUTER_API_KEY'),
     base: 'https://openrouter.ai/api/v1/chat/completions',
     // The app-wide default, and what RECOMMENDATIONS use. The cheaper tier here is
-    // deliberate and is NOT a judgement that the task is small. This comment used
-    // to read 'that task is "name some films"', which was both dismissive and
-    // wrong: the run reads the whole list, infers a taste from the top five rated
+    // deliberate and is NOT a judgement that the task is small: the run reads
+    // the whole list, infers a taste from the top five rated
     // films and the reviews attached to them (topN below), excludes every title
     // already in the list whether rated or not, and justifies each pick in one
     // second-person sentence of 8-16 words tied to a specific rating or a pattern

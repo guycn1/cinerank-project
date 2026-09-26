@@ -136,9 +136,7 @@ export async function getMovieDetails(tmdbId) {
  * deliberate (D-054). A title TMDB returns nothing for is dropped; anything else
  * resolves to TMDB's own top result, which is occasionally a DIFFERENT film from
  * the one the model named, shown with the model's reason still attached.
- * This comment used to promise "or null if no confident match". That was never
- * true -- there is no confidence test here, and there was none when that line
- * was written.
+ * There is no confidence test beyond preferring an exact title match.
  *
  * Tightening it was measured against live TMDB (30 probe titles) and rejected.
  * TMDB search is close to TOKEN matching rather than fuzzy, so invented titles

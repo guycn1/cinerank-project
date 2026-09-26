@@ -1120,9 +1120,7 @@ document.addEventListener('keydown', (e) => {
  * PRESENTATIONAL inline element.style writes in this file went. The writes
  * that remain all carry a measured or computed value CSS cannot express -- a
  * locked button width, a stagger delay in ms, a grid offset, a custom
- * property. (This said "these were the only inline element.style writes left
- * in this file", which was too strong even when written: busyButton()'s
- * min-width was already here.)
+ * property.
  *
  * @param {string} [text]  Written with textContent; omit it to fill the line yourself.
  * @param {string} [kind]  An extra class, e.g. "err".

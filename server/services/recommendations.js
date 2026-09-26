@@ -98,10 +98,8 @@ export { RecommendationError };
  * Format one rated film as a line of the taste profile.
  *
  * Review text is untrusted user input flowing into the prompt (CLAUDE.md
- * § Security & Secrets, item 5 — there is no § Prompt Injection heading, which
- * is what this comment used to point at). We cap length and keep it clearly
- * inside the data block;
- * the prompt itself instructs the model to treat the block as data only. Even if
+ * § Security & Secrets, item 5). We cap length and keep it clearly inside the
+ * data block; the prompt itself instructs the model to treat the block as data only. Even if
  * injection partly succeeds, the blast radius is "a weird title" — every title is
  * then verified against TMDB before the user ever sees it.
  *
