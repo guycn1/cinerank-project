@@ -28,6 +28,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Linter } from 'eslint';
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const SKIP = new Set(['node_modules', '.git', '.idea']);
@@ -193,6 +194,75 @@ function checkIdentifiers() {
   }
 }
 
+/**
+ * Parse every JS file once, with ESLint's own parser, for check 6b. A regex
+ * cannot tell a comment from a string or a regex literal that happens to
+ * contain `//`; the parser can.
+ *
+ * @returns {{ known: Set<string>, commentLines: Map<string, Map<number, string>> }}
+ *   Every identifier and keyword in the CODE, comments excluded, and each
+ *   file's comment text keyed by line number. debug-recs.js is parsed as a
+ *   classic script, as eslint.config.js parses it.
+ */
+function indexJavaScript() {
+  const linter = new Linter();
+  const known = new Set();
+  const commentLines = new Map();
+  for (const [f, s] of corpus) {
+    if (!f.endsWith('.js')) continue;
+    const sourceType = f === 'scripts/debug-recs.js' ? 'script' : 'module';
+    const fatal = linter
+      .verify(s, [{ languageOptions: { ecmaVersion: 2024, sourceType } }], f)
+      .find((m) => m.fatal);
+    if (fatal) {
+      add('comment-identifier', `${f} does not parse: ${fatal.message}`);
+      continue;
+    }
+    const code = linter.getSourceCode();
+    for (const t of code.ast.tokens) {
+      if (t.type === 'Identifier' || t.type === 'Keyword') known.add(t.value);
+    }
+    const lines = new Map();
+    for (const c of code.getAllComments()) {
+      c.value.split('\n').forEach((text, i) => lines.set(c.loc.start.line + i, text));
+    }
+    commentLines.set(f, lines);
+  }
+  return { known, commentLines };
+}
+
+/**
+ * 6b. A function a CODE COMMENT names must exist in the code.
+ *
+ * Check 6 reads markdown only, so for most of this project's life a name in a
+ * comment was checked by nothing — and two comments named functions that had
+ * never existed at all. This resolves against the code TOKENS rather than the
+ * raw text, because in the raw text a name that appears only in a comment
+ * would vouch for itself.
+ *
+ * `name()` is matched with or without backticks, since comments rarely use
+ * them, but not `obj.name()`: a method on something else, most often the DOM,
+ * is not this repository's to resolve. A word in index.html or styles.css
+ * counts as known too, since a comment may point at either. HISTORICAL exempts
+ * a retired name exactly as in check 6, over the same three-line window.
+ */
+function checkCommentIdentifiers() {
+  const { known, commentLines } = indexJavaScript();
+  for (const f of ['public/index.html', 'public/styles.css']) {
+    for (const [word] of read(f).matchAll(/[A-Za-z_$][\w$-]*/g)) known.add(word);
+  }
+  for (const [f, lines] of commentLines) {
+    if (f === SELF) continue;
+    for (const [n, text] of lines) {
+      const window = [lines.get(n - 1) ?? '', text, lines.get(n + 1) ?? ''].join(' ');
+      if (HISTORICAL.test(window)) continue;
+      for (const [, name] of text.matchAll(/(?<![\w$.#-])([A-Za-z_$][\w$]*)\(\)/g)) {
+        if (!known.has(name)) add('comment-identifier', `${f}:${n} names ${name}() which is not in the code`);
+      }
+    }
+  }
+}
+
 /** The spelled-out capture counts checkCaptures() can read. */
 const WORDS = { 'thirty-five': 35, 'thirty-six': 36, 'thirty-seven': 37, 'thirty-eight': 38 };
 /** 7. Every capture on disk is indexed, and every stated capture count is right. */
@@ -307,7 +377,8 @@ function checkRetiredPhrasing() {
 }
 
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
-  checkLineRefs, checkIdentifiers, checkCaptures, checkResilienceKeys, checkInvisibleCharacters,
+  checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
+  checkInvisibleCharacters,
   checkRetiredPhrasing]) {
   check();
 }

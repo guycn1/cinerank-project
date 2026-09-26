@@ -241,9 +241,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    header, one at the right edge of the footer's credit line — so THIS rule is
    the shared look and nothing else. Placement lives with each instance below,
    along with the TWO things that genuinely differ: the size, and the halo
-   multiplier the footer needs to read as lit at its smaller scale. (This said
-   size was the only difference; `--gh-halo` falsified that when it arrived in
-   7bef762, one commit after the comment.)
+   multiplier the footer needs to read as lit at its smaller scale.
    One dial for the size at each site: the <a> carries a font-size and the SVG is
    1em, so the icon and its padded hit area scale together. */
 .gh-link {
@@ -333,10 +331,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 /* FOOTER instance — the same mark, small, parked at the right edge of the credit
    line. It needs TWO declarations and no more — the size, and the halo dial
    below it. Everything else arrives from .gh-link, and the hover halo is in
-   `em` so it scales itself. (This read "Size is the ONLY declaration it needs",
-   which the `--gh-halo` three lines below contradicted from the day it was
-   added.) `rem` and not
-   `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
+   `em` so it scales itself. `rem` and not `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
    the icon depend on a value chosen for body copy. */
 .site-foot__credit .gh-link {
   font-size: 1.5rem;
@@ -481,9 +476,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
         edge `dx/dtheta = h + x^2/h`, which is 0.61px/deg at the middle of the
         edge and 125px/deg at the corner — a 200x swing. So the band was narrow
         and crawling mid-edge, then ballooned and rocketed into each corner,
-        exactly as reported. An EARLIER COMMENT HERE CLAIMED THE SPEED WAS
-        "near-even" — that was wrong, and wrong because it averaged px-per-degree
-        over a whole edge instead of looking at the local derivative.
+        exactly as reported. Averaging px-per-degree over a whole edge makes
+        the speed look near-even; only the local derivative shows the swing.
      What actually works is .verdict__sheen below: a dash travels a PATH, so one
      width and one speed the whole way round, by construction rather than by
      tuning.
@@ -932,12 +926,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    stays --ink-dim: "Searching…" is information, and should still be readable.
    Eased via the transition above, since a hard flash each way over a ~1s state
    would be worse than the problem.
-   This comment used to say "this is the only FILLED button", which was never
-   true, and it is why .rec-card__body button was left on the opacity treatment
-   when this rule was written (R13). THREE amber-filled buttons can be disabled
-   — this one, .rate-dialog button.primary and .rec-card__body button — and all
-   three now
-   swap the fill. (.log-cta__btn is amber-filled too but nothing ever disables
+   THREE amber-filled buttons can be disabled — this one, .rate-dialog
+   button.primary and .rec-card__body button — and all three swap the fill
+   (R13). (.log-cta__btn is amber-filled too but nothing ever disables
    it: checked against every `disabled =` assignment in app.js.) */
 .search button:disabled {
   background: var(--bg-card);
@@ -1185,10 +1176,10 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    NO THRESHOLD IS ENCODED HERE, and none should be. Flex line breaking compares
    HYPOTHETICAL sizes, so the browser derives the break point from the heading’s
    real max-content width plus the button’s real width in the current font, and
-   it re-derives itself if either string or the type changes. An earlier version
-   of this comment carried a "~385px" figure from an ESTIMATE; estimated widths
-   in this file have been wrong before (the search row records "In your list" as
-   95px, not the 111px guessed). Do not re-add a number.
+   it re-derives itself if either string or the type changes. Do not add a
+   number: it could only be an estimate, and estimated widths in this file have
+   been wrong before (the search row records "In your list" as 95px, not the
+   111px guessed).
    Note the lone item on the second line lands at the START, because
    `justify-content: space-between` parks a single child at flex-start — the same
    trap the 620px card-mode block documents. Here that is what we want: the count
@@ -2109,11 +2100,6 @@ button:disabled .sparkle-major { animation: none; }
    whatever .is-caption is later applied to. Nothing gives an error that class
    today (setRecsHint clears it unless a caller asks for it), and this rule sits
    AFTER .is-caption at equal specificity, so it wins if one ever does.
-   (Two earlier versions of this comment are now wrong and are not preserved,
-   because this describes live behaviour: it once said --ink-dim made the error
-   brighter than the resting hint — true before the base moved to --ink-dim — and
-   then that .from-run would otherwise drag the error down, which was true before
-   .from-run was replaced by .is-caption.)
    The message carries the failure now, not the colour. That is the same quiet
    fallback SPEC 2.3/2.4 asks of the AI features, and it leaves --crimson for
    the places a failure really is red (D-033). */
@@ -2351,17 +2337,10 @@ button:disabled .sparkle-major { animation: none; }
    step — below anything at a positive z-index. At 1 a neighbouring card's badge
    would paint over this card's glow; 3 clears it.
 
-   No horizontal scrollbar, re-derived in the 2026-09-09 sweep because the first
-   version of this sum went stale the moment D-050 landed. It read "the widest
-   this card gets is ~237px (a 1000px content column at 4 auto-fill tracks)",
-   which was true while `auto-fill` capped the tracks at four. It no longer is:
-   the count now comes from `layoutRecsGrid()`, so ONE returned card takes the
-   whole content column. Worst case is therefore a 1000px card (the 1080px
-   `main` less its 2.5rem padding), where 1.018 adds 9px per side against a 40px
-   gutter. Still clear, and every narrower case is clearer still — the gutter
-   shrinks with `4vw` while the overhang shrinks with the card.
-   R29 will cap the card width and centre the rows, at which point this becomes
-   even safer; re-derive rather than trusting the figure if the scale is raised.
+   No horizontal scrollbar. R29 caps a card at `--rec-max` (250px) and centres
+   the grid, so 1.018 overhangs even the widest card by about 2.3px per side —
+   far inside `main`'s side padding, which never drops below 1rem. Re-derive
+   rather than trusting the figure if the scale or the cap is raised.
    The glow's own size is not part of that arithmetic however far it is pushed —
    a box-shadow is ink overflow, which never contributes scrollable overflow.
 
@@ -3577,28 +3556,27 @@ body:has(dialog[open]) { overflow: hidden; }
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
    ranked list's (which was `fade-slide` at the time and is `card-enter` since
    step 4b).
-   The travel is 18px: the ranked card's was 10px when this was written, and 10px
-   under a ~300px-tall poster card is a twitch, not an arrival. (That figure has
+   The travel is 18px. The ranked card then travelled 10px, and 10px under a
+   ~300px-tall poster card is a twitch, not an arrival. The ranked card has
    since moved to 14px on its own, which is exactly the independence the split
-   was for — do not re-sync them.) Both end
-   at `transform: none` so they compose cleanly with the hover scale (R14) —
-   neither ever leaves a transform behind, because the entrance fills `backwards`
-   and the exit's node is removed.
-   The exit is shorter than the entrance and it also shrinks slightly, which the
-   entrance does not — leaving is a retreat, arriving is a rise. The ENTRANCE is
-   the one the user asked to be able to watch.
-   TWO CLAIMS IN THIS PARAGRAPH WERE TRUE WHEN WRITTEN AND ARE NOT NOW, corrected
-   here rather than left, because both described live behaviour:
-     - the durations were "0.28s vs 0.5s". They are 0.34s (rec-close, see
-       RECS_EXIT_MS in app.js, which must stay in step with it) and 0.75s
-       (rec-enter, just above).
-     - it said the exit "is NOT staggered", on the reasoning that it should read
-       as one gesture while a request is already in flight. R30 replaced that:
-       the user asked for the cards to close one by one, like pages of a book,
-       and the exit now staggers at RECS_EXIT_STAGGER_MS (120ms, the same figure
-       as the entrance's, and deliberately a SEPARATE constant so the two stay
-       independently tunable). Six cards therefore take about 0.94s to leave.
-       The old reasoning is still why the exit is the shorter of the two. */
+   was for — do not re-sync them.
+   The entrance ends at `transform: none` so it composes cleanly with the hover
+   scale (R14), and it fills `backwards`, so it never leaves a transform behind.
+   The exit ends folded shut (rec-close, below) and holds there with
+   `forwards`, but its nodes are removed once the last card finishes, so no live
+   card keeps that transform.
+   The exit is the shorter of the two, 0.34s (RECS_EXIT_MS in app.js must stay
+   in step with it) against the entrance's 0.75s, and it folds toward its left
+   edge like a closing book (R30) where the entrance rises — leaving is a
+   retreat, arriving is a rise. The ENTRANCE is the one the user asked to be
+   able to watch.
+   The exit is staggered at RECS_EXIT_STAGGER_MS (120ms, the same figure as the
+   entrance's, and deliberately a SEPARATE constant so the two stay
+   independently tunable), so six cards take about 0.94s to leave. It was once a
+   single unstaggered gesture, on the reasoning that it should read as one
+   movement while a request is already in flight; R30 replaced that when the
+   user asked for the cards to close one by one, like pages of a book. That
+   reasoning is still why the exit is the shorter of the two. */
 @keyframes rec-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 /* One straight run from full to gone, so the card fades THROUGHOUT the close
    rather than in a stage of its own (user's call). It first shipped with the

@@ -65,10 +65,15 @@ R7 and R23 closed, migration 004 forbade a state, D-037 removed a value, a
 fourth sync call joined `loadMovies()` — which is the 2026-09-21 pattern again,
 in code comments instead of documents. The other two named functions that
 never existed, renderResults and renderLogTotals (`git log -S` finds
-neither). **`check-claims` verifies a function name only in MARKDOWN**, so a
-name in a code comment has never been checked by anything; a one-off scan of
-every function name in every JS comment, proved by catching both on the
-unfixed files, now finds none left.
+neither). **`check-claims` now resolves every function a JS comment names**
+(check 6b), against the code's TOKENS so that a name mentioned only in
+comments cannot vouch for itself; run on the commit before these fixes, it
+flags exactly those two. **Rule 10 now covers code comments explicitly** (the
+user's ruling): fifteen comments that narrated their own earlier wording, seven
+in JS and eight in CSS, now state only what is true. Two of the CSS ones were
+also false underneath the narration — a scrollbar sum from before R29 capped
+the card width, and an exit animation described as it was before R30 — so
+those were corrected, not just trimmed.
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
@@ -4276,8 +4281,10 @@ up after the fact says so in its own text. `CLAUDE.md`'s living log stays the
 *what / now*; `docs/DECISIONS.md` is the *why*.
 
 **Historical records are not maintained — they are preserved.** A `docs/DECISIONS.md`
-entry, or a code comment that explicitly narrates a past state ("this used to be
-X; changed because Y"), describes what was true *at the time*. Do **not** edit it
+entry, or a code comment that explicitly narrates a past state of the app or
+code ("this used to be X; changed because Y"), describes what was true *at the
+time*. (A comment narrating its OWN earlier wording is not such a record — rule
+10 under § Markdown Authoring Rules.) Do **not** edit it
 to match the present during a staleness sweep — that destroys the only thing it
 exists for. D-010 still says the AI call log is reachable from a "footer link";
 it was, when D-010 was written, and it stays.
@@ -4400,6 +4407,14 @@ down would be re-broken within a session. See D-065.
    a correction a reader would otherwise re-introduce: state the rule going
    forward, not the history (rule 6 above is the model — it says the count is
    gone on purpose, without narrating the three values it passed through).
+   **It applies equally to CODE COMMENTS** (the user's ruling, 2026-09-26), and
+   the line is what the history is ABOUT. A comment recounting what the COMMENT
+   used to read or say ("This said…", "this comment used to…", "an earlier
+   version of this comment…") goes, and its correction story goes in the commit
+   message. A comment recounting how the APP or CODE used to behave ("this line
+   read `config.openrouter.model` until 2026-09-13 and logged the wrong model")
+   stays: that is product history, and often the guard that stops the old
+   behaviour coming back.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
@@ -4619,7 +4634,7 @@ the real blob from github.com and read that — it is the only authority.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   every claim in the repository that POINTS AT SOMETHING — a path, a script, a
   `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
-  backticks, a capture and its count, an `RS-n` key, a short list of retired
+  backticks in a document, a function a JS comment names, a capture and its count, an `RS-n` key, a short list of retired
   phrasings, and any invisible character (U+00A0 and friends, which no reviewer
   can see by eye) — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
   file, which a per-file staleness sweep structurally cannot see: `README.md`
