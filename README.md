@@ -140,6 +140,14 @@ decoration:
   `tasteVerdict.js` is the only caller that overrides it ([D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), so the split
   costs no second client and shows up per row in the log.
 
+**The reference behind the picture lives in the specification, not here**, so
+each fact has one copy to keep true. [`SPEC.md` §
+4.5](SPEC.md#45-api-endpoints-draft) lists all eleven HTTP routes — eight in
+its table and three in the note beneath it — and [`SPEC.md` §
+5](SPEC.md#5-data-model-supabase--postgres) documents the three tables column
+by column, including what the migrations added. The schema that actually runs
+is [`db/schema.sql`](db/schema.sql).
+
 ## Screenshots
 
 ### Recommendations, grounded and costed
