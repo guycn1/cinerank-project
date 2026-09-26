@@ -1,12 +1,18 @@
+/**
+ * @file Route-level tests. The Supabase client is swapped for an in-memory fake so
+ * nothing here touches the live database (CLAUDE.md § Working agreements).
+ * TMDB / OpenRouter are stubbed per-test via globalThis.fetch.
+ *
+ * Every request goes over real HTTP to the app from server/index.js, started
+ * once on an ephemeral port; the fake's canned results and recorded calls are
+ * reset before each test.
+ */
 import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB, UNVOTED_TMDB } from './helpers.js';
 import { config } from '../server/config.js';
 
-// Route-level tests. The Supabase client is swapped for an in-memory fake so
-// nothing here touches the live database (CLAUDE.md § Working agreements).
-// TMDB / OpenRouter are stubbed per-test via globalThis.fetch.
 const db = { results: {} };
 mock.module('../server/supabase.js', {
   namedExports: { supabase: makeFakeSupabase(db) },
@@ -438,6 +444,13 @@ const FOUR_PICKS = JSON.stringify([
   { title: 'Collateral', reason: 'Resolves to the same film as Heat.' },
 ]);
 
+/**
+ * A successful OpenRouter response body, with fixed usage figures and the
+ * cheaper model echoed back.
+ *
+ * @param {string} content  The model's reply text.
+ * @returns {object} Shaped like OpenRouter's chat completion JSON.
+ */
 function openRouterReply(content) {
   return {
     choices: [{ message: { content } }],
@@ -446,6 +459,12 @@ function openRouterReply(content) {
   };
 }
 
+/**
+ * Stub one full recommendation run: the model names FOUR_PICKS, and TMDB
+ * answers each title so that exactly one pick survives.
+ *
+ * @returns {() => void} The restore function from stubFetch().
+ */
 function stubRecsRun() {
   return stubFetch({
     'openrouter.ai': openRouterReply(FOUR_PICKS),
@@ -576,9 +595,18 @@ test('POST /api/recommendations below the threshold keeps its specific message',
 
 /* ---------- WHY a run came back empty ---------------------------------- */
 
-// The UI used to assert one cause for all of them — "the model only named films
-// already in your list" — which is wrong three times out of four. One test per
-// reason, so the wrong sentence cannot come back by accident.
+/**
+ * The UI used to assert one cause for all of them — "the model only named films
+ * already in your list" — which is wrong three times out of four. One test per
+ * reason, so the wrong sentence cannot come back by accident.
+ *
+ * Sets up a run whose picks all fall away: the recommendation library and a
+ * successful log insert in the fake, and the model and TMDB answers in fetch.
+ *
+ * @param {{ title: string, reason: string }[]} picks  What the model names.
+ * @param {Record<string, unknown>} tmdbStubs  stubFetch() entries for the TMDB lookups.
+ * @returns {() => void} The restore function from stubFetch().
+ */
 function emptyRun(picks, tmdbStubs) {
   db.results['movies:select'] = RECS_LIBRARY;
   db.results['recommendation_logs:insert'] = { data: null, error: null };
@@ -801,6 +829,9 @@ for (const feature of [
  * unreachable, stderr is the only sink left, so "did it reach stderr" is a real
  * assertion rather than test hygiene — it is the ONLY surviving record of the
  * cause (R5). Capturing also keeps the suite's own output clean.
+ *
+ * @param {() => Promise<unknown>} fn  The call to run, awaited.
+ * @returns {Promise<string>} Everything logged, one call per line.
  */
 async function captureStderr(fn) {
   const lines = [];

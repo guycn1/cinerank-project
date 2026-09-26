@@ -1,20 +1,22 @@
 #!/usr/bin/env node
-// Markdown render check (CLAUDE.md § Markdown Authoring Rules). Run before every
-// commit that touches a .md file:  npm run check-markdown
-//
-// WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
-// wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
-// and every technical identifier in both files showing a backslash inside its
-// code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on, including
-// all four env var names in the Module 17 security section). The docs are a
-// graded deliverable here, so "it only looks wrong" is not a small problem, and a
-// rendering fault in a file this long is close to unfindable by eye.
-//
-// The rules below are the ones that were established by measuring every case
-// against GitHub's own Markdown API, not by assumption. See D-065.
-//
-// Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
-// and do NOT fail, so this can be wired into a hook without crying wolf.
+/**
+ * @file Markdown render check (CLAUDE.md § Markdown Authoring Rules). Run before every
+ * commit that touches a .md file:  npm run check-markdown
+ *
+ * WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
+ * wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
+ * and every technical identifier in both files showing a backslash inside its
+ * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on, including
+ * all four env var names in the Module 17 security section). The docs are a
+ * graded deliverable here, so "it only looks wrong" is not a small problem, and a
+ * rendering fault in a file this long is close to unfindable by eye.
+ *
+ * The rules below are the ones that were established by measuring every case
+ * against GitHub's own Markdown API, not by assumption. See D-065.
+ *
+ * Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
+ * and do NOT fail, so this can be wired into a hook without crying wolf.
+ */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
@@ -25,11 +27,18 @@ const TICK = String.fromCharCode(96);
 const BS = String.fromCharCode(92);
 const NL = String.fromCharCode(10);
 
-// A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
-// a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
-// so a ~~~ block would have had its contents scanned as prose and flagged. No file
-// uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
-// unaffected, because that is two tildes and this needs three.
+/**
+ * A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
+ * a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
+ * so a ~~~ block would have had its contents scanned as prose and flagged. No file
+ * uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
+ * unaffected, because that is two tildes and this needs three.
+ *
+ * The same test opens and closes a fence; the callers track which by toggling.
+ *
+ * @param {string} line  One source line.
+ * @returns {boolean} Whether the line is a fence delimiter.
+ */
 const isFence = (line) => /^[ \t]*(`{3,}|~{3,})/.test(line);
 
 // Code-span contents where a backslash is REAL CONTENT, not a stray escape.
@@ -59,6 +68,13 @@ const ALLOWED_SPANS = new Set([
 // else (\S, \t) is ordinary content and is not flagged.
 const ESCAPABLE = '!"#$%&' + "'" + '()*+,-./:;<=>?@[' + BS + ']^_`{|}~';
 
+/**
+ * Every .md file under a directory, skipping node_modules and .git.
+ *
+ * @param {string} dir  The directory to walk.
+ * @param {string[]} [out]  Accumulator shared across the recursion.
+ * @returns {string[]} Absolute paths; the same array as `out`, filled.
+ */
 function markdownFiles(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name === '.git') continue;
@@ -194,6 +210,11 @@ for (const file of markdownFiles(root)) {
     let para = [];
     let paraStart = 0;
     let fence = false;
+    /**
+     * Judge the paragraph gathered in `para` for an unclosed code span, record
+     * any defect against `paraStart`, and clear it for the next paragraph.
+     * Does nothing when no paragraph is pending.
+     */
     const check = () => {
       if (!para.length) return;
       const text = para.join(NL);

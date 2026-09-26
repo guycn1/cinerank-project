@@ -1,3 +1,10 @@
+/**
+ * The recommendations feature (SPEC § 2.2): build a taste profile from the top
+ * rated films, ask the model for picks, verify every pick against TMDB, drop
+ * what the user already has, and log the call whatever its outcome.
+ *
+ * @module server/services/recommendations
+ */
 import { supabase } from '../supabase.js';
 import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
@@ -7,17 +14,72 @@ import { verifyTitle } from './tmdb.js';
 const PROMPT_VERSION = 'recommend_v3';
 const REASON_MAX = 130; // safety ceiling; the prompt asks for 8–16 words
 
+/**
+ * One pick as parsed from the model's reply, before TMDB has confirmed it.
+ *
+ * @typedef {object} ModelPick
+ * @property {string} title  Trimmed; it only ever drives a TMDB lookup.
+ * @property {string} reason  Already passed through tidyReason().
+ */
+
+/**
+ * A pick TMDB confirmed and the user does not own. Every field but `reason`
+ * comes from TMDB.
+ *
+ * @typedef {import('./tmdb.js').ShapedMovie & { reason: string }} Suggestion
+ */
+
+/**
+ * What happened to each title the model named during one run. Written into the
+ * log row's raw_model_output, and resolved to an {@link EmptyReason} when the
+ * run produced nothing.
+ *
+ * @typedef {object} VerificationTally
+ * @property {number} named  Picks parsed from the reply.
+ * @property {number} tmdbErrors  Lookups that could not reach TMDB.
+ * @property {number} unmatched  Lookups TMDB answered with no result at all.
+ * @property {number} owned  Picks already in the user's list, rated or not.
+ * @property {number} duplicate  Picks resolving to a film already kept this run.
+ */
+
+/**
+ * Why a run produced no cards. The client maps each value to its own sentence.
+ *
+ * @typedef {'none-named' | 'tmdb-unreachable' | 'all-owned' | 'unverifiable' | 'mixed'} EmptyReason
+ */
+
+/**
+ * The result of one successful run, sent to the client as it stands.
+ *
+ * @typedef {object} RecommendationRun
+ * @property {Suggestion[]} suggestions  At most six.
+ * @property {EmptyReason | null} emptyReason  Null whenever there are suggestions.
+ * @property {object} meta
+ * @property {string} meta.promptVersion
+ * @property {string} meta.model
+ * @property {number | null} meta.tokensUsed
+ * @property {number | null} meta.estimatedCostUsd
+ * @property {number} meta.durationMs
+ * @property {string[]} meta.basedOn  Titles of the films in the taste profile.
+ */
+
+/**
+ * A recommendation run that failed, carrying the technical cause as its
+ * message and two flags that tell the route what it may show.
+ */
 class RecommendationError extends Error {
   /**
    * Two flags, both additive and both about what the ROUTE may do with the
    * message — the service keeps writing the same technical text either way, and
    * that text keeps going to the log row's error_text where it belongs.
    *
-   * @param userFacing  This message IS the answer, so show it verbatim. True for
+   * @param {string} message  The technical cause.
+   * @param {object} [flags]
+   * @param {boolean} [flags.userFacing=false]  This message IS the answer, so show it verbatim. True for
    *   exactly one case: not enough rated films. Everything else here names an
    *   internal cause ("OpenRouter responded 401", "DB read failed: ...") that a
    *   user can neither act on nor should have to read.
-   * @param logged  A recommendation_logs row was written for this failure, so a
+   * @param {boolean} [flags.logged=false]  A recommendation_logs row was written for this failure, so a
    *   UI may point at the AI call log. Only true once an AI call has actually
    *   been made and its row committed: a failed DB read, an unmet threshold and
    *   a failed log write all produce NO row, and telling the user to go read one
@@ -32,19 +94,36 @@ class RecommendationError extends Error {
 }
 export { RecommendationError };
 
-// Review text is untrusted user input flowing into the prompt (CLAUDE.md
-// § Security & Secrets, item 5 — there is no § Prompt Injection heading, which
-// is what this comment used to point at). We cap length and keep it clearly
-// inside the data block;
-// the prompt itself instructs the model to treat the block as data only. Even if
-// injection partly succeeds, the blast radius is "a weird title" — every title is
-// then verified against TMDB before the user ever sees it.
+/**
+ * Format one rated film as a line of the taste profile.
+ *
+ * Review text is untrusted user input flowing into the prompt (CLAUDE.md
+ * § Security & Secrets, item 5 — there is no § Prompt Injection heading, which
+ * is what this comment used to point at). We cap length and keep it clearly
+ * inside the data block;
+ * the prompt itself instructs the model to treat the block as data only. Even if
+ * injection partly succeeds, the blast radius is "a weird title" — every title is
+ * then verified against TMDB before the user ever sees it.
+ *
+ * @param {{ title: string, year: number | null, rating: number, review: string | null }} movie
+ * @returns {string} e.g. `- "Heat" (1995) — rated 9/10; review: <<...>>`, the
+ *   review collapsed to one line and cut at 300 characters.
+ */
 function line(movie) {
   const review = (movie.review || '').replace(/\s+/g, ' ').trim().slice(0, 300);
   const base = `- "${movie.title}" (${movie.year ?? 'n/a'}) — rated ${movie.rating}/10`;
   return review ? `${base}; review: <<${review}>>` : base;
 }
 
+/**
+ * Parse the model's reply into picks. Items without a string `title` and a
+ * string `reason` are dropped silently, and anything past the sixth is cut.
+ *
+ * @param {string} text  The raw reply.
+ * @returns {ModelPick[]} Between zero and six picks, in the model's order.
+ * @throws {RecommendationError} When the reply is not valid JSON or is not an
+ *   array. Neither flag is set.
+ */
 export function parseModelJson(text) {
   // Structured output only — no regex-parsing of prose (SPEC § 6). We tolerate a
   // markdown code fence but nothing looser than that.
@@ -62,8 +141,14 @@ export function parseModelJson(text) {
     .slice(0, 6);
 }
 
-// Belt-and-suspenders: strip markdown, and if the model overshoots the word
-// budget cut at the last sentence end (else last word), never mid-word.
+/**
+ * Belt-and-suspenders: strip markdown, and if the model overshoots the word
+ * budget cut at the last sentence end (else last word), never mid-word.
+ *
+ * @param {string} raw  One reason as the model wrote it.
+ * @returns {string} Whitespace collapsed and `*`, `_` and backticks removed. At
+ *   most 130 characters; a cut at a word boundary ends in "…".
+ */
 export function tidyReason(raw) {
   const r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (r.length <= REASON_MAX) return r;
@@ -89,6 +174,9 @@ export function tidyReason(raw) {
  * `duplicate` cannot be non-zero here: the guard that increments it tests
  * `verified.some(...)`, which is false while `verified` is empty. It is counted
  * anyway so the tally in the log row adds up for a run that DID produce cards.
+ *
+ * @param {VerificationTally} tally  The tally of a run that produced no cards.
+ * @returns {EmptyReason}
  */
 function emptyReasonFor(tally) {
   if (tally.named === 0) return 'none-named';
@@ -100,7 +188,15 @@ function emptyReasonFor(tally) {
 
 /**
  * Run one recommendation pass. Always writes a row to recommendation_logs
- * (SPEC § 2.2) — the audit record is the point, not a nice-to-have.
+ * (SPEC § 2.2) — the audit record is the point, not a nice-to-have. "Always"
+ * means for every AI call made: a failed DB read and an unmet threshold both
+ * throw before any call, and so before any row.
+ *
+ * @returns {Promise<RecommendationRun>}
+ * @throws {RecommendationError} When the DB read fails, when fewer films are
+ *   rated than `config.recommendations.minRatedMovies` (`userFacing`), when the
+ *   log row cannot be written, or when the AI call or its parse failed after
+ *   its row was committed (`logged`). Any other error propagates unchanged.
  */
 export async function generateRecommendations() {
   // ONE unfiltered read, then split in JS. This used to be a single query

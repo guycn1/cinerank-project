@@ -1,3 +1,10 @@
+/**
+ * Shared test fixtures: a real HTTP client for the app, an in-memory stand-in
+ * for the Supabase client, a fetch stub for TMDB and OpenRouter, and two TMDB
+ * payloads.
+ *
+ * @module test/helpers
+ */
 import { once } from 'node:events';
 
 // The real fetch, captured before any test replaces globalThis.fetch with a stub.
@@ -5,11 +12,34 @@ import { once } from 'node:events';
 // breaks requests to the test server itself.
 const realFetch = globalThis.fetch.bind(globalThis);
 
-/** Start an Express app on an ephemeral port; returns a tiny HTTP client. */
+/**
+ * The client startApp() returns. Each method resolves to the raw fetch
+ * Response, whatever its status, so a test asserts on status and body itself.
+ *
+ * @typedef {object} TestClient
+ * @property {(path: string) => Promise<Response>} get
+ * @property {(path: string, body?: unknown) => Promise<Response>} post
+ * @property {(path: string, body?: unknown) => Promise<Response>} patch
+ * @property {(path: string) => Promise<Response>} del
+ * @property {() => Promise<void>} close  Stops the server.
+ */
+
+/**
+ * Start an Express app on an ephemeral port; returns a tiny HTTP client.
+ *
+ * @param {import('express').Express} app  The app from server/index.js.
+ * @returns {Promise<TestClient>} Once the server is listening.
+ */
 export async function startApp(app) {
   const server = app.listen(0);
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}`;
+  /**
+   * @param {string} method
+   * @param {string} path  e.g. "/api/movies".
+   * @param {unknown} [body]  Sent as JSON when given.
+   * @returns {Promise<Response>}
+   */
   const req = (method, path, body) =>
     realFetch(base + path, {
       method,
@@ -31,12 +61,33 @@ export async function startApp(app) {
  * `state.results` by `"<table>:<op>"` (op = select | insert | update | delete),
  * falling back to `"<table>"` then to an empty result. Writes are recorded in
  * `state.calls` so a test can assert "a log row was written".
+ *
+ * A result may also be a FUNCTION, which is called each time a chain on that
+ * table and operation is awaited.
+ *
+ * @param {{ results: Record<string, unknown>, calls?: object[] }} state  Shared
+ *   with the test, which sets `results` before each request and reads `calls`
+ *   after. `calls` is created if missing.
+ * @returns {{ from: (table: string) => object }} The fake client.
  */
 export function makeFakeSupabase(state) {
   state.calls = state.calls || [];
   return {
+    /**
+     * Start a query chain on one table, as `supabase.from()` does.
+     *
+     * @param {string} table
+     * @returns {object} A thenable builder.
+     */
     from(table) {
       const b = { _op: 'select' };
+      /**
+       * Mark the chain as a write and log it to `state.calls`.
+       *
+       * @param {'insert' | 'update' | 'delete'} op
+       * @param {unknown} [payload]  The row or patch, if any.
+       * @returns {object} The builder, so the chain continues.
+       */
       const record = (op, payload) => {
         b._op = op;
         state.calls.push({ table, op, payload });
@@ -65,6 +116,14 @@ export function makeFakeSupabase(state) {
         insert: (p) => record('insert', p),
         update: (p) => record('update', p),
         delete: () => record('delete'),
+        /**
+         * Make the builder awaitable: resolve to the canned result for this
+         * table and operation.
+         *
+         * @param {(value: unknown) => unknown} resolve
+         * @param {(reason: unknown) => unknown} reject
+         * @returns {Promise<unknown>}
+         */
         then(resolve, reject) {
           const pick =
             state.results[`${table}:${b._op}`] ??
@@ -81,6 +140,13 @@ export function makeFakeSupabase(state) {
 /**
  * Replace globalThis.fetch for the duration of one test. `map` is
  * { urlFragment: responseJson | 'throw' }. Returns a restore function.
+ *
+ * The first fragment the URL contains wins, and its JSON comes back as a 200.
+ * 'throw' simulates a network failure; a URL matching no fragment also throws,
+ * so an unexpected request fails the test loudly instead of passing.
+ *
+ * @param {Record<string, unknown>} map
+ * @returns {() => void} Puts the previous fetch back.
  */
 export function stubFetch(map) {
   const previous = globalThis.fetch;

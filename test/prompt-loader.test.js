@@ -1,11 +1,12 @@
+/**
+ * @file promptLoader reads the real files in prompts/ — this is the guard that the
+ * versioned prompt files stay well-formed and that {{PLACEHOLDER}} substitution
+ * and the # System / # User split keep working (CLAUDE.md § Prompt Versioning).
+ */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { loadPrompt } from '../server/services/promptLoader.js';
-
-// promptLoader reads the real files in prompts/ — this is the guard that the
-// versioned prompt files stay well-formed and that {{PLACEHOLDER}} substitution
-// and the # System / # User split keep working (CLAUDE.md § Prompt Versioning).
 
 test('loadPrompt: splits system/user and strips the leading dev comment', async () => {
   const { system, user, version } = await loadPrompt('recommend_v3', {

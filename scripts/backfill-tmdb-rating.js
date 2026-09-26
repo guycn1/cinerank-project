@@ -1,20 +1,25 @@
 #!/usr/bin/env node
-// One-off backfill for migration 002: fills `movies.tmdb_rating` for rows that
-// were added before the column existed.
-//
-//   npm run backfill-tmdb-rating           # dry run — prints, writes nothing
-//   npm run backfill-tmdb-rating -- --write
-//
-// SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
-// that the worst case is "nothing happened":
-//   - It only ever runs UPDATE, never DELETE and never a bulk operation.
-//   - It writes exactly ONE column, `tmdb_rating`, which migration 002 has just
-//     created and which is therefore empty everywhere. No pre-existing value —
-//     no rating, no review, no title — can be overwritten by it.
-//   - It targets rows one at a time BY ID, never "all ids".
-//   - It skips any row that already has a value, so re-running is a no-op.
-//   - It is dry-run by default. Writing takes an explicit --write flag.
-// Read the printed plan first, then re-run with --write.
+/**
+ * @file One-off backfill for migration 002: fills `movies.tmdb_rating` for rows that
+ * were added before the column existed.
+ *
+ *     npm run backfill-tmdb-rating           # dry run — prints, writes nothing
+ *     npm run backfill-tmdb-rating -- --write
+ *
+ * SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
+ * that the worst case is "nothing happened":
+ *   - It only ever runs UPDATE, never DELETE and never a bulk operation.
+ *   - It writes exactly ONE column, `tmdb_rating`, which migration 002 has just
+ *     created and which is therefore empty everywhere. No pre-existing value —
+ *     no rating, no review, no title — can be overwritten by it.
+ *   - It targets rows one at a time BY ID, never "all ids".
+ *   - It skips any row that already has a value, so re-running is a no-op.
+ *   - It is dry-run by default. Writing takes an explicit --write flag.
+ * Read the printed plan first, then re-run with --write.
+ *
+ * Migration 002 and this backfill were applied on 2026-09-08, so on the live
+ * database there is nothing left for it to do.
+ */
 
 import 'dotenv/config';
 import { supabase } from '../server/supabase.js';
@@ -25,6 +30,13 @@ const WRITE = process.argv.includes('--write');
 // TMDB's free tier is rate-limited; the list is small and this is a one-off, so
 // a plain serial loop with a small pause is the right shape. No concurrency.
 const PAUSE_MS = 250;
+
+/**
+ * Wait, to stay under TMDB's rate limit between lookups.
+ *
+ * @param {number} ms  How long to wait.
+ * @returns {Promise<void>} Resolves once the time has passed.
+ */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const { data: movies, error } = await supabase

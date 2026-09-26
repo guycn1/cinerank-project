@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * check-claims.js — the fifth commit gate (CLAUDE.md § Version Control Workflow).
+ * @file check-claims.js — the fifth commit gate (CLAUDE.md § Version Control Workflow).
  *
  * WHY THIS EXISTS. On 2026-09-15 the user found README.md claiming
  * docs/MERGE-READINESS.md read "four met, one open" sixteen hours after that file
@@ -32,7 +32,14 @@ import { fileURLToPath } from 'node:url';
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const SKIP = new Set(['node_modules', '.git', '.idea']);
 
-/** Every file we are willing to read, as repo-relative POSIX-ish paths. */
+/**
+ * Every file outside the skipped directories, as repo-relative POSIX-ish paths.
+ * Binary files are listed too; `corpus` below narrows this to the text we read.
+ *
+ * @param {string} [dir]  The directory to walk; defaults to the repo root.
+ * @param {string[]} [out]  Accumulator shared across the recursion.
+ * @returns {string[]} The same array as `out`, filled.
+ */
 function walk(dir = root, out = []) {
   for (const name of readdirSync(dir)) {
     if (SKIP.has(name)) continue;
@@ -48,6 +55,10 @@ const TEXT = /\.(md|js|css|html|sql|yaml|yml|json|example)$/;
 // .env.example is in here on purpose: it carried the retired "name some films"
 // wording for a day after a sweep that claimed to be repo-wide, because that
 // sweep was scoped to *.md and *.js and a config template is neither.
+/**
+ * @param {string} f  A repo-relative path.
+ * @returns {string} The file's contents as UTF-8.
+ */
 const read = (f) => readFileSync(join(root, f), 'utf8');
 const corpus = all.filter((f) => TEXT.test(f) || basename(f) === '.env.example')
   .map((f) => [f, read(f)]);
@@ -56,6 +67,15 @@ const sourceText = corpus.filter(([f]) => /\.(js|css|html)$/.test(f))
   .map(([, s]) => s).join('\n');
 
 const fail = [];
+
+/**
+ * Record one claim that did not resolve. The run exits 1 at the end if any were
+ * recorded.
+ *
+ * @param {string} check  The check's short name, e.g. "path".
+ * @param {string} detail  Which file says what, and why it does not hold.
+ * @returns {number} How many failures are now recorded.
+ */
 const add = (check, detail) => fail.push(`${check}: ${detail}`);
 
 /** 1. Any path a document names must exist. */
@@ -143,14 +163,19 @@ function checkLineRefs() {
   }
 }
 
+/** Words that mark a mention as explicitly historical; see checkIdentifiers(). */
+const HISTORICAL = /\bGONE\b|renamed from|retired|used to|no longer|removed|deleted|is now|when this was written/i;
 /**
  * 6. An identifier a document names in backticks must exist in the source.
  *
  * Explicitly-historical mentions are exempt: the convention (CLAUDE.md §
  * Decision Logging) is that a record of a past state is PRESERVED, not
  * maintained, so "`setRecsHintOwner()` is GONE" must not fail this check.
+ *
+ * Only a lowercase name written as a call, in backticks, in a markdown file is
+ * matched, and docs/DECISIONS.md is skipped as preserved. The line above and
+ * the line below count as context, because prose wraps.
  */
-const HISTORICAL = /\bGONE\b|renamed from|retired|used to|no longer|removed|deleted|is now|when this was written/i;
 function checkIdentifiers() {
   for (const [f, s] of md) {
     if (f === PRESERVED) continue;
@@ -168,8 +193,9 @@ function checkIdentifiers() {
   }
 }
 
-/** 7. Every capture on disk is indexed, and every stated capture count is right. */
+/** The spelled-out capture counts checkCaptures() can read. */
 const WORDS = { 'thirty-five': 35, 'thirty-six': 36, 'thirty-seven': 37, 'thirty-eight': 38 };
+/** 7. Every capture on disk is indexed, and every stated capture count is right. */
 function checkCaptures() {
   const dir = 'docs/screenshots';
   const pngs = readdirSync(join(root, dir)).filter((f) => f.endsWith('.png'));
@@ -229,8 +255,15 @@ function checkResilienceKeys() {
  * invisible character cannot be reviewed by eye and the repo-wide count is zero,
  * so this can never cry wolf. Zero-width and BOM characters ride along: they are
  * the same hazard, arrive the same way (a paste), and are equally unreviewable.
+ *
+ * The characters themselves are the values of `INVISIBLE`, directly below,
+ * keyed by their code points; checkInvisibleCharacters() runs the check.
  */
 const INVISIBLE = { 'U+00A0': ' ', 'U+200B': '​', 'U+FEFF': '﻿', 'U+2028': ' ' };
+/**
+ * 9. The check described above `INVISIBLE`: any of its characters, in any file
+ * but this one, is a failure.
+ */
 function checkInvisibleCharacters() {
   for (const [f, s] of corpus) {
     if (f === SELF) continue;
@@ -242,6 +275,14 @@ function checkInvisibleCharacters() {
 }
 
 /**
+ * Each retired phrase, and the pattern that marks a line as merely quoting it
+ * while explaining the retirement. See checkRetiredPhrasing().
+ */
+const RETIRED = [
+  { phrase: 'name some films', unless: /dismissive/i },
+  { phrase: 'cheap tier', unless: /dismissive|inaccurate/i },
+];
+/**
  * 10. Retired phrasing must not come back.
  *
  * "name some films" undersold the recommendation run (it reads the whole list,
@@ -252,10 +293,6 @@ function checkInvisibleCharacters() {
  * comparative against the Sonnet the verdict runs on. A line may still quote the
  * retired wording while explaining that it was retired.
  */
-const RETIRED = [
-  { phrase: 'name some films', unless: /dismissive/i },
-  { phrase: 'cheap tier', unless: /dismissive|inaccurate/i },
-];
 function checkRetiredPhrasing() {
   for (const [f, s] of corpus) {
     if (f === SELF || f === PRESERVED) continue;

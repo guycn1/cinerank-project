@@ -1,5 +1,5 @@
 /**
- * CineRank — recommendation UI debug harness. DEV ONLY.
+ * @file CineRank — recommendation UI debug harness. DEV ONLY.
  *
  * NOT LOADED BY THE PAGE. Paste this whole file into the browser console to use
  * it, which is how it was built and how it worked for its first days.
@@ -93,9 +93,14 @@
     'Genre furniture rearranged with real care, which is what you keep scoring highest.',
   ];
 
-  // A data URI, not a TMDB image: it needs no network at all, cannot 404 mid-test,
-  // and carries the card's index — which makes the entrance stagger readable at a
-  // glance. Same 2/3 aspect ratio as a real poster, so the layout is identical.
+  /**
+   * A data URI, not a TMDB image: it needs no network at all, cannot 404 mid-test,
+   * and carries the card's index — which makes the entrance stagger readable at a
+   * glance. Same 2/3 aspect ratio as a real poster, so the layout is identical.
+   *
+   * @param {number} n  The card's 1-based position, drawn large on the poster.
+   * @returns {string} An SVG data URI.
+   */
   const poster = (n) => {
     const svg =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">' +
@@ -121,6 +126,13 @@
   // which is what the docs have always promised.
   const state = { on: false, count: 6, posters: true, delayMs: 900 };
 
+  /**
+   * The fake POST /api/recommendations response, shaped exactly like the real
+   * route's: `state.count` dummy suggestions with negative ids, no empty
+   * reason, and a plausible metadata block.
+   *
+   * @returns {{ suggestions: object[], emptyReason: null, meta: object }}
+   */
   function body() {
     return {
       suggestions: Array.from({ length: state.count }, (_, i) => ({
@@ -149,12 +161,28 @@
     };
   }
 
+  /**
+   * A JSON Response built in the browser, standing in for the server's.
+   *
+   * @param {unknown} data  The body, serialised as JSON.
+   * @param {number} [status=200]
+   * @returns {Response}
+   */
   const json = (data, status = 200) =>
     new Response(JSON.stringify(data), {
       status,
       headers: { 'Content-Type': 'application/json' },
     });
 
+  /**
+   * The patched fetch. While armed it answers POST /api/recommendations itself
+   * and refuses to add a dummy (negative-id) film; every other request, and
+   * every request while disarmed, goes to the real fetch untouched.
+   *
+   * @param {RequestInfo | URL} input
+   * @param {RequestInit} [init]
+   * @returns {Promise<Response>}
+   */
   window.fetch = async (input, init) => {
     const url = String(input && input.url ? input.url : input);
     const method = ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
@@ -229,6 +257,18 @@
     return realFetch(input, init);
   };
 
+  /**
+   * Arm the harness: from now until a reload, "Get recommendations" renders
+   * `n` dummy cards. Calling it again sets a new count; an option left out
+   * keeps whatever value it last had.
+   *
+   * @param {number} [n=6]  How many cards, 1 to 6. Anything else is refused
+   *   with a console error and changes nothing.
+   * @param {object} [options]
+   * @param {boolean} [options.posters]  False renders the `.noposter`
+   *   placeholder instead of the numbered posters. Starts true.
+   * @param {number} [options.delayMs]  The fake round trip. Starts at 900ms.
+   */
   window.debugRecs = (n = 6, options = {}) => {
     const count = Math.trunc(Number(n));
     if (!Number.isFinite(count) || count < 1 || count > 6) {

@@ -1,13 +1,50 @@
+/**
+ * The movie CRUD routes, mounted at /api/movies: the ranked list, a TMDB search
+ * proxy, add, rate/review, and remove.
+ *
+ * @module server/routes/movies
+ */
 import { Router } from 'express';
 import { supabase } from '../supabase.js';
 import { searchMovies, getMovieDetails, TmdbError } from '../services/tmdb.js';
 
+/**
+ * One row of the movies table, as every route here returns it.
+ *
+ * @typedef {object} MovieRow
+ * @property {string} id  A uuid.
+ * @property {number} tmdb_id  Unique, so a film can be in the list once.
+ * @property {string} title
+ * @property {number | null} year
+ * @property {string | null} description  TMDB's overview.
+ * @property {string | null} poster_url
+ * @property {number | null} rating  0–10 to one decimal; null until rated.
+ * @property {number | null} tmdb_rating  TMDB's score when the film was added (D-036).
+ * @property {string | null} review  Only ever present on a rated film (D-041).
+ * @property {string} created_at  ISO timestamp.
+ */
+
+/** The router server/index.js mounts at /api/movies. */
 export const moviesRouter = Router();
 
+/**
+ * Let an async handler fail properly under Express 4, which does not await a
+ * handler: a rejected promise is passed to `next()`, so it reaches the central
+ * error handler in server/index.js.
+ *
+ * @param {import('express').RequestHandler} fn  An async route handler.
+ * @returns {import('express').RequestHandler}
+ */
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-// GET /api/movies — ranking is recalculated on every read, never stored stale
-// (SPEC § 2.1).
+/**
+ * GET /api/movies — ranking is recalculated on every read, never stored stale
+ * (SPEC § 2.1).
+ *
+ * Responds 200 with `{ movies: MovieRow[] }`: every film, rating descending
+ * with the unrated ones last, ties oldest-first. A database error reaches the
+ * central handler as a 500.
+ */
 moviesRouter.get(
   '/',
   wrap(async (_req, res) => {
@@ -31,7 +68,13 @@ moviesRouter.get(
   })
 );
 
-// GET /api/movies/search?q=  — thin proxy to TMDB search (SPEC § 4.5)
+/**
+ * GET /api/movies/search?q=  — thin proxy to TMDB search (SPEC § 4.5)
+ *
+ * Responds 200 with `{ results }`, up to 12 TMDB matches in the shape
+ * searchMovies() returns (empty when nothing matches); 400 when `q` is missing
+ * or blank; 502 with `{ error, short }` when TMDB is unreachable.
+ */
 moviesRouter.get(
   '/search',
   wrap(async (req, res) => {
@@ -56,7 +99,13 @@ moviesRouter.get(
   })
 );
 
-// POST /api/movies  — body: { tmdb_id }. TMDB supplies every stored fact.
+/**
+ * POST /api/movies  — body: { tmdb_id }. TMDB supplies every stored fact.
+ *
+ * Responds 201 with `{ movie: MovieRow }`, unrated; 400 when `tmdb_id` is not
+ * an integer; 409 when the film is already in the list; 502 with
+ * `{ error, short }` when TMDB is unreachable.
+ */
 moviesRouter.post(
   '/',
   wrap(async (req, res) => {
@@ -113,7 +162,17 @@ moviesRouter.post(
   })
 );
 
-// PATCH /api/movies/:id  — body: { rating?, review? }
+/**
+ * PATCH /api/movies/:id  — body: { rating?, review? }
+ *
+ * `rating` is rounded to one decimal, and `null` clears it; an empty string is
+ * treated as absent. `review` is cut to 2,000 characters, and an empty one is
+ * stored as null.
+ *
+ * Responds 200 with `{ movie: MovieRow }`; 400 for a rating outside 0–10, a
+ * body with neither field, or a review on an unrated film; 404 when the row no
+ * longer exists.
+ */
 moviesRouter.patch(
   '/:id',
   wrap(async (req, res) => {
@@ -175,7 +234,12 @@ moviesRouter.patch(
   })
 );
 
-// DELETE /api/movies/:id
+/**
+ * DELETE /api/movies/:id
+ *
+ * Responds 204 with no body. The rating and review go with the row, and there
+ * is no undo.
+ */
 moviesRouter.delete(
   '/:id',
   wrap(async (req, res) => {

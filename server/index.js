@@ -1,3 +1,12 @@
+/**
+ * The Express app: JSON body parsing, the static frontend in public/, two small
+ * inline routes, the four API routers and the central error handler.
+ *
+ * Exports `app` so the tests can drive it on an ephemeral port, and listens on
+ * `config.port` only when run directly (`npm start`).
+ *
+ * @module server/index
+ */
 import express from 'express';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -15,12 +24,24 @@ app.use(express.json());
 // Static frontend (vanilla HTML/CSS/JS — SPEC § 4.1)
 app.use(express.static(join(__dirname, '..', 'public')));
 
-// Liveness probe — most hosts (Render/Railway/Fly) want a cheap endpoint to poll.
+/**
+ * GET /api/health — liveness probe. Most hosts (Render/Railway/Fly) want a
+ * cheap endpoint to poll; Render's health check is pointed at this one.
+ *
+ * Responds 200 with `{ status: 'ok', uptime }`, uptime in seconds.
+ */
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Config exposed to the frontend — public values only, never a secret.
+/**
+ * GET /api/config — config exposed to the frontend. Public values only, never
+ * a secret.
+ *
+ * Responds 200 with `{ minRatedForRecommendations, minRatedForVerdict, topN }`.
+ * The client keeps fallback copies of these three for the case where this
+ * request fails.
+ */
 app.get('/api/config', (_req, res) => {
   res.json({
     minRatedForRecommendations: config.recommendations.minRatedMovies,
@@ -34,18 +55,24 @@ app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/taste-verdict', tasteVerdictRouter);
 app.use('/api/ai-log', aiLogRouter);
 
-// Central error handler — nothing leaks a stack trace to the client.
-//
-// The message does NOT say "on our side", and must not be changed back. This
-// handler is the catch-all for everything unhandled anywhere in the app, and it
-// cannot know whose fault the failure was: Supabase unreachable or refusing the
-// credentials looks identical here to a genuine bug in this code. Naming a
-// culprit it has not identified is a guess presented to the user as a fact, and
-// it was wrong the first time anyone checked — bad Supabase credentials in .env
-// produced "something went wrong on our side" for a problem that was neither a
-// bug nor on the server's side. A vaguer message that is true beats a specific
-// one that is not. The real cause is on the line above, in the server log,
-// where it can be read without being guessed at.
+/**
+ * Central error handler — nothing leaks a stack trace to the client.
+ *
+ * The message does NOT say "on our side", and must not be changed back. This
+ * handler is the catch-all for everything unhandled anywhere in the app, and it
+ * cannot know whose fault the failure was: Supabase unreachable or refusing the
+ * credentials looks identical here to a genuine bug in this code. Naming a
+ * culprit it has not identified is a guess presented to the user as a fact, and
+ * it was wrong the first time anyone checked — bad Supabase credentials in .env
+ * produced "something went wrong on our side" for a problem that was neither a
+ * bug nor on the server's side. A vaguer message that is true beats a specific
+ * one that is not. The real cause is on the line above, in the server log,
+ * where it can be read without being guessed at.
+ *
+ * Logs the error to stderr and responds 500 with `{ error: 'Something went wrong.' }`.
+ * Express recognises error middleware by its four parameters, so `_next` must
+ * stay in the signature even though it is unused.
+ */
 app.use((err, _req, res, _next) => {
   console.error('[cinerank]', err);
   res.status(500).json({ error: 'Something went wrong.' });

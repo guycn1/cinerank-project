@@ -1,12 +1,16 @@
+/**
+ * @file Unit tests for the server's pure text and cost helpers: parseModelJson(),
+ * tidyReason(), tidyVerdict() and estimateCostUsd().
+ *
+ * These are the pure helpers where every past truncation bug lived
+ * (see docs/DECISIONS.md D-011..D-014). No network, no DB.
+ */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { parseModelJson, tidyReason } from '../server/services/recommendations.js';
 import { tidyVerdict } from '../server/services/tasteVerdict.js';
 import { estimateCostUsd } from '../server/config.js';
-
-// These are the pure helpers where every past truncation bug lived
-// (see docs/DECISIONS.md D-011..D-014). No network, no DB.
 
 test('parseModelJson: accepts a clean JSON array', () => {
   const out = parseModelJson('[{"title":"Brazil","reason":"you like bold, strange visions"}]');

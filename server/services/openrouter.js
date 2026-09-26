@@ -1,11 +1,22 @@
+/**
+ * Low-level OpenRouter transport only. Feature logic (which prompt, how to parse,
+ * what to log) stays in recommendations.js / tasteVerdict.js so either feature can
+ * be mocked or stripped without touching the other or the core CRUD
+ * (CLAUDE.md § Coding Conventions).
+ *
+ * @module server/services/openrouter
+ */
 import { config } from '../config.js';
 
-// Low-level OpenRouter transport only. Feature logic (which prompt, how to parse,
-// what to log) stays in recommendations.js / tasteVerdict.js so either feature can
-// be mocked or stripped without touching the other or the core CRUD
-// (CLAUDE.md § Coding Conventions).
-
+/**
+ * Any failure to get a usable reply out of OpenRouter. The message is
+ * technical and log-only: the routes replace it with a calm sentence before a
+ * user sees anything (R8, D-047).
+ */
 class OpenRouterError extends Error {
+  /**
+   * @param {string} message  The technical cause, e.g. "OpenRouter responded 401".
+   */
   constructor(message) {
     super(message);
     this.name = 'OpenRouterError';
@@ -14,11 +25,34 @@ class OpenRouterError extends Error {
 export { OpenRouterError };
 
 /**
- * @returns {{ text, tokensUsed, promptTokens, completionTokens, costUsd, model, durationMs }}
+ * What one successful call returns. Every usage figure is null when
+ * OpenRouter's response leaves it out.
+ *
+ * @typedef {object} ChatResult
+ * @property {string} text  The model's reply, trimmed. Never empty.
+ * @property {number | null} tokensUsed  Prompt plus completion tokens.
+ * @property {number | null} promptTokens
+ * @property {number | null} completionTokens
+ * @property {number | null} costUsd  OpenRouter's exact `usage.cost`, to six
+ *   decimals. Null sends the caller to the estimate table in config.js.
+ * @property {string} model  The model OpenRouter reports having run, else the
+ *   app-wide default.
+ * @property {number} durationMs  Wall-clock time of the request, measured here.
  */
+
 /**
  * One OpenRouter call. `model` defaults to the app-wide model and is overridden
  * per FEATURE, not per call site whim — see config.tasteVerdict.model and D-053.
+ *
+ * @param {object} request
+ * @param {string} request.system  The system prompt.
+ * @param {string} request.user  The user message.
+ * @param {number} [request.maxTokens=500]
+ * @param {number} [request.temperature=0.7]
+ * @param {string} [request.model]  Defaults to `config.openrouter.model`.
+ * @returns {Promise<ChatResult>}
+ * @throws {OpenRouterError} When OpenRouter is unreachable or the 20s timeout
+ *   fires, when it answers with a non-2xx status, or when the reply has no content.
  */
 export async function chat({ system, user, maxTokens = 500, temperature = 0.7, model = config.openrouter.model }) {
   const startedAt = Date.now();

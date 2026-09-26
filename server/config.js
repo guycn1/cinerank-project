@@ -1,12 +1,31 @@
+/**
+ * Runtime configuration: the four secrets, the model each AI feature runs on,
+ * the two feature thresholds, and the fallback table for estimating cost.
+ *
+ * Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
+ * single place they enter the process; nothing else reads a SECRET out of
+ * process.env. The one other process.env read in the repository is
+ * scripts/seed-demo.js's CINERANK_URL, which is a base URL and not a
+ * credential. (This said "nothing else reads process.env directly", which that
+ * line has falsified since the seed helper was written.)
+ *
+ * Importing this module throws if any secret is missing or still holds its
+ * .env.example placeholder, so a misconfigured server fails at boot rather than
+ * on its first request.
+ *
+ * @module server/config
+ */
 import 'dotenv/config';
 
-// Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
-// single place they enter the process; nothing else reads a SECRET out of
-// process.env. The one other process.env read in the repository is
-// scripts/seed-demo.js's CINERANK_URL, which is a base URL and not a
-// credential. (This said "nothing else reads process.env directly", which that
-// line has falsified since the seed helper was written.)
-
+/**
+ * Read one secret from the environment, refusing an unset or empty value and
+ * the untouched .env.example placeholders (a value starting `your-` or
+ * containing `YOUR-`).
+ *
+ * @param {string} name  The environment variable, e.g. `TMDB_API_KEY`.
+ * @returns {string} The variable's value.
+ * @throws {Error} When the variable is unset, empty or still a placeholder.
+ */
 function required(name) {
   const value = process.env[name];
   if (!value || value.startsWith('your-') || value.includes('YOUR-')) {
@@ -17,6 +36,10 @@ function required(name) {
   return value;
 }
 
+/**
+ * The whole configuration, resolved once at import. Only the two thresholds and
+ * `topN` ever reach the browser, through GET /api/config in server/index.js.
+ */
 export const config = {
   port: Number(process.env.PORT) || 3000,
 
@@ -83,6 +106,15 @@ const PRICE_PER_MTOK = {
   'openai/gpt-4o-mini': 0.4,
 };
 
+/**
+ * Estimate the cost of one OpenRouter call from the table above. Used only when
+ * the response carries no exact `usage.cost` of its own.
+ *
+ * @param {string} model  The OpenRouter model slug the call ran on.
+ * @param {number | null | undefined} tokensUsed  Total tokens, prompt plus completion.
+ * @returns {number | null} USD to six decimal places, or null when there are no
+ *   tokens to price or the model is not in the table — never a guess.
+ */
 export function estimateCostUsd(model, tokensUsed) {
   if (!tokensUsed) return null;
   const price = PRICE_PER_MTOK[model];

@@ -1,3 +1,10 @@
+/**
+ * The taste-verdict feature (SPEC § 2.3): a short plain-text read of the
+ * user's taste across every rated film, logged whatever its outcome. It is the
+ * one call in the app that runs off the app-wide model (D-053).
+ *
+ * @module server/services/tasteVerdict
+ */
 import { supabase } from '../supabase.js';
 import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
@@ -6,10 +13,29 @@ import { chat, OpenRouterError } from './openrouter.js';
 const PROMPT_VERSION = 'taste_verdict_v7';
 const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35–60 words)
 
-// Belt-and-suspenders cleanup of the model's plain-text output:
-//  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
-//  - if still over the ceiling, cut at the last sentence end, else last word —
-//    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
+/**
+ * The result of one successful verdict, sent to the client as it stands.
+ *
+ * @typedef {object} VerdictRun
+ * @property {string} verdict  Already passed through tidyVerdict().
+ * @property {object} meta
+ * @property {string} meta.promptVersion
+ * @property {string} meta.model
+ * @property {number | null} meta.tokensUsed
+ * @property {number | null} meta.estimatedCostUsd
+ * @property {number} meta.durationMs
+ */
+
+/**
+ * Belt-and-suspenders cleanup of the model's plain-text output:
+ *  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
+ *  - if still over the ceiling, cut at the last sentence end, else last word —
+ *    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
+ *
+ * @param {string} raw  The model's reply.
+ * @returns {string} Whitespace collapsed and `*`, `_` and backticks removed. At
+ *   most 450 characters; a cut at a word boundary ends in "…".
+ */
 export function tidyVerdict(raw) {
   const v = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (v.length <= MAX_LEN) return v;
@@ -20,15 +46,21 @@ export function tidyVerdict(raw) {
   return (lastSpace > 0 ? head.slice(0, lastSpace) : head).replace(/[,;:—-]\s*$/, '') + '…';
 }
 
+/**
+ * A verdict that failed, carrying the technical cause as its message and two
+ * flags that tell the route what it may show.
+ */
 class TasteVerdictError extends Error {
   /**
    * Same two flags, same meanings, as RecommendationError — the two features
    * must answer a failure identically or the app has two error dialects (R23,
    * D-047).
    *
-   * @param userFacing  This message IS the answer, so show it verbatim. True for
+   * @param {string} message  The technical cause.
+   * @param {object} [flags]
+   * @param {boolean} [flags.userFacing=false]  This message IS the answer, so show it verbatim. True for
    *   exactly one case: not enough rated films.
-   * @param logged  A taste_verdict_logs row was written for this failure, so a
+   * @param {boolean} [flags.logged=false]  A taste_verdict_logs row was written for this failure, so a
    *   UI may point at the AI call log. **The invariant: every 'failed' row that
    *   reaches the table must arrive with this true.** Below, that holds because
    *   status only ever becomes 'failed' in one place and the throw that follows
@@ -43,6 +75,16 @@ class TasteVerdictError extends Error {
 }
 export { TasteVerdictError };
 
+/**
+ * Format one rated film as a line of the prompt's data block. The review is
+ * untrusted input, handled as in recommendations.js: collapsed to one line, cut
+ * short, and quoted in `<<` `>>` inside the prompt's BEGIN/END block, which the
+ * prompt declares to be untrusted data.
+ *
+ * @param {{ title: string, rating: number, review: string | null }} movie
+ * @returns {string} e.g. `- "Heat" — 9/10; review: <<...>>`, the review cut at
+ *   200 characters.
+ */
 function line(movie) {
   const review = (movie.review || '').replace(/\s+/g, ' ').trim().slice(0, 200);
   const base = `- "${movie.title}" — ${movie.rating}/10`;
@@ -53,6 +95,12 @@ function line(movie) {
  * Generate a fresh taste verdict (SPEC § 2.3). Lowest-stakes feature in the app:
  * output is opinion, shown as plain text, never rendered as HTML, length-capped.
  * Still logged with the same discipline as recommendations (§ 5.3).
+ *
+ * @returns {Promise<VerdictRun>}
+ * @throws {TasteVerdictError} When the DB read fails, when fewer films are
+ *   rated than `config.tasteVerdict.minRatedMovies` (`userFacing`), when the
+ *   log row cannot be written, or when the AI call failed after its row was
+ *   committed (`logged`). Any other error propagates unchanged.
  */
 export async function generateTasteVerdict() {
   const { data: rated, error } = await supabase

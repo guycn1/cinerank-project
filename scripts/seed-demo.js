@@ -1,5 +1,5 @@
 /**
- * CineRank — demo seed helper.
+ * @file CineRank — demo seed helper.
  *
  * Loads the pre-rated list the submission ships with, so the ranked list, both
  * AI features and the call log all work on first open. Blueprint, and the reason
@@ -99,6 +99,7 @@ const PERSONA =
   'point of view — and forgives silly far sooner than limp. Bored by committee ' +
   'filmmaking, and unmoved by grimness offered in place of an idea.';
 
+/** @type {SeedEntry[]} */
 const SEED = [
   {
     // Rank 1, and the LONG review: this is the one that clips and draws the
@@ -196,6 +197,8 @@ const SEED = [
  * prompt-injection attempt, so both AI features can be screenshotted staying on
  * topic with it sitting in the taste profile. Kept out of the default set
  * because the demo list should otherwise read like a real one.
+ *
+ * @type {SeedEntry}
  */
 const INJECTION = {
   title: 'The Room',
@@ -220,6 +223,40 @@ const INJECTION = {
 /* ------------------------------------------------------------------------- */
 
 /**
+ * One film as declared above.
+ *
+ * @typedef {object} SeedEntry
+ * @property {string} title  As TMDB spells it.
+ * @property {number} year  The release year, which disambiguates the search.
+ * @property {number | null} rating  Null leaves the film unrated.
+ * @property {string | null} review  Needs a rating (migration 004).
+ */
+
+/**
+ * A declared film once the app's search has matched it.
+ *
+ * @typedef {SeedEntry & {
+ *   tmdb_id: number,
+ *   resolvedTitle: string,
+ *   resolvedYear: number,
+ *   inexact: boolean,
+ * }} ResolvedEntry
+ * `inexact` is true when only the year matched, not the title.
+ */
+
+/**
+ * One film as GET /api/movies returns it; only the fields this script reads.
+ *
+ * @typedef {object} ListedMovie
+ * @property {string} id
+ * @property {number} tmdb_id
+ * @property {string} title
+ * @property {number | null} year
+ * @property {number | null} rating
+ * @property {string | null} review
+ */
+
+/**
  * The command that repeats THIS run with --write added.
  *
  * BUILT FROM THE REAL ARGV, NOT RE-LISTED BY HAND, and that is the whole point.
@@ -230,16 +267,37 @@ const INJECTION = {
  * they had just been shown. A user hit the first of those on 2026-09-13.
  *
  * Echoing argv back means no flag can be dropped, including any added later.
+ *
+ * @returns {string} e.g. `npm run seed-demo -- --with-injection --write`.
  */
 function rerunCommand() {
   const flags = process.argv.slice(2).filter((a) => a !== '--write');
   return 'npm run seed-demo -- ' + flags.concat('--write').join(' ');
 }
 
+/**
+ * Abort the run on an HTTP failure, naming the step and the server's own message.
+ *
+ * @param {string} label  The step that failed, e.g. `Adding "Heat"`.
+ * @param {Response} res  The failed response.
+ * @param {{ error?: string } | null} body  Its parsed body, if any.
+ * @returns {never}
+ * @throws {Error} Always.
+ */
 function fail(label, res, body) {
   throw new Error(label + ' failed: HTTP ' + res.status + ' — ' + ((body && body.error) || 'no message'));
 }
 
+/**
+ * Call the running app's HTTP API. A 204 has no body; a body that is not JSON
+ * comes back as null rather than throwing.
+ *
+ * @param {string} path  e.g. "/api/movies".
+ * @param {RequestInit} [options]  Passed to fetch() as they are.
+ * @returns {Promise<{ res: Response, body: any }>} The response and its parsed
+ *   body, whatever the status. Callers check `res.ok`.
+ * @throws {Error} When the app cannot be reached at all.
+ */
 async function api(path, options) {
   let res;
   try {
@@ -253,7 +311,14 @@ async function api(path, options) {
   return { res, body };
 }
 
-/** Resolves one declared film through the app's own search, the way the UI does. */
+/**
+ * Resolves one declared film through the app's own search, the way the UI does.
+ *
+ * @param {SeedEntry} entry
+ * @returns {Promise<ResolvedEntry>} Matched on title and year where possible,
+ *   else on year alone.
+ * @throws {Error} When the search fails, or no result has the declared year.
+ */
 async function resolve(entry) {
   const { res, body } = await api('/api/movies/search?q=' + encodeURIComponent(entry.title));
   if (!res.ok) fail('Search for "' + entry.title + '"', res, body);
@@ -279,6 +344,12 @@ async function resolve(entry) {
   });
 }
 
+/**
+ * Summarise what the seed will set on one film, for the printed plan.
+ *
+ * @param {SeedEntry} entry
+ * @returns {string} "unrated", "8.2, no review" or "9.1 + review".
+ */
 function describe(entry) {
   if (entry.rating == null) return 'unrated';
   return entry.rating + (entry.review ? ' + review' : ', no review');
@@ -289,6 +360,8 @@ function describe(entry) {
  * printed only the seed films, so "to add" meant "this seed film is not in the
  * list" and said nothing about what else was in there — and that got read as
  * "the list is empty", which it was not. Showing the real list is the fix.
+ *
+ * @param {ListedMovie[]} existing  The list as GET /api/movies returned it.
  */
 function printCurrentList(existing) {
   console.log('\nCurrent list: ' + existing.length + ' film(s)' + (existing.length ? '' : '  (empty)'));
@@ -297,6 +370,14 @@ function printCurrentList(existing) {
   }
 }
 
+/**
+ * Resolve every declared film, one at a time, printing each match. Nothing is
+ * written, so this runs on a dry run too and proves the search path first.
+ *
+ * @param {SeedEntry[]} entries
+ * @returns {Promise<ResolvedEntry[]>} In the declared order.
+ * @throws {Error} On the first film that cannot be resolved.
+ */
 async function resolveAll(entries) {
   console.log('\nResolving ' + entries.length + ' seed films through the app own search...\n');
   const resolved = [];
@@ -311,6 +392,13 @@ async function resolveAll(entries) {
   return resolved;
 }
 
+/**
+ * Print what a --write run would delete, or that --keep deletes nothing.
+ * Prints nothing when the list is empty.
+ *
+ * @param {ListedMovie[]} existing  The current list.
+ * @param {boolean} purge  Whether the run replaces the list.
+ */
 function announcePlan(existing, purge) {
   if (purge) {
     console.log('\n  REPLACE MODE (the default): all ' + existing.length + ' film(s) above are');
@@ -323,6 +411,14 @@ function announcePlan(existing, purge) {
   }
 }
 
+/**
+ * Delete every film passed in, one DELETE per row id. Only ever called with the
+ * list this same run printed, and only under --write.
+ *
+ * @param {ListedMovie[]} existing
+ * @returns {Promise<void>}
+ * @throws {Error} On the first delete that fails; the rows before it are gone.
+ */
 async function removeAll(existing) {
   console.log('Removing ' + existing.length + ' film(s)...\n');
   for (const m of existing) {
@@ -333,7 +429,15 @@ async function removeAll(existing) {
   console.log('');
 }
 
-/** Adds one resolved film if it is not already present, and returns its row id. */
+/**
+ * Adds one resolved film if it is not already present, and returns its row id.
+ *
+ * @param {ResolvedEntry} r
+ * @param {ListedMovie[]} stillThere  The films the run did not delete.
+ * @returns {Promise<string | null>} The row id, or null when the add came back
+ *   409 because the film is already in the list under another row.
+ * @throws {Error} When the add fails for any other reason.
+ */
 async function ensureAdded(r, stillThere) {
   const already = stillThere.find((m) => m.tmdb_id === r.tmdb_id);
   if (already) return already.id;
@@ -348,6 +452,15 @@ async function ensureAdded(r, stillThere) {
   return add.body.movie.id;
 }
 
+/**
+ * Add each resolved film, then rate it (and review it) in a single PATCH.
+ * A film that is already present is skipped, not re-rated.
+ *
+ * @param {ResolvedEntry[]} resolved
+ * @param {ListedMovie[]} stillThere  The films the run did not delete.
+ * @returns {Promise<void>}
+ * @throws {Error} On the first add or rating that fails.
+ */
 async function applySeed(resolved, stillThere) {
   console.log('Writing...\n');
   for (const r of resolved) {
@@ -371,6 +484,15 @@ async function applySeed(resolved, stillThere) {
   }
 }
 
+/**
+ * The default run: print the current list, resolve the seed films, and either
+ * stop there (dry run) or replace the list with them (--write). With --keep
+ * nothing is deleted and the seed films are added alongside.
+ *
+ * @param {SeedEntry[]} entries  The declared set, plus the injection film when asked.
+ * @returns {Promise<void>}
+ * @throws {Error} When the app is unreachable or any request fails.
+ */
 async function seed(entries) {
   const { res, body } = await api('/api/movies');
   if (!res.ok) fail('Reading the current list', res, body);
@@ -393,6 +515,14 @@ async function seed(entries) {
   console.log('\nDone. Open ' + BASE + ' and check the list reads the way a real one would.\n');
 }
 
+/**
+ * The --reset run: remove only the rows matching a declared film by title and
+ * year. Prints every row it would remove, and deletes only under --write.
+ *
+ * @param {SeedEntry[]} entries  The declared set, plus the injection film when asked.
+ * @returns {Promise<void>}
+ * @throws {Error} When the app is unreachable or a request fails.
+ */
 async function reset(entries) {
   const { res, body } = await api('/api/movies');
   if (!res.ok) fail('Reading the current list', res, body);

@@ -1,11 +1,57 @@
+/**
+ * The AI call log route, mounted at /api/ai-log: both features' log tables
+ * merged into one list for the in-app viewer.
+ *
+ * @module server/routes/aiLog
+ */
 import { Router } from 'express';
 import { supabase } from '../supabase.js';
 
+/**
+ * One AI call as the viewer receives it: the columns both log tables share,
+ * plus the one feature-specific field that fills the Result cell.
+ *
+ * @typedef {object} AiLogRow
+ * @property {string} id
+ * @property {'Recommendation' | 'Taste verdict'} feature
+ * @property {string} created_at  ISO timestamp.
+ * @property {string} prompt_version
+ * @property {string | null} model_used
+ * @property {number | null} tokens_used
+ * @property {number | null} prompt_tokens
+ * @property {number | null} completion_tokens
+ * @property {number | null} duration_ms
+ * @property {'success' | 'failed'} status
+ * @property {number | null} estimated_cost_usd
+ * @property {string | null} error_text  Set only on a failed call, falling back
+ *   to "failed" when the row has no text.
+ * @property {string[]} [suggested_titles]  Recommendation rows only.
+ * @property {string | null} [verdict_text]  Taste-verdict rows only.
+ */
+
+/** The router server/index.js mounts at /api/ai-log. */
 export const aiLogRouter = Router();
+
+/**
+ * Let an async handler fail properly under Express 4, which does not await a
+ * handler: a rejected promise is passed to `next()`, so it reaches the central
+ * error handler in server/index.js.
+ *
+ * @param {import('express').RequestHandler} fn  An async route handler.
+ * @returns {import('express').RequestHandler}
+ */
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-// GET /api/ai-log — the full audit trail of every AI call, both features merged,
-// newest first. Powers the in-app "AI call log" viewer. Read-only.
+/**
+ * GET /api/ai-log — the audit trail of AI calls, both features merged, newest
+ * first, and capped at the newest 60 (THE 60-ROW CAP, below). Powers the in-app
+ * "AI call log" viewer. Read-only.
+ *
+ * Responds 200 with `{ rows: AiLogRow[], totals }`, where `totals` sums the
+ * rows returned: `calls`, `tokens`, `cost`, `promptTokens`, `completionTokens`,
+ * `durationMs`, and the `detailed` and `timed` counts explained below. A
+ * database error on either table reaches the central handler as a 500.
+ */
 aiLogRouter.get(
   '/',
   wrap(async (_req, res) => {
@@ -48,9 +94,17 @@ aiLogRouter.get(
     if (recs.error) throw new Error(recs.error.message);
     if (verdicts.error) throw new Error(verdicts.error.message);
 
-    // The "Result" cell has exactly three shapes, so send it structured and let
-    // the frontend render/reveal it: a recommendation's verified title list, a
-    // verdict's text, or (either feature) the error message on a failed call.
+    /**
+     * The "Result" cell has exactly three shapes, so send it structured and let
+     * the frontend render/reveal it: a recommendation's verified title list, a
+     * verdict's text, or (either feature) the error message on a failed call.
+     *
+     * @param {object} row  One row from either log table.
+     * @param {AiLogRow['feature']} feature  The label the viewer shows.
+     * @param {{ suggested_titles: string[] } | { verdict_text: string | null }} extra
+     *   The table's own Result field.
+     * @returns {AiLogRow}
+     */
     const norm = (row, feature, extra) => ({
       id: row.id,
       feature,

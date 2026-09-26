@@ -1,8 +1,14 @@
 #!/usr/bin/env node
-// Pre-commit secret scan (CLAUDE.md § Security & Secrets #6). Run before every
-// commit:  npm run scan-secrets
-// Scans the staged diff for anything that looks like a real credential. Exits
-// non-zero (blocking the commit if wired as a git hook) when it finds one.
+/**
+ * @file Pre-commit secret scan (CLAUDE.md § Security & Secrets #6). Run before every
+ * commit:  npm run scan-secrets
+ * Scans the staged diff for anything that looks like a real credential. Exits
+ * non-zero (blocking the commit if wired as a git hook) when it finds one.
+ *
+ * Only ADDED lines are scanned, never the whole tree. Exit codes: 0 when
+ * nothing is found, 1 when a line matches a credential pattern, 2 when the
+ * staged diff cannot be read at all.
+ */
 
 import { execSync } from 'node:child_process';
 

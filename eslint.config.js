@@ -1,5 +1,5 @@
 /**
- * ESLint flat config — the static-analysis half of the Merge-Readiness Pack's
+ * @file ESLint flat config — the static-analysis half of the Merge-Readiness Pack's
  * "SE hygiene" criterion (docs/MERGE-READINESS.md, course Module 16).
  *
  * Deliberately NOT a style linter. Prettier-style formatting rules are left out
@@ -53,6 +53,11 @@ const defectRules = {
   'max-depth': ['warn', 5],
 };
 
+/**
+ * One block per environment, plus a global ignore list.
+ *
+ * @type {import('eslint').Linter.Config[]}
+ */
 export default [
   {
     ignores: ['node_modules/**', 'package-lock.json'],

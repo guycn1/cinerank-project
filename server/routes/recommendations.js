@@ -1,12 +1,35 @@
+/**
+ * The recommendation routes, mounted at /api/recommendations: trigger a run,
+ * and read back the narrower per-feature history.
+ *
+ * @module server/routes/recommendations
+ */
 import { Router } from 'express';
 import { supabase } from '../supabase.js';
 import { generateRecommendations, RecommendationError } from '../services/recommendations.js';
 
+/** The router server/index.js mounts at /api/recommendations. */
 export const recommendationsRouter = Router();
+
+/**
+ * Let an async handler fail properly under Express 4, which does not await a
+ * handler: a rejected promise is passed to `next()`, so it reaches the central
+ * error handler in server/index.js.
+ *
+ * @param {import('express').RequestHandler} fn  An async route handler.
+ * @returns {import('express').RequestHandler}
+ */
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-// POST /api/recommendations — trigger a run (SPEC § 2.2). Snapshot, not live:
-// only ever runs on this explicit request.
+/**
+ * POST /api/recommendations — trigger a run (SPEC § 2.2). Snapshot, not live:
+ * only ever runs on this explicit request.
+ *
+ * Responds 200 with the run as generateRecommendations() returns it:
+ * `{ suggestions, emptyReason, meta }`. Every RecommendationError becomes a 422
+ * with `{ error }`: the service's own message when it is user-facing, otherwise
+ * a fixed sentence, plus `logged: true` when a log row exists to point at.
+ */
 recommendationsRouter.post(
   '/',
   wrap(async (_req, res) => {
@@ -48,12 +71,17 @@ recommendationsRouter.post(
   })
 );
 
-// GET /api/recommendations/history — the NARROWER per-feature log view
-// (SPEC § 4.5). Not the primary audit surface: GET /api/ai-log is, and it is the
-// only one the UI calls. This returns recommendation runs only, 25 of them,
-// with seven of ai-log's twelve columns. Kept deliberately rather than deleted
-// (D-017, confirmed D-077); its two tests are in test/routes.test.js, which is
-// what closed the gap that kept making it a deletion candidate.
+/**
+ * GET /api/recommendations/history — the NARROWER per-feature log view
+ * (SPEC § 4.5). Not the primary audit surface: GET /api/ai-log is, and it is the
+ * only one the UI calls. This returns recommendation runs only, 25 of them,
+ * with seven of ai-log's twelve columns. Kept deliberately rather than deleted
+ * (D-017, confirmed D-077); its two tests are in test/routes.test.js, which is
+ * what closed the gap that kept making it a deletion candidate.
+ *
+ * Responds 200 with `{ history }`, newest first. A database error reaches the
+ * central handler as a 500.
+ */
 recommendationsRouter.get(
   '/history',
   wrap(async (_req, res) => {
