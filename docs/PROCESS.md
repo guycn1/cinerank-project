@@ -604,8 +604,9 @@ through `globalThis.fetch`. [`server/index.js`](../server/index.js) exports
 `app` and only starts listening when run directly, so a test can drive it on an
 ephemeral port.
 
-Still manual: the resilience *UI* states (the calm inline messages) — worth a few
-screenshots for the submission even though the server side is now tested.
+The resilience *UI* states (the calm inline messages) are outside the suite,
+since the client has no test harness. They are evidenced by screenshots instead:
+sixteen states, argued in [`RESILIENCE.md`](RESILIENCE.md).
 
 ## 7. Gaps named while building, and how each one closed
 
@@ -638,7 +639,7 @@ of the record this document exists to show.
   failed run shows the user nothing. The verdict side already does it properly —
   its fallback links straight into the AI call log.~~ **Fixed 2026-09-09, and it
   was worse than written on both counts.** It was filed as an error-message bug;
-  the `finally` reassigns the element unconditionally, so the SUCCESS line and
+  the `finally` reassigned the element unconditionally, so the SUCCESS line and
   the zero-result line died with it — a failed run, a successful run and a page
   that had never run were indistinguishable apart from the cards. And the
   verdict was *not* the model to copy: its fallback offered the AI call log for
@@ -649,8 +650,8 @@ of the record this document exists to show.
   treatment applied back to the verdict).
   [D-047](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
   has the reasoning.
-- The prompt-injection defense should be shown with a concrete demo movie whose
-  review is an injection attempt. **Done 2026-09-13** — the film is *The Room*,
+- ~~The prompt-injection defense should be shown with a concrete demo movie whose
+  review is an injection attempt.~~ **Done 2026-09-13** — the film is *The Room*,
   seeded by [`npm run seed-demo -- --with-injection`](../scripts/seed-demo.js)
   and removed after the captures. Five frames,
   [`docs/screenshots/pi-1` … `pi-5`](screenshots/README.md#pi---prompt-injection);

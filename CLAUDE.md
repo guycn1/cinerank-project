@@ -98,7 +98,7 @@ down, inside a single file. The five figures: "three files are exempt" when
 the exemption covers twelve, `SPEC.md`'s index of its own annotations reading
 seven when eleven are in place, a line count contradicted by its own entry's
 correction note, `docs/SECURITY.md`'s "roughly 450KB" against an actual 589KB,
-and a 3,300-line file that is now 4,598. **Two of the five were self-indexes**
+and a 3,300-line file that had grown to 4,598. **Two of the five were self-indexes**
 — a document counting its own contents — which nothing mechanical can check,
 because the referent is the file itself. Riding along, and NOT the ground this
 was merged on: `/api/recommendations/history` kept permanently and its coverage
@@ -127,18 +127,18 @@ recommendations section and the AI call log both sit below its fold. Closed
 with a full staleness sweep of every markdown file and code comment — the
 findings are corrected in place, and the ones worth knowing are that
 `docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
-when it is 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
+when it was 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
 credited "ESLint 9 over 23 files" when the dependency has never been 9 and
-there are 24. **THE PRE-MERGE STALENESS SWEEP IS COMPLETE (2026-09-19) — do not re-run it
-from scratch.** It covered every markdown file and every code comment, and its
-corrections are in six commits. CHECKED MECHANICALLY AND CLEAN: all 255 `§`
+there were 24. **That sweep was the twenty-eighth merge's pre-merge sweep.** It
+covered every markdown file and every code comment, and its corrections are in
+six commits. CHECKED MECHANICALLY AND CLEAN: all 255 `§`
 references; the single `file:line` citation in the repo; 880 hrefs and embedded
 images; 37 documented CSS/JS constants against source; every user-facing
 sentence quoted in the docs against the real strings; `SPEC.md` § 4.5 against
 the 11 routes and § 5 against `db/schema.sql`; the Project layout tree against
 every tracked root entry; twenty scoped uniqueness claims; a cross-file numeric
-comparison over seventeen counted subjects; and the counts for merges (27),
-tests (60), gates (5), captures (37 = 24 rs + 5 ac + 5 pi + 3 readme), prompts,
+comparison over seventeen counted subjects; and the counts, as they stood that
+day, for merges (27), tests (60), gates (5), captures (37 = 24 rs + 5 ac + 5 pi + 3 readme), prompts,
 models, dependencies and reverts. WHAT IT FOUND, as a pattern worth keeping: the
 defects were never in the figures anyone re-reads. They were a value changed in
 source with three prose descriptions left behind (the 2px/1.5px divider), a
@@ -148,7 +148,7 @@ contradictory ways (the eight two-frame RS states), and three enumerations that
 were complete when written and went short when the project grew under them (the
 gate list, the sweep dates, the markdown-files omission). **A count is safest
 when it names its members**, which is why several of them now do.
-**The upcoming merge is NOT to be called "final"** (user, 2026-09-19); the
+**No merge after 2026-09-14 is to be called "final"** (user, 2026-09-19); the
 2026-09-14 one was the last PLANNED merge and every "final planned" in this
 repository refers to that one. What landed on
 2026-09-13/14: thirty-seven captures across four families with an index; three new
@@ -2956,10 +2956,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      mid-edge, then ballooned and rocketed through each corner. A conic gradient
      cannot hold width OR speed on a wide rectangle, and no tuning changes it.
      This is why the shipped design uses stroke dashes instead.
-     **The ring went 2px → 3px** on the user's call. It is the entire visible
-     area of the effect and so its biggest single multiplier, and it is coupled
-     to `.verdict__inner`'s `border-radius: calc(var(--radius) - 3px)` — **both
-     must move together** or the inner corners stop nesting.
+     **The ring went 2px → 3px** on the user's call that day; it is 2.5px now.
+     It is the entire visible area of the effect and so its biggest single
+     multiplier. Its coupling to the inner corners still holds, but today it is
+     one of FIVE coupled values, listed at the top of this item — change the
+     ring width from that list, not from this paragraph.
      **One measured limit, AS MEASURED ON 2026-09-11 and superseded by the
      rebuild:** the glint then reached 3.40× contrast over `--crimson`, 2.27×
      over `--amber-deep` and only **1.58× over `--amber`**, so it faded slightly
