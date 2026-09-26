@@ -55,12 +55,10 @@ running app and a human looking at it.
 worth reading in that order, because the brief is a specification for a document
 and the document can be judged against it.
 
-*(This said "not yet written" until 2026-09-14, on the reasoning that a brief
-naming its own status honestly is worth more than one implying a document exists.
-That was true while it stood. The user read it during a pre-merge sweep and called
-it a real gap, which it was — the brief argues that this component has the highest
-ratio of non-obvious decision to line of code in the project, and then left those
-decisions undocumented.)*
+*(Written after the user, reading this brief during a pre-merge sweep, called
+the missing document a real gap — which it was: the brief argues that this
+component has the highest ratio of non-obvious decision to line of code in the
+project, and those decisions were still undocumented.)*
 
 ### Audience
 

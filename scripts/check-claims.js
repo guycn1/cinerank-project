@@ -12,8 +12,9 @@
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
  * path, a script, a decision entry, a commit, a line number, an identifier, a
- * capture, an RS key, a phrase the project has retired, or an invisible
- * character that no reviewer can see. Every one of those can be resolved against
+ * capture, an RS key, a phrase the project has retired (a passage narrating
+ * its own earlier wording among them), or an invisible character that no
+ * reviewer can see. Every one of those can be resolved against
  * the thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
@@ -231,6 +232,14 @@ function indexJavaScript() {
   return { known, commentLines };
 }
 
+let jsIndex;
+/**
+ * indexJavaScript(), run once: checks 6b and 10b both read it.
+ *
+ * @returns {ReturnType<typeof indexJavaScript>}
+ */
+const javaScriptIndex = () => (jsIndex ??= indexJavaScript());
+
 /**
  * 6b. A function a CODE COMMENT names must exist in the code.
  *
@@ -247,7 +256,7 @@ function indexJavaScript() {
  * a retired name exactly as in check 6, over the same three-line window.
  */
 function checkCommentIdentifiers() {
-  const { known, commentLines } = indexJavaScript();
+  const { known, commentLines } = javaScriptIndex();
   for (const f of ['public/index.html', 'public/styles.css']) {
     for (const [word] of read(f).matchAll(/[A-Za-z_$][\w$-]*/g)) known.add(word);
   }
@@ -276,7 +285,7 @@ function checkCaptures() {
   for (const [f, s] of corpus) {
     for (const [, n] of s.matchAll(/([0-9]{2}|thirty-[a-z]+) captures/gi)) {
       const claimed = WORDS[n.toLowerCase()] ?? Number(n);
-      if (Number.isFinite(claimed) && claimed !== pngs.length && !/until 2026-|read "/.test(s)) {
+      if (Number.isFinite(claimed) && claimed !== pngs.length) {
         add('capture-count', `${f} says ${n} captures; there are ${pngs.length}`);
       }
     }
@@ -376,10 +385,88 @@ function checkRetiredPhrasing() {
   }
 }
 
+/** Not preceded by a quotation mark: a quoted form is someone citing it, as rule 10 does. */
+const UNQUOTED = '(?<!["“\'`])';
+/**
+ * The phrasings that are only ever a passage narrating its own earlier wording.
+ * "said" and "read" count only before a quotation: "this row read too tall"
+ * is about how something LOOKED, and is fine.
+ */
+const PASSAGE = '(comment|note|paragraph|sentence|entry|bullet|row|item|clause|caption|parenthetical|pointer|block)';
+const SELF_NARRATION = [
+  new RegExp(`${UNQUOTED}\\bthis\\s+${PASSAGE}\\s+(used\\s+to|once\\s+(said|read|claimed)|claimed|listed|was\\s+(missing|missed))\\b`, 'gi'),
+  new RegExp(`${UNQUOTED}\\bthis\\s+${PASSAGE}\\s+(said|read)\\s+["“]`, 'gi'),
+  new RegExp(`${UNQUOTED}\\bthis\\s+(said|read)\\s+["“]`, 'gi'),
+  new RegExp(`${UNQUOTED}\\bthis\\s+(said|read|listed|claimed)\\b[^.]{0,120}?\\buntil\\s+20\\d\\d-\\d\\d-\\d\\d`, 'gi'),
+  /\(\s*This\s+(said|read|listed|claimed)\b/g,
+  new RegExp(`${UNQUOTED}\\ban?\\s+earlier\\s+version\\s+of\\s+this\\s+(note|entry|comment|paragraph|sentence|line|rule)\\b`, 'gi'),
+  new RegExp(`${UNQUOTED}\\brather\\s+than\\s+preserved\\b`, 'gi'),
+];
+
+/**
+ * Report every self-narrating phrase in one passage.
+ *
+ * @param {string} f  The file, for the report.
+ * @param {string} text  The passage, line breaks kept so a hit can be located.
+ * @param {number} [firstLine=1]  The file line the passage starts on.
+ */
+function reportSelfNarration(f, text, firstLine = 1) {
+  for (const re of SELF_NARRATION) {
+    for (const m of text.matchAll(re)) {
+      const line = firstLine + (text.slice(0, m.index).match(/\n/g)?.length ?? 0);
+      add('edit-history', `${f}:${line} narrates its own earlier wording: "${m[0].replace(/\s+/g, ' ')}"`);
+    }
+  }
+}
+
+/**
+ * 10b. No passage narrates its own earlier wording (CLAUDE.md § Markdown
+ * Authoring Rules, rule 10). What a document or a comment USED TO SAY belongs
+ * in the commit message, not in the file.
+ *
+ * Only the unambiguous forms are matched — "This said", "This read" before a
+ * quotation, "this entry used to…", "an earlier version of this note",
+ * "rather than preserved". The rule's real line is semantic: history of the
+ * APP or the CODE stays, history of the WORDING goes, and no pattern can tell
+ * "this line read X" about a code line from the same words about a comment.
+ * That judgement stays a reading job; this catches the phrasing that is only
+ * ever self-narration.
+ *
+ * Covers the markdown, except DOSSIER.md (the course's own text) and prompts/
+ * (versioned and never edited), and every comment in the JS, CSS and HTML. A
+ * run of consecutive comment lines is read as one passage, so a phrase that
+ * wraps is still seen.
+ */
+function checkEditHistory() {
+  for (const [f, s] of md) {
+    if (f !== 'DOSSIER.md' && !f.startsWith('prompts/')) reportSelfNarration(f, s);
+  }
+  for (const [f, lines] of javaScriptIndex().commentLines) {
+    if (f === SELF) continue;
+    let run = [];
+    let start = 0;
+    for (const n of [...lines.keys()].sort((a, b) => a - b)) {
+      if (run.length && n !== start + run.length) {
+        reportSelfNarration(f, run.join('\n'), start);
+        run = [];
+      }
+      if (!run.length) start = n;
+      run.push(lines.get(n).replace(/^\s*\*?\s?/, ''));
+    }
+    if (run.length) reportSelfNarration(f, run.join('\n'), start);
+  }
+  for (const [f, s] of corpus) {
+    if (!/\.(css|html)$/.test(f)) continue;
+    for (const m of s.matchAll(/\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g)) {
+      reportSelfNarration(f, m[0], s.slice(0, m.index).split('\n').length);
+    }
+  }
+}
+
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
   checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
   checkInvisibleCharacters,
-  checkRetiredPhrasing]) {
+  checkRetiredPhrasing, checkEditHistory]) {
   check();
 }
 

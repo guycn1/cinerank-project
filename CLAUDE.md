@@ -73,7 +73,13 @@ user's ruling): fifteen comments that narrated their own earlier wording, seven
 in JS and eight in CSS, now state only what is true. Two of the CSS ones were
 also false underneath the narration — a scrollbar sum from before R29 capped
 the card width, and an exit animation described as it was before R30 — so
-those were corrected, not just trimmed.
+those were corrected, not just trimmed. **The same sweep then ran over every
+markdown file**, and about forty passages across nine documents now state what
+is true rather than what they once said; what stayed is history of the app,
+of the process, or of a decision. **`check-claims` now enforces rule 10's
+unambiguous forms (check 10b)** — run against the tree before this sweep it
+flags every one of them — and the whole-file exemption its capture-count check
+had carried for such narrations is gone.
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
@@ -158,7 +164,7 @@ linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spir
 turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
 POINT, failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list was
-ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely: THE NEXT SESSION STARTS ON STEP 5, the portrait overhaul, and its two enforcement rules are Claude's to apply, not the user's to remember** (that pointer was true when written on 2026-09-12 and is NOT an instruction now — step 5 closed the same day, as this very entry says further down; the two enforcement rules do still stand); the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; the "lands on the 404 handler" claim here was wrong too and is corrected in step 4 (there is no 404 handler — it was Express's finalhandler). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked, the final merge included. The top of this entry is the current state.**)
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely. Step 5, the portrait overhaul, came next and closed the same day (further down this entry); its two enforcement rules still stand and are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; so was its claim that the request "lands on the 404 handler" — there is no 404 handler, and Express's finalhandler answers it (step 4). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked, the final merge included. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -235,13 +241,12 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   sentence — "the only capture in the set showing X" is disproved by some OTHER
   capture, which the sentence does not mention — and a resolver that follows the
   addresses in the text walks straight past it however well it resolves them.
-  **An earlier version of this note said such a claim "points at nothing", and
-  the merge message on `main` still does. That is wrong and is corrected here
-  rather than preserved:** it points at something perfectly well, and it is
-  checkable — it WAS checked, by opening the other frames. Checking it just
-  costs an enumeration of the set plus a predicate the gate cannot evaluate,
-  where a resolvable claim costs one lookup. The merge message is left as
-  written, the way `619ed64` was.
+  **Such a claim does point at something, and it is checkable** — it WAS
+  checked, by opening the other frames. Checking it just costs an enumeration
+  of the set plus a predicate the gate cannot evaluate, where a resolvable
+  claim costs one lookup. (The merge message on `main` says it "points at
+  nothing"; that is wrong, and the message is left as written, the way
+  `619ed64` was.)
   The sweep that this merge carries went at those by hand: ten
   self-referential "the comment says so" pointers resolved against the comments
   they name (all ten held), every `§` reference and all 86 internal markdown
@@ -881,8 +886,8 @@ and stay as written.
     (the user ran the button widths in the console: 68 / 104 / 85 / 95px):
     "+ Add" 289px, "✓ Added" 306px, "In your list" 316px, mid-add 325px. Below
     those the title column would be 53–79px — the crushed state this prevents.
-    An earlier note here said 332/284px from estimated button widths; "In your
-    list" is 95px, not the 111px guessed, so it stacks LATER than first written. Common widths (360/390/412px) are untouched.
+    Do not estimate these widths: "In your list" is 95px, not the 111px an
+    estimate gave. Common widths (360/390/412px) are untouched.
   - **Search results get their own layout under 500px** (user-designed,
     2026-09-09). The Add button moves from the right-hand column to directly
     UNDER the year/TMDB line, in the title's column, and subtle row separators
@@ -973,9 +978,7 @@ and stay as written.
     time to be the only FILLED button — **that was never true, and R13 is where it
     was corrected**: THREE amber-filled buttons can be disabled (this one,
     `.rate-dialog button.primary`, and the rec card's), audited against every
-    `disabled =` assignment in `app.js`. The CSS comment carrying the same false
-    claim was fixed then; this bullet was missed until 2026-09-16.
-    What was right here is the mechanism:
+    `disabled =` assignment in `app.js`. The mechanism:
     amber at 55% still composites to an unmistakably amber ~#8c6f39, so
     it read as active for the whole second it said "Searching…". The fill now
     leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
@@ -1544,7 +1547,7 @@ reopens, and do not renumber: the numbers are how the user refers to them.
 | 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
 | 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
 | 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
-| 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. This row used to say only D-031's element-reuse rewrite could fix it. **That was wrong when written**: #14 is a state-persistence problem, not an element-identity one. Lifting the state into `state.expandedReviews` fixes it in 8 lines; the rewrite stays rejected |
+| 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. A state-persistence problem, not an element-identity one: lifting the state into `state.expandedReviews` fixes it in 8 lines, and D-031's element-reuse rewrite stays rejected |
 | 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
 | 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-08): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-08): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
 | 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
@@ -1710,10 +1713,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      code.** `verifyTitle()` still falls back to `results[0]`. What changed is
      that SPEC §2.2 #4 and §6, the README, `docs/PROCESS.md`, this file and the
      function's own JSDoc stopped promising more than it delivers.
-     **This item's original premise was WRONG when written, so it is corrected
-     here rather than preserved.** It claimed "TMDB search is fuzzy, so a
-     hallucinated title usually resolves to SOME real film" and that "that drop
-     path is nearly unreachable". Measured against live TMDB across 30 probe
+     **The audit's premise was WRONG, and measuring showed it.** It assumed "TMDB
+     search is fuzzy, so a hallucinated title usually resolves to SOME real film"
+     and that "that drop path is nearly unreachable". Measured against live TMDB across 30 probe
      titles: the search is close to TOKEN matching rather than fuzzy, and **7 of
      12 realistic invented titles returned ZERO results** and were dropped
      exactly as the docs said. The drop path is the common case, not an
@@ -2104,9 +2106,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      **It landed with R2 and the suite has carried it since:**
      `test/routes.test.js` holds "never suggests a film already in the list but
      UNRATED", commented at itself as R2, and D-046 records that rebuilding the
-     owned set from `rated` fails exactly that one test. Corrected rather than
-     preserved, on R27's precedent: this was advice about work still to come,
-     not a record of a past state, and the work came.
+     owned set from `rated` fails exactly that one test.
    * **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
      the others do not shift.** It claimed the client hardcodes the thresholds the
      server owns. It does not: `init()` in `app.js` does
@@ -2196,15 +2196,13 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      slot rather than falling out of the grid's children; and R30 replaced
      per-node removal with a single batched removal after the LAST animation
      ends, because removing them one at a time re-flowed the grid mid-exit.
-     **Built as two CSS phases, NOT as a View Transition, and this entry used to
-     say the opposite.** It read "Prefer the View Transition route: it is the
-     mechanism this codebase already chose for exactly this problem." That was
-     wrong: a View Transition animates ONE atomic old→new swap, and here the two
-     halves are seconds apart on opposite sides of an AI call. Wrapping the gap
-     would hold a frozen snapshot of the whole page for the length of the
-     request, and it can express neither the stagger, the lead-in, nor the scroll
-     between them. Corrected rather than preserved, because it was advice about
-     what to do next, not a record of a past state. Full reasoning in D-048.
+     **Built as two CSS phases, NOT as a View Transition**, though a View
+     Transition is the mechanism the ranked list uses for its re-sort (D-031). A
+     View Transition animates ONE atomic old→new swap, and here the two halves
+     are seconds apart on opposite sides of an AI call. Wrapping the gap would
+     hold a frozen snapshot of the whole page for the length of the request, and
+     it can express neither the stagger, the lead-in, nor the scroll between
+     them. Full reasoning in D-048.
      **The reduced-motion trap that reasoning turned up:** that block sets
      `animation: none !important`, so no animation runs and `animationend` never
      fires — a listener-driven removal would have left the old cards on screen
@@ -2744,13 +2742,11 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
    covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
    and older still probe — the same 404 as before, not a new one.
-   **One correction to what this entry used to claim.** It said the request
-   "lands on the 404 handler". There is **no 404 handler**: `server/index.js` has
-   only a central error handler, which fires on `next(err)`. The request fell
+   **There is no 404 handler** for the probe to land on: `server/index.js` has
+   only a central error handler, which fires on `next(err)`. The request falls
    through `express.static` and every API mount to Express's built-in
    finalhandler — a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
-   by booting the app on port 3999, not reasoned about. Wrong when written, so
-   corrected rather than preserved.
+   by booting the app on port 3999, not reasoned about.
    Declaring any icon link is what stops the auto-probe, so the icon and the
    console error were one fix, not two.
 
@@ -2760,12 +2756,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
    the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
    typing effect — the only item here that was ever a genuinely new build —
-   closed the same day (D-057), tuned to **18**ms/char by the user's eye. (This line said 15ms, which was wrong when written — 15ms was tried and REVERTED, the user preferring the slower read. `VERDICT_TYPE_MS` in `app.js` is 18, the item below says 18, and D-057 says 18.)
-   **That pointer used to say "next session starts on step 5, the portrait
-   overhaul". Steps 5 AND 4 are both done now (2026-09-12), so every UI step of
-   the agreed order is closed and the only one left was STEP 6 — pre-submission
-   evidence and cleanup, itself closed 2026-09-14. Step 5's two narrow-viewport enforcement rules still
-   stand and are not retired by it closing.**
+   closed the same day (D-057), tuned to **18**ms/char by the user's eye (15ms
+   was tried and REVERTED, the user preferring the slower read).
+   **Steps 5 AND 4 are both done (2026-09-12), so every UI step of the agreed
+   order is closed, and step 6 — pre-submission evidence and cleanup — closed
+   2026-09-14. Step 5's two narrow-viewport enforcement rules still stand and
+   are not retired by it closing.**
    1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
       polish passes and then a revert-and-isolate. Left here rather than deleted
       because its three traps govern item (5): the ring width is FIVE coupled
@@ -2876,10 +2872,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      device occupies. Full table in D-055. Note DevTools CPU throttling slows the
      MAIN THREAD ONLY, which is why the software-rendering runs were needed.
      **The busy-state item further down this list** (the glint speeding up while
-     "New verdict" runs) **is DONE — 2026-09-12, D-056.** This paragraph used to
-     say it was still open; it was, when written, and the sentence is corrected
-     rather than deleted because its point still stands: that item's two dials
-     are exactly the two traps above. Note that only ONE of D-055's two one-line
+     "New verdict" runs) **is DONE — 2026-09-12, D-056**, and its two dials are
+     exactly the two traps above. Note that only ONE of D-055's two one-line
      fixes was used — the speed half went to `playbackRate` in JS instead of the
      duration swap D-055 prescribed, because changing a CSS animation's duration
      makes the dash JUMP. See D-056 before touching it.
@@ -2903,14 +2897,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `.verdict__sheen` — ONE SVG `<rect>` stroke-dashed with `pathLength="100"`,
      travelling the perimeter once per 9s. No `background-position` animation, no
      `--ease`, no conic gradient, no 220%. (It is now a 2.5px ring, TWENTY rects
-     and 15s.) What that paragraph was recording — that the gradient-scrolling
-     approach was gone — is still true.
-     **An earlier deletion recorded here was itself right and stays recorded:**
-     the item as FIRST drafted called the banner "a static treatment" and
-     suggested a `border-image` or masked pseudo-element because "`border-color`
-     cannot hold a gradient" — all written before the `sheen` animation was
-     found, and following it would have meant rebuilding something that already
-     existed.
+     and 15s.) The gradient-scrolling approach is still gone.
      Two constraints that DO still apply: keep it SLOW, since this sits near the
      top of the page on every load; and D-044's rule that amber must never become
      a hard-edged focus-ring lookalike.
@@ -2918,8 +2905,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      OF THE 2026-09-11 SESSION. It describes mechanisms that were built and then
      REPLACED on 2026-09-12 — in particular a CONIC GRADIENT, which is not in the
      code. The shipped design is described at the TOP of this item. Kept because
-     the dead ends are expensive to rediscover, and because one claim in it was
-     measured wrong, which is corrected in place below. <<<**
+     the dead ends are expensive to rediscover. <<<**
      **MECHANISM DONE 2026-09-11 (polish was still open at the time), and — as
      this item demanded — by measuring first.** The
      cause was the CURVE, not the speed, the colours or the travel. A timing
@@ -2960,13 +2946,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      between keyframe values — the glint would teleport. `syntax: '<angle>'`
      makes it interpolate. A background cannot be `transform`ed, so there is no
      other route.
-     **This item once claimed "perimeter speed is near-even, which is not
-     obvious and was checked". THAT CLAIM WAS WRONG WHEN WRITTEN and is corrected
-     here rather than preserved** — the one exception in the sweep rule, since a
-     false measurement was never a valid record. It reported 5.81px/° along the
-     top against 8.74 at the ends and concluded the glint moved only ~1.5× faster
-     round the corners. That came from AVERAGING px-per-degree over a whole edge
-     instead of taking the local derivative. Done properly, along the top edge
+     **Perimeter speed is NOT near-even, though Claude first measured it so.**
+     AVERAGING px-per-degree over a whole edge gave 5.81px/° along the top
+     against 8.74 at the ends — a glint only ~1.5× faster round the corners. The
+     local derivative is what counts. Done properly, along the top edge
      `dx/dtheta = h + x²/h`, which on this banner is **0.61px/° at the middle of
      the edge and 125px/° at the corner — a 200× swing**, not 1.5×. That is
      exactly what the user reported seeing: a band that crawled and stayed narrow
@@ -3251,8 +3234,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    follows is that instruction block corrected to the finished state; the recipes
    it points at are still the working ones. <<<**
    The checklist is under "Pre-submission blockers" below. The resilience
-   screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states, not
-   the nine this block named while it was open. **FIVE recipes are
+   screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states.
+   **FIVE recipes are
    order-dependent and will waste a session if skimmed:** RS-2 needs a search run
    BEFORE the key is broken; RS-6 and RS-14 need the page loaded BEFORE the server
    is stopped; RS-10 needs two views and a strict sequence; RS-11/12/13 need the
@@ -3304,12 +3287,10 @@ below — this list is the smaller stuff.)
   `test/routes.test.js`.
 * [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
-  under **R1**, which is the entry being worked from. **The 2026-09-08 wording
-  here understated it and is corrected rather than preserved, because it was
-  wrong when written:** it said only the ERROR is wiped. The `finally` reassigns
-  `#recs-hint` unconditionally, so the SUCCESS line (`Based on: …`) and the
-  zero-result line are wiped by the same statement — a failed run, a successful
-  run and a never-run page all look alike. The server side is correct and tested
+  under **R1**, which is the entry being worked from. **Not only the error was
+  wiped:** the `finally` reassigned `#recs-hint` unconditionally, so the SUCCESS
+  line (`Based on: …`) and the zero-result line were wiped by the same statement
+  — a failed run, a successful run and a never-run page all looked alike. The server side is correct and tested
   (422 + a `status='failed'` log row); this is purely the UI half of SPEC §7.1,
   and it would show up badly in the resilience screenshots.
 * [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
@@ -3401,9 +3382,7 @@ below — this list is the smaller stuff.)
   and Shrek (2001) unrated (the "Not rated yet" chip and the faint "?"). FOUR of
   the seven cards double as UI evidence — the four annotated above — and between
   them they draw FIVE states that otherwise need hand-setup to photograph, since
-  Shrek (2001) draws two. This read "six" until 2026-09-15 and contradicted its
-  own list one sentence earlier; `scripts/seed-demo.js` had the five right all
-  along.
+  Shrek (2001) draws two.
   **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
   FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
   BOTH AI features at once, the verdict falling back to reciting film names
@@ -3432,25 +3411,18 @@ below — this list is the smaller stuff.)
 collapsed: each records what was found and how, and several carry recipes that are
 still the working instructions.
 
-*The paragraph below is how this section read while the list was open. It is
-preserved because the schedule choice it describes is part of the record — the
-evidence capture really was deferred to a dedicated session, which is why the
-shots match a finished UI rather than a mid-overhaul one.*
-
-> The code is functionally complete against SPEC §2–§6, but the submission is
-> **not** ready. These are the known gaps. The user is deferring all
-> screenshot/evidence capture to right before submission, in a dedicated session,
-> so the shots match the finished UI rather than a mid-overhaul one. That is a
-> deliberate schedule choice, restated more than once — do NOT push to capture
-> them early.
+**The evidence capture was deliberately deferred to a dedicated session right
+before submission** — the user's schedule choice, restated more than once while
+the list was open — so the shots match the finished UI rather than a
+mid-overhaul one.
 
 **DO keep this list growing as the work happens.** That governed the list while
 it was open and is still the habit for anything new. The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
 something demo-able or provable — a new failure state, a guardrail worth
 showing, a before/after worth contrasting — append it here the moment it
-appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
-"the end" happened on 2026-09-13/14, and every item above is ticked.
+appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
+"the end" happened on 2026-09-13/14, and every item below is ticked.
 
 * [x] **Deployed to Render** (2026-09-07) — **https://cinerank-g6lx.onrender.com**
   URL is at the very top of the README. Web service created through the Render
@@ -3505,15 +3477,12 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     Their technical content was also already duplicated here.
   **What this did NOT mean, at the time.** The reconciliation ADDED documents; it
   ticked nothing below, and on 2026-09-13 every remaining item in this list was
-  still open and still owed. *(They were closed over the following day. This
-  sentence is kept in the past tense rather than deleted, because it records what
-  the reconciliation did and did not achieve, which is the point of the entry.)*
+  still open and still owed. *(They were closed over the following day.)*
 * [x] **Put the live URL on the project sheet — DONE 2026-09-14.**
-  https://cinerank-g6lx.onrender.com is on the sheet. This used to be a "still to
-  do" line *inside* the ticked deploy item above, where it did not show up as an
-  open checkbox and could be missed on a skim. Splitting it out is what made it
-  get done: deploying and submitting the address are two different things, and
-  the second is what makes the first count.
+  https://cinerank-g6lx.onrender.com is on the sheet. It is its own checkbox
+  because deploying and submitting the address are two different things, and
+  the second is what makes the first count; as a line inside the ticked deploy
+  item it would not show up as an open checkbox and could be missed on a skim.
 * [x] **Demo seed list — DONE 2026-09-13.** Loaded by the user with
   `npm run seed-demo -- --write`, which goes through the app’s own HTTP API,
   so the rows are exactly what the normal UI flow produces. The content is
@@ -3532,14 +3501,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
   RS-11, RS-14 and RS-15 each need two frames, on FOUR different axes. For five
   of them - RS-3, RS-4, RS-5, RS-9 and RS-15 - the claim splits across the page
   and the audit trail (RS-15 is on that axis too despite being listed last, so do
-  not read "the first four" off the order, which is what this sentence used to
-  say); RS-10's splits across TIME, because it is a race; RS-11's is one rule
+  not read the five off the order); RS-10's splits across TIME, because it is a race; RS-11's is one rule
   shown on BOTH AI features, because one alone reads as incidental; and RS-14's
   pairs the failure with the retry that succeeds, because recovery is what a
   single error frame cannot show.
-  *(This line read "Eleven files" and the sentence above it read "21 captures" until
-  2026-09-14. Both were wrong when written — there were already thirteen and
-  twenty-six — so they are corrected rather than preserved.)*
   Server behaviour is covered by `npm test`; these are the *pictures*.
   **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** — a
   failed verdict logged against a model it never called (D-070), a fully
@@ -3561,9 +3526,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
   whole set and each line is self-contained enough to shoot from without reading
   the history.** Add new ones with the next free number and never renumber.
   **Tick each `RS-n` as it is captured** — the parent checkbox is done only when
-  every one of them is. (This read "all nine" until 2026-09-15, which was the
-  set's size when the instruction was written and stopped being true at RS-10.
-  A count that grows with the set does not belong in a rule about the set.)
+  every one of them is. (No count here on purpose: a count that grows with the
+  set does not belong in a rule about the set.)
   **TMDB, OpenRouter and Supabase are ALL called SERVER-side** — the browser
   talks only to this app — so DevTools offline mode and request blocking do NOT
   simulate them. Forcing means editing `.env` and restarting, except where noted.
@@ -3595,9 +3559,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     because the results panel is persistent rather than a dropdown (D-024).
     Expect the toast: "Couldn’t add “<Title>” — TMDB is unreachable."
   - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
-    two (it read "the only entry here that needs two" until 2026-09-15; seven
-    others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11, RS-14 and
-    RS-15): `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
+    two (seven others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11,
+    RS-14 and RS-15): `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
     `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
     across two surfaces — the page says the run produced nothing, and only the
     log shows it succeeded and was charged anyway — so either frame alone is
@@ -3676,9 +3639,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     site header — the wordmark and `.mark__reel`, the tagline, and the GitHub
     link from step 3 — and it is the only one of the two where everything below
     the failing banner is intact. (The other is `rs-7-database-unreachable.png`,
-    which shows the same header above a list that could not load; this line read
-    "the only capture" until 2026-09-15, when the two were compared frame by
-    frame.) What pairs with RS-4 is the SENTENCE, which is legible either way.
+    which shows the same header above a list that could not load.) What pairs with RS-4 is the SENTENCE, which is legible either way.
     Useful when the README screenshots come up.
     **OpenRouter down on the verdict.** Same key, 2+ rated films,
     click New verdict. Expect "Couldn’t come up with a verdict right now. See the
@@ -3759,9 +3720,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     correctly on the page (R28). Before R28 it called both the second thing.
     **It is the deliberate near-twin of RS-3, and they argue opposite things.**
     Same layout, same empty grid, same real charge. RS-3 is a genuine outage the
-    app reported honestly instead of hiding behind this very sentence, which is
-    what it used to claim for every empty run before R28. RS-9 is that sentence
-    being TRUE: every key works, TMDB answers, the model performs, and the run
+    app reported honestly instead of hiding behind RS-9's message, which the app
+    showed for every empty run before R28. RS-9 is that message being TRUE: every key works, TMDB answers, the model performs, and the run
     simply has nothing new to offer — and the cost is still accounted for. That
     is why it is filed under SPEC § 7.2 rather than § 7.1: an app that reports
     what it spent only when things go well is not an audit trail.
@@ -3788,8 +3748,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
     up and the database is up — nothing is broken anywhere. **That is not unique to
     it:** `docs/RESILIENCE.md` names `RS-15` in the same breath for the same
     reason, and `RS-8`, `RS-9` and `RS-16` are all states where nothing is broken
-    either. This entry claimed to be the only one until 2026-09-16. What IS unique
-    to it is the next paragraph. What fails is the assumption that the row a dialog opened still exists
+    either. What IS unique to it is the next paragraph. What fails is the assumption that the row a dialog opened still exists
     when Save is pressed.
     **THE ONLY RACE IN THE SET, so it is the only one needing two frames of the
     SAME moment rather than two surfaces.** A single still cannot show an order of
@@ -4028,12 +3987,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
   Five captures were taken specifically for this list and are filed as `ac-*`;
   two of the eight needed the demo list emptied to one film and then to zero,
   which was done deliberately and reversed with the seed script afterwards.
-  **This item once said the escaping fix had to come first, because the boxes
-  were written with an escaped bracket and therefore "do not render as task-list
-  checkboxes at all". THAT WAS WRONG** — measured against GitHub's own renderer
-  on 2026-09-12, an escaped bracket in a list item produces a working, tickable
-  checkbox, byte-identical to an unescaped one. There is no dependency; these
-  eight have been tickable all along.
+  **The escaped brackets never blocked this** — measured against GitHub's own
+  renderer on 2026-09-12, an escaped bracket in a list item produces a working,
+  tickable checkbox, byte-identical to an unescaped one. There is no dependency
+  on the escaping fix; these eight have been tickable all along.
 * [x] **Markdown escaping in `CLAUDE.md` and `SPEC.md` — DONE 2026-09-12 (D-065),
   and it turned out to be two real defects out of the four that were suspected.**
   Every class was measured against GitHub's Markdown API rather than assumed,
@@ -4124,9 +4081,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* it defers to
   every title cross-checked against TMDB, so a bad pick is dropped rather than
   shown. The verdict has nothing to check it against, so its only measure is
   whether it sounds like a person, which is the axis the cheaper tier could not
-  reach. A comment in `server/config.js` used to summarise the recommendation task
-  as "name some films"; it was dismissive and inaccurate, and it is corrected in
-  place. `chat()` takes an optional `model`
+  reach. `chat()` takes an optional `model`
   defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
   overrides it. Overridable per feature via `OPENROUTER_MODEL` and
   `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
@@ -4174,9 +4129,7 @@ comes from the shared `busyButton()`; only its resting label is exempt.
 **The exemption is moot in practice, and has been since R11:** that item gave
 `.recs__trigger` `white-space: nowrap`, so the label cannot break at all — the
 rule's outcome reached by a different mechanism. The exemption is left standing
-rather than retired because it is the user's to lift, not Claude's. (This read
-"parked for the recommendations overhaul" until 2026-09-16; that overhaul closed
-on 2026-09-12 and R11 is what closed this along with it.)
+rather than retired because it is the user's to lift, not Claude's.
 
 **And one case the in-string technique cannot cover at all** (found by R15, which
 put a sparkle icon on that same trigger): an ICON is an element, not a character,
@@ -4194,7 +4147,7 @@ it.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
-* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; this bullet said "one or two" until 2026-09-11 and would have sent a future session to shorten it back) — this is intentionally the lighter-weight of the two prompts.
+* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — this is intentionally the lighter-weight of the two prompts.
 * The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms the card shows a REAL film, not that it shows THE film the model named** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, so a near-miss resolves to a neighbouring film instead of being dropped. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 
@@ -4359,19 +4312,15 @@ down would be re-broken within a session. See D-065.
    under every `h1` and `h2`, so a separator there draws two horizontal lines a
    few dozen pixels apart, bracketing a heading that never needed help. **There
    is now not one left anywhere in the repo**, so any appearance is a regression.
-   This rule briefly carried an exception for `docs/DECISIONS.md` "keeping its 65
-   by choice" — wrong twice over: there were 38, not 65, and they sat above only
-   38 of the file’s 65 entries AT THAT TIME, so the same boundary was drawn two
-   different ways for no
-   reason. The user called it, they are gone, and the file is uniform.
+   No file is exempt, `docs/DECISIONS.md` included — the user ruled it out, and
+   D-065's addendum records why.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
    the whole block as one paragraph full of pipe characters — not a degraded
    table, no table at all. The repo’s markdown carries tables in most of its
-   files, so this is not hypothetical. **The count that used to sit here is gone
-   on purpose:** it read 84, was corrected to sixteen on 2026-09-13, and was
-   already 33 by the following day — a figure that drifts every time a document
-   gains a table, in a rule whose point does not depend on it. Count the
-   separator rows if the number is ever actually wanted.
+   files, so this is not hypothetical. **No count sits here, on purpose:** the
+   number drifts every time a document gains a table, and the rule's point does
+   not depend on it. Count the separator rows if the number is ever actually
+   wanted.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
    without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
@@ -4405,16 +4354,21 @@ down would be re-broken within a session. See D-065.
    diverged from the SPEC — both are about the product. A note about the
    DOCUMENT's own editing is not, and belongs in the diff. The one carve-out is
    a correction a reader would otherwise re-introduce: state the rule going
-   forward, not the history (rule 6 above is the model — it says the count is
-   gone on purpose, without narrating the three values it passed through).
+   forward, not the history (rule 6 above is the model — it says there is no
+   count on purpose, without narrating the values it once held).
    **It applies equally to CODE COMMENTS** (the user's ruling, 2026-09-26), and
    the line is what the history is ABOUT. A comment recounting what the COMMENT
    used to read or say ("This said…", "this comment used to…", "an earlier
    version of this comment…") goes, and its correction story goes in the commit
-   message. A comment recounting how the APP or CODE used to behave ("this line
-   read `config.openrouter.model` until 2026-09-13 and logged the wrong model")
-   stays: that is product history, and often the guard that stops the old
-   behaviour coming back.
+   message. A comment recounting how the APP or CODE used to behave ("the
+   fallback was `config.openrouter.model` until 2026-09-13, so the app logged
+   the wrong model") stays: that is product history, and often the guard that
+   stops the old behaviour coming back. **`check-claims` fails on the
+   unambiguous forms** ("This said" or "This read" before a quotation, "this
+   entry used to…", "an earlier version of this note", "rather than
+   preserved"), in the markdown and in every code comment. Which side of the
+   line a borderline passage falls on is still a reading job; no pattern can
+   make that call.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
@@ -4523,9 +4477,8 @@ structural regression is about as findable as by reading the source. In an HTML
 diff a regression is loud — a paragraph promoted to a heading is a literal `<p>`
 becoming `<h2>`, and a broken table loses its `<table>` element entirely.
 
-**NEITHER API MODE MATCHES THE REPO'S FILE VIEW EXACTLY. This rule used to say
-`mode: gfm` without qualification — that was wrong, and it hid a live defect for
-the entire life of `SPEC.md`.** Measured 2026-09-13 against the HTML github.com
+**NEITHER API MODE MATCHES THE REPO'S FILE VIEW EXACTLY, and relying on
+`mode: gfm` alone hid a live defect for the entire life of `SPEC.md`.** Measured 2026-09-13 against the HTML github.com
 actually serves for a blob:
 
 * **Default mode** (omit `mode`) matches the file view on LINE BREAKS — a soft
@@ -4620,14 +4573,13 @@ the real blob from github.com and read that — it is the only authority.
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
   MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking
-  the BEGIN marker in `prompts/taste_verdict_v7.md` takes it to 59/60. The whole
-  run is under 300ms.
-  **This bullet was missing until 2026-09-17, and its absence is why the
-  twenty-seventh merge went unrun.** `docs/PROCESS.md`, `docs/SECURITY.md` and
-  `docs/ACCEPTANCE.md` have all called `npm test` one of FIVE gates "wired into
-  the commit rules rather than left to memory" — and it was the one gate not
-  wired in here. Claude worked from this list, which had four, and told the user
-  the suite was not a documented gate. Three documents said otherwise.
+  the BEGIN marker in `prompts/taste_verdict_v7.md` fails a test. The whole run
+  is under 300ms.
+  **Added 2026-09-17, because the twenty-seventh merge went through unrun.**
+  `docs/PROCESS.md`, `docs/SECURITY.md` and `docs/ACCEPTANCE.md` all call
+  `npm test` one of FIVE gates "wired into the commit rules rather than left to
+  memory", but it was the one gate this list did not name — and Claude, working
+  from the list, told the user the suite was not a documented gate.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
   the bar; the five complexity warnings are a deliberate, documented state — see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
@@ -4635,7 +4587,8 @@ the real blob from github.com and read that — it is the only authority.
   every claim in the repository that POINTS AT SOMETHING — a path, a script, a
   `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
   backticks in a document, a function a JS comment names, a capture and its count, an `RS-n` key, a short list of retired
-  phrasings, and any invisible character (U+00A0 and friends, which no reviewer
+  phrasings, a passage narrating its own earlier wording (rule 10 under
+  § Markdown Authoring Rules), and any invisible character (U+00A0 and friends, which no reviewer
   can see by eye) — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
   file, which a per-file staleness sweep structurally cannot see: `README.md`
   spent sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open"

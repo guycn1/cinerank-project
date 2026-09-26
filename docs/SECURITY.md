@@ -5,9 +5,7 @@
   RELATIVE, even though every other document in docs/ uses relative paths and a
   consistency sweep will want to. (Links to a heading INSIDE this file are bare
   fragments and need no base, so they are safe in both renderings.)
-  This said SIX until 2026-09-19, which was the count when it was written; the
-  navigational linking pass took it well past that, and a count nobody updates is
-  worse than no count.
+  No count is given on purpose: one that nobody updates is worse than none.
 
   GitHub renders this one file at TWO different base paths. In the blob view of
   docs/SECURITY.md a relative path resolves against docs/, which is correct. But
@@ -386,8 +384,8 @@ repository; this one is the independent application.
 
 ## What was owed — nothing outstanding
 
-This section listed two items on the morning of 2026-09-13. **Both are
-delivered**, and nothing has replaced them.
+**Both items owed on the morning of 2026-09-13 are delivered**, and nothing has
+replaced them.
 
 **Delivered:** the debug harness is unloaded — the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the

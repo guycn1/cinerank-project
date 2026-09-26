@@ -472,9 +472,7 @@ measured against a stated definition of "graceful". Three are embedded here; the
 rest are there.
 
 *(Only three, deliberately. Embedding every one of them under one checkbox would
-bury the criterion in its own evidence. This read "all thirteen" until
-2026-09-16 — a count from when the set was smaller, and one the sentence above it
-had already contradicted.)*
+bury the criterion in its own evidence.)*
 
 ### TMDB unreachable
 

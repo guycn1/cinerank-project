@@ -320,8 +320,8 @@ for every title, which is what a genuinely invented title looks like.
 
 **And the message says which of the five things went wrong.** Before
 [`R28`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
-this sentence read "the model only named films already in your list" for *every*
-empty run — it would have been a flat lie here. The five causes are now tallied
+the app's message read "the model only named films already in your list" for
+*every* empty run — it would have been a flat lie here. The five causes are now tallied
 per title and resolved to one reason, so a hallucinated set, an owned set, an
 empty reply and a TMDB outage each get their own sentence.
 [`RS-3`](#rs-3--verifying-recommendations),
@@ -618,8 +618,7 @@ Save from that stale view is what produces the `404`.
 other pairs here split a claim between the page and the audit trail — `RS-3`,
 `RS-4`, `RS-5`, `RS-9` and `RS-15` all do. (`RS-11` and `RS-14` do not either:
 one shows a single rule holding on both AI features, the other pairs a failure
-with the retry that succeeds. This sentence used to say *every* other pair was
-page-versus-audit-trail, which was false of two of the seven.)
+with the retry that succeeds.)
 This claim is *temporal* — it is about an order of events — and the honest way to
 evidence that in still images is a before and an after. The second frame happens
 to carry the whole story on its own, since the left view's stale `8 films` sits

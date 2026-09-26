@@ -148,11 +148,7 @@ than by declaring.** There was no linter in the project until 2026-09-13.
 `npm run lint` runs ESLint 10 over all 24 JavaScript files across three
 environments — Node ES modules, the browser ES module, and the one browser
 *classic* script that [`index.html`](../public/index.html) loads with a bare
-tag. **Current state: zero errors.** *(This read "ESLint 9 over all 23
-JavaScript files". The version was wrong when written and is corrected rather
-than preserved — the dependency has been `^10.10.0` since `eeb41ef` introduced
-it and was never 9. The file count was right on 2026-09-13 and stopped being so
-two days later, when `scripts/check-claims.js` became the twenty-fourth.)*
+tag. **Current state: zero errors.**
 
 **The config is deliberately not a style linter**, and
 [`eslint.config.js`](../eslint.config.js) says so at the top. Formatting rules
@@ -280,11 +276,10 @@ fires is the thing this document exists to rule out.
   figures — and **four**
   revert commits
   plus one reapply, which is the safety layer
-  visibly firing rather than merely existing. *(This said five reverts until
-  2026-09-14. It was wrong when written, not merely stale: a loose grep for
-  "revert" had counted two commits that merely MENTION reverting in their
-  subject line. Corrected rather than preserved — the rule for a claim that was
-  false when written.)*
+  visibly firing rather than merely existing. *(Counted as commits whose
+  subject BEGINS with a revert — `Revert "…"` or `revert(…)`. A subject that
+  merely mentions reverting does not count, which is why a loose grep for
+  "revert" comes out higher.)*
 * **The product audits itself, which is unusual and is the point.** Every
   OpenRouter call, success or failure, writes a row with prompt version, model,
   token split, cost and duration — and the [in-app AI call log](AI-CALL-LOG.md)

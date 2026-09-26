@@ -100,9 +100,7 @@ the reasoning. Rules that keep this honest live in
   15 of the 16 days** the project has run, a **median of 2 files per commit** and
   a maximum of 14. (Deliberately not exact figures: they move with every commit,
   including the ones that would be needed to correct them. The single gap is
-  2026-09-18 — this read "11 consecutive days, every day" until the figure was
-  re-measured, by which point both the count and the word "consecutive" had
-  stopped being true.) It was exercised twice for real, not merely available: four failed
+  2026-09-18.) It was exercised twice for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
   and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) capture needed a
   deliberate one-line break in a service, undone with

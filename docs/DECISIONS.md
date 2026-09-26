@@ -190,13 +190,8 @@ demand.** A byte in `CLAUDE.md` is a permanent per-session cost paid whether
 anyone needs it; a byte here is paid only when someone reads this file. That is
 why the file that is injected is the exempt one, while this file — within a few
 hundred lines of the same length — was never a candidate for exemption. Size was
-never the reason. *(This sentence first gave the two lengths as 4,488 and 3,860.
-Both were wrong when written, not merely stale: `CLAUDE.md` stood at 4,487, and
-3,860 described THIS file as it was BEFORE the link pass D-075 records — by the
-time the entry existed inside it, it was past 4,000. Corrected rather than
-preserved, per the rule for a claim that was false when written. Exact counts are
-left out now because they move with every entry, and nothing in the argument
-needs them.)*
+never the reason. *(Exact lengths are left out on purpose: they move with every
+entry, and nothing in the argument needs them.)*
 
 **One input is recorded as unverified rather than as fact.** The user had read
 that Claude Code may skim past instructions in a `CLAUDE.md` beyond roughly 400
@@ -956,12 +951,6 @@ about paragraphs, layout or line breaks, `gfm` only to confirm a task list, and
 — when it genuinely matters — to fetch the real blob from github.com, which is
 the only authority.
 
-**Why this is a correction and not an update.** The old rule was wrong when it
-was written, not made wrong by later events, so it was fixed in place rather
-than preserved as history. The distinction is the one
-[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable)
-already draws.
-
 **The generalisable lesson, and it is the same one twice.**
 [D-065](#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)'s
 audit found that the checker had learned the hyphen spelling of a thematic break
@@ -1175,9 +1164,9 @@ paragraph, not the line; the rendered HTML, not the source — and every one was
 missed by a check that looked green at the wrong unit.
 ### Addendum, next day: the separators came out of every file, and the rule became enforceable
 
-This entry originally carved out an exception — `docs/DECISIONS.md` "keeps its 65
-between long entries by choice" — and the checker dropped its separator rule
-rather than fire 38 times against it. **The user then looked at how those
+The first version of this decision carved out an exception — `docs/DECISIONS.md`
+would keep its separators between long entries by choice — and the checker
+dropped its separator rule rather than fire 38 times against it. **The user then looked at how those
 actually rendered and overruled it, correctly.**
 
 Two things decided it, and the second is the one Claude had missed. The rule is
@@ -1339,8 +1328,7 @@ server/, scripts/, prompts/, db/ and test/ is text.)*
 central *error* handler, which fires on `next(err)`. The request fell through
 `express.static`, past every API mount, to Express's built-in finalhandler: a
 404 with `Cannot GET /favicon.ico` as `text/html`. Verified by booting the app
-on port 3999 rather than reasoned about. Corrected in place, since it was wrong
-when written.
+on port 3999 rather than reasoned about.
 
 Declaring any icon link is what stops the probe, so the icon and the console
 error are one fix rather than two.
@@ -1951,8 +1939,8 @@ speed and NOT the stroke alpha, then reached for the alpha anyway and described
 it as the user overruling that advice. The user challenged it directly — *"why
 do you keep saying I'm asking about the alpha?"* — and was right. Dressing up a
 poor mechanism choice as deference is worse than simply making the choice, and it
-corrupts the record: an earlier version of this entry stated Claude's inference
-as the user's instruction.
+corrupts the record: Claude first wrote its own inference into this log as the
+user's instruction.
 
 Straightening it out paid at once. The next request was "more transparent +
 softer edges", and on a 2px stroke those are THE SAME DIAL: raising `blur()`
@@ -3736,8 +3724,7 @@ case, which is the one the whole clamp is shaped around.
 **Three agent errors, all caught by the user.** (1) The first description of the
 failure claimed the numeral "sits flush against the [card] border" and that
 nothing clipped it — a screenshot showed it vanishing under the poster instead.
-Corrected in place rather than preserved, per the "wrong when written"
-exception. (2) The claim that the fix was a no-op in card mode, and that card
+(2) The claim that the fix was a no-op in card mode, and that card
 mode already cleared the poster on its own — both followed from the same bad
 figure-width estimate; the 40px track is in fact *tighter* relative to its font
 than the 64px one, so the clamp floor had to come down as well as the ceiling.

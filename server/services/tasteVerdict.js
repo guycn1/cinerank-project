@@ -163,9 +163,9 @@ export async function generateTasteVerdict() {
     // there is no response to read, so the row falls back to a constant — and
     // the verdict is the one call in the app that does not use the app-wide
     // model (D-053, and the `chat()` call above says so).
-    // This line read `config.openrouter.model` until 2026-09-13 and was
-    // therefore logging FAILED verdicts as claude-haiku-4.5 while the call
-    // that actually failed was claude-sonnet-5. The identical-looking line in
+    // The fallback was `config.openrouter.model` until 2026-09-13, so the app
+    // logged FAILED verdicts as claude-haiku-4.5 while the call that actually
+    // failed was claude-sonnet-5. The identical-looking line in
     // recommendations.js is correct there; do not "unify" the two.
     model_used: result?.model ?? config.tasteVerdict.model,
     tokens_used: result?.tokensUsed ?? null,
