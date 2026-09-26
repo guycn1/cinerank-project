@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-21 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-26 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -43,6 +43,22 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
+on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
+JSDoc header — `@module` where it exports, `@file` where it does not — and
+every function carries a description with typed `@param`, `@returns` and, where
+failure is part of the contract, `@throws`; recurring shapes are typedefs. Each
+file was proved unchanged as code by tokenizing it against its previous
+version. **The finding worth keeping is WHERE a block sits, not what it says.**
+Nine existing blocks were not attached to what they describe — in
+`public/app.js` the ones for `posterNode()`, `softHyphenate()`,
+`syncRecommendationsAvailability()`, `aiMetaFooter()` and
+`pauseSheenOffscreen()` each sat above a neighbouring definition; in
+`scripts/check-claims.js` checks 6, 7 and 10 sat above a constant; and
+`chat()` in `server/services/openrouter.js` had two stacked blocks, of which
+only the second attached. Each block read correctly about its subject, so a
+reading that checks prose against code passes all nine. Only asking which
+definition the block ATTACHES to finds them.
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
