@@ -138,7 +138,7 @@ aiLogRouter.get(
     //
     // TWO THINGS THIS COMMENT USED TO GET WRONG, both corrected here rather than
     // left, because it described behaviour that does not exist:
-    //   1. It said "the viewer says so". It does not. `renderLogTotals()` in
+    //   1. It said "the viewer says so". It does not. `renderAiLog()` in
     //      public/app.js deliberately does NOT surface either count — see D-018
     //      — it only uses `detailed` as a truthiness test for whether to draw the
     //      in/out sub-line at all, and `timed` the same way for the duration.

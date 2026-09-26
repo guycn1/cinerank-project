@@ -1031,8 +1031,9 @@ async function loadMovies() {
     if (!withReview.has(id)) state.expandedReviews.delete(id);
   }
   // The syncs run BEFORE the render, deliberately. A View Transition snapshots
-  // the whole document, so anything these three touch (the recs hint, the
-  // verdict placeholder, the search-result buttons) would cross-fade too.
+  // the whole document, so anything these four touch (every Add button, the
+  // rec-card badges, the recs trigger and hint, the verdict button and
+  // placeholder) would cross-fade too.
   // Settling them first leaves the ranked list as the only difference between
   // the two snapshots. None of them reads DOM that renderRanked() builds — they
   // read `state`, which is already updated above — so the order is free.
@@ -1175,12 +1176,11 @@ function setAddButtonState(btn, owned) {
   // strings are rendered on the recommendation card, whose button has no such
   // rule, so the guard has to live in the string rather than in one stylesheet.
   // "In your list" is left breakable on purpose: those are real words.
-  // The UNOWNED label is read off the button, because the two surfaces disagree
-  // about it: a search row rests at "+ Add", a recommendation card at "Add to my
-  // list". The owned labels are shared, so both surfaces settle identically.
-  // Which of the two resting labels should move is still an open decision (R7) —
-  // routing rec cards through this function must not silently make that decision
-  // by relabelling them, hence the override rather than one hardcoded string.
+  // The UNOWNED label is read off the button, because the two surfaces differ
+  // there: a search row rests at "+ Add", a recommendation card at "+ Add to my
+  // list" (R7 kept the card's longer wording and gave it the same glyph). The
+  // owned labels are shared, so both surfaces settle identically. Hence the
+  // `data-add-label` override rather than one hardcoded string.
   const addLabel = btn.dataset.addLabel || '+\u00A0Add';
   btn.textContent = !owned ? addLabel : btn.dataset.justAdded ? '✓\u00A0Added' : 'In your list';
   btn.setAttribute(
@@ -1348,9 +1348,10 @@ async function addMovie(tmdbId, btn) {
   } catch (err) {
     // The film's title comes off the BUTTON, not from `movie` — the add failed,
     // so there is no saved row to read it from, and `movie` is not even in scope
-    // here. renderResults() stamps `dataset.title` on every add button for
-    // syncAddButtons(), and it is the only title available at this
-    // point. `btn` is optional in this function's signature, hence the fallback.
+    // here. renderSearchResults() and renderRecommendations() both stamp
+    // `dataset.title` on every Add button they build (R4), and it is the only
+    // title available at this point. `btn` is optional in this function's
+    // signature, hence the fallback.
     const title = btn?.dataset.title;
     // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
     // after a context: 'Couldn’t add “Dune” — Already in your list.'
@@ -1527,9 +1528,9 @@ async function removeMovie(movie, btn) {
   // once and gone for good — the free tier has no point-in-time recovery, so
   // "this can't be undone" is literal, not boilerplate.
   // Built from what this film really has, never assumed: a film can be rated
-  // with no review, and (the PATCH endpoint permits it — backlog #15) reviewed
-  // with no rating. Promising to delete a review that was never written would
-  // be its own small lie.
+  // with no review, or not rated at all. (A review with no rating cannot exist:
+  // migration 004 forbids it — backlog #15, D-041.) Promising to delete a review
+  // that was never written would be its own small lie.
   const lost = [];
   if (movie.rating != null) lost.push(`your ${movie.rating.toFixed(1)} rating`);
   if (movie.review) lost.push('your review');
@@ -1660,12 +1661,12 @@ el.recsTrigger.addEventListener('click', async () => {
     // Inline, never the toast — the same call the rate dialog makes (D-032): this
     // message belongs beside the control that produced it.
     //
-    // The log pointer is conditional, and that is the whole point. The verdict's
-    // fallback offers it unconditionally, so when CineRank itself is unreachable
-    // it sends the user to a log that cannot load either (recorded as R23, not
-    // fixed here). This only offers it when the server said a row was actually
-    // written — a failed DB read, an unmet threshold, and CineRank being down
-    // entirely all leave nothing to read.
+    // The log pointer is conditional, and that is the whole point: offered
+    // unconditionally, it would send the user to a log that cannot load either
+    // whenever CineRank itself is unreachable. This only offers it when the
+    // server said a row was actually written — a failed DB read, an unmet
+    // threshold, and CineRank being down entirely all leave nothing to read.
+    // The verdict's handler applies the same rule (R23).
     if (err.logged) {
       setRecsHint([
         document.createTextNode(`${err.message} See the `),

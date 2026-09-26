@@ -74,8 +74,10 @@ for (const m of movies) {
     continue;
   }
 
-  // `!= null`, not truthiness: 0.0 is a real TMDB score for a title with votes
-  // averaging zero, and it is falsy.
+  // `!= null`, not truthiness. A 0 cannot arrive here: TMDB's vote scale starts
+  // at 0.5, and shapeMovie() maps a no-votes average of 0 to null (D-037), so
+  // null is the one "no rating" value. Truthiness would still be the wrong test
+  // to leave behind for a rating field.
   if (details.tmdb_rating == null) {
     console.log(`  – ${m.title} — TMDB has no rating for this title; leaving NULL`);
     noValue++;

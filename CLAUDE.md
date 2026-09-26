@@ -59,6 +59,16 @@ Nine existing blocks were not attached to what they describe — in
 only the second attached. Each block read correctly about its subject, so a
 reading that checks prose against code passes all nine. Only asking which
 definition the block ATTACHES to finds them.
+Found on the way and corrected: seven ordinary `//` comments that were false.
+Five were true when written and went false when something ELSEWHERE changed —
+R7 and R23 closed, migration 004 forbade a state, D-037 removed a value, a
+fourth sync call joined `loadMovies()` — which is the 2026-09-21 pattern again,
+in code comments instead of documents. The other two named functions that
+never existed, renderResults and renderLogTotals (`git log -S` finds
+neither). **`check-claims` verifies a function name only in MARKDOWN**, so a
+name in a code comment has never been checked by anything; a one-off scan of
+every function name in every JS comment, proved by catching both on the
+unfixed files, now finds none left.
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
