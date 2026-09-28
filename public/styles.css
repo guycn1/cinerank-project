@@ -958,11 +958,20 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   box-shadow: none;
 }
 
-/* Under ~500px "Search" no longer fits beside the input and the label was
-   clipped. Swap the word for a magnifier: the two spans trade places, and
-   while the call is in flight the busy label hides too so the spinner stands
-   alone. The button keeps aria-label="Search", since display:none takes the
-   word out of the accessibility tree as well as the layout. */
+/* At 500px and below the word "Search" becomes a magnifier: the two spans trade
+   places, and while the call is in flight the busy label hides too so the
+   spinner stands alone. The button keeps aria-label="Search", since
+   display:none takes the word out of the accessibility tree as well as the
+   layout.
+   The swap was added when the input could not shrink below its intrinsic ~20ch
+   (4a5a820), so under ~500px the button was squeezed and its label clipped.
+   Since the input got `min-width: 0` (0232d01) the word fits at every width.
+   Measured with it forced on (D-079's type scale, overlay scrollbars): nothing
+   clips or overflows down to 280px, and the input still shows its whole
+   placeholder down to 358px in Firefox and 322px in Chrome. So the swap now buys
+   the input room (the icon frees about 48px) rather than keeping the word from
+   clipping, and 500px is not derived from anything: at about 360px and above the
+   word would cost no placeholder text. */
 @media (max-width: 500px) {
   .search button { padding: 0 1rem; }
   .search-btn__label { display: none; }
