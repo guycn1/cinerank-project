@@ -43,6 +43,23 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**>>> BEFORE THE 30TH `draft` → `main` MERGE (pending, postponed by the user
+2026-09-29) — do these on `draft` FIRST, in their own commit, then all five
+gates, then ask for explicit confirmation. <<<**
+Its ground is likely (not certainly) the FIRST ground-3 close-out sync, though
+`draft` also carries fixes that clear ground 2; **confirm the ground with the
+user before writing anything**, because the wording below depends on it.
+(1) Every sentence saying all merges after `0cdc4ec` were defect fixes goes
+false: `README.md` (Workflow, "every merge since has been a defect fix"),
+`docs/PROCESS.md` § 1 ("every merge since has been the latter", which is
+already ambiguous), `SPEC.md` ("The merges after `0cdc4ec` … are defect
+fixes"), and this file twice (ground 2's "Every merge after `0cdc4ec` … has
+been made on this ground", and Build status's "plus the defect merges made
+since it", whose merge history also needs a thirtieth entry). Re-grep for new
+sites. (2) The merge count goes 29 → 30 in this file's Build status,
+`docs/PROCESS.md` § 1 and `docs/MERGE-READINESS.md` § 5.
+**(3) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
+commit, before the merge, so that `main` never carries it as an open to-do.**
 **WHAT LANDED ON 2026-09-29: a pre-merge staleness sweep of every markdown
 file and code comment, on `draft` and not merged.** Figures the project had
 outgrown: the lint coverage in `docs/MERGE-READINESS.md` (26 files in four
