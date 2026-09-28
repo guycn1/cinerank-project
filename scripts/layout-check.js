@@ -29,8 +29,11 @@
  * OPTIONS
  *   --browsers=chrome,firefox,edge  default chrome,firefox. Paths come from
  *                      CHROME_PATH / EDGE_PATH / FIREFOX_PATH, else the usual
- *                      install locations; a missing browser is skipped.
+ *                      install locations; a missing browser is skipped, and a
+ *                      run in which no browser ran fails.
  *   --widths=SPEC      e.g. 290-420,440-800:20,1280 (range:step, comma-list).
+ *                      Default 290-420,440-800:20,900,1000,1280 for health and
+ *                      1000-1100:20,1200,1280,1440,1920 for diff.
  *   --css=FILE         candidate stylesheet, default public/styles.css.
  *   --reference-width=PX  diff mode: also compare the candidate at every width
  *                      above PX with the baseline at exactly PX, for the header,
@@ -40,6 +43,8 @@
  *                      is a share of the viewport and so has its own reference.
  *   --expect-same      diff mode: exit 1 on any difference (for refactors).
  *   --timeout=SECONDS  per browser, default 900.
+ *   --stall=SECONDS    abandon a run whose probe goes quiet this long, default
+ *                      120; the probe reports every width it reaches.
  *   --verbose          print every sample.
  *   --debug            log every request the fixture server receives.
  *
@@ -270,10 +275,12 @@ function answerApi(req, res, url, stats) {
  */
 function startServer({ css, probeConfig }) {
   const waiting = new Map(); // run -> { release, resolve }
+  const lastSeen = new Map(); // run -> when a request for it last arrived
   const stats = { heldWrites: 0 };
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
     const run = url.searchParams.get('run');
+    if (run) lastSeen.set(run, Date.now());
     if (probeConfig.debug) console.error(`[server] ${req.method} ${url.pathname}${url.search}`);
     if (url.pathname === '/__probe/frame') {
       res.writeHead(200, { 'content-type': 'text/html' });
@@ -284,6 +291,7 @@ function startServer({ css, probeConfig }) {
       if (w) w.release = () => { if (!res.headersSent) { res.writeHead(204); res.end(); } };
       return;
     }
+    if (url.pathname === '/__probe/progress') { res.writeHead(204); return res.end(); } // the heartbeat; noted above in lastSeen
     if (url.pathname === '/__probe/config') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify(probeConfig)); }
     if (url.pathname === '/__probe/probe.js') { res.writeHead(200, { 'content-type': 'text/javascript' }); return res.end(fs.readFileSync(path.join(ROOT, 'scripts', 'layout-probe.js'))); }
     if (url.pathname === '/__probe/done' && req.method === 'POST') {
@@ -307,11 +315,12 @@ function startServer({ css, probeConfig }) {
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => {
     const { port } = server.address();
     resolve({
-      url: `http://localhost:${port}`,
+      url: `http://127.0.0.1:${port}`, // the address it listens on; `localhost` may resolve to IPv6 first
       stats,
       // Held write requests would otherwise keep the process alive.
       close: () => { for (const w of waiting.values()) if (w.release) w.release(); server.closeAllConnections(); server.close(); },
-      expect: (runId) => new Promise((done) => waiting.set(runId, { resolve: done })),
+      expect: (runId) => { lastSeen.set(runId, Date.now()); return new Promise((done) => waiting.set(runId, { resolve: done })); },
+      quietFor: (runId) => Date.now() - (lastSeen.get(runId) || Date.now()),
     });
   }));
 }
@@ -357,9 +366,10 @@ function stopBrowser(child) {
  * @param {string} name
  * @param {{url: string, expect: Function}} server
  * @param {number} timeoutMs
+ * @param {number} stallMs  How long the probe may go quiet before the run is abandoned.
  * @returns {Promise<object|null>} The probe's result, or null on timeout.
  */
-async function runBrowser(name, server, timeoutMs) {
+async function runBrowser(name, server, timeoutMs, stallMs) {
   const exe = browserPath(name);
   if (!exe) return { skipped: true };
   const run = `${name}-${Date.now()}`;
@@ -367,13 +377,27 @@ async function runBrowser(name, server, timeoutMs) {
   const target = `${server.url}/__probe/frame?run=${run}`;
   const args = BROWSERS[name].kind === 'firefox'
     ? ['-headless', '-no-remote', '-profile', profile, '-screenshot', path.join(profile, 'shot.png'), '-window-size=1400,1000', target]
-    : ['--headless=new', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, '--window-size=1400,1000', '--dump-dom', target];
+    : ['--headless=new', '--no-first-run', '--no-default-browser-check', `--user-data-dir=${profile}`, '--window-size=1400,1000',
+      // Headless Edge can treat the page as a background tab and throttle its
+      // timers, which stalls the verdict's typing (one tick per 18ms) for good.
+      '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows',
+      '--dump-dom', target];
   const result = server.expect(run);
   const child = spawn(exe, args, { stdio: 'ignore' });
-  let timer;
+  // A browser named only by its command (as on Linux) that is not installed
+  // fails to start; that is a skip, not a crash of the whole run.
+  const failedToStart = new Promise((resolve) => child.on('error', () => resolve({ skipped: true })));
+  let timer, watch;
   const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(null), timeoutMs); });
-  const out = await Promise.race([result, timeout]);
-  clearTimeout(timer);
+  // The probe reports every width it reaches; a run that goes quiet has
+  // stalled, so it is abandoned at once rather than at the timeout.
+  const stalled = new Promise((resolve) => {
+    watch = setInterval(() => {
+      if (server.quietFor(run) > stallMs) { console.log(`\n== ${name}: stalled (nothing for ${stallMs / 1000}s), abandoning this attempt`); resolve(null); }
+    }, 2000);
+  });
+  const out = await Promise.race([result, failedToStart, timeout, stalled]);
+  clearTimeout(timer); clearInterval(watch);
   await new Promise((r) => setTimeout(r, 1500)); // let a browser that is done exit by itself
   stopBrowser(child);
   try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 400 }); } catch { /* a lock can outlive the process briefly */ }
@@ -467,14 +491,17 @@ function buildConfig(opts) {
  * @param {object} server
  * @param {Record<string, string|boolean>} opts
  * @param {string} mode
- * @returns {Promise<{failed: boolean, failing: string[]}>}
+ * @returns {Promise<{failed: boolean, failing: string[], skipped?: boolean}>}
  */
 async function checkBrowser(name, server, opts, mode) {
   const timeoutMs = Number(opts.timeout || 900) * 1000;
-  let r = await runBrowser(name, server, timeoutMs);
-  if (!r && name === 'edge') r = await runBrowser(name, server, timeoutMs); // headless Edge is flaky; one retry
-  if (r && r.skipped) { console.log(`\n== ${name}: not installed, skipped`); return { failed: false, failing: [] }; }
-  if (!r) { console.log(`\n== ${name}: NO RESULT (timed out)`); return { failed: true, failing: [] }; }
+  const stallMs = Number(opts.stall || 120) * 1000;
+  let r = await runBrowser(name, server, timeoutMs, stallMs);
+  // One retry for Edge, as a backstop: it stalled on first attempts until the
+  // timer-throttling switches in runBrowser() went in.
+  if (!r && name === 'edge') r = await runBrowser(name, server, timeoutMs, stallMs);
+  if (r && r.skipped) { console.log(`\n== ${name}: not installed, skipped`); return { failed: false, failing: [], skipped: true }; }
+  if (!r) { console.log(`\n== ${name}: NO RESULT (stalled or timed out)`); return { failed: true, failing: [] }; }
   if (r.fatal) { console.log(`\n== ${name}: probe error\n${r.fatal}`); return { failed: true, failing: [] }; }
   if (mode === 'diff') {
     const differences = reportDiff(name, r, opts.verbose); // always print, whatever --expect-same says
@@ -494,12 +521,16 @@ async function main() {
   const { candidate, probeConfig } = buildConfig(opts);
   const server = await startServer({ css: candidate, probeConfig });
   let failed = false;
+  let ran = 0;
   const fired = new Set();
   for (const name of String(opts.browsers || 'chrome,firefox').split(',')) {
     const r = await checkBrowser(name, server, opts, probeConfig.mode);
     failed = failed || r.failed;
+    if (!r.skipped) ran += 1;
     r.failing.forEach((k) => fired.add(k.split(':')[0]));
   }
+  // Nothing checked is not a pass.
+  if (!ran) { console.log('\nNo browser ran: install one, or set CHROME_PATH / EDGE_PATH / FIREFOX_PATH.'); failed = true; }
   if (opts['self-test']) {
     const missed = SELF_TEST_FAULTS.map(([check]) => check).filter((check) => !fired.has(check));
     console.log(`\nself-test: ${missed.length ? `NOT caught: ${missed.join(', ')}` : 'every planted fault was caught'}`);

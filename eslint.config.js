@@ -15,7 +15,8 @@
  * the app never serves:
  *   - Node ES modules: server/, test/, and every Node tool in scripts/ (the
  *     glob is `scripts/*.js` minus the two browser files below, so a new tool
- *     is covered without this list naming it)
+ *     is covered without this list naming it; check-claims.js keeps the same
+ *     two files in CLASSIC_SCRIPTS and parses them the same way)
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
  *   - Browser CLASSIC script, no globals: scripts/layout-probe.js, which only
  *     `npm run layout-check`'s own fixture server injects into the page.

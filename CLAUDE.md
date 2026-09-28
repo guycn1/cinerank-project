@@ -616,7 +616,11 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   change); and `--self-test`, which plants one fault per check and fails
   unless every one is caught. The hyphenation rules are read out of app.js and
   the stylesheet rather than restated. **Not a commit gate:** it takes minutes
-  and needs installed browsers. Run it before and after a layout change. When
+  and needs installed browsers. Run it before and after a layout change.
+  Chrome and Firefox by default; `--browsers=…,edge` adds Edge, whose headless
+  runs can stall part-way, so the probe sends a heartbeat at every width and
+  the tool abandons a run that goes quiet for two minutes (`--stall`),
+  retrying Edge once. A run in which no browser ran fails. When
   the UI gains a new kind of card, add it to the selector lists at the top of
   `scripts/layout-probe.js`.
 * `GET /api/health` liveness probe. Render's health check has pointed at it

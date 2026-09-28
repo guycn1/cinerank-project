@@ -95,6 +95,10 @@ function checkPaths() {
   }
 }
 
+/** The browser files kept in scripts/, which eslint.config.js parses as classic
+ *  scripts rather than modules. Keep the two lists in step. */
+const CLASSIC_SCRIPTS = new Set(['scripts/debug-recs.js', 'scripts/layout-probe.js']);
+
 /** This file necessarily quotes the patterns it hunts for, so it never scans itself. */
 const SELF = 'scripts/check-claims.js';
 
@@ -207,8 +211,8 @@ function checkIdentifiers() {
  *
  * @returns {{ known: Set<string>, commentLines: Map<string, Map<number, string>> }}
  *   Every identifier and keyword in the CODE, comments excluded, and each
- *   file's comment text keyed by line number. debug-recs.js is parsed as a
- *   classic script, as eslint.config.js parses it.
+ *   file's comment text keyed by line number. The browser files in scripts/
+ *   are parsed as classic scripts, as eslint.config.js parses them.
  */
 function indexJavaScript() {
   const linter = new Linter();
@@ -216,7 +220,7 @@ function indexJavaScript() {
   const commentLines = new Map();
   for (const [f, s] of corpus) {
     if (!f.endsWith('.js')) continue;
-    const sourceType = f === 'scripts/debug-recs.js' ? 'script' : 'module';
+    const sourceType = CLASSIC_SCRIPTS.has(f) ? 'script' : 'module';
     const fatal = linter
       .verify(s, [{ languageOptions: { ecmaVersion: 2024, sourceType } }], f)
       .find((m) => m.fatal);

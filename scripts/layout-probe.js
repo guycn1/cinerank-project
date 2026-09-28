@@ -66,6 +66,8 @@
     window.frameElement.width = w;
     window.frameElement.style.width = `${w}px`;
     await frames(); await sleep(120); await frames();
+    // A heartbeat: the tool abandons a run that goes quiet (see --stall).
+    fetch(`/__probe/progress?run=${run}&w=${w}`).catch(() => {});
   }
 
   /**
