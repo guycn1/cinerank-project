@@ -12,9 +12,10 @@
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
  * path, a script, a decision entry, a commit, a line number, an identifier, a
- * capture, an RS key, a phrase the project has retired (a passage narrating
- * its own earlier wording among them), or an invisible character that no
- * reviewer can see. Every one of those can be resolved against
+ * capture, an RS key, a section (a link's `#anchor` or a prose `§ 4.5` /
+ * `§ Title`), a phrase the project has retired (a passage narrating its own
+ * earlier wording among them), or an invisible character that no reviewer
+ * can see. Every one of those can be resolved against
  * the thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
@@ -27,7 +28,7 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { join, relative, basename } from 'node:path';
+import { join, relative, basename, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Linter } from 'eslint';
 
@@ -467,10 +468,239 @@ function checkEditHistory() {
   }
 }
 
+/*
+ * 11. Every section reference resolves: a link's `#fragment` must be a heading
+ * anchor in the file it points at (11a), and a prose `§ 4.5` or `§ Title` must
+ * name a heading in the file it refers to (11b). A renamed or renumbered
+ * heading used to break every link and reference to it silently; the one-off
+ * audits of 2026-09-19 found them by hand, and nothing kept them found.
+ * Sources exempt from both: this file (it quotes the patterns), prompts/
+ * (versioned, never edited) and DOSSIER.md (the course's own text). They are
+ * still valid TARGETS.
+ */
+
+/**
+ * GitHub's anchor for a heading's text: markdown removed, lower-cased, every
+ * character that is not a letter, mark, number, `_`, `-` or space dropped,
+ * each space turned into a hyphen. So "5. Data model (Supabase / Postgres)"
+ * becomes `5-data-model-supabase--postgres`. Checked against GitHub's own
+ * rendering of every heading in this repository before this check went in.
+ *
+ * @param {string} text  The heading's source text, after the `#` marks.
+ * @returns {string}
+ */
+function headingSlug(text) {
+  return plainHeading(text).toLowerCase().replace(/[^\p{L}\p{M}\p{N}_\- ]/gu, '').replace(/ /g, '-');
+}
+
+/**
+ * A heading's text as it renders: code spans and links keep their text,
+ * emphasis markers, inline HTML and backslash escapes go.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function plainHeading(text) {
+  // Code spans render their text literally, `<tfoot>` included, so only the
+  // text between them is treated as markdown.
+  return text.split(/(`[^`]*`)/).map((part) => (part.startsWith('`') ? part.slice(1, -1)
+    : part.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/<[^>]+>/g, '').replace(/\\(.)/g, '$1').replace(/\*/g, '')))
+    .join('').trim();
+}
+
+/** @type {Map<string, {slugs: Set<string>, headings: Map<string, string>, titles: string[]}>} */
+const headingCache = new Map();
+
+/**
+ * Every heading of a markdown file: its anchors (with GitHub's -1, -2 suffixes
+ * for repeats, plus any `<a id>` / `<a name>`), and its rendered texts.
+ *
+ * @param {string} file  A repo-relative .md path.
+ * @returns {{slugs: Set<string>, headings: Map<string, string>, titles: string[]}}
+ */
+function headingsOf(file) {
+  if (headingCache.has(file)) return headingCache.get(file);
+  const slugs = new Set(); const headings = new Map(); const titles = []; const seen = new Map();
+  let fenced = false;
+  for (const line of read(file).split('\n')) {
+    if (/^\s*(```|~~~)/.test(line)) { fenced = !fenced; continue; }
+    if (fenced) continue;
+    for (const [, id] of line.matchAll(/<a\s+(?:id|name)="([^"]+)"/g)) slugs.add(id);
+    const m = line.match(/^#{1,6}\s+(.*?)\s*#*\s*$/);
+    if (!m) continue;
+    const base = headingSlug(m[1]);
+    const n = seen.get(base) || 0; seen.set(base, n + 1);
+    const slug = n ? `${base}-${n}` : base;
+    slugs.add(slug); headings.set(slug, plainHeading(m[1])); titles.push(plainHeading(m[1]));
+  }
+  const entry = { slugs, headings, titles };
+  headingCache.set(file, entry);
+  return entry;
+}
+
+const SECTION_EXEMPT = (f) => f === SELF || f === 'DOSSIER.md' || f.startsWith('prompts/');
+
+/**
+ * Where a link points inside this repository, or null for anything external.
+ * Absolute links to a file on this repository's GitHub blob view count too,
+ * because docs/SECURITY.md has to use them (CLAUDE.md, Markdown rule 8).
+ *
+ * @param {string} from  The file the link is in.
+ * @param {string} href  The link target before the `#`.
+ * @returns {string|null}
+ */
+function linkTarget(from, href) {
+  if (!href) return from;
+  const blob = href.match(/^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/[^/]+\/(.+)$/);
+  if (blob) return decodeURIComponent(blob[1]);
+  if (/^[a-z]+:/i.test(href)) return null;
+  return posix.normalize(posix.join(posix.dirname(from), decodeURIComponent(href)));
+}
+
+/** 11a. Every link fragment names a real heading, and a "§ N" label its number. */
+function checkLinkFragments() {
+  for (const [f, s] of md) {
+    if (SECTION_EXEMPT(f)) continue;
+    // The whole file, not line by line: a wrapped paragraph often splits a
+    // link's label across two lines.
+    for (const m of s.matchAll(/\[((?:[^\][]|\[[^\]]*\])*)\]\(([^)\s#]*)#([^)\s]+)\)/g)) {
+      const [, label, href, frag] = m;
+      const target = linkTarget(f, href);
+      if (!target || !corpus.some(([c]) => c === target)) continue;
+      const where = `${f}:${s.slice(0, m.index).split('\n').length}`;
+      if (!target.endsWith('.md')) {
+        const l = frag.match(/^L(\d+)/);
+        if (!l || Number(l[1]) > read(target).split('\n').length) add('section', `${where} links ${target}#${frag}, which is not a line in it`);
+        continue;
+      }
+      const { slugs, headings } = headingsOf(target);
+      const anchor = decodeURIComponent(frag).toLowerCase();
+      if (!slugs.has(anchor)) { add('section', `${where} links ${target}#${frag}, which is no heading there`); continue; }
+      const num = label.match(/§\s*(\d+(?:\.\d+)*)/);
+      if (num && !new RegExp(`^${num[1].replace(/\./g, '\\.')}[.\\s]`).test(headings.get(anchor) || '')) {
+        add('section', `${where} labels a link "§ ${num[1]}" but it goes to "${headings.get(anchor)}"`);
+      }
+    }
+  }
+}
+
+const FILE_ALIASES = { SPEC: 'SPEC.md', CLAUDE: 'CLAUDE.md', README: 'README.md', DOSSIER: 'DOSSIER.md' };
+
+/**
+ * The markdown file a name in prose means: an alias such as SPEC, or a path
+ * or bare file name matched against the repository's markdown.
+ *
+ * @param {string} name
+ * @returns {string|null}
+ */
+function mdFileNamed(name) {
+  if (FILE_ALIASES[name]) return FILE_ALIASES[name];
+  const files = md.map(([m]) => m);
+  return files.find((m) => m === name) ?? files.find((m) => m.endsWith(`/${name}`)) ?? null;
+}
+
+/**
+ * Does a file have a heading this reference names? A number must open a
+ * heading ("4.5" matches "4.5 API Endpoints"); a title must agree with a
+ * heading's leading words, with the heading's own numbering and a trailing
+ * parenthetical ignored, in either direction, since prose stops a title
+ * wherever the sentence goes on.
+ *
+ * @param {string} file
+ * @param {string} ref  The text after the `§`.
+ * @returns {boolean|null} null when the text is not a section reference at all.
+ */
+function hasSection(file, ref) {
+  const { titles } = headingsOf(file);
+  const num = ref.match(/^(\d+(?:\.\d+)*)/);
+  if (num) return titles.some((t) => new RegExp(`^${num[1].replace(/\./g, '\\.')}[.\\s]`).test(t));
+  if (!/^[A-Z]/.test(ref)) return null;
+  const words = (t) => t.toLowerCase().split(/\s+/).filter(Boolean);
+  const wanted = words(ref.split(/[)\],.;:—–]| #| \(/)[0]);
+  if (!wanted.length) return null;
+  return titles.some((t) => {
+    const core = words(t.replace(/^\d+(\.\d+)*\.?\s+/, '').replace(/\s*\(.*\)\s*$/, ''));
+    let same = 0;
+    while (same < core.length && same < wanted.length && core[same] === wanted[same]) same += 1;
+    // The whole heading named, or the prose's whole title a prefix of it...
+    if (same && (same === core.length || same === wanted.length)) return true;
+    // ...or prose running straight on past a title ("§ Button labels was
+    // found…"), which must agree on at least two CONTENT words: "Security &"
+    // is one word, not two, and alone it would match "Security & Scope".
+    return core.slice(0, same).filter((w) => !TITLE_FILLER.has(w)).length >= 2;
+  });
+}
+
+/** Words that do not identify a heading on their own. */
+const TITLE_FILLER = new Set(['&', 'and', 'of', 'the', 'a', 'an', 'for', 'to', 'in', 'on', 'with', 'or']);
+
+/**
+ * The text a file's prose lives in, one entry per blank-line-separated block,
+ * with comment markers blanked and newlines turned to spaces so a reference
+ * that wraps is read whole. Lengths are preserved, so an index still maps to
+ * its line. Links are blanked too: 11a already checks them.
+ *
+ * @param {string} s
+ * @returns {{text: string, raw: string, line: number}[]}
+ */
+function proseBlocks(s) {
+  const blocks = []; let line = 1;
+  for (const raw of s.split(/\n[ \t]*\n/)) {
+    const text = raw
+      .replace(/\[(?:[^\][]|\[[^\]]*\])*\]\([^)\s]*\)/g, (m) => ' '.repeat(m.length))
+      .replace(/`[^`\n]*§[^`\n]*`/g, (m) => ' '.repeat(m.length)) // `§7.2` is an example, not a reference
+      .replace(/`/g, ' ').replace(/\\(.)/g, ' $1')
+      .replace(/(^|\n)[ \t]*(\/\/+|\*|#|--|<!--)?/g, (m) => ' '.repeat(m.length));
+    blocks.push({ text, raw, line });
+    line += raw.split('\n').length + 1;
+  }
+  return blocks;
+}
+
+/**
+ * The files a "§" at `idx` may mean. A file named right before it is the only
+ * candidate. A bare one may mean the file last named in the same block (as in
+ * "SPEC.md § 4.5 … and § 5"), the file it sits in, SPEC.md or CLAUDE.md; it
+ * resolves if any of them has the heading, and a renamed heading has it in none.
+ *
+ * @param {string} text  The block, as proseBlocks() returns it.
+ * @param {number} idx   Where the `§` is.
+ * @param {string} f     The file the block is in.
+ * @param {string|null} lastNamed
+ * @returns {{named: string|null, candidates: string[]}}
+ */
+function sectionCandidates(text, idx, f, lastNamed) {
+  const before = text.slice(Math.max(0, idx - 80), idx).match(/((?:[\w-]+\/)*[\w-]+\.md|\bSPEC|\bCLAUDE|\bREADME|\bDOSSIER)\s*$/);
+  const named = before ? mdFileNamed(before[1].replace(/^\b/, '')) : null;
+  if (named) return { named, candidates: [named] };
+  const pool = [lastNamed, f.endsWith('.md') ? f : null, 'SPEC.md', 'CLAUDE.md'];
+  return { named: null, candidates: [...new Set(pool.filter(Boolean))] };
+}
+
+/** 11b. Every prose "§ 4.5" or "§ Title" names a heading in the file it means. */
+function checkSectionReferences() {
+  for (const [f, s] of corpus) {
+    if (SECTION_EXEMPT(f)) continue;
+    for (const { text, raw, line } of proseBlocks(s)) {
+      let lastNamed = null;
+      for (const m of text.matchAll(/§§?/g)) {
+        const rest = text.slice(m.index + m[0].length, m.index + m[0].length + 80).split('§')[0].trim();
+        const { named, candidates } = sectionCandidates(text, m.index, f, lastNamed);
+        if (named) lastNamed = named;
+        if (/^\S*\s*[^.]{0,40}\b(does not|doesn’t|doesn't|never) exist/.test(rest)) continue; // a reference TO a missing heading, on purpose
+        const results = candidates.map((c) => hasSection(c, rest));
+        if (results.includes(null) || results.includes(true)) continue;
+        const at = line + raw.slice(0, m.index).split('\n').length - 1;
+        add('section', `${f}:${at} cites ${candidates.join(' / ')} § ${rest.slice(0, 40)}, which is no heading there`);
+      }
+    }
+  }
+}
+
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
   checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
   checkInvisibleCharacters,
-  checkRetiredPhrasing, checkEditHistory]) {
+  checkRetiredPhrasing, checkEditHistory, checkLinkFragments, checkSectionReferences]) {
   check();
 }
 
