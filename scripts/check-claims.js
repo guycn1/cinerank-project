@@ -404,10 +404,11 @@ const UNQUOTED = '(?<!["“\'`])';
 const PASSAGE = '(comment|note|paragraph|sentence|entry|bullet|row|item|clause|caption|parenthetical|pointer|block)';
 const SELF_NARRATION = [
   new RegExp(`${UNQUOTED}\\bthis\\s+${PASSAGE}\\s+(used\\s+to|once\\s+(said|read|claimed)|claimed|listed|was\\s+(missing|missed))\\b`, 'gi'),
-  new RegExp(`${UNQUOTED}\\bthis\\s+${PASSAGE}\\s+(said|read)\\s+["“]`, 'gi'),
+  new RegExp(`${UNQUOTED}\\b(this|that)\\s+${PASSAGE}\\s+(said|read)\\s+["“]`, 'gi'),
   new RegExp(`${UNQUOTED}\\bthis\\s+(said|read)\\s+["“]`, 'gi'),
   new RegExp(`${UNQUOTED}\\bthis\\s+(said|read|listed|claimed)\\b[^.]{0,120}?\\buntil\\s+20\\d\\d-\\d\\d-\\d\\d`, 'gi'),
   /\(\s*This\s+(said|read|listed|claimed)\b/g,
+  new RegExp(`${UNQUOTED}\\bthis\\s+pointed\\s+at\\b`, 'gi'),
   new RegExp(`${UNQUOTED}\\ban?\\s+earlier\\s+version\\s+of\\s+this\\s+(note|entry|comment|paragraph|sentence|line|rule)\\b`, 'gi'),
   new RegExp(`${UNQUOTED}\\brather\\s+than\\s+preserved\\b`, 'gi'),
 ];
@@ -433,9 +434,9 @@ function reportSelfNarration(f, text, firstLine = 1) {
  * Authoring Rules, rule 10). What a document or a comment USED TO SAY belongs
  * in the commit message, not in the file.
  *
- * Only the unambiguous forms are matched — "This said", "This read" before a
- * quotation, "this entry used to…", "an earlier version of this note",
- * "rather than preserved". The rule's real line is semantic: history of the
+ * Only the unambiguous forms are matched — "This said", "This read" or "that
+ * sentence read" before a quotation, "this entry used to…", "this pointed at", "an earlier version of
+ * this note", "rather than preserved". The rule's real line is semantic: history of the
  * APP or the CODE stays, history of the WORDING goes, and no pattern can tell
  * "this line read X" about a code line from the same words about a comment.
  * That judgement stays a reading job; this catches the phrasing that is only
