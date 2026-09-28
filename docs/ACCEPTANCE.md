@@ -398,7 +398,8 @@ same film. Only the verified, unowned, non-duplicate one survives — and its ye
 and `tmdb_id` come from TMDB, not from the model.
 
 **Both were verified load-bearing by deleting each of the three `continue` guards
-in turn; every deletion fails exactly these tests.**
+in turn; every deletion fails both of them, along with the other tests that reach
+the same guard.**
 
 ### Verdict
 

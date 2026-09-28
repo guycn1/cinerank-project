@@ -2783,7 +2783,7 @@ async function renderAiLog() {
 
   // Totals mirror a data row: tokens with the in/out split beneath, then cost
   // and total duration. `totals.detailed` / `.timed` are still returned by the
-  // API but deliberately not surfaced — see docs/DECISIONS.md D-018.
+  // API but deliberately not surfaced — see docs/DECISIONS.md D-019.
   const tokTotal = document.createElement('td');
   tokTotal.className = 'num';
   tokTotal.dataset.label = 'Total tokens';

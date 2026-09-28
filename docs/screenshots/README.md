@@ -126,6 +126,15 @@ look: the verdict's phrases *"real trucks in a real desert"* and *"Elphaba
 belting her lungs out"* are both lifted from film reviews visible **in the same
 image**, so the grounding can be checked without leaving the frame.
 
+## When these were taken
+
+All thirty-seven were captured on 2026-09-13 and 2026-09-14. Two later changes
+alter how the page looks without touching what any capture argues: the type was
+scaled to 92%
+([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
+and the content column narrowed from 1080px to 1040px. The live application
+therefore sets its text a little smaller than these frames do.
+
 ## A note on file sizes
 
 These are full-resolution captures, deliberately. Several exceed 3 MB. They are

@@ -83,7 +83,8 @@ the reasoning. Rules that keep this honest live in
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
   re-resolves every claim in the repository that points at something — a path, a
-  decision entry, a commit SHA, an identifier, a capture, a retired phrasing.
+  decision entry, a commit SHA, an identifier, a section reference, a capture, a
+  retired phrasing.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
   were found rendering wrong on GitHub for weeks ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
@@ -185,7 +186,7 @@ stage below is a file a reader can open.
 | **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) — human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
 | **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | more than 500 commits on `draft` across 15 of the project's 16 days, median 2 files each | — |
+| **Execution** | more than 600 commits on `draft` across 21 of the project's first 26 days (measured 2026-09-29), median 2 files each | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
 
@@ -236,7 +237,10 @@ typology rather than listing all six:
   screenshots, and it went badly enough to be written up
   ([D-062](DECISIONS.md#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)):
   its reported viewport width repeatedly disagreed with the real browser, and
-  the user's own screenshots were the authority that settled it.
+  the user's own screenshots were the authority that settled it. Headless
+  browsers came back later as `npm run layout-check`, which sidesteps that fault
+  rather than trusting it: the app runs inside an iframe the tool sizes itself,
+  so no window's own reported width is ever read.
 
 **The permission stance, and the honest order it was arrived at.**
 [Module 5](../DOSSIER.md#module-5-the-ade-typology-tooling-and-permissions)'s
@@ -425,11 +429,11 @@ and recorded as exceptions to the append-only argument the log rests on.
 ## Keeping the record true, and what the 2026-09-19 sweep did differently
 
 The deliverable here is the repository, so its failure mode is not a crash — it
-is a sentence that was true when written and quietly stopped being true. Ten
-separate days between 2026-09-07 and 2026-09-19 carry a staleness sweep
-(`git log --oneline --grep=sweep`). This section is about why the last one found
-things the earlier ones had walked past for two weeks, because the method is
-more reusable than the fixes.
+is a sentence that was true when written and quietly stopped being true.
+Staleness sweeps run on many separate days (`git log --oneline --grep=sweep`
+lists them). This section is about why the one on 2026-09-19 found things the
+sweeps before it had walked past for two weeks, because the method is more
+reusable than the fixes.
 
 **The diagnostic case.** On 2026-09-11 commit `cc41020` thinned the AI call
 log's totals divider from 2px to 1.5px. The declaration changed; **three prose

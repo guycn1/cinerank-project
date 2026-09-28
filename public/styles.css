@@ -1624,7 +1624,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    embedded soft hyphens included — so above 400px renders BYTE-IDENTICAL to
    plain `overflow-wrap: anywhere` with no hyphenation feature at all, exactly
    as the user asked. The override to `hyphens: manual` (the CSS default,
-   restored explicitly below 400px) is what lets those same soft hyphens
+   restored explicitly at 400px and below) is what lets those same soft hyphens
    start being honoured — live, on resize, with nothing re-rendered.
    COVERS four elements: `.movie-card__body`, `.rec-card__body` and
    `.result-row` (each set the same way below), plus `.verdict__text`.
@@ -2561,9 +2561,10 @@ button:disabled .sparkle-major { animation: none; }
   border-top: 1px dashed var(--line);
   padding-top: 0.8rem;
 }
-/* A link-styled button that opens the AI call log. Used in two places — the
-   meta footer under a generated result, and the verdict's error fallback — so
-   it is its own class, not an element of either block. */
+/* A link-styled button that opens the AI call log. Used in three places — the
+   meta footer under a generated result, and the error fallbacks of the verdict
+   and of the recommendations — so it is its own class, not an element of any
+   one block. */
 .log-link {
   /* inline-block is load-bearing: an inline-block never breaks internally, so
      the link always moves as one whole unit rather than splitting mid-phrase —
@@ -2582,11 +2583,11 @@ button:disabled .sparkle-major { animation: none; }
 }
 .log-link:hover { color: var(--amber-bright); }
 
-/* Placement: the recs grid is a grid, so span every column. */
-/* Was `.recs__grid .ai-meta { grid-column: 1 / -1 }` until R29 moved the footer
-   into its own slot below the grid. The grid's `gap` used to separate the two,
-   so the margin here replaces it at the same 1.1rem — put on the FOOTER and not
-   on the empty slot, so a run that produced no footer contributes nothing. */
+/* Placement under the recs: the footer has its own slot below the grid. It was
+   `.recs__grid .ai-meta { grid-column: 1 / -1 }` until R29 moved it there. The
+   grid's `gap` used to separate the two, so the margin here replaces it at the
+   same 1.1rem — put on the FOOTER and not on the empty slot, so a run that
+   produced no footer contributes nothing. */
 .recs__meta .ai-meta { margin-top: 1.1rem; }
 /* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
 .verdict__inner .ai-meta { flex: 1 0 100%; }

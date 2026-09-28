@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-28 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-29 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -43,6 +43,24 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-29: a pre-merge staleness sweep of every markdown
+file and code comment, on `draft` and not merged.** Figures the project had
+outgrown: the lint coverage in `docs/MERGE-READINESS.md` (26 files in four
+environments, not 24 in three), its "seven tests" on `generateRecommendations`
+(sixteen reach it) and its commit count, the Execution row in
+`docs/PROCESS.md`, the AI-log route's line count in `docs/BRIEFS.md` (174 since
+the JSDoc), two sweep-day counts, rule 9's inbound-link counts and the Open
+issues test count. Wrong from the start: three comments citing D-018 for what
+D-019 decided, `check-markdown` numbering two rules 5 (its labels now follow
+§ Markdown Authoring Rules), and a CSS comment saying the recs footer spans the
+grid (R29 moved it out). Contradicted within a few lines: the header GitHub
+icon's first size given as its current one, "the fifth" pointing at the second
+row of a table, and "every deletion fails exactly these two tests", which the
+suite has outgrown (re-probed: three to five tests fail per guard). Rule 10:
+seven self-narrations removed, and check 10b now also catches "this pointed
+at" and "that sentence read", each probed against the tree before the fix.
+`docs/DECISIONS.md` now says in its header that entries are not brought up to
+date, and how to find what superseded one.
 **WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not merged.**
 All text is 92% of its old size, set by ONE dial, `--type-scale` on `:root`, which
 `html` turns into its font size. Every text size was already `rem` or `em`, so
@@ -245,11 +263,11 @@ tests taking the suite from 54 to 60, every one probed by breaking the source.
 Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE — see the
 first item under Pre-submission blockers, which records what it found and what it
 produced: `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a
-linter that is now a fourth commit gate, and an unfrozen `SPEC.md` with its spiral
+linter that became the fourth commit gate, and an unfrozen `SPEC.md` with its spiral
 turns recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT
 POINT, failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list was
-ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely. Step 5, the portrait overhaul, came next and closed the same day (further down this entry); its two enforcement rules still stand and are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card below 400px (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% below 400px; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; so was its claim that the request "lands on the 404 handler" — there is no 404 handler, and Express's finalhandler answers it (step 4). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked, the final merge included. The top of this entry is the current state.**)
+ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix — step 1 of the agreed order — is also done; the recommendations section was then AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the matcher, after measuring that its own premise was wrong (D-054), and R5 the same day by composing the two causes and giving them a stderr sink; the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after four prompt versions failed to change its register — recommendations stay on the cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step 5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as this update, closing out 4b entirely. Step 5, the portrait overhaul, came next and closed the same day (further down this entry); its two enforcement rules still stand and are Claude's to apply, not the user's to remember**; the verdict glint, its busy-state cue, the film grain and the disabled "New verdict" landed earlier the same day after four failed polish passes, a revert to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055); its performance was measured at 1x/6x/20x CPU throttle with and without GPU acceleration and the cost accepted, so do not re-open that on a hunch; the per-item statuses there are the source of truth, do not summarise them from memory; seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day (3650f52, the verdict typing effect plus that day's step 5 work), and a NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on measurement, step 5 closed by the user, and the favicon) — see the build-status bullet above for the current count and SHA, this clause is left as the record of when each happened; migrations 001-004 all applied, 004 confirmed by the user 2026-09-09; the next-session backlog was reset the same day — **SEVEN entries once 4b is counted, not six**, see "Agreed order of work from here"; step 3 landed 2026-09-11; **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the same day it started and finished. Do not reopen it or hunt for more narrow-width work.** They closed it against the agreed ~350px target: no viable remaining issues there, messiness only starting below ~310px and the UI still mostly usable even then — which is inside the "good enough only" band and above the ~290px ignore floor, so it is the two enforcement rules working, not a defect list. **Those rules still stand for any future narrow-width question; this step closing does not retire them.** Landed: the ranked card's score row no longer wraps its rating mid-number or pushes Edit/Remove outside the card at 400px and below (D-058's flex-wrap lesson); the header logo reel no longer squashes into an ellipse (`flex-shrink: 0`) and the GitHub icon scales to 75% at 400px and below; the search-results panel's height cap is now a FLOOR (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt at this over-corrected (user-caught with a screenshot); mid-word title breaks now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI call log's card-view labels no longer misalign when they wrap; and the toast got a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware widening below 700/500px that leaves short messages untouched (D-060-era `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently halving its available width for shrink-to-fit sizing, found by the user, not by this session's own — repeatedly unreliable — headless-Chrome verification attempts). **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped (D-063): the hint swings one line, 22.4px, once per run, in the same synchronous block as R27's `scrollIntoView` and a six-card staggered entrance, so it is masked; reserving the tallest message would park 67px of permanent blank space on a phone to fix something nobody can see. The same investigation found that `scripts/debug-recs.js` no longer survives a run below the rating threshold — its button workaround was complete in 96158b1 and R16 (885a6a5) later added grid-clearing to the same branch — left unfixed and documented in the file itself.** **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG favicon support and only 18.7-and-older still probe `/favicon.ico` — the same 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four candidates were compared on real tab strips and the user chose the most faithful one that survives 16px — do not "correct" its proportions back to the logo's. Claude's Safari advice was wrong first time and the user caught it; so was its claim that the request "lands on the 404 handler" — there is no 404 handler, and Express's finalhandler answers it (step 4). **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence, registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS WRITTEN, and it is now done as well: every checkbox under Pre-submission blockers is ticked, the final merge included. The top of this entry is the current state.**)
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -396,10 +414,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   found every site, quoted two of them verbatim, and cleared them anyway — on
   a criterion ("anchored by a preceding verb or preposition") read off the
   SOURCE, where the backticks are visible, rather than the render, where they
-  are gone. A boundary can be right and the test inside it still wrong. (That sentence read
-  "across all four" while listing three causes, which is a count raised without
-  extending its own list — the defect this file found in `docs/PROCESS.md` once
-  already. The count is gone and the list is complete.)
+  are gone. A boundary can be right and the test inside it still wrong.
   **AND A TWENTY-EIGHTH ON 2026-09-19.** The first since the twenty-second whose
   ground includes a defect a reader could SEE rather than read: the ranked
   list's score badges were out of line by **28.1px** on the deployed site
@@ -410,7 +425,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   it shipped as two rules. Riding along: the linking rule applied to twelve
   files (D-075), an audit of all 880 hrefs and embedded images, the AI call
   log's token split digit-grouped, and the largest accuracy sweep the project
-  has run.
+  had run at that point.
   **What that sweep says about the previous twelve is the part worth keeping.**
   Fourteen defects, and the counts everyone re-checks — merges, tests, gates,
   captures, models — were right in every file. Every defect sat in a claim with
@@ -517,7 +532,9 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   to one. A second test asserts the success log row carries `status='success'`,
   OpenRouter's own `usage.cost`, and exactly the titles that were SHOWN — not the
   three the model named and lost. Both were verified load-bearing by deleting each
-  of the three service rules in turn: every deletion fails exactly these two tests.
+  of the three service rules in turn: every deletion failed exactly these two
+  tests, the only ones reaching those rules that day (R2's and R28's tests,
+  below, now catch them too).
   Three more groups landed the same day, each probed the same way: **R2**'s guard
   that an unrated film already in the list is never recommended back; **R23**'s
   invariant, written as a loop over BOTH AI features so they cannot drift, that a
@@ -548,7 +565,7 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   that. **IT IS NO LONGER LOADED BY THE PAGE — unloaded 2026-09-13, see the ticked
   checkbox under Pre-submission blockers.** Paste the file into the browser console
   to use it; `debugRecs(4)` then makes "Get recommendations" render four dummy
-  cards. That was how it was written and how it worked for its first days.
+  cards, which is how it was written to be used. The count runs
   1–6 (`parseModelJson` slices at 6);
   `{ posters: false }` exercises the `.noposter` placeholder, `{ delayMs }` the
   latency.
@@ -876,7 +893,8 @@ and stay as written.
   - **Shared meta footer** under both a generated verdict AND the recs:
     `Prompt: … · Model: … · N tokens · C¢ · N ms` then a link into the log.
     One `aiMetaFooter()` builder + one `.ai-meta` CSS block; only placement
-    differs (grid-column in the recs grid, flex row in the verdict banner).
+    differs (its own slot below the recs grid since R29, a full flex row in the
+    verdict banner).
     Both services now return `meta.durationMs` (always measured in
     `openrouter.js`, just never surfaced).
   - The log link is inline after the metadata, joined by "·", and drops to its
@@ -902,7 +920,7 @@ and stay as written.
   mid-word, and the new sub-500px grid layout. **Step 5, the portrait overhaul
   under 500px, landed here again on 2026-09-12 and is now CLOSED** — it gave the
   results panel a height FLOOR (`max(240px, min(340px, 50vh))`) in place of what
-  had become a second ceiling, and soft-hyphenated row titles below 400px
+  had become a second ceiling, and soft-hyphenated row titles at 400px and below
   (D-060/D-061). Nothing further is scheduled for this section.
   - Seven fixes in one pass: a dead `row` click handler whose body was only a
     guarded early return; `.result-row`'s `cursor: pointer`, which promised a
@@ -2710,8 +2728,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    should be.** Claude called this step "small and self-contained" meaning the
    TASK; the user read that as the icon and corrected it, then asked for the
    backlog to be checked in case the claim was written down anywhere. It was
-   not — checked. The icon is `clamp(32px, 4vw, 42px)`, a peer of the 34px logo
-   mark.
+   not — checked. The icon was built at `clamp(32px, 4vw, 42px)`, a peer of the
+   34px logo mark, and then grew 1.5x (below).
    **The header is now a two-column grid** (`minmax(0, 1fr) auto`) with the mark
    at 1/1, the tagline at 1/2, and the link spanning BOTH rows in column 2 so it
    centres against the block rather than against either line. Every placement is
@@ -2755,7 +2773,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    while `window.innerWidth` read something else entirely. So "session
    reuse" was A cause seen once, not the whole story — do not treat headless
    Chrome's width reporting as trustworthy here without a live console check
-   backing it up.
+   backing it up. `npm run layout-check` (2026-09-28) removes that particular
+   fault by measuring inside an iframe it sizes itself, but it has not been
+   pointed at this question, so the paragraph above still stands.
    **What IS certain, independent of any of the above:** the two fixes that
    shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
    icon scaled to 75% under `max-width: 400px`) cannot affect anything above
@@ -3318,8 +3338,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    found under 350px from here needs the first rule applied to it.
    **What landed across the step** (2026-09-12, in one long pass): the ranked
    card's score row no longer wraps its rating mid-number or pushes Edit/Remove
-   outside the card below 400px (D-058); the header logo reel no longer squashes
-   into an ellipse and the GitHub icon scales to 75% below 400px; the
+   outside the card at 400px and below (D-058); the header logo reel no longer squashes
+   into an ellipse and the GitHub icon scales to 75% at 400px and below; the
    search-results panel's height cap became a FLOOR rather than a second ceiling;
    mid-word title breaks hyphenate via `Intl.Segmenter` soft hyphens instead of
    breaking raw (D-060/D-061); the AI call log's card-view labels stopped
@@ -3395,7 +3415,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (60).
+  `review_requires_rating` guards all covered by `npm test` (62).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
@@ -4462,8 +4482,9 @@ down would be re-broken within a session. See D-065.
    in the body prose beneath instead; where nothing there names the target,
    write a sentence that genuinely says something rather than one that exists
    to host a link. `check-markdown` does not enforce this. The stakes are not
-   only stylistic: `SPEC.md`'s heading anchors alone carry 56 inbound links
-   from nine files, and `CLAUDE.md`'s carry 92.
+   only stylistic: `SPEC.md`'s and `CLAUDE.md`'s heading anchors each carry
+   dozens of inbound links from most of the other documents, so a heading is
+   not a free place to edit. (No count on purpose; it moves with every link.)
 10. **EDIT HISTORY BELONGS IN THE COMMIT MESSAGE, NOT IN THE FILE** (the user's
    rule, restated four times across `a1eebd2`, `98a2c76`, `375c4cd` and
    `5b481ff` before it was written down here — which is why it is). A live

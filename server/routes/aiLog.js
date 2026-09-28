@@ -136,7 +136,7 @@ aiLogRouter.get(
     // and a duration, so a caller can tell whether the sums below cover every
     // row or only some of them.
     //
-    // The viewer deliberately does NOT surface either count (D-018):
+    // The viewer deliberately does NOT surface either count (D-019):
     // `renderAiLog()` in public/app.js uses `detailed` only as a truthiness test
     // for whether to draw the in/out sub-line at all, and `timed` the same way
     // for the duration. Neither count can currently come back short, either:

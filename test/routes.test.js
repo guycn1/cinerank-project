@@ -993,7 +993,7 @@ test('GET /api/ai-log returns structured result data per row', async () => {
 
   // Totals sum only the calls that recorded a split / duration, and report that
   // coverage as `detailed` / `timed`. NOTE what those two are actually for: the
-  // viewer does NOT print them (D-018 settled that), it only uses them as
+  // viewer does NOT print them (D-019 settled that), it only uses them as
   // truthiness tests — draw the in/out sub-line at all, draw a duration or an
   // em dash.
   assert.equal(totals.tokens, 2300);            // 1000 + 900 + 400 (r2 is null)

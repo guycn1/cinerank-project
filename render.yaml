@@ -37,7 +37,7 @@ services:
       # control. The four below are entered once in Render's Environment tab.
       - key: SUPABASE_URL
         sync: false
-      # The anon key ONLY — never service_role (CLAUDE.md § Security #3).
+      # The anon key ONLY — never service_role (CLAUDE.md § Security & Secrets #3).
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: TMDB_API_KEY

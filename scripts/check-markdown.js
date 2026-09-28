@@ -12,7 +12,9 @@
  * rendering fault in a file this long is close to unfindable by eye.
  *
  * The rules below are the ones that were established by measuring every case
- * against GitHub's own Markdown API, not by assumption. See D-065.
+ * against GitHub's own Markdown API, not by assumption. See D-065. They are
+ * numbered as CLAUDE.md § Markdown Authoring Rules numbers them, so RULE 2 sits
+ * after the per-line pass: it needs a whole paragraph, not one line.
  *
  * Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
  * and do NOT fail, so this can be wired into a hook without crying wolf.
@@ -117,7 +119,7 @@ for (const file of markdownFiles(root)) {
       });
     }
 
-    // --- RULE 2: no escaped thematic break ------------------------------------
+    // --- RULE 3: no escaped thematic break ------------------------------------
     // All THREE spellings. CommonMark's thematic break is 3+ of -, * or _, so an
     // escaped one is debris whichever character was used. The 2026-09-13 audit
     // found the checker only knew the hyphen spelling: \*** rendered as a literal
@@ -127,7 +129,7 @@ for (const file of markdownFiles(root)) {
                   ' renders as a literal paragraph, not a rule');
     }
 
-    // --- RULE 3: a bare rule under a text line is a SETEXT HEADING -------------
+    // --- RULE 4: a bare rule under a text line is a SETEXT HEADING -------------
     // Silently promotes the line above to a heading. The reason the 2026-09-12
     // fix DELETED the separators instead of unescaping them.
     //
@@ -143,7 +145,7 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 4: no separator immediately before a heading --------------------
+    // --- RULE 5: no separator immediately before a heading --------------------
     // GitHub rules every h1/h2 itself, so one here draws two lines around the
     // heading. This was briefly dropped from the checker because it fired 38
     // times on docs/DECISIONS.md -- and then the user looked at how those
@@ -152,7 +154,7 @@ for (const file of markdownFiles(root)) {
     // and any hit is a real regression. A separator that is NOT before a heading
     // is untouched by this rule; thematic breaks mid-section are fine.
     //
-    // All three spellings, for the same reason as rule 2: *** and ___ produce the
+    // All three spellings, for the same reason as rule 3: *** and ___ produce the
     // identical <hr> and were false negatives until 2026-09-13.
     if (!inFence && n > 1 && /^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
       let j = i + 1;
@@ -162,11 +164,11 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 5: a table needs its separator row -------------------------------
+    // --- RULE 6: a table needs its separator row -------------------------------
     // Two or more consecutive pipe lines whose SECOND line is not |---|---| is not
     // a table at all: GitHub renders the whole block as one paragraph full of pipe
     // characters. Found by the 2026-09-13 audit, which rendered it to be sure --
-    // these files carry 84 table rows between them, so the blast radius is real.
+    // most of the repo's markdown files carry tables, so the blast radius is real.
     if (!inFence && /^[ \t]*\|/.test(line)) {
       if (!pipeRun.length) pipeStart = n;
       pipeRun.push(line);
@@ -193,7 +195,7 @@ for (const file of markdownFiles(root)) {
     errors.push(`${rel}:${pipeStart}  table has no |---| separator row, so it renders as a paragraph of pipes`);
   }
 
-  // --- RULE 5: a code span that is opened and never closed ------------------
+  // --- RULE 2: a code span that is opened and never closed ------------------
   // Per-LINE checks cannot see this: a code span may legally wrap across lines,
   // so an odd backtick count on one line is normal and proves nothing. The unit
   // is the PARAGRAPH, and the test is CommonMark's own rule -- an opening run of

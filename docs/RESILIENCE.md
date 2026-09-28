@@ -17,20 +17,19 @@ Four claims, and every capture below is measured against them:
    status codes, no library wording leaking into the interface.
 2. **One dependency failing does not take the page with it.** In every state but
    one the ranked list is still on screen and still correct. The exception is
-   [`RS-7`](#rs-7--supabase-down), where the list itself is what broke. *(This
-   was written as a count — "eight of the nine" — and had gone stale twice by
-   the time it was noticed. A count of a set that grows is a maintenance burden
-   the sentence did not need.)*
+   [`RS-7`](#rs-7--supabase-down), where the list itself is what broke. *(Deliberately
+   not a count: the set of states grows, and a count of a growing set is a
+   maintenance burden this sentence does not need.)*
 3. **The failure is recorded where a failure belongs.** An AI call that failed
    still writes a row carrying the model, the prompt version, the duration and
    the real technical cause — which is the half the user never sees.
 4. **Work in progress survives a failure that had nothing to do with it.** A
    write that fails leaves what the user typed exactly where they left it, so
-   recovering costs a click rather than retyping. This claim was added on
-   2026-09-14, when [`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited)
-   and
+   recovering costs a click rather than retyping. This is the one claim the
+   evidence supplied rather than tested:
+   [`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited) and
    [`RS-14`](#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works)
-   turned out to evidence something the first three did not mention.
+   show something the first three do not cover.
 
 ## How these were produced
 

@@ -6,6 +6,11 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+**Each entry records a choice as it stood on its date, and is not brought up
+to date as the project moves on.** A later entry that changes an earlier one names it by number, so
+before relying on an older entry, search this file for its number: a newer
+entry that cites it may have moved the figure or the rule.
+
 ## D-081 · A dash ends a word for hyphenation, so no soft hyphen ever sits beside one
 
 *2026-09-28. Raised by Claude while closing
