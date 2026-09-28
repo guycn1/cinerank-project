@@ -398,10 +398,45 @@ async function runBrowser(name, server, timeoutMs, stallMs) {
   });
   const out = await Promise.race([result, failedToStart, timeout, stalled]);
   clearTimeout(timer); clearInterval(watch);
-  await new Promise((r) => setTimeout(r, 1500)); // let a browser that is done exit by itself
+  // Let a browser that is done exit by itself, then stop it and wait for it to go.
+  const exited = new Promise((r) => { if (child.exitCode !== null) r(); else child.once('exit', r); });
+  await Promise.race([exited, new Promise((r) => setTimeout(r, 5000))]);
   stopBrowser(child);
-  try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 400 }); } catch { /* a lock can outlive the process briefly */ }
+  await Promise.race([exited, new Promise((r) => setTimeout(r, 5000))]);
+  PROFILES.add(profile);
+  removeProfile(profile);
   return out;
+}
+
+/** Every temporary browser profile this run created; see removeProfile(). */
+const PROFILES = new Set();
+
+/**
+ * Delete a temporary browser profile. A browser's helper processes (the crash
+ * reporter among them) can hold files in it for a while after the browser has
+ * gone, so a failure here is retried, and main() sweeps again at the end.
+ *
+ * @param {string} profile
+ * @returns {boolean} Whether it is gone.
+ */
+function removeProfile(profile) {
+  try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); } catch { /* retried at the end */ }
+  if (!fs.existsSync(profile)) PROFILES.delete(profile);
+  return !fs.existsSync(profile);
+}
+
+/**
+ * The last sweep: retry every profile still on disk for up to half a minute,
+ * and name any that could not be removed rather than leave them silently.
+ *
+ * @returns {Promise<void>}
+ */
+async function sweepProfiles() {
+  for (let i = 0; i < 15 && PROFILES.size; i++) {
+    for (const p of [...PROFILES]) removeProfile(p);
+    if (PROFILES.size) await new Promise((r) => setTimeout(r, 2000));
+  }
+  for (const p of PROFILES) console.log(`\n(could not remove the temporary browser profile ${p}; it is safe to delete)`);
 }
 
 /* ---------- reports ---------------------------------------------------------- */
@@ -538,6 +573,7 @@ async function main() {
   }
   if (server.stats.heldWrites) console.log(`\n(${server.stats.heldWrites} write request(s) held and never answered, as designed)`);
   server.close();
+  await sweepProfiles();
   return failed;
 }
 
