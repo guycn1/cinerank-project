@@ -72,6 +72,10 @@ prefixes:** hyphenating each partial slice under a length rule makes letters
 jump back up a line mid-type. The clipboard fix (D-067) is unchanged and still
 needed, and was re-verified in all three browsers against a probe build that
 breaks it.
+**And a dash now ends a word for hyphenation (D-081)**, so no soft hyphen sits
+beside one: Chromium drew a soft hyphen after a real hyphen as a second hyphen
+("Spider--"). Measured safe before it was built. The only new effect is a line
+starting with a hard hyphen at 40–51px, narrower than any column in the app.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation

@@ -6,6 +6,48 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-081 · A dash ends a word for hyphenation, so no soft hyphen ever sits beside one
+
+*2026-09-28. Raised by Claude while closing
+[D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them),
+taken on by the user with one condition: do not chase it if the fix risks
+breaking anything.*
+
+**The defect is Chromium's, and it is real at real widths.** D-080 still treated
+"Spider-Man:" as one eleven-grapheme word, so it put soft hyphens on both sides
+of the hyphen. The browser already has a break opportunity right after a hard
+hyphen. When the line breaks there, Chrome and Edge 154 take the soft hyphen
+instead and draw a second hyphen: "Spider--". Firefox 156 suppresses it. On a
+test page of ten dash-heavy strings at every width from 40px to 400px, Chrome
+broke at a soft hyphen beside a dash at 144 widths between 40px and 376px, and
+Firefox 320 times. The same rule also put a soft hyphen before an em dash, so a
+line could end "ending-" with the em dash starting the next.
+
+**The fork was whether to leave it.** Removing break opportunities is the usual
+way to make text overflow or break without a hyphen, and the user had made
+safety the condition. So the risk was measured before anything was built. The
+candidate treats a dash (Unicode `Pd`) as a word separator, like whitespace.
+The parts either side are then judged on their own, and no soft hyphen can sit
+beside a dash. In Chrome, Edge and Firefox it gave:
+
+- **0 breaks at a soft hyphen beside a dash**, and 0 overflow at any width.
+- **Lines starting with a hard hyphen ("Spider|-Man") only at 40–51px**, where
+  "Spider-" cannot fit on a line at all. No column in the app is that narrow.
+- **No new break without a hyphen at 120px or wider**, except the break before
+  an em dash, which is the browser's own opportunity. The committed rule broke
+  at the same place and drew a stray hyphen first.
+
+**Built, then verified in the running app in all three browsers**, with the
+same harness and canned verdict as D-080. The committed code put a soft hyphen
+beside the dash in the verdict's "SquarePants-level". With this change: 0 of
+those, and the other results unchanged, meaning 0 rule violations at 40 widths
+from 290px to 800px, no sideways scroll, no typing jumps, clean clipboard
+payloads and no page errors.
+
+**Trap.** The separator test is an unanchored character class, `[\s\p{Pd}]`,
+because a grapheme can hold more than one code point: `\r\n` is a single
+grapheme. An anchored version would have stopped treating it as whitespace.
+
 ## D-080 · Soft hyphens go only inside words of seven or more graphemes, never within three of an end, and `hyphenate-limit-chars` was measured and does not apply to them
 
 *2026-09-28. Raised by the user after

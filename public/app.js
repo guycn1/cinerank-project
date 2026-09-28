@@ -579,6 +579,9 @@ const SOFT_HYPHEN = String.fromCharCode(0xad);
 const HYPHENATE_MIN_WORD = 7;
 /** ...and never within this many graphemes of either end of it (D-080). */
 const HYPHENATE_MIN_EDGE = 3;
+/** A grapheme that ends a word for hyphenation: one containing whitespace or a
+ *  dash (D-081). Unanchored, because "\r\n" is a single grapheme. */
+const WORD_SEPARATOR = /[\s\p{Pd}]/u;
 
 /**
  * Insert soft hyphens (U+00AD) between adjacent GRAPHEME CLUSTERS inside long
@@ -590,9 +593,13 @@ const HYPHENATE_MIN_EDGE = 3;
  * needs and a language pattern algorithm could not supply.
  *
  * ONLY INSIDE A WORD OF HYPHENATE_MIN_WORD+ GRAPHEMES, AND NEVER WITHIN
- * HYPHENATE_MIN_EDGE OF EITHER END (D-080). A word here is a run of
- * non-whitespace. Line breaking is greedy: the browser takes the LAST break
- * opportunity that fits, and a soft hyphen counts exactly as much as a space.
+ * HYPHENATE_MIN_EDGE OF EITHER END (D-080). A word here is a run of graphemes
+ * that are neither whitespace nor a dash (Unicode `Pd`): "Spider-Man" is two
+ * words, so no soft hyphen ever sits beside a dash (D-081). The browser
+ * already breaks after a hyphen on its own, and Chromium draws a soft hyphen
+ * there as a SECOND hyphen ("Spider--").
+ * Line breaking is greedy: the browser takes the LAST break opportunity that
+ * fits, and a soft hyphen counts exactly as much as a space.
  * With one between every pair, a four-letter word at the end of a line broke
  * one letter in ("Fury R-oad" at 360px) wherever that fitted and the space
  * before it did too. Real hyphenation has minimums for exactly this reason.
@@ -653,13 +660,13 @@ function softHyphenate(text) {
   let out = '';
   let i = 0;
   while (i < graphemes.length) {
-    if (/\s/.test(graphemes[i])) {
+    if (WORD_SEPARATOR.test(graphemes[i])) {
       out += graphemes[i];
       i += 1;
       continue;
     }
     let end = i;
-    while (end < graphemes.length && !/\s/.test(graphemes[end])) end += 1;
+    while (end < graphemes.length && !WORD_SEPARATOR.test(graphemes[end])) end += 1;
     const word = graphemes.slice(i, end);
     const breakable = word.length >= HYPHENATE_MIN_WORD;
     word.forEach((g, k) => {
