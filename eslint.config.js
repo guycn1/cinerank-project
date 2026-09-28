@@ -10,12 +10,15 @@
  * that falls through — plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.
  *
- * Three environments, because this repo ships code to two runtimes and a third
- * file that the browser parses as a CLASSIC script but that nothing serves:
+ * Four environments, because this repo ships code to two runtimes and keeps two
+ * browser files in scripts/ that the browser parses as CLASSIC scripts but that
+ * the app never serves:
  *   - Node ES modules: server/, test/, and every Node tool in scripts/ (the
- *     glob is `scripts/*.js` minus debug-recs.js, so a new tool is covered
- *     without this list naming it)
+ *     glob is `scripts/*.js` minus the two browser files below, so a new tool
+ *     is covered without this list naming it)
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
+ *   - Browser CLASSIC script, no globals: scripts/layout-probe.js, which only
+ *     `npm run layout-check`'s own fixture server injects into the page.
  *   - Browser CLASSIC script: scripts/debug-recs.js. It is pasted into the
  *     browser console, so it is parsed as a script and not as a module. Getting
  *     this wrong makes ESLint report phantom parse errors. (It was briefly
@@ -65,7 +68,7 @@ export default [
   // Node ES modules — the server, the tests, and the real tooling scripts.
   {
     files: ['server/**/*.js', 'test/**/*.js', 'eslint.config.js', 'scripts/*.js'],
-    ignores: ['scripts/debug-recs.js'],
+    ignores: ['scripts/debug-recs.js', 'scripts/layout-probe.js'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
@@ -80,6 +83,19 @@ export default [
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
+      globals: { ...globals.browser },
+    },
+    rules: defectRules,
+  },
+
+  // The layout probe: a classic script injected by `npm run layout-check`, and
+  // wrapped in one function so it adds nothing to the page it measures, which
+  // is why no-implicit-globals stays on.
+  {
+    files: ['scripts/layout-probe.js'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'script',
       globals: { ...globals.browser },
     },
     rules: defectRules,

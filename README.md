@@ -341,6 +341,8 @@ path rather than its endpoints.
 │   ├── check-markdown.js        run before every .md commit; catches markdown that renders wrong
 │   ├── seed-demo.js             loads the demo list via the app’s own API; dry run by default
 │   ├── backfill-tmdb-rating.js  one-off fill for rows predating migration 002
+│   ├── layout-check.js          checks the real UI in headless browsers, on fixture data
+│   ├── layout-probe.js          the in-page half of layout-check.js
 │   └── debug-recs.js            dev only: fakes recommendation responses in the browser
 ├── test/                        npm test — Supabase faked, TMDB and OpenRouter stubbed
 │   ├── routes.test.js           the API over real HTTP: validation, failures, AI logging

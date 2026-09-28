@@ -102,6 +102,8 @@ renamed heading has in none. Proved by mutation: renumbering SPEC 4.5 fails 12
 references, renaming "Security & Secrets" fails 18, across docs, code comments,
 `.env.example`, `.gitignore`, `render.yaml` and `db/schema.sql`. The same day it
 also started reading `favicon.svg` and the two git dotfiles.
+**Then the harness behind all of that became `npm run layout-check`** (see the
+entry under Implemented): fixture data, no `.env`, three modes.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
@@ -599,6 +601,24 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   The harness also refuses to install itself when the hostname ends in
   `onrender.com`. That guard is now redundant and stays anyway: it costs
   nothing, and it is the belt to a brace that has just been removed.
+* **`npm run layout-check` — the real UI in real headless browsers, for any
+  layout change** (2026-09-28, generalised from the harness that verified
+  D-079 to D-081 and the 1040px width). It serves `public/` itself and answers
+  every `/api/*` call from fixtures, so it needs no `.env`, touches no
+  database, calls no paid API, and holds every write open unanswered. Each
+  browser loads the app in an iframe that `scripts/layout-probe.js` resizes to
+  exact widths. **Three modes:** the default HEALTH run (text inside its box
+  and the viewport, no overlapping parts, no sideways scroll, every break
+  inside a word against softHyphenate()'s rules, the verdict typing and the
+  clipboard; exit 1 on any failure); `--baseline=<git ref or file>`, which
+  DIFFS the layout element by element against another stylesheet
+  (`--expect-same` for a refactor, `--reference-width=PX` for a max-width
+  change); and `--self-test`, which plants one fault per check and fails
+  unless every one is caught. The hyphenation rules are read out of app.js and
+  the stylesheet rather than restated. **Not a commit gate:** it takes minutes
+  and needs installed browsers. Run it before and after a layout change. When
+  the UI gains a new kind of card, add it to the selector lists at the top of
+  `scripts/layout-probe.js`.
 * `GET /api/health` liveness probe. Render's health check has pointed at it
   since the deploy (2026-09-07); the entry under Pre-submission blockers has the
   service settings.
