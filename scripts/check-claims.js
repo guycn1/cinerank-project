@@ -53,16 +53,20 @@ function walk(dir = root, out = []) {
 }
 
 const all = walk();
-const TEXT = /\.(md|js|css|html|sql|yaml|yml|json|example)$/;
+const TEXT = /\.(md|js|css|html|sql|yaml|yml|json|example|svg)$/;
 // .env.example is in here on purpose: it carried the retired "name some films"
 // wording for a day after a sweep that claimed to be repo-wide, because that
 // sweep was scoped to *.md and *.js and a config template is neither.
+// svg for the same reason: favicon.svg's comment block cites files, a step and
+// a decision entry. The two git dotfiles have no extension to match, so they
+// are named; .gitignore cites a CLAUDE.md section.
+const DOTFILES = new Set(['.env.example', '.gitignore', '.gitattributes']);
 /**
  * @param {string} f  A repo-relative path.
  * @returns {string} The file's contents as UTF-8.
  */
 const read = (f) => readFileSync(join(root, f), 'utf8');
-const corpus = all.filter((f) => TEXT.test(f) || basename(f) === '.env.example')
+const corpus = all.filter((f) => TEXT.test(f) || DOTFILES.has(basename(f)))
   .map((f) => [f, read(f)]);
 const md = corpus.filter(([f]) => f.endsWith('.md'));
 const sourceText = corpus.filter(([f]) => /\.(js|css|html)$/.test(f))
