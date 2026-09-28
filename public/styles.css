@@ -65,11 +65,30 @@
      there is no numeric width to clamp on that engine. */
   --sb-w: clamp(6px, 1.2vw, 12px);
   --sb-dialog-w: clamp(4.5px, 0.9vw, 9px);
+
+  /* THE type scale (D-079): the root font size as a fraction of the reader's
+     browser default. Everything in `rem` and `em` follows it — all text and
+     most spacing — while the px frame does not: posters, the rank track,
+     rec-card widths, the page column, the logo mark, borders and radii, and
+     every breakpoint. A percentage, never a px value, so a reader who has
+     raised their browser's default font size still gets the larger text.
+     Two idioms exist so that ONE dial stays one dial:
+     - `calc(Nvw * var(--type-scale))` for the `vw` middle term of a fluid
+       clamp. Only a clamp's `rem` ends follow the root; without this the
+       size would hold still wherever the `vw` term is the one in force.
+     - `calc(Nrem / var(--type-scale))` for a length that must NOT shrink.
+       Used on the AI call log table and the "tied" caption, whose smallest
+       tiers were already at the edge of legibility at 16px. The table's
+       tiers are all `em` off its base, so exempting the base keeps every
+       tier, and the ratios between them, at their unscaled size. */
+  --type-scale: 0.92;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+/* On `html`, not `:root`: the reduced-motion block overrides scroll-behavior
+   with a plain `html` rule, which only wins because the specificities match. */
+html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
 
 /* Themed scrollbars everywhere. The two engines are split with @supports so
    neither sees the other's properties: recent Chromium ignores
@@ -232,7 +251,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   grid-template-columns: minmax(0, 1fr) auto;
   column-gap: clamp(0.75rem, 2.5vw, 1.5rem);
   align-items: center;
-  --title-size: clamp(2rem, 6vw, 3.2rem);
+  --title-size: clamp(2rem, calc(6vw * var(--type-scale)), 3.2rem);
 }
 .site-head .mark { grid-column: 1; grid-row: 1; }
 .site-head .tagline { grid-column: 1; grid-row: 2; }
@@ -1188,7 +1207,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .ranked__head h2, .recs__head h2 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
-  font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+  font-size: clamp(1.4rem, calc(3.5vw * var(--type-scale)), 1.9rem);
   letter-spacing: -0.01em;
 }
 .ranked__count { color: var(--ink-faint); font-size: 0.9rem; }
@@ -1410,7 +1429,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
 .movie-card__rank {
   font-family: 'Fraunces', serif;
   font-weight: 900;
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-size: clamp(2.2rem, calc(6vw * var(--type-scale)), 3.4rem);
   line-height: 1;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--amber);
@@ -1440,7 +1459,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
   display: block;
   margin-top: 0.3rem;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.62rem;
+  font-size: calc(0.62rem / var(--type-scale)); /* exempt from the type scale */
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -1462,32 +1481,34 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    sitting beside the ranking, not as a competing entry in it. Overrides both
    the outlined-numeral treatment above (transparent fill + amber stroke). */
 .movie-card__rank.is-unranked {
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-size: clamp(1.4rem, calc(3.5vw * var(--type-scale)), 2rem);
   font-weight: 600;
   color: var(--ink-faint);
   -webkit-text-stroke: 0;
 }
 /* Ranks of 100+ (marked `is-wide` in renderRanked — CSS cannot count digits).
-   The numeral does NOT have to fit its track — it may spill into the card's
-   17.6px padding and the 19.2px gap. It must only avoid the card border and the
-   poster, which is a ~99px budget on desktop (64px track) and ~75px in card
-   mode (40px track). Beyond that the poster, later in DOM order, paints over
-   the overflow and eats the last digit.
+   The numeral does NOT have to fit its track. It may not spill evenly either
+   side, though: a line too wide for its box is start-aligned whatever
+   `text-align` says, so the numeral stays flush with the track's LEFT edge and
+   the whole overflow goes right, into the card's 1.2rem gap. Beyond the gap the
+   poster, later in DOM order, paints over the overflow and eats the last digit.
+   So the budget is `track + gap`: 64px + 1.2rem on desktop, 40px + 1.2rem in
+   card mode. The card's padding on the left is never used.
    Sizes below are SOLVED, not estimated. Fraunces Black's figures measure
    **0.66em** per digit (Range.getBoundingClientRect on a live "222": 66.5px at
    33.6px font). Two earlier guesses — 0.63em, then an over-corrected 0.8em —
    both produced wrong sizes, so do not re-tune this by eye; re-measure.
-   Budget is `track + 2 × min(17.6px padding, 19.2px gap)`, and the PADDING is
-   the binding side. Clearance here is ≥10.8px on desktop and ≥12.3px in card
-   mode. Those are deliberately generous rather than minimal: an earlier pass
-   sized to a mathematically-sufficient ~6.8px in card mode and still read as
-   cramped, because the eye judges the gap against the 40px track beside it, not
-   against zero.
-   The `4vw` middle term is not decorative: it is set so the numeral is already
-   down to ~24.8px by the 620px breakpoint, where the track drops 64px → 40px
-   and the budget collapses from 99px to 75px in a single step. Lower the
-   ceiling all you like, but do not raise this coefficient without re-checking
-   the 620px row. This is NOT a no-op
+   Measured clearance between a forced "250" and the poster (D-079): 10.8px on
+   desktop, 11.6px at the 620px breakpoint and 13.1px in card mode below it.
+   Keep it generous rather than minimal: an earlier pass sized to a
+   mathematically-sufficient ~6.8px in card mode and still read as cramped,
+   because the eye judges the gap against the 40px track beside it, not against
+   zero.
+   The `vw` middle term is not decorative: it is set so the numeral is already
+   down to ~22.8px by the 620px breakpoint, where the track drops 64px → 40px
+   and the budget shrinks by 24px in a single step. Lower the ceiling all you
+   like, but do not raise this coefficient without re-checking the 620px row.
+   This is NOT a no-op
    in card mode — the 40px track is tighter relative to its font than the
    desktop one, so the floor has to come down too, not just the ceiling.
    font-size, not `scale`/`transform`: a transform would shrink the absolute
@@ -1496,7 +1517,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    the track is a fixed width and only the text ever overflowed it — so posters
    stay aligned card to card either way.
    Ranks of 1000+ are not handled and are not worth handling. */
-.movie-card__rank.is-wide { font-size: clamp(1.5rem, 4vw, 2.4rem); }
+.movie-card__rank.is-wide { font-size: clamp(1.5rem, calc(4vw * var(--type-scale)), 2.4rem); }
 
 .movie-card__poster {
   width: var(--poster-w);
@@ -2911,12 +2932,15 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 /* Base cell size; the header/sub/badge sizes below are `em` so this one
    value scales the whole table. ~10% down from 0.86rem — room to spare.
+   Exempt from the type scale (D-079), and so is every `rem` inside this table
+   that sizes text or the width text wraps in: the Result column, the reveal
+   panels and the card-mode labels. Its padding does scale, which only adds room.
    Default cell text is a step down from --ink so it doesn't glare against the
    dark dialog; .result / .sub / thead keep their own (dimmer) colours. */
 .log-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.77rem;
+  font-size: calc(0.77rem / var(--type-scale));
   color: #e0dcd3;
 }
 .log-table th, .log-table td {
@@ -2976,8 +3000,8 @@ body:has(dialog[open]) { overflow: hidden; }
    positioned OUT OF FLOW (a small floating panel), so opening a row can never
    widen the column or the table — it just overlays the rows below. */
 .log-result {
-  width: 8rem;
-  max-width: 8rem;
+  width: calc(8rem / var(--type-scale));
+  max-width: calc(8rem / var(--type-scale));
   white-space: normal;
 }
 /* Error text only — the reveal triggers keep the base size. The column is
@@ -3031,7 +3055,7 @@ body:has(dialog[open]) { overflow: hidden; }
   top: calc(100% + 0.35rem);
   right: 0;
   z-index: 5;
-  width: 16rem;
+  width: calc(16rem / var(--type-scale));
   max-width: 60vw;
   margin: 0;
   padding: 0.4rem 0.6rem;
@@ -3081,7 +3105,7 @@ body:has(dialog[open]) { overflow: hidden; }
   top: auto;
   bottom: calc(100% + 0.35rem);
 }
-.log-reveal ul { width: 12rem; padding-left: 1.2rem; list-style: circle; }
+.log-reveal ul { width: calc(12rem / var(--type-scale)); padding-left: 1.2rem; list-style: circle; }
 .log-reveal li { padding: 0; margin: 0; }
 
 /* Caret pointing back at the trigger: two stacked FILLED triangles (outer in
@@ -3217,7 +3241,7 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-dialog { padding: 0 0.85rem; --log-curtain-h: 1.25rem; }
   .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
-  .log-result { width: 7rem; max-width: 7rem; }
+  .log-result { width: calc(7rem / var(--type-scale)); max-width: calc(7rem / var(--type-scale)); }
 }
 
 /* ---- narrow viewports: below ~850px the trimmed 9-column table no longer fits
@@ -3294,7 +3318,7 @@ body:has(dialog[open]) { overflow: hidden; }
     float: left;
     margin-right: 1rem;
     color: var(--ink-faint);
-    font-size: 0.78rem;
+    font-size: calc(0.78rem / var(--type-scale));
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -3332,7 +3356,7 @@ body:has(dialog[open]) { overflow: hidden; }
     cursor: auto;
     font-size: 0;
   }
-  .log-table td abbr::after { content: attr(title); font-size: 0.77rem; }
+  .log-table td abbr::after { content: attr(title); font-size: calc(0.77rem / var(--type-scale)); }
 
   .log-time { font-size: 1em; line-height: 1.4; }
   .log-time span { display: inline; }

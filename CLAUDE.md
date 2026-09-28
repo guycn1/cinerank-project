@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-27 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
+**Last updated:** 2026-09-28 (**THE PROJECT IS MERGE-READY. `docs/MERGE-READINESS.md`
 reads MET on all five of Module 16's criteria for the first time — criterion 1
 closed on 2026-09-14 when the user ticked `SPEC.md` § 7.1's eight acceptance
 boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3
@@ -43,6 +43,24 @@ on the project sheet and the joint-project registration is emailed, both
 2026-09-14. Everything else is done — evidence captured and written up, the debug
 harness unloaded, all five gates green, and every other checkbox on this list
 ticked.**
+**WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not merged.**
+All text is 92% of its old size, set by ONE dial, `--type-scale` on `:root`, which
+`html` turns into its font size. Every text size was already `rem` or `em`, so
+the root is the whole mechanism. Two idioms keep it one dial:
+`calc(Nvw * var(--type-scale))` for the `vw` middle of a fluid clamp, which
+otherwise holds still across mid widths, and `calc(Nrem / var(--type-scale))`
+for what must NOT shrink. **The AI call log table and the "tied" caption are
+exempt** at the user's request, since their smallest tiers were already 8.6px.
+Exempting the table's BASE keeps all seven of its `em` tiers exact. A flat
+10px floor was weighed and rejected: it would have flattened the tiers and
+risked widening the Tokens column. The px frame (posters, tracks, card widths,
+the logo mark, the header GitHub icon, every breakpoint) does not scale.
+Measured before and after at eight exact widths: every text size 0.920, the
+log table unchanged, no horizontal scroll anywhere. **Found on the way:** an
+overflowing rank numeral is start-aligned, so it spills RIGHT only, and
+D-030's recorded clearances did not hold for the CSS as it stood; the
+stylesheet comment and the entry under Open issues now carry the measured
+figures.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
@@ -2107,8 +2125,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      D-063 (per-breakpoint media queries, shortening the busy copy, or measuring
      the tallest message in JS).
      **One thing observed and deliberately NOT changed:** `min-height: 1.2em`
-     computes to 17.28px against a 22.32px line box, so it under-reserves by ~5px
-     even in the empty-hint case it was written for. That window is first paint
+     sits against a 1.55em line box, so it under-reserves by about a fifth of a
+     line (~5px) even in the empty-hint case it was written for. That window is first paint
      to `/api/movies` returning, where the content arriving dominates it. Noted
      so it is not rediscovered as a bug.
 
@@ -3346,13 +3364,15 @@ below — this list is the smaller stuff.)
   the seeded one and there is nothing left to re-add.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
   ranks were fine at every width (checked at ~350px with numerals forced to 20+,
-  so the narrow `1` couldn't flatter the test). Three were not: the font clamps
-  at `3.4rem` = 54.4px and Fraunces Black figures measure **0.66em**, so "250"
-  painted ~110px against a ~99px budget (64px track + the 17.6px padding and
-  19.2px gap it may legitimately spill into), and the poster — later in DOM
-  order — covered the last digit. `renderRanked()` now marks 100+ with
-  `is-wide` → `clamp(1.5rem, 4vw, 2.4rem)`, **solved** against that measured
-  figure width; clears by ≥10.8px on desktop and ≥12.3px in card mode. Two earlier
+  so the narrow `1` couldn't flatter the test). Three were not: the font clamped
+  at `3.4rem` and Fraunces Black figures measure **0.66em**, so "250" painted
+  ~110px wide, and the poster — later in DOM order — covered the last digit.
+  **An overflowing numeral is start-aligned, so it spills RIGHT only**, into the
+  1.2rem gap: the budget is the track plus that gap, never the padding on the
+  left. `renderRanked()` now marks 100+ with `is-wide` → a smaller clamp,
+  **solved** against that measured figure width; a forced "250" clears the
+  poster by 10.8px on desktop, 11.6px at 620px and 13.1px in card mode
+  (measured 2026-09-28, D-079). Two earlier
   values were *estimated* and both wrong (0.63em too low, then 0.8em
   over-corrected) — re-measure with `Range.getBoundingClientRect()`, never
   re-tune this by eye. **The trap, if this is ever

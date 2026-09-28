@@ -6,6 +6,108 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-079 · The type scale is one root percentage, and the AI call log table and the tie caption are exempt from it
+
+*2026-09-28. Raised by the user: the text read a little too large at the
+browser's default zoom, and they asked what `:root { font-size: 92%; }` would
+break.*
+
+**Nothing, structurally, because every text size here was already `rem` or
+`em`.** The only px `font-size` in `public/styles.css` is the header GitHub
+icon, which is a graphic. Shrinking text can only free space, so no box
+overflows that did not before; every breakpoint is px and does not move; and
+the JavaScript measures live layout (the busy-button width lock, the
+recommendation grid, the toast probe, the reveal-panel flip), so it follows by
+itself. What changes is proportion: posters, the rank track, recommendation
+cards, the page column and the logo mark are px and keep their size while the
+text inside them shrinks.
+
+**Four ways to do it were weighed.**
+
+- **A root percentage — chosen.** One declaration, and it respects a reader
+  who has raised their browser's default size.
+- **A px root (`14.72px`)** gives the same result at the default and overrides
+  that reader's setting. Rejected.
+- **`zoom: 0.92`** scales the px frame too, like browser zoom. Rejected
+  because the code measures boxes and writes the result back as px: the
+  busy-button width lock and the grid's `--rec-width`. Under CSS zoom a length
+  measured and written back risks being scaled twice.
+- **Rescaling each `font-size` and leaving spacing alone** is about fifty
+  edits for a result few people could tell apart from the one-line version.
+
+**It sits on `html`, not `:root`**, which the user asked about. The two select
+the same element, but `:root` has a pseudo-class's specificity. The
+reduced-motion block overrides `scroll-behavior` with a plain `html` rule, and
+that override only wins because the specificities match.
+
+**The factor is a custom property, `--type-scale`, not a literal 92%**, because
+it is needed in three places. A fluid size written `clamp(rem, vw, rem)` only
+follows the root at its two `rem` ends, so without help the rank numerals and
+section headings would hold still across the middle of the viewport range,
+roughly 540px to 900px, and shrink only outside it. Every such `vw` term is
+therefore multiplied by `--type-scale`, and the measured ratio is 0.920 at every
+width tested.
+
+**The fork was how to protect the smallest text.** The AI call log already ran
+down to 8.6px, for its failure text and the Total row's token split. Claude
+first proposed a floor. Computing every tier argued against a flat one such
+as `max(0.7em, 10px)`: five of the table's seven tiers would land on the same
+10px and stop reading as different kinds of text. Worse, the Total row's split
+is kept small so the summed figures do not widen the columns, and the body
+split's `0.84em` was solved so the Tokens column does not move. Raising the
+Total row's split from 8.6px to 10px could widen that column, and with it
+break the "no horizontal scroll above 850px" fit.
+
+What was built instead exempts the table's base, `calc(0.77rem /
+var(--type-scale))`. Every tier inside is `em` off that base, so all seven keep
+their exact size and ratios. The same exemption goes on each `rem` inside the
+table that sizes text or the width text wraps in: the Result column, the
+reveal panels and the two card-mode label sizes. The table's padding does
+scale, which only adds room. The user agreed, and added the "tied" caption
+(9.9px) to the exemption.
+
+**Deliberately left at px:** the logo mark and the header GitHub icon. They are
+graphics and peers of each other, like the posters. The wordmark beside them
+now reads 8% smaller.
+
+**Verified by measurement, before and after, at 1280, 1000, 900, 800, 700,
+620, 500 and 360px.** Chrome's remote debugging is disabled by policy on this
+machine, and a headless window will not go below about 550px, which is
+[D-062](#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)'s
+width problem again. So each width was an iframe exactly that wide,
+reading computed sizes from inside it. The results:
+
+- Every one of 21 page text sizes, fluid ones included, measured 0.920 of its
+  old value at every width.
+- The table's tiers and the tie caption were unchanged to the hundredth of a
+  pixel.
+- No width scrolled horizontally, and neither did the log dialog.
+- The table's columns moved by at most 2px.
+
+**One finding on the way corrects [D-030](#d-030--three-digit-ranks-are-capped-not-documented-away)'s
+model.** D-030 budgets a three-digit numeral as its track plus the spill into
+the card's padding on one side and the gap on the other. But a line too wide
+for its box is start-aligned whatever `text-align` says. So the numeral stays
+flush with the track's left edge, and the whole overflow goes right, into the
+gap. Measured on the unscaled CSS with a forced "250", the clearance to the
+poster was 6.3px on desktop, 9.2px at 620px and 10.8px in card mode, against
+the ≥10.8px and ≥12.3px that entry and the stylesheet recorded. The type scale
+widens all three, to 10.8px, 11.6px and 13.1px. The live comment and the living
+log now carry the measured figures and the one-sided model.
+
+**The captures in `docs/screenshots/` predate this and show the old size.**
+None of them argues anything about type size, so they stand.
+
+**Traps.**
+
+- **A new fluid size must multiply its `vw` term by `--type-scale`.**
+  Otherwise it holds still across part of the viewport range.
+- **A new `rem` inside the log table that sizes text, or a width text wraps
+  in, must use the exempt form.** An `em` needs nothing, because it follows
+  the exempt base.
+- **Changing `--type-scale` moves the D-030 clearances.** Re-measure the
+  620px row before raising it.
+
 ## D-078 · The README's Project layout is a connector tree that includes the root, and a route file carries its mount path, not its endpoints
 
 *2026-09-27. Raised by the user with a screenshot of another project's layout
