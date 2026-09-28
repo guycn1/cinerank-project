@@ -204,7 +204,7 @@ Each of these looks like it could be simplified. Each cannot.
 | **The totals divider is a background, not a border or shadow** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
 | **The reveal panel's opacity animates on the panel (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
 | **`--reveal-fade` is one property read by two elements** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
-| **The Result column is a fixed `8rem` with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
+| **The Result column is a fixed width (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
 | **`.log-dialog[open] { display: flex }` is a bare rule** | Without it the UA's `dialog:not([open])` hide is overridden and the dialog never closes |
 | **Failed rows render an em dash (`—`) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
@@ -213,13 +213,17 @@ Each of these looks like it could be simplified. Each cannot.
 
 This document should not read as *touch nothing*.
 
-* **Colours, spacing and type sizes**, with one caution: `.log-table`'s base
+* **Colours, spacing and type sizes**, with two cautions. `.log-table`'s base
   `font-size` is in `rem` and everything below it is in `em`, so that one value
   scales the whole table. The footer is deliberately `0.8em` so its summed
   figures cannot set a wider max-content than the body rows and shift the
-  columns.
+  columns. And the table is exempt from the app-wide type scale
+  ([`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)):
+  its base and every `rem` inside it that sizes text or a width that text
+  wraps in are written `calc(Nrem / var(--type-scale))`. A plain `rem` added
+  there would shrink with the rest of the app while the table's text did not.
 * **`--reveal-fade`** — one number, both durations.
-* **Column widths**, except the Result column's fixed `8rem`, which is
+* **Column widths**, except the Result column's fixed width, which is
   structural.
 * **The breakpoints** (850px, 1040px) — they were chosen by narrowing the window
   until the table stopped fitting, not derived.

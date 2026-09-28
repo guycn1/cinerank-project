@@ -630,7 +630,7 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * stated baseline of Chrome/Edge 111 — `Intl.Segmenter` shipped in Chrome 87.)
  *
  * Whether these embedded points are ever honoured is decided entirely by
- * CSS (`hyphens: none` above 400px, `manual` below it, on `.movie-card__body`
+ * CSS (`hyphens: none` above 400px, `manual` at 400px and below, on `.movie-card__body`
  * / `.rec-card__body` / `.result-row` / `.verdict__text`; `.review` and
  * `.reason` inherit theirs from the first two) — this function runs
  * UNCONDITIONALLY, with no viewport check and no resize listener. That is

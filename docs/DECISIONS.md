@@ -130,6 +130,16 @@ failed all three in Chrome and Firefox: letters jumped during typing, copied
 titles and reviews carried a soft hyphen between the letters of every long
 word, and copying the verdict gave 589 characters for a 259-character verdict.
 
+**One consequence for the demo list.** [D-068](#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)
+put an emoji in the Wicked review as live evidence of
+[D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)'s
+grapheme-safe splitting. That emoji stands alone between spaces, so it is a one-grapheme
+word, and the 7-grapheme minimum means nothing is ever inserted next to it: the
+review would render correctly even if the grapheme bug returned. D-061's safety
+now matters only for an emoji inside a word of seven or more graphemes, which
+nothing in the seed list contains. The comment in `scripts/seed-demo.js` says
+so.
+
 **Traps.**
 
 - **Never hyphenate a typing slice.** Hyphenate the whole string and reveal

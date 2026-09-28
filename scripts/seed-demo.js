@@ -118,9 +118,11 @@ const SEED = [
       'whole thing for me.',
   },
   {
-    // The spectacle axis, and the emoji slot: a review with emoji in it is the
-    // only live proof of D-061's grapheme-safe hyphenation, which otherwise has
-    // no visible evidence anywhere in the app.
+    // The spectacle axis, and the emoji slot. The emoji stands alone between
+    // spaces, so it is a one-grapheme word that D-080's minimum never
+    // hyphenates, and this review no longer exercises D-061's grapheme-safe
+    // splitting: that only matters for an emoji inside a word of seven or more
+    // graphemes, which nothing in the seed list contains.
     title: 'Wicked',
     year: 2024,
     rating: 8.6,

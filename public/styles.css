@@ -893,7 +893,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      and clipped. At 311px the button was simply gone.
      `min-width: 0` opts out of that automatic minimum so the input pays its
      share. Nothing else needed: the button keeps its content width, and the
-     input has ~175px of text area left at 311px, which is ample.
+     input has about 150px of text area left at 311px in Firefox and 185px in
+     Chrome, which is ample.
      Same family as `.result-row .add-btn`'s `flex-shrink: 0` and the ranked
      card's `min-width: 0` — when a flex or grid item will not shrink, this
      automatic minimum is almost always why. */
@@ -978,7 +979,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
      spans both rows so auto-placement drops meta at 2/1 and the button at 2/2.
 
      This SUPERSEDES the flex stacking below 500px — that wrapping was tuned to
-     kick in at ~289-316px, entirely inside this query, so it no longer fires.
+     kick in at ~271-304px, entirely inside this query, so it no longer fires.
      The flex rules are kept, not deleted: they are the 500px-and-up behaviour,
      and they are the fallback if this breakpoint ever moves down. */
   .result-row {
@@ -1104,10 +1105,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    size is MAX-CONTENT — the whole title on one line — so `flex-wrap` above would
    push the button onto its own line at ANY width as soon as a title got long.
    Pinning the basis to 5rem means the line only breaks when the title column
-   would fall under ~80px. MEASURED thresholds, from the real rendered button
-   widths (68 / 104 / 85 / 95px for "+ Add" / "Adding…" / "✓ Added" / "In your
-   list"), not estimated: 289px for "+ Add", 306px for "✓ Added", 316px for "In
-   your list", 325px mid-add. Below those the title column would be 53–79px,
+   would fall under 5rem, about 74px. MEASURED thresholds, from the real rendered
+   button widths (63 / 96 / 79 / 88px for "+ Add" / "Adding…" / "✓ Added" / "In
+   your list"), not estimated: the button drops to its own line at 271px and
+   narrower for "+ Add", 287px for "✓ Added", 296px for "In your list" and 304px
+   mid-add (D-079's type scale; phone-style overlay scrollbars, Chrome and
+   Firefox agreeing). Without the wrap the title column would fall under 5rem,
    which is the crushed state this exists to prevent. **All four are under 500px,
    so the grid layout in that media query gets there first and none of them
    actually fires today** — see the note above `flex-wrap`.
@@ -1118,12 +1121,12 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    space, so they simply get none. */
 .result-row .meta { flex: 1 1 5rem; }
 /* Below 300px the title drops a notch so words keep fitting WHOLE. Once the row
-   stacks, the title column is viewport minus the poster: 124px at 250px, about
-   14 characters at the inherited 1rem — so a 15-letter word ("Recommendations")
-   would be broken mid-word by `overflow-wrap: anywhere`, which is the last-resort
-   guard, not something a reader should ever meet. At 0.9rem the same column
-   holds ~16 characters, which covers every word length that occurs in real film
-   titles.
+   stacks, the title column at 250px is 128px, about 16 average characters at
+   the inherited 1rem. A 15-letter word ("Recommendations") measures 133px there
+   and would have to break: hyphenated, since soft hyphens are honoured at 400px
+   and below (D-080), but still broken. At 0.9rem the same word measures 119px
+   and fits whole, and the column holds about 17 average characters, which
+   covers every word length that occurs in real film titles.
    A hard `max-width` cutoff rather than a `clamp()`, deliberately: a fluid size
    would have to start shrinking hundreds of pixels earlier to reach this value
    by 300px, which would visibly touch the wide views that currently look right.
@@ -1452,7 +1455,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    Every inherited property of the numeral has to be undone: the display face,
    the 900 weight, the transparent fill with its amber stroke, and `.is-top`'s
    glow — a child would otherwise render as a tiny outlined amber word.
-   Lowercase and short by design: at 0.62rem it measures well under the 40px
+   Lowercase and short by design: at 9.92px (0.62rem of the unscaled root; the
+   caption is exempt from the type scale, D-079) it measures well under the 40px
    rank track of card mode, which is the narrowest place it has to fit, so it
    cannot wrap or overhang however wide the numeral beside it gets. */
 .rank-tie {
@@ -1585,7 +1589,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    any future non-text content in this column (something with `white-space:
    nowrap`, a wide image) could size the track the same way. This makes the track
    incapable of being pushed open regardless of what lands in it. */
-/* SOFT-HYPHEN BREAKS, BELOW 400px ONLY (step 5, user-raised, D-059 → D-060).
+/* SOFT-HYPHEN BREAKS, AT 400px AND BELOW ONLY (step 5, user-raised, D-059 → D-060).
    `hyphens: auto` was tried first and REMOVED: it only hyphenates at points a
    real dictionary/pattern algorithm trusts, so a real word ("childhood")
    hyphenated correctly while an invented compound ("SquarePants") found no
@@ -1601,7 +1605,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    is the actual point a line breaks. The text is generated once; CSS ALONE
    decides whether those embedded break points are ever honoured.
    `hyphens: none` here suppresses every hyphenation opportunity — the
-   embedded soft hyphens included — so >= 400px renders BYTE-IDENTICAL to
+   embedded soft hyphens included — so above 400px renders BYTE-IDENTICAL to
    plain `overflow-wrap: anywhere` with no hyphenation feature at all, exactly
    as the user asked. The override to `hyphens: manual` (the CSS default,
    restored explicitly below 400px) is what lets those same soft hyphens
@@ -2519,7 +2523,7 @@ button:disabled .sparkle-major { animation: none; }
    canNOT reuse that rule's --bg-card value, though: --bg-card IS the rec card's
    own background, so the button would vanish into it entirely. --line is a hair
    LIGHTER than the card (1.16), so the button still reads as its own element,
-   and --ink-dim on it measures 5.56 — clear of AA for 16px/600 text.
+   and --ink-dim on it measures 5.56 — clear of AA (4.5) for its normal-size label.
    Those two figures are almost exactly the search button's own (1.12 shape,
    6.48 label): the established design already says a disabled fill nearly
    dissolves and the LABEL carries the readability. This matches it rather than
@@ -3515,11 +3519,11 @@ body:has(dialog[open]) { overflow: hidden; }
    on `.is-long`, for the exact same reason as the 700px tier above.
    `min-width: 0` resets the 700px tier's floor -- left in place, it would win
    over this narrower width the moment `calc(100% - 1.5rem)` dropped below
-   25rem (viewports under ~424px), forcing the toast WIDER than the viewport
+   25rem (viewports under ~390px), forcing the toast WIDER than the viewport
    itself and overflowing it sideways. `max-width` is raised to match `width`
    for the same reason in the other direction: the base rule's `max-width:
    90vw` is NARROWER than `calc(100% - 1.5rem)` at this breakpoint (450px vs
-   476px at exactly 500px wide), and would otherwise claw the edge-to-edge
+   478px at exactly 500px wide), and would otherwise claw the edge-to-edge
    look back down to a wider, un-asked-for margin.
    `%`, not `vw`, in the calc: `.toast` is `position: fixed`, whose containing
    block for a percentage is the viewport either way, but `%` reads as

@@ -76,6 +76,16 @@ breaks it.
 beside one: Chromium drew a soft hyphen after a real hyphen as a second hyphen
 ("Spider--"). Measured safe before it was built. The only new effect is a line
 starting with a hard hyphen at 40–51px, narrower than any column in the app.
+**Then a staleness sweep of all 63 tracked text files against both changes.**
+Figures measured at the 16px root were re-measured rather than scaled: the Add
+button's widths and wrap thresholds, the 250px title column, the search input
+at 311px. The method was first checked on the pre-scale stylesheet, where it
+reproduced the documented figures once scrollbars were hidden, as a phone's
+are. Hidden, not left in: a frame's own scrollbar took 13px of width and made
+the original figures look wrong when they were not. Also corrected: the toast's
+px arithmetic, the log table's exemption in `docs/AI-CALL-LOG.md`, "below
+400px" wording where the query is inclusive, and the seed comment that still
+called the Wicked emoji live proof of D-061, which D-080's minimum ended.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
@@ -671,7 +681,8 @@ and stay as written.
     → "N suggestions" `<details>` revealing a `<ul>`; verdict → "view verdict"
     `<details>` revealing the text. `<details name="ai-log-result">` so opening
     one closes the others. The column is pinned to a fixed width (9.5rem
-    originally, 8rem now) and the
+    originally, 8rem of the unscaled root now, exempt from the type scale like
+    the rest of the table, D-079) and the
     revealed content is `position: absolute` (a small floating panel, 0.8em
     font) — opening a row can never widen/reflow the table or steal width from
     other columns. (An early caveat about the last row's panel being clipped is
@@ -904,8 +915,8 @@ and stay as written.
     **Two sweep findings were examined and DELIBERATELY NOT FIXED.** They were
     settled in conversation, so they are written here or a later session will
     rediscover them, "fix" them, and undo a decision:
-    * **The Add button changes width across its four states** (68 / 104 / 85 /
-      95px, measured). Since it is `flex-shrink: 0`, the growth during
+    * **The Add button changes width across its four states** (63 / 96 / 79 /
+      88px, measured under D-079's type scale). Since it is `flex-shrink: 0`, the growth during
       `⟳ Adding…` comes out of `.meta`, which can re-wrap the title mid-request.
       Real, but transient (200–500ms), needs a title whose wrap point falls in
       that window, and the user could not reproduce it. **Do not "fix" it by
@@ -940,11 +951,14 @@ and stay as written.
     **No media query and no number encodes the threshold** — flex line breaking
     compares hypothetical sizes, so the browser derives it from the button's REAL
     width, and it self-adjusts per row. **Thresholds MEASURED, not estimated**
-    (the user ran the button widths in the console: 68 / 104 / 85 / 95px):
-    "+ Add" 289px, "✓ Added" 306px, "In your list" 316px, mid-add 325px. Below
-    those the title column would be 53–79px — the crushed state this prevents.
-    Do not estimate these widths: "In your list" is 95px, not the 111px an
-    estimate gave. Common widths (360/390/412px) are untouched.
+    (the user first ran the button widths in the console; re-measured under
+    D-079's type scale in Chrome and Firefox, with phone-style overlay
+    scrollbars: 63 / 96 / 79 / 88px). The button drops to its own line at
+    "+ Add" 271px, "✓ Added" 287px, "In your list" 296px and mid-add 304px,
+    each and narrower. Without the wrap the title column would fall under its
+    5rem basis, about 74px — the crushed state this prevents.
+    Do not estimate these widths: an estimate once put "In your list" at 111px
+    when it measured 95px. Common widths (360/390/412px) are untouched.
   - **Search results get their own layout under 500px** (user-designed,
     2026-09-09). The Add button moves from the right-hand column to directly
     UNDER the year/TMDB line, in the title's column, and subtle row separators
@@ -955,8 +969,8 @@ and stay as written.
     the user called sloppy. The poster spans both grid rows, so auto-placement
     drops the meta at 2/1 and the button at 2/2. `margin-left: auto` has to be
     cleared, or the grid cell shoves the button back to the far edge.
-    **This supersedes the flex stacking below 500px.** That wrapping was tuned to
-    fire at ~289–316px, entirely inside this query, so it no longer triggers. The
+    **This supersedes the flex stacking below 500px.** That wrapping fires at
+    ~271–304px, entirely inside this query, so it no longer triggers. The
     flex rules are KEPT rather than deleted: they are the behaviour at 500px and
     up, and the fallback if this breakpoint ever moves down.
     Separators are scoped to this query deliberately — above 500px the button
@@ -964,11 +978,13 @@ and stay as written.
     `--line-faint`, since it has to stay visible through the hover tint.
 
     **Follow-up the same day, on the user's "never break mid-word at >=250px":**
-    once the row stacks the title column is the viewport minus the poster —
-    124px at 250px, about 14 characters at 1rem, so a 15-letter word would still
-    have been broken by `overflow-wrap: anywhere`. A `@media (max-width: 300px)`
-    block drops `.result-row .meta strong` to 0.9rem, giving ~16 characters,
-    which covers every word length that occurs in real film titles. **A hard
+    once the row stacks the title column is 128px at 250px (under D-079's type
+    scale), about 16 average characters at 1rem, and a 15-letter word such as
+    "Recommendations" measures 133px there, so it would still have to break
+    (hyphenated, since D-080, but broken). A `@media (max-width: 300px)` block
+    drops `.result-row .meta strong` to 0.9rem, where that word measures 119px
+    and fits whole and the column holds about 17 average characters, which
+    covers every word length that occurs in real film titles. **A hard
     cutoff, not a `clamp()`** — a fluid size would have to start shrinking
     hundreds of pixels earlier to reach 0.9rem by 300px and would visibly touch
     the wide views; 301px and up is provably unchanged.
@@ -1903,8 +1919,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      worth remembering: its disabled fill is `--bg-card`, and `--bg-card` IS the
      rec card's own background, so the button would have vanished into the card
      completely. `--line` instead — a hair lighter than the card (1.16) so the
-     button keeps its own edges, with `--ink-dim` at 5.56, clear of AA for
-     16px/600 text. Those two figures are almost exactly the search button's own
+     button keeps its own edges, with `--ink-dim` at 5.56, clear of AA (4.5)
+     for its normal-size label. Those two figures are almost exactly the search button's own
      (1.12 shape, 6.48 label), so this MATCHES the established answer rather than
      inventing a second one: a disabled fill nearly dissolves and the label
      carries the readability. `cursor` also went `default` → `not-allowed`, which
