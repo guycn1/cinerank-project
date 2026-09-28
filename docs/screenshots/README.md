@@ -137,7 +137,7 @@ argues anything about type size or page width, and neither change touches any
 state, message, behaviour or figure a capture exists to show. Both changes are
 smaller than a single step of the browser's zoom control. To the eye the live
 app looks the same as these frames, unless a frame is compared against the live
-page on purpose.
+page directly.
 
 ## A note on file sizes
 
