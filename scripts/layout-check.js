@@ -45,8 +45,78 @@
  *   --timeout=SECONDS  per browser, default 900.
  *   --stall=SECONDS    abandon a run whose probe goes quiet this long, default
  *                      120; the probe reports every width it reaches.
- *   --verbose          print every sample.
+ *   --verbose          more samples: up to 12 per category (health), up to 30
+ *                      changed elements per width (diff).
  *   --debug            log every request the fixture server receives.
+ *
+ * TESTING A DESIGN CHANGE, STEP BY STEP
+ *   1. Before editing: `npm run layout-check` passes. If it does not, the
+ *      failure predates your change.
+ *   2. Make the change and run it again. A new failure is yours; rerun with
+ *      --verbose, and with --widths set to the widths in the samples.
+ *   3. See exactly what moved: `npm run layout-check -- --baseline=HEAD`
+ *      compares the stylesheet on disk with the committed one. Add
+ *      --expect-same when nothing should move (a refactor), or
+ *      --reference-width=PX for a max-width change.
+ *   4. If the change adds a new kind of card or component, or new text that
+ *      softHyphenate() processes, add it to the selector lists at the top of
+ *      scripts/layout-probe.js first, or it goes unchecked; then --self-test
+ *      confirms every check still fires. New data on screen may need new
+ *      fixtures (below).
+ *   Only the stylesheet can be swapped (--css, --baseline); app.js and
+ *   index.html are always the ones on disk.
+ *
+ * READING THE OUTPUT
+ *   Health and self-test print, per browser, a header line:
+ *     == chrome: 153 widths 290–1280px, all exact: true; on screen: 12 ranked,
+ *        7 search rows, 6 rec cards, 60 log rows
+ *   "all exact: false" means a width could not be set, so the run is not
+ *   valid. "on screen" confirms every surface was checked; a 0 means that
+ *   surface did not render and was not checked.
+ *   Then one line per category, with a count:
+ *     !!     a failure. The categories:
+ *            contain:  text outside the viewport, outside its card or
+ *                      component, or cut off by a box that clips it
+ *            collide:  two parts of a component overlap
+ *            scroll:   the page is wider than the viewport, or a box scrolls
+ *                      sideways
+ *            hyph:     a soft-hyphen break in a short word, too near a word's
+ *                      edge, or beside a dash; or a word broken at a soft
+ *                      hyphen above the width where soft hyphens are off
+ *            clip:     an invisible character reached the clipboard, or the
+ *                      verdict did not copy exactly once
+ *            typing:   a letter moved back up a line while the verdict typed
+ *            page errors: a script error or unhandled rejection in the page
+ *     ok:    correct behaviour, counted for reassurance (a long word
+ *            hyphenated, a break beside a dash).
+ *     note:  not a failure, worth a glance: a break without a hyphen where
+ *            Unicode allows one (between two emoji, say), or a word wider
+ *            than its whole column broken by overflow-wrap.
+ *   Samples follow "e.g.": the width, then the words around a break with `|`
+ *   where the line broke (`401px moving|—honestly`); for containment the
+ *   component and the text; for an overlap, `component: part × part`.
+ *   The last line, FAILING, names every failing category.
+ *
+ *   Diff mode prints, per width:
+ *     1041px: 248/1795 moved (max 1.0px) {".site-head":5,"main":234,".site-foot":9}
+ *   How many elements changed position or size by more than 0.5px, out of
+ *   how many were compared; the largest change; and where: the header, main,
+ *   the footer or the AI log dialog. "appeared" / "disappeared" count
+ *   elements shown in one layout and not the other (a toggle a wrap hides,
+ *   say). With --reference-width, a second block compares the candidate above
+ *   that width with the baseline AT it. After a max-width change expect 0 in
+ *   main and the footer, and a few header elements moving by under a pixel:
+ *   those come from the header's vw-based padding and icon size, and move
+ *   with the window whether or not the change is there.
+ *
+ *   Other lines: "stalled (nothing for 120s)" means the probe went quiet and
+ *   that attempt was abandoned (Edge is retried once). "NO RESULT" means no
+ *   attempt finished, which fails the run. "not installed, skipped", and "No
+ *   browser ran", which fails. "write request(s) held" is informational.
+ *
+ *   Exit code 0: passed. 1: a check failed, a browser gave no result, no
+ *   browser ran, a self-test fault went uncaught, or (diff with
+ *   --expect-same) something moved. 2: the tool itself failed.
  *
  * Adapting it: the fixtures are below, and the selectors that define "a card"
  * and "a component" for the containment and overlap checks are at the top of
@@ -569,7 +639,7 @@ async function main() {
   if (opts['self-test']) {
     const missed = SELF_TEST_FAULTS.map(([check]) => check).filter((check) => !fired.has(check));
     console.log(`\nself-test: ${missed.length ? `NOT caught: ${missed.join(', ')}` : 'every planted fault was caught'}`);
-    failed = missed.length > 0;
+    failed = failed || missed.length > 0; // a browser with no result still fails the run
   }
   if (server.stats.heldWrites) console.log(`\n(${server.stats.heldWrites} write request(s) held and never answered, as designed)`);
   server.close();

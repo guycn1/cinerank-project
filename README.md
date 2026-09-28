@@ -289,6 +289,13 @@ actually lives rather than where it is summarised:
    npm test         # 62 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: `GET /api/health`.
+5. **Check a layout change** (no keys needed; installed Chrome and Firefox)
+   ```
+   npm run layout-check                          # health at 153 widths
+   npm run layout-check -- --baseline=HEAD       # what moved against the last commit
+   ```
+   The header of [`scripts/layout-check.js`](scripts/layout-check.js) says how
+   to test a design change step by step and how to read the output.
 
 ## Project layout
 

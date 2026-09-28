@@ -620,7 +620,11 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
   Chrome and Firefox by default; `--browsers=…,edge` adds Edge, whose headless
   runs can stall part-way, so the probe sends a heartbeat at every width and
   the tool abandons a run that goes quiet for two minutes (`--stall`),
-  retrying Edge once. A run in which no browser ran fails. When
+  retrying Edge once. A run in which no browser ran fails. **How to test a
+  design change step by step, and how to read every line of the output
+  (the `!!` / `ok:` / `note:` categories, the diff counts, the exit codes), is
+  in the header of `scripts/layout-check.js`**; the README's Setup has the two
+  commands. When
   the UI gains a new kind of card, add it to the selector lists at the top of
   `scripts/layout-probe.js`.
 * `GET /api/health` liveness probe. Render's health check has pointed at it
