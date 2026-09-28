@@ -61,6 +61,17 @@ overflowing rank numeral is start-aligned, so it spills RIGHT only, and
 D-030's recorded clearances did not hold for the CSS as it stood; the
 stylesheet comment and the entry under Open issues now carry the measured
 figures.
+**Same day: soft hyphens only inside long words (D-080).** `softHyphenate()`
+put one between EVERY pair of graphemes, so a short word at a line's end broke
+one letter in ("Fury Ro|ad" at 360px). It now hyphenates only words of 7+
+graphemes, never within 3 of an end. **`hyphenate-limit-chars` was tested
+first, at the user's request, and does not apply to soft hyphens** in Chrome,
+Edge or Firefox. Firefox honours it for `hyphens: auto` only, so do not reach
+for it. **The verdict typing now hyphenates the whole verdict once and reveals
+prefixes:** hyphenating each partial slice under a length rule makes letters
+jump back up a line mid-type. The clipboard fix (D-067) is unchanged and still
+needed, and was re-verified in all three browsers against a probe build that
+breaks it.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation

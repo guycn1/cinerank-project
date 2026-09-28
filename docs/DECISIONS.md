@@ -6,6 +6,97 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+## D-080 · Soft hyphens go only inside words of seven or more graphemes, never within three of an end, and `hyphenate-limit-chars` was measured and does not apply to them
+
+*2026-09-28. Raised by the user after
+[D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+moved "Mad Max: Fury Road" onto a mid-word break at 360px.*
+
+**The cause was [D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
+rule, not the type scale.** `softHyphenate()` put a soft hyphen between every
+pair of adjacent graphemes, and line breaking is greedy: the browser takes the
+last break opportunity that fits, and a soft hyphen counts as much as a space.
+So a short word at a line's end broke one or two letters in ("Fury Ro|ad")
+wherever that fitted. The committed CSS did exactly that at 380–390px; the type
+scale moved the band onto 360px. Real hyphenation has minimum lengths for
+exactly this reason.
+
+**The fork: the CSS property `hyphenate-limit-chars`, or the same limits in
+`softHyphenate()`.** The user asked for the property to be tested rigorously
+first and used only if it demonstrably worked. The test was a standalone page:
+thirteen strings, including titles, reviews, emoji, flags, combining accents,
+CJK and a 46-letter unbroken word, at every even width from 40px to 400px,
+under three conditions each. It ran in Chrome 154, Edge 154 and Firefox 156.
+
+- **All three browsers parse the property and compute it as given.**
+- **It has no effect on soft hyphens in any of them.** With and without it,
+  the number of breaks inside short words or near a word's edge was identical:
+  2,020 in Chromium and 2,009 in Firefox, sample for sample.
+- **A positive control shows why.** Firefox does apply the property to
+  automatic hyphenation (`hyphens: auto`): 55 edge breaks became 0 and the
+  break positions changed at 47 widths. Chromium changed nothing there either.
+  The property governs the browser's own hyphenation and ignores
+  hand-placed soft hyphens, which are all this app uses.
+- **Safari could not be tested at all**, which alone would have failed the
+  "demonstrably" bar.
+
+**So the limits live in `softHyphenate()`.** A word, meaning a run of
+non-whitespace, gets soft hyphens only if it has at least 7 graphemes
+(`HYPHENATE_MIN_WORD`). None goes within 3 graphemes of either end
+(`HYPHENATE_MIN_EDGE`). Those numbers are a typesetting judgement, not a
+measurement: they make every four-letter word unbreakable and still let
+"SquarePants" hyphenate as "Squ-arePants". On the same test page the rule broke
+a word inside its limits 0 times in all three browsers, and nothing
+overflowed. The only breaks without a hyphen were places Unicode already allows
+a break, between two flag emoji or inside CJK text, plus Latin text below 70px,
+where a word cannot fit a line at all and `overflow-wrap: anywhere` takes over
+as it always has.
+
+**One trap came with it, found by reasoning and then measured.** The verdict
+typing effect ([D-057](#d-057--the-verdict-typing-effect-a-single-writer-and-two-separate-children-for-what-is-seen-vs-what-is-heard))
+hyphenated each partial string as it typed. Under a length rule, a half-typed
+word is judged by its partial length: it gains break points as it grows, and
+letters already wrapped to the next line jump back up. That showed 83 times on
+the test page. The verdict is now hyphenated once, up front, and each tick
+reveals a longer prefix of that string (`hyphenatedPrefixEnds()`), with 0
+jumps.
+
+**Verified in the running app in all three browsers**, through a local proxy
+that answered the verdict request with canned text, so no OpenRouter call was
+made and no log row written. The app ran in an iframe resized to 40 exact
+widths from 290px to 800px:
+
+| Check | Committed code (control) | This change |
+|---|---|---|
+| Breaks inside a short word or near an edge | 775 Chromium / 736 Firefox | 0 / 0 |
+| Soft hyphens in the DOM breaking the rule | 546 of 625 | 0 of 79 |
+| Breaks without a hyphen, 290–800px | 0 | 0 |
+| Page scrolls sideways at any width | no | no |
+| Letters jumping up a line while the verdict types | 0 | 0 |
+| Invisible characters in copied text | none | none |
+| Verdict text in a copy of the verdict | once | once |
+| Page errors | none | none |
+
+**The clipboard fix of [D-067](#d-067--the-hyphenation-fix-made-the-apps-own-output-un-pasteable-and-the-failure-surfaced-two-steps-away-from-the-cause)
+is untouched and still needed.** Long words still carry soft hyphens, so the
+copy listener still strips them and `.sr-only` stays unselectable. Copies of
+titles, reviews, the finished verdict and the whole page were checked for
+U+00AD and seven other invisible characters, and for the verdict appearing
+twice. To prove those checks could fail, a probe build hyphenated each typing
+slice, disabled the copy listener and made `.sr-only` selectable again. It
+failed all three in Chrome and Firefox: letters jumped during typing, copied
+titles and reviews carried a soft hyphen between the letters of every long
+word, and copying the verdict gave 589 characters for a 259-character verdict.
+
+**Traps.**
+
+- **Never hyphenate a typing slice.** Hyphenate the whole string and reveal
+  prefixes of it, or letters jump lines mid-type.
+- **Do not reach for `hyphenate-limit-chars` to replace the JS limits.** It
+  does not apply to soft hyphens in any engine measured here.
+- **The clipboard stripper is not made redundant by fewer soft hyphens.** Any
+  long word still carries them.
+
 ## D-079 · The type scale is one root percentage, and the AI call log table and the tie caption are exempt from it
 
 *2026-09-28. Raised by the user: the text read a little too large at the

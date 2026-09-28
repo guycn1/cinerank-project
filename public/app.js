@@ -575,15 +575,32 @@ const graphemeSegmenter =
  *  tooling twice (see CLAUDE.md Environment traps, and R7). */
 const SOFT_HYPHEN = String.fromCharCode(0xad);
 
+/** Soft hyphens go only into a word of at least this many graphemes (D-080). */
+const HYPHENATE_MIN_WORD = 7;
+/** ...and never within this many graphemes of either end of it (D-080). */
+const HYPHENATE_MIN_EDGE = 3;
+
 /**
- * Insert a soft hyphen (U+00AD) between every pair of adjacent non-space
- * GRAPHEME CLUSTERS (step 5, D-060/D-061, supersedes D-059's `hyphens:
- * auto`). A soft hyphen is a break OPPORTUNITY, not a break — it renders as
- * nothing at all unless it is the exact point a line actually breaks, so
- * this is invisible and inert wherever nothing needs to break. Unlike
- * `hyphens: auto`, it needs no dictionary: it offers a valid point at every
- * position, which is what an invented compound title ("SquarePants") needs
- * and a language pattern algorithm could not supply.
+ * Insert soft hyphens (U+00AD) between adjacent GRAPHEME CLUSTERS inside long
+ * words (step 5, D-060/D-061, supersedes D-059's `hyphens: auto`). A soft
+ * hyphen is a break OPPORTUNITY, not a break — it renders as nothing at all
+ * unless it is the exact point a line actually breaks, so this is invisible
+ * and inert wherever nothing needs to break. Unlike `hyphens: auto`, it needs
+ * no dictionary, which is what an invented compound title ("SquarePants")
+ * needs and a language pattern algorithm could not supply.
+ *
+ * ONLY INSIDE A WORD OF HYPHENATE_MIN_WORD+ GRAPHEMES, AND NEVER WITHIN
+ * HYPHENATE_MIN_EDGE OF EITHER END (D-080). A word here is a run of
+ * non-whitespace. Line breaking is greedy: the browser takes the LAST break
+ * opportunity that fits, and a soft hyphen counts exactly as much as a space.
+ * With one between every pair, a four-letter word at the end of a line broke
+ * one letter in ("Fury R-oad" at 360px) wherever that fitted and the space
+ * before it did too. Real hyphenation has minimums for exactly this reason.
+ * `hyphenate-limit-chars` expresses the same minimums in CSS and was measured
+ * first: Chromium and Firefox both parse it and both ignore it for soft
+ * hyphens, which is all this app uses, so the limits live here.
+ * Anything the limits leave unbreakable still cannot overflow: the columns
+ * this is used in carry `overflow-wrap: anywhere` as the last resort.
  *
  * GRAPHEME CLUSTERS, NOT RAW CHARACTERS — D-061, user-caught with a
  * screenshot of a review's emoji rendered as two tofu glyphs. The first
@@ -634,12 +651,47 @@ function softHyphenate(text) {
   if (!graphemeSegmenter) return text; // unsupported -- plain text, never the broken regex
   const graphemes = [...graphemeSegmenter.segment(text)].map((s) => s.segment);
   let out = '';
-  for (let i = 0; i < graphemes.length; i += 1) {
-    out += graphemes[i];
-    const next = graphemes[i + 1];
-    if (next && !/\s/.test(graphemes[i]) && !/\s/.test(next)) out += SOFT_HYPHEN;
+  let i = 0;
+  while (i < graphemes.length) {
+    if (/\s/.test(graphemes[i])) {
+      out += graphemes[i];
+      i += 1;
+      continue;
+    }
+    let end = i;
+    while (end < graphemes.length && !/\s/.test(graphemes[end])) end += 1;
+    const word = graphemes.slice(i, end);
+    const breakable = word.length >= HYPHENATE_MIN_WORD;
+    word.forEach((g, k) => {
+      out += g;
+      const before = k + 1; // graphemes that would end the line at this point
+      if (breakable && before >= HYPHENATE_MIN_EDGE && word.length - before >= HYPHENATE_MIN_EDGE) {
+        out += SOFT_HYPHEN;
+      }
+    });
+    i = end;
   }
   return out;
+}
+
+/**
+ * For typing out a hyphenated string: where, in `hyphenated`, the first N
+ * code units of `plain` end. `ends[n]` stops just before any soft hyphen that
+ * follows them, so a partly typed word never ends on a dangling break point.
+ *
+ * @param {string} hyphenated  softHyphenate(plain).
+ * @param {string} plain       The text as written.
+ * @returns {number[]} `ends[n]` for every n from 0 to plain.length.
+ */
+function hyphenatedPrefixEnds(hyphenated, plain) {
+  const ends = [0];
+  let j = 0;
+  for (let k = 0; k < plain.length; k += 1) {
+    while (hyphenated[j] === SOFT_HYPHEN && plain[k] !== SOFT_HYPHEN) j += 1;
+    j += 1;
+    ends.push(j);
+  }
+  return ends;
 }
 
 /* ---------- ranked list ------------------------------------------------- */
@@ -2103,10 +2155,12 @@ let verdictTypeTimer = null;
  * already had for typing: `.verdict__typed` is `aria-hidden`, so embedding
  * U+00AD there never reaches a screen reader, while the announced text must
  * stay exactly what was written.
- * During typing this hyphenates the SLICE on every tick, not the whole string
- * once up front -- `i` and `text.length` stay the plain character count either
- * way, so VERDICT_TYPE_MS's pace is untouched by how many extra soft-hyphen
- * characters a hyphenated string would otherwise add.
+ * During typing the WHOLE verdict is hyphenated once, up front, and each tick
+ * reveals a longer prefix of that string. Hyphenating each slice instead would
+ * judge a half-typed word by its partial length (D-080): it would gain break
+ * points as it grew, and letters already on the next line would jump back up
+ * mid-type. `i` and `text.length` stay the plain character count, so
+ * VERDICT_TYPE_MS's pace is untouched by the soft hyphens in between.
  *
  * @param {string} text  The full text to show.
  * @param {object} [options]
@@ -2138,11 +2192,13 @@ function setVerdictText(text, { typed = false } = {}) {
   }
 
   visible.classList.add('is-typing');
+  const hyphenated = softHyphenate(text);
+  const ends = hyphenatedPrefixEnds(hyphenated, text);
   let i = 0;
   /** Show one more character, then schedule the next; stops once superseded. */
   const step = () => {
     if (gen !== verdictTypeGen) return; // superseded by a later write -- stop silently
-    visible.textContent = softHyphenate(text.slice(0, i));
+    visible.textContent = hyphenated.slice(0, ends[i]);
     i += 1;
     if (i <= text.length) {
       verdictTypeTimer = setTimeout(step, VERDICT_TYPE_MS);
@@ -2848,13 +2904,13 @@ function pauseSheenOffscreen() {
 }
 
 /* ---------- copying text out of the app --------------------------- */
-// STRIP SOFT HYPHENS FROM THE CLIPBOARD. softHyphenate() (D-060/D-061) puts a
-// U+00AD between every adjacent pair of non-space characters, so a long title or
+// STRIP SOFT HYPHENS FROM THE CLIPBOARD. softHyphenate() (D-060/D-061, D-080)
+// puts a U+00AD between the letters of every long word, so a long title or
 // review breaks at a sensible point instead of mid-word. They are invisible on
-// screen. They are NOT invisible when copied: paste a review anywhere and every
-// letter arrives separated by a codepoint you cannot see, which breaks search,
-// breaks pasting into a document, and shows as visible junk in editors that
-// render it.
+// screen. They are NOT invisible when copied: paste a review anywhere and the
+// letters of those words arrive separated by a codepoint you cannot see, which
+// breaks search, breaks pasting into a document, and shows as visible junk in
+// editors that render it.
 //
 // HOW IT WAS FOUND, because the failure was two steps removed from the cause:
 // text separated character by character is the SHAPE of a filter-evasion

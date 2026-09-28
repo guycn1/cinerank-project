@@ -1594,8 +1594,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    D-059 accepted that gap on the premise that closing it needed resize-aware
    JS measurement. THAT PREMISE WAS WRONG, which is why this replaces it
    rather than sitting beside it (D-060): a SOFT HYPHEN (U+00AD, inserted once
-   by `softHyphenate()` in app.js, between every pair of adjacent non-space
-   characters) is a break opportunity at literally every position, with none
+   by `softHyphenate()` in app.js inside every word long enough to hyphenate,
+   D-080) is a break opportunity wherever it is placed, with none
    of `hyphens: auto`'s dictionary dependency — AND it needs no JS resize
    logic at all, because a soft hyphen is invisible and zero-width unless it
    is the actual point a line breaks. The text is generated once; CSS ALONE
