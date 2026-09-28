@@ -86,6 +86,12 @@ the original figures look wrong when they were not. Also corrected: the toast's
 px arithmetic, the log table's exemption in `docs/AI-CALL-LOG.md`, "below
 400px" wording where the query is inclusive, and the seed comment that still
 called the Wicked emoji live proof of D-061, which D-080's minimum ended.
+**Same day: the page's maximum width is 1040px, one token (`--page-max`),**
+read by `main`, the header, the footer and the AI log dialog's cap; it was
+1080px, written out four times. Probed before it was made: above a 1040px
+window the new page is the old one at exactly 1040px (0 of 410 elements
+differ in `main` and the footer; 8 header elements by ≤0.8px, from its
+`vw` padding), and the new dialog is the old one at a 1106px window.
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
@@ -2659,9 +2665,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 3. **Add GitHub link(s)** to the page — out to the public repo. **The header
    link is DONE 2026-09-11**, which is the placement the user specified: a
    GitHub mark top-right in `.site-head`, right-aligned with the content column.
-   That alignment is free rather than tuned — `main` and `.site-head` are both
-   `max-width: 1080px` with identical horizontal padding, so the icon lands
-   exactly above the verdict banner's right edge.
+   That alignment is free rather than tuned — `main` and `.site-head` both read
+   `max-width: var(--page-max)` (1040px) with identical horizontal padding, so
+   the icon lands exactly above the verdict banner's right edge.
    **It is deliberately NOT small, and no part of this backlog ever said it
    should be.** Claude called this step "small and self-contained" meaning the
    TASK; the user read that as the icon and corrected it, then asked for the

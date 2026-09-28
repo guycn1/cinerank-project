@@ -82,6 +82,12 @@
        tiers are all `em` off its base, so exempting the base keeps every
        tier, and the ratios between them, at their unscaled size. */
   --type-scale: 0.92;
+
+  /* The page's maximum width. `main`, the header and the footer all read it, and
+     that is what lines the header's GitHub mark up with the content column's
+     right edge; the AI log dialog is capped at it too. One value, so the three
+     cannot drift apart. */
+  --page-max: 1040px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -230,7 +236,7 @@ a:hover { text-decoration: underline; }
   100% { transform: translate(0, 0); }
 }
 
-main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
+main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 
 /* header ------------------------------------------------------------------- */
 /* Two columns: the mark and the tagline keep the left one, the repo link takes
@@ -244,7 +250,7 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    track, .recs__trigger, .rec-card). Here it would let a long word in the
    tagline push the icon off the right edge instead of wrapping. */
 .site-head {
-  max-width: 1080px;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 2.5rem) 2rem;
   display: grid;
@@ -1356,10 +1362,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5r
    The overlap is safe and not by luck: a transform makes the hovered card a
    stacking context, so it paints ABOVE its non-transformed siblings and the
    shadow spills over the next card instead of being covered by it. The scale
-   cannot produce a horizontal scrollbar either — `main` keeps a 16–40px gutter,
-   and 1.02 on the widest card (1000px inside the 1080px max-width) adds 10px per
-   side against a 40px gutter there. Re-check this arithmetic if the scale is
-   ever raised much beyond 1.02. */
+   cannot produce a horizontal scrollbar either — `main` keeps a 14.72–36.8px
+   gutter (`clamp(1rem, 4vw, 2.5rem)` under the type scale), and 1.02 on the
+   widest card (about 966px inside the 1040px `--page-max`) adds under 10px per
+   side against a 36.8px gutter there. Re-check this arithmetic if the scale is
+   ever raised much beyond 1.02, or the gutter narrowed. */
 @media (hover: hover) {
   .movie-card:hover {
     transform: scale(1.02);
@@ -2586,7 +2593,7 @@ button:disabled .sparkle-major { animation: none; }
 
 /* footer / dialog / toast ----------------------------------------- */
 .site-foot {
-  max-width: 1080px;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: 2rem clamp(1rem, 4vw, 2.5rem) 3rem;
   color: var(--ink-faint);
@@ -2875,7 +2882,7 @@ body:has(dialog[open]) { overflow: hidden; }
      last child) provides the gap under the table AND backs the pinned Total. */
   padding: 0 1.5rem;
   --log-curtain-h: 1.5rem; /* gap under the table == where the Total row pins */
-  width: min(1080px, 94vw);
+  width: min(var(--page-max), 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
   /* restore the centring the global margin reset removes (see .rate-dialog) */
