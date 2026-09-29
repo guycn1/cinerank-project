@@ -97,6 +97,13 @@ spotlight (0.65), the glint's contrast (recomputed for the
 twenty-layer band), and `docs/AI-CALL-LOG.md`'s opening, which described the
 dialog as listing every call rather than the newest 60.
 
+**D-076's score-badge alignment is now measured at every width**, 400px and
+below included, which the original headless-Chrome run could not reach: 43
+widths from 280px to 1280px in Chrome and Firefox, every badge on its anchored
+edge to within 0.01px, with a swapped-alignment control run catching the
+defect at about 26px. The user had confirmed it on a phone in both
+orientations, the day it shipped and again today.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code

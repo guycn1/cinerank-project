@@ -1789,8 +1789,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      card mode anchors the block LEFT, so the same reasoning inverts. A blanket
      flex-end does not fix the defect, it MIRRORS it into card mode; that was
      built and measured before this was written. Do not collapse the two.
-     D-076 has the measurements, the `text-align: right` alternative that was
-     rejected, and the one width the verification could NOT reach.
+     D-076 has the measurements and the `text-align: right` alternative that was
+     rejected. Verified on 2026-09-30 at 43 widths from 280px to 1280px, in
+     Chrome and Firefox: every rated card's badge sits on the same anchored edge
+     to within 0.01px, at 400px and below included, and the user confirmed it
+     on a phone in portrait and landscape.
      It was flex-end originally (0b3864c) and became flex-start in f69b069,
      whose subject is a narrow-width wrap fix -- but that fix is the
      `grid-column-start: 1` rule further down, and the commit message says this

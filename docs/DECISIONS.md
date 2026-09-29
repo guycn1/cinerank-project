@@ -436,6 +436,14 @@ cascade instead: the 620px block's override applies to every width beneath it,
 and the 400px query sets only `grid-column-start` and `row-gap`, so nothing
 there can reach `align-items`. That is a proof about the cascade, not an
 observation, and it is written as such.
+> **2026-09-30:** observed as well. The user checked the fix on a phone, in
+> portrait and landscape, the day it shipped, and again on 2026-09-30. The same
+> day it was measured in Chrome and Firefox at 43 widths from 280px to 1280px,
+> in an iframe the probe sizes itself, so no window minimum applied: on every
+> rated card the badge sits on the anchored edge (right above 620px, left at
+> 620px and below) to within 0.01px, 400px and below included. A control run
+> with the two alignments swapped put the badges about 26px apart at every
+> width in both browsers, so the measurement can tell the defect from the fix.
 
 ## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
 
