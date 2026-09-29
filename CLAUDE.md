@@ -2693,40 +2693,126 @@ anything reopens.
 
 ###### Group F — found while fixing the above (added 2026-09-09)
 
-* **R28. DONE 2026-09-09 — the zero-result message told the user a specific
-  lie.** It read "No new suggestions this time — the model only named films
-  already in your list" for EVERY empty run, and the user asked the right
-  question: is that necessarily what happened? No. There are four causes, and
-  that sentence describes one: the model named nothing (`parseModelJson`
-  returned `[]`); TMDB answered and had no such film; **TMDB was
-  unreachable** (the per-pick `catch` set `movie = null`, indistinguishable
-  from the previous case); or everything it named was already owned. The
-  intra-run duplicate guard cannot empty the list on its own — the first
-  occurrence always survives.
+* **R23. DONE 2026-09-09, on the user's instruction, the same day it was
+  found.** The verdict's catch offered the AI call log for EVERY failure —
+  including CineRank being unreachable, where the log cannot load either —
+  and discarded `err.message`, so the real cause was thrown away. It now
+  carries the same `userFacing`/`logged` treatment as the recommendations
+  route, so the two features answer a failure identically instead of in two
+  dialects.
 
-  **The third one is why this mattered.** A TMDB outage during verification
-  leaves the run logging `status: 'success'` (the AI call did succeed and was
-  charged), so nothing else in the app mentions TMDB — that false sentence
-  was the only thing the user would ever see, and it hid an outage. It is
-  also a state on the resilience-screenshot list.
+  **The user's requirement was zero FALSE NEGATIVES: a `failed` row must
+  never be written without the message advertising the log.** That holds by
+  construction, not just by test — in both services `status = 'failed'` is
+  assigned in exactly ONE place, and between the successful log insert and
+  the `{ logged: true }` throw there is no other exit. The three no-row cases
+  (DB read failed, threshold unmet, log write failed) correctly advertise
+  nothing.
 
-  Fixed at the source: the service keeps a per-title tally (`named /
-  tmdbErrors / unmatched / owned / duplicate`), `emptyReasonFor()` resolves
-  it to one of `none-named | tmdb-unreachable | all-owned | unverifiable |
-  mixed`, and it travels as a top-level `emptyReason` — null whenever there
-  are cards, so it can never be read as a warning. The client maps it to
-  copy, with `mixed` backstopping an unknown value so a server that learns a
-  new reason first degrades to something true.
+  Five tests cover it, written as a loop over BOTH features so they cannot
+  drift again, and probed three ways: dropping either service's flag, or
+  making the verdict route advertise unconditionally, all fail.
 
-  **Order is load-bearing in `emptyReasonFor()`:** `tmdb-unreachable`
-  outranks everything because it is the only cause the user can neither see
-  nor act on otherwise. The tally is also written into the log row's
-  `raw_model_output` (jsonb, and nothing reads that column — checked against
-  `routes/aiLog.js`), so an empty `suggested_titles` now records whose fault
-  it was.
+  **One residual false negative is unfixable and is not a bug:** if the HTTP
+  response never reaches the browser, the row exists and the client cannot
+  know. It shows the transport message instead.
 
-  Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
-  fails one, and hardcoding `all-owned` fails three.
+* **R24. DONE 2026-09-09 — the recs error line is `--ink-dim`, not
+  `--crimson`** (user-raised, after seeing R9's link land inside it). Not
+  taste — measured: the amber link was **2.48x brighter** than the crimson
+  around it (relative luminance 0.583 vs 0.235), so the pointer to details
+  shouted louder than the statement of what broke; and the two hues sit **36
+  degrees** apart, close enough to read as almost-the-same rather than as a
+  deliberate pair, while contrasting only 2.22 against each other. Claude
+  proposed instead making the link inherit the crimson with an underline;
+  **the user chose recolouring the line, which is better** — it reuses the
+  verdict banner's proven amber-on-grey rather than inventing a second link
+  treatment. `.verdict__text.is-muted` moved `--ink-faint` → `--ink-dim` in
+  the same pass. Note the verdict's muted state is now one step brighter than
+  the other muted-italic absences (`.score-tmdb.is-muted`, `.no-review`),
+  which stay `--ink-faint`: the shared vocabulary is muted + italic, not one
+  exact token.
+
+* **R25. DONE 2026-09-09 — the "New verdict" button was effectively
+  borderless** (user-raised, and correctly diagnosed by them). Settled over
+  three rounds of the user looking at it; the hover fill landed at 0.25.
+  `border: 1px solid var(--line)` measures **1.22** contrast on the banner's
+  `--bg-raised` ground — a border that is not, in practice, drawn. R24 had
+  just made the prose beside it brighter, so the button receded further.
+
+  Three changes: the border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
+  WARM, so it foreshadows the amber hover — chosen over `--line-strong` at
+  1.85 for near-identical weight with more meaning); the label went
+  `--ink-dim` → `--ink` (**6.80 → 16.26**), which is where most of the
+  visibility comes from, because a control must not be quieter than the
+  sentence beside it; and `font-size` 0.85 → 0.88rem, as the user suggested.
+
+  **Deliberately still far short of `.recs__trigger`'s full amber border
+  (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
+  hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
+  not by intensity alone. Do not "finish the job" by making this one amber
+  too.
+
+  **That means the button's CHROME — its border and its label — and it still
+  stands** (2026-09-11). The sparkle icon R15 later put on this button IS
+  amber, and that is not this rule being eroded: amber is the app's AI marker
+  (the "AI pick" badge, the recs trigger, the call-log link), so a white
+  sparkle read as decoration while the identical mark two sections down read
+  as a signal. A ~15px semantic mark is a different thing from an amber
+  border and an amber label. The border stays at 0.3 alpha and the label
+  stays `--ink`.
+
+  **Hover, revised by the user after seeing it:** the border lights to amber,
+  the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
+  `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
+  change; it is already `--ink` at rest, so there is nowhere brighter to go,
+  and amber text inside an amber border flattened the button into one colour.
+  The glow is made of light, not black, and takes a ZERO Y-offset (D-044) —
+  the user flagged the dark-theme trap in the request itself.
+
+  **The translucent BLACK fill is not a contradiction of D-044, and the CSS
+  says so at the declaration.** D-044 is about SHADOWS, which darken what
+  lies BEHIND an element — and on a `#0b0b0f` page there is nothing left to
+  darken. A background darkens the button's OWN interior, a real surface at
+  `--bg-raised` (#14141b → about #0f0f14). There is something to darken, so
+  black works here and light would not. Do not "correct" it to a light fill
+  by analogy with the shadow rule.
+
+  **`.search button:hover` DOES use an offset amber pool and that is not an
+  inconsistency either:** it is a FILLED button reading as a lit object
+  casting light downward, which is a different thing from an outline lighting
+  up. Do not unify them.
+
+* **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
+  was revised the same day. The two sentences
+  `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films
+  as taste signal…" and "Rate at least 3 movies to unlock…" — are
+  `--ink-dim`.
+
+  **As first built, the rule was "who wrote the line": a `.from-run` class
+  paired with `state.recsHintFromRun`, so a run's messages were all
+  `--ink-faint`. R28 disproved that** — the user looked at a zero-result run
+  and pointed out that "No new suggestions this time…" is written by a run
+  yet is persistent and is the ONLY thing the section shows, so it belongs
+  with the availability sentences. Who wrote a line was a good proxy for the
+  real question and not the same question.
+
+  **The rule now in force:** does the line INTRODUCE content that is present
+  or imminent, or is it the only thing on screen? `.recs__hint.is-caption`
+  (`--ink-faint`) is set on exactly two messages, the busy line and "Based
+  on: …"; everything else takes the base `--ink-dim` — both availability
+  sentences, a failure, and all five zero-result variants.
+
+  `setRecsHint(content, { caption })` is the single writer for the element's
+  content and its weight; `.from-run` and `setRecsHintOwner()` are GONE.
+  `state.recsHintFromRun` survives, meaning only what R1 made it mean — may
+  the sync overwrite this?
+
+  `.recs__hint.err` restates the base value on purpose: it is a pin, so an
+  error can never become fine print whatever `.is-caption` is later applied
+  to. R24's comment was corrected in the same pass: it claimed `--ink-dim`
+  made the error brighter than the resting hint, true when written and not
+  once the base moved.
 
 * **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
   (user-raised, 2026-09-09.) The entrance half already existed and was tuned
@@ -2845,126 +2931,40 @@ anything reopens.
   newly-scrolled position. The scroll is a reward for a result, so it waits for
   one.
 
-* **R25. DONE 2026-09-09 — the "New verdict" button was effectively
-  borderless** (user-raised, and correctly diagnosed by them). Settled over
-  three rounds of the user looking at it; the hover fill landed at 0.25.
-  `border: 1px solid var(--line)` measures **1.22** contrast on the banner's
-  `--bg-raised` ground — a border that is not, in practice, drawn. R24 had
-  just made the prose beside it brighter, so the button receded further.
+* **R28. DONE 2026-09-09 — the zero-result message told the user a specific
+  lie.** It read "No new suggestions this time — the model only named films
+  already in your list" for EVERY empty run, and the user asked the right
+  question: is that necessarily what happened? No. There are four causes, and
+  that sentence describes one: the model named nothing (`parseModelJson`
+  returned `[]`); TMDB answered and had no such film; **TMDB was
+  unreachable** (the per-pick `catch` set `movie = null`, indistinguishable
+  from the previous case); or everything it named was already owned. The
+  intra-run duplicate guard cannot empty the list on its own — the first
+  occurrence always survives.
 
-  Three changes: the border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
-  WARM, so it foreshadows the amber hover — chosen over `--line-strong` at
-  1.85 for near-identical weight with more meaning); the label went
-  `--ink-dim` → `--ink` (**6.80 → 16.26**), which is where most of the
-  visibility comes from, because a control must not be quieter than the
-  sentence beside it; and `font-size` 0.85 → 0.88rem, as the user suggested.
+  **The third one is why this mattered.** A TMDB outage during verification
+  leaves the run logging `status: 'success'` (the AI call did succeed and was
+  charged), so nothing else in the app mentions TMDB — that false sentence
+  was the only thing the user would ever see, and it hid an outage. It is
+  also a state on the resilience-screenshot list.
 
-  **Deliberately still far short of `.recs__trigger`'s full amber border
-  (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
-  hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
-  not by intensity alone. Do not "finish the job" by making this one amber
-  too.
+  Fixed at the source: the service keeps a per-title tally (`named /
+  tmdbErrors / unmatched / owned / duplicate`), `emptyReasonFor()` resolves
+  it to one of `none-named | tmdb-unreachable | all-owned | unverifiable |
+  mixed`, and it travels as a top-level `emptyReason` — null whenever there
+  are cards, so it can never be read as a warning. The client maps it to
+  copy, with `mixed` backstopping an unknown value so a server that learns a
+  new reason first degrades to something true.
 
-  **That means the button's CHROME — its border and its label — and it still
-  stands** (2026-09-11). The sparkle icon R15 later put on this button IS
-  amber, and that is not this rule being eroded: amber is the app's AI marker
-  (the "AI pick" badge, the recs trigger, the call-log link), so a white
-  sparkle read as decoration while the identical mark two sections down read
-  as a signal. A ~15px semantic mark is a different thing from an amber
-  border and an amber label. The border stays at 0.3 alpha and the label
-  stays `--ink`.
+  **Order is load-bearing in `emptyReasonFor()`:** `tmdb-unreachable`
+  outranks everything because it is the only cause the user can neither see
+  nor act on otherwise. The tally is also written into the log row's
+  `raw_model_output` (jsonb, and nothing reads that column — checked against
+  `routes/aiLog.js`), so an empty `suggested_titles` now records whose fault
+  it was.
 
-  **Hover, revised by the user after seeing it:** the border lights to amber,
-  the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
-  `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
-  change; it is already `--ink` at rest, so there is nowhere brighter to go,
-  and amber text inside an amber border flattened the button into one colour.
-  The glow is made of light, not black, and takes a ZERO Y-offset (D-044) —
-  the user flagged the dark-theme trap in the request itself.
-
-  **The translucent BLACK fill is not a contradiction of D-044, and the CSS
-  says so at the declaration.** D-044 is about SHADOWS, which darken what
-  lies BEHIND an element — and on a `#0b0b0f` page there is nothing left to
-  darken. A background darkens the button's OWN interior, a real surface at
-  `--bg-raised` (#14141b → about #0f0f14). There is something to darken, so
-  black works here and light would not. Do not "correct" it to a light fill
-  by analogy with the shadow rule.
-
-  **`.search button:hover` DOES use an offset amber pool and that is not an
-  inconsistency either:** it is a FILLED button reading as a lit object
-  casting light downward, which is a different thing from an outline lighting
-  up. Do not unify them.
-
-* **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
-  was revised the same day. The two sentences
-  `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films
-  as taste signal…" and "Rate at least 3 movies to unlock…" — are
-  `--ink-dim`.
-
-  **As first built, the rule was "who wrote the line": a `.from-run` class
-  paired with `state.recsHintFromRun`, so a run's messages were all
-  `--ink-faint`. R28 disproved that** — the user looked at a zero-result run
-  and pointed out that "No new suggestions this time…" is written by a run
-  yet is persistent and is the ONLY thing the section shows, so it belongs
-  with the availability sentences. Who wrote a line was a good proxy for the
-  real question and not the same question.
-
-  **The rule now in force:** does the line INTRODUCE content that is present
-  or imminent, or is it the only thing on screen? `.recs__hint.is-caption`
-  (`--ink-faint`) is set on exactly two messages, the busy line and "Based
-  on: …"; everything else takes the base `--ink-dim` — both availability
-  sentences, a failure, and all five zero-result variants.
-
-  `setRecsHint(content, { caption })` is the single writer for the element's
-  content and its weight; `.from-run` and `setRecsHintOwner()` are GONE.
-  `state.recsHintFromRun` survives, meaning only what R1 made it mean — may
-  the sync overwrite this?
-
-  `.recs__hint.err` restates the base value on purpose: it is a pin, so an
-  error can never become fine print whatever `.is-caption` is later applied
-  to. R24's comment was corrected in the same pass: it claimed `--ink-dim`
-  made the error brighter than the resting hint, true when written and not
-  once the base moved.
-
-* **R24. DONE 2026-09-09 — the recs error line is `--ink-dim`, not
-  `--crimson`** (user-raised, after seeing R9's link land inside it). Not
-  taste — measured: the amber link was **2.48x brighter** than the crimson
-  around it (relative luminance 0.583 vs 0.235), so the pointer to details
-  shouted louder than the statement of what broke; and the two hues sit **36
-  degrees** apart, close enough to read as almost-the-same rather than as a
-  deliberate pair, while contrasting only 2.22 against each other. Claude
-  proposed instead making the link inherit the crimson with an underline;
-  **the user chose recolouring the line, which is better** — it reuses the
-  verdict banner's proven amber-on-grey rather than inventing a second link
-  treatment. `.verdict__text.is-muted` moved `--ink-faint` → `--ink-dim` in
-  the same pass. Note the verdict's muted state is now one step brighter than
-  the other muted-italic absences (`.score-tmdb.is-muted`, `.no-review`),
-  which stay `--ink-faint`: the shared vocabulary is muted + italic, not one
-  exact token.
-
-* **R23. DONE 2026-09-09, on the user's instruction, the same day it was
-  found.** The verdict's catch offered the AI call log for EVERY failure —
-  including CineRank being unreachable, where the log cannot load either —
-  and discarded `err.message`, so the real cause was thrown away. It now
-  carries the same `userFacing`/`logged` treatment as the recommendations
-  route, so the two features answer a failure identically instead of in two
-  dialects.
-
-  **The user's requirement was zero FALSE NEGATIVES: a `failed` row must
-  never be written without the message advertising the log.** That holds by
-  construction, not just by test — in both services `status = 'failed'` is
-  assigned in exactly ONE place, and between the successful log insert and
-  the `{ logged: true }` throw there is no other exit. The three no-row cases
-  (DB read failed, threshold unmet, log write failed) correctly advertise
-  nothing.
-
-  Five tests cover it, written as a loop over BOTH features so they cannot
-  drift again, and probed three ways: dropping either service's flag, or
-  making the verdict route advertise unconditionally, all fail.
-
-  **One residual false negative is unfixable and is not a bug:** if the HTTP
-  response never reaches the browser, the row exists and the client cannot
-  know. It shows the transport message instead.
+  Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
+  fails one, and hardcoding `all-owned` fails three.
 
 * **R29. DONE 2026-09-10 (D-051) — a card's size no longer depends on how
   many came back** (user-raised 2026-09-09, with a screenshot). One
