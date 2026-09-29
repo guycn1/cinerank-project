@@ -26,7 +26,9 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-29 (**THE PROJECT IS MERGE-READY.
+**Last updated:** 2026-09-29
+
+**THE PROJECT IS MERGE-READY.
 `docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria for the
 first time — criterion 1 closed on 2026-09-14 when the user ticked `SPEC.md`
 § 7.1's eight acceptance boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL
@@ -426,7 +428,7 @@ Express's finalhandler answers it (step 4).
 registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS
 WRITTEN, and it is now done as well: every checkbox under Pre-submission
 blockers is ticked, the final merge included. The top of this entry is the
-current state.**)
+current state.**
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
