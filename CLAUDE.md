@@ -80,6 +80,15 @@ read", each probed against the tree before the fix. `docs/DECISIONS.md` now says
 in its header that entries are not brought up to date, and how to find what
 superseded one.
 
+**Same day: the rate dialog's review box no longer carries one film's size and
+scroll position into the next** (user-found). The dialog and its textarea are
+one element reused for every film, so a box dragged taller or scrolled down
+stayed that way for the next film until a reload. `openRate()` now clears the
+inline height the resize grip leaves behind, and resets the scroll after
+`showModal()`, since a closed dialog has no layout box to hold a scroll offset.
+Reproduced in headless Chrome against a fixture API before the fix, and shown
+reset after it.
+
 **WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not
 merged.** All text is 92% of its old size, set by ONE dial, `--type-scale` on
 `:root`, which `html` turns into its font size. Every text size was already

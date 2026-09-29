@@ -1451,8 +1451,16 @@ function openRate(movie, { isNew = false } = {}) {
   el.rateRange.value = movie.rating ?? 7;
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
   el.rateReview.value = movie.review ?? '';
+  // The dialog and its textarea are one element reused for every film, so a
+  // review box the user dragged taller, or scrolled down, would otherwise open
+  // that way on the next film too. Dragging the resize grip writes an inline
+  // height, and clearing it hands the size back to the markup's rows="3".
+  el.rateReview.style.height = '';
   setRateError('');
   el.rateDialog.showModal();
+  // After showModal(): a closed dialog has no layout box, and a scroll offset
+  // set on an element without one is discarded.
+  el.rateReview.scrollTop = 0;
 }
 el.rateRange.addEventListener('input', () => {
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
