@@ -89,6 +89,13 @@ inline height the resize grip leaves behind, and resets the scroll after
 Reproduced in headless Chrome against a fixture API before the fix, and shown
 reset after it.
 
+**Same day: the JSDoc was audited by parsing rather than by reading.** Across
+26 files, 233 named functions and 4 classes, every `@param` and `@returns` was
+present, typed and correctly named, but 16 blocks had tags and no description
+line, and one file-level function, `SECTION_EXEMPT` in
+`scripts/check-claims.js`, had no block at all. All 17 are fixed, comments only:
+each changed file tokenizes identically to the version before.
+
 **WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not
 merged.** All text is 92% of its old size, set by ONE dial, `--type-scale` on
 `:root`, which `html` turns into its font size. Every text size was already
@@ -186,8 +193,12 @@ list, which stays in `SPEC.md` § 4.5 alone.
 **WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
 on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and every
-function carries a description with typed `@param`, `@returns` and, where
-failure is part of the contract, `@throws`; recurring shapes are typedefs. Each
+named function, method and class carries a description with typed `@param`,
+`@returns` and, where failure is part of the contract, `@throws`; recurring
+shapes are typedefs. Three kinds of function are left undocumented on purpose:
+one-line helpers declared inside another function, one-line methods in object
+literals (the test client's verbs, the fake Supabase client's chain methods),
+and the test stubs that stand in for `globalThis.fetch` or `console.error`. Each
 file was proved unchanged as code by tokenizing it against its previous version.
 **The finding worth keeping is WHERE a block sits, not what it says.** Nine
 existing blocks were not attached to what they describe — in `public/app.js` the

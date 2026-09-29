@@ -35,6 +35,8 @@ export async function startApp(app) {
   await once(server, 'listening');
   const base = `http://127.0.0.1:${server.address().port}`;
   /**
+   * Send one request to the app under test.
+   *
    * @param {string} method
    * @param {string} path  e.g. "/api/movies".
    * @param {unknown} [body]  Sent as JSON when given.

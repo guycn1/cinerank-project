@@ -34,6 +34,8 @@
  */
 
 /**
+ * Shorthand for `document.querySelector`.
+ *
  * @param {string} sel  A CSS selector.
  * @returns {Element | null} The first match in the document.
  */
@@ -350,6 +352,8 @@ function posterNode(url, title, { eager = false } = {}) {
 }
 
 /**
+ * Build the decorative spinner that busy states and loading notes show.
+ *
  * @returns {HTMLSpanElement} A `span.spinner`, hidden from assistive tech.
  */
 function spinnerNode() {
@@ -409,6 +413,9 @@ function busyButton(btn, busyLabel = 'Thinking…') {
 }
 
 /**
+ * Count the rated films, for the ranked list's subtitle and both AI features'
+ * thresholds.
+ *
  * @returns {number} How many films in `state.movies` have a rating.
  */
 const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
@@ -1192,6 +1199,8 @@ function searchNote(text, kind) {
   return d;
 }
 /**
+ * Build the note the search panel shows while a request is in flight.
+ *
  * @param {string} label  e.g. "Searching…".
  * @returns {HTMLDivElement} A search note holding a spinner and the label.
  */
@@ -1201,6 +1210,8 @@ function makeLoading(label) {
   return d;
 }
 /**
+ * Build the note the search panel shows when a request fails.
+ *
  * @param {string} msg  The failure, as api() worded it.
  * @returns {HTMLDivElement} A search note styled as an error.
  */
@@ -2335,17 +2346,24 @@ el.verdictRefresh.addEventListener('click', async () => {
 
 /* ---------- AI call log ----------------------------------------- */
 /**
+ * Format a call's cost for the AI call log and the metadata footers.
+ *
  * @param {number | null | undefined} usd
  * @returns {string} In cents to two decimals, e.g. "0.20¢"; an em dash when unknown.
  */
 const fmtCost = (usd) => (usd == null ? '—' : `${(usd * 100).toFixed(2)}¢`);
 /**
+ * Format a call's duration for the AI call log. (The metadata footers show
+ * whole milliseconds instead, formatted where they are built.)
+ *
  * @param {number | null | undefined} ms
  * @returns {string} "850 ms" under a second, "3.8 s" from one up; an em dash when unknown.
  */
 const fmtDur = (ms) =>
   ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 /**
+ * Format a token count for the AI call log and the metadata footers.
+ *
  * @param {number | null | undefined} n
  * @returns {string} Digit-grouped for the reader's locale; an em dash when unknown.
  */

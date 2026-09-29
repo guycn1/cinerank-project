@@ -33,13 +33,13 @@
   addEventListener('error', (e) => out.errors.push(String(e.message)));
   addEventListener('unhandledrejection', (e) => out.errors.push(`rejection: ${e.reason}`));
 
-  /** @param {number} ms @returns {Promise<void>} */
+  /** Wait a fixed time. @param {number} ms @returns {Promise<void>} */
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  /** @returns {Promise<void>} Two animation frames, so layout has settled. */
+  /** Wait two animation frames, so layout has settled. @returns {Promise<void>} */
   const frames = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-  /** @param {string} s @returns {string[]} */
+  /** Split text into user-perceived characters. @param {string} s @returns {string[]} */
   const graphemes = (s) => [...seg.segment(s)].map((x) => x.segment);
-  /** @param {string} g @returns {boolean} */
+  /** Whether a grapheme is whitespace. @param {string} g @returns {boolean} */
   const isWs = (g) => /\s/.test(g);
 
   /**

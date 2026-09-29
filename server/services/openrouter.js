@@ -15,6 +15,8 @@ import { config } from '../config.js';
  */
 class OpenRouterError extends Error {
   /**
+   * Create the error, named so a log line says which service failed.
+   *
    * @param {string} message  The technical cause, e.g. "OpenRouter responded 401".
    */
   constructor(message) {

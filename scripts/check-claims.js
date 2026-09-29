@@ -63,10 +63,12 @@ const TEXT = /\.(md|js|css|html|sql|yaml|yml|json|example|svg)$/;
 // are named; .gitignore cites a CLAUDE.md section.
 const DOTFILES = new Set(['.env.example', '.gitignore', '.gitattributes']);
 /**
+ * Read a tracked file from the repository root.
+ *
  * @param {string} f  A repo-relative path.
  * @returns {string} The file's contents as UTF-8.
  */
-const read = (f) => readFileSync(join(root, f), 'utf8');
+const read =(f) => readFileSync(join(root, f), 'utf8');
 const corpus = all.filter((f) => TEXT.test(f) || DOTFILES.has(basename(f)))
   .map((f) => [f, read(f)]);
 const md = corpus.filter(([f]) => f.endsWith('.md'));
@@ -543,6 +545,13 @@ function headingsOf(file) {
   return entry;
 }
 
+/**
+ * Whether check 11 skips a file as a SOURCE: this file, DOSSIER.md and
+ * prompts/, for the reasons in check 11's header. Each is still a valid target.
+ *
+ * @param {string} f  A repo-relative path.
+ * @returns {boolean} True when neither its links nor its § references are checked.
+ */
 const SECTION_EXEMPT = (f) => f === SELF || f === 'DOSSIER.md' || f.startsWith('prompts/');
 
 /**

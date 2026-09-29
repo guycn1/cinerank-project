@@ -15,6 +15,8 @@ const { apiKey, base, imageBase } = config.tmdb;
  */
 class TmdbError extends Error {
   /**
+   * Create the error, named so a log line says which service failed.
+   *
    * @param {string} message  The technical cause, e.g. "TMDB responded 401".
    */
   constructor(message) {
