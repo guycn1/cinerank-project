@@ -28,7 +28,7 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 **Last updated:** 2026-09-29
 
-**THE PROJECT IS MERGE-READY.
+**THE PROJECT IS MERGE-READY.**
 `docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria for the
 first time — criterion 1 closed on 2026-09-14 when the user ticked `SPEC.md`
 § 7.1's eight acceptance boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL
@@ -44,7 +44,7 @@ Security tab — which is "final planned" being tested rather than contradicted;
 the note at the end of the Build status bullet has it. The live URL is on the
 project sheet and the joint-project registration is emailed, both 2026-09-14.
 Everything else is done — evidence captured and written up, the debug harness
-unloaded, all five gates green, and every other checkbox on this list ticked.**
+unloaded, all five gates green, and every other checkbox on this list ticked.
 
 **>>> BEFORE THE 30TH `draft` → `main` MERGE (pending, postponed by the user
 2026-09-29) — do these on `draft` FIRST, in their own commit, then all five
@@ -330,14 +330,14 @@ rather than by any tool (D-069, D-070, and the two in the database-down state);
 and six new tests taking the suite from 54 to 60, every one probed by breaking
 the source.
 
-Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE — see the first item under
+Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE** — see the first item under
 Pre-submission blockers, which records what it found and what it produced:
 `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a linter that
 became the fourth commit gate, and an unfrozen `SPEC.md` with its spiral turns
 recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT POINT,
 failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list
-was ticked by the reconciliation.**
+was ticked by the reconciliation.
 
 Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix —
 step 1 of the agreed order — is also done; the recommendations section was then
@@ -403,14 +403,14 @@ this session's own — repeatedly unreliable — headless-Chrome verification
 attempts).
 
 **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped
-(D-063): the hint swings one line, 22.4px, once per run, in the same synchronous
+(D-063):** the hint swings one line, 22.4px, once per run, in the same synchronous
 block as R27's `scrollIntoView` and a six-card staggered entrance, so it is
 masked; reserving the tallest message would park 67px of permanent blank space
 on a phone to fix something nobody can see. The same investigation found that
 `scripts/debug-recs.js` no longer survives a run below the rating threshold —
 its button workaround was complete in 96158b1 and R16 (885a6a5) later added
 grid-clearing to the same branch — left unfixed and documented in the file
-itself.**
+itself.
 
 **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST
 UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus
@@ -424,11 +424,11 @@ Claude's Safari advice was wrong first time and the user caught it; so was its
 claim that the request "lands on the 404 handler" — there is no 404 handler, and
 Express's finalhandler answers it (step 4).
 
-**SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE. Step 6 — pre-submission evidence,
+**SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE.** Step 6 — pre-submission evidence,
 registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS
 WRITTEN, and it is now done as well: every checkbox under Pre-submission
 blockers is ticked, the final merge included. The top of this entry is the
-current state.**
+current state.
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -662,8 +662,9 @@ current state.**
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` **on
   `anthropic/claude-sonnet-5` — the one feature not on the cheaper tier
   (D-053)** (2–3 sentences, ~35–60 words, characterise the viewer — not recite
-  ratings — in plain spoken English rather than review prose; v5–v7 changed the
-  REGISTER only.
+  ratings — in plain spoken English rather than review prose), `max_tokens`
+  180, server-side sentence-aware truncation (450-char ceiling) + markdown
+  strip, explicit-trigger. v5–v7 changed the REGISTER only.
   - **v7 is the one that matters as a lesson: v5 and v6 tried to get there by
     BANNING phrases and the register did not move — negative instructions went
     16 → 30 → 37 across the chain while worked examples of the target voice
@@ -690,9 +691,7 @@ current state.**
     moved back down a tier, move the prompt back to v6 with it, because v7's
     four examples dilute the rules underneath them on a small model.
     `temperature: 0.85` and real few-shot (example TURNS rather than prose) were
-    never needed and stay untried.), `max_tokens` 180, server-side
-    sentence-aware truncation (450-char ceiling) + markdown strip,
-    explicit-trigger.
+    never needed and stay untried.
 * AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
   both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from the first commit carrying any project
@@ -786,10 +785,10 @@ current state.**
     the branch itself say so, including that the paragraph above that
     `setTimeout` is no longer a promise it works.
 
-    **The generalisable bit: a test double that patches around ONE observable
+    **The generalisable bit:** a test double that patches around ONE observable
     consequence of an app branch cannot notice when that branch grows another —
     nothing fails and nothing warns, the double just quietly covers less than
-    its comment claims.**
+    its comment claims.
 
   - **It starts every page load DISARMED and is armed only by calling
     `debugRecs()`.** That flag is not decoration: the fetch patch installs the
@@ -1056,10 +1055,10 @@ and stay as written.
     with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
     same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
 * **Taste verdict section — DONE** (2026-09-07). **Three later changes are NOT
-  described in this bullet and are in step 4b instead: the banner's ring gained a
+  described in this bullet and are in step 4b instead:** the banner's ring gained a
   travelling glint (2026-09-12), that glint speeds up and brightens while a
   verdict generates, and "New verdict" is now shown DISABLED when the feature is
-  locked rather than hidden.**
+  locked rather than hidden.
   - "New verdict" gets the same busy state as "Get recommendations": disabled,
     spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
     `:hover:not(:disabled)`. Both buttons lock their width for the duration —
@@ -2411,7 +2410,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      gentler ease-out) and the verdict glint (`linear`) — **and the answer was
      still to inline each with a why-comment rather than mint tokens.**
 
-     (COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number
+     COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number
      of animations that could plausibly have used `--ease` and deliberately do
      not. They are the verdict glint (`sheen`, `linear`), the ranked list's
      entrance (`card-enter`, its own cubic-bezier), the trigger sparkle
@@ -2423,7 +2422,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      noise, and a caret blinks rather than fades, which is what `step-end`
      means. **The caret is not in the original exclusion list because it did not
      exist when this was written — it arrived with the typing effect (D-057).**
-     Still four as of 2026-09-12.)
+     Still four as of 2026-09-12.
 
      `--ease-out` is the name that will not work: `--ease` IS an ease-out, just
      a violently front-loaded one, so a token by that name would read as a
@@ -3463,10 +3462,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      duration swap D-055 prescribed, because changing a CSS animation's duration
      makes the dash JUMP. See D-056 before touching it.
 
-     **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
+     **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK.** Every mechanism it
      names has since been REPLACED — none of the following describes the code
      today. It is kept only because its instruction to measure first is what
-     unlocked the item.**
+     unlocked the item.
 
      *It read: the border should drift slowly, and IT ALREADY DOES — check
      before building (found 2026-09-11 while working R15). `.verdict` carried
@@ -3492,10 +3491,10 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      become a hard-edged focus-ring lookalike.
 
      **>>> EVERYTHING FROM HERE TO THE END OF THIS ITEM IS A HISTORICAL RECORD
-     OF THE 2026-09-11 SESSION. It describes mechanisms that were built and then
+     OF THE 2026-09-11 SESSION.** It describes mechanisms that were built and then
      REPLACED on 2026-09-12 — in particular a CONIC GRADIENT, which is not in
      the code. The shipped design is described at the TOP of this item. Kept
-     because the dead ends are expensive to rediscover. <<<**
+     because the dead ends are expensive to rediscover. <<<
 
      **MECHANISM DONE 2026-09-11 (polish was still open at the time), and — as
      this item demanded — by measuring first.** The cause was the CURVE, not the
@@ -3858,12 +3857,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
 
-   **>>> THIS STEP IS DONE — 2026-09-14. Every checkbox under "Pre-submission
+   **>>> THIS STEP IS DONE — 2026-09-14.** Every checkbox under "Pre-submission
    blockers" is now ticked, the final `draft` → `main` merge included: it was
    authorised, performed, and followed the same day by a twenty-second merge
    carrying one defect fix (the Security-tab image paths). What follows is that
    instruction block corrected to the finished state; the recipes it points at
-   are still the working ones. <<<**
+   are still the working ones. <<<
 
    The checklist is under "Pre-submission blockers" below. The resilience
    screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states.
