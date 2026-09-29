@@ -293,179 +293,201 @@ ticked by the reconciliation.** Earlier: ranked-list backlog **COMPLETE — all 
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone, plus the defect merges made since it
-  (ground 2 of the merge rule under Version Control Workflow — no count here on
-  purpose, since that set is still open).
-  The final PLANNED merge closed the
-  evidence and documentation work (2026-09-14); a **twenty-second followed the
-  same day** with one defect fix, a **twenty-third on 2026-09-15** carrying the
-  documentation-accuracy work, a **twenty-fourth the same day** carrying the
-  sweep that followed it, a **twenty-fifth** carrying the merge rule itself, a
-  **twenty-sixth on 2026-09-16** carrying the accuracy work that followed it,
-  a **twenty-seventh on 2026-09-17** carrying two false claims and the
-  legibility work around them, a **twenty-eighth on 2026-09-19** carrying a
-  visible UI defect plus the largest accuracy sweep the project had run at that
-  point, and a **twenty-ninth on 2026-09-21** carrying nineteen claims that
-  were false on `main` — all eight described at the end of this bullet.
-  Before those, the milestone was
-  the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before that the
-  front-end overhaul completing (2026-09-12, `d47c960`), which is where the UI
-  steps closed. **Twenty-nine**
-  merges;
-  `git log --merges --oneline main` is the source of truth, do NOT increment a
-  number in a doc without checking it (that is exactly how PROCESS.md drifted to
-  a wrong count once already). The same number appears in `docs/PROCESS.md` §1 and
-  in `docs/MERGE-READINESS.md` § 5 — update all three.
-  `draft` continues day to day.
-  **WHY THIS ONE WAS WRITTEN BEFORE THE MERGE RATHER THAN AFTER, since it breaks
-  the rule directly above it.** For the first twenty merges the order was: merge,
-  then a later commit corrects the figures, then a subsequent merge carries the
-  correction to `main`. That works only while more merges are coming. For a merge
-  intended as the last, it does not: the correcting commit would land on `draft`
-  after `main` already had the merge, so `main` — the branch a reader lands on —
-  would permanently show a count one short and an unticked checkbox, and fixing
-  that would need yet another merge, which is the outcome this ordering exists to
-  avoid. So the count and the checkbox were written and pushed to `draft` first,
-  deliberately, on the user's explicit instruction, with the merge following
-  within minutes. Anyone reading this between the two sees a figure that is true
-  of the very next commit rather than of the current one. That is the trade, and
-  it was made knowingly.
-  **AND A TWENTY-SECOND MERGE FOLLOWED ANYWAY (2026-09-14), which is the exact
-  outcome the paragraph above says this ordering exists to avoid.** It was not a
-  drifted figure or a missed checkbox — those were both correct. The user found
-  `docs/SECURITY.md` rendering with three broken images and six 404 links on
-  GitHub's **Security tab**, which resolves that file's relative paths against the
-  repository ROOT while the blob view resolves them against `docs/` (rule 8 under
-  Markdown Authoring Rules). A defect on the branch a reader lands on is worth a
-  merge, so one was made. The count and this note were again written and pushed to
-  `draft` FIRST, on the user's instruction, for the same reason as the last time.
-  **"Final" always meant the last PLANNED merge and never a promise that none
-  would follow.** That distinction was written into the merge message, into the
-  checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why nothing
-  here had to be retracted — only extended.
-  **AND A TWENTY-THIRD FOLLOWED ON 2026-09-15**, for the same reason one layer up.
-  The user found `README.md` describing another document's verdict sixteen hours
-  after that verdict changed, and found it by accident — so the question stopped
-  being "is this claim stale" and became "how many others are". What that merge
-  carries is the answer: a fifth commit gate, `npm run check-claims`, which
-  re-resolves every claim that points at something and is proved to fire against
-  a probe; ten defects it and the sweeps around it found, including two
-  self-contradictions inside single paragraphs, a rule that broke itself three
-  times over, and a list this file's own author had shortened while raising its
-  count; and an audit of every enumeration in the project against its source of
-  truth. The count was again written to `draft` first, on the user's instruction.
-  **AND A TWENTY-FOURTH THE SAME DAY**, which is the twenty-third's own method
-  turned on the classes it had not covered. The gate resolves a claim by looking
-  up the thing the claim NAMES. A uniqueness claim names one thing and asserts
-  something about everything else, so its falsifier is never the item in the
-  sentence — "the only capture in the set showing X" is disproved by some OTHER
-  capture, which the sentence does not mention — and a resolver that follows the
-  addresses in the text walks straight past it however well it resolves them.
-  **Such a claim does point at something, and it is checkable** — it WAS
-  checked, by opening the other frames. Checking it just costs an enumeration
-  of the set plus a predicate the gate cannot evaluate, where a resolvable
-  claim costs one lookup. (The merge message on `main` says it "points at
-  nothing"; that is wrong, and the message is left as written, the way
-  `619ed64` was.)
-  The sweep that this merge carries went at those by hand: ten
-  self-referential "the comment says so" pointers resolved against the comments
-  they name (all ten held), every `§` reference and all 86 internal markdown
-  links re-resolved (all clean), and three real defects fixed — a capture called
-  the only one showing the site header when a second one does too, a count of
-  recipes given as four in one file and three in another, and a coverage claim
-  that credited five recipes with a warning only three carry. **Only the first is
-  a uniqueness claim**; the second is a cross-file contradiction, where both
-  figures resolve fine and nothing had ever compared two files on the same
-  subject, and the third is a coverage claim, checkable in text by reading the
-  five recipes. The first and the third were found by opening the other frames
-  and reading the other recipes, which is the only thing that can find them. The count was written to `draft`
-  first, on the user's instruction, for the fourth time running.
-  **AND A TWENTY-FIFTH, still 2026-09-15**, whose subject is the merge rule that
-  governs all of them. The user asked whether the run of non-milestone merges
-  since `0cdc4ec` meant the "settled milestone only" rule had quietly died.
-  Measured rather than accepted: merges 1–21 are all completed work, and 22–24
-  each cleared a SECOND criterion — a defect already published on `main` — stated
-  at `94f5325` before it was used. The practice had been consistent; the RULE
-  TEXT was what was out of date. So the rule now names its grounds (D-073): a
-  settled milestone, a published defect, and one close-out sync when the work is
-  declared finished. **What triggered the merge is not the rule edit but
-  `50d5670`:** `SPEC.md` told a reader that EACH merge follows a milestone,
-  `README.md` and `render.yaml` said milestones only, and the same repository's
-  `git log --merges` showed three that were not. **Claude classified the whole
-  `draft` stack by its first commit and never re-ran the test as the stack grew
-  to contain a real defect fix — the user caught that too.**
-  **AND A TWENTY-SIXTH ON 2026-09-16.** The user drove it by asking, one
-  question at a time, whether things this repository asserts are actually true:
-  whether `docs/ACCEPTANCE.md` really carries the caveats `README.md` advertised
-  (it does not — all eight criteria read satisfied), which of the twenty-four
-  markdown enumerations are short, what every numeric figure resolves to, and
-  whether the Project layout tree accounts for all 100 tracked files. **The
-  useful half of the answer is what it found in the questions Claude had already
-  answered once:** a first numeric pass filtered 3,681 figures through an
-  allowlist of sixty nouns and therefore could not see "the three real scripts/
-  tools" at all, and a uniqueness claim planted while consolidating duplicate
-  descriptions was false forty lines from where it was written. Eleven defects,
-  and D-074 for the one real decision underneath them.
-  **AND A TWENTY-SEVENTH ON 2026-09-17.** Two claims on `main` were false, which
-  is the ground it was merged on. `docs/RESILIENCE.md` called RS-12 "the one
-  frame in this document where the app genuinely cannot say what broke" while
-  THREE frames show that same generic `500` message, and called RS-14 "the only
-  frame where a failure could have cost the user something" when `RS-10` is the
-  other one. **Each was contradicted inside its own section** — 22 lines later
-  and 28 lines later, by sentences that had been sitting there the whole time.
-  Riding along: thirty navigation links in `README.md`, where exactly one
-  in-page link had existed; Supabase added to the "called server-side"
-  enumeration, which named two of the three dependencies whose recipes the same
-  sentence then explained; four honesty framings that called correct behaviour a
-  flaw, the worst of them apologising for the generic 500 handler, which is the
-  FIX that shooting `RS-7` produced; and a legibility pass on glyphs the prose
-  only showed instead of naming.
-  **The pattern across every one of them is one sentence:** a check can be sound
-  and its BOUNDARY wrong — the wrong render context (22), the wrong file types
-  and the wrong direction of reading (23), a claim whose falsifier it never names
-  (24), a test applied once and not re-applied as its subject changed (25), and
-  a filter whose vocabulary decides what it can find (26) —
-  and no amount of care inside the boundary finds that.
-  **The twenty-seventh is the first that does NOT fit that sentence, and the
-  difference is worth keeping.** Its sweep had the right boundary: `8271443`
-  found every site, quoted two of them verbatim, and cleared them anyway — on
-  a criterion ("anchored by a preceding verb or preposition") read off the
-  SOURCE, where the backticks are visible, rather than the render, where they
-  are gone. A boundary can be right and the test inside it still wrong.
-  **AND A TWENTY-EIGHTH ON 2026-09-19.** The first since the twenty-second whose
-  ground includes a defect a reader could SEE rather than read: the ranked
-  list's score badges were out of line by **28.1px** on the deployed site
-  wherever a film had no TMDB rating, because `.score-block` shrink-wrapped to
-  its widest child and left-aligned inside it (D-076). The one-line fix the user
-  tried in devtools was built and REJECTED on measurement — it mirrors the
-  defect into card mode, where the block is anchored to the opposite edge — so
-  it shipped as two rules. Riding along: the linking rule applied to twelve
-  files (D-075), an audit of all 880 hrefs and embedded images, the AI call
-  log's token split digit-grouped, and the largest accuracy sweep the project
-  had run at that point.
-  **What that sweep says about the previous twelve is the part worth keeping.**
-  Fourteen defects, and the counts everyone re-checks — merges, tests, gates,
-  captures, models — were right in every file. Every defect sat in a claim with
-  no resolvable referent: a value changed in source with three prose
-  descriptions left behind (a 2px/1.5px divider that had survived eight days of
-  sweeps), a `README.md` cost figure its own embedded screenshot disproved, three
-  enumerations complete when written and short once the project grew under them,
-  and ONE ENUMERABLE SET DESCRIBED FOUR MUTUALLY CONTRADICTORY WAYS ACROSS FOUR
-  FILES. **So the sentence for this one is not about boundaries at all: attention
-  had been going where verification was already cheap.** A count is safest when
-  it names its members, and several now do. Method written up in
-  `docs/PROCESS.md`.
-  **AND A TWENTY-NINTH ON 2026-09-21.** Nineteen claims false on `main`, and
-  the useful half is what they have in common: fourteen of them describe a
-  DIFFERENT item's status, and six of those are contradicted by `main` within
-  a few lines of the sentence making the claim. **So the sentence for this one
-  is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
-  one of the six is correct about itself and wrong about its neighbour, which
-  is the 2026-09-19 cross-file finding one level down. The other five are
-  drifted figures, and two of those are self-indexes — a document counting
-  its own contents, which no gate can resolve because the referent is the file
-  itself. `check-claims` was green throughout, correctly: none of the nineteen
-  points at anything it can look up.
+* `main` is at the latest settled milestone, plus the defect merges made since
+  it (ground 2 of the merge rule under Version Control Workflow — no count here
+  on purpose, since that set is still open).
+  - The final PLANNED merge closed the evidence and documentation work
+    (2026-09-14); a **twenty-second followed the same day** with one defect fix,
+    a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
+    **twenty-fourth the same day** carrying the sweep that followed it, a
+    **twenty-fifth** carrying the merge rule itself, a **twenty-sixth on
+    2026-09-16** carrying the accuracy work that followed it, a **twenty-seventh
+    on 2026-09-17** carrying two false claims and the legibility work around
+    them, a **twenty-eighth on 2026-09-19** carrying a visible UI defect plus
+    the largest accuracy sweep the project had run at that point, and a
+    **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
+    `main` — all eight described at the end of this bullet. Before those, the
+    milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
+    that the front-end overhaul completing (2026-09-12, `d47c960`), which is
+    where the UI steps closed.
+
+  - **Twenty-nine** merges; `git log --merges --oneline main` is the source of
+    truth, do NOT increment a number in a doc without checking it (that is
+    exactly how PROCESS.md drifted to a wrong count once already). The same
+    number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
+    — update all three. `draft` continues day to day.
+
+  - **WHY THIS ONE WAS WRITTEN BEFORE THE MERGE RATHER THAN AFTER, since it
+    breaks the rule directly above it.** For the first twenty merges the order
+    was: merge, then a later commit corrects the figures, then a subsequent
+    merge carries the correction to `main`. That works only while more merges
+    are coming. For a merge intended as the last, it does not: the correcting
+    commit would land on `draft` after `main` already had the merge, so `main` —
+    the branch a reader lands on — would permanently show a count one short and
+    an unticked checkbox, and fixing that would need yet another merge, which is
+    the outcome this ordering exists to avoid. So the count and the checkbox
+    were written and pushed to `draft` first, deliberately, on the user's
+    explicit instruction, with the merge following within minutes. Anyone
+    reading this between the two sees a figure that is true of the very next
+    commit rather than of the current one. That is the trade, and it was made
+    knowingly.
+
+  - **AND A TWENTY-SECOND MERGE FOLLOWED ANYWAY (2026-09-14), which is the exact
+    outcome the paragraph above says this ordering exists to avoid.** It was not
+    a drifted figure or a missed checkbox — those were both correct. The user
+    found `docs/SECURITY.md` rendering with three broken images and six 404
+    links on GitHub's **Security tab**, which resolves that file's relative
+    paths against the repository ROOT while the blob view resolves them against
+    `docs/` (rule 8 under Markdown Authoring Rules). A defect on the branch a
+    reader lands on is worth a merge, so one was made. The count and this note
+    were again written and pushed to `draft` FIRST, on the user's instruction,
+    for the same reason as the last time.
+
+    **"Final" always meant the last PLANNED merge and never a promise that none
+    would follow.** That distinction was written into the merge message, into
+    the checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why
+    nothing here had to be retracted — only extended.
+
+  - **AND A TWENTY-THIRD FOLLOWED ON 2026-09-15**, for the same reason one layer
+    up. The user found `README.md` describing another document's verdict sixteen
+    hours after that verdict changed, and found it by accident — so the question
+    stopped being "is this claim stale" and became "how many others are". What
+    that merge carries is the answer: a fifth commit gate,
+    `npm run check-claims`, which re-resolves every claim that points at
+    something and is proved to fire against a probe; ten defects it and the
+    sweeps around it found, including two self-contradictions inside single
+    paragraphs, a rule that broke itself three times over, and a list this
+    file's own author had shortened while raising its count; and an audit of
+    every enumeration in the project against its source of truth. The count was
+    again written to `draft` first, on the user's instruction.
+
+  - **AND A TWENTY-FOURTH THE SAME DAY**, which is the twenty-third's own method
+    turned on the classes it had not covered. The gate resolves a claim by
+    looking up the thing the claim NAMES. A uniqueness claim names one thing and
+    asserts something about everything else, so its falsifier is never the item
+    in the sentence — "the only capture in the set showing X" is disproved by
+    some OTHER capture, which the sentence does not mention — and a resolver
+    that follows the addresses in the text walks straight past it however well
+    it resolves them. **Such a claim does point at something, and it is
+    checkable** — it WAS checked, by opening the other frames. Checking it just
+    costs an enumeration of the set plus a predicate the gate cannot evaluate,
+    where a resolvable claim costs one lookup. (The merge message on `main` says
+    it "points at nothing"; that is wrong, and the message is left as written,
+    the way `619ed64` was.)
+
+    The sweep that this merge carries went at those by hand: ten
+    self-referential "the comment says so" pointers resolved against the
+    comments they name (all ten held), every `§` reference and all 86 internal
+    markdown links re-resolved (all clean), and three real defects fixed — a
+    capture called the only one showing the site header when a second one does
+    too, a count of recipes given as four in one file and three in another, and
+    a coverage claim that credited five recipes with a warning only three carry.
+    **Only the first is a uniqueness claim**; the second is a cross-file
+    contradiction, where both figures resolve fine and nothing had ever compared
+    two files on the same subject, and the third is a coverage claim, checkable
+    in text by reading the five recipes. The first and the third were found by
+    opening the other frames and reading the other recipes, which is the only
+    thing that can find them. The count was written to `draft` first, on the
+    user's instruction, for the fourth time running.
+
+  - **AND A TWENTY-FIFTH, still 2026-09-15**, whose subject is the merge rule
+    that governs all of them. The user asked whether the run of non-milestone
+    merges since `0cdc4ec` meant the "settled milestone only" rule had quietly
+    died. Measured rather than accepted: merges 1–21 are all completed work, and
+    22–24 each cleared a SECOND criterion — a defect already published on `main`
+    — stated at `94f5325` before it was used. The practice had been consistent;
+    the RULE TEXT was what was out of date. So the rule now names its grounds
+    (D-073): a settled milestone, a published defect, and one close-out sync
+    when the work is declared finished.
+
+    **What triggered the merge is not the rule edit but `50d5670`:** `SPEC.md`
+    told a reader that EACH merge follows a milestone, `README.md` and
+    `render.yaml` said milestones only, and the same repository's
+    `git log --merges` showed three that were not. **Claude classified the whole
+    `draft` stack by its first commit and never re-ran the test as the stack
+    grew to contain a real defect fix — the user caught that too.**
+
+  - **AND A TWENTY-SIXTH ON 2026-09-16.** The user drove it by asking, one
+    question at a time, whether things this repository asserts are actually
+    true: whether `docs/ACCEPTANCE.md` really carries the caveats `README.md`
+    advertised (it does not — all eight criteria read satisfied), which of the
+    twenty-four markdown enumerations are short, what every numeric figure
+    resolves to, and whether the Project layout tree accounts for all 100
+    tracked files. **The useful half of the answer is what it found in the
+    questions Claude had already answered once:** a first numeric pass filtered
+    3,681 figures through an allowlist of sixty nouns and therefore could not
+    see "the three real scripts/ tools" at all, and a uniqueness claim planted
+    while consolidating duplicate descriptions was false forty lines from where
+    it was written. Eleven defects, and D-074 for the one real decision
+    underneath them.
+
+  - **AND A TWENTY-SEVENTH ON 2026-09-17.** Two claims on `main` were false,
+    which is the ground it was merged on. `docs/RESILIENCE.md` called RS-12 "the
+    one frame in this document where the app genuinely cannot say what broke"
+    while THREE frames show that same generic `500` message, and called RS-14
+    "the only frame where a failure could have cost the user something" when
+    `RS-10` is the other one. **Each was contradicted inside its own section** —
+    22 lines later and 28 lines later, by sentences that had been sitting there
+    the whole time.
+
+    Riding along: thirty navigation links in `README.md`, where exactly one
+    in-page link had existed; Supabase added to the "called server-side"
+    enumeration, which named two of the three dependencies whose recipes the
+    same sentence then explained; four honesty framings that called correct
+    behaviour a flaw, the worst of them apologising for the generic 500 handler,
+    which is the FIX that shooting `RS-7` produced; and a legibility pass on
+    glyphs the prose only showed instead of naming.
+
+  - **The pattern across every one of them is one sentence:** a check can be
+    sound and its BOUNDARY wrong — the wrong render context (22), the wrong file
+    types and the wrong direction of reading (23), a claim whose falsifier it
+    never names (24), a test applied once and not re-applied as its subject
+    changed (25), and a filter whose vocabulary decides what it can find (26) —
+    and no amount of care inside the boundary finds that.
+
+    **The twenty-seventh is the first that does NOT fit that sentence, and the
+    difference is worth keeping.** Its sweep had the right boundary: `8271443`
+    found every site, quoted two of them verbatim, and cleared them anyway — on
+    a criterion ("anchored by a preceding verb or preposition") read off the
+    SOURCE, where the backticks are visible, rather than the render, where they
+    are gone. A boundary can be right and the test inside it still wrong.
+
+  - **AND A TWENTY-EIGHTH ON 2026-09-19.** The first since the twenty-second
+    whose ground includes a defect a reader could SEE rather than read: the
+    ranked list's score badges were out of line by **28.1px** on the deployed
+    site wherever a film had no TMDB rating, because `.score-block`
+    shrink-wrapped to its widest child and left-aligned inside it (D-076). The
+    one-line fix the user tried in devtools was built and REJECTED on
+    measurement — it mirrors the defect into card mode, where the block is
+    anchored to the opposite edge — so it shipped as two rules. Riding along:
+    the linking rule applied to twelve files (D-075), an audit of all 880 hrefs
+    and embedded images, the AI call log's token split digit-grouped, and the
+    largest accuracy sweep the project had run at that point.
+
+    **What that sweep says about the previous twelve is the part worth
+    keeping.** Fourteen defects, and the counts everyone re-checks — merges,
+    tests, gates, captures, models — were right in every file. Every defect sat
+    in a claim with no resolvable referent: a value changed in source with three
+    prose descriptions left behind (a 2px/1.5px divider that had survived eight
+    days of sweeps), a `README.md` cost figure its own embedded screenshot
+    disproved, three enumerations complete when written and short once the
+    project grew under them, and ONE ENUMERABLE SET DESCRIBED FOUR MUTUALLY
+    CONTRADICTORY WAYS ACROSS FOUR FILES. **So the sentence for this one is not
+    about boundaries at all: attention had been going where verification was
+    already cheap.** A count is safest when it names its members, and several
+    now do. Method written up in `docs/PROCESS.md`.
+
+  - **AND A TWENTY-NINTH ON 2026-09-21.** Nineteen claims false on `main`, and
+    the useful half is what they have in common: fourteen of them describe a
+    DIFFERENT item's status, and six of those are contradicted by `main` within
+    a few lines of the sentence making the claim. **So the sentence for this one
+    is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
+    one of the six is correct about itself and wrong about its neighbour, which
+    is the 2026-09-19 cross-file finding one level down. The other five are
+    drifted figures, and two of those are self-indexes — a document counting its
+    own contents, which no gate can resolve because the referent is the file
+    itself. `check-claims` was green throughout, correctly: none of the nineteen
+    points at anything it can look up.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
