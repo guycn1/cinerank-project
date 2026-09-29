@@ -37,8 +37,8 @@ larger one on 2026-09-13, the second the following day.
 
 * **All sixteen resilience states are captured** — twenty-four frames, since
   eight states need a second one: five split the claim between the page and
-  the audit trail, `RS-10` splits it across time because the state is a race,
-  `RS-11` shows one rule on both AI features, and `RS-14` pairs the failed
+  the audit trail, [`RS-10`](RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) splits it across time because the state is a race,
+  [`RS-11`](RESILIENCE.md#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) shows one rule on both AI features, and [`RS-14`](RESILIENCE.md#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works) pairs the failed
   save with the retry that works. They are
   embedded and analysed in [`RESILIENCE.md`](RESILIENCE.md), grouped by which
   dependency failed and each measured against a stated definition of "graceful".
@@ -112,7 +112,7 @@ verification fails while looking rigorous, and each is answered concretely:
   claim to cover it. A test that does not fail when you break the thing it tests
   is not a test. The same probing was done for
   [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
-  log-advertisement invariant (three ways) and R5's dual-failure stderr sink
+  log-advertisement invariant (three ways) and [R5](../CLAUDE.md#group-a--functional-bugs)'s dual-failure stderr sink
   (both ways). **Three more tests were added on 2026-09-13 while walking
   [§ 7.1](../SPEC.md#71-must-pass-before-submission), and each was probed the
   same way**: the search happy path (break the poster guard, then the year
@@ -147,7 +147,7 @@ than by declaring.** There was no linter in the project until 2026-09-13.
 
 `npm run lint` runs ESLint 10 over all 26 JavaScript files across four
 environments — Node ES modules, the browser ES module, and two browser
-*classic* scripts kept in `scripts/` that the app never serves: the
+*classic* scripts kept in [`scripts/`](../scripts/) that the app never serves: the
 [console debug harness](../scripts/debug-recs.js), pasted into a console, and
 the [layout probe](../scripts/layout-probe.js) that `npm run layout-check`
 injects into the pages it measures. **Current state: zero errors.**
@@ -204,9 +204,9 @@ and each tally arm exists because of a specific documented finding — the owned
 filter that was reading only rated films
 ([R2](../CLAUDE.md#group-a--functional-bugs)),
 the verification fallback that was overclaimed and then measured
-(R6/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
+([R6](../CLAUDE.md#group-b--the-strength-of-the-verified-against-tmdb-claim)/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the five distinct reasons a run can come back empty, one of which was
-reported to the user as a different reason entirely until it was fixed (R28).
+reported to the user as a different reason entirely until it was fixed ([R28](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
 Extracting them into helpers would lower the number without removing a single
 branch, which is metric-gaming rather than simplification — the hygiene
 equivalent of the verification theatre

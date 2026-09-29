@@ -17,14 +17,14 @@ take on trust.
 
 ## `rs-*` — resilience and state
 
-Recipes for reproducing each of these are in [`CLAUDE.md`](../../CLAUDE.md) as
+Recipes for reproducing each of these are in [`CLAUDE.md` § Resilience screenshots](../../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) as
 `RS-1` … `RS-16`. Eight states need two frames, on four different axes. For
-five of them — `RS-3`, `RS-4`, `RS-5`, `RS-9` and `RS-15` — the claim is
+five of them — [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) — the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
 split across time, because the state is a race and a single still cannot show
-one; `RS-11` shows one rule holding on BOTH AI features, because either alone
-reads as incidental; and `RS-14` pairs the failed save with the retry that
+one; [`RS-11`](../RESILIENCE.md#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) shows one rule holding on BOTH AI features, because either alone
+reads as incidental; and [`RS-14`](../RESILIENCE.md#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works) pairs the failed save with the retry that
 works, because recovery is the claim a single error frame cannot make.
 
 | File | State | What it establishes |

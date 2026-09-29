@@ -150,7 +150,7 @@ something. Four places where it visibly did:
   [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
-  in advance so it did not have to be argued each time. R18 closed as won't-fix
+  in advance so it did not have to be argued each time. [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) closed as won't-fix
   on measurement for the same reason.
 * **Naming that reader as a stakeholder changed a whole class of work from
   cosmetic to blocking.** Both long markdown files were found rendering wrong on

@@ -272,7 +272,7 @@ exercised, repeatedly, and is traceable in the log:
 * **The acceptance bar.** What "done" means, and when a thing is good enough to
   stop.
   [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
-  closed against a ~350px target the user set; R18 closed as won't-fix once
+  closed against a ~350px target the user set; [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) closed as won't-fix once
   measured.
 * **The merge decision.** Every `draft` to `main` merge required explicit
   confirmation. None was automatic.
@@ -342,7 +342,7 @@ still declares what the call cost.
   invented title, not a rare one. The lookup keeps TMDB's best result when the
   titles do not match exactly, so it proves the card describes a real film
   rather than proving it is the film the model meant: a trade taken
-  deliberately, with the numbers, in D-054.
+  deliberately, with the numbers, in [D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened).
 - **Structured output, not prose parsing.** Recommendations must be a JSON
   array; `parseModelJson()` tolerates exactly one markdown fence and nothing
   looser.
@@ -495,7 +495,7 @@ claims that merely **characterise** something, and that is the half the
 
 **Be precise about what was invisible and what was merely unread**, because the
 honest version is more useful than the flattering one. Only the
-`MERGE-READINESS.md` sentence was strictly unfalsifiable from inside its own
+[`MERGE-READINESS.md`](MERGE-READINESS.md) sentence was strictly unfalsifiable from inside its own
 file — it names no member of the set, so nothing in that document could
 contradict it. The other three were falsifiable in principle and went unread in
 practice for the same reason: checking a sentence that characterises an

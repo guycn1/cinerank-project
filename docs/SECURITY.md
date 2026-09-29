@@ -362,7 +362,7 @@ Three independent mitigations now:
   the route that served it were removed before submission, and the removal was
   verified live rather than by reading the diff: `/debug-recs.js` now answers 404,
   the page answers 200, and the served HTML contains no reference to it. The file
-  stays in `scripts/`, which is outside the static root, so nothing serves it and
+  stays in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/), which is outside the static root, so nothing serves it and
   it can only be used by pasting it into a console deliberately.
 
 The first two mitigations are now redundant and are kept regardless. They cost
@@ -387,11 +387,11 @@ replaced them.
 
 **Delivered:** the debug harness is unloaded — the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the
-file itself kept in `scripts/` where nothing serves it. And the prompt-injection
+file itself kept in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/) where nothing serves it. And the prompt-injection
 evidence, which was the live proof of [ASI01](#asi01--agent-goal-hijack)'s
 mitigations. Five frames,
 [`docs/screenshots/pi-1` … `pi-5`](https://github.com/guycn1/cinerank-project/blob/main/docs/screenshots/README.md#pi---prompt-injection),
-analysed under [ASI01](#asi01--agent-goal-hijack) above. It is deliberately
+analysed under ASI01 above. It is deliberately
 recorded there rather than here, next to the claim it substantiates, so a reader
 meets the mitigation and its proof together rather than having to connect two
 sections.

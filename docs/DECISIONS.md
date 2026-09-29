@@ -18,7 +18,7 @@ entry that cites it may have moved the figure or the rule.
 taken on by the user with one condition: do not chase it if the fix risks
 breaking anything.*
 
-**The defect is Chromium's, and it is real at real widths.** D-080 still treated
+**The defect is Chromium's, and it is real at real widths.** [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them) still treated
 "Spider-Man:" as one eleven-grapheme word, so it put soft hyphens on both sides
 of the hyphen. The browser already has a break opportunity right after a hard
 hyphen. When the line breaks there, Chrome and Edge 154 take the soft hyphen
@@ -43,7 +43,7 @@ beside a dash. In Chrome, Edge and Firefox it gave:
   at the same place and drew a stray hyphen first.
 
 **Built, then verified in the running app in all three browsers**, with the
-same harness and canned verdict as D-080. The committed code put a soft hyphen
+same harness and canned verdict as [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them). The committed code put a soft hyphen
 beside the dash in the verdict's "SquarePants-level". With this change: 0 of
 those, and the other results unchanged, meaning 0 rule violations at 40 widths
 from 290px to 800px, no sideways scroll, no typing jumps, clean clipboard
@@ -142,7 +142,7 @@ grapheme-safe splitting. That emoji stands alone between spaces, so it is a one-
 word, and the 7-grapheme minimum means nothing is ever inserted next to it: the
 review would render correctly even if the grapheme bug returned. D-061's safety
 now matters only for an emoji inside a word of seven or more graphemes, which
-nothing in the seed list contains. The comment in `scripts/seed-demo.js` says
+nothing in the seed list contains. The comment in [`scripts/seed-demo.js`](../scripts/seed-demo.js) says
 so.
 
 **Traps.**
@@ -161,7 +161,7 @@ browser's default zoom, and they asked what `:root { font-size: 92%; }` would
 break.*
 
 **Nothing, structurally, because every text size here was already `rem` or
-`em`.** The only px `font-size` in `public/styles.css` is the header GitHub
+`em`.** The only px `font-size` in [`public/styles.css`](../public/styles.css) is the header GitHub
 icon, which is a graphic. Shrinking text can only free space, so no box
 overflows that did not before; every breakpoint is px and does not move; and
 the JavaScript measures live layout (the busy-button width lock, the
@@ -243,7 +243,7 @@ the ≥10.8px and ≥12.3px that entry and the stylesheet recorded. The type sca
 widens all three, to 10.8px, 11.6px and 13.1px. The live comment and the living
 log now carry the measured figures and the one-sided model.
 
-**The captures in `docs/screenshots/` predate this and show the old size.**
+**The captures in [`docs/screenshots/`](screenshots/) predate this and show the old size.**
 None of them argues anything about type size, so they stand.
 
 **Traps.**
@@ -253,7 +253,7 @@ None of them argues anything about type size, so they stand.
 - **A new `rem` inside the log table that sizes text, or a width text wraps
   in, must use the exempt form.** An `em` needs nothing, because it follows
   the exempt base.
-- **Changing `--type-scale` moves the D-030 clearances.** Re-measure the
+- **Changing `--type-scale` moves the [D-030](#d-030--three-digit-ranks-are-capped-not-documented-away) clearances.** Re-measure the
   620px row before raising it.
 
 ## D-078 · The README's Project layout is a connector tree that includes the root, and a route file carries its mount path, not its endpoints
@@ -273,26 +273,26 @@ description column, and every line fits 100 characters.
 **The root is in the tree.** Root files used to be listed in a paragraph above
 it, headed "deliberately not in the tree", so that their omission could be
 checked. Listing them makes the tree itself the check, and the paragraph is
-gone. `SPEC.md` and `CLAUDE.md` are pointed at rather than described, because
-the Documentation table already describes them, which is D-074's first rule.
+gone. [`SPEC.md`](../SPEC.md) and [`CLAUDE.md`](../CLAUDE.md) are pointed at rather than described, because
+the Documentation table already describes them, which is [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)'s first rule.
 
-**The fork was over `server/routes/`, `public/` and `test/`**, which had been
+**The fork was over [`server/routes/`](../server/routes/), [`public/`](../public/) and [`test/`](../test/)**, which had been
 summarised as one line each. Claude recommended expanding `public/` and
 `test/`, and giving each route file a purpose line rather than its endpoints:
 endpoints in the tree would be a second copy of
 [`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which `b486c10` had just
-made the README's single pointer for the API, and D-074 records two of nine
+made the [README](../README.md)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
 duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
 condition: short, and never the full list of eleven.** So each route file
 carries its mount path and a few verbs (`/api/movies — list, search, add, rate,
 remove`), while methods and sub-paths stay in § 4.5 alone. `/api/health` and
-`/api/config`, registered in `server/index.js` rather than in a route file,
+`/api/config`, registered in [`server/index.js`](../server/index.js) rather than in a route file,
 appear nowhere in the tree.
 
 **Trap.** Do not grow a route line into its method list. The mount path is
-stable, being where `server/index.js` mounts the router; the method list is
-what § 4.5 maintains, and a second copy of it is the drift D-074 measured.
+stable, being where [`server/index.js`](../server/index.js) mounts the router; the method list is
+what § 4.5 maintains, and a second copy of it is the drift [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) measured.
 
 ## D-077 · `/api/recommendations/history` is kept for good, and its coverage gap is closed with a test rather than a deletion
 
@@ -307,7 +307,7 @@ current.*
 **What it is.** A read-only `GET` returning the last 25 recommendation runs as
 JSON. No UI calls it. Its seven columns are a strict subset of what
 `GET /api/ai-log` returns, verified by diffing the two `.select()` calls rather
-than by trusting D-017's word for it: ai-log reads BOTH log tables, 60 rows
+than by trusting [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it)'s word for it: ai-log reads BOTH log tables, 60 rows
 each, twelve columns including `status`, `error_text`, `duration_ms` and the
 token split.
 
@@ -323,7 +323,7 @@ made it a candidate.
 **Deleting was the option that looked tidy and measured worst.** Five places
 described the endpoint when this was weighed (there are more now, this entry
 among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
-it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), D-017, and a
+it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it), and a
 checkbox in [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14). Two of those are awkward rather than trivial:
 `SPEC.md` is **annotated in place, never rewritten**, so the table row would have
 to stay and gain a note; and a decision entry is preserved, so D-017 would need a
@@ -352,7 +352,7 @@ reads badly. The measurement reversed it: the documentation cost of removal
 exceeded the code it removed, and the untested-route complaint was never an
 argument for deletion, only for a test.
 
-**One of D-017's three reasons has expired and the other two have not.** It
+**One of [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it)'s three reasons has expired and the other two have not.** It
 cited dangling-reference risk from a PRE-submission deletion; submission has
 happened, so that one is gone. The SPEC-table deviation and the "buys nothing
 on the grading axes" arguments both still hold.
@@ -372,7 +372,7 @@ left-aligned, so the badge hangs off whichever caption is widest:
 `No TMDB rating` measures 90.2px against `TMDB 7.1`'s 50.9px, and that
 difference IS the 28.1px. It matters for the same reason top-aligning the body
 did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
-neighbourhood in `public/styles.css`): this is a ranked LIST, and a column that
+neighbourhood in [`public/styles.css`](../public/styles.css)): this is a ranked LIST, and a column that
 does not line up is a column you cannot scan.
 
 **The user's worry, and why it was justified but misdirected.** The comments
@@ -419,7 +419,7 @@ set the same property to opposite values is exactly the shape a later tidy-up
 the third place.
 
 **How it was verified, and the one gap.** A static harness reproducing the real
-card markup against the real `public/styles.css`, measured in headless Chrome
+card markup against the real [`public/styles.css`](../public/styles.css), measured in headless Chrome
 with the webfonts explicitly loaded first — Fraunces 900 sets the badge's
 width, so a run that measures before the swap measures the wrong face. Each
 variant was measured at desktop and at card width, and card mode came back
@@ -446,12 +446,12 @@ for the stakeholder [`docs/FRAMING.md`](FRAMING.md#stakeholders) already names
 — the reader of the repository, who never runs the app and cannot ask a
 question. For that reader an unlinked "see D-046" is a number and a scroll bar.
 
-Applied to twelve files: this one, `README.md`, `SPEC.md` and the nine others
-under `docs/`. The largest single gain was here — 104 entry-to-entry
+Applied to twelve files: this one, [`README.md`](../README.md), [`SPEC.md`](../SPEC.md) and the nine others
+under [`docs/`](./). The largest single gain was here — 104 entry-to-entry
 cross-references made clickable in a file that had exactly one link in it.
 
 **The fork was the thirteenth file, and there were three options.** Apply it
-uniformly; exempt `CLAUDE.md`; or a narrow middle — link only its outbound
+uniformly; exempt [`CLAUDE.md`](../CLAUDE.md); or a narrow middle — link only its outbound
 document references and skip the intra-project identifiers.
 
 **Measured before arguing, which is what made the argument short:**
@@ -472,7 +472,7 @@ humans.
 
 **That framing was the weaker one, and the user's replacement is what settled
 it.** Audience does not separate the two files cleanly; both are read by both.
-What separates them is WHEN they are read: **`CLAUDE.md` is injected into
+What separates them is WHEN they are read: **[`CLAUDE.md`](../CLAUDE.md) is injected into
 context at the start of every session, and `docs/DECISIONS.md` is opened on
 demand.** A byte in `CLAUDE.md` is a permanent per-session cost paid whether
 anyone needs it; a byte here is paid only when someone reads this file. That is
@@ -482,7 +482,7 @@ never the reason. *(Exact lengths are left out on purpose: they move with every
 entry, and nothing in the argument needs them.)*
 
 **One input is recorded as unverified rather than as fact.** The user had read
-that Claude Code may skim past instructions in a `CLAUDE.md` beyond roughly 400
+that Claude Code may skim past instructions in a [`CLAUDE.md`](../CLAUDE.md) beyond roughly 400
 lines. Claude could not confirm any documented threshold and said so: nothing
 truncates at a line count, and the real effect is the soft degradation of recall
 across a long context rather than a cliff. The DIRECTION is sound and it is a
@@ -491,7 +491,7 @@ should not be cited from this entry as though it were established.
 
 **Both of us then declined the narrow version too**, which is the part that
 makes this a settled decision rather than a deferred one. The reader who would
-benefit lands on `README.md`, and `README.md` already deep-links into this
+benefit lands on [`README.md`](../README.md), and `README.md` already deep-links into this
 file's sections — so the marginal gain is thin even at 1.3%.
 
 **The other two exemptions were not contested and are recorded for
@@ -520,11 +520,11 @@ answer one question.*
 
 The section had drifted into doing three jobs at once: mapping the repository,
 describing each document, and asserting its own completeness. Each ruling below
-gives one of those back to whichever part of the README already does it better.
+gives one of those back to whichever part of the [README](../README.md) already does it better.
 
 **1. Per-file descriptions live in the Documentation table; the tree points at
 it.** Found as a contradiction: the "deliberately not in the tree" paragraph
-listed the nine `docs/*.md` as omissions a reader could verify, while the tree
+listed the nine [`docs/*.md`](./) as omissions a reader could verify, while the tree
 directly below listed all nine individually. **Claude resolved it the wrong way
 first** (`673702d`), striking them from the paragraph — which removed the
 contradiction and kept the thing that caused it: nine files each carrying TWO
@@ -542,7 +542,7 @@ evidence attached". Two of nine pairs, inside one session, while auditing for
 exactly this.
 
 **2. Containment is expressed by a node, never by a repeated prefix.** Six
-`scripts/*` entries each repeated the same nine characters; `db/` and `docs/`
+[`scripts/*`](../scripts/) entries each repeated the same nine characters; [`db/`](../db/) and [`docs/`](./)
 did the same with two each. Claude recommended nesting `scripts/` alone and
 flagged the cost — the tree would then carry two idioms chosen by size, nest
 when a directory has several children and inline the prefix when it has one or
@@ -552,7 +552,7 @@ visible rule instead of two, and no unstated size threshold for a later session
 to guess at.
 
 **3. Every identifier in the section's prose resolves from the repository
-root.** `routes/` became `server/routes/` (`0c206ff`). Claude looked first for
+root.** `routes/` became [`server/routes/`](../server/routes/) (`0c206ff`). Claude looked first for
 a mechanical argument — whether `check-claims` resolves one spelling and not
 the other — and there is none: `checkPaths` only matches paths ending in a file
 extension, so a bare directory is invisible to the gate either way. What decided
@@ -564,7 +564,7 @@ seventeen of the eighteen identifiers in the two paragraphs already did.
 commit introduced *"the Documentation table above, which is the ONLY place each
 one is described"* — an exclusivity claim planted in the very edit that
 consolidated duplicate descriptions, and false in both readings. Inside the
-README, [`docs/SECURITY.md`](SECURITY.md) is described again at README:375 in
+[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again at README:375 in
 wording almost identical to its table row, and
 [`docs/RESILIENCE.md`](RESILIENCE.md) at README:192 in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
@@ -574,7 +574,7 @@ asked for it to be verified rather than trusted.
 
 **Traps.**
 
-* **Do not re-expand the nine `docs/*.md` into individual tree lines.** They were
+* **Do not re-expand the nine [`docs/*.md`](./) into individual tree lines.** They were
   there, and two of the nine drifted from the table within a single session. The
   tree line says so at the point of temptation; this entry is why.
 * **Do not flatten a nested directory back to repeated prefixes.** The node form
@@ -585,7 +585,7 @@ asked for it to be verified rather than trusted.
   completeness claim checkable rather than decorative.
 
 **Deliberately not in this entry: the formatting.** Column alignment, wrap
-points, the `test/` line that sat one column left of its siblings, the missing
+points, the [`test/`](../test/) line that sat one column left of its siblings, the missing
 `ac-*` family in the screenshots description (`2b49ba4`), the Documentation
 table's two declared omissions (`006983e`). All obviously correct once raised,
 all recoverable by reading the file, all in their commit messages. The
@@ -607,7 +607,7 @@ it looked like the clearest breach yet of "only at a notable, settled milestone"
 first twenty-one merges, read off `git log --merges --oneline main`: an app
 verified end to end, the AI-call-log table and card views, the taste-verdict and
 search sections, the ranked-list overhaul, the live deployment, four merges of
-the recommendations overhaul, the front-end overhaul completing, the DOSSIER
+the recommendations overhaul, the front-end overhaul completing, the [DOSSIER](../DOSSIER.md)
 reconciliation, and `0cdc4ec`, the final planned merge. Not one incremental
 change among them. And the merges after it each cleared a *different* criterion
 — a defect already published on `main` — which was stated at `94f5325` in its own
@@ -642,7 +642,7 @@ history.
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: force-pushing over pushed history. The same call was made
-  for `619ed64` and it was left as written; the correction lives in `CLAUDE.md`
+  for `619ed64` and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -724,7 +724,7 @@ command finds. The pattern in both is the same, and it is not carelessness:
   itself still true. [`README.md`](../README.md) was describing ANOTHER file's
   verdict, so no forward pass could see it. It stayed wrong for sixteen hours,
   through a commit that edited both files.
-* The "name some films" sweep searched documentation and source. `.env.example`
+* The "name some films" sweep searched documentation and source. [`.env.example`](../.env.example)
   is a config template — neither `*.md` nor `*.js` — so a type-filtered search
   skipped it silently, and the retired wording sat in the file a reader opens
   FIRST when setting the project up. Worse, that commit's message asserted the
@@ -741,7 +741,7 @@ miss was findable by re-reading the files that were already being read.
 **Write a checker.** Chosen, as
 [`scripts/check-claims.js`](../scripts/check-claims.js), a fifth commit gate. It
 walks EVERY text file — the extension list is deliberately wide and
-`.env.example` is named in the source comment, because that file is the reason
+[`.env.example`](../.env.example) is named in the source comment, because that file is the reason
 the gate exists — and resolves each claim that points at something: paths,
 scripts, `D-0NN` entries, quoted SHAs, `file:line` references, identifiers in
 backticks, captures, and a list of retired phrasings.
@@ -779,7 +779,7 @@ than at the source.*
 
 GitHub renders [`docs/SECURITY.md`](SECURITY.md) twice, and only one of the two
 had ever been checked. In the ordinary blob view a relative path resolves
-against `docs/`, which is correct and is what every render audit saw. But GitHub
+against [`docs/`](./), which is correct and is what every render audit saw. But GitHub
 also serves that file as the repository's **Security tab** — it looks for a
 security policy in the root, in `.github/` and in `docs/` — and there it
 resolves the same relative paths against the **repository root**. Three
@@ -799,7 +799,7 @@ No relative path can satisfy both bases at once, so there were two real options.
 and plain relative paths work everywhere — no absolute URLs, no branch pinning,
 no hardcoded owner and repo name. **Rejected**, and not for effort: it would
 have rewritten roughly fourteen inbound references across eight files, and it
-would have broken the `docs/` grouping that [`README.md`](../README.md)'s own
+would have broken the [`docs/`](./) grouping that [`README.md`](../README.md)'s own
 documentation map describes to a reader. A large diff across the whole
 repository, days after the planned final merge, to fix six URLs.
 
@@ -812,7 +812,7 @@ renders the default branch, so a `draft` reader sees the same images either way.
 
 ### The trap this creates, which is why it is written down
 
-Every other document in `docs/` correctly uses relative paths. A consistency
+Every other document in [`docs/`](./) correctly uses relative paths. A consistency
 sweep — exactly the kind this project has run repeatedly — would "fix" these six
 straight back into the defect. Two guards were added rather than one: a comment
 at the top of [`docs/SECURITY.md`](SECURITY.md), and rule 8 under
@@ -891,8 +891,8 @@ were FALSE. The second is the stronger justification of the two.
 ### Scope, checked rather than assumed
 
 No committed screenshot contains any deleted row. The bad rows were written at
-18:25:22 and 18:43:14; `rs-4-openrouter-down-recs-log.png` tops out at 17:54:01
-and `rs-3-tmdb-down-during-recs-log.png` at 17:44:04. Nothing in the repository
+18:25:22 and 18:43:14; [`rs-4-openrouter-down-recs-log.png`](screenshots/rs-4-openrouter-down-recs-log.png) tops out at 17:54:01
+and [`rs-3-tmdb-down-during-recs-log.png`](screenshots/rs-3-tmdb-down-during-recs-log.png) at 17:44:04. Nothing in the repository
 shows a row that no longer exists, so no evidence needed re-shooting on account
 of the deletion — only on account of the fix.
 
@@ -973,7 +973,7 @@ sixty.
 tests, the linter, the markdown checker and the render audits all look at
 structure; not one of them compares a claim the interface makes against the
 specification that describes the same thing. This survived because the two were
-never read side by side — and the SPEC line was correct the entire time, so there
+never read side by side — and the [SPEC](../SPEC.md) line was correct the entire time, so there
 was nothing to find except by looking at both at once.
 
 It also matters more here than it would elsewhere: the whole argument these
@@ -1606,8 +1606,8 @@ So SVG-only is safe on every current browser. Safari 18.7 and older still probe
 and closing it costs a binary asset in a repo that, on 2026-09-12, had none.
 *(The 37 screenshot PNGs landed the next day, so "has none" stopped being true
 almost immediately. The reason still holds in the form that mattered: a .ico
-would be the only binary the APPLICATION ships — everything under public/,
-server/, scripts/, prompts/, db/ and test/ is text.)*
+would be the only binary the APPLICATION ships — everything under [public/](../public/),
+[server/](../server/), [scripts/](../scripts/), [prompts/](../prompts/), [db/](../db/) and [test/](../test/) is text.)*
 
 ### What the console error actually was
 
@@ -1692,7 +1692,7 @@ line swing the item described. The other transition the item implies, resting
 this width.
 
 **And the one transition that does move is the one that cannot be seen.** The
-hint shrinks in `renderRecommendations()` (app.js, the `setRecsHint(['Based on:
+hint shrinks in `renderRecommendations()` ([app.js](../public/app.js), the `setRecsHint(['Based on:
 …'])` call), and eleven lines later, in the same synchronous block, that same
 function fires `el.recsHead.scrollIntoView({ block: 'start' })` —
 [R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
@@ -1772,7 +1772,7 @@ to the real server so films can be added without disarming it.
 comment: a test double that patches around *one observable consequence* of an
 app branch has no way to notice when that branch grows another. Nothing fails,
 nothing warns — the double just quietly covers less than its comment claims. Both
-the header and the branch in `debug-recs.js` now say so, including that the
+the header and the branch in [`debug-recs.js`](../scripts/debug-recs.js) now say so, including that the
 paragraph above the `setTimeout` is no longer a promise that it works.
 
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
@@ -1935,7 +1935,7 @@ property in effect at that instant.
 cost estimate was for a different, harder problem (finding WHERE text overflows)
 that this approach never needs to solve.
 
-**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over
+**As shipped:** `softHyphenate()` in [`app.js`](../public/app.js) runs unconditionally over
 titles, reviews and AI-reason text, with no viewport check inside it at all.
 CSS alone gates whether the embedded soft hyphens are ever honoured: below
 400px (originally 399px — see the addendum) they are; at 400px and above,
@@ -1970,7 +1970,7 @@ about the extension itself, not just the fact of it:
 1. **`.review` and `.reason` needed no new CSS at all** — both are plain
    descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
    and `hyphens` are inherited properties, and `softHyphenate()` is called
-   directly on their own text in `app.js`. Inheritance alone made them work.
+   directly on their own text in [`app.js`](../public/app.js). Inheritance alone made them work.
 2. **`#verdict-text` needed the split-channel treatment its own typing effect
    already uses, and this is the one genuine fork in the extension.** The
    obvious approach — hyphenate the full verdict string once, before typing
@@ -2067,7 +2067,7 @@ value too, before the wrap decision is ever made. One property cannot carry
 two different numbers for two different jobs.
 
 **The fix: a second, empty flex item does the forcing instead.**
-`.verdict__break` — a bare `<span aria-hidden>` added to `index.html` right
+`.verdict__break` — a bare `<span aria-hidden>` added to [`index.html`](../public/index.html) right
 after `.verdict__text`, `display: none` above the breakpoint (not a flex item
 at all, zero effect on wider layouts) and `flex-basis: 100%` with no
 max-width of its own below it. It is what can't share a line with the label
@@ -2101,7 +2101,7 @@ passes `{ typed: true }`; every placeholder, the busy line and both error
 messages render instantly, unchanged from before this item existed.
 
 **Why not the obvious approach — typing straight into `#verdict-text`'s own text
-node.** That element is `aria-live="polite"` (SPEC's accessibility work, already
+node.** That element is `aria-live="polite"` ([SPEC](../SPEC.md)'s accessibility work, already
 covered by
 [R22](../CLAUDE.md#group-e--structure-and-tests)'s
 lesson about that same recs-hint region): mutating it character-by-character
@@ -2169,7 +2169,7 @@ delay-rescaling helps, because the delays were never the problem.
 
 **`playbackRate` fixes it by construction.** The Web Animations API preserves
 `currentTime` when the rate changes, so only velocity changes. The same layer
-stayed at 0.4867 exactly. `setSheenRate()` in `app.js` sets it on the twenty
+stayed at 0.4867 exactly. `setSheenRate()` in [`app.js`](../public/app.js) sets it on the twenty
 animations obtained via `getAnimations()`.
 
 **It also solves the layer-registration problem for free**, which the CSS route
@@ -2409,7 +2409,7 @@ what was actually built.
 **The line that matters, and the one to keep saying:** the check confirms a card
 shows **a real film**, not that it shows **the** film the model named. Every fact
 on the card still comes from TMDB and never from the model, which is the half of
-the SPEC clause that was always exactly true.
+the [SPEC](../SPEC.md) clause that was always exactly true.
 
 **One residual, deliberately not fixed.** `WALL-E` resolves to `East of Wall`
 (2025). TMDB's own title is `WALL·E` with an interpunct, and the real film is not
@@ -2852,7 +2852,7 @@ and a halo that crosses the gap reads as two cards sharing one glow.
 > [D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section)
 > between the two edits: with every other card at 0.7, a halo crossing the gap
 > falls on something already receding. The paragraph stands as written; the live
-> values are in `styles.css`.
+> values are in [`styles.css`](../public/styles.css).
 
 *`z-index: 3`, not the ranked card's `1`.* Arithmetic, not taste: every
 `.rec-card::before` badge carries `z-index: 2` and resolves in the same stacking
@@ -2938,7 +2938,7 @@ error the same way it carries `short`.
 * **The verdict still has the unconditional-link bug** (recorded as
   [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
   It was
-  left alone deliberately: this pass is R8/R9, and fixing the verdict is a
+  left alone deliberately: this pass is [R8](../CLAUDE.md#group-c--copy-and-consistency)/R9, and fixing the verdict is a
   change to a second feature that the user has not looked at yet. Do not "unify"
   the two by copying the verdict's version back over this one — that is
   backwards.
@@ -2988,7 +2988,7 @@ be visible.
 **Claude was wrong twice here and both are the point.** The first write-up of
 this item
 ([R2](../CLAUDE.md#group-a--functional-bugs),
-in [CLAUDE.md](../CLAUDE.md)) was correct. But the sibling item R20 — "the
+in [CLAUDE.md](../CLAUDE.md)) was correct. But the sibling item [R20](../CLAUDE.md#group-e--structure-and-tests) — "the
 client hardcodes thresholds the server owns" — was **wrong and was withdrawn**:
 the client fetches `/api/config` at boot and the literals are a documented
 fallback. That claim came from grepping `state.cfg`, which shows the reads and
@@ -3002,7 +3002,7 @@ unfixed bug if it had been written after the fix instead of before it.
   on that read looks like free work for the database and would immediately make
   the
   [R2](../CLAUDE.md#group-a--functional-bugs)
-  test vacuous again, because the fake ignores it. The comment in `helpers.js`
+  test vacuous again, because the fake ignores it. The comment in [`helpers.js`](../test/helpers.js)
   says so at the no-op itself.
 * **The owned set must come from the unfiltered `library`, never from `rated`.**
   Reverting that one word restores the bug and fails exactly one test — verified
@@ -3011,7 +3011,7 @@ unfixed bug if it had been written after the fix instead of before it.
   rows are filtered out of `rated` anyway, but a DESC sort puts NULLs first in
   Postgres by default and `topN` should not depend on that being remembered.
 * This is the SERVER half only. The client half — rec cards never re-syncing
-  their Add button when ownership changes — was R3, open when this was written
+  their Add button when ownership changes — was [R3](../CLAUDE.md#group-a--functional-bugs), open when this was written
   and closed the same day.
 
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
@@ -3859,7 +3859,7 @@ readable for the other ~3s, so they are deliberately left alone.
 rebuilds every card — and each card carried `animation: fade-slide` with a
 staggered delay. Rating one film therefore replayed the *entire* list's entrance:
 ~850ms of the whole page shimmering because one number changed. Removing a film
-was worse — the list vanished and re-entered. Meanwhile the README's demo script
+was worse — the list vanished and re-entered. Meanwhile the [README](../README.md)'s demo script
 promises "the ranked list **re-sorting live** as ratings change", and there was
 no re-sorting to watch: the list blinked out and a new one faded in.
 
@@ -4107,7 +4107,7 @@ That left one real fix — ask the model, then re-query TMDB — and it was
 perfectly
 ([D-002](#d-002--the-ai-is-a-component-not-the-product)/[D-005](#d-005--prompt-injection-posture):
 the model produces only a search string, TMDB still supplies every fact, blast
-radius is a weird result). But it is a *third* AI feature where SPEC scopes two,
+radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md) scopes two,
 and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
 tokens and cost — neither existing log table fits, so it needs
 [migration 002](../db/migrations/002_tmdb_rating.sql), a new service, a
@@ -4370,7 +4370,7 @@ Decision: once the table view was signed off, **every** subsequent AI-log change
 (the mobile card view, and anything later) must be provably unable to affect it.
 Concretely: card-view CSS lives only inside `@media (max-width: 850px)`, and each
 change is verified with `git diff <last-merge>..HEAD` showing (a) the only file
-touched is `styles.css` — no shared JS/HTML — and (b) every hunk falls between
+touched is [`styles.css`](../public/styles.css) — no shared JS/HTML — and (b) every hunk falls between
 the `@media (max-width: 850px) {` line and its matching close. A browser never
 applies those rules above 850px, so the table view is unaffected by construction,
 not by inspection.
@@ -4451,7 +4451,7 @@ list's card headings. Decorative spinners are `aria-hidden`. No visual change.
 Added `npm test` on Node's built-in runner (no new dependency) covering the pure
 helpers where every truncation bug actually lived — `parseModelJson`,
 `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
-real `prompts/` files, so a malformed prompt version fails the suite. Those four
+real [`prompts/`](../prompts/) files, so a malformed prompt version fails the suite. Those four
 helpers were made `export`-ed for testability; no behaviour change. `GET
 /api/health` added for a future Node host. [`docs/PROCESS.md`](PROCESS.md) collects the
 LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
@@ -4493,7 +4493,7 @@ literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
 title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `` * _ ` ``, and
 if still over a 300-char ceiling truncates at the last sentence end (else last
 word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
-file; `taste_verdict_v1.md` untouched.
+file; [`taste_verdict_v1.md`](../prompts/taste_verdict_v1.md) untouched.
 
 ## D-010 · In-app AI call log + failure logging (migration 001)
 Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
@@ -4510,7 +4510,7 @@ without logging — those aren't AI calls.
 The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
 v2 asks for a second-person line tied to the user's own ratings/reviews
 ("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
-a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); `recommend_v1.md` is kept
+a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); [`recommend_v1.md`](../prompts/recommend_v1.md) is kept
 untouched and every past `recommendation_logs` row still names the exact prompt
 that produced it. `taste_verdict_v1` is unaffected — versioned independently.
 

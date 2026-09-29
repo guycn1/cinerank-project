@@ -614,8 +614,8 @@ Save from that stale view is what produces the `404`.
    gone, rather than by retyping.
 
 **Why this state gets two frames of one moment, rather than two surfaces.** Most
-other pairs here split a claim between the page and the audit trail — `RS-3`,
-`RS-4`, `RS-5`, `RS-9` and `RS-15` all do. (`RS-11` and `RS-14` do not either:
+other pairs here split a claim between the page and the audit trail — [`RS-3`](#rs-3--verifying-recommendations),
+[`RS-4`](#rs-4--recommendations), [`RS-5`](#rs-5--the-taste-verdict), [`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) all do. ([`RS-11`](#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) and [`RS-14`](#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works) do not either:
 one shows a single rule holding on both AI features, the other pairs a failure
 with the retry that succeeds.)
 This claim is *temporal* — it is about an order of events — and the honest way to

@@ -19,6 +19,7 @@ promised, the original text **stays exactly as written** and the correction is a
 beside it as an italic parenthetical. Nothing is quietly edited to agree with the
 code: a spec revised into agreement with its own implementation can no longer show
 where the two ever differed, which is the one thing it is uniquely able to show.
+
 **Eleven sections carry such an annotation**, named rather than counted so the
 list cannot quietly go short as the spiral adds more:
 [§ 1](#1-overview--problem-statement),
@@ -85,7 +86,7 @@ what turned that open brief into concrete requirements — a requirement that co
 not have been written before a solution was attempted. The work it produced is
 tracked in [`CLAUDE.md` § Front-end overhaul](CLAUDE.md#front-end-overhaul-started-2026-09-05--complete-as-of-2026-09-12) rather than here, because that is working state
 and this is intent: a 20-item ranked-list overhaul, a 30-item recommendations audit
-(R1 to R30), seven polish items, and a narrow-viewport pass closed against an agreed
+([R1 to R30](CLAUDE.md#step-2--the-recommendations-sub-backlog-r1r30)), seven polish items, and a narrow-viewport pass closed against an agreed
 ~350px target.
 
 **This turn holds the clearest co-evolution point in the project.** At `2a1800c`,
@@ -128,7 +129,7 @@ render audits had revealed, because each of those inspects structure and none of
 them puts the application into a state and looks at it.
 
 **Merging to `main` pins this turn rather than closing it** — it was closed by its
-scope being complete, which is the distinction Module 10 draws between a commit
+scope being complete, which is the distinction [Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral) draws between a commit
 point and a turn boundary.
 
 
@@ -175,7 +176,7 @@ being silently extended.)*
   3. The model returns a **structured list** (title + one-sentence reason per suggestion) — not free-form prose the app has to parse with regex.
   4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms the card shows **a real film**, not that it shows **the** film the model meant: a title TMDB returns nothing for is dropped, while a near-miss resolves to TMDB's closest result, which is occasionally a different movie. Tightening the match was measured against live TMDB and deliberately rejected — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
   5. Suggestions already in the user's list are filtered out before being shown.
-* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: [§ 5.2](#52-recommendation_logs) specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed [§ 5.2](#52-recommendation_logs). Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
+* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
 * Recommendations are a **snapshot, not live** — they don't regenerate automatically when new movies are rated; the user explicitly re-triggers when they want fresh ones.
 
 ### 2.3 Taste Verdict Banner (the fun, low-stakes AI touch)
@@ -354,7 +355,7 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 * Each feature has its **own versioned prompt file** — [`prompts/recommend_v1.md`](prompts/recommend_v1.md) and [`prompts/taste_verdict_v1.md`](prompts/taste_verdict_v1.md) — never inlined as strings in application code, never sharing one file. *(Those two names are the pattern, and both files still exist untouched. The chains have since run to `recommend_v3` and `taste_verdict_v7`, which are the live versions; every superseded file is kept, and [`docs/PROCESS.md` § 2](docs/PROCESS.md#2-prompt-engineering-as-version-control) tabulates what each bump fixed.)*
 * The recommendation prompt requires **structured JSON output** (array of `{title, reason}` objects) — the app must not depend on regex-parsing free-form prose.
 * The taste verdict prompt requires a **short plain-text output** (one or two sentences as specified; 2–3 as shipped, see [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)) — no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
-* The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case — an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
+* The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case — an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on § 2.2 step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
 * See [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17), item 5 ("Prompt injection awareness"), for how user-supplied review text — which feeds into *both* prompts — is handled safely. **The guard is also demonstrated rather than only described: [`docs/screenshots/pi-1` … `pi-5`](docs/screenshots/README.md#pi---prompt-injection) capture a seeded film whose review is a real injection attempt, with both features unaffected and the app's own "Based on:" line confirming the attack text reached the prompt. Mapped against [OWASP ASI01 in `docs/SECURITY.md`](docs/SECURITY.md#asi01--agent-goal-hijack).**
 
 
@@ -371,7 +372,7 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 * \[x] A full recommendation run produces a logged row in `recommendation_logs` with real token/cost data, and shown suggestions have real, TMDB-verified posters — not AI-invented ones.
 * \[x] The Taste Verdict Banner is disabled/shows an explanation below 2 rated movies, and a triggered verdict produces a logged row in `taste_verdict_logs` with real token/cost data.
 * \[x] Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error, not a broken page — this includes the banner falling back gracefully, not breaking the whole Home page. *(Captured and analysed in [`docs/RESILIENCE.md`](docs/RESILIENCE.md): TMDB down across three surfaces as [RS-1](docs/RESILIENCE.md#rs-1--searching), [RS-2](docs/RESILIENCE.md#rs-2--adding-a-film) and [RS-3](docs/RESILIENCE.md#rs-3--verifying-recommendations); OpenRouter down across both AI features as [RS-4](docs/RESILIENCE.md#rs-4--recommendations) and [RS-5](docs/RESILIENCE.md#rs-5--the-taste-verdict). Two further states go beyond what this criterion asks — the database unreachable, [RS-7](docs/RESILIENCE.md#rs-7--supabase-down), and the app’s own server unreachable from an already-open page, [RS-6](docs/RESILIENCE.md#rs-6--the-apps-own-server-is-gone).)*
-* \[x] `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17)).
+* \[x] [`.gitignore`](.gitignore) excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17)).
 
 ### 7.2 Manual Demo Script
 

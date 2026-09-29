@@ -119,7 +119,7 @@ decoration:
   and caught in the act as
   [`RS-16` in docs/RESILIENCE.md](docs/RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist).
 - **The edge that is missing is the other half of that claim.** There is no
-  arrow from [`tasteVerdict.js`](server/services/tasteVerdict.js) to `tmdb.js`,
+  arrow from [`tasteVerdict.js`](server/services/tasteVerdict.js) to [`tmdb.js`](server/services/tmdb.js),
   because there is no such import: the verdict is never fact-checked. That is
   deliberate rather than an oversight. A recommendation asserts that a film
   exists, so it is verified; a verdict asserts only an opinion about the viewer,
@@ -301,10 +301,10 @@ actually lives rather than where it is summarised:
 
 **Every tracked file in the repository is accounted for below.** A directory
 listed file by file is listed in full. Four entries are deliberate summaries
-rather than truncations: `prompts/`, compacted to its two version ranges;
-`db/migrations/`, one numbered series; `docs/screenshots/`, which carries
-its own index; and `docs/*.md`, whose nine documents are each described in the
-[Documentation](#documentation) table. `SPEC.md` and `CLAUDE.md` are
+rather than truncations: [`prompts/`](prompts/), compacted to its two version ranges;
+[`db/migrations/`](db/migrations/), one numbered series; [`docs/screenshots/`](docs/screenshots/), which carries
+its own index; and [`docs/*.md`](docs/), whose nine documents are each described in the
+[Documentation](#documentation) table. [`SPEC.md`](SPEC.md) and [`CLAUDE.md`](CLAUDE.md) are
 described there too, so the tree points at the table rather than describing
 them twice.
 [D-074](docs/DECISIONS.md#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)

@@ -5224,6 +5224,12 @@ SECTION of one, the link goes to the SECTION rather than the file.** It is a
 navigation rule, not a rendering one, so `check-markdown` does not enforce it
 and nothing fails when it is ignored — which is exactly why it is written here.
 
+**Once per paragraph** (the user's rule, 2026-09-29): a target is linked at its
+first mention in a paragraph, and later mentions of it in the same paragraph
+stay plain. Each list item and each table row counts as a paragraph of its
+own. "Same target" means the same destination, so two R-items in one group
+share one link.
+
 **Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
 repository* as a stakeholder who never runs the app and cannot ask a question.
 For that reader an unlinked "see D-046" is a number and a scroll bar. Applied

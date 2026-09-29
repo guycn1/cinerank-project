@@ -556,7 +556,7 @@ done
 single added line](screenshots/ac-8-first-commit.png)
 
 `a93326c` — **`0 parents`**, so it is demonstrably the root commit — **one file
-changed**, `README.md`, **one line added**: `# cinerank-project`.
+changed**, [`README.md`](../README.md), **one line added**: `# cinerank-project`.
 
 That is GitHub’s repository-creation commit. It contains no code, no configuration
 and no `.env`. **There was nothing there for a secret to be in.**
