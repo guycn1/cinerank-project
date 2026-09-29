@@ -83,7 +83,7 @@ fourteen more between them.
 leaving layout, motion and typography to design judgement. Using the finished app is
 what turned that open brief into concrete requirements — a requirement that could
 not have been written before a solution was attempted. The work it produced is
-tracked in [`CLAUDE.md`](CLAUDE.md) rather than here, because that is working state
+tracked in [`CLAUDE.md` § Front-end overhaul](CLAUDE.md#front-end-overhaul-started-2026-09-05--complete-as-of-2026-09-12) rather than here, because that is working state
 and this is intent: a 20-item ranked-list overhaul, a 30-item recommendations audit
 (R1 to R30), seven polish items, and a narrow-viewport pass closed against an agreed
 ~350px target.
@@ -148,7 +148,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 * No social features (sharing lists, following other users, public rankings).
 * No editing/moderating AI suggestions beyond accepting or dismissing them.
 
-*(Reconciled 2026-09-13: [`CLAUDE.md`](CLAUDE.md) carried a FOURTH exclusion this list never
+*(Reconciled 2026-09-13: [`CLAUDE.md` § Out of Scope](CLAUDE.md#out-of-scope-v1) carried a FOURTH exclusion this list never
 had — no automatic or background regeneration of recommendations or verdicts. The
 consolidated list, with the reason each one is there, is [`docs/FRAMING.md` § Out of
 scope](docs/FRAMING.md#out-of-scope), which is now the authority. The three above stay as written rather than

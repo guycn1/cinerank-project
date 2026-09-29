@@ -35,7 +35,7 @@ Four claims, and every capture below is measured against them:
 
 Each state has a recipe, kept as [`RS-1`](#rs-1--searching) …
 [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist) in
-[`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
+[`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
 so that any of them can be reproduced exactly. TMDB, OpenRouter and Supabase are
 all called **server-side** — the browser never talks to any of them, so browser
 devtools cannot simulate them: most recipes break the relevant key in `.env` and
@@ -162,7 +162,7 @@ a link to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
 
 **Two absences are the substance.** There is no technical detail in the message
 — before
-[`R8`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+[`R8`](../CLAUDE.md#group-c--copy-and-consistency),
 the route wrapped every cause into the user-facing text, so people saw
 `OpenRouter responded 401`, and worse, `DB read failed:` followed by raw
 Postgres output. And there is **no cost footer**, because nothing succeeded.
@@ -195,7 +195,7 @@ the AI call log](screenshots/rs-5-openrouter-down-verdict.png)
 
 **The resemblance to [RS-4](#rs-4--recommendations) is the entire point.** Two
 independent features, two independent code paths, one vocabulary. That is what
-[`R23`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R23`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 was for.
 
 ![The AI call log showing two failed rows, one per feature, on two different
@@ -245,7 +245,7 @@ it took 4,221 ms, it cost 0.20¢, and the page says so *on a run that produced n
 cards at all*. It used to return before building that footer, so the one outcome
 that charged the user money and showed them nothing was also the only outcome
 that reported no cost anywhere
-([`R10`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
+([`R10`](../CLAUDE.md#group-c--copy-and-consistency)).
 An application that declares what it spent only when things go well is not an
 audit trail.
 
@@ -318,7 +318,7 @@ deliberately kept). Reaching this state means TMDB returned **nothing at all**
 for every title, which is what a genuinely invented title looks like.
 
 **And the message says which of the five things went wrong.** Before
-[`R28`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 the app's message read "the model only named films already in your list" for
 *every* empty run — it would have been a flat lie here. The five causes are now tallied
 per title and resolved to one reason, so a hallucinated set, an owned set, an
@@ -329,7 +329,7 @@ empty reply and a TMDB outage each get their own sentence.
 and this frame are four of the five.
 
 The footer declares the cost of a run that produced nothing —
-[`R10`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R10`](../CLAUDE.md#group-c--copy-and-consistency)
 again, and the same point
 [`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
 makes: the model was paid whether or not its answer survived verification.
@@ -337,7 +337,7 @@ makes: the model was paid whether or not its answer survived verification.
 > **Forced, and the caption says so rather than implying otherwise.** The state
 > cannot be produced from `.env`, so the verification call is skipped for one
 > run
-> ([`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14),
+> ([`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16),
 > `RS-16`) and reverted immediately. The OpenRouter call is real and was billed;
 > what is simulated is TMDB's verdict, not the model's reply.
 
@@ -393,7 +393,7 @@ and to try again in a moment, with no link and no cost
 footer](screenshots/rs-11-no-log-offered-recs.png)
 
 **This is
-[`R23`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+[`R23`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
 invariant running in the direction nothing else photographs.**
 [`RS-4`](#rs-4--recommendations) and [`RS-5`](#rs-5--the-taste-verdict) show its
 positive half: OpenRouter fails, a `status='failed'` row is written, and the
@@ -531,7 +531,7 @@ lift a toast above it and the `::backdrop` dims it anyway
 ([`D-032`](DECISIONS.md#d-032--a-failed-save-reports-inside-the-rate-dialog-not-via-the-toast)).
 
 There is **no log link**, and that is
-[`R9`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)/[`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
+[`R9`](../CLAUDE.md#group-c--copy-and-consistency)/[`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
 again: nothing reached the server, so no row was committed, so nothing may be
 offered. The message itself is fabricated client-side — `api()` catches the
 network-level rejection so that "Failed to fetch" and "NetworkError when
@@ -660,7 +660,7 @@ They are nearly identical — both `success`, both charged about 0.20¢, both "n
 suggestions" — and they mean opposite things. One is an outage the app could
 easily have hidden; one is an honest, boring result. The app distinguishes them
 correctly on the page. Before
-[`R28`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 it called both of them the second thing.
 
 An application that reports what it spent only when things go well is not an audit
@@ -744,7 +744,7 @@ state and looks at it. That is what this set is for.
 
 * Recipes for every state, as [`RS-1`](#rs-1--searching) …
   [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist):
-  [`CLAUDE.md`, under Pre-submission blockers](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14).
+  [`CLAUDE.md`, under Pre-submission blockers › Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16).
 * Server-side behaviour for the same cases: `npm test`,
   [`test/routes.test.js`](../test/routes.test.js).
 * The acceptance criteria these satisfy:

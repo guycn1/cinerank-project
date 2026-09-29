@@ -180,7 +180,7 @@ The **409 toast** itself is not photographed here, and reaching it from the
 interface is genuinely awkward: the button is disabled, so it cannot normally be
 clicked. It was reachable through a stale-button race — adding a film from the
 search panel while a recommendation card still offered it — and
-[`R3`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R3`](../CLAUDE.md#group-a--functional-bugs)
 closed that by making the Add-button sync document-wide rather than
 panel-scoped.
 
@@ -310,7 +310,7 @@ Look at the **"What to watch next"** section:
   it.
 * **The grid beneath is empty.** No stale cards from a previous run sit under a
   message saying the feature is locked. That is
-  [`R16`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09):
+  [`R16`](../CLAUDE.md#group-d--visual-and-narrow-viewports):
   the section must not contradict itself.
 
 ### Automated
@@ -329,7 +329,7 @@ the third is the interesting one:
 what lets the client display the rule without hardcoding it. The server is the
 single source of truth for the number; the literals in the client are a
 documented fallback for that one request failing, not a second definition
-([`R20`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
+([`R20`](../CLAUDE.md#group-e--structure-and-tests)).
 
 ### Defence in depth, and one honest consequence
 
@@ -342,7 +342,7 @@ that got its state wrong.
 
 That message is one of exactly two in the application flagged `userFacing` and
 passed to the user verbatim rather than replaced with a calm sentence.
-[`R8`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`R8`](../CLAUDE.md#group-c--copy-and-consistency)
 established the general rule — technical causes go to the log, not the screen —
 and this is a deliberate exception, because *"Need at least 3 rated movies"* is
 the answer to the question the user just asked, not a fault report.

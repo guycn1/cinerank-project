@@ -111,7 +111,7 @@ verification fails while looking rigorous, and each is answered concretely:
   were each deleted in turn, and every deletion fails exactly the tests that
   claim to cover it. A test that does not fail when you break the thing it tests
   is not a test. The same probing was done for
-  [R23](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+  [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
   log-advertisement invariant (three ways) and R5's dual-failure stderr sink
   (both ways). **Three more tests were added on 2026-09-13 while walking
   [§ 7.1](../SPEC.md#71-must-pass-before-submission), and each was probed the
@@ -202,7 +202,7 @@ Five functions exceed the ceiling of 20 and are reported as warnings on every ru
 `generateRecommendations` the branches *are* the feature: each `continue` guard
 and each tally arm exists because of a specific documented finding — the owned
 filter that was reading only rated films
-([R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)),
+([R2](../CLAUDE.md#group-a--functional-bugs)),
 the verification fallback that was overclaimed and then measured
 (R6/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the five distinct reasons a run can come back empty, one of which was

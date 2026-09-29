@@ -100,7 +100,7 @@ belongs in the framing:
 **Deliberately not part of done:** visual perfection below ~350px viewport
 width, and anything at all below ~290px. That is a scope boundary set with a
 deadline in view, and it is written into
-[`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`CLAUDE.md`'s step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
 as a rule the agent enforces rather than one the authors have to remember.
 
 ## Out of scope
@@ -138,7 +138,7 @@ something. Four places where it visibly did:
 * **The out-of-scope list held under pressure.** Recommendations go stale the
   moment any rating changes, and regenerating them automatically is the obvious
   fix. It was never built, because exclusion 4 forbids it.
-  [R16](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+  [R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
   instead clears a locked section's stale output and leaves regeneration to the
   user.
 * **The stakeholder list decided a data question.** TMDB's own score is a
@@ -147,7 +147,7 @@ something. Four places where it visibly did:
   trade the list owner loses
   ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)).
 * **The definition of done stopped work twice.**
-  [Step 5](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+  [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
   in advance so it did not have to be argued each time. R18 closed as won't-fix

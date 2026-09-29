@@ -271,7 +271,7 @@ exercised, repeatedly, and is traceable in the log:
 
 * **The acceptance bar.** What "done" means, and when a thing is good enough to
   stop.
-  [Step 5](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+  [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   closed against a ~350px target the user set; R18 closed as won't-fix once
   measured.
 * **The merge decision.** Every `draft` to `main` merge required explicit
@@ -491,7 +491,7 @@ claims that merely **characterise** something, and that is the half the
 | [`MERGE-READINESS.md`](MERGE-READINESS.md) | all eight split page vs audit trail | five do |
 | [`RESILIENCE.md`](RESILIENCE.md) | *every* other pair splits page vs audit trail | false of two of seven |
 | [`screenshots/README.md`](screenshots/README.md) | "for four of them" | five, and three states went unexplained |
-| [`CLAUDE.md`](../CLAUDE.md) | "the first four" | a listing-order artefact; the fifth is listed last |
+| [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) | "the first four" | a listing-order artefact; the fifth is listed last |
 
 **Be precise about what was invisible and what was merely unread**, because the
 honest version is more useful than the flattering one. Only the
@@ -531,7 +531,7 @@ bare numeral is falsified only by someone independently recounting, which nobody
 does.
 
 **Three things this owes to earlier work, since the method was not invented from
-nothing.** The [living log](../CLAUDE.md#project-status--living-log) already
+nothing.** The [living log's Build status](../CLAUDE.md#build-status) already
 recorded how merges 22 to 27 each failed — wrong render context, wrong file
 types, a claim whose falsifier it never names, a test not re-applied as its
 subject changed, a filter whose vocabulary limits its reach — and that list was
@@ -635,7 +635,7 @@ of the record this document exists to show.
   well past the nine states this bullet anticipated. **Sixteen states,
   twenty-four frames**, embedded and argued in [`RESILIENCE.md`](RESILIENCE.md);
   the recipes are greppable in
-  [`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
+  [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
   as `RS-1` through `RS-16`. Shooting them found three real defects that nothing
   else would have, which is the entry worth reading here rather than the count.
 - ~~**The recommendations error state is written and then immediately

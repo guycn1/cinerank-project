@@ -324,7 +324,7 @@ made it a candidate.
 described the endpoint when this was weighed (there are more now, this entry
 among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
 it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), D-017, and a
-checkbox in [`CLAUDE.md`](../CLAUDE.md). Two of those are awkward rather than trivial:
+checkbox in [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14). Two of those are awkward rather than trivial:
 `SPEC.md` is **annotated in place, never rewritten**, so the table row would have
 to stay and gain a note; and a decision entry is preserved, so D-017 would need a
 superseding entry regardless.
@@ -816,7 +816,7 @@ Every other document in `docs/` correctly uses relative paths. A consistency
 sweep — exactly the kind this project has run repeatedly — would "fix" these six
 straight back into the defect. Two guards were added rather than one: a comment
 at the top of [`docs/SECURITY.md`](SECURITY.md), and rule 8 under
-[CLAUDE.md](../CLAUDE.md)'s Markdown Authoring Rules. It is a **one-file
+[CLAUDE.md's Markdown Authoring Rules](../CLAUDE.md#the-rules). It is a **one-file
 exception, not a new convention**.
 
 ### Where the process failed, which is the part worth keeping
@@ -1173,8 +1173,8 @@ searched for, or told apart from an empty string — and the stripper and the
 inserter have to agree exactly, which is not something two invisible literals
 can be trusted to do. Built with `String.fromCharCode` rather than a backslash
 escape, because escapes in that file have been collapsed by tooling twice
-([R7](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
-and the Environment traps section of [`CLAUDE.md`](../CLAUDE.md)).
+([R7](../CLAUDE.md#group-c--copy-and-consistency),
+and [the Environment traps section of `CLAUDE.md`](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here)).
 
 ### The generalisable bit
 
@@ -1197,7 +1197,7 @@ for the hyphenation.
 *Written up the same day it was found, 2026-09-13, while unfreezing
 [`SPEC.md`](../SPEC.md).*
 
-[`CLAUDE.md`](../CLAUDE.md)'s render-and-diff method told every session to post
+[`CLAUDE.md`'s render-and-diff method](../CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) told every session to post
 markdown to `https://api.github.com/markdown` with `"mode": "gfm"`. The
 justification written beside it was reasonable and is still true as far as it
 goes: the two constructs most at risk are tables and task lists, both GitHub
@@ -1234,7 +1234,7 @@ lines**, because every audit ran in `gfm`.
 * **`gfm`** renders task lists correctly and fakes the line breaks.
 
 So there is no single authoritative mode, which is the part worth remembering.
-The rule now in [`CLAUDE.md`](../CLAUDE.md) is to use the default for anything
+The rule now in [`CLAUDE.md` § When a change is structural](../CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) is to use the default for anything
 about paragraphs, layout or line breaks, `gfm` only to confirm a task list, and
 — when it genuinely matters — to fetch the real blob from github.com, which is
 the only authority.
@@ -1611,7 +1611,7 @@ server/, scripts/, prompts/, db/ and test/ is text.)*
 
 ### What the console error actually was
 
-[CLAUDE.md](../CLAUDE.md) had said the request "lands on the 404 handler".
+[CLAUDE.md's step 4](../CLAUDE.md#step-4--the-favicon) had said the request "lands on the 404 handler".
 **There is no 404 handler** — [`server/index.js`](../server/index.js) has only a
 central *error* handler, which fires on `next(err)`. The request fell through
 `express.static`, past every API mount, to Express's built-in finalhandler: a
@@ -1647,7 +1647,7 @@ and asserting the file was valid on that basis was the same class of error as
 the headless-Chrome screenshots in
 [D-062](#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified):
 a check that produces a green result without testing the thing that matters. Now
-recorded under the tooling traps in [CLAUDE.md](../CLAUDE.md), together with the
+recorded under [the tooling traps in CLAUDE.md](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here), together with the
 fix — parse it with a real parser, and parse the bytes the server sends rather
 than the file on disk.
 
@@ -1662,7 +1662,7 @@ explicit `width`/`height`.
 
 Two decisions, reached in one investigation and kept together because separating
 them would lose the thread: **(a)**
-[R18](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09) —
+[R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) —
 the last open item in the recommendations sub-backlog — is closed without a code
 change, and **(b)** the `debugRecs` harness is knowingly left half-stale rather
 than patched. The second is what made the first hard to look at.
@@ -1670,7 +1670,7 @@ than patched. The second is what made the first hard to look at.
 ### (a) R18: measured, then dropped
 
 **What
-[R18](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R18](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 claimed.** `.recs__hint { min-height: 1.2em }` "reserves one line for messages
 that run to three or four on a phone, so the grid jumps as the hint changes."
 Filed 2026-09-09 during the recommendations audit, explicitly parked for the
@@ -1695,7 +1695,7 @@ this width.
 hint shrinks in `renderRecommendations()` (app.js, the `setRecsHint(['Based on:
 …'])` call), and eleven lines later, in the same synchronous block, that same
 function fires `el.recsHead.scrollIntoView({ block: 'start' })` —
-[R27](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+[R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
 scroll. At the exact instant the hint loses a line, the page is smooth-scrolling
 the section to the top of the viewport and six cards are beginning a 1.75s
 staggered entrance. The user looked for the jump twice, on the run the
@@ -1716,7 +1716,7 @@ any of those changes, and nothing would catch it.
 * *Media-query the `min-height` per breakpoint.* Same hardcoding, now in several
   places, and it still cannot know what the strings are.
 * *Shorten the busy message so every state fits two lines.* The busy line is
-  [R26](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)-classified
+  [R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)-classified
   as a caption and is doing real work — it names the three stages of the run,
   which is the "not a wrapper" evidence
   [SPEC §7.2](../SPEC.md#72-manual-demo-script) asks for. Trimming copy to make
@@ -1753,7 +1753,7 @@ button. Neither touched the grid, so a dummy run below the threshold rendered
 six cards and they stayed. Zero rated films was a perfectly usable harness
 state.
 
-**[R16](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+**[R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 (885a6a5, 2026-09-11 — two days later) added a third statement to that same
 branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`,
 so a locked section cannot sit above six live recommendations. Correct on its
@@ -2027,7 +2027,7 @@ has to re-run on resize, on zoom, and after a late webfont swap, or it goes
 stale exactly the way that function's own history describes. Worth building for
 a load-bearing feature; not obviously worth it for a cosmetic consistency gap
 that only shows up on invented compound words at the narrowest phone widths —
-precisely the territory [CLAUDE.md](../CLAUDE.md)'s own step 5 rule says to flag
+precisely the territory [CLAUDE.md's own step 5 rule](../CLAUDE.md#step-5--the-portrait-overhaul) says to flag
 rather than chase past a quick fix.
 
 **Put to the user as a real trade-off, not decided unilaterally: leave it, or
@@ -2103,7 +2103,7 @@ messages render instantly, unchanged from before this item existed.
 **Why not the obvious approach — typing straight into `#verdict-text`'s own text
 node.** That element is `aria-live="polite"` (SPEC's accessibility work, already
 covered by
-[R22](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+[R22](../CLAUDE.md#group-e--structure-and-tests)'s
 lesson about that same recs-hint region): mutating it character-by-character
 would announce it character-by-character. The element needs to carry the FULL,
 correct text for assistive tech from the first frame it changes, while the
@@ -2346,7 +2346,7 @@ mechanism to the person who only described a result.
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
 
 Backlog item
-[R6](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R6](../CLAUDE.md#group-b--the-strength-of-the-verified-against-tmdb-claim)
 said `verifyTitle()` was overselling itself: it looks for a case-insensitive
 exact title match and otherwise returns `results[0]`, so
 [SPEC §2.2 #4](../SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
@@ -2557,7 +2557,7 @@ before, still short of it. Not a shrug at accessibility, and not something to
 re-open with a contrast audit:
 
 *The mitigation is the tier above it.*
-[R26](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 and
 [D-051](#d-051--card-size-comes-from-the-viewport-never-from-the-result-count-r29)
 moved every line that is the **only thing on its surface** up to `--ink-dim`
@@ -2658,7 +2658,7 @@ four-column card is 237px and already under it.
 above.** `fit` is still "how many `--rec-min` cards fit", and a capped card is
 narrower than an uncapped one, so no cap can ever let more cards fit. The
 centring machinery
-[R29](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 had just built absorbs the leftover space for free.
 
 **The consequence of the footer move which was easiest to miss:** the spotlight ([D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section))
@@ -2696,7 +2696,7 @@ job" is obvious.
 > **2026-09-10:** the restraint is gone, and not because anyone finished the job
 > — its premise expired. It existed solely because balancing made every card
 > ~36% wider;
-> [R29](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+> [R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 > ([D-051](#d-051--card-size-comes-from-the-viewport-never-from-the-result-count-r29))
 > decoupled card width from the count, so it cannot any more, and six cards
 > where four fit now render 3 + 3. `balancedColumns()` is also now
@@ -2785,7 +2785,7 @@ as non-negotiable; what follows is only about the mechanism underneath it.
 
 **The backlog told the next session to use a View Transition, and that was the
 wrong instruction.** The
-[R27](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 entry says so in as many words — "Prefer the View Transition route: it is the
 mechanism this codebase already chose for exactly this problem" — and the ranked
 list really does use one for its re-sort
@@ -2834,7 +2834,7 @@ is added here.** The block kills `animation` and `transition`; a programmatic
 — nothing in the app scrolled programmatically and there are no in-page anchors —
 and went live the moment this feature landed.
 
-**[R14](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+**[R14](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 (grow-on-hover on `.rec-card`) rode along**, because it lands on the same
 element and shares the `backwards` constraint: a forwards fill would have pinned
 `transform: none` and silently cancelled the hover, which is exactly what
@@ -2881,7 +2881,7 @@ database. Try again in a moment.` since
 [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form).
 
 Nobody had seen it, because
-[R1](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R1](../CLAUDE.md#group-a--functional-bugs)
 wiped the message in the same tick it appeared. Fixing R1 is what made this
 visible, and the user confirmed it in the browser with a bogus OpenRouter key.
 
@@ -2903,7 +2903,7 @@ refused to recreate.
 where the decision is made.
 
 **The part worth recording is
-[R9](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+[R9](../CLAUDE.md#group-c--copy-and-consistency),
 where the backlog's own instruction was wrong.** The seed item said the verdict
 "already does this properly (points at the AI call log); copy that shape".
 Reading it, the verdict's fallback offers the log **unconditionally** — so when
@@ -2936,7 +2936,7 @@ error the same way it carries `short`.
 * **The route must not sniff the message text** to decide which branch to take.
   Both flags are set at their throw sites for that reason.
 * **The verdict still has the unconditional-link bug** (recorded as
-  [R23](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
+  [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
   It was
   left alone deliberately: this pass is R8/R9, and fixing the verdict is a
   change to a second feature that the user has not looked at yet. Do not "unify"
@@ -2969,7 +2969,7 @@ profile is "films you have scored", the owned set is "films you have, at all".
 
 **What actually settled it was a failed test, not the argument above.** The test
 was written first, as the
-[R19](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R19](../CLAUDE.md#group-e--structure-and-tests)
 work had just established. It asserted that an unrated film in the library is
 never recommended back — and it **passed against the buggy code**. The reason is
 [`test/helpers.js`](../test/helpers.js): every filter method on the fake
@@ -2987,7 +2987,7 @@ be visible.
 
 **Claude was wrong twice here and both are the point.** The first write-up of
 this item
-([R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+([R2](../CLAUDE.md#group-a--functional-bugs),
 in [CLAUDE.md](../CLAUDE.md)) was correct. But the sibling item R20 — "the
 client hardcodes thresholds the server owns" — was **wrong and was withdrawn**:
 the client fetches `/api/config` at boot and the literals are a documented
@@ -3001,7 +3001,7 @@ unfixed bug if it had been written after the fix instead of before it.
 * **Do not push the filter back into the query.** `.not('rating', 'is', null)`
   on that read looks like free work for the database and would immediately make
   the
-  [R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+  [R2](../CLAUDE.md#group-a--functional-bugs)
   test vacuous again, because the fake ignores it. The comment in `helpers.js`
   says so at the no-op itself.
 * **The owned set must come from the unfiltered `library`, never from `rated`.**
@@ -3115,7 +3115,7 @@ is the state where the two genuinely converge — not brightness.
 ### Note on process
 This is a case where a trap written in good faith made the next change worse, and
 it took a user report to catch it. The fix is a NEW entry rather than an edit to
-[D-043](#d-043--the-card-hover-was-not-subtle-it-was-being-cancelled-by-the-entrance-animation), per the rule in [CLAUDE.md](../CLAUDE.md): D-043 records what was decided and why at the
+[D-043](#d-043--the-card-hover-was-not-subtle-it-was-being-cancelled-by-the-entrance-animation), per the rule in [CLAUDE.md § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable): D-043 records what was decided and why at the
 time, including the reasoning that turned out to be too blunt, and that record is
 worth more intact than tidied.
 
@@ -3164,7 +3164,7 @@ as "too subtle" rather than as broken. That is why it survived this long.
 there today, so nothing was visibly broken — but it is the same latent trap, and
 adding one later would have silently done nothing.
 > **2026-09-09, later the same day:** "later" arrived —
-> [R14](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+> [R14](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 > put a grow-on-hover on `.rec-card`, and it works precisely because this fix
 > had already landed. The sentence above stands as the reasoning at the time;
 > the card does have a hover transform now.
@@ -3477,7 +3477,7 @@ identifier does not exist any more: the counter is now `position` inside
 of what was decided then and stays as written.
 
 This is the same failure mode `busyButton()` was extracted for —
-[CLAUDE.md](../CLAUDE.md) notes the two AI trigger buttons "had already drifted
+[CLAUDE.md's Taste verdict section](../CLAUDE.md#taste-verdict-section) notes the two AI trigger buttons "had already drifted
 apart twice" before their behaviour was made one function. A rule expressed
 twice will be changed once.
 
@@ -3794,7 +3794,7 @@ The em dash that joined them is gone — the chip's edge is the separator.
 **Amber was not picked because it is the accent colour.** It was picked because
 the app already has a marker for this exact idea: `.rec-card::before` renders
 "AI pick · not yet rated" as an amber pill, which is the "clear but subtle
-visual marker" [CLAUDE.md](../CLAUDE.md)'s design notes call for. A film you
+visual marker" [CLAUDE.md's design notes](../CLAUDE.md#frontend-design-notes) call for. A film you
 added but haven't rated is that same state on the other side of the list, so it
 should not invent a second visual language for it. `.unrated__badge` therefore
 borrows that rule's sizing, letter-spacing and radius on purpose — retune one
@@ -4108,7 +4108,7 @@ perfectly
 ([D-002](#d-002--the-ai-is-a-component-not-the-product)/[D-005](#d-005--prompt-injection-posture):
 the model produces only a search string, TMDB still supplies every fact, blast
 radius is a weird result). But it is a *third* AI feature where SPEC scopes two,
-and [CLAUDE.md](../CLAUDE.md) requires every OpenRouter call to be logged with
+and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
 tokens and cost — neither existing log table fits, so it needs
 [migration 002](../db/migrations/002_tmdb_rating.sql), a new service, a
 versioned prompt file and tests, days before submission. Revisit post-submission
@@ -4179,7 +4179,7 @@ and leave the spinner standing alone. Separately, `.search button` is
 
 *Naming note, added later and deliberately not applied to the text below:
 `syncSearchResultButtons()` was renamed `syncAddButtons()` by
-[R3](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09) on
+[R3](../CLAUDE.md#group-a--functional-bugs) on
 2026-09-09, when it stopped sweeping only the search panel and started querying
 the whole document. The old name is left as written throughout this entry
 because it is what the function was called when this was decided — grep for
@@ -4209,14 +4209,14 @@ state set moments earlier.
 
 1. The recommendations error message, written into `#recs-hint` and then wiped by
    `syncRecommendationsAvailability()` in the handler's own `finally` — still
-   open, see [CLAUDE.md](../CLAUDE.md).
+   open, see [CLAUDE.md § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14).
 2. `syncSearchResultButtons()` writing `textContent` into a button that was still
    mid-request, destroying its spinner. Fixed by skipping anything with
    `aria-busy`.
 3. This one.
 
 *(Two dated corrections, 2026-09-09, added rather than folded into the text above,
-which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
 and it turned out to be bigger than described here: the same `finally` wiped the
 SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
 is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
@@ -4230,8 +4230,8 @@ Before adding a sync call, check which deliberate states it can reach.
 ## D-025 · Hide the browser's search clear button rather than theme it
 `<input type="search">` makes Chromium/Safari draw their own clear "×" inside the
 field. On a near-black amber panel it renders as an unthemed blue glyph — the most
-literal instance of the "generic default-component appearance" [CLAUDE.md](../CLAUDE.md)'s design
-notes rule out.
+literal instance of the "generic default-component appearance" [CLAUDE.md's design
+notes](../CLAUDE.md#frontend-design-notes) rule out.
 
 The obvious fix is to style it via `::-webkit-search-cancel-button`. Rejected:
 **Firefox draws no clear button at all**, so styling leaves the browsers still
@@ -4263,7 +4263,7 @@ Both auto-dismissals were built and then removed:
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
   it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
   2026-09-09's
-  [R3](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+  [R3](../CLAUDE.md#group-a--functional-bugs),
   and still existing precisely to update the OTHER open rows after an add.
   Keeping the panel open serves the real flow: search once, add two films.
 
