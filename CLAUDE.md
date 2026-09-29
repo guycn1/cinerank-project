@@ -69,18 +69,20 @@ the lint coverage in `docs/MERGE-READINESS.md` (26 files in four environments,
 not 24 in three), its "seven tests" on `generateRecommendations` (sixteen reach
 it) and its commit count, the Execution row in `docs/PROCESS.md`, the AI-log
 route's line count in `docs/BRIEFS.md` (174 since the JSDoc), two sweep-day
-counts, rule 9's inbound-link counts and the Open issues test count. Wrong from
-the start: three comments citing D-018 for what D-019 decided, `check-markdown`
-numbering two rules 5 (its labels now follow § Markdown Authoring Rules), and a
-CSS comment saying the recs footer spans the grid (R29 moved it out).
-Contradicted within a few lines: the header GitHub icon's first size given as
-its current one, "the fifth" pointing at the second row of a table, and "every
-deletion fails exactly these two tests", which the suite has outgrown
-(re-probed: three to five tests fail per guard). Rule 10: seven self-narrations
-removed, and check 10b now also catches "this pointed at" and "that sentence
-read", each probed against the tree before the fix. `docs/DECISIONS.md` now says
-in its header that entries are not brought up to date, and how to find what
-superseded one.
+counts, rule 9's inbound-link counts and the Open issues test count.
+
+Wrong from the start: three comments citing D-018 for what D-019 decided,
+`check-markdown` numbering two rules 5 (its labels now follow § Markdown
+Authoring Rules), and a CSS comment saying the recs footer spans the grid (R29
+moved it out). Contradicted within a few lines: the header GitHub icon's first
+size given as its current one, "the fifth" pointing at the second row of a
+table, and "every deletion fails exactly these two tests", which the suite has
+outgrown (re-probed: three to five tests fail per guard).
+
+Rule 10: seven self-narrations removed, and check 10b now also catches "this
+pointed at" and "that sentence read", each probed against the tree before the
+fix. `docs/DECISIONS.md` now says in its header that entries are not brought up
+to date, and how to find what superseded one.
 
 **Same day: the rate dialog's review box no longer carries one film's size and
 scroll position into the next** (user-found). The dialog and its textarea are
@@ -104,17 +106,21 @@ merged.** All text is 92% of its old size, set by ONE dial, `--type-scale` on
 `rem` or `em`, so the root is the whole mechanism. Two idioms keep it one dial:
 `calc(Nvw * var(--type-scale))` for the `vw` middle of a fluid clamp, which
 otherwise holds still across mid widths, and `calc(Nrem / var(--type-scale))`
-for what must NOT shrink. **The AI call log table and the "tied" caption are
-exempt** at the user's request, since their smallest tiers were already 8.6px.
-Exempting the table's BASE keeps all seven of its `em` tiers exact. A flat 10px
-floor was weighed and rejected: it would have flattened the tiers and risked
-widening the Tokens column. The px frame (posters, tracks, card widths, the logo
-mark, the header GitHub icon, every breakpoint) does not scale. Measured before
-and after at eight exact widths: every text size 0.920, the log table unchanged,
-no horizontal scroll anywhere. **Found on the way:** an overflowing rank numeral
-is start-aligned, so it spills RIGHT only, and D-030's recorded clearances did
-not hold for the CSS as it stood; the stylesheet comment and the entry under
-Open issues now carry the measured figures.
+for what must NOT shrink.
+
+**The AI call log table and the "tied" caption are exempt** at the user's
+request, since their smallest tiers were already 8.6px. Exempting the table's
+BASE keeps all seven of its `em` tiers exact. A flat 10px floor was weighed and
+rejected: it would have flattened the tiers and risked widening the Tokens
+column. The px frame (posters, tracks, card widths, the logo mark, the header
+GitHub icon, every breakpoint) does not scale. Measured before and after at
+eight exact widths: every text size 0.920, the log table unchanged, no
+horizontal scroll anywhere.
+
+**Found on the way:** an overflowing rank numeral is start-aligned, so it spills
+RIGHT only, and D-030's recorded clearances did not hold for the CSS as it
+stood; the stylesheet comment and the entry under Open issues now carry the
+measured figures.
 
 **Same day: soft hyphens only inside long words (D-080).** `softHyphenate()` put
 one between EVERY pair of graphemes, so a short word at a line's end broke one
@@ -197,14 +203,17 @@ on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and every
 named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
-shapes are typedefs. Three kinds of function are left undocumented on purpose:
-one-line helpers declared inside another function, one-line methods in object
-literals (the test client's verbs, the fake Supabase client's chain methods),
-and the test stubs that stand in for `globalThis.fetch` or `console.error`.
-Each is a line or two whose name and body already say everything a block would,
-so a block there would repeat the code rather than explain it; skipping them is
-also the usual convention. Each
-file was proved unchanged as code by tokenizing it against its previous version.
+shapes are typedefs. Each file was proved unchanged as code by tokenizing it
+against its previous version.
+
+Three kinds of function are left undocumented on purpose: one-line helpers
+declared inside another function, one-line methods in object literals (the test
+client's verbs, the fake Supabase client's chain methods), and the test stubs
+that stand in for `globalThis.fetch` or `console.error`. Each is a line or two
+whose name and body already say everything a block would, so a block there
+would repeat the code rather than explain it; skipping them is also the usual
+convention.
+
 **The finding worth keeping is WHERE a block sits, not what it says.** Nine
 existing blocks were not attached to what they describe — in `public/app.js` the
 ones for `posterNode()`, `softHyphenate()`, `syncRecommendationsAvailability()`,
