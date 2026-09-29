@@ -1973,7 +1973,7 @@ and stay as written.
     `test/helpers.js`), so a test asserting this order would pass no matter
     which direction the route asked for.
 
-#### Ranked-list backlog — THE canonical list, worked in numeric order
+##### Ranked-list backlog — THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
 18–20. **This list is the source of truth** — it previously existed only in chat
