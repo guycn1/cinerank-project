@@ -364,61 +364,60 @@ rather than by any tool (D-069, D-070, and the two in the database-down state);
 and six new tests taking the suite from 54 to 60, every one probed by breaking
 the source.
 
-Earlier: **THE `DOSSIER.md` RECONCILIATION IS DONE** — see the first item under
+**THE `DOSSIER.md` RECONCILIATION IS DONE** — see the first item under
 Pre-submission blockers, which records what it found and what it produced:
 `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a linter that
 became the fourth commit gate, and an unfrozen `SPEC.md` with its spiral turns
 recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT POINT,
 failing only criterion 1, which is the blockers list itself — it has since
-closed, and the top of this entry is the current verdict. Nothing in that list
+closed, and the Current state section above carries the current verdict. Nothing in that list
 was ticked by the reconciliation.
 
 #### Up to 2026-09-12 — the front-end overhaul
 
-Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix —
-step 1 of the agreed order — is also done; the recommendations section was then
-AUDITED into a sub-backlog under step 2 — now R1–R30, with TWENTY-NINE done, R20
-withdrawn as incorrect and **NONE OPEN — STEP 2 IS COMPLETE**: R18, the last
-one, was closed 2026-09-12 as won't-fix once it was measured (D-063) rather than
-guessed at; R6 was closed 2026-09-11 by correcting the docs rather than the
-matcher, after measuring that its own premise was wrong (D-054), and R5 the same
-day by composing the two causes and giving them a stderr sink;
-
-the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after
-four prompt versions failed to change its register — recommendations stay on the
-cheaper tier; a new step **4b** sits between 4 and 5 (deliberately not
-renumbered — "step 5" is referenced outside this file) and held SEVEN items,
-**ALL SEVEN NOW DONE — the verdict typing effect (D-057) landed the same day as
-this update, closing out 4b entirely. Step 5, the portrait overhaul, came next
-and closed the same day (further down this entry); its two enforcement rules
-still stand and are Claude's to apply, not the user's to remember**;
-
-the verdict glint, its busy-state cue, the film grain and the disabled "New
-verdict" landed earlier the same day after four failed polish passes, a revert
-to the last commit, and a rebuild as TWENTY composited stroke-dashes (D-055);
-its performance was measured at 1x/6x/20x CPU throttle with and without GPU
-acceleration and the cost accepted, so do not re-open that on a hunch; the
-per-item statuses there are the source of truth, do not summarise them from
-memory;
-
-seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day
-(3650f52, the verdict typing effect plus that day's step 5 work), and a
-NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on
-measurement, step 5 closed by the user, and the favicon) — see the build-status
-bullet above for the current count and SHA, this clause is left as the record of
-when each happened; migrations 001-004 all applied, 004 confirmed by the user
-2026-09-09; the next-session backlog was reset the same day — **SEVEN entries
-once 4b is counted, not six**, see "Agreed order of work from here"; step 3
-landed 2026-09-11;
-
-**step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12, the
-same day it started and finished. Do not reopen it or hunt for more narrow-width
-work.** They closed it against the agreed ~350px target: no viable remaining
-issues there, messiness only starting below ~310px and the UI still mostly
-usable even then — which is inside the "good enough only" band and above the
-~290px ignore floor, so it is the two enforcement rules working, not a defect
-list. **Those rules still stand for any future narrow-width question; this step
-closing does not retire them.**
+* Ranked-list backlog **COMPLETE — all 20 done**;
+* the mobile-keypad fix — step 1 of the agreed order — is also done;
+* the recommendations section was then AUDITED into a sub-backlog under step 2
+  — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE
+  OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as
+  won't-fix once it was measured (D-063) rather than guessed at; R6 was closed
+  2026-09-11 by correcting the docs rather than the matcher, after measuring
+  that its own premise was wrong (D-054), and R5 the same day by composing the
+  two causes and giving them a stderr sink;
+* the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after
+  four prompt versions failed to change its register — recommendations stay on
+  the cheaper tier;
+* a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step
+  5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW
+  DONE — the verdict typing effect (D-057) landed the same day as this update,
+  closing out 4b entirely. Step 5, the portrait overhaul, came next and closed
+  the same day (further down this entry); its two enforcement rules still stand
+  and are Claude's to apply, not the user's to remember**;
+* the verdict glint, its busy-state cue, the film grain and the disabled "New
+  verdict" landed earlier the same day after four failed polish passes, a
+  revert to the last commit, and a rebuild as TWENTY composited stroke-dashes
+  (D-055); its performance was measured at 1x/6x/20x CPU throttle with and
+  without GPU acceleration and the cost accepted, so do not re-open that on a
+  hunch; the per-item statuses there are the source of truth, do not summarise
+  them from memory;
+* seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day
+  (3650f52, the verdict typing effect plus that day's step 5 work), and a
+  NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on
+  measurement, step 5 closed by the user, and the favicon) — see the
+  build-status bullet below for the current count and SHA, this clause is left
+  as the record of when each happened;
+* migrations 001-004 all applied, 004 confirmed by the user 2026-09-09;
+* the next-session backlog was reset the same day — **SEVEN entries once 4b is
+  counted, not six**, see "Agreed order of work from here";
+* step 3 landed 2026-09-11;
+* **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12,
+  the same day it started and finished. Do not reopen it or hunt for more
+  narrow-width work.** They closed it against the agreed ~350px target: no
+  viable remaining issues there, messiness only starting below ~310px and the
+  UI still mostly usable even then — which is inside the "good enough only"
+  band and above the ~290px ignore floor, so it is the two enforcement rules
+  working, not a defect list. **Those rules still stand for any future
+  narrow-width question; this step closing does not retire them.**
 
 Landed: the ranked card's score row no longer wraps its rating mid-number or
 pushes Edit/Remove outside the card at 400px and below (D-058's flex-wrap
@@ -463,8 +462,8 @@ Express's finalhandler answers it (step 4).
 **SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE.** Step 6 — pre-submission evidence,
 registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS
 WRITTEN, and it is now done as well: every checkbox under Pre-submission
-blockers is ticked, the final merge included. The top of this entry is the
-current state.
+blockers is ticked, the final merge included. The Current state section above
+carries the current state.
 
 ### Build status
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
@@ -3651,7 +3650,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      (a trackable feature). The ranked entrance happened to need only the first.
    * **The ranked list's first-paint entrance is barely visible** (user-raised
      2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
-     (D-031) and is not in scope. Same family as the two items above, and
+     (D-031) and is not in scope. Same family as the glint and logo-spin items, and
      measured rather than guessed, so this started from evidence. **The next
      three paragraphs are the DIAGNOSIS — they describe the broken state, not
      the current one; the shipped values are in the DONE block below.**
@@ -4942,7 +4941,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 The explicit goal is a genuinely polished, distinctive look — not a generic default-component appearance. Concretely:
 
 * Real typography choices (not default system font stack sizes) for the movie title/ranking numbers.
-* Good-locking CSS effects and animations.
+* Good-looking CSS effects and animations.
 * Poster images treated as the primary visual anchor of each card — layout should be built around the poster, not squeeze it in as an afterthought.
 * Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list."
 
