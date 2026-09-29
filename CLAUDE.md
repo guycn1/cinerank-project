@@ -897,6 +897,9 @@ pre-submission evidence and cleanup, not UI — was the only step left when this
 paragraph was written, and it closed on 2026-09-14. NOTHING in the agreed order
 is open.** The bullets below are the running record of how each piece got there
 and stay as written.
+
+#### Early polish and the AI call log
+
 * The two modal `<dialog>`s that existed at the time (rate, AI call log) were
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
@@ -1083,6 +1086,9 @@ and stay as written.
     in card view; summary stays on the label line, panel is a full-width block
     with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
     same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
+
+#### Taste verdict section
+
 * **Taste verdict section — DONE** (2026-09-07). **Three later changes are NOT
   described in this bullet and are in step 4b instead:** the banner's ring gained a
   travelling glint (2026-09-12), that glint speeds up and brightens while a
@@ -1133,6 +1139,9 @@ and stay as written.
     the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
     a BEM element name for a class now serving two unrelated blocks) is built
     by a shared `logLink()` factory.
+
+#### Search section
+
 * **Search section — overhauled 2026-09-07, then REOPENED and worked again on
   2026-09-08/09**, so it was not a closed section for that stretch. The
   2026-09-07 pass below is
@@ -1367,6 +1376,9 @@ and stay as written.
     document), so desktop is provably unchanged. The case it fixes is the
     keyboard's own Go/Search key, which submits without moving focus — tapping
     the Search button already blurred the input by itself.
+
+#### Ranked list
+
 * **Ranked list — all 20 backlog items DONE** (2026-09-08), and the section
   stayed open past that date: the user went on raising off-backlog refinements
   and bugs found by using it ("a few more things to settle before calling the
@@ -1990,6 +2002,8 @@ Work this top to bottom. It is the user's own sequencing, not Claude's — do no
 re-prioritise it, and do not start further down because something looks quicker.
 This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
+###### Step 1 — the mobile keypad
+
 1. **Mobile keypad does not close when a search is submitted — DONE
    2026-09-09.** The mechanism was as traced: the submit handler calls
    `e.preventDefault()` so the form never navigates, and nothing in `app.js`
@@ -2010,6 +2024,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    The case that actually needed it is the keyboard's own **Go/Search** key,
    which submits without moving focus; tapping the Search BUTTON already blurred
    the input by itself.
+
+###### Step 2 — the recommendations sub-backlog (R1–R30)
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
@@ -3156,6 +3172,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
    shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
+###### Step 3 — GitHub links
+
 3. **Add GitHub link(s)** to the page — out to the public repo. **The header
    link is DONE 2026-09-11**, which is the placement the user specified: a
    GitHub mark top-right in `.site-head`, right-aligned with the content column.
@@ -3311,6 +3329,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    empty clickable box. Both copies carry a comment pointing at the other; edit
    one, edit both.
 
+###### Step 4 — the favicon
+
 4. **The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
    asked, then built from what the discussion settled.
 
@@ -3349,6 +3369,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    by booting the app on port 3999, not reasoned about. Declaring any icon link
    is what stops the auto-probe, so the icon and the console error were one fix,
    not two.
+
+###### Step 4b — seven polish items
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -3841,6 +3863,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sped up", and the user approved it after looking. A rAF ramp of
      `playbackRate` is the fix if it is ever wanted.
 
+###### Step 5 — the portrait overhaul
+
 5. **Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
    USER 2026-09-12. Do not reopen it, and do not go hunting for more
    narrow-width work: the user has declared the target met.**
@@ -3882,6 +3906,8 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      not fix, and **stop the user if they start**. This is not a judgement call
      to re-litigate each time — it is a standing instruction, given deliberately
      with the submission deadline in view.
+
+###### Step 6 — pre-submission blockers
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
@@ -4094,6 +4120,8 @@ showing, a before/after worth contrasting — append it here the moment it
 appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 "the end" happened on 2026-09-13/14, and every item below is ticked.
 
+#### Deployment, reconciliation and seed data
+
 * [x] **Deployed to Render** (2026-09-07) —
   **https://cinerank-g6lx.onrender.com** URL is at the very top of the README.
   Web service created through the Render dashboard rather than from
@@ -4166,6 +4194,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   the rows are exactly what the normal UI flow produces. The content is settled
   in D-068 and described under Open issues above, including the two traps a
   future rebalance would undo.
+
+#### Resilience screenshots, RS-1 to RS-16
 
 * [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and SEVEN
   MORE ADDED 2026-09-14 (RS-10 through RS-16), all written up in
@@ -4658,6 +4688,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **Revert and re-run `npm test` for 62/62**, as with RS-9 and RS-15.
 
+#### Remaining evidence and cleanup
+
 * [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
@@ -4795,6 +4827,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   EXACT match for the intended transforms — zero unintended changes. CLAUDE.md
   differed in exactly two lines, both of them escapes deliberately preserved in
   this entry as examples. Nothing else in either rendered file moved.
+
+#### The final planned merge
 
 * [x] **Final planned `draft → main` merge — AUTHORISED 2026-09-14.** Everything
   above it was ticked first, and `docs/MERGE-READINESS.md` reads MET on all five
