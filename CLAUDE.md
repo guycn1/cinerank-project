@@ -2003,7 +2003,7 @@ reopens, and do not renumber: the numbers are how the user refers to them.
 | 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
 | 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
-##### Agreed order of work from here (set by the user, 2026-09-09)
+#### Agreed order of work from here (set by the user, 2026-09-09)
 
 **Every step below is closed** — the last UI step on 2026-09-12, step 6 on
 2026-09-14 — so what follows is the record of the order the work was done in,
@@ -2015,7 +2015,7 @@ Work this top to bottom. It is the user's own sequencing, not Claude's — do no
 re-prioritise it, and do not start further down because something looks quicker.
 This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-###### Step 1 — the mobile keypad
+##### Step 1 — the mobile keypad
 
 1. **Mobile keypad does not close when a search is submitted — DONE
    2026-09-09.** The mechanism was as traced: the submit handler calls
@@ -2038,7 +2038,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    which submits without moving focus; tapping the Search BUTTON already blurred
    the input by itself.
 
-###### Step 2 — the recommendations sub-backlog (R1–R30)
+##### Step 2 — the recommendations sub-backlog (R1–R30)
 
 2. **Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
    whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
@@ -2053,7 +2053,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    these are how the items get referred to. Keep the statuses current if
    anything reopens.
 
-   **Group A — functional bugs**
+   ###### Group A — functional bugs
 
    * **R1. DONE 2026-09-09 — recs messages survive the run that wrote them.**
      `#recs-hint` has TWO owners: `syncRecommendationsAvailability()` writes the
@@ -2181,7 +2181,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      assertion for each feature, and deleting the `console.error` fails the
      "log-write cause was lost" assertion for each.
 
-   **Group B — the strength of the "verified against TMDB" claim**
+   ###### Group B — the strength of the "verified against TMDB" claim
 
    * **R6. DONE 2026-09-11 (D-054) — closed by correcting the CLAIM, not the
      code.** `verifyTitle()` still falls back to `results[0]`. What changed is
@@ -2224,7 +2224,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      title lookup. Full numbers, and the tiered matcher that was designed and
      rejected, are in D-054; do not re-derive them by eye.
 
-   **Group C — copy and consistency**
+   ###### Group C — copy and consistency
 
    * **R7. DONE 2026-09-11 — the rec card now reads `+ Add to my list`.** It
      rested at `Add to my list` against the search row's `+ Add`, and the two
@@ -2293,7 +2293,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      recommendations" line in the service so the state could actually be looked
      at — reverted before commit.
 
-   **Group D — visual, and narrow viewports**
+   ###### Group D — visual, and narrow viewports
 
    * **R11. DONE 2026-09-09.** `.recs__trigger` had neither `flex-shrink: 0` nor
      `white-space: nowrap`, so a flex item's automatic minimum size let it
@@ -2619,7 +2619,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      first paint to `/api/movies` returning, where the content arriving
      dominates it. Noted so it is not rediscovered as a bug.
 
-   **Group E — structure and tests**
+   ###### Group E — structure and tests
 
    * **R19. DONE 2026-09-09 — the success path is now covered.** It had none:
      the only recommendation tests were the below-threshold 422 and the
@@ -2692,7 +2692,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      `clip-path: inset(50%)` and `white-space: nowrap` so no engine reads it a
      letter per line.
 
-   **Group F — found while fixing the above (added 2026-09-09)**
+   ###### Group F — found while fixing the above (added 2026-09-09)
 
    * **R28. DONE 2026-09-09 — the zero-result message told the user a specific
      lie.** It read "No new suggestions this time — the model only named films
@@ -3187,7 +3187,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
    shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
-###### Step 3 — GitHub links
+##### Step 3 — GitHub links
 
 3. **Add GitHub link(s)** to the page — out to the public repo. **The header
    link is DONE 2026-09-11**, which is the placement the user specified: a
@@ -3344,7 +3344,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    empty clickable box. Both copies carry a comment pointing at the other; edit
    one, edit both.
 
-###### Step 4 — the favicon
+##### Step 4 — the favicon
 
 4. **The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
    asked, then built from what the discussion settled.
@@ -3385,7 +3385,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    is what stops the auto-probe, so the icon and the console error were one fix,
    not two.
 
-###### Step 4b — seven polish items
+##### Step 4b — seven polish items
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -3878,7 +3878,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      sped up", and the user approved it after looking. A rAF ramp of
      `playbackRate` is the fix if it is ever wanted.
 
-###### Step 5 — the portrait overhaul
+##### Step 5 — the portrait overhaul
 
 5. **Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
    USER 2026-09-12. Do not reopen it, and do not go hunting for more
@@ -3922,7 +3922,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      to re-litigate each time — it is a standing instruction, given deliberately
      with the submission deadline in view.
 
-###### Step 6 — pre-submission blockers
+##### Step 6 — pre-submission blockers
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
