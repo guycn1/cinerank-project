@@ -3109,12 +3109,14 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    That alignment is free rather than tuned — `main` and `.site-head` both read
    `max-width: var(--page-max)` (1040px) with identical horizontal padding, so
    the icon lands exactly above the verdict banner's right edge.
+
    **It is deliberately NOT small, and no part of this backlog ever said it
    should be.** Claude called this step "small and self-contained" meaning the
    TASK; the user read that as the icon and corrected it, then asked for the
-   backlog to be checked in case the claim was written down anywhere. It was
-   not — checked. The icon was built at `clamp(32px, 4vw, 42px)`, a peer of the
-   34px logo mark, and then grew 1.5x (below).
+   backlog to be checked in case the claim was written down anywhere. It was not
+   — checked. The icon was built at `clamp(32px, 4vw, 42px)`, a peer of the 34px
+   logo mark, and then grew 1.5x (below).
+
    **The header is now a two-column grid** (`minmax(0, 1fr) auto`) with the mark
    at 1/1, the tagline at 1/2, and the link spanning BOTH rows in column 2 so it
    centres against the block rather than against either line. Every placement is
@@ -3123,14 +3125,16 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    this project has now hit six times — `1fr` is `minmax(auto, 1fr)`, and that
    automatic minimum would let a long tagline word push the icon off the edge
    instead of wrapping.
+
    **Sizing and alignment were both revised the same day on the user's
-   screenshots.** The icon was centred across the two rows, which left it sitting
-   well below the h1; it is now `align-self: start` with a negative `margin-top`
-   cancelling its own padding, so what meets the top of the header block is the
-   GLYPH rather than the invisible hit area — without that it reads about 7px low
-   and the padding takes the blame. It also grew 1.5x, applied to every term of
-   the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at every width
-   rather than only where the clamp happened to be resting.
+   screenshots.** The icon was centred across the two rows, which left it
+   sitting well below the h1; it is now `align-self: start` with a negative
+   `margin-top` cancelling its own padding, so what meets the top of the header
+   block is the GLYPH rather than the invisible hit area — without that it reads
+   about 7px low and the padding takes the blame. It also grew 1.5x, applied to
+   every term of the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at
+   every width rather than only where the clamp happened to be resting.
+
    **STILL UNRESOLVED as of 2026-09-12 — a claim briefly written here about it
    was WITHDRAWN, and the withdrawal is the useful part.** A headless-Chrome
    screenshot pass (292 through 600px) appeared to show the header GitHub icon
@@ -3143,40 +3147,45 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    TOOLING but never reconciled the two results, and the user asked to stop
    spending the session on it rather than dig further — correctly: this was
    supposed to be two small, mechanical CSS fixes.
+
    **So: nothing is confirmed either way.** The h1-overflow mechanism this note
-   already describes (a single unbreakable word in a `minmax(0, 1fr)` column)
-   is real and unchanged; whether it actually clips the icon at some width, and
+   already describes (a single unbreakable word in a `minmax(0, 1fr)` column) is
+   real and unchanged; whether it actually clips the icon at some width, and
    which width, is NOT established — do not cite the ~510px figure, it was
    retracted, not corrected. If this needs settling later, trust the real
    browser over another automated pass; something about headless Chrome's
    rendering did not match it here for a reason that was never found.
-   **The tooling unreliability turned out to run deeper than this note knew
-   at the time — see D-062.** A LATER, unrelated bug hunt found a case with a
+
+   **The tooling unreliability turned out to run deeper than this note knew at
+   the time — see D-062.** A LATER, unrelated bug hunt found a case with a
    completely FRESH profile (no session reuse) where the requested
    `--window-size` still didn't match what the page's own JS reported, and a
-   separate run where the output PNG was pixel-exact at the requested size
-   while `window.innerWidth` read something else entirely. So "session
-   reuse" was A cause seen once, not the whole story — do not treat headless
-   Chrome's width reporting as trustworthy here without a live console check
-   backing it up. `npm run layout-check` (2026-09-28) removes that particular
-   fault by measuring inside an iframe it sizes itself, but it has not been
-   pointed at this question, so the paragraph above still stands.
+   separate run where the output PNG was pixel-exact at the requested size while
+   `window.innerWidth` read something else entirely. So "session reuse" was A
+   cause seen once, not the whole story — do not treat headless Chrome's width
+   reporting as trustworthy here without a live console check backing it up.
+   `npm run layout-check` (2026-09-28) removes that particular fault by
+   measuring inside an iframe it sizes itself, but it has not been pointed at
+   this question, so the paragraph above still stands.
+
    **What IS certain, independent of any of the above:** the two fixes that
    shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
    icon scaled to 75% under `max-width: 400px`) cannot affect anything above
    400px by construction — the icon rule is strictly gated by its media query,
    and the reel's fix only ever prevents a shrink that would otherwise occur
    under pressure, never something that changes its rest state.
+
    **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
-   eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with a
-   box-shadow appearing over the same 0.25s. The glow is
-   **built out of light, not black** — the user flagged the dark-theme trap in
-   the request itself, and D-044 is the entry that records it costing real time
-   on the ranked card. Both layers take a **zero Y-offset** (a glow is emitted
-   and radiates evenly; an offset only makes it lopsided) and the magnitudes
-   echo `.verdict__refresh:hover` rather than inventing a third set. Amber and
-   not white, because the glyph is already `--ink` and a glow the colour of the
+   eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with
+   a box-shadow appearing over the same 0.25s. The glow is **built out of light,
+   not black** — the user flagged the dark-theme trap in the request itself, and
+   D-044 is the entry that records it costing real time on the ranked card. Both
+   layers take a **zero Y-offset** (a glow is emitted and radiates evenly; an
+   offset only makes it lopsided) and the magnitudes echo
+   `.verdict__refresh:hover` rather than inventing a third set. Amber and not
+   white, because the glyph is already `--ink` and a glow the colour of the
    thing glowing is just a blur (R15).
+
    It carries a `title="View source on GitHub"` tooltip (user-asked) ALONGSIDE
    its `aria-label`, and the two deliberately differ: the title is the pointer
    tooltip, the aria-label is the accessible name and the only one that can say
@@ -3184,8 +3193,9 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    name outright, so the title is never announced. Do not merge them.
    `border-radius: 50%` on the link so the halo is round like the mark itself; a
    rectangular glow around a circular glyph reads as a stray box. Hover is gated
-   on `@media (hover: hover)`, the capability query the card hovers settled, so a
-   tap cannot park the icon lit.
+   on `@media (hover: hover)`, the capability query the card hovers settled, so
+   a tap cannot park the icon lit.
+
    **One dial considered and left unset:** the user raised
    `filter: brightness(1.x)` as a possible "more than fully opaque" step, then
    judged it unnecessary once the resting opacity and the halo had been tuned —
@@ -3195,82 +3205,97 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
    moved** (18/38 → 22/46) and the alphas were deliberately held: raising both
    makes a halo read as brighter rather than bigger, and then neither dial can
    be judged on its own.
+
    **The plural in "link(s)" is now satisfied too — a SECOND mark sits at the
    right edge of the footer's credit line** (user-asked, same day). It is the
    same icon at `1.5rem` against the header's `clamp(48px, 6vw, 63px)`.
+
    **`.gh-link` was split into a shared look plus two placements** to take it:
    the class now carries only the padding, the round hit area, the colour, the
    resting opacity, the transition and the hover glow, while
    `.site-head .gh-link` holds the grid placement and `--gh-drop`, and
    `.site-foot__credit .gh-link` holds nothing but a `font-size`. Size is
    genuinely the only difference between the two.
+
    **The hover halo moved from px to `em` as part of that**, and the conversion
    is arithmetic rather than a retune: `22px`/`46px` divided by the header's
    63px give `0.35em`/`0.73em`, so the header is unchanged to within a quarter
    pixel while the footer's ~2.6x smaller mark gets a proportional glow. A fixed
    46px halo would have swallowed a 24px icon whole.
+
    **Two more by-eye fixes once the footer mark was on screen, both from one
    screenshot.** The dark ring the user saw "wrapping" the small mark was the
    link's own `padding` — unlit page background between the glyph and where the
    glow starts — and it was fixed in `rem`, so it did not scale down: a thin rim
    at 63px, nearly a third of the radius at 24px. `--gh-pad` is now `0.115em`,
    which IS the hand-tuned 7.2px expressed against the header's 63px, so the
-   header rim moves by 0.05px and the footer's drops 7.20 → 2.76px.
-   **Changing that value can never disturb the header's alignment**, and it is
-   worth knowing why: the `margin-top` calc subtracts exactly what the padding
-   adds, so the glyph lands in the same place whatever the padding is.
-   The halo then got its own per-instance dial, `--gh-halo`, multiplying blur AND
-   spread so the glow is scaled rather than distorted. The header keeps `1` —
-   **its glow is byte-for-byte what the user settled, 22/46px** — and the footer
-   takes `1.35`. Proportional was the right default, but a small mark on a quiet
-   footer needs a little more spill to register as lit. The alphas stay out of
-   the multiplier, for the reason the earlier widening established: brightness
-   and size are separate dials and mixing them makes neither judgeable.
+   header rim moves by 0.05px and the footer's drops 7.20 → 2.76px. **Changing
+   that value can never disturb the header's alignment**, and it is worth
+   knowing why: the `margin-top` calc subtracts exactly what the padding adds,
+   so the glyph lands in the same place whatever the padding is.
+
+   The halo then got its own per-instance dial, `--gh-halo`, multiplying blur
+   AND spread so the glow is scaled rather than distorted. The header keeps `1`
+   — **its glow is byte-for-byte what the user settled, 22/46px** — and the
+   footer takes `1.35`. Proportional was the right default, but a small mark on
+   a quiet footer needs a little more spill to register as lit. The alphas stay
+   out of the multiplier, for the reason the earlier widening established:
+   brightness and size are separate dials and mixing them makes neither
+   judgeable.
+
    `.site-foot__credit` became a flex row with the sentence wrapped in its own
    `<span>` — without that wrapper the icon would be one more inline word after
    the full stop and would sit wherever the line happened to end, not at the
    right edge.
+
    **The SVG path is DUPLICATED between the two, deliberately.** `<symbol>` +
-   `<use>` would genuinely work here — unlike R15's sparkle, nothing selects into
-   this icon's internals and `fill` inherits from the host's `color` — but it
-   costs a hidden sprite element plus a rewrite of the header link the user had
-   just finished tuning by eye, to de-duplicate one static third-party logo path
-   that will never be regenerated. A `<template>` + JS clone is worse again: this
-   link's only content is the icon, so a failed script leaves an empty clickable
-   box. Both copies carry a comment pointing at the other; edit one, edit both.
+   `<use>` would genuinely work here — unlike R15's sparkle, nothing selects
+   into this icon's internals and `fill` inherits from the host's `color` — but
+   it costs a hidden sprite element plus a rewrite of the header link the user
+   had just finished tuning by eye, to de-duplicate one static third-party logo
+   path that will never be regenerated. A `<template>` + JS clone is worse
+   again: this link's only content is the icon, so a failed script leaves an
+   empty clickable box. Both copies carry a comment pointing at the other; edit
+   one, edit both.
 
 4. **The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
    asked, then built from what the discussion settled.
-   **Shipped:** `public/favicon.svg` plus one `<link rel="icon"
-   type="image/svg+xml">` in `index.html`. No `.ico`, no PNG set, no server
-   route — `express.static` already serves `public/`.
+
+   **Shipped:** `public/favicon.svg` plus one
+   `<link rel="icon" type="image/svg+xml">` in `index.html`. No `.ico`, no PNG
+   set, no server route — `express.static` already serves `public/`.
+
    **It is a RE-DRAW, not an export, and it cannot be anything else.**
    `.mark__reel` is pure CSS, so no asset ever existed to export. And a faithful
    transcription fails at the only size that matters: normalised to a 32-unit
    viewBox the logo's inner ring is **1.12 units — 0.56px at 16px**, which
    aliases into a smudge. Four candidates were drawn and compared at
    16/24/32/64px on light and dark tab strips; the user chose the one that goes
-   furthest toward faithful while still holding at 16px (rings 4.0 and 2.2, notch
-   34° against the logo's 28.8°).
+   furthest toward faithful while still holding at 16px (rings 4.0 and 2.2,
+   notch 34° against the logo's 28.8°).
+
    **DO NOT "CORRECT" ITS PROPORTIONS BACK TO MATCH `.mark__reel`.** They differ
    on purpose, the exact-match version was built and rejected, and the file says
    so at the top. Retune only at 16px — every candidate looks fine at 64px.
+
    **Three sub-decisions, all deliberate and all in D-064:** no background disc
    (offered with a live toggle, compared on a light strip, rejected); no spin
    (Chrome rasterises only the first frame); SVG only.
-   **On SVG-only — Claude's first advice here was wrong and the user caught it.**
-   It claimed Safari would still probe `/favicon.ico` and that an airtight fix
-   needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
+
+   **On SVG-only — Claude's first advice here was wrong and the user caught
+   it.** It claimed Safari would still probe `/favicon.ico` and that an airtight
+   fix needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
    unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
    covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
    and older still probe — the same 404 as before, not a new one.
+
    **There is no 404 handler** for the probe to land on: `server/index.js` has
    only a central error handler, which fires on `next(err)`. The request falls
    through `express.static` and every API mount to Express's built-in
    finalhandler — a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
-   by booting the app on port 3999, not reasoned about.
-   Declaring any icon link is what stops the auto-probe, so the icon and the
-   console error were one fix, not two.
+   by booting the app on port 3999, not reasoned about. Declaring any icon link
+   is what stops the auto-probe, so the icon and the console error were one fix,
+   not two.
 
 4b. **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
    and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
@@ -3303,49 +3328,56 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
       2026-09-12**. Brightness in CSS, speed via `playbackRate` in JS rather
       than the duration swap D-055 prescribed, because changing a CSS
       animation's duration makes the dash JUMP (D-056).
+
    **A pattern came out of the finished ones:** all were "the mechanism exists,
    the effect is invisible", and in TWO of them the cause was `var(--ease)`
    front-loading the motion into the first fifth of the duration. Check the
    timing function first — but the glint proved that is not always the whole
    story, so also ask whether there is anything in the frame whose movement can
-   be SEEN at all. The user pulled this step in front of
-   step 4 deliberately: the favicon will most likely derive from the logo, so the
-   logo had to be settled before that discussion could start.
-   **FOUR OF THE ORIGINAL FIVE are the
-   same shape — the mechanism already exists and the effect is simply too subtle
-   to see — so read each item before building anything.** Only the typing effect
-   is a genuinely new build; the two items added on 2026-09-11 (the disabled
-   button and the busy-speed glint) are their own shapes again. The logo item was
-   one of the four, and it is worth
+   be SEEN at all. The user pulled this step in front of step 4 deliberately:
+   the favicon will most likely derive from the logo, so the logo had to be
+   settled before that discussion could start.
+
+   **FOUR OF THE ORIGINAL FIVE are the same shape — the mechanism already exists
+   and the effect is simply too subtle to see — so read each item before
+   building anything.** Only the typing effect is a genuinely new build; the two
+   items added on 2026-09-11 (the disabled button and the busy-speed glint) are
+   their own shapes again. The logo item was one of the four, and it is worth
    noting how it went: the mechanism was fine, the written diagnosis of WHY it
    was invisible was incomplete, and following that diagnosis literally would
-   have produced the wrong effect. Read the code, not just the item. Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the
-   user asked for these "after the recs overhaul, before the narrow-portrait
-   overhaul", and renumbering would silently break every reference to "step 5",
-   including the enforcement rules in the memory file
-   `recs-overhaul-known-issues.md`. Step 5 stays the portrait overhaul.
+   have produced the wrong effect. Read the code, not just the item.
+
+   Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the user asked for
+   these "after the recs overhaul, before the narrow-portrait overhaul", and
+   renumbering would silently break every reference to "step 5", including the
+   enforcement rules in the memory file `recs-overhaul-known-issues.md`. Step 5
+   stays the portrait overhaul.
 
    * **A typing effect on the verdict as it appears, like early ChatGPT — DONE
      2026-09-12 (D-057).** The only item in this sub-backlog that was ever a
      genuinely new build rather than an existing effect too subtle to see.
+
      **Both hazards flagged in advance were real and both are handled:**
-     `.verdict__text` had (and still has) two writers — `syncVerdictAvailability()`
-     and a run — so D-040's single-writer lesson applied directly. Every write
-     now goes through ONE function, `setVerdictText(text, { typed })`
-     (`app.js`), which cancels any typer already running (a generation counter,
-     the same shape D-040 used) before writing its own content — a sync landing
-     mid-type just wins, cleanly, with no coordination the caller has to think
-     about.
+     `.verdict__text` had (and still has) two writers —
+     `syncVerdictAvailability()` and a run — so D-040's single-writer lesson
+     applied directly. Every write now goes through ONE function,
+     `setVerdictText(text, { typed })` (`app.js`), which cancels any typer
+     already running (a generation counter, the same shape D-040 used) before
+     writing its own content — a sync landing mid-type just wins, cleanly, with
+     no coordination the caller has to think about.
+
      The `aria-live="polite"` hazard is solved by giving the element TWO
      children on every write: a `.sr-only` span carrying the FULL text from the
      first frame (what assistive tech announces, once, complete) and an
      `aria-hidden` `.verdict__typed` span that is what animates on screen. Only
      the SUCCESS path types (`{ typed: true }`); placeholders, the busy line and
      both error messages render instantly, unchanged.
+
      **`prefers-reduced-motion` is checked inside the helper itself**, before
      the typing branch runs at all — so the caret's CSS animation is
-     structurally unreachable under reduced motion, not merely suppressed by
-     the app's global kill-switch.
+     structurally unreachable under reduced motion, not merely suppressed by the
+     app's global kill-switch.
+
      **One call site deliberately bypasses the helper**, and says so at the
      point it does: the verdict's `err.logged` failure builds a link (text +
      `<a>` + text), not a single string, so there is nothing plausible to type.
@@ -3357,13 +3389,15 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      then finished by reverting and isolating one dial at a time. **Full story,
      including the two traps below and the performance measurements, is D-055 —
      read it before changing anything here.**
+
      **As shipped:** a static warm `linear-gradient` ring at `padding: 2.5px`,
      with all the movement in `.verdict__sheen` — **TWENTY** SVG `<rect>`s, each
      `pathLength="100"`, stroke-dashed at a different length and centred on each
      other so their alphas COMPOSITE into a band that fades in and out along its
-     direction of travel. One lap per 15s, `linear`. One halo for the whole stack
-     on the SVG root. `pauseSheenOffscreen()` in `app.js` stops it while the
-     banner is scrolled out of view.
+     direction of travel. One lap per 15s, `linear`. One halo for the whole
+     stack on the SVG root. `pauseSheenOffscreen()` in `app.js` stops it while
+     the banner is scrolled out of view.
+
      **THREE THINGS THAT LOOK LIKE FREE VALUES AND ARE NOT.** Every one of them
      is documented at its own declaration; this is the index, not the detail.
      1. **The ring width is FIVE coupled values** — `.verdict`'s padding,
@@ -3379,30 +3413,36 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
         the taper smears instead of forming a band. Never hand-edit those lines.
      3. **The alphas are SOLVED, not chosen, and they are not monotonic** — they
         rise to a peak at layer 16 of the 20 and fall away after it (0.1305 at
-        16, against 0.0012 at the first and 0.0465 at the last). Layers composite multiplicatively, so
-        scaling them all flattens the taper back into a hard bar rather than
-        dimming it. The user proved this by quadrupling them; it looked worse.
-     **The layer count is an anti-banding parameter.** A dash has hard ends, so N
-     layers make N steps: five was a visible staircase (max step 0.176 in
+        16, against 0.0012 at the first and 0.0465 at the last). Layers
+        composite multiplicatively, so scaling them all flattens the taper back
+        into a hard bar rather than dimming it. The user proved this by
+        quadrupling them; it looked worse.
+
+     **The layer count is an anti-banding parameter.** A dash has hard ends, so
+     N layers make N steps: five was a visible staircase (max step 0.176 in
      composite opacity), twenty is 0.043. If these are ever thinned for
      performance, that is what is being traded away.
+
      **Performance was measured and the cost accepted — do not re-open it on a
      hunch.** `stroke-dashoffset` is a paint property and cannot be composited,
      so this is the most expensive animation on the page. Measured at 1x, 6x and
      20x CPU throttle, each with and without GPU acceleration: **no measurable
      cost anywhere except software-rendering-plus-20x**, a configuration no real
-     device occupies. Full table in D-055. Note DevTools CPU throttling slows the
-     MAIN THREAD ONLY, which is why the software-rendering runs were needed.
+     device occupies. Full table in D-055. Note DevTools CPU throttling slows
+     the MAIN THREAD ONLY, which is why the software-rendering runs were needed.
+
      **The busy-state item further down this list** (the glint speeding up while
      "New verdict" runs) **is DONE — 2026-09-12, D-056**, and its two dials are
      exactly the two traps above. Note that only ONE of D-055's two one-line
      fixes was used — the speed half went to `playbackRate` in JS instead of the
      duration swap D-055 prescribed, because changing a CSS animation's duration
      makes the dash JUMP. See D-056 before touching it.
+
      **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK. Every mechanism it
      names has since been REPLACED — none of the following describes the code
      today. It is kept only because its instruction to measure first is what
      unlocked the item.**
+
      *It read: the border should drift slowly, and IT ALREADY DOES — check
      before building (found 2026-09-11 while working R15). `.verdict` carried
      `animation: sheen 9s var(--ease) infinite`, moving a 220%-sized
@@ -3412,209 +3452,237 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      as the logo-spin item: the mechanism was there and the effect too subtle to
      notice, so the work was making it VISIBLE — a shorter cycle, a wider colour
      spread, or more gradient travel — not writing an animation.*
+
      **What the code became ON 2026-09-11, when the mechanism landed** (NOT what
      it is today — the 2026-09-12 rebuild is described at the TOP of this item,
      and every figure in this paragraph has since moved): a static warm
      `linear-gradient` ring at `padding: 3px`, with all the movement in
      `.verdict__sheen` — ONE SVG `<rect>` stroke-dashed with `pathLength="100"`,
-     travelling the perimeter once per 9s. No `background-position` animation, no
-     `--ease`, no conic gradient, no 220%. (It is now a 2.5px ring, TWENTY rects
-     and 15s.) The gradient-scrolling approach is still gone.
+     travelling the perimeter once per 9s. No `background-position` animation,
+     no `--ease`, no conic gradient, no 220%. (It is now a 2.5px ring, TWENTY
+     rects and 15s.) The gradient-scrolling approach is still gone.
+
      Two constraints that DO still apply: keep it SLOW, since this sits near the
-     top of the page on every load; and D-044's rule that amber must never become
-     a hard-edged focus-ring lookalike.
+     top of the page on every load; and D-044's rule that amber must never
+     become a hard-edged focus-ring lookalike.
+
      **>>> EVERYTHING FROM HERE TO THE END OF THIS ITEM IS A HISTORICAL RECORD
      OF THE 2026-09-11 SESSION. It describes mechanisms that were built and then
-     REPLACED on 2026-09-12 — in particular a CONIC GRADIENT, which is not in the
-     code. The shipped design is described at the TOP of this item. Kept because
-     the dead ends are expensive to rediscover. <<<**
+     REPLACED on 2026-09-12 — in particular a CONIC GRADIENT, which is not in
+     the code. The shipped design is described at the TOP of this item. Kept
+     because the dead ends are expensive to rediscover. <<<**
+
      **MECHANISM DONE 2026-09-11 (polish was still open at the time), and — as
-     this item demanded — by measuring first.** The
-     cause was the CURVE, not the speed, the colours or the travel. A timing
-     function applies to EACH keyframe interval, so `var(--ease)` front-loaded
-     both 4.5s halves: **67% of the travel happened in the first 0.9s and the
-     final 2.7s covered 2%**, leaving the ring frozen for roughly 60% of every
-     cycle. Two brief swooshes with long dead stretches between them, so a glance
-     almost always caught it still.
-     That was fixed with `linear` — not a preference but the definition of the
-     thing asked for, since a drift is constant velocity.
+     this item demanded — by measuring first.** The cause was the CURVE, not the
+     speed, the colours or the travel. A timing function applies to EACH
+     keyframe interval, so `var(--ease)` front-loaded both 4.5s halves: **67% of
+     the travel happened in the first 0.9s and the final 2.7s covered 2%**,
+     leaving the ring frozen for roughly 60% of every cycle. Two brief swooshes
+     with long dead stretches between them, so a glance almost always caught it
+     still. That was fixed with `linear` — not a preference but the definition
+     of the thing asked for, since a drift is constant velocity.
+
      **And it was still "practically invisible", which is the part worth
      keeping.** The curve was a real fault but never the whole problem. **Three
      stops spread over 220% meant the entire ring was nearly ONE COLOUR at any
      instant, recolouring almost uniformly — and motion perception needs a
      FEATURE TO TRACK.** A uniform slow recolour has no landmark in it, so no
      speed and no curve could ever have made it read as movement. Claude's first
-     pass measured the timing carefully and fixed the wrong layer of the problem.
+     pass measured the timing carefully and fixed the wrong layer of the
+     problem.
+
      **The base gradient is now STATIC and a second layer does the moving.**
      **It took FOUR passes, and only the last was structural** — the first three
      were each a plausible fix that measurably improved something and left the
      effect still unusable. The order matters as a lesson: curve → no landmark →
      wash-not-glint → **wrong GEOMETRY**.
+
      **The finding, from the user's screenshot: there were TWO white bands, one
      on the top edge and one on the bottom.** That is not a bad choice of colour
      stops — **it is what a linear gradient DOES to a frame.** A linear gradient
-     paints a straight stripe across the whole box, and a straight stripe crosses
-     a rectangular ring in two places at once. No tuning of a linear gradient can
-     ever produce one band travelling a perimeter, so all three earlier passes
-     were refining something that could not work.
+     paints a straight stripe across the whole box, and a straight stripe
+     crosses a rectangular ring in two places at once. No tuning of a linear
+     gradient can ever produce one band travelling a perimeter, so all three
+     earlier passes were refining something that could not work.
+
      **A CONIC gradient varies by ANGLE about a centre**, so its bright sector
      sits at one angular position and rotating it walks that sector around the
      ring — literally 360° of travel, once per 9s iteration, seamless because
      360deg IS 0deg (no reversal, no jump at the loop point).
+
      **Rotation requires `@property`** (registered for the conic layer and
      REMOVED with it on 2026-09-12 — do not go looking for it), and that was
-     mechanism rather than taste:
-     an unregistered custom property is an untyped token, so animating it SNAPS
-     between keyframe values — the glint would teleport. `syntax: '<angle>'`
-     makes it interpolate. A background cannot be `transform`ed, so there is no
-     other route.
+     mechanism rather than taste: an unregistered custom property is an untyped
+     token, so animating it SNAPS between keyframe values — the glint would
+     teleport. `syntax: '<angle>'` makes it interpolate. A background cannot be
+     `transform`ed, so there is no other route.
+
      **Perimeter speed is NOT near-even, though Claude first measured it so.**
      AVERAGING px-per-degree over a whole edge gave 5.81px/° along the top
      against 8.74 at the ends — a glint only ~1.5× faster round the corners. The
      local derivative is what counts. Done properly, along the top edge
      `dx/dtheta = h + x²/h`, which on this banner is **0.61px/° at the middle of
      the edge and 125px/° at the corner — a 200× swing**, not 1.5×. That is
-     exactly what the user reported seeing: a band that crawled and stayed narrow
-     mid-edge, then ballooned and rocketed through each corner. A conic gradient
-     cannot hold width OR speed on a wide rectangle, and no tuning changes it.
-     This is why the shipped design uses stroke dashes instead.
+     exactly what the user reported seeing: a band that crawled and stayed
+     narrow mid-edge, then ballooned and rocketed through each corner. A conic
+     gradient cannot hold width OR speed on a wide rectangle, and no tuning
+     changes it. This is why the shipped design uses stroke dashes instead.
+
      **The ring went 2px → 3px** on the user's call that day; it is 2.5px now.
      It is the entire visible area of the effect and so its biggest single
      multiplier. Its coupling to the inner corners still holds, but today it is
      one of FIVE coupled values, listed at the top of this item — change the
      ring width from that list, not from this paragraph.
+
      **One measured limit, AS MEASURED ON 2026-09-11 and superseded by the
      rebuild:** the glint then reached 3.40× contrast over `--crimson`, 2.27×
      over `--amber-deep` and only **1.58× over `--amber`**, so it faded slightly
      crossing the bright end of the base. The shape of that finding still holds
      — the band is always weakest over `--amber` — but the NUMBERS are long
      obsolete, and the current profile is a composite of twenty layers rather
-     than one stroke. The cure for the floor was and is a darker base stop, which
-     would change the banner's colour identity — a design decision left to the
-     user.
+     than one stroke. The cure for the floor was and is a darker base stop,
+     which would change the banner's colour identity — a design decision left to
+     the user.
+
      Dials, AS THEY WERE ON 2026-09-11: the glint's alpha, its 16° core / ±26°
      falloff, the 9s and the 3px. The 16°/±26° were CONIC parameters and died
      with that pass; the shipped dials are listed at the top of this item.
+
      **THIRD TIME `--ease` HAS BEEN THE CULPRIT** — the rec-card exit (R30), the
      ranked list's entrance, and now this. It is built to make an arrival feel
      instant, which is the exact opposite of anything a user is meant to WATCH.
+
      **So: if an animation is reported as invisible, look at the timing function
-     first — but do not stop there.** This item is the counter-example to its own
-     rule. The curve was genuinely broken AND fixing it changed almost nothing,
-     because a second, deeper cause was doing the real damage. Two questions, not
-     one: *is the motion spread across the duration* (the timing function), and
-     *is there anything in the frame whose movement can be seen* (a trackable
-     feature). The ranked entrance happened to need only the first.
+     first — but do not stop there.** This item is the counter-example to its
+     own rule. The curve was genuinely broken AND fixing it changed almost
+     nothing, because a second, deeper cause was doing the real damage. Two
+     questions, not one: *is the motion spread across the duration* (the timing
+     function), and *is there anything in the frame whose movement can be seen*
+     (a trackable feature). The ranked entrance happened to need only the first.
    * **The ranked list's first-paint entrance is barely visible** (user-raised
      2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
      (D-031) and is not in scope. Same family as the two items above, and
      measured rather than guessed, so this started from evidence. **The next
-     three paragraphs are the DIAGNOSIS — they describe the broken state, not the
-     current one; the shipped values are in the DONE block below.**
+     three paragraphs are the DIAGNOSIS — they describe the broken state, not
+     the current one; the shipped values are in the DONE block below.**
+
      `.movie-card.is-entering` WAS `fade-slide 0.45s var(--ease) backwards`, a
-     10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`.
-     **`--ease` was the main culprit, exactly as it was for the rec-card exit.**
-     It is `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
-     already gone by 45ms, and the card was within 1px of home after **168ms of a
-     450ms animation**. So a 10px move effectively happened in a sixth of a
+     10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`. **`--ease`
+     was the main culprit, exactly as it was for the rec-card exit.** It is
+     `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
+     already gone by 45ms, and the card was within 1px of home after **168ms of
+     a 450ms animation**. So a 10px move effectively happened in a sixth of a
      second, and the remaining 280ms was the card sitting still.
-     **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on a
-     list of twenty the last dozen all started within the same frame — no
-     cascade to see at exactly the length where one would read best.
-     **R27 is the worked precedent for this on the rec cards**, and its numbers
-     are a starting point rather than a template: `rec-enter` at 0.75s over 18px,
+
+     **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on
+     a list of twenty the last dozen all started within the same frame — no
+     cascade to see at exactly the length where one would read best. **R27 is
+     the worked precedent for this on the rec cards**, and its numbers are a
+     starting point rather than a template: `rec-enter` at 0.75s over 18px,
      120ms apart, after a 400ms lead-in. **What does NOT transfer is the
      stagger**, because a ranked list is unbounded where the recs grid is capped
      at six — 120ms across twenty cards is 2.4 seconds of the page assembling
      itself on every load. Keep a cap, but raise where it sits.
+
      Cheap and self-contained: a duration, a travel distance, an easing and a
      cap, all in two places (`.movie-card.is-entering` and one line of
      `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
      spotlight both depend on it.
+
      **DONE 2026-09-11, and the curve was indeed most of it.** All four dials
      moved together, because individually none of them would have shown: curve
      `var(--ease)` → `cubic-bezier(0.25, 0.46, 0.45, 0.94)`, travel 10 → 14px,
      duration 0.45 → 0.6s, stagger 45 → **125**ms with the cap 400 → **1200**ms.
+
      **The stagger took four passes — 45 → 70 → 180 → 135 → 125** — and the
      lesson is that **a stagger is a RATIO, not a number**: what decides whether
      it reads as a cascade is how many cards are mid-animation at the same
      instant, which is `duration / stagger`. At 45ms that was 13.3 cards and at
-     70ms still 8.6, both of which overlap into a single blob — the user's report
-     after the 70ms pass was that they still arrived "almost all at once", and
-     they were right. No amount of "raising" helps until the stagger is a real
-     fraction of the duration. 180ms gave 3.3 and overshot ("almost too slow"),
-     135ms gave 4.4, and **125ms gives 4.8 and is where it settled.**
+     70ms still 8.6, both of which overlap into a single blob — the user's
+     report after the 70ms pass was that they still arrived "almost all at
+     once", and they were right. No amount of "raising" helps until the stagger
+     is a real fraction of the duration. 180ms gave 3.3 and overshot ("almost
+     too slow"), 135ms gave 4.4, and **125ms gives 4.8 and is where it
+     settled.**
+
      Worth keeping: the useful band turned out to be narrow AND nowhere near
      where it started — the first two attempts were both outside it in the same
-     direction, so do not retune this in small steps from 125.
-     **So this number and the duration must be tuned together.** Raising the
-     duration without raising this walks straight back into the blur.
-     **Measured before and after rather than judged by eye:** the card used to be
-     within 1px of home after 169ms of 450ms — **38% of the animation, 62% of it
-     sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
+     direction, so do not retune this in small steps from 125. **So this number
+     and the duration must be tuned together.** Raising the duration without
+     raising this walks straight back into the blur.
+
+     **Measured before and after rather than judged by eye:** the card used to
+     be within 1px of home after 169ms of 450ms — **38% of the animation, 62% of
+     it sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
      ratio, not the travel distance, is what "barely visible" actually meant.
+
      The cap stays and had to, since the list is unbounded: it bites at card 10
-     now, so twenty films still settle in 1.8s rather than growing without limit.
-     A clump at the tail is the accepted cost, and it is invisible at the list
-     lengths this app actually holds — seven films settle in 1.35s with every
-     card distinct.
+     now, so twenty films still settle in 1.8s rather than growing without
+     limit. A clump at the tail is the accepted cost, and it is invisible at the
+     list lengths this app actually holds — seven films settle in 1.35s with
+     every card distinct.
+
      **It got its OWN keyframe, `card-enter`.** `fade-slide` has a second
      consumer — `.search-results`, where 10px and a snappy curve are correct —
      so tuning the shared one would have moved the search panel too. Same split
-     R27 made for `rec-enter`, and for the same reason.
-     `backwards` is untouched, and the D-043 comment above the rule was corrected
-     where it named `fade-slide` as the animation that pinned `transform: none`:
-     it was `fade-slide` at the time and is `card-enter` now, and the trap
-     applies to both.
+     R27 made for `rec-enter`, and for the same reason. `backwards` is
+     untouched, and the D-043 comment above the rule was corrected where it
+     named `fade-slide` as the animation that pinned `transform: none`: it was
+     `fade-slide` at the time and is `card-enter` now, and the trap applies to
+     both.
    * **Does the logo circle actually spin? — DONE 2026-09-11.** Yes, it always
-     did: the `animation: spin … linear infinite` on `.mark__reel` runs and always
-     ran. It was invisible because **every part of it you could see was
-     rotationally symmetric** — the 3px amber border ring and a `radial-gradient`
-     drawing a concentric amber ring — so eight seconds of rotation looked like a
-     still image.
-     **The diagnosis first written here was half right, and the other half is the
-     interesting bit.** It said the one asymmetric feature, a `conic-gradient`
-     wedge over the first 20% of the circle, was invisible because it is painted
-     in `var(--bg)`. True, but it was also the SECOND background layer — and
-     first-listed paints on top — so it sat UNDERNEATH the amber ring and could
-     not have cut anything in any colour. Worth stating the consequence: had it
-     been on top, `var(--bg)` would have been exactly the right choice. The
-     intent was plainly to notch the ring, not to draw a coloured slice, so the
-     original advice here ("give that wedge a colour that differs from the page")
-     would have produced a rotating pie wedge — a different thing, and a worse
-     one.
-     Even on the correct layer it could only ever have notched the INNER ring: a
-     `border` paints above the background, so the outer ring would have stayed
-     closed.
+     did: the `animation: spin … linear infinite` on `.mark__reel` runs and
+     always ran. It was invisible because **every part of it you could see was
+     rotationally symmetric** — the 3px amber border ring and a
+     `radial-gradient` drawing a concentric amber ring — so eight seconds of
+     rotation looked like a still image.
+
+     **The diagnosis first written here was half right, and the other half is
+     the interesting bit.** It said the one asymmetric feature, a
+     `conic-gradient` wedge over the first 20% of the circle, was invisible
+     because it is painted in `var(--bg)`. True, but it was also the SECOND
+     background layer — and first-listed paints on top — so it sat UNDERNEATH
+     the amber ring and could not have cut anything in any colour. Worth stating
+     the consequence: had it been on top, `var(--bg)` would have been exactly
+     the right choice. The intent was plainly to notch the ring, not to draw a
+     coloured slice, so the original advice here ("give that wedge a colour that
+     differs from the page") would have produced a rotating pie wedge — a
+     different thing, and a worse one. Even on the correct layer it could only
+     ever have notched the INNER ring: a `border` paints above the background,
+     so the outer ring would have stayed closed.
+
      **Built as a conic `mask` instead**, which cuts the border and the
      background together — one declaration rather than rebuilding both rings as
      gradients so a wedge could reach them. The dead wedge is deleted.
      `--reel-notch` (8%, a 28.8° gap) is the one dial, and the speed is the
-     duration in `.mark__reel`'s own `animation` shorthand — **10s, and never the
-     `spin` keyframe itself, which is SHARED with the busy-button spinner at
+     duration in `.mark__reel`'s own `animation` shorthand — **10s, and never
+     the `spin` keyframe itself, which is SHARED with the busy-button spinner at
      0.7s**. Both were tuned by eye off the first build (9% and 8s). Under
      `prefers-reduced-motion` the animation is killed and the notch rests at 12
      o'clock, which still reads as a reel rather than as a broken circle.
      `-webkit-mask` is declared alongside `mask` for Safari.
 
-   * **The film-grain overlay was barely visible — DONE 2026-09-12.**
-     **It was never a brightness problem, and the item's own two suggestions were
-     one right and one wrong.** Fixed by making the grain RESAMPLE.
+   * **The film-grain overlay was barely visible — DONE 2026-09-12.** **It was
+     never a brightness problem, and the item's own two suggestions were one
+     right and one wrong.** Fixed by making the grain RESAMPLE.
+
      **The cause:** `animation: grain 0.5s steps(2)` over a two-keyframe
      animation gives the texture exactly TWO states, alternating four times a
      second, sliding along a single diagonal. That is a static texture with an
      occasional twitch. Real film resolves fresh grain ~24 times a second, and
-     the eye reads that shimmer as texture even when each frame is faint.
-     Now ten pseudo-random offsets at `0.7s steps(1)` — ~14 changes a second,
-     each position HELD rather than slid between.
+     the eye reads that shimmer as texture even when each frame is faint. Now
+     ten pseudo-random offsets at `0.7s steps(1)` — ~14 changes a second, each
+     position HELD rather than slid between.
+
      **`mix-blend-mode` was this item's leading suggestion and it is WRONG for
      this page — measured, not assumed.** `overlay` maps a full-white speck to
-     **+0.043** over the page's `#0b0b0f` background but **+0.450** over a poster
-     midtone, so it would move the grain ONTO the posters and OFF the dark
-     background, which is the opposite of what was asked for. It is the
+     **+0.043** over the page's `#0b0b0f` background but **+0.450** over a
+     poster midtone, so it would move the grain ONTO the posters and OFF the
+     dark background, which is the opposite of what was asked for. It is the
      physically correct film behaviour, which is exactly why it sounds right in
      the abstract and fails here. `soft-light` tilts the same way (+0.108 /
      +0.221). Do not re-open this without re-running those numbers.
+
      **Opacity then went 0.06 -> 0.1** by the user's eye, and the ORDER is the
      point rather than a contradiction of the above: with the texture actually
      refreshing there is speckle for the extra opacity to strengthen, where
@@ -3623,6 +3691,7 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      opacity adds grey before it adds specks. The fix at that point is a
      zero-mean noise source (an `feComponentTransfer` on the alpha), not more
      opacity.
+
      **`inset: -8%` is load-bearing and is now written as arithmetic rather than
      a warning:** translate percentages resolve against the element's OWN box,
      which is 116% of the viewport, so the 4% offsets used are 4.64% of the
@@ -3636,18 +3705,21 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      the user took the consistency argument: every other locked control in this
      app is disabled rather than absent, so a banner with a sentence and no
      control was the odd one out. The threshold sentence beside it explains WHY;
-     the greyed button shows WHAT is locked, so the two do not say the same thing
-     twice.
+     the greyed button shows WHAT is locked, so the two do not say the same
+     thing twice.
+
      **It needed no new CSS at all**, which is the payoff from R13/D-035/R15
      having settled the disabled vocabulary generically:
      `.verdict__refresh:disabled` already existed (opacity, `not-allowed` — the
      outline-button treatment), its hover was already `:not(:disabled)` guarded,
      and R15's sparkle rule was written as `button:disabled .ai-sparkle`, so a
      locked control already stops twinkling. Nothing was special-cased.
+
      The markup now starts the button `disabled` rather than `hidden`, which is
      also the correct state before the first `/api/movies` response (the rated
      count is not known yet) and if that request FAILS (the feature genuinely is
      unavailable).
+
      **TWO TRAPS, both found by tracing rather than by testing, and the second
      was introduced by the fix for the first.**
      1. `syncVerdictAvailability()` runs from `loadMovies()`, so adding or rating
@@ -3658,21 +3730,23 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      2. **But skipping is not free here, and the old code survived this by
         accident.** Remove films mid-request and the count can drop below the
         threshold; the sync skips, then `busyButton()`'s settle unconditionally
-        re-enables — leaving a clickable button on a locked feature. The old code
-        wrote `hidden` unconditionally, so the button simply stayed gone.
+        re-enables — leaving a clickable button on a locked feature. The old
+        code wrote `hidden` unconditionally, so the button simply stayed gone.
         The run's `finally` now re-asserts `verdictLocked()`. **Deliberately NOT
         by calling `syncVerdictAvailability()`**, which also writes
         `.verdict__text` and would overwrite the error message on the failure
         path — the exact shape of bug R1.
+
      `verdictLocked()` exists so the threshold rule has ONE definition with two
      callers; an approximation of a rule goes stale the moment the rule changes
      (D-039).
 
-   * **The ring's glint speeds up while "New verdict" is BUSY — DONE 2026-09-12.**
-     A progress cue that costs no new UI: the band already travels the ring, so
-     running it ~5x faster and brighter for the duration of the call turns
-     existing decoration into a status indication. Settles once a verdict lands
-     OR an error is shown.
+   * **The ring's glint speeds up while "New verdict" is BUSY — DONE
+     2026-09-12.** A progress cue that costs no new UI: the band already travels
+     the ring, so running it ~5x faster and brighter for the duration of the
+     call turns existing decoration into a status indication. Settles once a
+     verdict lands OR an error is shown.
+
      **As shipped, and the split is the point: each half is done wherever it can
      be done without a visible seam.**
      * **Brightness — CSS.** `.verdict:has(#verdict-refresh[aria-busy='true'])
@@ -3684,60 +3758,68 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
        `0.55 * bell(x)`, so the resting band is identical rather than
        approximated — verified at 0.5491 against the approved 0.5490.
      * **Speed — JS** (`setSheenRate()` in `app.js`), and NOT the
-       `--sheen-dur: 3s` that D-055 prescribed. That was built first and the user
-       rejected it: changing a CSS animation's duration re-evaluates
+       `--sheen-dur: 3s` that D-055 prescribed. That was built first and the
+       user rejected it: changing a CSS animation's duration re-evaluates
        `(currentTime / duration)` at that instant, so **the dash JUMPS**
        (measured: a layer moved from 0.4867 of its cycle to 0.4333). Setting
        `playbackRate` preserves `currentTime` and changes only velocity — same
        layer stayed at 0.4867 exactly — and it keeps the twenty layers in
        register for free, since each layer's phase lives in its own currentTime.
        **See D-056; do not reintroduce a duration override for the busy state.**
+
      `--sheen-dur` survives as the RESTING speed knob, where one value still
      drives the duration and all twenty delays.
+
      **No class and no state of our own.** `busyButton()` already sets
-     `aria-busy` on the trigger for exactly the right window and clears it in the
-     `finally` that restores the label, so the cue cannot get stuck on and it
-     ends on an ERROR just as it does on success — verified in the handler rather
-     than assumed.
+     `aria-busy` on the trigger for exactly the right window and clears it in
+     the `finally` that restores the label, so the cue cannot get stuck on and
+     it ends on an ERROR just as it does on success — verified in the handler
+     rather than assumed.
+
      **Reduced motion:** the global `animation: none !important` removes the
-     travel, so `getAnimations()` returns nothing and `setSheenRate()` is a no-op
-     exactly where it should be. The brightness half still lands, since opacity
-     is not an animation. Either way the button's own spinner and label remain
-     the primary signal — this was never allowed to be the only indication that a
-     call is in flight.
+     travel, so `getAnimations()` returns nothing and `setSheenRate()` is a
+     no-op exactly where it should be. The brightness half still lands, since
+     opacity is not an animation. Either way the button's own spinner and label
+     remain the primary signal — this was never allowed to be the only
+     indication that a call is in flight.
+
      **One residual, accepted knowingly:** velocity changes instantaneously
      rather than ramping. Different artefact from a position jump, reads as "it
      sped up", and the user approved it after looking. A rAF ramp of
      `playbackRate` is the fix if it is ever wanted.
 
 5. **Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
-   USER 2026-09-12. Do not reopen it, and do not go hunting for more narrow-width
-   work: the user has declared the target met.**
+   USER 2026-09-12. Do not reopen it, and do not go hunting for more
+   narrow-width work: the user has declared the target met.**
+
    Their words, and the standard they closed it against: there are no viable
    remaining issues at **~350px**, which is the width this step agreed to plan
    and test against; messiness only starts below **~310px**, and even there the
    UI is still mostly usable, just less pretty.
+
    **That ~310px figure is a finding, not an invitation.** It sits inside the
    "good enough only" band and above the ~290px ignore floor, so it is the
    expected outcome of the two rules below rather than a defect list. Anything
    found under 350px from here needs the first rule applied to it.
+
    **What landed across the step** (2026-09-12, in one long pass): the ranked
    card's score row no longer wraps its rating mid-number or pushes Edit/Remove
-   outside the card at 400px and below (D-058); the header logo reel no longer squashes
-   into an ellipse and the GitHub icon scales to 75% at 400px and below; the
-   search-results panel's height cap became a FLOOR rather than a second ceiling;
-   mid-word title breaks hyphenate via `Intl.Segmenter` soft hyphens instead of
-   breaking raw (D-060/D-061); the AI call log's card-view labels stopped
-   misaligning when they wrap; and the toast got a real box-shadow, content-aware
-   widening below 700/500px, and a genuine centering fix (D-062). **R18 was
-   closed inside this step as won't-fix on measurement (D-063)**, which also
-   closed step 2.
+   outside the card at 400px and below (D-058); the header logo reel no longer
+   squashes into an ellipse and the GitHub icon scales to 75% at 400px and
+   below; the search-results panel's height cap became a FLOOR rather than a
+   second ceiling; mid-word title breaks hyphenate via `Intl.Segmenter` soft
+   hyphens instead of breaking raw (D-060/D-061); the AI call log's card-view
+   labels stopped misaligning when they wrap; and the toast got a real
+   box-shadow, content-aware widening below 700/500px, and a genuine centering
+   fix (D-062). **R18 was closed inside this step as won't-fix on measurement
+   (D-063)**, which also closed step 2.
+
    **The two enforcement rules below still stand for any future narrow-width
    question**, in this step or outside it — they are about the deadline, not
-   about this step's backlog, and this step closing does not retire them.
-   **Plan and test against ~350px.** That is the target, not the floor.
-   **THE TWO RULES BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.**
-   The user asked to be stopped, in advance, because the deadline is close:
+   about this step's backlog, and this step closing does not retire them. **Plan
+   and test against ~350px.** That is the target, not the floor. **THE TWO RULES
+   BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.** The user asked
+   to be stopped, in advance, because the deadline is close:
    * **Below ~350px: "good enough" only.** Actively talk the user out of tuning
      these widths. The exceptions are narrow and specific — a fix that is safe,
      straightforward and quick, or a case where the ~350px layout is itself
@@ -3750,25 +3832,28 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
 6. **All remaining documented pre-submission blockers**, plus the leftovers in
    Open issues.
+
    **>>> THIS STEP IS DONE — 2026-09-14. Every checkbox under "Pre-submission
    blockers" is now ticked, the final `draft` → `main` merge included: it was
    authorised, performed, and followed the same day by a twenty-second merge
-   carrying one defect fix (the Security-tab image paths). What
-   follows is that instruction block corrected to the finished state; the recipes
-   it points at are still the working ones. <<<**
+   carrying one defect fix (the Security-tab image paths). What follows is that
+   instruction block corrected to the finished state; the recipes it points at
+   are still the working ones. <<<**
+
    The checklist is under "Pre-submission blockers" below. The resilience
    screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states.
-   **FIVE recipes are
-   order-dependent and will waste a session if skimmed:** RS-2 needs a search run
-   BEFORE the key is broken; RS-6 and RS-14 need the page loaded BEFORE the server
-   is stopped; RS-10 needs two views and a strict sequence; RS-11/12/13 need the
-   page loaded BEFORE the key is broken, or every control renders disabled and
-   nothing can be clicked. Three more — RS-9, RS-15 and RS-16 — need a temporary
-   one-line edit to a service and a `git checkout` afterwards.
+   **FIVE recipes are order-dependent and will waste a session if skimmed:**
+   RS-2 needs a search run BEFORE the key is broken; RS-6 and RS-14 need the
+   page loaded BEFORE the server is stopped; RS-10 needs two views and a strict
+   sequence; RS-11/12/13 need the page loaded BEFORE the key is broken, or every
+   control renders disabled and nothing can be clicked. Three more — RS-9, RS-15
+   and RS-16 — need a temporary one-line edit to a service and a `git checkout`
+   afterwards.
+
    `DOSSIER.md` is the course's own grading rules, it arrived 2026-09-13, and
-   **the reconciliation against it is DONE** — the first checkbox below.
-   The narrow-viewport enforcement rules under step 5 are NOT retired by that
-   step closing; they still apply to anything that comes up.
+   **the reconciliation against it is DONE** — the first checkbox below. The
+   narrow-viewport enforcement rules under step 5 are NOT retired by that step
+   closing; they still apply to anything that comes up.
 
 **Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
 rather than renumbered because "step 5" is referenced by name outside this file —
