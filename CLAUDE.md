@@ -198,7 +198,10 @@ named function, method and class carries a description with typed `@param`,
 shapes are typedefs. Three kinds of function are left undocumented on purpose:
 one-line helpers declared inside another function, one-line methods in object
 literals (the test client's verbs, the fake Supabase client's chain methods),
-and the test stubs that stand in for `globalThis.fetch` or `console.error`. Each
+and the test stubs that stand in for `globalThis.fetch` or `console.error`.
+Each is a line or two whose name and body already say everything a block would,
+so a block there would repeat the code rather than explain it; skipping them is
+also the usual convention. Each
 file was proved unchanged as code by tokenizing it against its previous version.
 **The finding worth keeping is WHERE a block sits, not what it says.** Nine
 existing blocks were not attached to what they describe — in `public/app.js` the
