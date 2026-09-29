@@ -30,40 +30,47 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 ### Current state
 
-**THE PROJECT IS MERGE-READY.**
-`docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria for the
-first time — criterion 1 closed on 2026-09-14 when the user ticked `SPEC.md`
-§ 7.1's eight acceptance boxes against `docs/ACCEPTANCE.md`. ALL THREE SPIRAL
-TURNS ARE COMPLETE — turn 3 closed 2026-09-14, see `SPEC.md` § Specification
-status, which satisfies the course's "at least three full turns" under the
-conservative reading that counts no merge as a turn. THE FINAL PLANNED `draft` →
-`main` MERGE WAS AUTHORISED BY THE USER ON 2026-09-14 and was performed
-immediately after that commit — see the note under Build status for why the
-count and the checkbox are written just before it rather than just after. **A
-TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**, carrying one defect fix —
-`docs/SECURITY.md` rendered with broken images and 404 links on GitHub's
-Security tab — which is "final planned" being tested rather than contradicted;
-the note at the end of the Build status bullet has it. The live URL is on the
-project sheet and the joint-project registration is emailed, both 2026-09-14.
-Everything else is done — evidence captured and written up, the debug harness
-unloaded, all five gates green, and every other checkbox on this list ticked.
+**THE PROJECT IS MERGE-READY.** `docs/MERGE-READINESS.md` reads MET on all five
+of Module 16's criteria for the first time — criterion 1 closed on 2026-09-14
+when the user ticked `SPEC.md` § 7.1's eight acceptance boxes against
+`docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3 closed
+2026-09-14, see `SPEC.md` § Specification status, which satisfies the course's
+"at least three full turns" under the conservative reading that counts no merge
+as a turn.
+
+THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE USER ON
+2026-09-14 and was performed immediately after that commit — see the note under
+Build status for why the count and the checkbox are written just before it
+rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
+carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
+links on GitHub's Security tab — which is "final planned" being tested rather
+than contradicted; the note at the end of the Build status bullet has it. The
+live URL is on the project sheet and the joint-project registration is emailed,
+both 2026-09-14. Everything else is done — evidence captured and written up, the
+debug harness unloaded, all five gates green, and every other checkbox on this
+list ticked.
 
 **>>> BEFORE THE 30TH `draft` → `main` MERGE (pending, postponed by the user
 2026-09-29) — do these on `draft` FIRST, in their own commit, then all five
-gates, then ask for explicit confirmation. <<<** Its ground is likely (not
-certainly) the FIRST ground-3 close-out sync, though `draft` also carries fixes
-that clear ground 2; **confirm the ground with the user before writing
-anything**, because the wording below depends on it. (1) Every sentence saying
-all merges after `0cdc4ec` were defect fixes goes false: `README.md` (Workflow,
-"every merge since has been a defect fix"), `docs/PROCESS.md` § 1 ("every merge
-since has been the latter", which is already ambiguous), `SPEC.md` ("The merges
-after `0cdc4ec` … are defect fixes"), and this file twice (ground 2's "Every
-merge after `0cdc4ec` … has been made on this ground", and Build status's "plus
-the defect merges made since it", whose merge history also needs a thirtieth
-entry). Re-grep for new sites. (2) The merge count goes 29 → 30 in this file's
-Build status, `docs/PROCESS.md` § 1 and `docs/MERGE-READINESS.md` § 5. **(3)
-THIS BLOCK ITSELF must be deleted or rewritten as a record in that same commit,
-before the merge, so that `main` never carries it as an open to-do.**
+gates, then ask for explicit confirmation. <<<**
+
+Its ground is likely (not certainly) the FIRST ground-3 close-out sync, though
+`draft` also carries fixes that clear ground 2; **confirm the ground with the
+user before writing anything**, because the wording below depends on it.
+
+(1) Every sentence saying all merges after `0cdc4ec` were defect fixes goes
+false: `README.md` (Workflow, "every merge since has been a defect fix"),
+`docs/PROCESS.md` § 1 ("every merge since has been the latter", which is already
+ambiguous), `SPEC.md` ("The merges after `0cdc4ec` … are defect fixes"), and
+this file twice (ground 2's "Every merge after `0cdc4ec` … has been made on this
+ground", and Build status's "plus the defect merges made since it", whose merge
+history also needs a thirtieth entry). Re-grep for new sites.
+
+(2) The merge count goes 29 → 30 in this file's Build status, `docs/PROCESS.md`
+§ 1 and `docs/MERGE-READINESS.md` § 5.
+
+**(3) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
+commit, before the merge, so that `main` never carries it as an open to-do.**
 
 ### What landed, newest first
 
@@ -1422,15 +1429,19 @@ and stay as written.
     retry. Save now `preventDefault()`s, shows the shared `busyButton()` state,
     and closes only once the write has succeeded; on failure the dialog stays
     open with the rating and review exactly as typed. Cancel is disabled for the
-    duration (Esc still works). Remove gained a busy state too — spinner only,
-    no label, since `busyButton()` locks the width as a min-width and
-    "Removing…" would grow the button and shove its neighbour. Both also gained
-    the `:disabled` styling they never had: opacity for the outline buttons,
-    a fill swap out of the amber family for the filled `.primary`, per the rule
-    the Search button settled. The failure is reported **inline in the dialog**,
-    not by the toast (D-032): a modal `<dialog>` is in the top layer, so no
-    `z-index` can lift a toast above it and the `::backdrop` dims it anyway —
-    and inline is what search, the verdict and recs already do.
+    duration (Esc still works).
+
+    Remove gained a busy state too — spinner only, no label, since
+    `busyButton()` locks the width as a min-width and "Removing…" would grow the
+    button and shove its neighbour. Both also gained the `:disabled` styling
+    they never had: opacity for the outline buttons, a fill swap out of the
+    amber family for the filled `.primary`, per the rule the Search button
+    settled.
+
+    The failure is reported **inline in the dialog**, not by the toast (D-032):
+    a modal `<dialog>` is in the top layer, so no `z-index` can lift a toast
+    above it and the `::backdrop` dims it anyway — and inline is what search,
+    the verdict and recs already do.
   - **Poster placeholder is an inline SVG film strip**, not the 🎬 emoji it
     replaced (D-027: an emoji ignores `color`, carries its own baseline metrics
     and looks different on every platform). Cloned from a `<template>` in
@@ -1465,14 +1476,16 @@ and stay as written.
     adding a selector to a list cannot change what the other selectors match, so
     the rate dialog is provably untouched (it was not to be re-tested), and the
     two cannot drift. Only the crimson `.danger` fill, the tighter heading and
-    the consequence line are its own. Copy names what is actually lost — built
-    from the film's real state, so it never promises to delete a review that was
-    never written — and says the deletion cannot be undone, which after Incident
-    1 is literal: the free tier has no point-in-time recovery.
-    `role="alertdialog"` + `aria-describedby` so the consequence is announced,
-    `autofocus` on Cancel so a stray Enter is the safe choice, and `returnValue`
-    is reset before every open so "confirmed" is reachable ONLY by clicking the
-    button — engines disagree about what Escape leaves behind.
+    the consequence line are its own.
+
+    Copy names what is actually lost — built from the film's real state, so it
+    never promises to delete a review that was never written — and says the
+    deletion cannot be undone, which after Incident 1 is literal: the free tier
+    has no point-in-time recovery. `role="alertdialog"` + `aria-describedby` so
+    the consequence is announced, `autofocus` on Cancel so a stray Enter is the
+    safe choice, and `returnValue` is reset before every open so "confirmed" is
+    reachable ONLY by clicking the button — engines disagree about what Escape
+    leaves behind.
 
     **None of the three dialogs light-dismisses, and that is on purpose.** A
     native `<dialog>` does NOT close on a backdrop click — the behaviour has to
@@ -3021,10 +3034,12 @@ This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
      match, and a single-card run would leave it one card wide. The user ruled
      out accepting that and left the choice between spanning it to the container
      and taking it out of the grid to Claude, guessing the second was less
-     risky. It is, and the deciding fact is not obvious: **`grid-column: 1 / -1`
-     spans the TRACK LIST, not the container.** With `justify-content: center`
-     the free space sits OUTSIDE the tracks, so "span it to the container" is
-     not a one-liner at all — it needs a flexible gutter track at each end
+     risky.
+
+     It is, and the deciding fact is not obvious: **`grid-column: 1 / -1` spans
+     the TRACK LIST, not the container.** With `justify-content: center` the
+     free space sits OUTSIDE the tracks, so "span it to the container" is not a
+     one-liner at all — it needs a flexible gutter track at each end
      (`1fr repeat(2k, …) 1fr`), which shifts every column index by one, adds two
      more gaps to the width arithmetic, breaks the half-column offset that
      centres a short last row, and puts an auto-placed card into a gutter unless
@@ -3988,18 +4003,21 @@ below — this list is the smaller stuff.)
   user-facing contraction in `server/`, `public/app.js` and `public/index.html`
   now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
   they are not UI copy.
-* [x] **`--ink-faint` sits below WCAG AA deliberately — do NOT "fix" it** (D-052,
-  2026-09-10). Settled at #7b766e (from #6b6760), which lifts it to 4.36:1 on the
-  page and 3.87:1 on a card — both still short of 4.5. The AA-clearing value was
-  built first (#868178) and sits too close to `--ink-dim`: what decides whether
-  two type tiers read as two tiers is their contrast with EACH OTHER, and
-  clearing AA cost nearly a third of it (2.09 → 1.44). This keeps 1.67.
-  The mitigation is that R26 and D-051 moved every line that is the ONLY thing on
-  its surface up to `--ink-dim` (7.28:1); what is left on faint always sits
-  beside content that carries the meaning. A contrast audit will flag this. It is
-  a decision, not an oversight.
-  **One process note from the same exchange, in D-052:** the token and one of its
-  consumers (the empty-list line, moved to `--ink-dim`) changed in the SAME
+* [x] **`--ink-faint` sits below WCAG AA deliberately — do NOT "fix" it**
+  (D-052, 2026-09-10). Settled at #7b766e (from #6b6760), which lifts it to
+  4.36:1 on the page and 3.87:1 on a card — both still short of 4.5. The
+  AA-clearing value was built first (#868178) and sits too close to `--ink-dim`:
+  what decides whether two type tiers read as two tiers is their contrast with
+  EACH OTHER, and clearing AA cost nearly a third of it (2.09 → 1.44). This
+  keeps 1.67.
+
+  The mitigation is that R26 and D-051 moved every line that is the ONLY thing
+  on its surface up to `--ink-dim` (7.28:1); what is left on faint always sits
+  beside content that carries the meaning. A contrast audit will flag this. It
+  is a decision, not an oversight.
+
+  **One process note from the same exchange, in D-052:** the token and one of
+  its consumers (the empty-list line, moved to `--ink-dim`) changed in the SAME
   commit, which destroyed the obvious way to eyeball the token and produced a
   confident false report that the two tiers were identical. When a token and one
   of its consumers move together, say what is left to compare against.
@@ -4011,18 +4029,20 @@ below — this list is the smaller stuff.)
   so the narrow `1` couldn't flatter the test). Three were not: the font clamped
   at `3.4rem` and Fraunces Black figures measure **0.66em**, so "250" painted
   ~110px wide, and the poster — later in DOM order — covered the last digit.
+
   **An overflowing numeral is start-aligned, so it spills RIGHT only**, into the
   1.2rem gap: the budget is the track plus that gap, never the padding on the
   left. `renderRanked()` now marks 100+ with `is-wide` → a smaller clamp,
   **solved** against that measured figure width; a forced "250" clears the
-  poster by 10.8px on desktop, 11.6px at 620px and 13.1px in card mode
-  (measured 2026-09-28, D-079). Two earlier
-  values were *estimated* and both wrong (0.63em too low, then 0.8em
-  over-corrected) — re-measure with `Range.getBoundingClientRect()`, never
-  re-tune this by eye. **The trap, if this is ever
-  revisited: do NOT auto-size the rank track (`minmax(64px, auto)`)** — it would
-  misalign every poster's left edge down the list, trading a rare problem for a
-  permanent one. 1000+ is unhandled by choice.
+  poster by 10.8px on desktop, 11.6px at 620px and 13.1px in card mode (measured
+  2026-09-28, D-079). Two earlier values were *estimated* and both wrong (0.63em
+  too low, then 0.8em over-corrected) — re-measure with
+  `Range.getBoundingClientRect()`, never re-tune this by eye.
+
+  **The trap, if this is ever revisited: do NOT auto-size the rank track
+  (`minmax(64px, auto)`)** — it would misalign every poster's left edge down the
+  list, trading a rare problem for a permanent one. 1000+ is unhandled by
+  choice.
 * [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
