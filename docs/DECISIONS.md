@@ -303,6 +303,10 @@ cleanup" that [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-
 stands: the headless-Chrome icon-clipping question under step 3, which opens
 with "STILL UNRESOLVED as of 2026-09-12" and so cannot be mistaken for
 current.*
+> **2026-09-30:** that question is now resolved too, on the user's ruling, under
+> [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links): a headless browser is
+> never the only measure of layout, a human verifies in a real browser whenever
+> its findings are in doubt, and the real browser's observation stands.
 
 **What it is.** A read-only `GET` returning the last 25 recommendation runs as
 JSON. No UI calls it. Its seven columns are a strict subset of what
