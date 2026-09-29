@@ -4797,25 +4797,28 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
 * **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
-  **Two models, on purpose (D-053):** recommendations run on the cheaper
-  `anthropic/claude-haiku-4.5`, the taste verdict alone on
-  `anthropic/claude-sonnet-5` — four prompt versions could not get the cheaper tier
-  to write in a plain spoken register, and the model turned out to be the
-  constraint rather than the wording.
-  **The split is NOT hard task versus easy task, and do not describe it that way.**
-  Recommendations are the larger job: read the whole list, infer a taste from the
-  top five rated films and the reviews attached to them
-  (`config.recommendations.topN`), exclude every film already in the list whether
-  rated or not, and justify each pick in one second-person sentence of 8–16 words
-  tied to a specific rating or a pattern across them. What makes the
-  cheaper tier right there is that the output is **checkable** — structured JSON,
-  every title cross-checked against TMDB, so a bad pick is dropped rather than
-  shown. The verdict has nothing to check it against, so its only measure is
-  whether it sounds like a person, which is the axis the cheaper tier could not
-  reach. `chat()` takes an optional `model`
-  defaulting to the app-wide one; `tasteVerdict.js` is the only caller that
-  overrides it. Overridable per feature via `OPENROUTER_MODEL` and
-  `OPENROUTER_VERDICT_MODEL`. Keep these calls isolated in their own modules (e.g. `services/recommendations.js` and `services/tasteVerdict.js`) so either can be mocked/stripped without touching core movie CRUD logic.
+  - **Two models, on purpose (D-053):** recommendations run on the cheaper
+    `anthropic/claude-haiku-4.5`, the taste verdict alone on
+    `anthropic/claude-sonnet-5` — four prompt versions could not get the cheaper
+    tier to write in a plain spoken register, and the model turned out to be the
+    constraint rather than the wording.
+  - **The split is NOT hard task versus easy task, and do not describe it that
+    way.** Recommendations are the larger job: read the whole list, infer a
+    taste from the top five rated films and the reviews attached to them
+    (`config.recommendations.topN`), exclude every film already in the list
+    whether rated or not, and justify each pick in one second-person sentence of
+    8–16 words tied to a specific rating or a pattern across them. What makes
+    the cheaper tier right there is that the output is **checkable** —
+    structured JSON, every title cross-checked against TMDB, so a bad pick is
+    dropped rather than shown. The verdict has nothing to check it against, so
+    its only measure is whether it sounds like a person, which is the axis the
+    cheaper tier could not reach.
+  - `chat()` takes an optional `model` defaulting to the app-wide one;
+    `tasteVerdict.js` is the only caller that overrides it. Overridable per
+    feature via `OPENROUTER_MODEL` and `OPENROUTER_VERDICT_MODEL`. Keep these
+    calls isolated in their own modules (e.g. `services/recommendations.js` and
+    `services/tasteVerdict.js`) so either can be mocked/stripped without
+    touching core movie CRUD logic.
 
 
 ## Coding Conventions
@@ -5077,30 +5080,33 @@ down would be re-broken within a session. See D-065.
    dozens of inbound links from most of the other documents, so a heading is
    not a free place to edit. (No count on purpose; it moves with every link.)
 10. **EDIT HISTORY BELONGS IN THE COMMIT MESSAGE, NOT IN THE FILE** (the user's
-   rule, restated four times across `a1eebd2`, `98a2c76`, `375c4cd` and
-   `5b481ff` before it was written down here — which is why it is). A live
-   document says what is true now. It does not say what it used to say, that a
-   figure was corrected, or when. **The distinction from the annotation
-   conventions this repo DOES have:** a `docs/DECISIONS.md` entry records a
-   past decision, and a `SPEC.md` italic parenthetical records where the BUILD
-   diverged from the SPEC — both are about the product. A note about the
-   DOCUMENT's own editing is not, and belongs in the diff. The one carve-out is
-   a correction a reader would otherwise re-introduce: state the rule going
-   forward, not the history (rule 6 above is the model — it says there is no
-   count on purpose, without narrating the values it once held).
-   **It applies equally to CODE COMMENTS** (the user's ruling, 2026-09-26), and
-   the line is what the history is ABOUT. A comment recounting what the COMMENT
-   used to read or say ("This said…", "this comment used to…", "an earlier
-   version of this comment…") goes, and its correction story goes in the commit
-   message. A comment recounting how the APP or CODE used to behave ("the
-   fallback was `config.openrouter.model` until 2026-09-13, so the app logged
-   the wrong model") stays: that is product history, and often the guard that
-   stops the old behaviour coming back. **`check-claims` fails on the
-   unambiguous forms** ("This said" or "This read" before a quotation, "this
-   entry used to…", "an earlier version of this note", "rather than
-   preserved"), in the markdown and in every code comment. Which side of the
-   line a borderline passage falls on is still a reading job; no pattern can
-   make that call.
+    rule, restated four times across `a1eebd2`, `98a2c76`, `375c4cd` and
+    `5b481ff` before it was written down here — which is why it is). A live
+    document says what is true now. It does not say what it used to say, that a
+    figure was corrected, or when.
+
+    **The distinction from the annotation conventions this repo DOES have:** a
+    `docs/DECISIONS.md` entry records a past decision, and a `SPEC.md` italic
+    parenthetical records where the BUILD diverged from the SPEC — both are
+    about the product. A note about the DOCUMENT's own editing is not, and
+    belongs in the diff. The one carve-out is a correction a reader would
+    otherwise re-introduce: state the rule going forward, not the history (rule
+    6 above is the model — it says there is no count on purpose, without
+    narrating the values it once held).
+
+    **It applies equally to CODE COMMENTS** (the user's ruling, 2026-09-26), and
+    the line is what the history is ABOUT. A comment recounting what the COMMENT
+    used to read or say ("This said…", "this comment used to…", "an earlier
+    version of this comment…") goes, and its correction story goes in the commit
+    message. A comment recounting how the APP or CODE used to behave ("the
+    fallback was `config.openrouter.model` until 2026-09-13, so the app logged
+    the wrong model") stays: that is product history, and often the guard that
+    stops the old behaviour coming back. **`check-claims` fails on the
+    unambiguous forms** ("This said" or "This read" before a quotation, "this
+    entry used to…", "an earlier version of this note", "rather than
+    preserved"), in the markdown and in every code comment. Which side of the
+    line a borderline passage falls on is still a reading job; no pattern can
+    make that call.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
@@ -5258,38 +5264,42 @@ the real blob from github.com and read that — it is the only authority.
      handover, archival — `draft` is merged once so that `main` is the FINISHED
      state rather than the last state that happened to clear ground 1 or 2. It
      fires ONCE, at a named event, and carries whatever is already settled on
-     `draft`. It is never a reason to batch changes up for later, and never a way
-     to merge work in progress.
+     `draft`. It is never a reason to batch changes up for later, and never a
+     way to merge work in progress.
+
      **Quiescence is a PROMPT, not a ground.** If `draft` stands ahead and
      unchanged for a long stretch with no such event declared, Claude must ASK
-     whether the work has ended. The asking is the mechanism: silence alone never
-     authorises a merge, the answer to that question does.
+     whether the work has ended. The asking is the mechanism: silence alone
+     never authorises a merge, the answer to that question does.
+
      **"Enough time has passed" was the form first proposed, and it was
      rejected** — D-073 has the argument. An undefined period puts the rule back
      in the state ground 2 was written to cure, where every merge re-argues its
      own bar; a quiet fortnight because the work is finished and a quiet
-     fortnight because the authors were busy elsewhere are indistinguishable to a
-     clock and opposite in meaning; and nothing here runs a timer, so the ground
-     would sit satisfied by nobody noticing.
-  **What does NOT qualify, under any of the three:** wording that is loose but whose
-  substance is right; a clarification, an improvement or a tidier phrasing; and
-  anything whose correction is already legible in `draft`'s history. **A
-  correction sitting unmerged on `draft` is not a loose end** — `draft` running
-  ahead of `main` is this repo's documented normal state, and a correction visible
-  there, with its reasoning in the commit message, is the workflow showing rather
-  than untidiness.
+     fortnight because the authors were busy elsewhere are indistinguishable to
+     a clock and opposite in meaning; and nothing here runs a timer, so the
+     ground would sit satisfied by nobody noticing.
+
+  **What does NOT qualify, under any of the three:** wording that is loose but
+  whose substance is right; a clarification, an improvement or a tidier
+  phrasing; and anything whose correction is already legible in `draft`'s
+  history. **A correction sitting unmerged on `draft` is not a loose end** —
+  `draft` running ahead of `main` is this repo's documented normal state, and a
+  correction visible there, with its reasoning in the commit message, is the
+  workflow showing rather than untidiness.
+
   **Why this is written out at all, since the practice was already consistent:**
   the rule used to state ground 1 alone while three merges had in fact been made
   on ground 2 — each argued in its own Build-status note, none of them written
-  into the rule. So there was no bar to hold a candidate against, and every merge
-  after the twenty-first had to re-derive its own justification from nothing,
-  which reads as erosion whether or not it is. Written 2026-09-15, when a wording
-  correction (`671f74a`) needed judging and there was nothing to judge it with.
-  It fails ground 2 — the sentence it fixes is over-compressed, not misinforming
-  — so it never TRIGGERED a merge. It reached `main` by riding along with
-  `50d5670`, which did clear ground 2. **That is the rule working as intended,
-  not an exception to it:** the grounds decide WHETHER to merge, never what the
-  branch may carry.
+  into the rule. So there was no bar to hold a candidate against, and every
+  merge after the twenty-first had to re-derive its own justification from
+  nothing, which reads as erosion whether or not it is. Written 2026-09-15, when
+  a wording correction (`671f74a`) needed judging and there was nothing to judge
+  it with. It fails ground 2 — the sentence it fixes is over-compressed, not
+  misinforming — so it never TRIGGERED a merge. It reached `main` by riding
+  along with `50d5670`, which did clear ground 2. **That is the rule working as
+  intended, not an exception to it:** the grounds decide WHETHER to merge, never
+  what the branch may carry.
 * **A `draft` → `main` merge runs all five gates, whatever the diff touched.**
   Two of them are scoped to what a commit CHANGED — `npm run lint` to `.js`,
   `npm run check-markdown` to `.md` — which is right for a commit and wrong for
@@ -5317,17 +5327,20 @@ the real blob from github.com and read that — it is the only authority.
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   every claim in the repository that POINTS AT SOMETHING — a path, a script, a
-  `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier in
-  backticks in a document, a function a JS comment names, a capture and its count, an `RS-n` key, a section (every link
-  `#anchor` against the target's real headings, and every prose `§ 4.5` or `§ Title`), a short list of retired
+  `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier
+  in backticks in a document, a function a JS comment names, a capture and its
+  count, an `RS-n` key, a section (every link `#anchor` against the target's
+  real headings, and every prose `§ 4.5` or `§ Title`), a short list of retired
   phrasings, a passage narrating its own earlier wording (rule 10 under
-  § Markdown Authoring Rules), and any invisible character (U+00A0 and friends, which no reviewer
-  can see by eye) — against the thing it names. It exists because a claim can be falsified by an edit to a DIFFERENT
-  file, which a per-file staleness sweep structurally cannot see: `README.md`
-  spent sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open"
-  after that file went MERGE-READY, and a sweep that edited BOTH files in one
-  commit still missed it. **It cannot check a sentence with no referent** — taste
-  and judgement claims are still the reader's job, and a green run says nothing
+  § Markdown Authoring Rules), and any invisible character (U+00A0 and friends,
+  which no reviewer can see by eye) — against the thing it names.
+
+  It exists because a claim can be falsified by an edit to a DIFFERENT file,
+  which a per-file staleness sweep structurally cannot see: `README.md` spent
+  sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open" after
+  that file went MERGE-READY, and a sweep that edited BOTH files in one commit
+  still missed it. **It cannot check a sentence with no referent** — taste and
+  judgement claims are still the reader's job, and a green run says nothing
   about them. See `scripts/check-claims.js`, whose header carries the reasoning.
 * **Any commit that touches a `.md` file runs `npm run check-markdown` first,
   the same way every commit runs `npm run scan-secrets`.** The markdown is a graded
@@ -5366,6 +5379,7 @@ next session does not rediscover them.
   two-hyphen sequence as an em dash and also quoted the CSS custom property
   names, which begin with it. The favicon was simply absent in Chrome and
   Firefox, in the tab and in bookmarks, while the network tab looked perfect.
+
   **The trap inside the trap: a tag-balance or bracket check PASSES on such a
   file**, which is what made the first "validated" claim wrong. Only a real
   parser catches it — on Windows, `[xml](Get-Content -Raw path)` in PowerShell
