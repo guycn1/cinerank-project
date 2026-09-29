@@ -81,9 +81,9 @@ const KEEP = args.has('--keep');
  *   - REVIEWS REJECT ON CRAFT, NEVER ON SUBJECT MATTER. Two reasons. It is the
  *     sharper taste signal — "no second idea underneath the first" says more
  *     about the viewer than "too nasty" does. And these strings are sent to a
- *     model on a live button press in front of an audience, so a review dwelling
- *     on what a film depicts is a needless chance of a hedge or a refusal
- *     mid-demo.
+ *     model whenever someone presses one of the AI buttons, so a review
+ *     dwelling on what a film depicts is a needless chance of the model hedging
+ *     or refusing instead of answering.
  *   - EVERY SLOT ALSO EARNS A PIECE OF UI EVIDENCE, named on the film below.
  *     Between them the seven films draw the show-more toggle, the "No review
  *     yet" placeholder, the "No TMDB rating" caption, the "Not rated yet" chip

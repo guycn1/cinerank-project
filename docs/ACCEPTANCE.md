@@ -274,8 +274,12 @@ Two limits, stated rather than papered over:
   filter causing the bug. Writing it would manufacture false confidence.
 * **`displayedRanking()` has no unit test.** It lives in
   [`public/app.js`](../public/app.js), a browser script the Node runner cannot
-  import, and the client has no test harness. Its behaviour at 0, 1 and many is
-  evidenced by the captures above rather than by assertions.
+  import, and the client had no test harness when this was assessed. Its
+  behaviour at 0, 1 and many is evidenced by the captures above rather than by
+  assertions. *(Since 2026-09-28,
+  [`npm run layout-check`](../scripts/layout-check.js) runs the client in
+  headless browsers. It measures layout rather than this function's output, so
+  the captures above remain the evidence here.)*
 
 ### Verdict
 

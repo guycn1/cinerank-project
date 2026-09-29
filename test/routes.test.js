@@ -99,7 +99,8 @@ test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', a
 // message that says what to do, not as the central handler's generic 500, which
 // would blame the server for a request that is simply invalid. Unreachable from
 // the UI (the rate dialog always sends a rating from a range input), but a
-// direct API caller can do it — and the demo seed helper will be one.
+// direct API caller can do it — and the demo seed helper, scripts/seed-demo.js,
+// is one.
 test('PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500', async () => {
   db.results['movies:update'] = {
     data: null,

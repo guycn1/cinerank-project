@@ -2942,6 +2942,10 @@ error the same way it carries `short`.
   change to a second feature that the user has not looked at yet. Do not "unify"
   the two by copying the verdict's version back over this one — that is
   backwards.
+  > **2026-09-30:** the verdict's bug was fixed the same day as this entry, as
+  > [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09):
+  > both features now offer the AI call log only when a row was written, by the
+  > rule above. The bullet stands as the state at the time.
 
 ## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
 `generateRecommendations()` read the library with one query filtered
@@ -3203,7 +3207,9 @@ the app's amber. **The user chose C.**
 Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
 had not been removed. The obvious fix, putting the context in front of whatever
-came back, was recorded months earlier as unsafe because it produces
+came back, was recorded earlier the same day, in
+[D-034](#d-034--ranking-updated-is-checked-before-it-is-claimed), as unsafe
+because it produces
 "Couldn’t remove “Dune” — Couldn’t reach CineRank. Check your connection and try
 again." Two subjects, two "couldn’t"s, one failure.
 
@@ -3259,6 +3265,11 @@ inconsistency (three messages), but
 [`test/routes.test.js`](../test/routes.test.js) asserts one of them verbatim
 with a straight apostrophe, so a tidy-up sweep would have broken a test for a
 cosmetic gain. Left alone and reported instead.
+> **2026-09-30:** fixed later the same day in a commit of its own, `a124934`,
+> which curled the server-side contractions and updated the one test assertion
+> that quotes a message verbatim. It is ticked under
+> [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14)
+> as the apostrophe-consistency item.
 
 ### Punctuation
 The composer normalises the terminal stop, rather than each cause being fixed by
@@ -3663,6 +3674,7 @@ prerequisite, not an optional follow-up: until the column exists, PostgREST
 rejects the insert with PGRST204 and adding any film fails. Adding a nullable
 column is backward compatible with the already-deployed code, so the migration
 can and should be applied BEFORE the next merge to `main`.
+> **2026-09-30:** applied, with the backfill, on 2026-09-08.
 
 
 ## D-035 · The Remove button's label is light, and arithmetic decided that
@@ -3765,6 +3777,11 @@ with whether the film is rated. Do not "simplify" it back to positions.
 through by design, and prefixing it client-side produces doublings like
 `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
 the messages at the source; it stays on backlog #16.
+> **2026-09-30:** fixed later the same day as #16(c), in
+> [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form):
+> each cause carries a short form attached at its source, so a context prefix
+> cannot double it. The item's full record is #16 in
+> [`CLAUDE.md`'s ranked-list backlog](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order).
 
 
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
@@ -4111,8 +4128,8 @@ radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.m
 and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
 tokens and cost — neither existing log table fits, so it needs
 [migration 002](../db/migrations/002_tmdb_rating.sql), a new service, a
-versioned prompt file and tests, days before submission. Revisit post-submission
-if ever.
+versioned prompt file and tests, days before submission. Consider revisiting
+post-submission, if ever.
 
 Decision: reword the empty state to echo the query back —
 `No matches for "obamma". Check the spelling, or try a different title.` It
@@ -4458,6 +4475,10 @@ LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prom
 chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
 binding agreement it produced) — the course grades process, so it's a
 deliverable, not a note. Route-level and resilience tests remain manual.
+> **2026-09-30:** route-level and resilience tests arrived on 2026-09-05, in
+> [D-018](#d-018--route--resilience-tests-without-touching-the-live-db), and
+> Render's health check has pointed at `/api/health` since the deploy on
+> 2026-09-07.
 
 ## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
 v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare

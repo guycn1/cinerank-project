@@ -402,8 +402,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        time makes a halo read as brighter rather than bigger, and then neither
        dial can be judged on its own. Widen here, brighten in the alphas.
        A `filter: brightness()` lift was considered for the hover — the user
-       raised it as a possible "more than fully opaque" step — and looks
-       unnecessary now that the resting opacity and the halo are tuned. If it is
+       raised it as a possible "more than fully opaque" step — and judged
+       unnecessary once the resting opacity and the halo were tuned. If it is
        ever wanted, it goes here beside the opacity and must join the transition
        list above, or it will snap while everything else eases. */
   }
@@ -506,11 +506,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      What actually works is .verdict__sheen below: a dash travels a PATH, so one
      width and one speed the whole way round, by construction rather than by
      tuning.
-     One measured limit stands and is NOT fixed: the glint reads 3.40x contrast
-     over `--crimson`, 2.27x over `--amber-deep` and only 1.58x over `--amber`,
-     so it fades slightly crossing the bright end of the ring. The cure is a
-     darker base stop, which changes the banner's colour identity — the user's
-     decision, not Claude's. */
+     The band reads softest over the ring's brightest stop. At its core, computed
+     from the twenty layers' composite alpha with the halo left out, it reaches
+     2.06x contrast over `--crimson`, 1.64x over `--amber-deep` and 1.31x over
+     `--amber` at rest, and 2.84x / 2.02x / 1.48x while a verdict generates. The
+     ring's three stops set that floor, and they are the banner's colour
+     identity: a design decision rather than a contrast target. */
   box-shadow: var(--shadow);
 }
 /* The travelling glint. STROKE DASHES — the only one of the mechanisms tried
@@ -1294,7 +1295,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    WITHOUT `is-entering` — which is what made it read as subtle rather than
    broken.
    `backwards` keeps the half that is actually needed: holding the from-state
-   during this card's stagger delay (set in JS, up to 700ms), so a card does not
+   during this card's stagger delay (set in JS, up to 1200ms), so a card does not
    flash at full opacity before its turn. Nothing needs the forwards half — the
    final keyframe is `opacity: 1; transform: none`, which is identical to the
    card's natural resting state. Do NOT put `both` back. */
@@ -1317,9 +1318,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       `.search-results`, where 10px and a snappy curve are right. Same reasoning
       R27 used to give the rec card `rec-enter`: separate names mean tuning one
       can never move the other.
-   The stagger is in renderRanked() and was raised with these (45→70ms, cap
-   400→700ms); the cap used to bite at card 9, i.e. at exactly the list length
-   where a cascade reads best. */
+   The stagger is in renderRanked(): 125ms per card, capped at 1200ms, so the
+   cascade runs through the first ten cards and the rest start together at
+   1.2s. It is tuned against this rule's 0.6s duration, and the note there says
+   why the two move together. */
 .movie-card.is-entering {
   animation: card-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
 }
@@ -1820,7 +1822,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 /* No score at all — TMDB has no votes for this title (D-037). Muted italic is
    this app's established vocabulary for an absence rather than a value: exactly
    what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
-   what backlog #20 will use for a missing review.
+   what `.no-review` (backlog #20) uses for a missing review.
    Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
    the faintest ink token there is, so italic alone carries the distinction and
    the line that DOES have a number keeps the weight it was tuned to. */
@@ -1980,10 +1982,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      Fourth appearance of one root cause: this, the add button, the search input,
      and the ranked card’s blown-out `1fr` track (D-045). When something will not
      shrink, or shrinks when it should not, look at the automatic minimum size.
-     "Get recommendations" is the one label EXEMPT from the glyph/line-break rule
-     in CLAUDE.md § Frontend Design Notes — the user granted that explicitly — so
-     this is not that rule being enforced. It is a separate fix that happens to
-     make the exemption moot.
+     The glyph/line-break rule in CLAUDE.md § Frontend Design Notes covers this
+     label like every other. The user had exempted it, and lifted the exemption
+     on 2026-09-30 once this declaration had made it moot.
      AND `white-space: nowrap` now does a SECOND job, added by R15: this button
      carries a sparkle icon, and the rule that a glyph must never be separated
      from its word applies to it. Everywhere else that glue is a non-breaking
@@ -2401,8 +2402,8 @@ button:disabled .sparkle-major { animation: none; }
   /* Spotlight, ported from the ranked list on the user's instruction (D-049).
      Claude argued against porting it at all and was overruled — the objection
      was to the ranked list's STRENGTH, not to the idea, and the user's answer
-     was to bring it across far lighter — tried at 0.75, settled at 0.7 minutes
-     later — instead of the ranked list's 0.55: enough that the section
+     was to bring it across far lighter — 0.65, tuned by the user's eye,
+     against the ranked list's 0.55: enough that the section
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
 
@@ -3304,9 +3305,10 @@ body:has(dialog[open]) { overflow: hidden; }
     border-right: none;
     border-bottom: 1px solid var(--line-faint);
   }
-  /* Line ~949 (`tbody tr:last-child td`, 0,3,1) removes the bottom border on
-     every cell of the final data row — a desktop rule so it does not double the
-     table s closing rule. Card mode has no closing rule and each card is its own
+  /* The desktop rule `.log-table tbody tr:last-child td` (0,3,1, with the
+     table's other row rules above this media query) removes the bottom border
+     on every cell of the final data row, so it does not double the table's
+     closing rule. Card mode has no closing rule and each card is its own
      bordered box, so the last card needs its inner separators back too. */
   .log-table tbody tr:last-child td:not(:last-child) {
     border-bottom: 1px solid var(--line-faint);

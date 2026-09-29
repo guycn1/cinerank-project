@@ -139,11 +139,9 @@
           placeholder="Search a film to add…"
           aria-label="Search for a movie by title"
         />
-        <!-- aria-label because the word is display:none under 500px, where the
-             magnifier is all that shows; the icon itself is aria-hidden.
-             ("the emoji" until this 2026-09-09 sweep — a leftover from before
-             D-027 replaced it with the inline SVG below, and it contradicted
-             the very next comment.) -->
+        <!-- aria-label because the word is display:none at 500px and below,
+             where the magnifier (the inline SVG below) is all that shows; the
+             icon itself is aria-hidden. -->
         <button type="submit" id="search-btn" aria-label="Search">
           <span class="search-btn__label">Search</span>
           <!-- Inline SVG, not 🔎 and not U+2315 ⌕. The emoji is a fixed

@@ -56,8 +56,11 @@ services:
       - key: OPENROUTER_VERDICT_MODEL
         value: anthropic/claude-sonnet-5
 
-      # package.json only asks for ">=20". Pinning it here means a Render-side
-      # default bump can't change the runtime under us mid-submission.
+      # package.json only asks for ">=20". Pinning it here holds a service
+      # created from this blueprint at Node 22, so a Render-side default bump
+      # cannot change its runtime. The live service was created in the
+      # dashboard, which does not read this file, so the pin does not apply to
+      # it: that service runs the newest Node that satisfies ">=20".
       - key: NODE_VERSION
         value: "22"
 

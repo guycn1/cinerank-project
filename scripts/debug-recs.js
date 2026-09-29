@@ -197,9 +197,9 @@
       // let you press the button exactly once. A macrotask runs after that whole
       // synchronous tail, so this puts it back.
       //
-      // >>> THIS WORKAROUND IS NOW ONLY HALF OF WHAT IT NEEDS TO BE, AND THE
-      // HARNESS NO LONGER SURVIVES A SUB-THRESHOLD RUN. Do not read the
-      // paragraph above as a promise that it does. <<<
+      // >>> BELOW THE THRESHOLD THE HARNESS DOES NOT SURVIVE A RUN, BY DECISION
+      // (D-063, below). Do not read the paragraph above as a promise that it
+      // does. <<<
       //
       // It was written on 2026-09-09 (96158b1) and it was complete AT THE TIME.
       // Back then `syncRecommendationsAvailability()`'s below-threshold branch

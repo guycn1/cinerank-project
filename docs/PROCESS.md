@@ -479,9 +479,11 @@ after it changed, and its header says why a sweep had missed it: a staleness
 sweep *"reads each document forwards ('is what this file says about itself still
 true') and cannot see a claim ABOUT ANOTHER FILE that the other file has since
 falsified."* The gate closed that gap for every claim that **points at
-something** — a path, an entry, a capture, an identifier. Nothing closed it for
-claims that merely **characterise** something, and that is the half the
-2026-09-19 sweep worked.
+something** — a path, a script, a decision entry, a commit, a line number, an
+identifier, a capture, an `RS-n` key, a section reference. A claim that merely **characterises** something, such
+as a set described in the abstract or a value paraphrased in prose, has no
+referent for a gate to look up, and the gate's own header says so. That is the
+half the 2026-09-19 sweep worked, by reading.
 
 **The worked example.** Four documents described one enumerable set — the eight
 `RS-n` states needing two captures — and all four disagreed:
@@ -608,9 +610,11 @@ through `globalThis.fetch`. [`server/index.js`](../server/index.js) exports
 `app` and only starts listening when run directly, so a test can drive it on an
 ephemeral port.
 
-The resilience *UI* states (the calm inline messages) are outside the suite,
-since the client has no test harness. They are evidenced by screenshots instead:
-sixteen states, argued in [`RESILIENCE.md`](RESILIENCE.md).
+The resilience *UI* states (the calm inline messages) are evidenced by
+screenshots: sixteen states, argued in [`RESILIENCE.md`](RESILIENCE.md). The
+client's layout has a check of its own,
+[`npm run layout-check`](../scripts/layout-check.js), which runs the real page in
+headless browsers against fixture data.
 
 ## 7. Gaps named while building, and how each one closed
 

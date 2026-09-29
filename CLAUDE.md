@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 
 ### Current state
 
@@ -74,10 +74,33 @@ commit, before the merge, so that `main` never carries it as an open to-do.**
 
 ### What landed, newest first
 
+#### 2026-09-30
+
+**WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
+reads as open when it is not.** Sentences about work since done are in the
+tense that matches it, and passages under closed items that still read as
+instructions (R1, R27, step 4b, the seed blueprint) carry a note saying they
+were carried out. The living-log entries above
+no longer state a merge status, which the next merge would have falsified.
+
+Resolved or settled on the user's rulings: **the step 3 icon-clipping question
+closes on a standing rule** — a headless browser is never the only measure of
+layout, and a human verifies in a real browser whenever its findings are in
+doubt; the `Get recommendations` exemption from the glyph rule was confirmed
+moot and lifted; and the glint's weaker contrast over `--amber` is recorded as
+a consequence of the ring's colours, a design decision. `docs/DECISIONS.md`
+gained dated notes where an entry still read as open and no later entry named
+it (D-015, D-034, D-036, D-042, D-047), and a wrong date in D-042 is corrected.
+
+Figures corrected against source: the ranked stagger cap (1200ms), the recs
+spotlight (0.65), the glint's contrast (recomputed for the
+twenty-layer band), and `docs/AI-CALL-LOG.md`'s opening, which described the
+dialog as listing every call rather than the newest 60.
+
 #### 2026-09-29
 
-**WHAT LANDED ON 2026-09-29: a pre-merge staleness sweep of every markdown file
-and code comment, on `draft` and not merged.** Figures the project had outgrown:
+**WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
+comment.** Figures the project had outgrown:
 the lint coverage in `docs/MERGE-READINESS.md` (26 files in four environments,
 not 24 in three), its "seven tests" on `generateRecommendations` (sixteen reach
 it) and its commit count, the Execution row in `docs/PROCESS.md`, the AI-log
@@ -115,8 +138,7 @@ each changed file tokenizes identically to the version before.
 
 #### 2026-09-28
 
-**WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not
-merged.** All text is 92% of its old size, set by ONE dial, `--type-scale` on
+**WHAT LANDED ON 2026-09-28: the type scale (D-079).** All text is 92% of its old size, set by ONE dial, `--type-scale` on
 `:root`, which `html` turns into its font size. Every text size was already
 `rem` or `em`, so the root is the whole mechanism. Two idioms keep it one dial:
 `calc(Nvw * var(--type-scale))` for the `vw` middle of a fluid clamp, which
@@ -188,7 +210,7 @@ entry under Implemented): fixture data, no `.env`, three modes.
 #### 2026-09-27
 
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
-load-bearing, tests only, on `draft` and not merged.** The user asked whether
+load-bearing, tests only.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
 rather than by reading: 94 probes, each breaking ONE condition a test claims to
 guard, the whole suite run after each, in a throwaway worktree with dummy keys
@@ -217,8 +239,8 @@ list, which stays in `SPEC.md` § 4.5 alone.
 
 #### 2026-09-26
 
-**WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
-on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
+**WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments
+only** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and every
 named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
@@ -408,7 +430,8 @@ was ticked by the reconciliation.
   as the record of when each happened;
 * migrations 001-004 all applied, 004 confirmed by the user 2026-09-09;
 * the next-session backlog was reset the same day — **SEVEN entries once 4b is
-  counted, not six**, see "Agreed order of work from here";
+  counted, not six**, see "Agreed order of work from here" *(all seven closed
+  since, the last on 2026-09-14)*;
 * step 3 landed 2026-09-11;
 * **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12,
   the same day it started and finished. Do not reopen it or hunt for more
@@ -444,8 +467,8 @@ masked; reserving the tallest message would park 67px of permanent blank space
 on a phone to fix something nobody can see. The same investigation found that
 `scripts/debug-recs.js` no longer survives a run below the rating threshold —
 its button workaround was complete in 96158b1 and R16 (885a6a5) later added
-grid-clearing to the same branch — left unfixed and documented in the file
-itself.
+grid-clearing to the same branch — kept that way by decision (D-063) and
+documented in the file itself.
 
 **STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST
 UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus
@@ -960,8 +983,8 @@ and stay as written.
   - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
     `--line-faint` = white 0.035). A short "floating tick" variant was tried to
     make the row/column hierarchy clearer and reverted — user preferred the plain
-    hairline; hierarchy parked — and it stayed parked. The plain hairline is
-    what shipped and nothing has reopened it.
+    hairline, and the hierarchy question was settled with it. The plain
+    hairline is what shipped.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
@@ -1516,6 +1539,9 @@ status is further down this section. What landed:
   were deliberately left alone: they pass the server's own wording through,
   and prefixing it client-side would produce doublings like `Couldn’t remove
   “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
+  *(Both were fixed later the same day as #16(c), by giving each cause a
+  `short` form so the context prefix cannot double it — D-042, and the
+  "failure message is a context plus a cause" bullet below.)*
 
 - **One focus ring for the whole app, and the dialog buttons finally react**
   (#10). A bare `:focus-visible { outline: 2px solid var(--amber);
@@ -1623,7 +1649,9 @@ status is further down this section. What landed:
   been emptiest on exactly the obscure titles where a reader wonders most. The
   rating and this caption sit in one `.score-block` wrapper so the score
   column still has exactly TWO children — the block and the buttons — which is
-  what its `margin-top: auto` bottom-pinning depends on.
+  what its `margin-top: auto` bottom-pinning depends on. *(#20 landed the same
+  day and does use it: `No review yet — edit to add one.`, muted italic, in
+  `.no-review`.)*
 
   On an UNRATED card the caption leads the block, and `:first-child` is the
   test for that — the badge is appended before it whenever a rating exists. It
@@ -2006,8 +2034,7 @@ reopens, and do not renumber: the numbers are how the user refers to them.
 
 **Every step below is closed** — the last UI step on 2026-09-12, step 6 on
 2026-09-14 — so what follows is the record of the order the work was done in,
-not a queue. (Step 3 carries one parked measurement question, dated in place.)
-The sequencing rules governed the list while it was open and would apply again
+not a queue. The sequencing rules governed the list while it was open and would apply again
 if anything reopened.
 
 Work this top to bottom. It is the user's own sequencing, not Claude's — do not
@@ -2090,7 +2117,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   above/below threshold, success, failure, zero-suggestions, an unrelated
   add/rate/remove after each, and both mid-flight races). Worth a browser
   pass before the resilience screenshots, which this fix is what makes
-  possible.
+  possible. *(Done by those screenshots, 2026-09-13/14: RS-3, RS-4, RS-9,
+  RS-15 and RS-16 each show a run's message surviving in the hint.)*
 
 * **R2. DONE 2026-09-09 (D-046) — the server half of the owned filter.** The
   answer to the user's "verify the owned filter holds end to end" was **no**:
@@ -2889,7 +2917,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     "shall have no business with any entrance animation". Today that falls out
     for free (those paths append no cards), but the SCROLL must be gated
     explicitly, or a zero-result run would yank the page to a section with
-    nothing new in it.
+    nothing new in it. *(Built that way: `renderRecommendations()` returns from
+    its empty branch before it reaches the scroll, so the gate is structural.)*
 
   **Four things already checked, so the implementation does not rediscover
   them:**
@@ -2929,6 +2958,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     `translateY(10px)`). With any other fill it would sit fully visible through
     the lead-in and then jump. That is D-043's mechanism doing real work here —
     one more reason it must never go back to `both`.
+
+  *(All four shipped with R27 as described: the lead-in and stagger are set as
+  each card's `animationDelay` in `renderRecommendations()`.)*
 
   **Firing the scroll on CLICK was considered and REJECTED by the user** — do
   not revisit it. At click time the app knows none of the three things that
@@ -3220,38 +3252,36 @@ about 7px low and the padding takes the blame. It also grew 1.5x, applied to
 every term of the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at
 every width rather than only where the clamp happened to be resting.
 
-**STILL UNRESOLVED as of 2026-09-12 — a claim briefly written here about it
-was WITHDRAWN, and the withdrawal is the useful part.** A headless-Chrome
-screenshot pass (292 through 600px) appeared to show the header GitHub icon
-fully clipped off-canvas from ~510px down. The user's own real browser
-directly contradicted it — a live screenshot at `window.innerWidth === 406`
-showed the icon completely visible, dead centre of the range the automated
-pass called broken. Chasing the discrepancy (font-load timing, a stray
-`--window-size` that turned out to be silently ignored because the headless
-instance reused an already-running session) fixed one real bug in the TEST
-TOOLING but never reconciled the two results, and the user asked to stop
-spending the session on it rather than dig further — correctly: this was
-supposed to be two small, mechanical CSS fixes.
+**The icon-clipping question, RESOLVED 2026-09-30: the real browser is the
+authority, and the headless finding is discarded.** On 2026-09-12 a
+headless-Chrome screenshot pass (292 through 600px) appeared to show the header
+GitHub icon fully clipped off-canvas from ~510px down. The user's own real
+browser directly contradicted it — a live screenshot at
+`window.innerWidth === 406` showed the icon completely visible, dead centre of
+the range the automated pass called broken. Chasing the discrepancy (font-load
+timing, a stray `--window-size` that turned out to be silently ignored because
+the headless instance reused an already-running session) fixed one real bug in
+the TEST TOOLING but never reconciled the two results, and the user stopped the
+session spending more time on it — correctly: this was supposed to be two
+small, mechanical CSS fixes.
 
-**So: nothing is confirmed either way.** The h1-overflow mechanism this note
-already describes (a single unbreakable word in a `minmax(0, 1fr)` column) is
-real and unchanged; whether it actually clips the icon at some width, and
-which width, is NOT established — do not cite the ~510px figure, it was
-retracted, not corrected. If this needs settling later, trust the real
-browser over another automated pass; something about headless Chrome's
-rendering did not match it here for a reason that was never found.
+**The conclusion, and it is a standing rule:** a headless browser is not
+reliable enough to be the only measure of layout. Its findings are a lead, and
+whenever there is any doubt about their accuracy a human verifies in a real
+browser, whose result wins. Applied here, the real browser's observation stands
+and the ~510px figure is retracted, not corrected — do not cite it. The
+h1-overflow mechanism this note describes (a single unbreakable word in a
+`minmax(0, 1fr)` column) is real: that column cannot be pushed wider, so such a
+word overflows it rather than moving the icon's column.
 
-**The tooling unreliability turned out to run deeper than this note knew at
-the time — see D-062.** A LATER, unrelated bug hunt found a case with a
-completely FRESH profile (no session reuse) where the requested
-`--window-size` still didn't match what the page's own JS reported, and a
-separate run where the output PNG was pixel-exact at the requested size while
-`window.innerWidth` read something else entirely. So "session reuse" was A
-cause seen once, not the whole story — do not treat headless Chrome's width
-reporting as trustworthy here without a live console check backing it up.
-`npm run layout-check` (2026-09-28) removes that particular fault by
-measuring inside an iframe it sizes itself, but it has not been pointed at
-this question, so the paragraph above still stands.
+**The evidence for the rule ran deeper than this note first knew — see
+D-062.** A later, unrelated bug hunt found a case with a completely FRESH
+profile (no session reuse) where the requested `--window-size` still didn't
+match what the page's own JS reported, and a separate run where the output PNG
+was pixel-exact at the requested size while `window.innerWidth` read something
+else entirely. `npm run layout-check` (2026-09-28) removes that particular
+fault by measuring inside an iframe it sizes itself; it is a headless browser
+all the same, so the rule above applies to its findings too.
 
 **What IS certain, independent of any of the above:** the two fixes that
 shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
@@ -3438,6 +3468,8 @@ their own shapes again. The logo item was one of the four, and it is worth
 noting how it went: the mechanism was fine, the written diagnosis of WHY it
 was invisible was incomplete, and following that diagnosis literally would
 have produced the wrong effect. Read the code, not just the item.
+*(All seven have since been built and closed, on 2026-09-11 and 2026-09-12; the
+advice stands for any similar item raised later.)*
 
 Slotted here, and NUMBERED 4b RATHER THAN 5 ON PURPOSE: the user asked for
 these "after the recs overhaul, before the narrow-portrait overhaul", and
@@ -3633,8 +3665,8 @@ stays the portrait overhaul.
   — the band is always weakest over `--amber` — but the NUMBERS are long
   obsolete, and the current profile is a composite of twenty layers rather
   than one stroke. The cure for the floor was and is a darker base stop,
-  which would change the banner's colour identity — a design decision left to
-  the user.
+  which would change the banner's colour identity — a design decision. The
+  current figures are in the comment on `.verdict` in `public/styles.css`.
 
   Dials, AS THEY WERE ON 2026-09-11: the glint's alpha, its 16° core / ±26°
   falloff, the 9s and the 3px. The 16°/±26° were CONIC parameters and died
@@ -3878,7 +3910,7 @@ stays the portrait overhaul.
   **One residual, accepted knowingly:** velocity changes instantaneously
   rather than ramping. Different artefact from a position jump, reads as "it
   sped up", and the user approved it after looking. A rAF ramp of
-  `playbackRate` is the fix if it is ever wanted.
+  `playbackRate` would smooth it, should a ramp ever be wanted.
 
 ##### Step 5 — the portrait overhaul
 
@@ -3913,7 +3945,7 @@ question**, in this step or outside it — they are about the deadline, not
 about this step's backlog, and this step closing does not retire them. **Plan
 and test against ~350px.** That is the target, not the floor. **THE TWO RULES
 BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.** The user asked
-to be stopped, in advance, because the deadline is close:
+to be stopped, in advance:
 * **Below ~350px: "good enough" only.** Actively talk the user out of tuning
   these widths. The exceptions are narrow and specific — a fix that is safe,
   straightforward and quick, or a case where the ~350px layout is itself
@@ -4063,7 +4095,8 @@ below — this list is the smaller stuff.)
   Build it as a small repeatable seed helper (hits the app's own
   `POST /api/movies` + `PATCH /:id`, tagged as the demo set) so we can wipe and
   re-seed while tuning; final state must be exactly what the normal UI flow
-  produces.
+  produces. *(All of it done 2026-09-13: the helper is described next, and each
+  AI feature was run three times on the list before it was called settled.)*
 
   **THE HELPER IS BUILT — `scripts/seed-demo.js`, `npm run seed-demo`
   (2026-09-13).** **It REPLACES by default: the wipe is the first thing it
@@ -4972,7 +5005,9 @@ comes from the shared `busyButton()`; only its resting label is exempt.
 **The exemption is moot in practice, and has been since R11:** that item gave
 `.recs__trigger` `white-space: nowrap`, so the label cannot break at all — the
 rule's outcome reached by a different mechanism. The exemption is left standing
-rather than retired because it is the user's to lift, not Claude's.
+rather than retired because it is the user's to lift, not Claude's. *(Confirmed
+moot on 2026-09-30, and lifted by the user the same day: the rule now covers
+`Get recommendations` like every other label.)*
 
 **And one case the in-string technique cannot cover at all** (found by R15, which
 put a sparkle icon on that same trigger): an ICON is an element, not a character,
@@ -5122,9 +5157,8 @@ not a cosmetic category in this project. On 2026-09-12 both `CLAUDE.md` and
 separators showing as a literal `---` paragraph, and a backslash printed inside
 the code chip of essentially every technical identifier in both files — all four
 env var names in § Security & Secrets, both log tables, every log column, all
-three check constraints, every prompt filename. **Most of the work still left on
-this project is writes to these very files**, so a rule that is merely written
-down would be re-broken within a session. See D-065.
+three check constraints, every prompt filename. A rule that is merely written
+down could be re-broken within a session. See D-065.
 
 ### The rules
 
