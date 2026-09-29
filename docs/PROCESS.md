@@ -595,7 +595,9 @@ procedure.
   drift into two answers: whenever a `status='failed'` row reaches a log table
   the response must advertise the AI call log, and whenever no row was written
   it must not. Each of these was verified by breaking the code it guards and
-  confirming the intended test — and only that test — fails.
+  confirming the invariant's own tests fail. Dropping the recommendations
+  flag also fails the OpenRouter-down test, which asserts the same flag from
+  its own side.
 - **Two failures at once**, added 2026-09-11 and also written as a loop over
   both features: when the AI call fails AND the log write then fails, there is
   no row to hold either cause, so stderr is the only surviving record and the

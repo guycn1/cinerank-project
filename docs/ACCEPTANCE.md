@@ -107,8 +107,9 @@ signal that the field travels further than this route.
 
 **This test was written on 2026-09-13, while assembling this document.** Until
 then the suite had exactly two search tests, both failure paths: the 400 for a
-missing query and the 502 for TMDB being unreachable. `MATRIX_TMDB`, the one
-fixture carrying a poster, was used only by the *add* tests. So the single
+missing query and the 502 for TMDB being unreachable. Every fixture carrying a
+poster (`MATRIX_TMDB`, `UNVOTED_TMDB` and `HEAT_TMDB`) reached the suite only
+through the *add* and *recommendation* tests, never through search. So the single
 behaviour this criterion asserts was the one search behaviour nothing checked —
 which is the sort of thing a mapping exercise is for.
 

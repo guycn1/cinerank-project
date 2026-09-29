@@ -257,8 +257,9 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 
 // THE SEARCH HAPPY PATH, which had no coverage at all until 2026-09-13.
 // The only two search tests were the 400 for a missing query and the 502 below
-// for TMDB being unreachable -- both failure paths. MATRIX_TMDB, the one fixture
-// carrying a poster, was used exclusively by the ADD tests. So the single
+// for TMDB being unreachable -- both failure paths. Every fixture carrying a
+// poster (MATRIX_TMDB, UNVOTED_TMDB, HEAT_TMDB) reached the suite only through
+// the add and recommendation tests, never through search. So the single
 // behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
 // movie title returns real TMDB results with posters" -- was the one search
 // behaviour the suite never checked.
@@ -911,7 +912,7 @@ for (const feature of [
 /* ---------- /api/recommendations/history ------------------------------ */
 
 // The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
-// is the one route no test touched, which is the whole reason the endpoint kept
+// was the one route no test touched, which is the whole reason the endpoint kept
 // coming back up as a deletion candidate -- so the gap is closed here rather
 // than by deleting a route SPEC 4.5 lists. Deliberately asserts the SHAPE and
 // the recommendation-only scope, not the column list: the point is that the

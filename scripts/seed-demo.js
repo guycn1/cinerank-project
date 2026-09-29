@@ -102,8 +102,10 @@ const PERSONA =
 /** @type {SeedEntry[]} */
 const SEED = [
   {
-    // Rank 1, and the LONG review: this is the one that clips and draws the
-    // "show more" toggle (ranked-list item #5). Also the craft axis — practical
+    // Rank 1, and the LONG review: long enough to clip and draw the "show more"
+    // toggle (ranked-list item #5) at every width. At 900px and below, where
+    // reviews clamp to two lines, the shorter reviews below clip and draw it
+    // too. Also the craft axis — practical
     // effects, clarity, commitment — which is what stops the set reading as
     // "likes bright colourful things" and nothing else.
     title: 'Mad Max: Fury Road',

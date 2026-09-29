@@ -104,6 +104,15 @@ edge to within 0.01px, with a swapped-alignment control run catching the
 defect at about 26px. The user had confirmed it on a phone in both
 orientations, the day it shipped and again today.
 
+**Then a sweep of every uniqueness claim** ("the only", "exactly one", "every
+other", "nothing else" and their less obvious forms) across all tracked text
+files, each checked against the code, `git log` or a mutation probe. Corrected:
+the `process.env` reads outside `server/`, the poster-carrying test fixtures,
+two "only that test fails" claims the suite has outgrown, every count of
+animations off `--ease` (now a rule with no count), the footer GitHub mark's
+differences, a glow and a media-query placement said to match "every other",
+and D-078's sub-path claim, which the tree contradicted from the start.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -812,8 +821,11 @@ carries the current state.
   (2026-09-09, user-asked). The client has no test harness, so every judgement
   about the recs grid, the entrance stagger, the scroll or the hover glow costs
   a real OpenRouter call, and the user ran their paid quota down doing exactly
-  that. **IT IS NO LONGER LOADED BY THE PAGE — unloaded 2026-09-13, see the
-  ticked checkbox under Pre-submission blockers.** Paste the file into the
+  that. *(Since 2026-09-28 `npm run layout-check` also answers
+  `/api/recommendations` from fixtures, for layout work; this harness remains
+  the way to drive the real page by hand.)* **IT IS NO LONGER LOADED BY THE
+  PAGE — unloaded 2026-09-13, see the ticked checkbox under Pre-submission
+  blockers.** Paste the file into the
   browser console to use it; `debugRecs(4)` then makes "Get recommendations"
   render four dummy cards, which is how it was written to be used. The count
   runs 1–6 (`parseModelJson` slices at 6); `{ posters: false }` exercises the
@@ -1484,7 +1496,9 @@ status is further down this section. What landed:
   sidesteps both problems. Size is now proportional (`40%`, capped) instead of
   a flat `1.4rem` that was identical in a 46px search row and a ~190px rec
   card. **No emoji remain in rendered output anywhere** — the only ones left in
-  the source are inside comments explaining why they were rejected.
+  the source are inside comments explaining why they were rejected. *(Meaning
+  the app's own interface and `public/`: user text can still carry emoji, and
+  two seed reviews and the layout-check fixtures do.)*
 
 - **The unrated line is a chip, not crimson prose** (D-033). `Not rated yet`
   is now an amber pill borrowing `.rec-card::before`'s exact vocabulary — that
@@ -1586,7 +1600,10 @@ status is further down this section. What landed:
   equal specificity, so both applied — a dead `✓ Added` card still darkened
   under the cursor. Now guarded. The only two unguarded hover rules left
   (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever disables
-  — verified against every `disabled =` assignment in app.js.
+  — verified against every `disabled =` assignment in app.js. *(Among the
+  buttons that carry a filled or outlined style; `.review-toggle` and
+  `.log-link` are text buttons whose hover is unguarded too, and nothing
+  disables either of them.)*
 
 - **Desktop card alignment** (2026-09-08, user-raised, off-backlog). The grid
   is `align-items: center`, so on >620px a short title floated in the middle
@@ -2119,7 +2136,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   back to the user. It now skips that write when the button is `aria-busy`,
   the same guard and the same reason as the skip in `syncAddButtons()`.
 
-  **Not covered by a test — the client has no test harness at all**, so this
+  **Not covered by a test — the client has no test harness at all** *(still
+  true for this logic; `npm run layout-check`, added 2026-09-28, checks
+  layout, the verdict typing and the clipboard)*, so this
   one was verified by reading and by tracing all eleven paths (boot
   above/below threshold, success, failure, zero-suggestions, an unrelated
   add/rate/remove after each, and both mid-flight races). Worth a browser
@@ -2451,7 +2470,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   would have done none of that — it is a fixed full-colour image (D-027), so
   it would have stayed bright while the label dimmed. The exemption the user
   granted in advance was not needed, and **"no emoji remain in rendered
-  output anywhere" still holds**.
+  output anywhere" still holds** for the app's own interface.
 
   **Tuned once on the user's "slightly bigger and more pronounced":**
   `1.05em` → `1.3em`, and separately the star ARMS were thickened — the waist
@@ -2500,41 +2519,23 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   locked section twinkling at the user invites a click that does nothing.
 
   `ease-in-out` rather than `--ease` — a symmetric loop, where `--ease` would
-  snap bright and drift back. That makes two animations deliberately off
-  `--ease` (this and the rec-card exit); both say why at the declaration, and
-  at two it is now worth naming the pair as `--ease-out`/`--ease-in` if a
-  third ever appears.
-
-  **There are FOUR as of 2026-09-11**, not two — the rec-card exit
-  (`ease-in`), this sparkle (`ease-in-out`), the ranked card's entrance (a
-  gentler ease-out) and the verdict glint (`linear`) — **and the answer was
-  still to inline each with a why-comment rather than mint tokens.**
-
-  COUNTING RULE, so nobody "corrects" this by grepping: FOUR is the number
-  of animations that could plausibly have used `--ease` and deliberately do
-  not. They are the verdict glint (`sheen`, `linear`), the ranked list's
-  entrance (`card-enter`, its own cubic-bezier), the trigger sparkle
-  (`sparkle-glow` and `sparkle-twinkle`, both `ease-in-out`, counted as one
-  effect) and the rec-card exit (`rec-close`, `ease-in`). A grep for timing
-  functions returns more — the two `spin`s, the film grain, and the verdict
-  caret's `step-end` — but none of those was ever a candidate: a rotation is
-  linear because it is a rotation, stepped noise is stepped because it is
-  noise, and a caret blinks rather than fades, which is what `step-end`
-  means. **The caret is not in the original exclusion list because it did not
-  exist when this was written — it arrived with the typing effect (D-057).**
-  Still four as of 2026-09-12.
+  snap bright and drift back. It says why at its own declaration, as does
+  every animation that could have used `--ease` and deliberately does not;
+  the stylesheet's `animation:` declarations are the list, and no count of
+  them is kept here, because a count drifts each time one is added. **The
+  answer was to inline each with a why-comment rather than mint tokens.**
 
   `--ease-out` is the name that will not work: `--ease` IS an ease-out, just
   a violently front-loaded one, so a token by that name would read as a
-  synonym for the thing it exists to differ from. All four are one-offs with
-  different reasons (a departure, a symmetric loop, a watchable arrival, a
-  constant drift) and each sits a sentence away from its own declaration.
-  Revisit if two of them ever want the SAME curve — that is the point at
-  which a token stops being a rename and starts preventing drift.
+  synonym for the thing it exists to differ from. Each off-`--ease` curve is
+  a one-off with its own reason (such as a departure, a symmetric loop, a
+  watchable arrival or a constant drift). Revisit if two of them ever want
+  the SAME curve — that is the point at which a token stops being a rename
+  and starts preventing drift.
 
-  **The pattern behind three of the four is worth more than the tokens
-  question:** `--ease` exists to make an arrival feel INSTANT, so anything
-  the user is meant to WATCH wants a different curve. It was the diagnosed
+  **The pattern worth more than the tokens question:** `--ease` exists to
+  make an arrival feel INSTANT, so anything the user is meant to WATCH wants
+  a different curve. It was the diagnosed
   cause in R30, in the ranked entrance and in the verdict glint.
 
   **Inline, NOT a flex container, and that is the non-obvious part.** The
@@ -3142,8 +3143,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   Fixed on both axes: stagger 55ms → 120ms, and `--ease` → **`ease-in`** (2%
   at t=0.1, 32% at t=0.5), which is the right shape for a departure anyway —
-  things accelerate away and decelerate in. **This is the one animation in
-  the app that does not use `--ease`, and that is deliberate.**
+  things accelerate away and decelerate in. **Leaving `--ease` here is
+  deliberate.**
 
   **`transform-origin` is scoped to `.is-leaving`, and that is
   load-bearing.** On `.rec-card` it would silently move the hover
@@ -3336,8 +3337,8 @@ same icon at `1.5rem` against the header's `clamp(48px, 6vw, 63px)`.
 the class now carries only the padding, the round hit area, the colour, the
 resting opacity, the transition and the hover glow, while
 `.site-head .gh-link` holds the grid placement and `--gh-drop`, and
-`.site-foot__credit .gh-link` holds nothing but a `font-size`. Size is
-genuinely the only difference between the two.
+`.site-foot__credit .gh-link` holds a `font-size` and the `--gh-halo` dial
+described below. Those two are the only differences between the two marks.
 
 **The hover halo moved from px to `em` as part of that**, and the conversion
 is arithmetic rather than a retune: `22px`/`46px` divided by the header's

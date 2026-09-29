@@ -197,8 +197,10 @@
              It is also the right state before the first response has landed:
              the rated count is not known yet. Do NOT remove this attribute to
              "fix" a disabled button -- the sync writes disabled in BOTH
-             directions on every load, so the only way it stays off is if the
-             movie list never loaded at all, which is exactly when it should. -->
+             directions on every load, so this markup value survives only when
+             the movie list never loaded at all, which is exactly when it
+             should. (Below the rating threshold the button is off too, but
+             because the sync wrote it so.) -->
         <button class="recs__trigger" id="recs-trigger" type="button" disabled>
           Get recommendations
         </button>
@@ -239,7 +241,8 @@
     <p class="site-foot__credit">
       <span>Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.</span>
       <!-- The SECOND repo link — step 3 asked for link(s), plural. Everything
-           except its size comes from the shared .gh-link class.
+           except its size and its halo multiplier (--gh-halo) comes from the
+           shared .gh-link class.
            The SVG path is duplicated from the header's rather than shared, and
            that is a judgement call rather than an oversight. <symbol> + <use>
            WOULD work here — unlike R15's sparkle, nothing selects into this

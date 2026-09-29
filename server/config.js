@@ -3,10 +3,11 @@
  * the two feature thresholds, and the fallback table for estimating cost.
  *
  * Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
- * single place they enter the process; nothing else reads a SECRET out of
- * process.env. The one other process.env read in the repository is
- * scripts/seed-demo.js's CINERANK_URL, which is a base URL and not a
- * credential.
+ * single place they enter the process, and the only place the server reads
+ * process.env at all. Outside server/, two dev scripts read it and neither
+ * reads a credential: scripts/seed-demo.js takes CINERANK_URL, a base URL, and
+ * scripts/layout-check.js takes CHROME_PATH, EDGE_PATH and FIREFOX_PATH,
+ * browser locations.
  *
  * Importing this module throws if any secret is missing or still holds its
  * .env.example placeholder, so a misconfigured server fails at boot rather than

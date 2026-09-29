@@ -118,7 +118,9 @@ verification fails while looking rigorous, and each is answered concretely:
   same way**: the search happy path (break the poster guard, then the year
   conversion), `DELETE` (drop the error guard so a failed delete answers a false
   204), and the verdict's success log row (make it ignore OpenRouter's reported
-  cost). Every probe failed exactly the intended test and nothing else.
+  cost). Every probe failed the test aimed at it. The year conversion also
+  fails a recommendations test, because a shaped TMDB result feeds the
+  recommendation cards as well as search.
 * **Verification theatre** — the
   [markdown checker](../scripts/check-markdown.js) was proved in *both*
   directions across 57 cases, 26 that must fail and 31 that must pass. The

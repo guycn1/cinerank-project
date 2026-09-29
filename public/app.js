@@ -1184,9 +1184,9 @@ document.addEventListener('keydown', (e) => {
  * A line inside the search-results panel: loading, "no matches", an error, or
  * the nudge for an empty query. Class-driven: this is where the last
  * PRESENTATIONAL inline element.style writes in this file went. The writes
- * that remain all carry a measured or computed value CSS cannot express -- a
- * locked button width, a stagger delay in ms, a grid offset, a custom
- * property.
+ * that remain each carry a measured or computed value CSS cannot express, or
+ * clear one -- for example a locked button width, a stagger delay in ms, a grid
+ * offset or a custom property.
  *
  * @param {string} [text]  Written with textContent; omit it to fill the line yourself.
  * @param {string} [kind]  An extra class, e.g. "err".

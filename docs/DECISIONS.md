@@ -286,7 +286,8 @@ duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
 condition: short, and never the full list of eleven.** So each route file
 carries its mount path and a few verbs (`/api/movies — list, search, add, rate,
-remove`), while methods and sub-paths stay in § 4.5 alone. `/api/health` and
+remove`), while methods, and every sub-path except the recommendations line's
+`/history`, stay in § 4.5 alone. `/api/health` and
 `/api/config`, registered in [`server/index.js`](../server/index.js) rather than in a route file,
 appear nowhere in the tree.
 
@@ -592,6 +593,10 @@ asked for it to be verified rather than trusted.
 * **Do not flatten a nested directory back to repeated prefixes.** The node form
   IS the convention now, and this entry is the only place it is written down —
   the tree can otherwise only show its shape, not its rule.
+  > **2026-09-30:** no longer the only place.
+  > [D-078](#d-078--the-readmes-project-layout-is-a-connector-tree-that-includes-the-root-and-a-route-file-carries-its-mount-path-not-its-endpoints)
+  > redrew the tree with `├──` / `│` connectors and describes that form as
+  > this entry's second rule drawn rather than implied.
 * **Do not write a bare directory name in that section's prose.** Every
   identifier there resolves from the root, and that is what makes the
   completeness claim checkable rather than decorative.

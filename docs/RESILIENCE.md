@@ -140,8 +140,8 @@ The log row is the other half: **green `success`, real tokens, real cost, and "n
 suggestions".** A run can be simultaneously successful, charged, and empty.
 
 **Before this was fixed, this state lied.** Every empty run reported "the model
-only named films already in your list" — one of four possible causes, and not this
-one. Because a verification failure still logs as a success, that sentence was the
+only named films already in your list" — one of several possible causes, and not
+this one. Because a verification failure still logs as a success, that sentence was the
 only thing a user would ever see, and a TMDB outage disappeared entirely.
 `emptyReasonFor()` now ranks an unreachable TMDB above every other cause precisely
 because it is the only one the user can neither see nor act on.
@@ -317,11 +317,11 @@ the wrong place — resolves to a neighbouring real film rather than being dropp
 deliberately kept). Reaching this state means TMDB returned **nothing at all**
 for every title, which is what a genuinely invented title looks like.
 
-**And the message says which of the five things went wrong.** Before
+**And the message says what went wrong.** Before
 [`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 the app's message read "the model only named films already in your list" for
-*every* empty run — it would have been a flat lie here. The five causes are now tallied
-per title and resolved to one reason, so a hallucinated set, an owned set, an
+*every* empty run — it would have been a flat lie here. The causes are now tallied per
+title and resolved to one of five reasons, so a hallucinated set, an owned set, an
 empty reply and a TMDB outage each get their own sentence.
 [`RS-3`](#rs-3--verifying-recommendations),
 [`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest),
@@ -604,7 +604,8 @@ Save from that stale view is what produces the `404`.
 2. **The message names both the cause and the remedy** — *“Couldn’t find that
    film — it may have been removed. Refresh and try again.”* It is the only
    error in the application that tells the user what happened to their data and
-   what to do about it, because it is the only one where the app knows.
+   what to do about it, because it is the only one where the app knows — though
+   the `409` *“Already in your list”* arguably counts too.
 3. **The typed review survived.** It is still in the box, word for word, and the
    rating is still at 9.5. A modal `<dialog>` submits and closes by default,
    which would have taken the text with it; the save handler prevents that and

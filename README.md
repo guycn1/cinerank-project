@@ -99,7 +99,8 @@ decoration:
 
 - **The browser has exactly one arrow out of it.** There is no line from it to
   TMDB, to OpenRouter, or to the database, because there is no such call in the
-  code. Every secret lives in `.env`, enters the process in exactly one module
+  code. (Static assets are the exception: poster images load from TMDB's image
+  CDN and the fonts from Google Fonts.) Every secret lives in `.env`, enters the process in exactly one module
   ([`server/config.js`](server/config.js)), and never reaches the client — so
   the frontend cannot leak a key it was never given. Database access is the anon
   key only, never `service_role`, and always through the query builder rather

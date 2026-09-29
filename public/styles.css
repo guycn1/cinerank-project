@@ -577,7 +577,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      coordinate system, where they would scale with the rendered size. (Safe
      either way here, since the <svg> carries no viewBox and user units are CSS
      pixels 1:1, but the root is the rule.)
-     Light, zero-offset, warm — D-044, same as every other glow in this file. */
+     Light, zero-offset, warm — D-044. */
   filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
 }
 .verdict__sheen rect {
@@ -1308,10 +1308,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       10px move happened in a sixth of a second and the card then sat still for
       280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
       spreads the same distance across 73% of the duration instead of 37%.
-      THE THIRD ANIMATION IN THIS FILE DELIBERATELY OFF `--ease` (with the
-      rec-card exit's `ease-in` and the sparkle's `ease-in-out`). `--ease` is
-      built for arrivals that should feel instant; an entrance you are meant to
-      WATCH is a different job.
+      DELIBERATELY OFF `--ease`: `--ease` is built for arrivals that should
+      feel instant, and an entrance you are meant to WATCH is a different job.
    2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
       only read once the curve stopped eating them.
    3. Its OWN keyframe now, not the shared `fade-slide` — which is also used by
@@ -1901,11 +1899,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 
 /* Ranked list, narrow viewports. Lives HERE, at the end of the section it
-   modifies, like every other media query in this file (500px after search,
-   620px after the footer CTA, 1040/850px inside the log table). It used to sit
-   ~800 lines away under "utilities", which is how the poster overflow survived
-   unnoticed: nothing next to the poster rule hinted that another rule resized
-   it. A media query adds no specificity, so these must stay AFTER the base
+   modifies, as the section-specific media queries in this file do (500px
+   after search, 620px after the footer CTA, 1040/850px inside the log table).
+   The file-wide reduced-motion block at the end and the 400px hyphenation
+   toggle, placed after all four rules it overrides, sit elsewhere on purpose.
+   While this block sat ~800 lines away under "utilities", the poster overflow
+   survived unnoticed: nothing next to the poster rule hinted that another rule
+   resized it. A media query adds no specificity, so these must stay AFTER the base
    rules they override — keep this block below .movie-card and
    .movie-card__score, never above them. */
 @media (max-width: 620px) {
@@ -2070,11 +2070,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    `scale()` would swing the star toward the top-left instead of breathing in
    place.
    `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
-   strong ease-OUT that would snap bright and drift back. The app now has FOUR
-   animations deliberately off `--ease` — this, the rec-card exit (`ease-in`),
-   the ranked card's entrance (a gentler ease-out) and the verdict glint
-   (`linear`) — and each says why at its own declaration. The pattern behind
-   three of the four: `--ease` is built to make an arrival feel INSTANT, so
+   strong ease-OUT that would snap bright and drift back. Every animation
+   deliberately off `--ease` says why at its own declaration. The pattern
+   behind most of them: `--ease` is built to make an arrival feel INSTANT, so
    anything a user is meant to WATCH wants a different curve. */
 @keyframes sparkle-twinkle {
   0%, 100% { opacity: 0.8; transform: scale(0.94); }
@@ -2306,8 +2304,7 @@ button:disabled .sparkle-major { animation: none; }
    the node, and the node is gone immediately after. Do not copy this fill onto
    `.rec-card` itself.
 
-   `ease-in`, NOT the `--ease` every other animation here uses, and this is the
-   larger half of why the first version read as unstaggered. `--ease` is
+   `ease-in`, NOT `--ease`, and this is the larger half of why the first version read as unstaggered. `--ease` is
    cubic-bezier(0.22, 1, 0.36, 1), a strong ease-OUT built for arrivals: 40% of
    the way by t=0.1 and 67% by t=0.2. Each card therefore did its whole visible
    move in the first ~70ms of a 340ms animation, so six cards 55ms apart flashed
