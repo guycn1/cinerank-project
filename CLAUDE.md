@@ -419,23 +419,23 @@ was ticked by the reconciliation.
   working, not a defect list. **Those rules still stand for any future
   narrow-width question; this step closing does not retire them.**
 
-Landed: the ranked card's score row no longer wraps its rating mid-number or
-pushes Edit/Remove outside the card at 400px and below (D-058's flex-wrap
-lesson); the header logo reel no longer squashes into an ellipse
-(`flex-shrink: 0`) and the GitHub icon scales to 75% at 400px and below; the
-search-results panel's height cap is now a FLOOR
-(`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt
-at this over-corrected (user-caught with a screenshot); mid-word title breaks
-now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw
-(D-060/D-061 — two real bugs found and fixed along the way: a scope leak into
-placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI
-call log's card-view labels no longer misalign when they wrap; and the toast got
-a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware
-widening below 700/500px that leaves short messages untouched (D-060-era
-`is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently
-halving its available width for shrink-to-fit sizing, found by the user, not by
-this session's own — repeatedly unreliable — headless-Chrome verification
-attempts).
+  Landed: the ranked card's score row no longer wraps its rating mid-number or
+  pushes Edit/Remove outside the card at 400px and below (D-058's flex-wrap
+  lesson); the header logo reel no longer squashes into an ellipse
+  (`flex-shrink: 0`) and the GitHub icon scales to 75% at 400px and below; the
+  search-results panel's height cap is now a FLOOR
+  (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt
+  at this over-corrected (user-caught with a screenshot); mid-word title breaks
+  now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw
+  (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into
+  placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI
+  call log's card-view labels no longer misalign when they wrap; and the toast got
+  a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware
+  widening below 700/500px that leaves short messages untouched (D-060-era
+  `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently
+  halving its available width for shrink-to-fit sizing, found by the user, not by
+  this session's own — repeatedly unreliable — headless-Chrome verification
+  attempts).
 
 **R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped
 (D-063):** the hint swings one line, 22.4px, once per run, in the same synchronous
@@ -744,6 +744,9 @@ carries the current state.
   `review_requires_rating` guards (D-041): a check violation comes back as a 400
   with a usable message rather than a generic 500, and a violation of one of the
   table's OTHER check constraints is not dressed up as the review message.
+  - Supabase is swapped for an in-memory fake (`test/helpers.js`) so tests never
+    touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
+    `server/index.js` exports `app` and only `listen()`s when run directly.
   - **Plus, as of 2026-09-09, the recommendation SUCCESS path (R19)** — which
     had no coverage at all, so every rule deciding what a user actually sees was
     unproven. One run exercises all three: a pick TMDB cannot confirm is
@@ -768,9 +771,6 @@ carries the current state.
     captures `console.error` rather than letting it print, which keeps the suite
     quiet and turns the sink into an assertion. Probed both ways: dropping the
     composition loses the AI cause, dropping the `console.error` loses both.
-  - Supabase is swapped for an in-memory fake (`test/helpers.js`) so tests never
-    touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
-    `server/index.js` exports `app` and only `listen()`s when run directly.
   - **And `/api/recommendations/history`'s two, added 2026-09-21 (D-077)** — the
     shape and recommendation-only scope of the narrower log view, and its DB
     failure surfacing as a 500 without leaking the postgres text. It was the one
@@ -3398,6 +3398,9 @@ was tried and REVERTED, the user preferring the slower read).
 order is closed, and step 6 — pre-submission evidence and cleanup — closed
 2026-09-14. Step 5's two narrow-viewport enforcement rules still stand and
 are not retired by it closing.**
+
+The five still open after 2026-09-11, crossed off as each closed on 2026-09-12:
+
 1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
    polish passes and then a revert-and-isolate. Left here rather than deleted
    because its three traps govern item (5): the ring width is FIVE coupled
@@ -5454,7 +5457,7 @@ the real blob from github.com and read that — it is the only authority.
   by eye — see § Markdown Authoring Rules and D-065.
 * Commit messages should include a summary of what actually changed.
 
-### Environment & tooling traps (all of these have actually bitten here)
+## Environment & tooling traps (all of these have actually bitten here)
 
 Windows, Git Bash for POSIX commands, `"type": "module"` in `package.json`.
 Each of the following cost real time at least once — they are recorded so the
