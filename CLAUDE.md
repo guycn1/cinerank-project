@@ -2052,6 +2052,14 @@ marked **(user)**. The groups are ordered by severity. **Do not renumber** —
 these are how the items get referred to. Keep the statuses current if
 anything reopens.
 
+**Already done in this section, do NOT redo:** `.rec-card__body` carries
+`min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
+was corrected `both` → `backwards` (D-043) and must STAY that way now that a
+hover transform (R14) and a delayed entrance (R27) both depend on it,
+`.rec-card__body button:hover`
+gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
+shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
+
 ###### Group A — functional bugs
 
 * **R1. DONE 2026-09-09 — recs messages survive the run that wrote them.**
@@ -3177,14 +3185,6 @@ anything reopens.
   cleared the grid but not `#recs-meta`, so a motion-sensitive user kept the
   previous run's metadata footer on screen. That gap arrived with R29 an hour
   earlier.
-
-**Already done in this section, do NOT redo:** `.rec-card__body` carries
-`min-width: 0` + `overflow-wrap: anywhere` (D-045), the entrance animation fill
-was corrected `both` → `backwards` (D-043) and must STAY that way now that a
-hover transform (R14) and a delayed entrance (R27) both depend on it,
-`.rec-card__body button:hover`
-gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
-shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
 ##### Step 3 — GitHub links
 
