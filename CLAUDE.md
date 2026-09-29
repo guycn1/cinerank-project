@@ -28,6 +28,8 @@ lives in `docs/DECISIONS.md`; this is the *what / now*.
 
 **Last updated:** 2026-09-29
 
+### Current state
+
 **THE PROJECT IS MERGE-READY.**
 `docs/MERGE-READINESS.md` reads MET on all five of Module 16's criteria for the
 first time — criterion 1 closed on 2026-09-14 when the user ticked `SPEC.md`
@@ -62,6 +64,10 @@ entry). Re-grep for new sites. (2) The merge count goes 29 → 30 in this file's
 Build status, `docs/PROCESS.md` § 1 and `docs/MERGE-READINESS.md` § 5. **(3)
 THIS BLOCK ITSELF must be deleted or rewritten as a record in that same commit,
 before the merge, so that `main` never carries it as an open to-do.**
+
+### What landed, newest first
+
+#### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a pre-merge staleness sweep of every markdown file
 and code comment, on `draft` and not merged.** Figures the project had outgrown:
@@ -99,6 +105,8 @@ present, typed and correctly named, but 16 blocks had tags and no description
 line, and one file-level function, `SECTION_EXEMPT` in
 `scripts/check-claims.js`, had no block at all. All 17 are fixed, comments only:
 each changed file tokenizes identically to the version before.
+
+#### 2026-09-28
 
 **WHAT LANDED ON 2026-09-28: the type scale (D-079), on `draft` and not
 merged.** All text is 92% of its old size, set by ONE dial, `--type-scale` on
@@ -170,6 +178,8 @@ also started reading `favicon.svg` and the two git dotfiles.
 **Then the harness behind all of that became `npm run layout-check`** (see the
 entry under Implemented): fixture data, no `.env`, three modes.
 
+#### 2026-09-27
+
 **WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
 load-bearing, tests only, on `draft` and not merged.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
@@ -197,6 +207,8 @@ line per entry, one description column, the root files inside it rather than
 listed in a paragraph above, and `server/routes/`, `public/` and `test/`
 expanded. A route file carries its mount path and a few verbs, never its method
 list, which stays in `SPEC.md` § 4.5 alone.
+
+#### 2026-09-26
 
 **WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments only,
 on `draft` and not merged** (`a732e26`, `e07b67a`). Every file opens with a
@@ -247,6 +259,8 @@ against the tree before this sweep it flags every one of them — and the
 whole-file exemption its capture-count check had carried for such narrations is
 gone.
 
+#### 2026-09-21 — the 29th merge
+
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
@@ -278,6 +292,8 @@ the linking rule applied to `SPEC.md`, which had never linked `DOSSIER.md` or
 `docs/AI-CALL-LOG.md`; and every module reference in the repository audited,
 after which every module named in a heading is also linked from the body of its
 own document.
+
+#### 2026-09-19 — the 28th merge
 
 **WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
 behaviour changed. It is the twenty-eighth merge's payload.** A navigation rule
@@ -331,6 +347,8 @@ is why several of them now do.
 2026-09-14 one was the last PLANNED merge and every "final planned" in this
 repository refers to that one.
 
+#### 2026-09-13/14
+
 What landed on 2026-09-13/14: thirty-seven captures across four families with an
 index; three new documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068);
@@ -347,6 +365,8 @@ recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT POINT,
 failing only criterion 1, which is the blockers list itself — it has since
 closed, and the top of this entry is the current verdict. Nothing in that list
 was ticked by the reconciliation.
+
+#### Up to 2026-09-12 — the front-end overhaul
 
 Earlier: ranked-list backlog **COMPLETE — all 20 done**; the mobile-keypad fix —
 step 1 of the agreed order — is also done; the recommendations section was then
