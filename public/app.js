@@ -1247,10 +1247,11 @@ function setAddButtonState(btn, owned) {
   // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
   // goes amber on hover and dims with the :disabled opacity, and it matches
   // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
-  // The glyph is glued to its word with a non-breaking space. `.add-btn` is
-  // `white-space: nowrap` so the search row never wraps anyway — but the SAME
-  // strings are rendered on the recommendation card, whose button has no such
-  // rule, so the guard has to live in the string rather than in one stylesheet.
+  // The glyph is glued to its word with a non-breaking space. The search row's
+  // `.result-row .add-btn` is `white-space: nowrap`, so it never wraps anyway —
+  // but the SAME strings are rendered on the recommendation card, whose button
+  // has no such rule, so the guard has to live in the string rather than in one
+  // stylesheet.
   // "In your list" is left breakable on purpose: those are real words.
   // The UNOWNED label is read off the button, because the two surfaces differ
   // there: a search row rests at "+ Add", a recommendation card at "+ Add to my

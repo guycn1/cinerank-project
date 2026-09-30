@@ -15,7 +15,7 @@ This project consists of:
 
 * A real database layer (Supabase/Postgres).
 * A genuinely polished, distinctive UI — not a generic default-component look.
-* A genuine, narrow-scope AI feature (OpenRouter-based recommendations) that reads real stored data and writes a real audit log — not a general chatbot bolted onto the app.
+* Genuine, narrow-scope AI features (OpenRouter-based recommendations and a short taste verdict) that read real stored data and write a real audit log — not a general chatbot bolted onto the app.
 
 Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
 
@@ -124,6 +124,21 @@ the code, the tests or `git log`. Corrected:
 - **Dropped:**
   - Counts of the automatic-minimum-size bugs, now named by example.
   - Claims about whether the spec or the first build came first.
+
+**Last, a full staleness sweep of every markdown file and every code
+comment**, ahead of the thirtieth merge. Corrected:
+- **Wrong from the start:** TMDB serves the posters at `w500`, never `w342`;
+  a scaled-up card narrows the gaps either side of it rather than opening
+  them; the rec card's hover scale is `1.018`, not `1.02`; and the
+  `.add-btn` class carries `white-space: nowrap` only inside a search row.
+- **Measured before the type scale** (D-079): R18's line heights are now
+  dated, the recs grid's gap is given in `rem`, and the ranked hover's gap
+  figure and R29's four-column card width are dropped.
+- **Gone short or stale:** the Project Context line now names both AI
+  features, `aria-busy` covers all six busy buttons, the taste verdict
+  section lists every later change to it, the grain bullet points at the
+  current `0.7s steps(1)`, the verdict fallback's log link is conditional
+  (R23), and `.env.example` no longer calls the anon key frontend-safe.
 
 #### 2026-09-30
 
@@ -730,8 +745,8 @@ carries the current state.
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
     — update all three. `draft` continues day to day.
 
-  - **WHY THIS ONE WAS WRITTEN BEFORE THE MERGE RATHER THAN AFTER, since it
-    breaks the rule directly above it.** For the first twenty merges the order
+  - **WHY THE FINAL PLANNED MERGE'S COUNT WAS WRITTEN BEFORE THE MERGE RATHER
+    THAN AFTER, since that breaks the rule directly above it.** For the first twenty merges the order
     was: merge, then a later commit corrects the figures, then a subsequent
     merge carries the correction to `main`. That works only while more merges
     are coming. For a merge intended as the last, it does not: the correcting
@@ -1127,7 +1142,8 @@ carries the current state.
   guardrails, Incident 1) for the course's process grade.
 * Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
   film, not just the verb), live regions on search results / recs hint / verdict
-  text, `aria-busy` on the two async trigger buttons, `aria-expanded`/
+  text, `aria-busy` on every button while its request is in flight (the two AI
+  triggers, Search, Add, Save and Remove), `aria-expanded`/
   `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
   poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), the recs grid a
@@ -1169,7 +1185,8 @@ and stay as written.
   translated up to 3% by its animation, which briefly exposed a flickering dark
   strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
-  animation 0.6s → 0.5s. Still subtle.
+  animation 0.6s → 0.5s. It stayed too subtle, and step 4b later made it
+  resample instead, at `0.1` and `0.7s steps(1)`, which is what it runs today.
 * AI call log dialog scrolling: **the dialog itself is the single scroller**
   (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
   `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
@@ -1329,7 +1346,7 @@ and stay as written.
   The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
-  since the last `main` merge (49738c2). Card fixes:
+  from the `main` merge before it (49738c2). Card fixes:
   - Leftover desktop column separator (`td:not(:last-child)` border-right,
     specificity 0,2,1) was stacking into a faint vertical line down each card —
     cleared at matching specificity, card-scoped.
@@ -1347,11 +1364,13 @@ and stay as written.
 
 #### Taste verdict section
 
-**Taste verdict section — DONE** (2026-09-07). **Three later changes are NOT
-described in this bullet and are in step 4b instead:** the banner's ring gained a
-travelling glint (2026-09-12), that glint speeds up and brightens while a
-verdict generates, and "New verdict" is now shown DISABLED when the feature is
-locked rather than hidden.
+**Taste verdict section — DONE** (2026-09-07). **Later changes are NOT
+described in this bullet.** In step 4b: the banner's ring gained a travelling
+glint (2026-09-12), that glint speeds up and brightens while a verdict
+generates, "New verdict" is now shown DISABLED when the feature is locked
+rather than hidden, and a new verdict types itself out (D-057). In step 2: a
+failure offers the AI call log only when a log row was written (R23), and the
+muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
 - "New verdict" gets the same busy state as "Get recommendations": disabled,
   spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
   `:hover:not(:disabled)`. Both buttons lock their width for the duration —
@@ -1394,7 +1413,8 @@ locked rather than hidden.
   one page-level listener (a ResizeObserver per footer would leak, since
   footers are replaced on every generation).
 - Verdict error fallback now reads "…See the AI call log for details" with
-  the log link inline. `.log-link` (renamed from `.ai-meta__link`, which was
+  the log link inline, whenever a log row was written (R23); a failure that
+  left no row shows its own cause instead, with no link. `.log-link` (renamed from `.ai-meta__link`, which was
   a BEM element name for a class now serving two unrelated blocks) is built
   by a shared `logLink()` factory.
 
@@ -1865,8 +1885,8 @@ status is further down this section. What landed:
 
   **A snapshot, not a live value** — written once at add time, never
   refreshed. Refreshing would cost one TMDB call per film per page load, make
-  the ranked list depend on TMDB being up (it currently renders fine when TMDB
-  is down, which is a resilience state being screenshotted), and make the
+  the ranked list depend on TMDB being up (it renders fine when TMDB is down,
+  which RS-1 captures), and make the
   comparison meaningless by drifting. Do not add a refresh; read D-036 first.
   Shown on unrated cards too — it is labelled `TMDB`, so it cannot be misread
   as the user's own score. Rendered from `!= null`, never truthiness.
@@ -2104,7 +2124,7 @@ status is further down this section. What landed:
   spotted straight away. In a vertical list of identical siblings that
   asymmetry is the most visible thing about the effect. The card now scales
   only (`scale(1.02)`, raised from 1.012 to keep it pronounced), which grows
-  from the centre and opens both gaps equally — 14.3px each. Elevation is
+  from the centre and narrows both gaps by the same amount. Elevation is
   still expressed, by the shadow alone — rebuilt below as a glow of light with
   a zero Y-offset. **A lift cannot be made symmetric** — that is what
   `translateY` means — so do not restore one without re-reading this.
@@ -2207,7 +2227,7 @@ status is further down this section. What landed:
   `1fr` — `minmax(auto, 1fr)` — which puts the automatic minimum back in play.
   The same sweep found the gap that left: **`.rec-card` itself is the grid
   item and never carried `min-width: 0`**, so a poster's intrinsic width (TMDB
-  serves w342) could push the track open and give a phone a horizontal
+  serves w500) could push the track open and give a phone a horizontal
   scrollbar. Fixed. **The same root cause again** — as with the search input,
   the add button and the ranked card's `1fr` track, among others. When something will not shrink, look at the automatic minimum size
   first.
@@ -2659,7 +2679,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   (40/100px against 40/60px, plus a 1.5px lit edge and `scale(1.018)`) —
   those magnitudes were tuned by the user by eye, reversing Claude's first
   pass, which had gone one notch TIGHTER on the theory that a halo crossing
-  the grid's 17.6px gap would read as two cards sharing one glow. The
+  the grid's 1.1rem gap would read as two cards sharing one glow. The
   spotlight (D-049) landed between the two edits and settles it: with every
   other card at 0.65, a halo spilling across the gap falls on something
   already receding. A box-shadow is ink overflow, so no size here can produce
@@ -2711,7 +2731,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.07)` and
   `opacity 0.8`→`1` loop on that path, plus a pulsing white `drop-shadow` on
   the icon. **Motion alone was not enough** — the first pass was scale and
-  opacity only, and at 21px on a button the user could barely see it. Shine
+  opacity only, and at the icon's size then, about 21px, the user could
+  barely see it. Shine
   needs light, not just movement.
 
   **The glow is on the `<svg>` ROOT, not on the path, and that is
@@ -2855,7 +2876,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   and it deliberately parked the question for the step-5 portrait pass rather
   than guessing a number. That instruction is what made this closeable.
 
-  **Measured at `innerWidth: 360` (line-height 22.32px), twice, identically:
+  **Measured on 2026-09-12, before D-079's type scale, at `innerWidth: 360`
+  (line-height 22.32px), twice, identically:
   the busy message is 3 lines / 67.0px and the "Based on: …" message is 2
   lines / 44.6px.** So the whole effect is ONE line, 22.4px, once per run —
   not the three-or-four-line swing the item assumed. The resting → busy
@@ -3294,7 +3316,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   exceeds 375px. Measured at the three boundaries the user photographed: 4→3
   columns 258px → 250px (the "slightly reduced" they asked for), 3→2 291px →
   250px, 2→1 390px → 250px. Wide layouts are untouched, because a four-column
-  card is 237px and already under the cap.
+  card is already under the cap.
 
   `--rec-min` and `--rec-max` together are the card's allowed width band,
   both in the stylesheet, both read by `balancedLayout()`. Capping only ever
@@ -3373,8 +3395,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   **`transform-origin` is scoped to `.is-leaving`, and that is
   load-bearing.** On `.rec-card` it would silently move the hover
-  `scale(1.02)` off centre — and that effect exists in its current form
-  precisely because growing from the middle opens the gaps on both sides
+  `scale(1.018)` off centre — and that effect exists in its current form
+  precisely because growing from the middle narrows the gaps on both sides
   equally, which is the whole finding of D-043's lift removal. One property,
   two effects, only one wanting an offset origin.
 

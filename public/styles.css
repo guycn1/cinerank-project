@@ -1325,7 +1325,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    identical sibling a fixed 1rem away on each side, that asymmetry is the most
    noticeable thing about the effect — the user spotted it immediately, and it
    read as the card being closer to the film above than the one below.
-   `scale()` grows from `transform-origin: 50% 50%`, so it opens both gaps
+   `scale()` grows from `transform-origin: 50% 50%`, so it narrows both gaps
    equally. Elevation is expressed by the glow instead — made of light and
    centred on the card, with a zero Y-offset on every layer (see the rule below,
    and D-044). The scale was raised 1.012 → 1.02 to keep the effect pronounced
@@ -1364,9 +1364,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
     /* REQUIRED once the siblings dim, not decoration. `opacity < 1` creates a
        stacking context, which promotes every dimmed card into the same painting
        step as this transformed one — and among equals, DOM order decides. The
-       card BELOW would then paint over this card's downward glow and clip it
-       ~16px down, reintroducing exactly the top/bottom asymmetry the zero
-       Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
+       card BELOW would then paint over the part of this card's glow that
+       spills across the gap beneath it, reintroducing exactly the top/bottom
+       asymmetry the zero Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
        is `display: grid`, and grid items take z-index directly. */
     z-index: 1;
     /* ALL LIGHT, NO BLACK — see D-044. The first version led with
@@ -2226,7 +2226,7 @@ button:disabled .sparkle-major { animation: none; }
      play, and a grid item's is its min-content width. This card is a column
      flex container holding an `<img>` whose percentage width is treated as
      `auto` during intrinsic sizing, so the card's min-content is roughly the
-     poster's INTRINSIC width (TMDB serves w342). On a phone that is wider than
+     poster's INTRINSIC width (TMDB serves w500). On a phone that is wider than
      the whole track, which would push the grid open and give the page a
      horizontal scrollbar — exactly D-045's bug, one element out.
      `min-width: 0` opts out, which is what the old fixed minimum was doing for
@@ -2285,8 +2285,8 @@ button:disabled .sparkle-major { animation: none; }
    on the middle.
 
    TRANSFORM-ORIGIN IS SCOPED TO `.is-leaving`, DELIBERATELY. Putting it on
-   `.rec-card` would silently move the hover `scale(1.02)` off centre, and that
-   effect depends on growing from the middle so it opens the gaps on both sides
+   `.rec-card` would silently move the hover `scale(1.018)` off centre, and that
+   effect depends on growing from the middle so it narrows the gaps on both sides
    equally — the whole finding of D-043's lift removal. One property, two
    effects, and only one of them wants an offset origin.
 
@@ -2343,7 +2343,7 @@ button:disabled .sparkle-major { animation: none; }
 
    NO `translateY`. A lift is directional — it shrinks the gap on one side and
    opens the other — and the user spotted that asymmetry on the ranked card
-   within minutes. `scale()` grows from the centre and opens every gap equally,
+   within minutes. `scale()` grows from the centre and narrows every gap equally,
    which matters more in a GRID than in a column: a lifted card here would drift
    away from its row-mates as well as toward its upper neighbour.
 
@@ -2354,8 +2354,8 @@ button:disabled .sparkle-major { animation: none; }
    was deleted there: the page is `--bg: #0b0b0f`, so a black shadow has nothing
    left to darken.
    The magnitudes were first set one notch TIGHTER than the ranked card's
-   (34/50px against its 40/60px), reasoning that these cards sit ~17.6px apart in
-   a grid rather than 16px apart in a column, so a halo crossing a horizontal gap
+   (34/50px against its 40/60px), reasoning that these cards sit 1.1rem apart in
+   a grid rather than 1rem apart in a column, so a halo crossing a horizontal gap
    would read as two cards sharing one glow. The user then widened them by eye to
    40/100px — looser than the ranked card, not tighter — and that is the value
    here. The original worry does not survive the spotlight that landed between

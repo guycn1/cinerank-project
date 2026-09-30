@@ -412,13 +412,13 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
 
 /* ---------- the SUCCESS path: which picks survive verification -------- */
 
-// Until now the only recommendation tests were the two failure paths (the
-// below-threshold 422 and the OpenRouter-down 422), so every rule that decides
-// what a user actually SEES was unproven (backlog R19). Three of them hold when
-// TMDB answers, and one run exercises all three: a pick TMDB cannot confirm is
-// dropped, a pick the user already owns is dropped, and two picks that resolve
-// to the SAME film collapse to one. The fourth, a lookup that cannot reach TMDB
-// at all, is the tmdb-unreachable empty-run test further down.
+// Before these tests (2026-09-09), the only recommendation tests were the two
+// failure paths (the below-threshold 422 and the OpenRouter-down 422), so every
+// rule that decides what a user actually SEES was unproven (backlog R19). Three
+// of them hold when TMDB answers, and one run exercises all three: a pick TMDB
+// cannot confirm is dropped, a pick the user already owns is dropped, and two
+// picks that resolve to the SAME film collapse to one. The fourth, a lookup that
+// cannot reach TMDB at all, is the tmdb-unreachable empty-run test further down.
 //
 // The stub answers each TMDB lookup by its `query=` fragment, so the four picks
 // are deliberately titles whose first query word is distinct — `url.includes()`
