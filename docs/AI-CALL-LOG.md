@@ -241,9 +241,11 @@ This document should not read as *touch nothing*.
   structural.
 * **The breakpoints** (850px, 1040px) — they were chosen by narrowing the window
   until the table stopped fitting, not derived.
-* **Adding a column.** It flows through `norm()` in the route, the row builder
-  in [`public/app.js`](../public/app.js), and a `data-label` for card view.
-  Nothing about the pinning model needs to know.
+* **Adding a column.** It flows through each table's `select()` and `norm()` in
+  the route, a `<th>` in [`public/index.html`](../public/index.html), and in
+  [`public/app.js`](../public/app.js) the row builder, a `data-label` for card
+  view, and the `colSpan` of the single-line rows (`9` today) and of the Total
+  row's trailing note. Nothing about the pinning model needs to know.
 * **The 60-row cap** — but change the dialog's blurb with it
   ([§ 2](#2-where-the-data-comes-from)).
 
@@ -262,12 +264,21 @@ The brief that commissioned it set the test, and it is a good one:
 
 * [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) — the
   brief this answers
-* [`DECISIONS.md`](DECISIONS.md) —
+* [`DECISIONS.md`](DECISIONS.md) — the twelve entries that carry the reasoning
+  in the form it was recorded:
+  [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative),
   [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001),
   [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db),
   [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever),
-  [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along)
-  and the reveal-panel entries carry the reasoning in the form it was recorded
+  [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
+  [`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot),
+  [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content),
+  [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9),
+  [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along),
+  [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
+  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  and
+  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is)
 * [`SECURITY.md` — `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
   which this component answers
 * [`SPEC.md` § 5.2](../SPEC.md#52-recommendation_logs) and

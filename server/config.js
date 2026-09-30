@@ -1,6 +1,7 @@
 /**
- * Runtime configuration: the four secrets, the model each AI feature runs on,
- * the two feature thresholds, and the fallback table for estimating cost.
+ * Runtime configuration: the port, the four secrets and the three service URLs,
+ * the model each AI feature runs on, the two feature thresholds and the top-N
+ * window, and the fallback table for estimating cost.
  *
  * Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
  * single place they enter the process, and the only place the server reads

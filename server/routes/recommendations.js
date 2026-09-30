@@ -39,7 +39,7 @@ recommendationsRouter.post(
       if (err instanceof RecommendationError) {
         // This used to be `Couldn’t generate recommendations: ${err.message}`
         // under a comment claiming "never a raw dump" — which is exactly what it
-        // was. The causes are internal: "OpenRouter unreachable (TimeoutError)",
+        // was. The causes are internal, among them "OpenRouter unreachable (TimeoutError)",
         // "OpenRouter responded 401", "Model did not return valid JSON",
         // "DB read failed: <postgres text>". That names our vendor and a JS error
         // class to someone who wanted a film suggestion, and it is nothing like

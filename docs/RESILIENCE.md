@@ -65,10 +65,14 @@ carry the order in the steps alone.
 
 None of these are mock-ups. Every frame is the real application in the state
 described. Not every one involves a broken dependency: in
-[`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited) and
+[`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited),
 [`RS-15`](#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
-everything is reachable and working, and what fails is an assumption or a
-reply's content.
+and [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist) everything is
+reachable and working, and what fails is an
+assumption or a reply's content; in
+[`RS-8`](#rs-8--a-search-with-no-matches) and
+[`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest) nothing fails at
+all.
 
 **One behaviour in this application cannot be photographed at all**, and it is
 worth naming rather than quietly omitting. Under `prefers-reduced-motion` the
@@ -455,9 +459,9 @@ genuinely empty state means emptying both log tables, and deleting rows
 wholesale from the live database is precisely what the
 [working agreements in `CLAUDE.md`](../CLAUDE.md#working-agreements-binding--added-after-incident-1)
 forbid after [Incident 1](../CLAUDE.md#incident-log). The sentence is quoted
-above rather than photographed, and the branch that writes it sits ten lines
-from the one that writes the failure in [`public/app.js`](../public/app.js) —
-close enough to read both at once.
+above rather than photographed, and the branch that writes it sits directly
+after the one that writes the failure, in `renderAiLog()` in
+[`public/app.js`](../public/app.js) — close enough to read both at once.
 
 > **The generic cause is deliberate, and the specific version was the defect.**
 > `Something went wrong.` is all the central handler will say, because this is

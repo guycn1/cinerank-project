@@ -88,9 +88,11 @@ leaving layout, motion and typography to design judgement. Using the finished ap
 what turned that open brief into concrete requirements — a requirement that could
 not have been written before a solution was attempted. The work it produced is
 tracked in [`CLAUDE.md` § Front-end overhaul](CLAUDE.md#front-end-overhaul-started-2026-09-05--complete-as-of-2026-09-12) rather than here, because that is working state
-and this is intent: a 20-item ranked-list overhaul, a 30-item recommendations audit
-([R1 to R30](CLAUDE.md#step-2--the-recommendations-sub-backlog-r1r30)), seven polish items, and a narrow-viewport pass closed against an agreed
-~350px target.
+and this is intent: the search and taste-verdict sections reworked, a 20-item
+ranked-list overhaul, a 30-item recommendations audit
+([R1 to R30](CLAUDE.md#step-2--the-recommendations-sub-backlog-r1r30)), the
+mobile keypad fix, links to the repository, a favicon, seven polish items, and a
+narrow-viewport pass closed against an agreed ~350px target.
 
 **This turn holds a clear co-evolution point.** At `2a1800c`,
 [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) step 4's promise that
@@ -126,8 +128,11 @@ What closed it is what the turn was about. The problem had stopped being "does t
 application work" — it demonstrably did, deployed and green — and had become
 "can any of that be shown to someone who was not here". Answering it produced two
 evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
-[`docs/RESILIENCE.md`](docs/RESILIENCE.md), thirty-seven captures across four
-families, and an architecture diagram. **It also produced three real defects and
+[`docs/RESILIENCE.md`](docs/RESILIENCE.md); the three the course's grading brief
+called for, [`docs/FRAMING.md`](docs/FRAMING.md),
+[`docs/SECURITY.md`](docs/SECURITY.md) and
+[`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md); thirty-seven captures across
+four families; and an architecture diagram. **It also produced three real defects and
 three untested happy paths**, none of which the test suite, the linter or the
 render audits had revealed, because each of those inspects structure and none of
 them puts the application into a state and looks at it.

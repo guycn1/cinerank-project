@@ -69,8 +69,8 @@
   /* THE type scale (D-079): the root font size as a fraction of the reader's
      browser default. Everything in `rem` and `em` follows it — all text and
      most spacing — while the px frame does not: posters, the rank track,
-     rec-card widths, the page column, the logo mark, borders and radii, and
-     every breakpoint. A percentage, never a px value, so a reader who has
+     rec-card widths, the page column, the logo mark, the header GitHub mark,
+     borders and radii, and every breakpoint. A percentage, never a px value, so a reader who has
      raised their browser's default font size still gets the larger text.
      Two idioms exist so that ONE dial stays one dial:
      - `calc(Nvw * var(--type-scale))` for the `vw` middle term of a fluid
@@ -958,8 +958,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 .search button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px var(--amber-deep); }
 /* Opacity alone is enough for the OUTLINE buttons (.verdict__refresh,
-   .recs__trigger): dimming those lets the dark page through their border and
-   they visibly switch off. A FILLED button cannot switch off that way, and a
+   .recs__trigger, the search row's Add, the ranked card's Edit and Remove, and
+   the dialogs' Cancel): dimming those lets the dark page through their border
+   and they visibly switch off. A FILLED button cannot switch off that way, and a
    saturated amber at 55% still composites to ~#8c6f39 over --bg — measurably
    dimmer, but unmistakably still an amber button. It read as active for the whole second it
    spent saying "Searching…". A filled button's identity IS its fill, so take
@@ -1919,11 +1920,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   .movie-card__body .review { -webkit-line-clamp: 2; }
 }
 
-/* Ranked list, narrow viewports. Lives HERE, at the end of the section it
-   modifies, as the section-specific media queries in this file do (500px
-   after search, 620px after the footer CTA, 1040/850px inside the log table).
-   The file-wide reduced-motion block at the end and the 400px hyphenation
-   toggle, placed after all four rules it overrides, sit elsewhere on purpose.
+/* Ranked list, narrow viewports. Lives HERE, beside the rules it modifies, as
+   the file's other section-specific media queries do (the header's 400px, the
+   verdict's 680px, the search section's 500px and 300px, the footer CTA's
+   620px, the log table's 1040px and 850px, the toast's 700px and 500px). The
+   file-wide reduced-motion block at the end and the 400px hyphenation toggle,
+   placed after all four rules it overrides, sit elsewhere on purpose.
    While this block sat far from here, under "utilities", the poster overflow
    survived unnoticed: nothing next to the poster rule hinted that another rule
    resized it. A media query adds no specificity, so these must stay AFTER the base
@@ -2800,8 +2802,8 @@ body:has(dialog[open]) { overflow: hidden; }
 /* Hover/press. Every treatment below is the app's existing vocabulary, not a new
    one: an OUTLINE button goes amber on the border and the text
    (`.log-dialog .ghost`, which is the Close button in the other dialog, plus
-   `.card-actions button`, `.result-row .add-btn` and `.verdict__refresh`), and a
-   FILLED button darkens its fill (`.rec-card__body button` → `--amber-deep`).
+   `.card-actions button` and `.result-row .add-btn`), and a FILLED button
+   darkens its fill (`.rec-card__body button` → `--amber-deep`).
    Cancel going amber alongside an amber-filled Save is not a clash: outline and
    fill stay obviously different, and the log dialog's Close already does exactly
    this.
@@ -2981,7 +2983,8 @@ body:has(dialog[open]) { overflow: hidden; }
    value scales the whole table. ~10% down from 0.86rem — room to spare.
    Exempt from the type scale (D-079), and so is every `rem` inside this table
    that sizes text or the width text wraps in: the Result column, the reveal
-   panels and the card-mode labels. Its padding does scale, which only adds room.
+   panels, and in card mode the labels and the expanded abbreviations. Its
+   padding does scale, which only adds room.
    Default cell text is a step down from --ink so it doesn't glare against the
    dark dialog; .result / .sub / thead keep their own (dimmer) colours. */
 .log-table {
@@ -3377,7 +3380,8 @@ body:has(dialog[open]) { overflow: hidden; }
     text-align: left;
   }
 
-  /* Cells with a sub-line (only Tokens: a total stacked over its in/out split)
+  /* Cells with a sub-line (only the two token cells, a row's and the Total's: a
+     total stacked over its in/out split)
      cannot centre the label with a float — a float pins to the top, so the
      label sat high against a two-line value. Grid instead: the label spans both
      rows, so `align-items: center` lands it at the true vertical middle, while

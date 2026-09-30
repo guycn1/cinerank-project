@@ -55,6 +55,8 @@ export { OpenRouterError };
  * @returns {Promise<ChatResult>}
  * @throws {OpenRouterError} When OpenRouter is unreachable or the 20s timeout
  *   fires, when it answers with a non-2xx status, or when the reply has no content.
+ *   A 2xx body that is not JSON rejects with the parser's own SyntaxError
+ *   instead, which the feature services let propagate unchanged.
  */
 export async function chat({ system, user, maxTokens = 500, temperature = 0.7, model = config.openrouter.model }) {
   const startedAt = Date.now();

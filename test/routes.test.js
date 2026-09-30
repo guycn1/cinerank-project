@@ -414,10 +414,11 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
 
 // Until now the only recommendation tests were the two failure paths (the
 // below-threshold 422 and the OpenRouter-down 422), so every rule that decides
-// what a user actually SEES was unproven (backlog R19). There are three, and one
-// run exercises all of them: a pick TMDB cannot confirm is dropped, a pick the
-// user already owns is dropped, and two picks that resolve to the SAME film
-// collapse to one.
+// what a user actually SEES was unproven (backlog R19). Three of them hold when
+// TMDB answers, and one run exercises all three: a pick TMDB cannot confirm is
+// dropped, a pick the user already owns is dropped, and two picks that resolve
+// to the SAME film collapse to one. The fourth, a lookup that cannot reach TMDB
+// at all, is the tmdb-unreachable empty-run test further down.
 //
 // The stub answers each TMDB lookup by its `query=` fragment, so the four picks
 // are deliberately titles whose first query word is distinct — `url.includes()`
@@ -578,7 +579,8 @@ test('POST /api/recommendations never suggests a film already in the list but UN
 // R9's other half. Not every failure has something to read: this one dies on the
 // library read, before any AI call, so no recommendation_logs row exists. The
 // response must therefore NOT carry `logged`, or the UI would send the user to
-// an empty log. The below-threshold test above covers the third no-row case.
+// an empty log. The below-threshold tests cover the second no-row case, and the
+// log-write loop further down the third.
 test('POST /api/recommendations failing BEFORE the AI call offers no log link', async () => {
   db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
   const res = await client.post('/api/recommendations');
@@ -692,22 +694,14 @@ test('a run WITH suggestions carries no emptyReason at all', async () => {
   }
 });
 
-/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+/* ---------- the verdict's success row ---------------------------------- */
 
-// The user's requirement for R23, stated as a rule rather than a scenario: if a
-// row with status 'failed' reaches an AI log table, the response MUST carry
-// `logged` so the UI can point at it. A false negative here is a failure the
-// user is told nothing about while its full cause sits in the log.
-//
-// Both features are asserted the same way and in the same place, because the
-// whole point of R23 was that they had drifted into two different answers to one
-// question.
 // THE VERDICT’S SUCCESS PATH HAD NO LOG COVERAGE until 2026-09-13. Every
-// taste_verdict_logs assertion in this file was a FAILURE path: the 422 below
-// threshold, the model recorded on a failed row, the advertise-the-log
-// invariant, and the lost-cause case when the log write itself fails. So SPEC
-// § 7.1’s sixth criterion -- "a triggered verdict produces a logged row with
-// real token/cost data" -- was the one verdict behaviour nothing checked.
+// taste_verdict_logs assertion in this file was on a FAILURE path: a failed row
+// names its model, a failed row is advertised, a failure before the AI call
+// writes no row, and a failed log write loses neither cause. So SPEC § 7.1’s
+// sixth criterion -- "a triggered verdict produces a logged row with real
+// token/cost data" -- was the one verdict behaviour nothing checked.
 //
 // Mirrors the recommendations success-log test deliberately, so the two
 // features are held to the same standard rather than drifting the way their
@@ -776,6 +770,16 @@ const RATED_FOUR = {
   error: null,
 };
 
+/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+
+// The user's requirement for R23, stated as a rule rather than a scenario: if a
+// row with status 'failed' reaches an AI log table, the response MUST carry
+// `logged` so the UI can point at it. A false negative here is a failure the
+// user is told nothing about while its full cause sits in the log.
+//
+// Both features are asserted the same way and in the same place, because the
+// whole point of R23 was that they had drifted into two different answers to one
+// question.
 for (const feature of [
   { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs', model: config.openrouter.model },
   { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs', model: config.tasteVerdict.model },

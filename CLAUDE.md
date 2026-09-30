@@ -197,7 +197,7 @@ not under a second; the live list is the seed list; Shrek 5 is still unvoted
 on TMDB. Scoped to the day they were measured: the AI log's binding token
 string, the Node version the live build picked, the SVG-favicon support
 claim, and Chromium's scrollbar rule (Chrome 121). Also corrected: the
-decisions behind the AI call log number ten since D-082, the footer GitHub
+decisions behind the AI call log now include D-082, the footer GitHub
 mark's padding is 2.54px at its 22px, and the revert-as-first-move paragraph
 in `docs/PROCESS.md` now counts the RS-15 and RS-16 edits and the four revert
 commits alongside the glint and RS-9. The demo scripts in
@@ -238,6 +238,24 @@ the AI call log's comments now say which corners are square (the table's)
 and which are rounded (the dialog's, and each card's in card view); and the
 README-screenshots checkbox counts five embedded screenshots and six diagram
 claims, not four and five.
+
+**And a sweep of every list and enumeration**, each checked against the set it
+enumerates, for members it had gone short of or never had. The decisions behind
+the AI call log are twelve, not ten: D-023 (the reveal panel's fade) and D-079
+(the table's type-scale exemption) were missing from `docs/BRIEFS.md`, and
+`docs/AI-CALL-LOG.md`'s own list named four. The test lists in
+`docs/PROCESS.md` § 6 and under Implemented now cover the whole suite, the
+2026-09-13 happy paths and the D-070 loop included. Also completed: the
+defect rules in `eslint.config.js` (which named "a promise nobody awaited",
+a thing no enabled rule catches) and `docs/MERGE-READINESS.md`, what
+`check-claims` still checks in `docs/DECISIONS.md`, `layout-check`'s
+self-test (five planted faults; the typing check has none), migration 001's
+header (it adds `error_text` too), the steps for adding a log column (the
+`select()`, the `<th>` and the `colSpan`s), the outline buttons that dim by
+opacity, the stylesheet's section media queries, and `scan-secrets`'s sibling
+gates, which left out `npm test`. The outline-button hover vocabulary named
+`.verdict__refresh`, whose label deliberately stays `--ink` on hover (R25), and
+a test comment called the below-threshold case the third no-row case.
 
 #### 2026-09-29
 
@@ -294,8 +312,9 @@ for what must NOT shrink.
 request, since their smallest tiers were already 8.6px. Exempting the table's
 BASE keeps all seven of its `em` tiers exact. A flat 10px floor was weighed and
 rejected: it would have flattened the tiers and risked widening the Tokens
-column. The px frame (posters, tracks, card widths, the logo mark, the header
-GitHub icon, every breakpoint) does not scale. Measured before and after at
+column. The px frame (posters, tracks, card widths, the page column, the logo
+mark, the header GitHub icon, borders and radii, every breakpoint) does not
+scale. Measured before and after at
 eight exact widths: every text size 0.920, the log table unchanged, no
 horizontal scroll anywhere.
 
@@ -951,6 +970,13 @@ carries the current state.
     as a deletion candidate; the gap is closed rather than the route. Probed
     both ways: pointing it at `taste_verdict_logs` fails both, dropping its
     error guard fails only the second.
+  - **And the rest, so the list above is complete:** `GET /api/health`,
+    `GET /api/config` and an unknown route's 404; the TMDB 502's `short` form
+    (D-042); the three happy paths added 2026-09-13 while walking SPEC § 7.1 —
+    search returning shaped results with posters, `DELETE` answering 204 (and a
+    refused delete answering 500, not a false 204), and the verdict's success
+    row; a failed row naming the model its own feature calls (D-070), a loop
+    over both features; and the `/api/ai-log` response shape, totals included.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client had no test harness at the time, so
   every judgement about the recs grid, the entrance stagger, the scroll or the
@@ -1032,7 +1058,9 @@ carries the current state.
     exit 1 on any failure); `--baseline=<git ref or file>`, which DIFFS the
     layout element by element against another stylesheet (`--expect-same` for a
     refactor, `--reference-width=PX` for a max-width change); and `--self-test`,
-    which plants one fault per check and fails unless every one is caught. The
+    which plants one stylesheet fault for each check but the verdict typing
+    (driven by app.js, so the stylesheet cannot break it) and fails unless every
+    one is caught. The
     hyphenation rules are read out of app.js and the stylesheet rather than
     restated.
   - **Not a commit gate:** it takes minutes and needs installed browsers. Run it
@@ -1550,8 +1578,8 @@ further is scheduled for this section.
   `disabled =` assignment in `app.js`. The mechanism:
   amber at 55% still composites to an unmistakably amber ~#8c6f39, so
   it read as active for the whole second it said "Searching…". The fill now
-  leaves the amber family (`--bg-card` / `--ink-dim`). The two OUTLINE buttons
-  keep opacity, where it works.
+  leaves the amber family (`--bg-card` / `--ink-dim`). The OUTLINE buttons keep
+  opacity, where it works.
 - **Submitting a search closes a phone's soft keyboard** (2026-09-09, step 1
   of the agreed order). It stayed up over the results because the handler
   `preventDefault()`s — the form never navigates — and nothing in the app ever
@@ -4721,9 +4749,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **A row deleted while it was being edited.** Every key is valid, the server
     is up and the database is up — nothing is broken anywhere. **That is not
-    unique to it:** `docs/RESILIENCE.md` names `RS-15` in the same breath for
-    the same reason, and `RS-8`, `RS-9` and `RS-16` are all states where nothing
-    is broken either. What IS unique to it is the next paragraph. What fails is
+    unique to it:** `docs/RESILIENCE.md` names `RS-15` and `RS-16` in the same
+    breath for the same reason, and `RS-8` and `RS-9` beside them as states
+    where nothing fails at all. What IS unique to it is the next paragraph. What fails is
     the assumption that the row a dialog opened still exists when Save is
     pressed.
 
@@ -5207,7 +5235,7 @@ it.
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
    * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has three siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has four siblings among the commit gates: `npm test` for behaviour, `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
 
 **This whole section is mapped against the OWASP Top 10 for Agentic Applications
 in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for

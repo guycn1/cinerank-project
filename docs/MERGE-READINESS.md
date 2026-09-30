@@ -138,7 +138,8 @@ verification fails while looking rigorous, and each is answered concretely:
 stays inside its box, no two parts of a card overlap, nothing scrolls sideways,
 words break only where the hyphenation rules allow, the verdict types without
 letters jumping lines, and copied text is clean — with a self-test that plants
-one fault per check and fails unless each is caught. Its behaviour is verified
+one stylesheet fault for each check but the typing one, which app.js drives,
+and fails unless each is caught. Its behaviour is verified
 by reading, by hand testing, and by a
 [console debug harness](../scripts/debug-recs.js) that fakes a recommendation
 response so UI work costs no OpenRouter credit. Several
@@ -165,9 +166,11 @@ injects into the pages it measures. **Current state: zero errors.**
 are left out entirely: this codebase was written under one consistent set of
 conventions, so reformatting it would produce a large diff that proves nothing
 and buries the history the repository exists to show. What is enabled is the set
-of rules that can catch a *defect* — unused bindings, shadowing, unreachable
-code, duplicate keys and imports, self-comparison, unmodified loop conditions,
-atomic-update races — plus complexity ceilings.
+of rules that can catch a *defect* — undefined names and implicit globals,
+unused bindings, shadowing, switch fallthrough, unreachable code, constant
+conditions, duplicate keys and imports, self-comparison, unmodified loop
+conditions, atomic-update races, loose equality, `var`, and a `let` that is
+never reassigned — plus complexity ceilings.
 
 **The first run found five errors, and the triage is the evidence, not the
 count:**
@@ -255,6 +258,9 @@ fires is the thing this document exists to rule out.
   definition of done, and what is deliberately not being built.
 * **[`docs/PROCESS.md`](PROCESS.md)** — the workflow narrative: prompt version
   chain, guardrails, and Incident 1.
+* **[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md)** — a component dense with
+  non-obvious decisions, written up rule by rule with what breaks if each is
+  undone.
 * **[`docs/SECURITY.md`](SECURITY.md)** — all ten OWASP agentic risks, including
   the ones that do not apply and why.
 * **Commit messages** explain *why*, not just what — across six hundred–odd

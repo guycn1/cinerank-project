@@ -110,8 +110,10 @@ const SELF = 'scripts/check-claims.js';
  * names on purpose — that quotation is the evidence. Checking it for staleness
  * would demand the destruction of exactly the history it exists to protect, so
  * the two checks that hunt outdated language skip it by name rather than by
- * accident. Everything else about it is still checked: its paths, its cited
- * SHAs, its line references and its own D-0NN numbering.
+ * accident. Everything else about it is still checked: its paths, links and
+ * section references, the scripts, D-0NN entries, SHAs, line numbers, captures
+ * and RS keys it cites, any invisible character, and any passage narrating its
+ * own earlier wording.
  */
 const PRESERVED = 'docs/DECISIONS.md';
 
@@ -480,8 +482,9 @@ function checkEditHistory() {
  * anchor in the file it points at (11a), and a prose `§ 4.5` or `§ Title` must
  * name a heading in the file it refers to (11b). A renamed or renumbered
  * heading used to break every link and reference to it silently; the one-off
- * audits of 2026-09-19 found them by hand, and nothing kept them found.
- * Sources exempt from both: this file (it quotes the patterns), prompts/
+ * audits of 2026-09-19 found them by hand, and nothing kept them found. 11c,
+ * further down, resolves the file each link points at.
+ * Sources exempt from all three: this file (it quotes the patterns), prompts/
  * (versioned, never edited) and DOSSIER.md (the course's own text). They are
  * still valid TARGETS.
  */
@@ -546,7 +549,7 @@ function headingsOf(file) {
 }
 
 /**
- * Whether check 11 skips a file as a SOURCE: this file, DOSSIER.md and
+ * Whether checks 11a to 11c skip a file as a SOURCE: this file, DOSSIER.md and
  * prompts/, for the reasons in check 11's header. Each is still a valid target.
  *
  * @param {string} f  A repo-relative path.

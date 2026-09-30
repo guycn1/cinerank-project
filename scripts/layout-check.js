@@ -24,7 +24,10 @@
  *                      or a file) against the candidate, element by element,
  *                      at every width. Informational unless --expect-same.
  *   --self-test        health checks against a deliberately broken copy of the
- *                      candidate stylesheet. Exit 1 unless every check fires.
+ *                      candidate stylesheet, with one planted fault for each of
+ *                      contain, collide, scroll, hyph and clip (typing has
+ *                      none: it is driven by app.js, not the stylesheet).
+ *                      Exit 1 unless every planted fault is caught.
  *
  * OPTIONS
  *   --browsers=chrome,firefox,edge  default chrome,firefox. Paths come from
@@ -61,7 +64,7 @@
  *   4. If the change adds a new kind of card or component, or new text that
  *      softHyphenate() processes, add it to the selector lists at the top of
  *      scripts/layout-probe.js first, or it goes unchecked; then --self-test
- *      confirms every check still fires. New data on screen may need new
+ *      confirms every planted fault is still caught. New data on screen may need new
  *      fixtures (below).
  *   Only the stylesheet can be swapped (--css, --baseline); app.js and
  *   index.html are always the ones on disk.

@@ -6,14 +6,14 @@
  * entirely: this codebase was mostly written by one agent under one set of
  * conventions, so reformatting it would produce a large diff that proves
  * nothing and buries the real history. What is enabled is the set of rules that can catch a DEFECT
- * — an unused binding, a shadowed variable, a promise nobody awaited, a `case`
- * that falls through — plus a complexity ceiling, because Module 16 names
+ * — an unused binding, a shadowed variable, a stale write across an `await`, a
+ * `case` that falls through — plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.
  *
  * Four environments, because this repo ships code to two runtimes and keeps two
  * browser files in scripts/ that the browser parses as CLASSIC scripts but that
  * the app never serves:
- *   - Node ES modules: server/, test/, and every Node tool in scripts/ (the
+ *   - Node ES modules: server/, test/, this file, and every Node tool in scripts/ (the
  *     glob is `scripts/*.js` minus the two browser files below, so a new tool
  *     is covered without this list naming it; check-claims.js keeps the same
  *     two files in CLASSIC_SCRIPTS and parses them the same way)

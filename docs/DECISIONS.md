@@ -4472,6 +4472,9 @@ not by inspection.
 > `tbody .sub` size (2026-09-19), the type-scale exemption
 > ([D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
 > and the dialog's cap moving with the page width to 1040px (2026-09-28).
+> Later on 2026-09-30 the single-line loading, empty and failed state moved
+> from `--ink-faint` to `--ink-dim`
+> ([D-052](#d-052----ink-faint-stays-below-wcag-aa-on-purpose)'s note).
 
 Corollary: the card view's own bugs are fixed *in place* at matching-or-higher
 CSS specificity (the shared `.log-table` rules use `:last-child` /

@@ -87,8 +87,10 @@ the reasoning. Rules that keep this honest live in
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
   re-resolves claims in the repository that point at something — a path or a
-  link's target, a decision entry, a commit SHA, an identifier, a section
-  reference, a capture, a retired phrasing. A `draft` → `main` merge runs all five, whatever the diff
+  link's target, a script, a decision entry, a commit SHA, a line number, an
+  identifier, a section reference, a capture or an `RS-n` key — and fails on a
+  retired phrasing, a passage narrating its own earlier wording, or an
+  invisible character. A `draft` → `main` merge runs all five, whatever the diff
   touched.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
@@ -559,7 +561,7 @@ merges, tests, gates, captures, prompt versions, models, dependencies, reverts.
 **Attention had been going where verification was already cheap.**
 
 So: **a count is safest when it names its members.** Several now do — the gate
-list, the ten decision entries behind the AI call log, the five RS states whose
+list, the twelve decision entries behind the AI call log, the five RS states whose
 second frame is an audit-trail shot. A named list is falsified by reading it; a
 bare numeral is falsified only by someone independently recounting, which nobody
 does.
@@ -607,20 +609,30 @@ procedure.
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
   real prompt files, so a malformed prompt version fails the suite.
 - **Routes** ([`test/routes.test.js`](../test/routes.test.js)): input validation
-  (the 400s), duplicate add (409), `GET /api/config` / `/api/health`,
-  TMDB-unreachable (502), the below-threshold guards (422), and — the one that
-  matters most — OpenRouter unreachable returning 422 *and* still writing a
-  `status='failed'` row to `recommendation_logs`. That's the "make failure
-  visible" contract under test.
+  (the 400s), duplicate add (409), `GET /api/config` / `/api/health`, an
+  unknown route (404), TMDB-unreachable (502) and the `short` form it carries
+  ([D-042](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form)),
+  the below-threshold guards (422), and — the one that matters most —
+  OpenRouter unreachable returning 422 *and* still writing a `status='failed'`
+  row to `recommendation_logs`. That's the "make failure visible" contract
+  under test.
 - **Regression guards**, each added the day the bug was found and each checked
   to fail without its fix: a film deleted in another tab returning 404 rather
-  than a 500, TMDB's own rating actually reaching the insert, and TMDB's "no
+  than a 500, TMDB's own rating actually reaching the insert, TMDB's "no
   votes" `vote_average: 0` being stored as `null` instead of as a real score of
-  zero.
+  zero, and both halves of the `review_requires_rating` constraint — its
+  violation answered as a 400 with a usable message, and a violation of one of
+  the table's other check constraints not dressed up as it.
+- **Three happy paths, added 2026-09-13 while walking
+  [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission)**: search
+  returning shaped TMDB results with posters, `DELETE` answering 204 (and a
+  refused delete answering 500 rather than a false 204), and a verdict's
+  success row carrying real token and cost data.
 - **The recommendation SUCCESS path**, added 2026-09-09 — until then the only
   recommendation tests were its two failure paths, so every rule deciding what a
   user actually sees was unproven. One run now asserts that of four model picks
-  only the verified, unowned, non-duplicate one survives; another that an
+  only the verified, unowned, non-duplicate one survives, and that its success
+  row holds exactly the titles shown; another that an
   unrated film already in the list is never recommended back; five more that a
   run which returns nothing reports WHY truthfully, rather than always blaming
   the model for naming films the user already had.
@@ -630,12 +642,18 @@ procedure.
   it must not. Each of these was verified by breaking the code it guards and
   confirming the invariant's own tests fail. Dropping the recommendations
   flag also fails the OpenRouter-down test, which asserts the same flag from
-  its own side.
+  its own side. The same loop asserts that a failed row names the model its
+  own feature calls
+  ([D-070](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history)).
 - **Two failures at once**, added 2026-09-11 and also written as a loop over
   both features: when the AI call fails AND the log write then fails, there is
   no row to hold either cause, so stderr is the only surviving record and the
   test asserts both causes reach it. Probed the same way — dropping the
   composition loses the AI cause, dropping the `console.error` loses both.
+- **The two log views**: `GET /api/ai-log`'s merged, structured rows and
+  totals, and `/api/recommendations/history`'s two tests
+  ([D-077](DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion)),
+  its recommendation-only scope and a database failure surfacing as a 500.
 
 To keep the live database untouched
 ([§5](#5-incident-1--and-the-guardrail-it-produced-module-12)), the Supabase

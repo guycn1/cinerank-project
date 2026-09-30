@@ -1749,7 +1749,8 @@ el.recsTrigger.addEventListener('click', async () => {
     // unconditionally, it would send the user to a log that cannot load either
     // whenever CineRank itself is unreachable. This only offers it when the
     // server said a row was actually written — a failed DB read, an unmet
-    // threshold, and CineRank being down entirely all leave nothing to read.
+    // threshold, a failed log write, and CineRank being down entirely all leave
+    // nothing to read.
     // The verdict's handler applies the same rule (R23).
     if (err.logged) {
       setRecsHint([
@@ -2171,9 +2172,10 @@ let verdictTypeTimer = null;
  * make, never a half-typed fragment.
  *
  * `{ typed: true }` is for the success path ALONE -- the only case that is
- * actually "the verdict appearing". Every placeholder, the busy line and both
- * error messages pass no option and render instantly, exactly as before this
- * item existed.
+ * actually "the verdict appearing". Every placeholder, the busy line and the
+ * error messages without a link pass no option and render instantly, exactly
+ * as before this item existed; the logged failure, which carries a link, is
+ * written without this function (see the verdict handler).
  *
  * The VISIBLE span is soft-hyphenated (D-060's approach, step 5), but ONLY
  * when `typed` is true -- i.e. only the real, AI-generated verdict, never a
