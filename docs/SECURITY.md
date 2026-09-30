@@ -340,7 +340,10 @@ opposite of trading on their trust.
 It exists because the agent was caught making a string of confident wrong claims
 — a browser-support version, a font metric estimated twice and wrong twice, a
 claim about dialog dismissal.
-[Two decision entries](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md)
+Two decision entries,
+[D-054](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)
+and
+[D-063](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md#d-063--r18-closed-as-wont-fix-the-reserved-line-premise-was-overstated-and-the-shift-it-describes-is-masked-by-the-scroll-that-happens-at-the-same-instant),
 record measurement overturning the agent's own premise, with its proposed fix
 dropped as a result.
 

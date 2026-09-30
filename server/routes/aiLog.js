@@ -73,8 +73,9 @@ aiLogRouter.get(
     // footer panel said "Every OpenRouter call", both of which stopped being
     // true the moment the cap bit. Fixed 2026-09-13 (D-069) — the viewer now
     // says 60 and moves the every-call claim onto persistence, which is where
-    // it is actually true. If this number ever changes, those two strings in
-    // public/index.html and the SPEC line change with it.
+    // it is actually true. If this number ever changes, the dialog's blurb in
+    // public/index.html, which states it, and the SPEC line change with it; the
+    // footer panel's claim is about persistence and holds at any cap.
     const [recs, verdicts] = await Promise.all([
       supabase
         .from('recommendation_logs')

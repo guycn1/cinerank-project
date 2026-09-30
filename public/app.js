@@ -354,7 +354,7 @@ function posterNode(url, title, { eager = false } = {}) {
   ph.setAttribute('aria-label', `${title} — no poster available`);
   // Cloned from the <template> in index.html rather than built here: SVG needs
   // createElementNS to produce real elements, and the icon reads better as
-  // markup next to the page's other two (D-027).
+  // markup next to the page's other inline-SVG icons (D-027).
   ph.append(el.noposterIcon.content.cloneNode(true));
   return ph;
 }
@@ -3021,7 +3021,7 @@ document.addEventListener('copy', (e) => {
     // SAFE BY CONSTRUCTION, not by judgement: this sits inside the catch, so it
     // cannot run when loadMovies() succeeds. Every normal load, add, rate and
     // remove is untouched. setVerdictText() is the single writer for this
-    // element (D-040), and its generation counter means any later write
+    // element (D-057), and its generation counter means any later write
     // supersedes this one silently and cleanly.
     //
     // It deliberately states NO rated-film count. The app does not know one --

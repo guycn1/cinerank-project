@@ -73,11 +73,13 @@ over *that slice*. Once the two tables hold more than 60 rows between them, the
 `Total · N calls` figure pins at 60 and each new call pushes the oldest out.
 
 That cap is deliberate and is documented at the query. **If you change it,
-change the two strings in [`public/index.html`](../public/index.html) that
-describe the dialog with it** — the blurb inside it and the footer panel that
-opens it. Those two said "every OpenRouter call CineRank has made" until
-2026-09-13 (the dialog from `b3e3446`, the panel from `38ca76d`), which stopped
-being true the day the cap first bit;
+change the blurb inside the dialog in
+[`public/index.html`](../public/index.html) with it**, since that sentence
+states the figure. The blurb and the footer panel that opens the dialog both
+claimed every call until 2026-09-13 — the blurb "every OpenRouter call CineRank
+has made" (from `b3e3446`), the panel "Every OpenRouter call" (from
+`38ca76d`) — which stopped being true the day the cap first bit. The panel now
+says every call is *logged*, a claim about persistence that no cap touches;
 see
 [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 
@@ -240,7 +242,7 @@ This document should not read as *touch nothing*.
 * **Adding a column.** It flows through `norm()` in the route, the row builder
   in [`public/app.js`](../public/app.js), and a `data-label` for card view.
   Nothing about the pinning model needs to know.
-* **The 60-row cap** — but change the two description strings with it
+* **The 60-row cap** — but change the dialog's blurb with it
   ([§ 2](#2-where-the-data-comes-from)).
 
 ## 7. How to tell this document worked

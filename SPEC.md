@@ -46,8 +46,11 @@ than milestones — the second ground
 here counts a merge as a turn, so it does not touch the argument either way.)
 Counted that way the project has been through as many turns as it has merges, and
 `git log --merges main` is the authority on that number. It is deliberately not
-repeated here: the same count already lives in two other files and has drifted once
-before.
+repeated here: the same count already lives in
+[`CLAUDE.md`](CLAUDE.md#build-status),
+[`docs/PROCESS.md` § 1](docs/PROCESS.md#1-working-method) and
+[`docs/MERGE-READINESS.md` § 5](docs/MERGE-READINESS.md#5-full-auditability--met),
+and has drifted once before.
 
 **All three are now complete**, which is the form the course's requirement takes:
 a commit history across at least three *full* turns of the spiral. It holds under

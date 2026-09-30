@@ -44,7 +44,7 @@ Build status for why the count and the checkbox are written just before it
 rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
 carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
 links on GitHub's Security tab — which is "final planned" being tested rather
-than contradicted; the note at the end of the Build status bullet has it. The
+than contradicted; the Build status note on the twenty-second merge has it. The
 live URL is on the project sheet and the joint-project registration is emailed,
 both 2026-09-14. Everything else is done — evidence captured and written up, the
 debug harness unloaded, all five gates green, and every other checkbox on this
@@ -60,8 +60,8 @@ user before writing anything**, because the wording below depends on it.
 
 (1) Every sentence saying all merges after `0cdc4ec` were defect fixes goes
 false: `README.md` (Workflow, "every merge since has been a defect fix"),
-`docs/PROCESS.md` § 1 ("every merge since has been the latter", which is already
-ambiguous), `SPEC.md` ("The merges after `0cdc4ec` … are defect fixes"), and
+`docs/PROCESS.md` § 1 ("every merge since has fixed a defect already published
+on `main`"), `SPEC.md` ("The merges after `0cdc4ec` … are defect fixes"), and
 this file twice (ground 2's "Every merge after `0cdc4ec` … has been made on this
 ground", and Build status's "plus the defect merges made since it", whose merge
 history also needs a thirtieth entry). Re-grep for new sites.
@@ -86,7 +86,7 @@ commit, before the merge, so that `main` never carries it as an open to-do.**
 reads as open when it is not.** Sentences about work since done are in the
 tense that matches it, and passages under closed items that still read as
 instructions (R1, R27, step 4b, the seed blueprint) carry a note saying they
-were carried out. The living-log entries above
+were carried out. The living-log entries for 2026-09-26 to 2026-09-29, below,
 no longer state a merge status, which the next merge would have falsified.
 
 Resolved or settled on the user's rulings: **the step 3 icon-clipping question
@@ -217,6 +217,21 @@ AI call log's token-split comments now describe the footer against the body
 without example figures that drift, the 57-case proof of `check-markdown` is
 dated, and `docs/PROCESS.md` says the 37 captures were all taken by hand and
 that headless browsers returned as `npm run layout-check`.
+
+**Last, a sweep of every reference** — to a file, a section, a decision entry,
+an item, a commit, or a place "above" or "below" — each followed to its target
+and checked that the target says what the pointer claims. `check-claims`
+already resolves whether a target exists; this checked what is there. The
+largest find: four places pointed at a tooling trap under § Environment &
+tooling traps about the `u00A0` escape that had never been written there, and
+it now is. Decision entries cited for what another decided: D-051 for the
+`--ink-dim` move (R26's rule), D-040 for the verdict's generation counter
+(D-057), D-018 in D-069 for the totals row (D-019), D-010 in D-070 for the
+preserve rule (§ Decision Logging), and `SPEC.md` § 3.2 for the AI-pick
+marker (§ 3.3). Positions that had moved: comments sitting above the wrong
+rule or template, "further down" for a media query above, "twenty lines up"
+for two hundred, "the first item" for the second, and the note "at the end of
+the Build status bullet" that seven later merges now follow.
 
 #### 2026-09-29
 
@@ -512,7 +527,7 @@ rather than by any tool (D-069, D-070, and the two in the database-down state);
 and six new tests taking the suite from 54 to 60, every one probed by breaking
 the source.
 
-**THE `DOSSIER.md` RECONCILIATION IS DONE** — see the first item under
+**THE `DOSSIER.md` RECONCILIATION IS DONE** — see the second item under
 Pre-submission blockers, which records what it found and what it produced:
 `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a linter that
 became the fourth commit gate, and an unfrozen `SPEC.md` with its spiral turns
@@ -1309,8 +1324,9 @@ locked rather than hidden.
 2026-09-08/09**, so it was not a closed section for that stretch. The
 2026-09-07 pass below is
 behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
-and is recorded in the ranked-list bullets further down, since it came out of
-the same whole-app sweep: the Add button breaking in two, the input refusing to
+and is recorded in this section's bullets below, from the Add button's
+`flex-shrink: 0` onward; it came out of the same whole-app sweep as the
+ranked-list work: the Add button breaking in two, the input refusing to
 yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
 mid-word, and the new grid layout at 500px and below. **Step 5, the portrait
 overhaul at 500px and below, landed here again on 2026-09-12 and is now
@@ -2739,7 +2755,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   The false half is dropped, not the whole badge:
   `.rec-card.is-rated::before` reads `AI pick`. The provenance marker is why
-  the element exists (SPEC § 3.2 asks for one) and it is still accurate.
+  the element exists (SPEC § 3.3 asks for one) and it is still accurate.
 
   **Rated-ness is read from `state.movies`, never from `state.ownedTmdbIds`**
   — owned and rated are different questions, and conflating them is precisely
@@ -2767,8 +2783,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   lines at this width.
 
   **And the one transition that does move is the one that cannot be seen.**
-  The hint shrinks inside `renderRecommendations()`, and eleven lines later —
-  same synchronous block — that function fires R27's
+  The hint shrinks inside `renderRecommendations()`, and further down that
+  function — same synchronous block — it fires R27's
   `el.recsHead.scrollIntoView({ block: 'start' })`. The page is
   smooth-scrolling the section to the top of the viewport and starting a
   1.75s staggered entrance on six cards at the instant the hint loses its
@@ -3627,7 +3643,7 @@ stays the portrait overhaul.
   `syncVerdictAvailability()` and a run — so D-040's single-writer lesson
   applied directly. Every write now goes through ONE function,
   `setVerdictText(text, { typed })` (`app.js`), which cancels any typer
-  already running (a generation counter, the same shape D-040 used) before
+  already running (through a generation counter) before
   writing its own content — a sync landing mid-type just wins, cleanly, with
   no coordination the caller has to think about.
 
@@ -3652,7 +3668,7 @@ stays the portrait overhaul.
 * **The verdict banner's border — the travelling glint. DONE 2026-09-12.**
   Four polish passes went wrong, the user called the loop, and the item was
   then finished by reverting and isolating one dial at a time. **Full story,
-  including the two traps below and the performance measurements, is D-055 —
+  including traps 2 and 3 below and the performance measurements, is D-055 —
   read it before changing anything here.**
 
   **As shipped:** a static warm `linear-gradient` ring at `padding: 2.5px`,
@@ -3698,7 +3714,7 @@ stays the portrait overhaul.
 
   **The busy-state item further down this list** (the glint speeding up while
   "New verdict" runs) **is DONE — 2026-09-12, D-056**, and its two dials are
-  exactly the two traps above. Note that only ONE of D-055's two one-line
+  exactly traps 2 and 3 above. Note that only ONE of D-055's two one-line
   fixes was used — the speed half went to `playbackRate` in JS instead of the
   duration swap D-055 prescribed, because changing a CSS animation's duration
   makes the dash JUMP. See D-056 before touching it.
@@ -4122,7 +4138,7 @@ and RS-16 — need a temporary one-line edit to a service and a `git checkout`
 afterwards.
 
 `DOSSIER.md` is the course's own grading rules, it arrived 2026-09-13, and
-**the reconciliation against it is DONE** — the first checkbox below. The
+**the reconciliation against it is DONE** — the second checkbox below. The
 narrow-viewport enforcement rules under step 5 are NOT retired by that step
 closing; they still apply to anything that comes up.
 
@@ -4188,10 +4204,10 @@ below — this list is the smaller stuff.)
   EACH OTHER, and clearing AA cost nearly a third of it (2.09 → 1.44). This
   keeps 1.67.
 
-  The mitigation is that R26 and D-051 moved every line that is the ONLY thing
-  on its surface up to `--ink-dim` (7.28:1), the AI call log's `.log-empty` row
-  joining them on 2026-09-30; what is left on faint always sits
-  beside content that carries the meaning. A contrast audit will flag this. It
+  The mitigation is that R26's rule moved every line that is the ONLY thing on
+  its surface up to `--ink-dim` (7.28:1), the empty ranked list the same day
+  and the AI call log's `.log-empty` row on 2026-09-30; what is left on faint
+  always sits beside content that carries the meaning. A contrast audit will flag this. It
   is a decision, not an oversight.
 
   **One process note from the same exchange, in D-052:** the token and one of
@@ -5548,7 +5564,7 @@ the real blob from github.com and read that — it is the only authority.
      `main` would be MISINFORMED — a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, end of the `main` bullet). **Every merge after `0cdc4ec`, the final
+     status, the note on the twenty-second merge). **Every merge after `0cdc4ec`, the final
      planned one, has been made on this ground, and no merge has ever been made
      on grounds outside this list.** Written without a COUNT of them on purpose: a count of a set
      that is still open goes stale at the next merge, and `check-claims` resolves
@@ -5667,6 +5683,15 @@ next session does not rediscover them.
 * **The UI copy uses curly apostrophes** (`’`, e.g. "Couldn’t reach CineRank").
   An edit anchored on a straight `'` will not match. Copy the exact character
   out of the file rather than retyping it.
+* **A `u00A0` escape (backslash-u) can land in a file as the literal
+  character**, and a literal non-breaking space looks exactly like a space. It
+  happened twice in `app.js` on a first attempt — the search row's `TMDB 7.0`
+  glue and R7's `+ Add to my list` label — and three literal ones reached this
+  file's prose, one inside the code span of the rule forbidding them
+  (2026-09-15). Reading cannot catch it: dump the codepoints before committing,
+  and where the escape keeps collapsing, build it from its code point in a
+  helper script instead of typing the backslash. `npm run check-claims` fails
+  on the literal character anywhere in the repository.
 * **A comment in an `.svg` file must never contain two consecutive hyphens, and
   the failure is SILENT.** XML forbids that sequence inside a comment, SVG is
   parsed as strict XML, and a parse error means the browser renders nothing at

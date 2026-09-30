@@ -152,10 +152,11 @@ something. Four places where it visibly did:
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
   in advance so it did not have to be argued each time.
-* **Naming that reader as a stakeholder changed a whole class of work from
-  cosmetic to blocking.** Both long markdown files were found rendering wrong on
-  GitHub. If the only stakeholder had been the list owner, that would have been
-  a shrug; naming someone who only ever sees the repository made it a defect, a
-  fix, and a [permanent verification gate](../scripts/check-markdown.js)
+* **Naming the reader of the repository as a stakeholder changed a whole class
+  of work from cosmetic to blocking.** Both long markdown files were found
+  rendering wrong on GitHub. If the only stakeholder had been the list owner,
+  that would have been a shrug; naming someone who only ever sees the repository
+  made it a defect, a fix, and a
+  [permanent verification gate](../scripts/check-markdown.js)
   ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all),
   [D-066](DECISIONS.md#d-066--the-render-audit-had-been-running-in-the-wrong-github-api-mode-and-it-masked-a-live-defect-for-the-life-of-the-file)).

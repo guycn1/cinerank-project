@@ -20,8 +20,9 @@ the reasoning. Rules that keep this honest live in
 - **Everything on `draft`; `main` only at a settled milestone, to fix a defect
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
-  twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-nine merges to `main` (verify with
+  twenty-one merges were all settled milestones, and nothing smaller was merged
+  on that ground; every merge since has fixed a defect already published on
+  `main`. Twenty-nine merges to `main` (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -212,10 +213,10 @@ the discipline the product applies to the agent inside it.
 
 ## The environment this ran in, and what it was allowed to do (Module 5)
 
-Unnumbered on purpose: `docs/PROCESS.md` [§ 1](#1-working-method) and
-[§ 2](#2-prompt-engineering-as-version-control) are referenced by name from
-[`CLAUDE.md`](../CLAUDE.md) and [`SPEC.md`](../SPEC.md), so the numbered
-sections below keep their numbers.
+Unnumbered on purpose: `docs/PROCESS.md` [§ 1](#1-working-method) to
+[§ 4](#4-making-failure-visible-module-13) are referenced by number from
+[`CLAUDE.md`](../CLAUDE.md), [`SPEC.md`](../SPEC.md) and
+[`README.md`](../README.md), so the numbered sections keep their numbers.
 
 **The ADE.** Claude Code in a terminal, on Windows, with Git Bash for POSIX
 commands. That places this build in the **command-line family** — the one that
@@ -567,7 +568,8 @@ does.
 nothing.** The [living log's Build status](../CLAUDE.md#build-status) already
 recorded how merges 22 to 27 each failed — wrong render context, wrong file
 types, a claim whose falsifier it never names, a test not re-applied as its
-subject changed, a filter whose vocabulary limits its reach — and that list was
+subject changed, a filter whose vocabulary limits its reach, a criterion read
+off the source rather than the rendered page — and that list was
 used as the specification for where to look. The earlier sweeps built
 [`check-claims`](../scripts/check-claims.js), which had already eliminated
 paths, commits, identifiers and capture counts as a class, so the whole budget

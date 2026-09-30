@@ -412,9 +412,9 @@ wider child: `No TMDB rating` measures 90.2px against the 62.1px rating badge,
 so on that card the caption sets the block's width and the badge ends 28.1px
 short of the edge, 90.2 minus 62.1. `TMDB 7.1` measures 50.9px, narrower than
 its badge, so on a voted card the badge sets the width and ends flush. It
-matters for the same reason top-aligning the body did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
-neighbourhood in [`public/styles.css`](../public/styles.css)): this is a ranked LIST, and a column that
-does not line up is a column you cannot scan.
+matters for the same reason top-aligning the body did (see the comment on
+`.movie-card__body` in [`public/styles.css`](../public/styles.css)): this is a
+ranked LIST, and a column that does not line up is a column you cannot scan.
 
 **The user's worry, and why it was justified but misdirected.** The comments
 around that declaration look like they are defending it, so touching it felt
@@ -912,9 +912,12 @@ provide the historical reality of every AI call the app performed. Rows that
 misname the model are not documenting reality; they are false about precisely the
 thing they exist to record.
 
-The mistake was conflating two different kinds of artifact.
-[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001)'s
-preserve-don't-maintain rule governs **narrative** — decision entries, and code
+The mistake was conflating two different kinds of artifact. The
+preserve-don't-maintain rule in
+[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable),
+whose worked example is
+[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001)'s "footer
+link", governs **narrative** — decision entries, and code
 comments that explicitly describe a past state. Those record a *belief held at a
 time*, and they stay valuable as records even when the belief turned out wrong.
 
@@ -958,8 +961,8 @@ Related:
 for the first hand-deletion and the append-only argument,
 [D-053](#d-053--the-taste-verdict-alone-runs-on-a-stronger-model) for the
 two-model split that created the bug,
-[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001) for the
-preserve-don't-maintain rule this entry marks the boundary of.
+[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable)
+for the preserve-don't-maintain rule this entry marks the boundary of.
 
 ## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
 
@@ -1044,9 +1047,8 @@ undercut, say, a button label.
 
 Related:
 [D-019](#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever),
-which relies on the window;
-[D-018](#d-018--route--resilience-tests-without-touching-the-live-db) for what
-the totals row deliberately does not surface;
+which relies on the window and records what the totals row deliberately does
+not surface;
 [D-065](#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)
 for the other class of defect that was invisible until something rendered it.
 
@@ -2188,10 +2190,10 @@ more work than the CSS idea but had no hidden measurement step to get wrong.
 
 **Cancellation is a generation counter, not a boolean flag.** Every call bumps
 `verdictTypeGen`; a running loop checks its captured `gen` against the current
-value on every tick and quietly stops if it no longer matches. This is the same
-shape
+value on every tick and quietly stops if it no longer matches. Together with
+the single writer — the shape
 [D-040](#d-040--expanded-reviews-survive-a-re-render-by-lifting-the-state-not-by-reusing-the-elements)'s
-single-writer fix used for expanded reviews, and it is what makes the hazard
+fix used for expanded reviews, which needed no counter — it is what makes the hazard
 this item was flagged with — `syncVerdictAvailability()` or a second click
 landing mid-type — a non-event: the new call's own `setVerdictText()` invocation
 cancels the old one as a side effect of running, so no caller needs to know a
@@ -2622,9 +2624,8 @@ before, still short of it. Not a shrug at accessibility, and not something to
 re-open with a contrast audit:
 
 *The mitigation is the tier above it.*
-[R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
-and
-[D-051](#d-051--card-size-comes-from-the-viewport-never-from-the-result-count-r29)
+[R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
+rule, applied to the empty ranked list the same day,
 moved every line that is the **only thing on its surface** up to `--ink-dim`
 (7.28:1) — the availability sentences, all five zero-result messages, the
 failure line, the empty ranked list. What remains on `--ink-faint` sits beside

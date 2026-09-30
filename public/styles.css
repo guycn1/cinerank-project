@@ -24,9 +24,9 @@
      the original #6b6760 gave 2.09 against --ink-dim, #868178 gave 1.44, and
      this keeps 1.67 — 80% of the separation the token exists to draw, with the
      floor still lifted (3.49 → 4.36 on --bg, 3.11 → 3.87 on a card).
-     Both are under AA, knowingly. The tier ABOVE is the mitigation: R26 and
-     D-051 moved every line that is the only thing on its surface to --ink-dim,
-     so what is left on --ink-faint sits beside content that carries the meaning
+     Both are under AA, knowingly. The tier ABOVE is the mitigation: R26's rule
+     moved every line that is the only thing on its surface to --ink-dim, so
+     what is left on --ink-faint sits beside content that carries the meaning
      (`No TMDB rating` next to a title and poster, `Based on: …` immediately
      above the cards it introduces). */
   --ink-faint: #7b766e;
@@ -937,8 +937,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    longer in the box. `type="search"` stays for the semantics and the mobile
    keyboard's Search key — this drops only the chrome. */
 .search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
-/* The magnifier only exists below the narrow breakpoint (see the @media at the
-   end of the search block). */
+/* The magnifier only exists below the narrow breakpoint (see the
+   `@media (max-width: 500px)` block below). */
 .search-btn__icon { display: none; width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
 .search button {
   /* Never squeezed by the input beside it: a flex item's automatic minimum size
@@ -1088,7 +1088,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   display: flex;
   /* NOT REACHED IN PRACTICE ANY MORE — read this before trusting it. Every
      threshold below sits under 500px, and the `@media (max-width: 500px)` block
-     further down replaces this whole row with a grid, so the flex wrapping never
+     above replaces this whole row with a grid, so the flex wrapping never
      actually fires. It is kept as the behaviour above 500px and as the fallback
      if that breakpoint is ever moved down. The rest of this comment describes
      what WOULD happen then.
@@ -1171,7 +1171,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .result-row .meta span { color: var(--ink-dim); font-size: 0.85rem; }
 .result-row .add-btn {
   margin-left: auto;
-  /* THE SAME BUG `.search button` already documents twenty lines up, missed on
+  /* THE SAME BUG `.search button` already documents further up, missed on
      this button. A flex item may shrink below its content, so when the title
      beside it is long the row squeezes THIS instead — and "+ Add" breaks at its
      space into two lines, turning a pill into a lump. It looked width-related
@@ -1643,8 +1643,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    as the user asked. The override to `hyphens: manual` (the CSS default,
    restored explicitly at 400px and below) is what lets those same soft hyphens
    start being honoured — live, on resize, with nothing re-rendered.
-   COVERS four elements: `.movie-card__body`, `.rec-card__body` and
-   `.result-row` (each set the same way below), plus `.verdict__text`.
+   COVERS four elements: `.movie-card__body` (just below), `.rec-card__body`
+   (further down), and `.result-row` and `.verdict__text` (both further up),
+   each set the same way.
    `.review` and `.reason` need no CSS of their own at all — both are plain
    descendants of `.movie-card__body`/`.rec-card__body`, `overflow-wrap` and
    `hyphens` are inherited properties, and `softHyphenate()` is called
@@ -1830,6 +1831,15 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
+/* No score at all — TMDB has no votes for this title (D-037). Muted italic is
+   this app's established vocabulary for an absence rather than a value: exactly
+   what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
+   what `.no-review` (backlog #20) uses for a missing review.
+   Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
+   the faintest ink token there is, so italic alone carries the distinction and
+   the line that DOES have a number keeps the weight it was tuned to. */
+.score-tmdb.is-muted { font-style: italic; }
+
 /* UNRATED cards only. `:first-child` IS the "is this film unrated" test here —
    the amber .score-badge is appended before this whenever there is a rating, so
    the caption can only lead the block when there is none.
@@ -1840,15 +1850,6 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    top edge. This roughly restores the line the title sits on.
    Set by eye against the title, not solved; tune freely. Reset in card mode,
    where the score is a centred ROW and has no top edge to sit against. */
-/* No score at all — TMDB has no votes for this title (D-037). Muted italic is
-   this app's established vocabulary for an absence rather than a value: exactly
-   what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
-   what `.no-review` (backlog #20) uses for a missing review.
-   Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
-   the faintest ink token there is, so italic alone carries the distinction and
-   the line that DOES have a number keeps the weight it was tuned to. */
-.score-tmdb.is-muted { font-style: italic; }
-
 .score-block > .score-tmdb:first-child { margin-top: 0.45rem; }
 /* RATED cards: the caption follows the amber figure, so it needs only enough to
    stop the two touching — the pair should still read as one block. Much smaller
@@ -2473,7 +2474,7 @@ button:disabled .sparkle-major { animation: none; }
    invites them to do, since adding opens the rate dialog. The card behind the
    dialog then sat there contradicting the ranked list.
    The false half is dropped rather than the whole badge: the provenance marker
-   is the reason this element exists (SPEC § 3.2 asks for a marker distinguishing
+   is the reason this element exists (SPEC § 3.3 asks for a marker distinguishing
    AI-suggested cards), and it is still accurate. `.is-rated` is toggled by
    syncRecCardBadges(). */
 .rec-card.is-rated::before { content: 'AI pick'; }
