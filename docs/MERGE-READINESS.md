@@ -206,7 +206,7 @@ Five functions exceed the ceiling of 20 and are reported as warnings on every ru
 | `chat` ([`server/services/openrouter.js`](../server/services/openrouter.js)) | 22 |
 | `generateTasteVerdict` ([`server/services/tasteVerdict.js`](../server/services/tasteVerdict.js)) | 21 |
 
-**They are left as they are, and the reason is not deadline pressure.** In
+**They are left as they are, and the reason is NOT deadline pressure.** In
 `generateRecommendations` the branches *are* the feature: each `continue` guard
 and each tally arm exists because of a specific documented finding — the owned
 filter that was reading only rated films

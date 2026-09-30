@@ -823,7 +823,7 @@ repository, days after the planned final merge, to fix six URLs.
 **Make the six targets absolute** — `raw.githubusercontent.com` for the captures,
 `github.com/blob` for the two document links. **Chosen.** Six lines, one file.
 
-The cost is honest and stated: they pin to `main`. That is acceptable here
+The cost: they pin to `main`. That is acceptable here
 because the captures are frozen evidence and because the Security tab only ever
 renders the default branch, so a `draft` reader sees the same images either way.
 
@@ -2019,6 +2019,10 @@ paragraph above without this addendum.
 
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
+> **2026-09-30:** The gap this entry accepts was closed the same day by
+> [D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all),
+> whose soft hyphens break invented words as cleanly as real ones.
+
 **The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
 phone width, and `overflow-wrap: anywhere` is exactly why
 ([D-045](#d-045--overflow-wrap-anywhere-not-break-word--the-difference-is-intrinsic-sizing))
@@ -2222,7 +2226,7 @@ error as well as on success. Under `prefers-reduced-motion` the global
 `animation: none` means `getAnimations()` returns nothing, so `setSheenRate()` is
 a no-op precisely where it should be, while the brightness half still lands.
 
-**Residual, accepted knowingly this time:** velocity changes instantaneously
+**One note:** velocity changes instantaneously
 rather than ramping. That is a different artefact from a position jump, it reads
 as "it sped up", and the user approved it after looking. A rAF ramp of
 `playbackRate` is the fix if it is ever wanted.
@@ -2511,7 +2515,7 @@ person, which is the axis Haiku could not reach. The AI call log already renders
 model per row, so the split is visible in the audit trail rather than buried in
 config — which turns a cost decision into demonstrable evidence.
 
-**The honest cost of getting here:** four real OpenRouter calls spent on prompt
+**The cost of getting here:** four real OpenRouter calls spent on prompt
 versions that moved nothing, and a wrong conclusion published in v6's commit
 message ("concrete sentences to steer away from have moved this prompt further
 than any adjective") that v7 disproved a day later.
@@ -4071,7 +4075,7 @@ result.
 **Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It is
 the obvious move and it is wrong: cards with wider ranks get a wider first
 column, so poster left edges stop aligning down the list — trading a problem
-nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
+nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled.
 
 
 ## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`

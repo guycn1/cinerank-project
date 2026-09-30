@@ -496,8 +496,8 @@ was ticked by the reconciliation.
 * **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12,
   the same day it started and finished. Do not reopen it or hunt for more
   narrow-width work.** They closed it against the agreed ~350px target: no
-  viable remaining issues there, messiness only starting below ~310px and the
-  UI still mostly usable even then — which is inside the "good enough only"
+  viable remaining issues there, cosmetic degradation only starting below
+  ~310px and the UI still mostly usable even then — which is inside the "good enough only"
   band and above the ~290px ignore floor, so it is the two enforcement rules
   working, not a defect list. **Those rules still stand for any future
   narrow-width question; this step closing does not retire them.**
@@ -863,10 +863,10 @@ carries the current state.
     both ways: pointing it at `taste_verdict_logs` fails both, dropping its
     error guard fails only the second.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
-  (2026-09-09, user-asked). The client has no test harness, so every judgement
-  about the recs grid, the entrance stagger, the scroll or the hover glow costs
-  a real OpenRouter call, and the user ran their paid quota down doing exactly
-  that. *(Since 2026-09-28 `npm run layout-check` also answers
+  (2026-09-09, user-asked). The client had no test harness at the time, so
+  every judgement about the recs grid, the entrance stagger, the scroll or the
+  hover glow cost a real OpenRouter call, and the user ran their paid quota
+  down doing exactly that. *(Since 2026-09-28 `npm run layout-check` also answers
   `/api/recommendations` from fixtures, for layout work; this harness remains
   the way to drive the real page by hand.)* **IT IS NO LONGER LOADED BY THE
   PAGE — unloaded 2026-09-13, see the ticked checkbox under Pre-submission
@@ -1870,7 +1870,7 @@ status is further down this section. What landed:
   (search rows, rec cards) keep `lazy` untouched — neither is ever part of the
   first paint, which is the only place the distinction matters.
 
-  **Honest about the size:** these images are built in JS after `/api/movies`
+  **Note about the size:** these images are built in JS after `/api/movies`
   returns, so the preload scanner was never going to see them either way. The
   win is a layout pass on the first few cards, not a dramatic one; it is worth
   having because the poster is the design's primary visual anchor and the top
@@ -2187,13 +2187,13 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   back to the user. It now skips that write when the button is `aria-busy`,
   the same guard and the same reason as the skip in `syncAddButtons()`.
 
-  **Not covered by a test — the client has no test harness at all** *(still
-  true for this logic; `npm run layout-check`, added 2026-09-28, checks
-  layout, the verdict typing and the clipboard)*, so this
-  one was verified by reading and by tracing all eleven paths (boot
-  above/below threshold, success, failure, zero-suggestions, an unrelated
-  add/rate/remove after each, and both mid-flight races). Worth a browser
-  pass before the resilience screenshots, which this fix is what makes
+  **Not covered by an automated test.** The client had no test harness at the
+  time, and `npm run layout-check` (2026-09-28), which runs it in real
+  browsers, checks layout, the verdict typing and the clipboard rather than
+  this logic. So this one was verified by reading and by tracing all eleven
+  paths (boot above/below threshold, success, failure, zero-suggestions, an
+  unrelated add/rate/remove after each, and both mid-flight races). Worth a
+  browser pass before the resilience screenshots, which this fix is what makes
   possible. *(Done by those screenshots, 2026-09-13/14: RS-3, RS-4, RS-9,
   RS-15 and RS-16 each show a run's message surviving in the hint.)*
 
@@ -3258,9 +3258,11 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   * **Only a fast SUCCESS cuts anything.** The catch branch never touches the
     grid (verified), so a failure — including a fast one like the
     below-threshold 422 — leaves the cards to finish closing properly.
-  * **The cost is visual and it is real.** At a 400ms response the first two
-    cards are 100% and 73% closed, but cards 4–6 have barely started and
-    blink out at full size in a single frame.
+  * **The effect is purely cosmetic and lasts a single frame.** At a 400ms
+    response the first two cards are 100% and 73% closed, and cards 4–6, which
+    have barely started, are replaced by the new cards in the same frame. It
+    needs a response in under a second, where a real run takes several, so it
+    is a very rare edge case.
 
   **Left alone on purpose.** The alternative is making the render wait for
   the exit, and that inverts R27's own priority — the scroll and the entrance
@@ -3968,7 +3970,7 @@ stays the portrait overhaul.
   remain the primary signal — this was never allowed to be the only
   indication that a call is in flight.
 
-  **One residual, accepted knowingly:** velocity changes instantaneously
+  **One note:** velocity changes instantaneously
   rather than ramping. Different artefact from a position jump, reads as "it
   sped up", and the user approved it after looking. A rAF ramp of
   `playbackRate` would smooth it, should a ramp ever be wanted.
@@ -3981,8 +3983,8 @@ narrow-width work: the user has declared the target met.**
 
 Their words, and the standard they closed it against: there are no viable
 remaining issues at **~350px**, which is the width this step agreed to plan
-and test against; messiness only starts below **~310px**, and even there the
-UI is still mostly usable, just less pretty.
+and test against; cosmetic degradation only starts below **~310px**, and even
+there the UI is still mostly usable, just less pretty.
 
 **That ~310px figure is a finding, not an invitation.** It sits inside the
 "good enough only" band and above the ~290px ignore floor, so it is the
@@ -4137,8 +4139,7 @@ below — this list is the smaller stuff.)
 
   **The trap, if this is ever revisited: do NOT auto-size the rank track
   (`minmax(64px, auto)`)** — it would misalign every poster's left edge down the
-  list, trading a rare problem for a permanent one. 1000+ is unhandled by
-  choice.
+  list, trading a rare problem for a permanent one. 1000+ is unhandled.
 * [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:

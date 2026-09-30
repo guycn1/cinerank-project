@@ -415,7 +415,7 @@ Deploying it yourself:
    [`server/config.js`](server/config.js) already reads it.
 4. Health check path `/api/health`.
 
-**Free-tier caveat:** the instance sleeps after ~15 minutes idle, so the first
+**Free-tier note:** the instance sleeps after ~15 minutes idle, so the first
 request after a quiet period takes anywhere from a few seconds to a minute while
 it wakes. Subsequent loads are immediate (until the instance sleeps again).
 Worth opening the link shortly before demoing it.

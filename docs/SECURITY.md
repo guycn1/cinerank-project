@@ -48,8 +48,7 @@ unrecoverable data loss. See
 [§ Incident log in `CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#incident-log).
 
 So every risk below is assessed **twice**: once against the product, once against
-the build. Most of the substance sits in the second column. That is the honest
-result rather than a flattering one.
+the build. Most of the substance sits in the second column.
 
 ## Summary
 
