@@ -2593,6 +2593,11 @@ a score; `Based on: …` directly above the cards it introduces; the metadata
 footer under the result it describes. None of it is the sole carrier of
 anything.
 
+> **2026-09-30:** One more line fitted the rule and was still on `--ink-faint`:
+> the AI call log's `.log-empty` row, which is the only thing in the table body
+> while the log loads, when it is empty and when it fails to load. It is
+> `--ink-dim` now.
+
 *And two tiers that read as one is not an accessibility win either* — it removes
 a signal from everybody, including the people the contrast rule is written for.
 

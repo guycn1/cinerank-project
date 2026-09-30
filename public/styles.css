@@ -3256,7 +3256,9 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-badge.ok { background: rgba(90, 180, 120, 0.15); color: #7fce9b; }
 .log-badge.fail { background: rgba(226, 87, 76, 0.16); color: var(--crimson); }
 .log-feature { font-weight: 600; }
-.log-empty { padding: 2rem; text-align: center; color: var(--ink-faint); }
+/* --ink-dim, not --ink-faint: this line is the only thing in the table body,
+   whether the log is loading, empty or failed to load (D-052's rule). */
+.log-empty { padding: 2rem; text-align: center; color: var(--ink-dim); }
 
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */

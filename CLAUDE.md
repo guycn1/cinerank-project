@@ -151,7 +151,9 @@ reduced-motion block now covers `::after` too, which only the verdict caret
 uses. The rest was wording, including the error
 paths `docs/RESILIENCE.md` lists (nine, where it said seven), the first commit
 (`.env` is ignored from the second; the first was checked by hand), and "every
-call is logged" at the sites the conditional sweep had not reached.
+call is logged" at the sites the conditional sweep had not reached. The AI
+call log's single-line state (loading, empty or failed to load) moved from
+`--ink-faint` to `--ink-dim`, since it is the only thing in the table body.
 
 #### 2026-09-29
 
@@ -4105,7 +4107,8 @@ below — this list is the smaller stuff.)
   keeps 1.67.
 
   The mitigation is that R26 and D-051 moved every line that is the ONLY thing
-  on its surface up to `--ink-dim` (7.28:1); what is left on faint always sits
+  on its surface up to `--ink-dim` (7.28:1), the AI call log's `.log-empty` row
+  joining them on 2026-09-30; what is left on faint always sits
   beside content that carries the meaning. A contrast audit will flag this. It
   is a decision, not an oversight.
 
