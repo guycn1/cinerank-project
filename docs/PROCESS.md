@@ -245,14 +245,29 @@ typology rather than listing all six:
   reacts to. Module 14's own rule is that explicit orchestration is right only
   when the quality gain clears roughly fifteen times the tokens. It would not
   have here.
-* **Computer use** — not used. Headless Chrome was driven a few times for
+* **Computer use** — not used. Headless browsers were driven by scripts, and
+  none of them took any of the 37 captures in
+  [`docs/screenshots/`](screenshots/README.md): the user took every one of those
+  by hand, in a real browser. Early on, headless Chrome was driven for layout
   screenshots, and it went badly enough to be written up
   ([D-062](DECISIONS.md#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)):
   its reported viewport width repeatedly disagreed with the real browser, and
   the user's own screenshots were the authority that settled it. Headless
-  browsers came back later as `npm run layout-check`, which sidesteps that fault
-  rather than trusting it: the app runs inside an iframe the tool sizes itself,
-  so no window's own reported width is ever read.
+  browsers came back as `npm run layout-check`
+  ([`scripts/layout-check.js`](../scripts/layout-check.js), which serves the app
+  against fixtures, and [`scripts/layout-probe.js`](../scripts/layout-probe.js),
+  which it injects to measure), and that tool sidesteps the fault rather than
+  trusting it: the app runs inside an iframe the tool sizes itself, so no
+  window's own reported width is ever read. The same approach carried the
+  measurements behind the 2026-09-30 re-check of
+  [D-076](DECISIONS.md#d-076--the-score-block-aligns-to-the-edge-it-is-anchored-to-which-is-a-different-edge-in-card-mode--so-the-fix-is-two-rules-not-one)
+  and
+  [D-079](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  to
+  [D-081](DECISIONS.md#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one).
+  Whatever a headless browser reports is a lead, and a real browser settles any
+  doubt about it (the standing rule under
+  [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links)).
 
 **The permission stance, and the order it was arrived at.**
 [Module 5](../DOSSIER.md#module-5-the-ade-typology-tooling-and-permissions)'s

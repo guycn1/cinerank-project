@@ -407,10 +407,12 @@ column: an unvoted title's badge sat visibly left of its neighbours'.
 Measured at 1368px against the real stylesheet — three rated cards, badge right
 edges at 1159.4, **1131.3** and 1159.4, so **28.1px** out. The cause is that
 `.score-block` shrink-wraps to its widest child and its contents were
-left-aligned, so the badge hangs off whichever caption is widest:
-`No TMDB rating` measures 90.2px against `TMDB 7.1`'s 50.9px, and that
-difference IS the 28.1px. It matters for the same reason top-aligning the body
-did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
+left-aligned, so the badge hangs off the caption whenever the caption is the
+wider child: `No TMDB rating` measures 90.2px against the 62.1px rating badge,
+so on that card the caption sets the block's width and the badge ends 28.1px
+short of the edge, 90.2 minus 62.1. `TMDB 7.1` measures 50.9px, narrower than
+its badge, so on a voted card the badge sets the width and ends flush. It
+matters for the same reason top-aligning the body did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
 neighbourhood in [`public/styles.css`](../public/styles.css)): this is a ranked LIST, and a column that
 does not line up is a column you cannot scan.
 

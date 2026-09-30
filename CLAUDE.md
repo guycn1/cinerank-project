@@ -203,6 +203,21 @@ in `docs/PROCESS.md` now counts the RS-15 and RS-16 edits and the four revert
 commits alongside the glint and RS-9. The demo scripts in
 `README.md` and `SPEC.md` § 7.2 now start from the seeded list.
 
+**Then a sweep of every numeric claim** in the markdown and the code comments,
+each checked against source, `git log`, the captures, the live AI call log
+(read-only) or a fresh measurement. Corrected: D-076's derivation of the
+28.1px (it is the `No TMDB rating` caption's 90.2px less the 62.1px badge, not
+less the 50.9px of `TMDB 7.1`, re-measured at the unscaled root), and the
+stylesheet's "three different badge right edges" (two, as D-076 records); the
+prompt-side growth behind the injection evidence (81 tokens, 1,466 against
+1,385, the film's whole line); SPEC.md's plain-text escapes (48 on 37 lines,
+not 24); `SPEC.md`'s turn 3 count (77 commits, both ends included); and the
+`rs-15` log capture's description (eleven rows in view, three discussed). The
+AI call log's token-split comments now describe the footer against the body
+without example figures that drift, the 57-case proof of `check-markdown` is
+dated, and `docs/PROCESS.md` says the 37 captures were all taken by hand and
+that headless browsers returned as `npm run layout-check`.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -212,6 +227,9 @@ not 24 in three), its "seven tests" on `generateRecommendations` (sixteen reach
 it) and its commit count, the Execution row in `docs/PROCESS.md`, the AI-log
 route's line count in `docs/BRIEFS.md` (174 since the JSDoc), two sweep-day
 counts, rule 9's inbound-link counts and the Open issues test count.
+*(The next day, 2026-09-30, `785c370` took the precise line counts out of
+`docs/BRIEFS.md` altogether: it now reads "one short route file" and "one
+section of the stylesheet".)*
 
 Wrong from the start: three comments citing D-018 for what D-019 decided,
 `check-markdown` numbering two rules 5 (its labels now follow § Markdown
@@ -1404,7 +1422,8 @@ further is scheduled for this section.
   each and narrower. Without the wrap the title column would fall under its
   5rem basis, about 74px — the crushed state this prevents. Do not estimate
   these widths: an estimate once put "In your list" at 111px when it measured
-  95px. Common widths (360/390/412px) are untouched.
+  95px, before D-079's type scale (it is 88px now). Common widths
+  (360/390/412px) are untouched.
 - **Search results get their own layout at 500px and below** (user-designed,
   2026-09-09). The Add button moves from the right-hand column to directly
   UNDER the year/TMDB line, in the title's column, and subtle row separators
@@ -3817,7 +3836,7 @@ stays the portrait overhaul.
   was the main culprit, exactly as it was for the rec-card exit.** It is
   `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
   already gone by 45ms, and the card was within 1px of home after **~168ms of
-  a 450ms animation**. So a 10px move effectively happened in a sixth of a
+  a ~450ms animation**. So a 10px move effectively happened in a sixth of a
   second, and the remaining 280ms was the card sitting still.
 
   **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on
@@ -3858,7 +3877,7 @@ stays the portrait overhaul.
   raising this walks straight back into the blur.
 
   **Measured before and after rather than judged by eye:** the card used to
-  be within 1px of home after ~169ms of 450ms — **38% of the animation, 62% of
+  be within 1px of home after ~169ms of ~450ms — **~38% of the animation, ~62% of
   it sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
   ratio, not the travel distance, is what "barely visible" actually meant.
 
@@ -4906,7 +4925,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   resisting something it was never sent. Rated 8 it sorts fourth, inside the
   window, and both captures are real. Corroborated independently: the verdict
   call ran **1,577 tokens** against 1,491 / 1,482 / 1,488 for the three previous
-  runs — about 89 tokens heavier, which is the size of the injected review.
+  runs, and its prompt ran 1,466 tokens against 1,385 for all three: 81 tokens
+  heavier, which is The Room's line in the prompt, its review included.
 
   **The mitigation itself was verified in source before any of this was shot.**
   `recommend_v3.md` and `taste_verdict_v7.md` both carry BEGIN/END markers, both
@@ -5001,14 +5021,15 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     the Module 17 section.
   * **Escaped brackets, ampersands, numbered headings, and underscores in plain
     text — LEFT ALONE ON PURPOSE. All of them already render correctly.** Do not
-    "finish the job" by removing them; there is nothing to finish, and the three
-    deliberate examples left in this entry would be destroyed by a blind sweep.
+    "finish the job" by removing them; there is nothing to finish, and a blind
+    sweep would also strip the examples rule 7 under § Markdown Authoring Rules
+    shows on purpose.
 
   **Verified, not hoped:** both files were rendered through GitHub's Markdown
   API before and after, and the two HTML outputs diffed. SPEC.md came back an
   EXACT match for the intended transforms — zero unintended changes. CLAUDE.md
-  differed in exactly two lines, both of them escapes deliberately preserved in
-  this entry as examples. Nothing else in either rendered file moved.
+  differed in exactly two lines, both of them escapes kept on purpose as
+  examples. Nothing else in either rendered file moved.
 
 #### The final planned merge
 
@@ -5324,7 +5345,8 @@ down could be re-broken within a session. See D-065.
    wanted.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
-   without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 24.
+   without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 48,
+   on 37 lines, half of them before an underscore.
 8. **`docs/SECURITY.md` is rendered at TWO base paths, so its links and images
    are ABSOLUTE and must stay that way.** GitHub renders it both as an ordinary
    blob (relative paths resolve against `docs/`) and as the repository's Security

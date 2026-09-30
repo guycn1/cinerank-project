@@ -100,15 +100,16 @@ was corrected and the code was left alone**
 
 ### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
-Commit points: `83a5da5` to `4ef7534` — **76 commits**, spanning three days and
-three merges to `main`, plus the merge that closed the turn.
+Commit points: `83a5da5` to `4ef7534`, both included — **77 commits** over three
+days, three of them merges to `main` made inside the turn, plus the merge that
+closed it.
 
 A staleness sweep across every markdown file and code comment (`83a5da5`) found
 claims that had quietly stopped being true. Following it, both this file and
 [`CLAUDE.md`](CLAUDE.md) were found to be **rendering wrong on GitHub** — a fault
 invisible in the source and never caught by eye. That produced a new verification
-gate, `npm run check-markdown` (`d1dd505`), since proved in both directions across
-57 cases, together with the authoring rules it enforces in
+gate, `npm run check-markdown` (`d1dd505`), proved in both directions on 2026-09-13
+across 57 cases, together with the authoring rules it enforces in
 [`CLAUDE.md` § Markdown Authoring Rules](CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo).
 
 **This turn is closed.** Its stated closing conditions were the pre-submission

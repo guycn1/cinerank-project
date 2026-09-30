@@ -253,9 +253,10 @@ that reported no cost anywhere
 An application that declares what it spent only when things go well is not an
 audit trail.
 
-![The AI call log with three rows in view: a success carrying real tokens and
-cost above a failure carrying real tokens and cost, and further down a failure
-whose tokens and cost are em dashes](screenshots/rs-15-nothing-usable-log.png)
+![The AI call log with eleven rows in view, three of which are discussed below:
+a success carrying real tokens and cost at the top, a failure carrying real
+tokens and cost directly beneath it, and, last in view, a failure whose tokens
+and cost are em dashes](screenshots/rs-15-nothing-usable-log.png)
 
 **This is the whole argument in one image, and it rests on the top two rows being
 adjacent.** Same feature, same prompt version, same model, 1,038 tokens against

@@ -126,8 +126,9 @@ Both are full-page captures and are linked rather than embedded, because inline
 they scale down past the point where their text can be read.
 
 **Corroborated independently of that line:** the verdict call above ran **1,577 tokens** against
-1,491 / 1,482 / 1,488 for the three runs before it, the difference being the
-injected review's weight.
+1,491 / 1,482 / 1,488 for the three runs before it, and its prompt ran 1,466
+tokens against 1,385 for all three: 81 tokens heavier, which is The Room's line
+in the prompt, its review included.
 
 **A trap worth recording, because it nearly produced fake evidence.** The demo
 film was first rated 2, which sorted it *sixth*. Recommendations read only the
@@ -307,8 +308,8 @@ that changes every commit goes stale between one session and the next.)
 filter rules in the recommendation service was deleted in turn, to confirm every
 deletion fails exactly the tests that cover it; the
 [markdown checker](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-markdown.js)
-was proved in both directions across 57 cases, 26 that must fail and 31 that
-must pass. A gate nobody has tried to defeat is not known to work.
+was proved in both directions on 2026-09-13, across 57 cases, 26 that must
+fail and 31 that must pass. A gate nobody has tried to defeat is not known to work.
 
 ### ASI09 — Human-Agent Trust Exploitation
 

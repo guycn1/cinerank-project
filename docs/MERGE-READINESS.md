@@ -123,9 +123,9 @@ verification fails while looking rigorous, and each is answered concretely:
   recommendation cards as well as search.
 * **Verification theatre** — the
   [markdown checker](../scripts/check-markdown.js) was proved in *both*
-  directions across 57 cases, 26 that must fail and 31 that must pass. The
-  must-pass half is the half that matters; a checker that fires on valid input
-  gets switched off within a week.
+  directions on 2026-09-13, across 57 cases, 26 that must fail and 31 that
+  must pass. The must-pass half is the half that matters; a checker that fires
+  on valid input gets switched off within a week.
 * **Gate bypass under deadline pressure** — the gates are wired into the commit
   rules in [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
   rather than left to memory, and one of them (`check-markdown`) exists

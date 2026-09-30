@@ -1321,10 +1321,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    problem.
    1. THE CURVE, which was most of it. `var(--ease)` is
       `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: 67% of the
-      way by t=0.2 and within 1px of home after ~168ms of a 450ms animation. So a
+      way by t=0.2 and within 1px of home after ~168ms of a ~450ms animation. So a
       10px move happened in a sixth of a second and the card then sat still for
       280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
-      spreads the same distance across 73% of the duration instead of 37%.
+      spreads the same distance across 73% of the duration instead of ~37%.
       DELIBERATELY OFF `--ease`: `--ease` is built for arrivals that should
       feel instant, and an entrance you are meant to WATCH is a different job.
    2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
@@ -1795,11 +1795,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Contents align to the edge the BLOCK ITSELF is anchored to. Here that is
      the right: `.movie-card__score` above is `align-items: flex-end`, so the
      block's right edge is the card's right edge. Left-aligning instead makes
-     the amber figure hang off whichever caption is widest -- "No TMDB rating"
-     measures 90.2px against "TMDB 7.1"'s 50.9px, so an unvoted title's rating
-     sat 28.1px left of its neighbours' and the score column stopped being a
-     straight line to scan (measured 2026-09-19: three cards, three different
-     badge right edges; one after this).
+     the amber figure hang off the caption whenever the caption is the wider
+     child -- "No TMDB rating" measures 90.2px against a 62.1px badge, so the
+     block widened to the caption and an unvoted title's rating sat 28.1px left
+     of its neighbours'. Theirs ("TMDB 7.1", 50.9px) are narrower than their
+     badges, so there the badge sets the width and ends on the edge. The score
+     column stopped being a straight line to scan (measured 2026-09-19, before
+     D-079's type scale: three rated cards, two different badge right edges;
+     one after this).
      RESET TO flex-start IN THE 620px BLOCK, and that reset is load-bearing --
      card mode anchors the block LEFT, so the same reasoning inverts. A blanket
      flex-end does not fix the defect, it MIRRORS it into card mode; that was
@@ -3220,7 +3223,8 @@ body:has(dialog[open]) { overflow: hidden; }
      since every cell including the footer feeds `table-layout: auto` — it
      keeps the footer's summed figures from setting a wider max-content than
      the body rows and shifting the columns. The binding pair is the token
-     split: body ~`773 in / 251 out`, footer ~`9,842 in / 2,101 out`. */
+     split: the footer sums up to sixty calls, so its in and out figures are
+     never shorter than any body row's, and are usually a digit or more longer. */
   font-size: 0.8em;
   /* Drawing this divider is fiddly. It can't be a real `border-top` — the
      collapsed-border layer paints that and leaves it behind when the row pins.
@@ -3369,7 +3373,7 @@ body:has(dialog[open]) { overflow: hidden; }
     text-align: left;
   }
 
-  /* Cells with a sub-line (only Tokens: "428" stacked over "355 in / 73 out")
+  /* Cells with a sub-line (only Tokens: a total stacked over its in/out split)
      cannot centre the label with a float — a float pins to the top, so the
      label sat high against a two-line value. Grid instead: the label spans both
      rows, so `align-items: center` lands it at the true vertical middle, while
