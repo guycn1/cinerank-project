@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * @file Markdown render check (CLAUDE.md § Markdown Authoring Rules). Run before every
- * commit that touches a .md file:  npm run check-markdown
+ * commit that touches a .md file, and before every draft -> main merge:
+ *   npm run check-markdown
  *
  * WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
  * wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,

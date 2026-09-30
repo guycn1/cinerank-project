@@ -84,7 +84,8 @@ the reasoning. Rules that keep this honest live in
   on every commit, which
   re-resolves every claim in the repository that points at something — a path, a
   decision entry, a commit SHA, an identifier, a section reference, a capture, a
-  retired phrasing.
+  retired phrasing. A `draft` → `main` merge runs all five, whatever the diff
+  touched.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
   were found rendering wrong on GitHub for weeks ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
@@ -402,9 +403,12 @@ matcher being tightened.
 Once an AI call is attempted, a log row is **always** written — success *or*
 failure — with `status`, `error_text`, token split and duration. A handled
 model/parse/network failure logs `status='failed'` and then re-throws for a calm
-inline message in the UI. The in-app "AI call log" viewer (footer button) shows
-both log tables merged, so the audit trail is demonstrable in the browser, not
-only in the Supabase table editor.
+inline message in the UI. If the log write itself fails, the cause goes to the
+server's stderr instead and the run is discarded, even a successful one: a
+result with no row behind it is the state the log exists to rule out. The
+in-app "AI call log" viewer (footer button) shows both log tables merged, so
+the audit trail is demonstrable in the browser, not only in the Supabase table
+editor.
 
 `GET /api/ai-log` is the primary audit surface: both features, successes and
 failures, token split, duration, per-call cost, and totals. `GET
@@ -413,7 +417,7 @@ is deliberately kept as the narrower per-feature JSON view — recommendation ru
 only — but nothing in the UI depends on it; the merged log is what the app and
 the demo use.
 
-One honest caveat: six of the earliest log rows predated the migration that
+Note: six of the earliest log rows predated the migration that
 added the token split and duration columns, so they showed blanks in those
 fields. They were deleted by hand, for presentation, rather than left to age out
 of the 60-row window. **Rows have been removed by hand exactly twice in this

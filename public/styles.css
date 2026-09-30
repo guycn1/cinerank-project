@@ -994,10 +994,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      which puts it under the poster with nothing tying it to the film. The poster
      spans both rows so auto-placement drops meta at 2/1 and the button at 2/2.
 
-     This SUPERSEDES the flex stacking below 500px — that wrapping was tuned to
-     kick in at ~271-304px, entirely inside this query, so it no longer fires.
-     The flex rules are kept, not deleted: they are the 500px-and-up behaviour,
-     and they are the fallback if this breakpoint ever moves down. */
+     This SUPERSEDES the flex stacking at 500px and below — that wrapping was
+     tuned to kick in at ~271-304px, entirely inside this query, so it no
+     longer fires. The flex rules are kept, not deleted: they are the behaviour
+     above 500px, and they are the fallback if this breakpoint ever moves
+     down. */
   .result-row {
     display: grid;
     grid-template-columns: 46px 1fr;
@@ -1074,7 +1075,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* NOT REACHED IN PRACTICE ANY MORE — read this before trusting it. Every
      threshold below sits under 500px, and the `@media (max-width: 500px)` block
      further down replaces this whole row with a grid, so the flex wrapping never
-     actually fires. It is kept as the 500px-and-up behaviour and as the fallback
+     actually fires. It is kept as the behaviour above 500px and as the fallback
      if that breakpoint is ever moved down. The rest of this comment describes
      what WOULD happen then.
 
@@ -1136,8 +1137,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    so nothing moves — flex-grow is resolved before auto margins see the free
    space, so they simply get none. */
 .result-row .meta { flex: 1 1 5rem; }
-/* Below 300px the title drops a notch so words keep fitting WHOLE. Once the row
-   stacks, the title column at 250px is 128px, about 16 average characters at
+/* At 300px and below the title drops a notch so words keep fitting WHOLE.
+   Once the row stacks, the title column at 250px is 128px, about 16 average characters at
    the inherited 1rem. A 15-letter word ("Recommendations") measures 133px there
    and would have to break: hyphenated, since soft hyphens are honoured at 400px
    and below (D-080), but still broken. At 0.9rem the same word measures 119px
@@ -1968,7 +1969,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    alone, not the `gap` shorthand, is what makes that tunable independently:
    the shorthand would have reset `column-gap` to match, tightening the
    rank/poster/title columns too, which was never part of this. Tuned to
-   0.8rem by eye, same as every other value in this file. */
+   0.8rem by eye. */
 @media (max-width: 400px) {
   .movie-card__score { grid-column-start: 1; }
   .movie-card { row-gap: 0.8rem; }
@@ -2493,10 +2494,11 @@ button:disabled .sparkle-major { animation: none; }
    be silently overridden by whichever base rule came after it.
    400px, inclusive — changed from the original 399px (which read the user's
    first wording, "narrower than 400px", literally) at their own follow-up
-   request. Now the SAME boundary as the unrelated `max-width: 400px` query
-   elsewhere in this file (the score row's grid-column fix), which is a
-   coincidence of two separate asks landing on the same number, not a
-   dependency — do not merge the two queries, they style different things. */
+   request. Now the SAME boundary as the two unrelated `max-width: 400px`
+   queries elsewhere in this file (the header GitHub icon's size and the score
+   row's grid-column fix), which is a coincidence of separate asks landing on
+   the same number, not a dependency — do not merge the queries, they style
+   different things. */
 @media (max-width: 400px) {
   .movie-card__body,
   .rec-card__body,
@@ -3492,8 +3494,7 @@ body:has(dialog[open]) { overflow: hidden; }
      depth alone, not a second status signal — one glow covers both states
      without a `.toast.err` override. Zero Y-offset on this layer specifically
      (unlike the kept black one): it is a glow, not a cast shadow, so it must
-     radiate evenly rather than pool toward one edge (D-044). Tuned by eye,
-     like every other dimension in this file. */
+     radiate evenly rather than pool toward one edge (D-044). Tuned by eye. */
   box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.16);
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s var(--ease);
@@ -3528,7 +3529,7 @@ body:has(dialog[open]) { overflow: hidden; }
    pulls up a toast that would otherwise be narrower than this, so a short-
    but-still-long-enough-to-wrap toast gets noticeably wider while an
    already-wide error is untouched.
-   Tuned by eye like every other dimension in this file. */
+   Tuned by eye. */
 @media (max-width: 700px) {
   .toast.is-long { min-width: 25rem; }
 }

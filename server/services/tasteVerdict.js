@@ -123,7 +123,9 @@ export async function generateTasteVerdict() {
     RATED_MOVIES: rated.map(line).join('\n'),
   });
 
-  // An AI call happens now, so a row is ALWAYS written — success or failure.
+  // An AI call happens now, so a row is ALWAYS written — success or failure —
+  // unless the insert itself fails, which discards the run and sends the cause
+  // to stderr (below).
   const startedAt = Date.now();
   let result = null;
   let verdict = null;
@@ -159,10 +161,11 @@ export async function generateTasteVerdict() {
     input_movie_ids: rated.map((m) => m.id),
     verdict_text: verdict,
     // THE FALLBACK MUST BE THIS FEATURE’S MODEL, NOT THE APP-WIDE ONE. On
-    // success `result.model` is whatever OpenRouter echoed back; on FAILURE
-    // there is no response to read, so the row falls back to a constant — and
-    // the verdict is the one call in the app that does not use the app-wide
-    // model (D-053, and the `chat()` call above says so).
+    // success `result.model` is whatever OpenRouter echoed back, else the model
+    // requested (`chat()` falls back to it); on FAILURE there is no response to
+    // read, so the row falls back to a constant — and the verdict is the one
+    // call in the app that does not use the app-wide model (D-053, and the
+    // `chat()` call above says so).
     // The fallback was `config.openrouter.model` until 2026-09-13, so the app
     // logged FAILED verdicts as claude-haiku-4.5 while the call that actually
     // failed was claude-sonnet-5. The identical-looking line in

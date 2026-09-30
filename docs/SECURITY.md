@@ -318,11 +318,13 @@ must pass. A gate nobody has tried to defeat is not known to work.
 exists.** Every call is logged whether it succeeds or fails, with prompt
 version, model, token split, cost and duration, and it is surfaced *inside the
 app* rather than only in the database, so the audit trail is reachable by the
-person being asked to trust the output. Beyond that: every suggested card
-carries an `AI pick` provenance badge; every fact on a card — poster, year, id —
-comes from TMDB and never from the model; and the taste verdict is labelled **an
-AI-generated read**, wording chosen deliberately over a warmer alternative,
-because that line sits directly above machine-written text.
+person being asked to trust the output. A run whose log write fails is
+discarded rather than shown, with its cause sent to the server's stderr.
+Beyond that: every suggested card carries an `AI pick` provenance badge; every
+fact on a card — poster, year, id — comes from TMDB and never from the model;
+and the taste verdict is labelled **an AI-generated read**, wording chosen
+deliberately over a warmer alternative, because that line sits directly above
+machine-written text.
 
 **The strongest evidence here is an anti-overclaim.**
 [`SPEC.md` § 2.2 step 4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)

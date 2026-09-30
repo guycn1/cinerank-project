@@ -133,7 +133,7 @@ failed:
   opening a row can never reflow the table or steal width from its neighbours.
 * **`.log-scroll` must stay `overflow: visible`** — it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
-* **Card view's two specificity fixes** (D-era, below 850px): a leftover desktop
+* **Card view's two specificity fixes** (D-era, 850px and below): a leftover desktop
   separator stacking into a vertical line, and a desktop `last-child` rule
   outranking the card rule and removing the final row's separator.
 * **Six pre-migration-001 rows were deleted by hand

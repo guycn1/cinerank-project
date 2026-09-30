@@ -237,8 +237,10 @@ export async function generateRecommendations() {
   });
 
   // From here on an AI call happens, so a row is ALWAYS written — success or a
-  // handled model/parse failure. Failures matter in the audit trail as much as
-  // successes (Module 13: make a failure visible, never a silent result).
+  // handled model/parse failure — unless the insert itself fails, which discards
+  // the run and sends the cause to stderr (below). Failures matter in the audit
+  // trail as much as successes (Module 13: make a failure visible, never a
+  // silent result).
   const startedAt = Date.now();
   let result = null;
   let picks = [];

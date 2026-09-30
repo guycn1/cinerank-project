@@ -293,8 +293,9 @@ fires is the thing this document exists to rule out.
   "revert" comes out higher.)*
 * **The product audits itself, which is unusual and is the point.** Every
   OpenRouter call, success or failure, writes a row with prompt version, model,
-  token split, cost and duration — and the [in-app AI call log](AI-CALL-LOG.md)
-  surfaces both tables merged, so the audit trail is reachable by the person
+  token split, cost and duration (a run whose row cannot be written is discarded
+  rather than shown) — and the [in-app AI call log](AI-CALL-LOG.md) surfaces
+  both tables merged, so the audit trail is reachable by the person
   being asked to trust the output, not just by someone with database access.
 
 ## How to re-run this

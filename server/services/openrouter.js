@@ -38,7 +38,7 @@ export { OpenRouterError };
  * @property {number | null} costUsd  OpenRouter's exact `usage.cost`, to six
  *   decimals. Null sends the caller to the estimate table in config.js.
  * @property {string} model  The model OpenRouter reports having run, else the
- *   app-wide default.
+ *   model this call requested.
  * @property {number} durationMs  Wall-clock time of the request, measured here.
  */
 
@@ -112,7 +112,10 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7, m
     // Exact cost from OpenRouter when present; null → caller falls back to the
     // per-model estimate table in config.js.
     costUsd: typeof usage.cost === 'number' ? Number(usage.cost.toFixed(6)) : null,
-    model: data?.model || config.openrouter.model,
+    // The model this call asked for, not the app-wide default: since D-053 the
+    // verdict requests its own, and a reply without `model` must not log and
+    // price that call as the other one.
+    model: data?.model || model,
     durationMs: Date.now() - startedAt,
   };
 }

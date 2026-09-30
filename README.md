@@ -346,7 +346,7 @@ path rather than its endpoints.
 ├── scripts/
 │   ├── scan-secrets.js          run before every commit
 │   ├── check-claims.js          run before every commit; resolves claims that point at things
-│   ├── check-markdown.js        run before every .md commit; catches markdown that renders wrong
+│   ├── check-markdown.js        run before every .md commit and every merge; catches markdown that renders wrong
 │   ├── seed-demo.js             loads the demo list via the app’s own API; dry run by default
 │   ├── backfill-tmdb-rating.js  one-off fill for rows predating migration 002
 │   ├── layout-check.js          checks the real UI in headless browsers, on fixture data

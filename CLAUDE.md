@@ -113,6 +113,25 @@ animations off `--ease` (now a rule with no count), the footer GitHub mark's
 differences, a glow and a media-query placement said to match "every other",
 and D-078's sub-path claim, which the tree contradicted from the start.
 
+**And a sweep of every conditional claim** ("only when", "unless", "below
+Npx" and their less obvious forms), for conditions that have since broadened.
+Two of them were real bugs in the verdict banner, one guard behind both: it
+was set only when a verdict SUCCEEDED and never cleared, so an add or rate
+mid-request replaced "Consulting the critics…" with the idle placeholder, the
+same happened to a failed verdict's message, and after the feature locked and
+unlocked again the lock text stayed. It is now `state.verdictTextFromRun`,
+set when a run starts and cleared on lock, the guard the recommendations hint
+already had (R1). Checked in headless Chrome against the previous `app.js`
+over nine scenarios: the four that exercise those defects show them there and
+not here, and the other five behave identically in both. A third fix is
+server-side: a verdict reply without a `model` field was logged and priced as
+the app-wide model, since `chat()` fell back to that rather than to the model
+the call requested.
+The rest was wording: `check-markdown` described as running only on `.md`
+commits when every merge runs it too, "a log row is ALWAYS written" without
+the case where the write itself fails (R5), D-060's boundary, and inclusive
+breakpoints written as "below 500px", "< 850px" or "500px and up".
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -470,7 +489,7 @@ was ticked by the reconciliation.
   placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI
   call log's card-view labels no longer misalign when they wrap; and the toast got
   a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware
-  widening below 700/500px that leaves short messages untouched (D-060-era
+  widening at 700/500px and below that leaves short messages untouched (D-060-era
   `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently
   halving its available width for shrink-to-fit sizing, found by the user, not by
   this session's own — repeatedly unreliable — headless-Chrome verification
@@ -766,8 +785,9 @@ carries the current state.
     four examples dilute the rules underneath them on a small model.
     `temperature: 0.85` and real few-shot (example TURNS rather than prose) were
     never needed and stay untried.
-* AI call log: every call logged success **or** failure; `GET /api/ai-log` merges
-  both tables; in-app viewer via the footer `.log-cta` button.
+* AI call log: every call logged success **or** failure (a run whose log write
+  fails is discarded, with the cause sent to stderr — R5); `GET /api/ai-log`
+  merges both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from the first commit carrying any project
   content (`103c4be`; the root commit is a one-line README, so there was nothing
   for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
@@ -940,7 +960,7 @@ carries the current state.
 AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
 sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
 4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
-under 500px, closed by the user against the ~350px target). **Step 6 —
+at 500px and below, closed by the user against the ~350px target). **Step 6 —
 pre-submission evidence and cleanup, not UI — was the only step left when this
 paragraph was written, and it closed on 2026-09-14. NOTHING in the agreed order
 is open.** The bullets below are the running record of how each piece got there
@@ -1034,7 +1054,7 @@ and stay as written.
   - **Responsive**: full table down to **~850px** (card `@media` breakpoint),
     helped by a mid-range `@media (max-width: 1040px)` that tightens cell padding
     `0.45→0.28rem`, dialog padding `1.5→0.85rem`, and the Result column
-    `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. < 850px → one card
+    `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. ≤ 850px → one card
     per call (label/value rows via `td::before { content: attr(data-label) }`;
     `thead` hidden; abbreviations swapped back to full text via
     `abbr::after { content: attr(title) }`). Reveal panels flow inline in card mode. A document click listener collapses an open
@@ -1197,11 +1217,12 @@ behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
 and is recorded in the ranked-list bullets further down, since it came out of
 the same whole-app sweep: the Add button breaking in two, the input refusing to
 yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
-mid-word, and the new sub-500px grid layout. **Step 5, the portrait overhaul
-under 500px, landed here again on 2026-09-12 and is now CLOSED** — it gave the
-results panel a height FLOOR (`max(240px, min(340px, 50vh))`) in place of what
-had become a second ceiling, and soft-hyphenated row titles at 400px and below
-(D-060/D-061). Nothing further is scheduled for this section.
+mid-word, and the new grid layout at 500px and below. **Step 5, the portrait
+overhaul at 500px and below, landed here again on 2026-09-12 and is now
+CLOSED** — it gave the results panel a height FLOOR
+(`max(240px, min(340px, 50vh))`) in place of what had become a second ceiling,
+and soft-hyphenated row titles at 400px and below (D-060/D-061). Nothing
+further is scheduled for this section.
 - Seven fixes in one pass: a dead `row` click handler whose body was only a
   guarded early return; `.result-row`'s `cursor: pointer`, which promised a
   click the row never had; open results going stale after an add (one
@@ -1226,7 +1247,7 @@ had become a second ceiling, and soft-hyphenated row titles at 400px and below
   so one `:disabled` rule covers them.
 - **Icons: inline SVG or plain characters, never emoji (D-027).** The `+` is
   U+002B (inherits `currentColor`, so it follows hover and the disabled dim);
-  the magnifier under 500px is an inline SVG, because `⌕` (U+2315) sits
+  the magnifier at 500px and below is an inline SVG, because `⌕` (U+2315) sits
   outside the Inter subset the page downloads and would render as tofu. Its
   orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
   `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
@@ -1267,8 +1288,8 @@ had become a second ceiling, and soft-hyphenated row titles at 400px and below
     that window, and the user could not reproduce it. **Do not "fix" it by
     reserving the widest label's width** — that costs every row width all the
     time to remove a flicker nobody can see, and it makes the crushed-title
-    problem worse. The sub-500px grid layout also gives the button its own line
-    now, so there is slack where it used to matter.
+    problem worse. The grid layout at 500px and below also gives the button
+    its own line now, so there is slack where it used to matter.
   * **`.search button .busy-label { display: none }` is scoped to the search
     form only**, so the Add button keeps its full "Adding…" label at every
     width. Cosmetic asymmetry, not a defect: its only consequence was the item
@@ -1306,7 +1327,7 @@ had become a second ceiling, and soft-hyphenated row titles at 400px and below
   5rem basis, about 74px — the crushed state this prevents. Do not estimate
   these widths: an estimate once put "In your list" at 111px when it measured
   95px. Common widths (360/390/412px) are untouched.
-- **Search results get their own layout under 500px** (user-designed,
+- **Search results get their own layout at 500px and below** (user-designed,
   2026-09-09). The Add button moves from the right-hand column to directly
   UNDER the year/TMDB line, in the title's column, and subtle row separators
   make it unambiguous which button belongs to which film.
@@ -1318,13 +1339,13 @@ had become a second ceiling, and soft-hyphenated row titles at 400px and below
   drops the meta at 2/1 and the button at 2/2. `margin-left: auto` has to be
   cleared, or the grid cell shoves the button back to the far edge.
 
-  **This supersedes the flex stacking below 500px.** That wrapping fires at
-  ~271–304px, entirely inside this query, so it no longer triggers. The flex
-  rules are KEPT rather than deleted: they are the behaviour at 500px and up,
-  and the fallback if this breakpoint ever moves down. Separators are scoped
-  to this query deliberately — above 500px the button sits beside its film and
-  proximity already says so. `--line` rather than `--line-faint`, since it has
-  to stay visible through the hover tint.
+  **This supersedes the flex stacking at 500px and below.** That wrapping
+  fires at ~271–304px, entirely inside this query, so it no longer triggers.
+  The flex rules are KEPT rather than deleted: they are the behaviour above
+  500px, and the fallback if this breakpoint ever moves down. Separators are
+  scoped to this query deliberately — above 500px the button sits beside its
+  film and proximity already says so. `--line` rather than `--line-faint`,
+  since it has to stay visible through the hover tint.
 
   **Follow-up the same day, on the user's "never break mid-word at >=250px":**
   once the row stacks the title column is 128px at 250px (under D-079's type
@@ -1439,7 +1460,7 @@ added 18–20; **all 20 are done** and the canonical table with every
 status is further down this section. What landed:
 - Only a rated film earns a rank number; unrated cards show a faint question
   mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
-- Poster no longer overflows its column below 620px — the width was declared
+- Poster no longer overflows its column at 620px and below — the width was declared
   twice, now one `--poster-w` the grid track and the image both read.
 - Card buttons stay bottom-right on unrated cards in card mode
   (`space-between` puts a *lone* child at the start; an auto margin does not).
@@ -2034,7 +2055,7 @@ reopens, and do not renumber: the numbers are how the user refers to them.
 | # | Item | Status |
 |---|---|---|
 | 1 | Unrated films got a rank number, contradicting their own "rate it to place it" caption; the gold #1 was `:first-child`, so it could crown an unrated film | **done** — D-029 |
-| 2 | Poster overflowed its column below 620px (width declared twice) | **done** |
+| 2 | Poster overflowed its column at 620px and below (width declared twice) | **done** |
 | 3 | Multi-digit rank numerals: 2-digit fine everywhere, 3-digit ran under the poster | **done** — D-030 |
 | 4 | The whole list replayed its staggered entrance on every add/rate/remove | **done** — D-031 |
 | 5 | "view more…" toggle measured once per render, never on resize/zoom/font-swap | **done** (+ the expanded-review follow-up) |
@@ -2128,7 +2149,12 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   reinvented: `state.recsHintFromRun` is set when a run starts and the sync
   writes the idle hint only when it is false. Below the threshold the
   availability text still always wins and clears the flag — the section is
-  unavailable, so what a past run said about it is moot.
+  unavailable, so what a past run said about it is moot. *(The verdict's own
+  guard was narrower than this port: it was set only on success and never
+  cleared, so a failed verdict's message and the busy line could be replaced
+  by the idle placeholder, and the lock text outlived an unlock. Since
+  2026-09-30 it is `state.verdictTextFromRun`, set when a run starts and
+  cleared on lock, like this one.)*
 
   **A second, latent bug in the same function went with it:** the sync also
   reassigned `el.recsTrigger.disabled` unconditionally, so adding a film from
@@ -3867,7 +3893,9 @@ stays the portrait overhaul.
      The run's `finally` now re-asserts `verdictLocked()`. **Deliberately NOT
      by calling `syncVerdictAvailability()`**, which also writes
      `.verdict__text` and would overwrite the error message on the failure
-     path — the exact shape of bug R1.
+     path — the exact shape of bug R1. *(Since 2026-09-30 the sync leaves a
+     banner a run owns alone, so that overwrite would now happen only when the
+     feature locked mid-request.)*
 
   `verdictLocked()` exists so the threshold rule has ONE definition with two
   callers; an approximation of a rule goes stale the moment the rule changes
@@ -3922,7 +3950,7 @@ stays the portrait overhaul.
 
 ##### Step 5 — the portrait overhaul
 
-**Complete overhaul of the portrait view under 500px — DONE, CLOSED BY THE
+**Complete overhaul of the portrait view at 500px and below — DONE, CLOSED BY THE
 USER 2026-09-12. Do not reopen it, and do not go hunting for more
 narrow-width work: the user has declared the target met.**
 
@@ -3944,7 +3972,7 @@ below; the search-results panel's height cap became a FLOOR rather than a
 second ceiling; mid-word title breaks hyphenate via `Intl.Segmenter` soft
 hyphens instead of breaking raw (D-060/D-061); the AI call log's card-view
 labels stopped misaligning when they wrap; and the toast got a real
-box-shadow, content-aware widening below 700/500px, and a genuine centering
+box-shadow, content-aware widening at 700/500px and below, and a genuine centering
 fix (D-062). **R18 was closed inside this step as won't-fix on measurement
 (D-063)**, which also closed step 2.
 
@@ -4976,7 +5004,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 * Keep TMDB calls and OpenRouter calls in separate service modules — never inline `fetch()` calls directly inside route handlers.
 * All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) — never hand-built SQL strings.
 * The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file — each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
-* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation_logs` or `taste_verdict_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
+* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation_logs` or `taste_verdict_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. If the insert itself fails, the run is discarded and the cause goes to stderr (R5). The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
 * Do not add authentication/multi-user support unless explicitly asked — SPEC.md marks this as v1 out-of-scope.
 
 

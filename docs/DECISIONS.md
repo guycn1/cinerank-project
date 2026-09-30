@@ -859,6 +859,10 @@ recorded `claude-haiku-4.5` while the call that actually failed was
 `claude-sonnet-5`. Successful rows were always correct, because they read the
 model back out of OpenRouter's own response.
 
+> **2026-09-30:** That holds while the response names its model. A reply
+> without the field fell back to the app-wide model on the success path too;
+> `chat()` now falls back to the model the call requested.
+
 That left a handful of wrong rows already in `taste_verdict_logs`.
 
 ### The disagreement, which is the content of this entry
@@ -1953,10 +1957,10 @@ cost estimate was for a different, harder problem (finding WHERE text overflows)
 that this approach never needs to solve.
 
 **As shipped:** `softHyphenate()` in [`app.js`](../public/app.js) runs unconditionally over
-titles, reviews and AI-reason text, with no viewport check inside it at all.
-CSS alone gates whether the embedded soft hyphens are ever honoured: below
-400px (originally 399px — see the addendum) they are; at 400px and above,
-`hyphens: none` suppresses them completely. `hyphens: auto` is removed
+titles, reviews, AI-reason text and the verdict, with no viewport check inside
+it at all. CSS alone gates whether the embedded soft hyphens are ever honoured:
+at 400px and below (originally below 400px — see the addendum) they are; above
+400px, `hyphens: none` suppresses them completely. `hyphens: auto` is removed
 entirely — it added nothing once every position already has a soft-hyphen
 opportunity, and it was the one carrying the dictionary dependency that
 caused the original gap.

@@ -104,11 +104,15 @@ const state = {
   // error) rather than to the availability sync? Without this,
   // syncRecommendationsAvailability() reassigned that element unconditionally
   // and wiped every one of those in the same tick they were written — the run's
-  // own `finally` calls the sync (backlog R1). The verdict solves the identical
-  // problem with `el.verdict.dataset.generated`; this is the same guard, kept on
-  // `state` because the hint is one long-lived element with two owners, not a
-  // node that gets rebuilt.
+  // own `finally` calls the sync (backlog R1). `verdictTextFromRun` below is
+  // the same guard for the verdict banner.
   recsHintFromRun: false,
+  // Does #verdict-text currently belong to a RUN (the busy line, the verdict, or
+  // its failure message) rather than to syncVerdictAvailability()? Set when a
+  // run STARTS, so an add or rate landing mid-request cannot replace the busy
+  // line with the idle placeholder, and cleared when the feature locks, so the
+  // idle placeholder returns once it unlocks again.
+  verdictTextFromRun: false,
 };
 
 /* ---------- helpers ------------------------------------------------------- */
@@ -387,7 +391,7 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
   // The label goes in a span rather than a bare text node so a narrow
   // breakpoint can hide it and leave the spinner standing alone (see the
-  // icon-only Search button under 500px).
+  // icon-only Search button at 500px and below).
   const busy = document.createElement('span');
   busy.className = 'busy-label';
   // NON-BREAKING space, so the spinner can never be orphaned from its word.
@@ -1676,10 +1680,10 @@ function setRecsHint(content, { caption = false } = {}) {
  * run, a successful run and a page that had never run looked identical apart
  * from the cards (R1).
  *
- * The guard is the one `syncVerdictAvailability()` already uses, ported rather
- * than reinvented: below the threshold the availability text always wins — the
+ * The guard: below the threshold the availability text always wins — the
  * section is unavailable, so whatever a past run said about it is moot — and
  * above it, the idle hint is only written when no run owns the element.
+ * `syncVerdictAvailability()` guards the verdict banner the same way.
  */
 function syncRecommendationsAvailability() {
   const need = state.cfg.minRatedForRecommendations;
@@ -2246,9 +2250,11 @@ function verdictLocked() {
 
 /**
  * Keep "New verdict" and the banner's placeholder in step with how many films
- * are rated. Below the threshold the button is disabled and the banner says
- * what it needs; above it, the idle placeholder is written only when no verdict
- * has been generated yet, so a real verdict is never overwritten.
+ * are rated. Below the threshold the button is disabled, the banner says what
+ * it needs, and the banner is handed back to this function; above it, the idle
+ * placeholder is written only when no run owns the banner
+ * (`state.verdictTextFromRun`), so a run's busy line, verdict and failure
+ * message are never overwritten.
  */
 function syncVerdictAvailability() {
   const need = state.cfg.minRatedForVerdict;
@@ -2284,10 +2290,11 @@ function syncVerdictAvailability() {
   }
 
   if (locked) {
+    state.verdictTextFromRun = false; // availability takes the banner back
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
     setVerdictText(`Rate at least ${need} movies to get a verdict (you have ${have}).`);
-  } else if (!el.verdict.dataset.generated) {
+  } else if (!state.verdictTextFromRun) {
     el.verdictText.classList.add('is-muted');
     setVerdictText('Tap “New verdict” for an AI-generated read on your taste.');
   }
@@ -2295,6 +2302,8 @@ function syncVerdictAvailability() {
 
 el.verdictRefresh.addEventListener('click', async () => {
   const restoreRefresh = busyButton(el.verdictRefresh);
+  // From here until the feature next locks, the banner belongs to this run.
+  state.verdictTextFromRun = true;
   setSheenRate(SHEEN_BUSY_RATE); // the ring becomes the progress cue
   clearVerdictMeta(); // the old footer describes the previous call
   el.verdictText.classList.add('is-muted');
@@ -2303,7 +2312,9 @@ el.verdictRefresh.addEventListener('click', async () => {
     const { verdict, meta } = await api('/api/taste-verdict', { method: 'POST' });
     el.verdictText.classList.remove('is-muted');
     setVerdictText(verdict, { typed: true }); // the one case this item is about
-    el.verdict.dataset.generated = '1';
+    // Again, because removing films mid-request can lock the feature and clear
+    // the flag; the verdict now on screen still belongs to this run.
+    state.verdictTextFromRun = true;
     el.verdict.querySelector('.verdict__inner').append(aiMetaFooter(meta));
   } catch (err) {
     el.verdictText.classList.add('is-muted');
@@ -2337,9 +2348,9 @@ el.verdictRefresh.addEventListener('click', async () => {
     // locked feature. (The old code survived this by accident: it wrote
     // `hidden` unconditionally, so the button simply stayed gone.)
     // NOT `syncVerdictAvailability()`, deliberately: that also writes
-    // `.verdict__text`, so on the failure path it would overwrite the error
-    // message we just put there with the idle placeholder -- the exact shape of
-    // bug R1. Re-assert the one thing the guard skipped, nothing else.
+    // `.verdict__text`, so if the count fell below the threshold mid-request it
+    // would replace the verdict or error message just shown with the lock text.
+    // Re-assert the one thing the guard skipped, nothing else.
     el.verdictRefresh.disabled = verdictLocked();
   }
 });
@@ -2480,7 +2491,7 @@ window.addEventListener('resize', () => {
     //   - only for panels that are themselves OPEN. A closed one must keep its
     //     side so it fades out in place (see the toggle handler).
     // At most one can be open — they share a `name` — so this is one element.
-    // Inert below 850px, where the panel is `position: static` and the carets
+    // Inert at 850px and below, where the panel is `position: static` and the carets
     // are `display: none`.
     if (el.logDialog.open) {
       document.querySelectorAll('.log-reveal[open]').forEach((d) => d.repositionPanel?.());
