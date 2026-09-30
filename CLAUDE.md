@@ -69,11 +69,13 @@ history also needs a thirtieth entry). Re-grep for new sites.
 (2) The merge count goes 29 → 30 in this file's Build status, `docs/PROCESS.md`
 § 1 and `docs/MERGE-READINESS.md` § 5.
 
-(3) Re-count the commits with `git rev-list --count draft` and check the two
-figures that state it: `docs/MERGE-READINESS.md` § 4 ("six hundred–odd") and
-the Execution row in `docs/PROCESS.md` ("more than 600 … (measured
-2026-09-29)"). Both held at 677 on 2026-09-30; change them only if the count
-has crossed a figure they name, and re-grep for new sites.
+(3) The commit figures count `main`, and already say "over 700":
+`docs/MERGE-READINESS.md` § 4, and in `docs/PROCESS.md` the Execution row and
+§ 1's measurement (both "measured 2026-10-01"). `main` held 626 on 2026-10-01,
+and the merge brings in the 80-odd commits `draft` has beyond it, so the figure
+becomes true with the merge itself.
+Confirm it after merging with `git rev-list --count main`, and re-grep for new
+sites.
 
 **(4) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
 commit, before the merge, so that `main` never carries it as an open to-do.**
@@ -92,6 +94,36 @@ shown. The dead grid declarations are gone and the row separators stay; a
 layout diff against the previous stylesheet moved nothing in Chrome or Firefox
 at any width from 280px to 800px. The stylesheet comments and the Search
 section now describe the flex stacking as the layout at every width.
+
+**Then a sweep of every tracked file for claims that contradict each other**, or
+the code, the tests or `git log`. Corrected:
+- **What the tests and the code do.**
+  - `docs/ACCEPTANCE.md` said the verdict success-row test asserts `model_used`
+    as `claude-sonnet-5`. It asserts the reported model, which the stub makes
+    `claude-sonnet-4.5` on purpose, and that the request asks for
+    `claude-sonnet-5`.
+  - The verdict's logged-failure link is a `logLink()` button, not an `<a>`.
+- **The Supabase key.** Several documents said the frontend uses the anon key.
+  The server holds it, and the browser never talks to Supabase.
+- **`.env` and the first commit.** `.env` did not exist in the first commit, a
+  one-line README the user checked by hand, so SPEC § 7.1's criterion is met in
+  full.
+- **`SPEC.md`'s spiral turns** now list three non-overlapping commit ranges.
+  Turn 3 had counted two of Turn 2's merges.
+- **Wording:**
+  - "Fury Road" broke a letter or two in, not one.
+  - The v6 prompt added a second rejected example, not a third.
+  - The glint's five passes are four failures and the fix.
+  - The two AI features fail in the same shape, not the same words.
+- **Rules applied across the tree:**
+  - The R5 exception to "every call is logged" is stated wherever that claim
+    is made, outside the UI copy.
+  - UI text quoted in the docs uses the UI's curly quotes.
+  - The commit figures count `main` and read "over 700", which the 30th merge
+    makes true.
+- **Dropped:**
+  - Counts of the automatic-minimum-size bugs, now named by example.
+  - Claims about whether the spec or the first build came first.
 
 #### 2026-09-30
 
@@ -224,7 +256,7 @@ less the 50.9px of `TMDB 7.1`, re-measured at the unscaled root), and the
 stylesheet's "three different badge right edges" (two, as D-076 records); the
 prompt-side growth behind the injection evidence (81 tokens, 1,466 against
 1,385, the film's whole line); SPEC.md's plain-text escapes (48 on 37 lines,
-not 24); `SPEC.md`'s turn 3 count (77 commits, both ends included); and the
+not 24); `SPEC.md`'s turn 3 commit count; and the
 `rs-15` log capture's description (eleven rows in view, three discussed). The
 AI call log's token-split comments now describe the footer against the body
 without example figures that drift, the 57-case proof of `check-markdown` is
@@ -337,8 +369,8 @@ stood; the stylesheet comment and the entry under Open issues now carry the
 measured figures.
 
 **Same day: soft hyphens only inside long words (D-080).** `softHyphenate()` put
-one between EVERY pair of graphemes, so a short word at a line's end broke one
-letter in ("Fury Ro|ad" at 360px). It now hyphenates only words of 7+ graphemes,
+one between EVERY pair of graphemes, so a short word at a line's end broke a
+letter or two in ("Fury Ro|ad" at 360px). It now hyphenates only words of 7+ graphemes,
 never within 3 of an end. **`hyphenate-limit-chars` was tested first, at the
 user's request, and does not apply to soft hyphens** in Chrome, Edge or Firefox.
 Firefox honours it for `hyphens: auto` only, so do not reach for it. **The
@@ -935,8 +967,9 @@ carries the current state.
   fails is discarded, with the cause sent to stderr — R5); `GET /api/ai-log`
   merges both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from the first commit carrying any project
-  content (`103c4be`; the root commit is a one-line README, so there was nothing
-  for a secret to be in — `docs/ACCEPTANCE.md` criterion 8 walks it), and it has
+  content (`103c4be`; the root commit is a one-line README with no `.env` in it,
+  checked by hand by the user — `docs/ACCEPTANCE.md` criterion 8 walks it, and
+  the criterion is met), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
 * Tests: `npm test` (Node built-in runner, 62 tests). Pure helpers
@@ -1433,9 +1466,9 @@ further is scheduled for this section.
   minimum size resolves to min-content and an input's min-content is its
   INTRINSIC size — roughly the 20 characters of its default `size` attribute,
   not its text. So the input refused to shrink, the row overflowed, and the
-  button (correctly `flex-shrink: 0`) was pushed out of view. **Three
-  consecutive bugs, one root cause:** this, the add button, and the ranked
-  card's blown-out `1fr` track (D-045) are all the automatic minimum size of a
+  button (correctly `flex-shrink: 0`) was pushed out of view. **One
+  root cause behind several bugs:** this, the add button and the ranked
+  card's blown-out `1fr` track (D-045), for example, are all the automatic minimum size of a
   flex or grid item. When something will not shrink, look there first.
 
   **Two sweep findings were examined and DELIBERATELY NOT FIXED.** They were
@@ -2175,9 +2208,8 @@ status is further down this section. What landed:
   The same sweep found the gap that left: **`.rec-card` itself is the grid
   item and never carried `min-width: 0`**, so a poster's intrinsic width (TMDB
   serves w342) could push the track open and give a phone a horizontal
-  scrollbar. Fixed. **Fifth appearance of one root cause** — the search input,
-  the add button, the ranked card's `1fr` track, `.recs__trigger`, and now
-  this. When something will not shrink, look at the automatic minimum size
+  scrollbar. Fixed. **The same root cause again** — as with the search input,
+  the add button and the ranked card's `1fr` track, among others. When something will not shrink, look at the automatic minimum size
   first.
 
 - **Equal ratings now read oldest-first** (off-backlog, user-raised
@@ -2551,8 +2583,8 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   two lines. Now both. The HEADING absorbs the pressure instead, which it
   can, because it wraps.
 
-  **Fourth appearance of one root cause** — this, the add button, the search
-  input, and the ranked card's blown-out `1fr` track (D-045). When something
+  **The same root cause** as, for example, the add button, the search input and
+  the ranked card's blown-out `1fr` track (D-045). When something
   will not shrink, or shrinks when it should not, look at the automatic
   minimum size first.
 
@@ -3441,8 +3473,9 @@ logo mark, and then grew 1.5x (below).
 at 1/1, the tagline at 1/2, and the link spanning BOTH rows in column 2 so it
 centres against the block rather than against either line. Every placement is
 explicit: auto-placement gives the same result today and would move the day a
-third element joins the header. `minmax(0, 1fr)` and not `1fr` for the reason
-this project has now hit six times — `1fr` is `minmax(auto, 1fr)`, and that
+third element joins the header. `minmax(0, 1fr)` and not `1fr` for a reason
+this project has hit before (the search input, the add button and the ranked
+card's track, for example) — `1fr` is `minmax(auto, 1fr)`, and that
 automatic minimum would let a long tagline word push the icon off the edge
 instead of wrapping.
 
@@ -3709,7 +3742,7 @@ stays the portrait overhaul.
 
   **One call site deliberately bypasses the helper**, and says so at the
   point it does: the verdict's `err.logged` failure builds a link (text +
-  `<a>` + text), not a single string, so there is nothing plausible to type.
+  a `logLink()` button + text), not a single string, so there is nothing plausible to type.
   Pace: 18ms/char, tuned by the user's eye — 15ms was tried and reverted, the
   user preferring the slower read. Full reasoning, including the pure-CSS
   reveal that was considered and rejected, is D-057.
@@ -3898,10 +3931,10 @@ stays the portrait overhaul.
   `.movie-card.is-entering` WAS `fade-slide 0.45s var(--ease) backwards`, a
   10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`. **`--ease`
   was the main culprit, exactly as it was for the rec-card exit.** It is
-  `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
+  `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: ~6px of the 10 was
   already gone by 45ms, and the card was within 1px of home after **~168ms of
   a ~450ms animation**. So a 10px move effectively happened in a sixth of a
-  second, and the remaining 280ms was the card sitting still.
+  second, and the remaining ~280ms was the card sitting still.
 
   **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on
   a list of twenty the last dozen all started within the same frame — no
@@ -3942,7 +3975,7 @@ stays the portrait overhaul.
 
   **Measured before and after rather than judged by eye:** the card used to
   be within 1px of home after ~169ms of ~450ms — **~38% of the animation, ~62% of
-  it sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
+  it sitting still** — and now reaches that at ~440ms of 600ms, **~73%**. That
   ratio, not the travel distance, is what "barely visible" actually meant.
 
   The cap stays and had to, since the list is unbounded: it bites at card 10
@@ -5242,7 +5275,7 @@ it.
 
 1. **Never write a secret into source code.** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TMDB_API_KEY`, and `OPENROUTER_API_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
 2. **Never build a database query by concatenating strings.** Use the Supabase JS client's query builder for all reads/writes.
-3. **Frontend uses only the Supabase anon key, never the service role key.** This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) — the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
+3. **The app uses only the Supabase anon key, never the service role key.** The server holds it, and the browser never receives it: the frontend talks only to this app's own API. This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) — the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
 4. **Escape/encode any user-provided text before rendering it in the DOM** (movie reviews especially — this is free-text user input) to prevent stored XSS.
 5. **Prompt injection awareness:** the user's own review text is included in **both** AI prompts as taste signal (SPEC.md §2.2, §2.3). This is untrusted input flowing into a prompt. Mitigations:
 
@@ -5260,7 +5293,7 @@ real. Read it before changing anything here.
 
 ### Security \& Scope (why no accounts ≠ no security story)
 
-This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the frontend key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
+This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the app's database key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
 
 
 ## Decision Logging (non-negotiable)

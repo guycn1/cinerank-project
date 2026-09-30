@@ -54,7 +54,7 @@ whether the criterion is met — all eight read satisfied.
 | 5 | A full recommendation run: logged row, verified posters | **yes** | Automated + captured |
 | 6 | Verdict disabled below 2 rated films, logged row | **yes** | Automated + captured |
 | 7 | TMDB and OpenRouter killed independently, graceful each time | **yes** | Automated + [`RS-1` … `RS-5`](RESILIENCE.md) |
-| 8 | `.env` gitignored from commit 1, no key in history | **yes** | Repeatable commands + captured |
+| 8 | `.env` excluded from the first commit, no key in history | **yes** | Repeatable commands + captured |
 
 *(While this document was being assembled, a criterion could read “not yet”,
 meaning nobody had gathered its evidence rather than that it failed. None does
@@ -456,8 +456,14 @@ are the same figures in the audit trail.
   half, asserting the status and that the message names the requirement.
 * **"POST /api/taste-verdict logs a success row with real token and cost data"** —
   the logged half. `status: success`, no error, the stored verdict text, the cost
-  from OpenRouter’s `usage.cost`, the token count, `taste_verdict_v7`, and
-  `model_used` as `claude-sonnet-5`.
+  from OpenRouter’s `usage.cost`, the token count and `taste_verdict_v7`. It
+  also checks the model on both sides of the call: the request asks for the
+  verdict’s own model, `claude-sonnet-5`
+  ([`D-053`](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)),
+  and `model_used` records the model OpenRouter reports having served it. The
+  stub reports `claude-sonnet-4.5` on purpose, a model different from the one
+  requested, so a row that logged the configured name instead of the reported
+  one would fail.
 
 **That second test was written on 2026-09-13 while assembling this entry, because
 it did not exist.** Every `taste_verdict_logs` assertion in the suite was a failure
@@ -465,7 +471,7 @@ path. The one verdict behaviour this criterion names was the one nothing checked
 Verified load-bearing: making the service ignore OpenRouter’s reported cost and
 fall back to the estimate table fails it.
 
-Its `model_used` assertion also closes the other half of
+Its `model_used` assertion also covers the other half of
 [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
 where a **failed** verdict recorded the app-wide model instead of the one it
 called. Both halves of that column are now pinned.
@@ -510,8 +516,10 @@ AI call log](screenshots/rs-5-openrouter-down-verdict.png)
 
 This is the criterion’s explicit sub-clause — *"this includes the banner falling
 back gracefully, not breaking the whole Home page"*. The banner reports the failure
-in the **same words** the recommendations section uses, and the page around it is
-untouched.
+in the **same shape** the recommendations section uses — *“Couldn’t come up with a
+verdict right now. See the AI call log for details.”* beside *“Couldn’t generate
+recommendations right now. See the AI call log for details.”* — and the page around
+it is untouched.
 
 ### Automated
 
@@ -580,7 +588,9 @@ single added line](screenshots/ac-8-first-commit.png)
 changed**, [`README.md`](../README.md), **one line added**: `# cinerank-project`.
 
 That is GitHub’s repository-creation commit. It contains no code, no configuration
-and no `.env`. **There was nothing there for a secret to be in.**
+and no `.env`: **`.env` did not exist in the first commit, and there was nothing
+there for a secret to be in.** The user checked it by hand and confirmed it holds
+no secret.
 
 [`.gitignore`](../.gitignore) arrives in the very next commit, `103c4be`, with
 `.env` on its second line and [`.env.example`](../.env.example) alongside it —
@@ -593,9 +603,11 @@ the first commit that contains any project content at all:
 *.local
 ```
 
-**So the criterion reads cleanly**: from the first commit onward, `.env` is
-excluded and no key is present. The root commit needs no exemption from the scans
-above — it passes them, because it holds a single line of README.
+**So the criterion is met in full**: from the first commit onward, `.env` is
+excluded and no key is present — absent from the first commit, which the user
+checked by hand, and ignored from the second, the first with any project content,
+onward. The root commit needs no exemption from the scans above — it passes them,
+because it holds a single line of README.
 
 ### Ongoing enforcement
 
@@ -611,5 +623,5 @@ check-claims`.
 
 **Satisfied.** `.env` has never been tracked in any commit, no key-shaped string
 exists in any blob in any commit, the root commit is shown to have held a single
-line of README, and the ignore rule has been in place since the first commit that
-contained anything to ignore.
+line of README and was checked by hand by the user, and the ignore rule has been
+in place since the first commit that contained anything to ignore.

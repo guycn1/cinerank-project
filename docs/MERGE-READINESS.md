@@ -263,7 +263,7 @@ fires is the thing this document exists to rule out.
   undone.
 * **[`docs/SECURITY.md`](SECURITY.md)** — all ten OWASP agentic risks, including
   the ones that do not apply and why.
-* **Commit messages** explain *why*, not just what — across six hundred–odd
+* **Commit messages** explain *why*, not just what — across over 700
   commits (`git rev-list --count main` for the exact figure; a number that moves
   every commit is not written into a document).
 

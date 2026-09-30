@@ -1,7 +1,8 @@
 /**
  * The recommendations feature (SPEC § 2.2): build a taste profile from the top
  * rated films, ask the model for picks, verify every pick against TMDB, drop
- * what the user already has, and log the call whether it succeeds or fails.
+ * what the user already has, and log the call whether it succeeds or fails. A
+ * run whose log write fails is discarded, with its cause sent to stderr.
  *
  * @module server/services/recommendations
  */

@@ -1,6 +1,7 @@
 /**
  * The taste-verdict feature (SPEC § 2.3): a short plain-text read of the
- * user's taste across every rated film, logged whether it succeeds or fails.
+ * user's taste across every rated film, logged whether it succeeds or fails. A
+ * verdict whose log write fails is discarded, with its cause sent to stderr.
  * It is the one call in the app that runs off the app-wide model (D-053).
  *
  * @module server/services/tasteVerdict

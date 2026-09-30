@@ -23,12 +23,12 @@ A personal movie-ranking app where the database and the AI each earn their place
   success/failure, estimated cost (a run whose row cannot be written is
   discarded rather than shown). Viewable in-app via the ["AI call
   log"](#every-ai-call-whether-it-worked-or-not) button in the footer.
-- **The AI** (via OpenRouter) has one narrow job — narrow in *scope*, not in
-  effort. From your top-rated films and the reviews you wrote about them it
-  infers what you actually respond to, names films you have not added, and
-  writes a reason per pick in second person that points at a specific film you
-  rated or a pattern across your ratings — one sentence, 8–16 words, no plot
-  summary. And it is **never trusted for facts**. Every suggested title is
+- **The AI** (via OpenRouter) is kept narrow — narrow in *scope*, not in
+  effort. For recommendations it reads your top-rated films and the reviews
+  you wrote about them, infers what you actually respond to, names films you
+  have not added, and writes a reason per pick in second person that points at
+  a specific film you rated or a pattern across your ratings — one sentence,
+  8–16 words, no plot summary. And it is **never trusted for facts**. Every suggested title is
   cross-checked against TMDB, which supplies the real poster, year and overview;
   a title TMDB has never heard of is dropped rather than shown as a broken card.
 - **A Taste Verdict banner** sizes you up as a moviegoer in two or three teasing
@@ -204,7 +204,8 @@ input paired with each output. Full analysis in
 status](docs/screenshots/readme-3-ai-call-log.png)
 
 Prompt version, model, token split, duration, status and estimated cost, for both
-features and both models. **The red row is a real failure with its real cause** —
+features and both models; a run whose row cannot be written is discarded rather
+than shown. **The red row is a real failure with its real cause** —
 the calm sentence the user saw is not this text. Keeping that row is the point: a
 thin wrapper around an API does not maintain an audit trail of its own failures.
 
@@ -430,11 +431,12 @@ ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, 
 against the product and once against the agentic development environment that
 built it, including the ones that do not apply and why. The short version:
 
-- `.env` is gitignored from the second commit, the first with any project
-  content; the root commit, a one-line README, was checked by hand and holds no
-  secret. [`npm run
+- `.env` did not exist in the first commit, a one-line README that the user
+  checked by hand and that holds no secret, and it is gitignored from the second
+  commit, the first with any project content, onward. [`npm run
   scan-secrets`](scripts/scan-secrets.js) checks staged diffs.
-- Frontend uses the Supabase **anon key** only — least privilege, RLS-bounded.
+- The server uses the Supabase **anon key** only — least privilege,
+  RLS-bounded — and the browser never receives it.
 - User review text feeds both prompts as *untrusted data*, clearly delimited;
   the recommendation model's output only ever drives a TMDB title lookup, so the
   blast radius of a successful prompt injection is "a weird suggestion", not

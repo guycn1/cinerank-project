@@ -245,9 +245,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    auto-placement would happen to produce the same result today and would move
    the day a third element joins the header.
    `minmax(0, 1fr)` on the text column, not `1fr`: `1fr` is `minmax(auto, 1fr)`,
-   and that automatic minimum is the root cause behind five earlier shrink bugs
-   in this project (the search input, the add button, the ranked card's track,
-   .recs__trigger, .rec-card). Here it would let a long word in the
+   and that automatic minimum is the root cause behind earlier shrink bugs in
+   this project — the search input, the add button and the ranked card's
+   track, for example. Here it would let a long word in the
    tagline push the icon off the right edge instead of wrapping. */
 .site-head {
   max-width: var(--page-max);
@@ -484,11 +484,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   padding: 2.5px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  /* Step 4b's mechanism took five passes on 2026-09-11, and the first four
-     failed. Keeping the dead ends because every one of them was a plausible
-     fix that measurably improved something and still failed — and because two
-     of them are impossible by construction, which is not obvious from the
-     rendered result.
+  /* Step 4b's mechanism took five passes on 2026-09-11: four failed, and the
+     fifth is .verdict__sheen below. Keeping the dead ends because every one of
+     them was a plausible fix that measurably improved something and still
+     failed — and because two of the shapes tried are impossible by
+     construction, which is not obvious from the rendered result.
      1. THE CURVE. `var(--ease)` applies to EACH keyframe interval, so both
         halves were front-loaded — 67% of the travel in the first 0.9s, the last
         2.7s covering 2%, the ring frozen for ~60% of every cycle. A real fault,
@@ -502,12 +502,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
         0.6 alpha and measured only 1.27x contrast over `--amber`, so it was
         invisible for much of its own journey. Contrast here is against the
         BASE, not the page.
-     4. A LINEAR GRADIENT CANNOT DO THIS AT ALL. The user's screenshot showed
-        TWO white bands, top edge and bottom. That is not bad stops — a linear
-        gradient paints a straight stripe across the whole box, and a straight
-        stripe crosses a rectangular ring in two places at once. Passes 1-3 were
-        refining something structurally incapable of the effect.
-     5. NOR CAN A CONIC ONE, on a box this wide. A conic varies by ANGLE, and
+     BEHIND ALL THREE: A LINEAR GRADIENT CANNOT DO THIS AT ALL. The user's
+     screenshot showed TWO white bands, top edge and bottom. That is not bad
+     stops — a linear gradient paints a straight stripe across the whole box,
+     and a straight stripe crosses a rectangular ring in two places at once.
+     Passes 1-3 were refining something structurally incapable of the effect.
+     4. NOR CAN A CONIC ONE, on a box this wide. A conic varies by ANGLE, and
         angle maps to arc length terribly on a 14:1 rectangle: along the top
         edge `dx/dtheta = h + x^2/h`, which is 0.61px/deg at the middle of the
         edge and 125px/deg at the corner — a 200x swing. So the band was narrow
@@ -904,8 +904,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .search { display: flex; gap: 0.6rem; }
 .search input {
   flex: 1;
-  /* `flex: 1` alone is NOT enough, and this is the third appearance of one root
-     cause in as many fixes. A flex item's automatic minimum size is
+  /* `flex: 1` alone is NOT enough, and the root cause is one this project has
+     met more than once. A flex item's automatic minimum size is
      `min-width: auto`, which resolves to min-content — and for an `<input>`
      min-content is not its text but its intrinsic size, roughly the 20
      characters of its default `size` attribute. So the input silently refused
@@ -1292,11 +1292,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    measured before anything was changed, because the mechanism was never the
    problem.
    1. THE CURVE, which was most of it. `var(--ease)` is
-      `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: 67% of the
+      `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: ~67% of the
       way by t=0.2 and within 1px of home after ~168ms of a ~450ms animation. So a
       10px move happened in a sixth of a second and the card then sat still for
-      280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
-      spreads the same distance across 73% of the duration instead of ~37%.
+      ~280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — ~37% by t=0.2 —
+      which spreads the same distance across ~73% of the duration instead of
+      ~37%.
       DELIBERATELY OFF `--ease`: `--ease` is built for arrivals that should
       feel instant, and an entrance you are meant to WATCH is a different job.
    2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
@@ -1976,8 +1977,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      wrapping. `flex-shrink: 0` makes the HEADING absorb the pressure — it can,
      because it wraps — and `white-space: nowrap` stops the label breaking even if
      some later layout does squeeze it.
-     Fourth appearance of one root cause: this, the add button, the search input,
-     and the ranked card’s blown-out `1fr` track (D-045). When something will not
+     The same root cause as, for example, the add button, the search input and the
+     ranked card’s blown-out `1fr` track (D-045). When something will not
      shrink, or shrinks when it should not, look at the automatic minimum size.
      The glyph/line-break rule in CLAUDE.md § Frontend Design Notes covers this
      label like every other. The user had exempted it, and lifted the exemption
@@ -2216,7 +2217,7 @@ button:disabled .sparkle-major { animation: none; }
      single half-width track. Spelling the end out keeps the span whatever the
      start becomes. */
   grid-column: auto / span 2;
-  /* THE FIFTH APPEARANCE of the automatic minimum size, and this one is a
+  /* THE AUTOMATIC MINIMUM SIZE AGAIN, and this time it is a
      regression the D-050 grid rewrite introduced — caught in the 2026-09-09
      staleness sweep, not by a user.
      The tracks used to be `minmax(190px, 1fr)`, whose FIXED minimum floors the

@@ -194,13 +194,16 @@ not as advice.
 
 *Agents inherit or escalate high-privilege credentials.*
 
-The frontend and server use the Supabase **anon key only**, which is
-RLS-bounded. Verified rather than asserted: `service_role` appears nowhere in
-the codebase except in comments forbidding its use, and in the pattern
+The application reaches Supabase with the **anon key only**, which is
+RLS-bounded, and it holds that key on the server: the browser talks only to this
+application's own API, so no Supabase credential ever reaches it. Verified
+rather than asserted: `service_role` appears nowhere in the codebase except in
+comments forbidding its use, and in the pattern
 [`scripts/scan-secrets.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/scan-secrets.js)
-uses to hunt for one. `.env` has been gitignored since the second commit, the
-first with any project content; the root commit, a one-line README, was checked
-by hand and holds no secret. `npm run scan-secrets` runs before every commit.
+uses to hunt for one. `.env` did not exist in the first commit, a one-line
+README that the user checked by hand and that holds no secret, and it has been
+gitignored since the second commit, the first with any project content.
+`npm run scan-secrets` runs before every commit.
 
 **Least privilege here means there is no higher-privilege credential to escalate
 to.** That is a deliberate design position, argued in

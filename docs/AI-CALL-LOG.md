@@ -79,8 +79,9 @@ states the figure. The blurb and the footer panel that opens the dialog both
 claimed every call until 2026-09-13 — the blurb "every OpenRouter call CineRank
 has made" (from `b3e3446`), the panel "Every OpenRouter call" (from
 `38ca76d`) — which stopped being true the day the cap first bit. The panel now
-says every call is *logged*, a claim about persistence that no cap touches;
-see
+says every call is *logged*, a claim about persistence that no cap touches (a
+run whose log write fails is discarded rather than shown, with its cause sent
+to the server's stderr); see
 [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 
 ### What the route sends structured, and why it matters

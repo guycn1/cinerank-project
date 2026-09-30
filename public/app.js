@@ -239,7 +239,7 @@ const TOAST_SINGLE_LINE_MAX = 630;
  * specified and `width: auto`, the box model stops being shrink-to-fit
  * entirely and instead stretches to fill the whole (enormous, since one edge
  * sits off-screen) gap between them -- which is why a short toast like
- * `"Hairspray" saved.` was measured as needing 400px+ and misclassified as
+ * `“Hairspray” saved.` was measured as needing 400px+ and misclassified as
  * long the moment D-062 landed. Every property the class's positioning could
  * plausibly use is now explicitly neutralised here, not just the ones it
  * happened to use at the time this was written -- so a future change to how
@@ -388,8 +388,8 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   const label = [...btn.childNodes]; // keep the nodes — a label may be wrapped in a <span>
   btn.disabled = true;
   btn.setAttribute('aria-busy', 'true');
-  // Lock the current width first: the busy label is usually shorter, so without
-  // this the button visibly shrinks. Measured rather than a hardcoded min-width,
+  // Lock the current width first, so a shorter busy label cannot visibly shrink
+  // the button. Measured rather than a hardcoded min-width,
   // so it follows the label, font and padding automatically.
   // (`* { box-sizing: border-box }` means min-width and rect.width agree.)
   btn.style.minWidth = `${btn.getBoundingClientRect().width}px`;
@@ -616,7 +616,7 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * Line breaking is greedy: the browser takes the LAST break opportunity that
  * fits, and a soft hyphen counts exactly as much as a space.
  * With one between every pair, a four-letter word at the end of a line broke
- * one letter in ("Fury R-oad" at 360px) wherever that fitted and the space
+ * a letter or two in ("Fury Ro-ad" at 360px) wherever that fitted and the space
  * before it did too. Real hyphenation has minimums for exactly this reason.
  * `hyphenate-limit-chars` expresses the same minimums in CSS and was measured
  * first: Chromium and Firefox both parse it and both ignore it for soft
@@ -1610,7 +1610,7 @@ async function removeMovie(movie, btn) {
   // Name what actually goes with it. Incident 1 is the reason this is spelled
   // out rather than left to "are you sure?": a rating and a review are typed
   // once and gone for good — the free tier has no point-in-time recovery, so
-  // "this can't be undone" is literal, not boilerplate.
+  // "this can’t be undone" is literal, not boilerplate.
   // Built from what this film really has, never assumed: a film can be rated
   // with no review, or not rated at all. (A review with no rating cannot exist:
   // migration 004 forbids it — backlog #15, D-041.) Promising to delete a review
@@ -2089,7 +2089,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     // The same three dataset stamps a search row carries, so this button is
     // findable by syncAddButtons() (R3) and so a failed add can name its film in
     // the toast (R4) — addMovie()'s catch reads dataset.title, and without it a
-    // rec-card failure fell back to "Couldn't add that film" while the identical
+    // rec-card failure fell back to "Couldn’t add that film" while the identical
     // failure from a search row named it. `.add-btn` carries no styling here:
     // every rule for that class is scoped to `.result-row`.
     btn.className = 'add-btn';

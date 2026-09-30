@@ -66,22 +66,33 @@ was pinned. It is the more conservative unit, and it is used because three
 narratives are more legible than a list of merges. Neither reading is the
 authority over the other. The merges are the record; the three are the story.
 
+**The three turns do not overlap.** Each is a range of commits that ends at a
+merge to `main`, and the next turn starts with the first commit after that merge:
+
+| Turn | Commits | Commit points (merges to `main`) |
+|---|---|---|
+| 1 | from the root commit `a93326c` through `0525b8e` — 23 | `00932c2`, `4a6b183`, `0525b8e` |
+| 2 | after `0525b8e`, through `d47c960` — 401 | `49738c2` to `d47c960`, sixteen merges |
+| 3 | after `d47c960`, through `0cdc4ec` — 93 | `ba702c2` and `0cdc4ec` |
+
+*(Counted with `git rev-list --count` over each range, merges included: 23 + 401
++ 93 = 517, the whole history up to `0cdc4ec`.)*
+
 ### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
 
-Commit points: `aadaf18` to `0525b8e`.
+Commit points: `00932c2` to `0525b8e` — three merges to `main`.
 
 The first turn ran fast and end to end — schema and versioned prompts (`baab823`),
-the Express API with isolated service modules (`d5e9702`), then the frontend
-(`aee82b4`). This document and [`CLAUDE.md`](CLAUDE.md) were committed at `aadaf18`,
-**after** that first pass rather than before it: the turn was exploratory, and the
-spec pinned what it established. It closed at `0525b8e`, whose message reads
-"functionally complete against SPEC" — the stopping condition
-[§ 7.1](#71-must-pass-before-submission) defines had been reached.
+the Express API with isolated service modules (`d5e9702`), the frontend
+(`aee82b4`), and this document and [`CLAUDE.md`](CLAUDE.md) (`aadaf18`). It closed at
+`0525b8e`, whose message reads "functionally complete against SPEC" — the stopping
+condition [§ 7.1](#71-must-pass-before-submission) defines had been reached.
 
-### Turn 2 — the interface requirement emerged from use (2026-09-06 to 2026-09-12)
+### Turn 2 — the interface requirement emerged from use (2026-09-05 to 2026-09-12)
 
 Commit points: `49738c2` to `d47c960` — both of them merges to `main`, with
-fourteen more between them.
+fourteen more between them. The last, `d47c960`, is the merge that completed the
+front-end overhaul.
 
 [§ 3.2](#32-hierarchy) deliberately declined to prescribe the visual treatment,
 leaving layout, motion and typography to design judgement. Using the finished app is
@@ -105,12 +116,11 @@ was corrected and the code was left alone**
 
 ### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
-Commit points: `83a5da5` to `4ef7534`, both included — **77 commits** over three
-days, three of them merges to `main` made inside the turn, plus the merge that
-closed it.
+Commit points: `ba702c2` and `0cdc4ec` — **93 commits** over three days, from
+`d1aba00`, the first commit after `d47c960`, to `0cdc4ec`, the final planned
+merge, which pinned the turn.
 
-A staleness sweep across every markdown file and code comment (`83a5da5`) found
-claims that had quietly stopped being true. Following it, both this file and
+It opened on the documents themselves: both this file and
 [`CLAUDE.md`](CLAUDE.md) were found to be **rendering wrong on GitHub** — a fault
 invisible in the source and never caught by eye. That produced a new verification
 gate, `npm run check-markdown` (`d1dd505`), proved in both directions on 2026-09-13
@@ -149,7 +159,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 **CineRank adds a real reason to have a database and a real reason to call an LLM:**
 
 * The **database** doesn't just store movies — it tracks a growing taste profile (your rated movies + reviews) that gets read back later to ground AI recommendations, and it logs every AI recommendation ever generated (so recommendations are auditable, not throwaway). *(As built, a run whose log write fails is discarded rather than shown, and its cause goes to the server's stderr.)*
-* The **AI (OpenRouter)** isn't answering open questions — it has exactly one narrow job: given your top-rated movies, suggest similar movies you haven't added yet, with a short reason per pick. It's a small, well-scoped feature, not the engine of the app. *(Well-scoped is exactly right and stays. "Small" undersells what that one job turned out to involve: the run reads the whole list, infers a sensibility from the top five rated films AND the review text attached to them, excludes everything already in the list, and compresses the justification for each pick into one second-person sentence of 8–16 words that has to point at a specific rating or a pattern across them — see [`prompts/recommend_v3.md`](prompts/recommend_v3.md). The scoping claim was never the problem; the size adjective was.)*
+* The **AI (OpenRouter)** isn't answering open questions — it has exactly one narrow job: given your top-rated movies, suggest similar movies you haven't added yet, with a short reason per pick. It's a small, well-scoped feature, not the engine of the app. *(Well-scoped is exactly right and stays. "Small" undersells what that one job turned out to involve: the run reads the whole list, infers a sensibility from the top five rated films AND the review text attached to them, excludes everything already in the list, and compresses the justification for each pick into one second-person sentence of 8–16 words that has to point at a specific rating or a pattern across them — see [`prompts/recommend_v3.md`](prompts/recommend_v3.md). The scoping claim was never the problem; the size adjective was. The taste verdict of [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) is a second narrow call beside this one.)*
 * The **UI** should be genuinely polished and visually engaging — real typography, motion, and thoughtful visual hierarchy, not a generic default-component look. This project wants a fair amount of eye-candy; specific layout and visual choices are left open — see [§ 3](#3-interface-design-module-8) for priorities rather than a fixed look.
 
 **Out of scope for v1 (explicit exclusions):**
@@ -185,7 +195,7 @@ being silently extended.)*
   3. The model returns a **structured list** (title + one-sentence reason per suggestion) — not free-form prose the app has to parse with regex.
   4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms every card shows **a real film**: a title TMDB returns nothing for is dropped, and a near-miss resolves to TMDB's top result, which rescues real films the model named imprecisely and now and then lands on a neighbouring one. A stricter match was measured against live TMDB and deliberately not adopted — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
   5. Suggestions already in the user's list are filtered out before being shown.
-* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
+* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way. And as built, a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
 * Recommendations are a **snapshot, not live** — they don't regenerate automatically when new movies are rated; the user explicitly re-triggers when they want fresh ones.
 
 ### 2.3 Taste Verdict Banner (the fun, low-stakes AI touch)
@@ -194,7 +204,7 @@ being silently extended.)*
 * Distinct from the recommendation feature in [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) — this is commentary, not suggestions. Tone should be light/teasing, not generic praise ("Five 10/10 action movies and zero dramas — you watch films to turn your brain off, and honestly? Respect.").
 * Available once **at least 2 movies are rated** (lower bar than recommendations — this is just banter, it doesn't need much signal).
 * Regenerated only on explicit user action (a small "New verdict" refresh button on the banner) — never silently regenerated on every page load, to avoid burning OpenRouter credit on an unrequested repeat call.
-* Same DB-logging and TMDB-independent discipline as [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part): every verdict call is logged ([§ 5.3](#53-taste_verdict_logs)), and a failed/unreachable call shows a quiet fallback message on the banner ("Couldn't come up with a verdict right now") — it never blocks or breaks the rest of the page, since it's the lowest-stakes feature in the app.
+* Same DB-logging and TMDB-independent discipline as [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part): every verdict call is logged ([§ 5.3](#53-taste_verdict_logs)) *(as built, a verdict whose log write fails is discarded rather than shown, with its cause sent to the server's stderr)*, and a failed/unreachable call shows a quiet fallback message on the banner ("Couldn't come up with a verdict right now") — it never blocks or breaks the rest of the page, since it's the lowest-stakes feature in the app.
 
 ### 2.4 Resilience Requirements
 
@@ -335,7 +345,7 @@ Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|logged per call, per course requirement on cost tracking|
 
-*Five more columns were added by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible. [`db/schema.sql`](db/schema.sql) is canonical.*
+*Five more columns were added by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
 
 This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different thing.
 

@@ -27,7 +27,11 @@ rule's `display: flex` won, and so did the button's `margin-left: auto` over the
 query's `margin-left: 0`. Measured in headless Chrome in a 400px iframe with the
 real stylesheet (computed `display: flex`), then confirmed by the user in
 devtools, where the query's grid declarations show struck through. Only the
-query's row separators ever took effect, since nothing later competes with them.
+query's row separators ever took effect. Two of their declarations, the border
+and the bottom margin, have no rival in the later rules; the other three, the
+bottom padding and the two bottom corner radii, do compete with the later base
+rule's `padding` and `border-radius`, and win because
+`.result-row:not(:last-child)` is the more specific selector.
 The documentation had described the grid as superseding the flex wrapping, and
 the stylesheet called that wrapping unreachable; it was the layout every narrow
 screen had been showing.
@@ -1901,8 +1905,8 @@ alone were never proof the page was laid out at that width — every earlier
 assumption that turned out not to hold. The user's own console, on the real
 browser, is what actually resolved this.
 
-**The bug, and how it was found.** A toast reading `"The SpongeBob SquarePants
-Movie" saved.` rendered as an ugly, narrow, three-line wrap on a 380px phone.
+**The bug, and how it was found.** A toast reading `“The SpongeBob SquarePants
+Movie” saved.` rendered as an ugly, narrow, three-line wrap on a 380px phone.
 The obvious suspect was the new content-length-aware widening feature
 ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)-era
 `is-long` logic) misfiring — checked directly via the user's own console and
@@ -1959,7 +1963,7 @@ margin-inline: auto;` — and the probe, still only overriding `left` (to
 `-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
 specified, which per the shrink-to-fit case list stops being shrink-to-fit
 entirely: the box stretches to fill the whole gap between them, enormous since
-`left` sits off-screen. A short toast (`"Hairspray" saved.`) measured as needing
+`left` sits off-screen. A short toast (`“Hairspray” saved.`) measured as needing
 400px+ on the very next check and was misclassified as long. Fixed by
 neutralising `right`, `bottom` and `margin` in the probe too, not just the
 properties `.toast` happened to set when the probe was first written. **The
@@ -2249,8 +2253,8 @@ cancels the old one as a side effect of running, so no caller needs to know a
 typewriter exists or ask "is one running?" first.
 
 **One call site deliberately bypasses the helper**, and it is commented at
-the point it does: the `err.logged` branch builds a link (text node + `<a>` +
-text node), not a single string, so there is nothing plausible to type. It
+the point it does: the `err.logged` branch builds a link (text node + a
+`logLink()` button + text node), not a single string, so there is nothing plausible to type. It
 still benefits from the guarantee: the busy branch that always runs first in
 that handler has already cancelled any leftover typer for this run, so the
 bypass cannot race a live animation.
@@ -2389,6 +2393,10 @@ solve backwards, `a_k = 1 - (1 - C_k) / (1 - C_k-1)`. **The alphas then peak in
 the MIDDLE layer and come back down**, because inner layers paint onto an
 already-part-opaque stack. No intuitive sequence produces that, which is why the
 block is generated rather than hand-written.
+> **2026-10-01:** in the block this entry shipped, the peak was layer 13 of the
+> 20. [D-056](#d-056--the-busy-cue-changes-playbackrate-not-animation-duration-supersedes-one-call-in-d-055)
+> re-solved the layers at the brighter busy peak, which moved it to layer 16,
+> where [`public/styles.css`](../public/styles.css) has it now.
 
 **3. The layer COUNT is an anti-banding parameter, not a detail.** A dash has
 hard ends, so N layers can only ever make N steps. At five the band was a visible
@@ -4256,7 +4264,7 @@ tests, days before submission. Consider revisiting
 post-submission, if ever.
 
 Decision: reword the empty state to echo the query back —
-`No matches for "obamma". Check the spelling, or try a different title.` It
+`No matches for “obamma”. Check the spelling, or try a different title.` It
 detects nothing; it just makes the typo self-evident, since after typing fast
 you do not reliably recall what you typed. It also fixes a small dishonesty: the
 old "try a different title" implied the film was absent, sending the user hunting
@@ -4714,6 +4722,7 @@ a cross-check. This is the concrete guard against hallucinated movies.
 ## D-001 · Scope: single-user, no auth — and why that isn't a security hole
 The app is one person's movie list. [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)'s real topics — injection, secrets,
 prompt injection, least privilege — are all demonstrable without multi-user auth.
-Least privilege here = the frontend/back-end use the Supabase **anon key**, which
-is RLS-bounded, never the `service_role` key. Adding accounts would be
+Least privilege here = the server uses the Supabase **anon key**, which is
+RLS-bounded, never the `service_role` key; the browser never talks to Supabase at
+all. Adding accounts would be
 manufacturing a demo the app doesn't need.

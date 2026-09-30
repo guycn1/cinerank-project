@@ -45,7 +45,7 @@ is a spreadsheet with extra steps and an AI feature that is a chat box wearing t
 app's colours — both present because the marking scheme expects them. The
 engineering problem is to build one where **the database and the model each earn
 their place**: where the stored ratings are genuinely the input to something, and
-where the model has one narrow job it is actually suited to.
+where the model is given narrow work it is actually suited to.
 
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement) states the same
 problem from the solution's side and predates this file; neither supersedes the
@@ -132,8 +132,8 @@ gives this list.
 
 ## What the framing actually bought
 
-The test of a framing document is not that it exists but that it constrained
-something. Four places where it visibly did:
+The test of a framing document is not that it exists but that the work bears it
+out. Four places where it does:
 
 * **The out-of-scope list held under pressure.** Recommendations go stale the
   moment any rating changes, and regenerating them automatically is the obvious
@@ -142,7 +142,7 @@ something. Four places where it visibly did:
   [R16](../CLAUDE.md#group-d--visual-and-narrow-viewports), is when the section
   locks below its threshold, so that it does not sit above cards it says are
   unavailable. Staleness alone never clears them.
-* **The stakeholder list decided a data question.** TMDB's own score is a
+* **The stakeholder list accounts for a data question.** TMDB's own score is a
   snapshot written once at add time. Refreshing it would cost a TMDB call per
   film per page load and make the ranked list depend on TMDB being reachable — a
   trade the list owner loses
@@ -152,11 +152,11 @@ something. Four places where it visibly did:
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
   in advance so it did not have to be argued each time.
-* **Naming the reader of the repository as a stakeholder changed a whole class
-  of work from cosmetic to blocking.** Both long markdown files were found
-  rendering wrong on GitHub. If the only stakeholder had been the list owner,
-  that would have been a shrug; naming someone who only ever sees the repository
-  made it a defect, a fix, and a
+* **The reader of the repository, as a stakeholder, makes a whole class of work
+  blocking rather than cosmetic.** Both long markdown files were found rendering
+  wrong on GitHub. For the list owner alone that would be a shrug; for someone
+  who only ever sees the repository it is a defect, which is why it got a fix
+  and a
   [permanent verification gate](../scripts/check-markdown.js)
   ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all),
   [D-066](DECISIONS.md#d-066--the-render-audit-had-been-running-in-the-wrong-github-api-mode-and-it-masked-a-live-defect-for-the-life-of-the-file)).

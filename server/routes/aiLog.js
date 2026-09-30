@@ -75,7 +75,9 @@ aiLogRouter.get(
     // says 60 and moves the every-call claim onto persistence, which is where
     // it is actually true. If this number ever changes, the dialog's blurb in
     // public/index.html, which states it, and the SPEC line change with it; the
-    // footer panel's claim is about persistence and holds at any cap.
+    // footer panel's claim is about persistence and holds at any cap. (A run
+    // whose log write fails is discarded rather than shown, with its cause sent
+    // to stderr, so every call the app shows a result for has its row.)
     const [recs, verdicts] = await Promise.all([
       supabase
         .from('recommendation_logs')

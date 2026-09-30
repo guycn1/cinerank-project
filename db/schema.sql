@@ -69,9 +69,10 @@ create table if not exists taste_verdict_logs (
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security
--- Single-user app by design (SPEC § 1). The frontend key is the anon key, which
+-- Single-user app by design (SPEC § 1). The app's key is the anon key, which
 -- respects RLS — this is the concrete least-privilege demo (CLAUDE.md § Security
--- & Scope). The backend also uses the anon key: it never needs service_role.
+-- & Scope). The server holds it and never needs service_role; the browser talks
+-- only to the app's own API and never to Supabase.
 -- These policies allow the anon role full access to the single user's data.
 -- ---------------------------------------------------------------------------
 alter table movies              enable row level security;

@@ -95,7 +95,7 @@ audience score. Three different surfaces have to cope with losing it.
 ![The search panel showing a connection error, with the ranked list rendering
 normally below it](screenshots/rs-1-tmdb-down-on-search.png)
 
-> Couldn't reach the movie database. Try again in a moment.
+> Couldn’t reach the movie database. Try again in a moment.
 
 Crimson, inside the results panel. The ranked list underneath is untouched.
 
@@ -112,14 +112,14 @@ decision paying off.
 ![A toast reading that the film could not be added because TMDB is unreachable,
 above the search results](screenshots/rs-2-tmdb-down-on-add.png)
 
-> Couldn't add "Heat" — TMDB is unreachable.
+> Couldn’t add “Heat” — TMDB is unreachable.
 
 **The film's name in that sentence is the point, not decoration.** The server
 sends a short machine-readable cause; the client prefixes the context it already
 knows. Before that mechanism
 ([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form))
 a failed add named no film at all, and a naive fix produced doubled messages
-like "Couldn't add 'Heat' — Couldn't reach the movie database". The two halves
+like “Couldn’t add “Heat” — Couldn’t reach the movie database”. The two halves
 compose exactly once.
 
 In this frame the state is reached through the search results panel, which is
@@ -133,7 +133,7 @@ survived from before the outage.
 ![The recommendations section reporting that none of the suggestions could be
 checked, with the call cost shown](screenshots/rs-3-tmdb-down-during-recs.png)
 
-> Couldn't check any of the suggestions — the movie database is unreachable. Try
+> Couldn’t check any of the suggestions — the movie database is unreachable. Try
 > again in a moment.
 
 **What makes this state worth capturing is that the AI call succeeded.**
@@ -166,7 +166,7 @@ that log could not load either.
 ![The recommendations section reporting that it could not generate anything, with
 a link to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
 
-> Couldn't generate recommendations right now. See the AI call log for details.
+> Couldn’t generate recommendations right now. See the AI call log for details.
 
 **Two absences are the substance.** There is no technical detail in the message
 — before
@@ -199,7 +199,7 @@ split was deliberate.
 ![The verdict banner reporting that it could not produce a verdict, with a link to
 the AI call log](screenshots/rs-5-openrouter-down-verdict.png)
 
-> Couldn't come up with a verdict right now. See the AI call log for details.
+> Couldn’t come up with a verdict right now. See the AI call log for details.
 
 **The resemblance to [RS-4](#rs-4--recommendations) is the entire point.** Two
 independent features, two independent code paths, one vocabulary. That is what
@@ -357,7 +357,7 @@ makes: the model was paid whether or not its answer survived verification.
 ![The app with an empty ranked list, an explanatory toast, and both AI buttons
 greyed out](screenshots/rs-7-database-unreachable.png)
 
-> Couldn't load your movies — Something went wrong.
+> Couldn’t load your movies — Something went wrong.
 
 **This is the one state IN THIS DOCUMENT where an empty ranked list is correct** —
 the list is what broke. The scope matters: an empty list is also correct when the
@@ -506,7 +506,7 @@ central handler. Not one of the four leaks a `PGRST` code or a Postgres string.
 ![The search panel reporting that CineRank cannot be reached, with all seven films
 still listed below](screenshots/rs-6-cinerank-unreachable.png)
 
-> Couldn't reach CineRank. Check your connection and try again.
+> Couldn’t reach CineRank. Check your connection and try again.
 
 **Different from [RS-1](#rs-1--searching) in the way that matters.** There, TMDB
 was down and the *server* explained what had gone wrong. Here nothing answers at
@@ -646,7 +646,7 @@ from "something broke" is failing at something more basic than uptime.
 ![The search panel showing a muted no-matches note, with the ranked list
 below](screenshots/rs-8-search-no-matches.png)
 
-> No matches for "zzzqwerty". Check the spelling, or try a different title.
+> No matches for “zzzqwerty”. Check the spelling, or try a different title.
 
 **Muted grey, not crimson.** Compare it directly with [RS-1](#rs-1--searching)
 at the top of this document: same panel, same position, same shape of message —

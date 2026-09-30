@@ -35,7 +35,7 @@ works, because recovery is the claim a single error frame cannot make.
 | [`rs-3-tmdb-down-during-recs-log.png`](rs-3-tmdb-down-during-recs-log.png) | …its log row | `success`, real cost, zero suggestions |
 | [`rs-4-openrouter-down-recs.png`](rs-4-openrouter-down-recs.png) | OpenRouter down, recommendations | Calm sentence, no technical detail, no cost footer |
 | [`rs-4-openrouter-down-recs-log.png`](rs-4-openrouter-down-recs-log.png) | …its log row | `failed` with the real cause, `OpenRouter responded 401` |
-| [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same words as the first |
+| [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same shape as the first |
 | [`rs-5-openrouter-down-verdict-log.png`](rs-5-openrouter-down-verdict-log.png) | …its log row | Two failures adjacent, two features, two models |
 | [`rs-6-cinerank-unreachable.png`](rs-6-cinerank-unreachable.png) | The app's own server stopped | `fetch` itself rejects; engine wording never surfaces; list survives |
 | [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The only FAILING state where an empty list is correct — and the only empty list with no empty-state line under it (compare [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png)); both AI triggers locked |

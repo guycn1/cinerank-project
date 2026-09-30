@@ -17,9 +17,8 @@ there.** It is not reproduced here, for the same reason the definition of done
 is not reproduced in [`docs/FRAMING.md`](FRAMING.md#definition-of-done): a brief
 held in two places drifts, and then neither is the brief.
 
-It was written as a **governing document alongside the first scaffold** rather
-than retrofitted to a UI, which is the only time an interface brief is worth
-anything, and it breaks the screen into the four parts
+It was written as a **governing document**, and it breaks the screen into the
+four parts
 [Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation)
 names so each could be decided on purpose rather than absorbed from whatever the
 training data treats as ordinary:
@@ -42,7 +41,7 @@ typography and says so in the text, so the openness could not be mistaken for an
 omission. That was the right call for an instruction about *taste* — but it is
 also why the real interface requirements emerged from using the built app rather
 than from the brief, which is the whole of
-[Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-06-to-2026-09-12).
+[Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-05-to-2026-09-12).
 An interface brief can fix the hierarchy and the mental model. It cannot
 anticipate that a hovered card drifts toward its upper neighbour, or that a flex
 item's automatic minimum size will break a button label in two. Those needed a
