@@ -207,8 +207,8 @@ for (const file of markdownFiles(root)) {
   // characters tidyVerdict() strips, using a backslash to escape the backtick.
   // Escapes do not work in a code span (rule 1), so the run never closed, and the
   // renderer swallowed the rest of the sentence into the code element. It had
-  // been in the file for weeks. The fix is DOUBLE delimiters plus padding spaces,
-  // which this rule correctly accepts.
+  // been in the file for nine days. The fix is DOUBLE delimiters plus padding
+  // spaces, which this rule correctly accepts.
   {
     let para = [];
     let paraStart = 0;

@@ -142,8 +142,8 @@ made here: that the guard *exists* is checkable in
 [`prompts/recommend_v3.md`](https://github.com/guycn1/cinerank-project/blob/main/prompts/recommend_v3.md)
 and
 [`prompts/taste_verdict_v7.md`](https://github.com/guycn1/cinerank-project/blob/main/prompts/taste_verdict_v7.md)
-(and it survived all seven verdict rewrites, which were chasing register and
-could easily have dropped it); that it *works* is what these five frames are.
+(and it is present in all seven verdict versions, v1 to v7 — six rewrites, the
+last three chasing register, any of which could easily have dropped it); that it *works* is what these five frames are.
 
 **Build.** Less obvious and worth stating: the agent reads
 [`CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md)
@@ -257,7 +257,7 @@ arrives as a reviewable commit on `draft` and never directly on `main`.
 **Product: not applicable.** No RAG, no vector store, no memory carried between
 calls. Each prompt is rebuilt from the user's own database rows at call time.
 
-**Build: real, and this is the risk the course weighs most heavily.**
+**Build: real.**
 [Module 11](https://github.com/guycn1/cinerank-project/blob/main/DOSSIER.md#module-11-context-engineering-the-agents-briefing)'s
 warning is that bad context is the steady, dominant cause of bad agent output
 over time, and that it rots *in silence* — the agent never announces that its
@@ -327,7 +327,7 @@ and the taste verdict is labelled **an AI-generated read**, wording chosen
 deliberately over a warmer alternative, because that line sits directly above
 machine-written text.
 
-**The strongest evidence here is an anti-overclaim.**
+**Part of the evidence here is an anti-overclaim.**
 [`SPEC.md` § 2.2 step 4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
 once promised more than the code delivers. Rather than quietly softening it, the
 claim was measured against live TMDB across 30 probe titles and the
@@ -347,7 +347,7 @@ dropped as a result.
 
 *Compromised agents act harmfully while appearing legitimate.*
 
-**The clearest instance in this project is the debug harness, and it is written
+**This project's instance is the debug harness, and it is written
 up rather than buried.** For one day the page loaded
 [`scripts/debug-recs.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/debug-recs.js)
 on every request, and the app answered its own recommendation calls with six

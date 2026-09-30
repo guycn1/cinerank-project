@@ -384,8 +384,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        .verdict__refresh:hover rather than inventing a third set.
 
        In `em`, NOT px, so one rule serves both instances: the footer mark is
-       ~2.6x smaller, and a fixed 46px halo tuned for the header would have
-       swallowed it whole. These are the user's own hand-tuned 22px and 46px
+       22px against the header's 36–63px, up to nearly three times smaller, and
+       a fixed 46px halo tuned for the header would have swallowed it whole.
+       These are the user's own hand-tuned 22px and 46px
        divided by the header's 63px font-size, so the header is unchanged to
        within a quarter of a pixel — the conversion is arithmetic, not a
        retune.
@@ -469,8 +470,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   margin-top: 1.5rem;
   border-radius: var(--radius);
   /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
-     else — so it is the biggest single multiplier on the effect, and was widened
-     from 2px on the user's call.
+     else — and was widened from 2px on the user's call.
      THIS WIDTH (W) IS FIVE COUPLED VALUES, and they must move together:
        1. this padding, W;
        2. .verdict__inner's border-radius, --radius - W, or the inner corners
@@ -483,10 +483,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   padding: 2.5px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  /* Step 4b took FIVE passes. Keeping the dead ends because every one of them
-     was a plausible fix that measurably improved something and still failed —
-     and because two of them are impossible by construction, which is not
-     obvious from the rendered result.
+  /* Step 4b's mechanism took five passes on 2026-09-11, and the first four
+     failed. Keeping the dead ends because every one of them was a plausible
+     fix that measurably improved something and still failed — and because two
+     of them are impossible by construction, which is not obvious from the
+     rendered result.
      1. THE CURVE. `var(--ease)` applies to EACH keyframe interval, so both
         halves were front-loaded — 67% of the travel in the first 0.9s, the last
         2.7s covering 2%, the ring frozen for ~60% of every cycle. A real fault,
@@ -652,7 +653,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       and solve each layer from the one before it:
           a_k = 1 - (1 - C_k) / (1 - C_k-1)
       The result is counter-intuitive and worth seeing before "correcting" it:
-      THE ALPHAS ARE NOT MONOTONIC. They peak around the middle layer and come
+      THE ALPHAS ARE NOT MONOTONIC. They rise to a peak at layer 16 of 20 and come
       back down, because the inner layers paint onto an already-part-opaque
       stack and need less of their own alpha to move the total.
    4. TWENTY IS NOT DECORATION — IT IS THE ANTI-BANDING NUMBER. Each layer is a
@@ -1100,8 +1101,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      The threshold is NOT a media query and no number here encodes it: flex line
      breaking compares the items' hypothetical sizes against the row, so the
      browser works it out from the button's REAL rendered width. It therefore
-     self-adjusts per row — "In your list" (the widest label) stacks earlier than
-     "+ Add", which is exactly right, since that is the row with least room. */
+     self-adjusts per row — a wider label stacks earlier than a narrower one
+     ("In your list" before "+ Add", and the busy "Adding…", the widest of the
+     four, earliest of all), which is exactly right, since those rows have the
+     least room. */
   flex-wrap: wrap;
   /* Split, not one `gap`. The COLUMN gap is the spacing between poster, title
      and button and is unchanged. The ROW gap only ever applies once the row has
@@ -1177,9 +1180,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      `flex-shrink: 0` is the fix — the button keeps its content width and
      `.meta` absorbs the pressure, which it can, since it wraps and now also
      carries `overflow-wrap: anywhere`. `white-space: nowrap` makes it
-     unbreakable rather than merely unsqueezed, which matters because the longest
-     label this button ever shows is not "+ Add" but "In your list". No width
-     threshold is involved anywhere, deliberately. */
+     unbreakable rather than merely unsqueezed, which matters because "In your
+     list" has two ordinary spaces to break at, where the other labels glue their
+     glyph to the word with a non-breaking space. No width threshold is involved
+     anywhere, deliberately. */
   flex-shrink: 0;
   white-space: nowrap;
   background: var(--bg-raised);
@@ -1229,7 +1233,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    real max-content width plus the button’s real width in the current font, and
    it re-derives itself if either string or the type changes. Do not add a
    number: it could only be an estimate, and estimated widths in this file have
-   been wrong before (the search row records "In your list" as 95px, not the
+   been wrong before (the search row records "In your list" as ~88px, not the
    111px guessed).
    Note the lone item on the second line lands at the START, because
    `justify-content: space-between` parks a single child at flex-start — the same
@@ -1316,7 +1320,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    problem.
    1. THE CURVE, which was most of it. `var(--ease)` is
       `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: 67% of the
-      way by t=0.2 and within 1px of home after 168ms of a 450ms animation. So a
+      way by t=0.2 and within 1px of home after ~168ms of a 450ms animation. So a
       10px move happened in a sixth of a second and the card then sat still for
       280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — 37% by t=0.2 — which
       spreads the same distance across 73% of the duration instead of 37%.
@@ -1569,7 +1573,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* Same `hover: hover` gate as the card's own hover, for the same reason: on a
    touch screen this would otherwise stay applied after a tap. Kept at 1.04 even
-   though the card now scales too — the two compound to ~1.055 on the poster,
+   though the card now scales too — the two compound to ~1.06 on the poster,
    which is the point. The poster is the design's primary visual anchor, so it
    should still lead the effect rather than move in lockstep with its card. */
 @media (hover: hover) {
@@ -2171,14 +2175,15 @@ button:disabled .sparkle-major { animation: none; }
 /* The column count is decided in JS (`layoutRecsGrid`), not by `auto-fill`.
    `auto-fill` packs every row as full as it will go and strands the remainder:
    four cards in a three-column viewport render 3 + 1, with two thirds of the
-   second row empty, and five cards in a four-column one render 4 + 1, with four
-   fifths empty. Both are widths where a balanced split — 2 + 2 and 3 + 2 — fits
+   second row empty, and five cards in a four-column one render 4 + 1, with three
+   quarters empty. Both are widths where a balanced split — 2 + 2 and 3 + 2 — fits
    perfectly well and looks far better (user-raised, 2026-09-09).
 
    TRACKS ARE DOUBLED AND EVERY CARD SPANS TWO. That is what buys a HALF-column
    offset, which is the only way to centre a short last row: the two cards of a
-   3 + 2 grid sit on tracks 2–3 and 4–5 of six, leaving one sixth of a card's
-   width at each end instead of a third of a row hanging off the right.
+   3 + 2 grid sit on tracks 2–3 and 4–5 of six, leaving half a card's width
+   (one sixth of the row) at each end instead of a third of a row hanging off
+   the right.
    The doubling costs nothing in width, and that is arithmetic rather than hope:
    a card spans two tracks AND the gap between them, so three cards and their two
    gaps come to 3(2t + g) + 2g = 6t + 5g — exactly what six tracks and five gaps
@@ -2413,7 +2418,7 @@ button:disabled .sparkle-major { animation: none; }
   /* Spotlight, ported from the ranked list on the user's instruction (D-049).
      Claude argued against porting it at all and was overruled — the objection
      was to the ranked list's STRENGTH, not to the idea, and the user's answer
-     was to bring it across far lighter — 0.65, tuned by the user's eye,
+     was to bring it across lighter — 0.65, tuned by the user's eye,
      against the ranked list's 0.55: enough that the section
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
@@ -2553,8 +2558,9 @@ button:disabled .sparkle-major { animation: none; }
    own background, so the button would vanish into it entirely. --line is a hair
    LIGHTER than the card (1.16), so the button still reads as its own element,
    and --ink-dim on it measures 5.56 — clear of AA (4.5) for its normal-size label.
-   Those two figures are almost exactly the search button's own (1.12 shape,
-   6.48 label): the established design already says a disabled fill nearly
+   Those two figures follow the search button's own (1.12 shape, 6.48 label) —
+   a near-identical shape contrast and a label clear of AA in both: the
+   established design already says a disabled fill nearly
    dissolves and the LABEL carries the readability. This matches it rather than
    inventing a second answer.
    cursor: not-allowed, not default — the identical labels on

@@ -175,6 +175,18 @@ though this file said it did: its sticky element had no room inside its own
 unpinned (D-082); the declarations that never took effect are gone, and the
 table view's pinned Total row is untouched.
 
+**Last, a sweep of every comparative and superlative claim** ("the most", "the
+only real", "-er than", "far", "x times" and their less obvious forms), each
+checked against the code, `git log`, the captures or `DOSSIER.md`. Corrected
+against source: TMDB's "closest" or "best" result, which the code takes as its
+top one; "the widest label" (the busy `Adding…` is wider than `In your list`);
+the sheen's alpha peak (layer 16 of 20); two grid fractions; the footer mark's
+size ratio under the type scale; the verdict's cost, now dated; "for weeks"
+where the dates give eight or nine days; and the glint's pass count, five on
+2026-09-11 with the first four failing. Superiority claims nothing measured
+("the highest ratio", "the most heavily probed", "the best-evidenced", "the
+biggest single multiplier") are toned down or gone.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -750,7 +762,7 @@ carries the current state.
     keeping.** Fourteen defects, and the counts everyone re-checks — merges,
     tests, gates, captures, models — were right in every file. Every defect sat
     in a claim with no resolvable referent: a value changed in source with three
-    prose descriptions left behind (a 2px/1.5px divider that had survived eight
+    prose descriptions left behind (a 2px/1.5px divider that had survived twelve
     days of sweeps), a `README.md` cost figure its own embedded screenshot
     disproved, three enumerations complete when written and short once the
     project grew under them, and ONE ENUMERABLE SET DESCRIBED FOUR MUTUALLY
@@ -1311,9 +1323,10 @@ further is scheduled for this section.
   and why almost every button breaks on a phone, where almost every title
   wraps. Now `flex-shrink: 0` (the button keeps its content width; `.meta`
   absorbs the pressure, which it can, since it wraps) plus
-  `white-space: nowrap`, because the longest label this button ever shows is
-  not "+ Add" but "In your list". **No width threshold anywhere**, per the
-  user's explicit ask.
+  `white-space: nowrap`, because "In your list" has two ordinary spaces to
+  break at, where the other labels glue their glyph to the word with a
+  non-breaking space. **No width threshold anywhere**, per the user's explicit
+  ask.
 
   **And the search INPUT needed `min-width: 0`** (2026-09-08, same user, same
   phone): the Search button was clipped clean off the right edge at 311px.
@@ -1898,8 +1911,9 @@ status is further down this section. What landed:
   win is a layout pass on the first few cards, not a dramatic one; it is worth
   having because the poster is the design's primary visual anchor and the top
   of the list is what a reader looks at first. **`EAGER_POSTERS = 3` is a
-  judgement call, not a measurement** — three is inside the fold at every
-  width, and being wrong costs one unneeded request. Do not "improve" it by
+  judgement call, not a measurement** — three is a reasonable guess at a
+  desktop fold, and where fewer are in view the cost is a request or two made
+  early. Do not "improve" it by
   measuring the real fold: that reads layout during the render, which is
   exactly what `syncReviewToggles()`'s three batched passes exist to avoid.
 
@@ -2340,8 +2354,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   Against those four it produced two bad substitutions in the same sample —
   `Arrival 2` → a 1906 newsreel, and `Blade Runner 3` → `Blade Runner 2049`.
 
-  **And the commonest hallucination shape is immune to ANY matching rule:**
-  an invented-sounding title like `The Silent Echo`, `Last Light` or
+  **And the commonest way a hallucination gets PAST the check is immune to ANY
+  matching rule** (four of the sample, against two bad substitutions): an
+  invented-sounding title like `The Silent Echo`, `Last Light` or
   `Shadow of the Wolf` turns out to be a real obscure film and EXACT-matches,
   so the strictest possible matcher still admits it. Tightening buys less
   than it costs.
@@ -2478,8 +2493,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   rec card's own background, so the button would have vanished into the card
   completely. `--line` instead — a hair lighter than the card (1.16) so the
   button keeps its own edges, with `--ink-dim` at 5.56, clear of AA (4.5) for
-  its normal-size label. Those two figures are almost exactly the search
-  button's own (1.12 shape, 6.48 label), so this MATCHES the established
+  its normal-size label. Those two figures follow the search button's own
+  (1.12 shape, 6.48 label) — a near-identical shape contrast and a label clear
+  of AA in both — so this MATCHES the established
   answer rather than inventing a second one: a disabled fill nearly dissolves
   and the label carries the readability. `cursor` also went `default` →
   `not-allowed`, which is what both `.result-row .add-btn:disabled` and
@@ -2534,7 +2550,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **The live value is 0.65 and `styles.css` is the source of truth for it.
   D-049 says `0.70` and is NOT stale** — it records what was settled on
   2026-09-09, and the user nudged the dial to 0.65 by eye on 2026-09-11. The
-  decision (port the spotlight, far lighter than the ranked list) stands
+  decision (port the spotlight, lighter than the ranked list) stands
   exactly as that entry describes; only the figure moved, which is why no new
   entry was written and why D-049 must not be edited to match. Do not
   "restore" 0.70 from it.
@@ -3422,7 +3438,8 @@ described below. Those two are the only differences between the two marks.
 **The hover halo moved from px to `em` as part of that**, and the conversion
 is arithmetic rather than a retune: `22px`/`46px` divided by the header's
 63px give `0.35em`/`0.73em`, so the header is unchanged to within a quarter
-pixel while the footer's ~2.6x smaller mark gets a proportional glow. A fixed
+pixel while the footer's mark, then 24px and about 2.6x smaller, gets a
+proportional glow. A fixed
 46px halo would have swallowed a 24px icon whole.
 
 **Two more by-eye fixes once the footer mark was on screen, both from one
@@ -3703,10 +3720,11 @@ stays the portrait overhaul.
   problem.
 
   **The base gradient is now STATIC and a second layer does the moving.**
-  **It took FOUR passes, and only the last was structural** — the first three
-  were each a plausible fix that measurably improved something and left the
-  effect still unusable. The order matters as a lesson: curve → no landmark →
-  wash-not-glint → **wrong GEOMETRY**.
+  **It took FIVE passes, and only the last two were structural** — the first
+  three were each a plausible fix that measurably improved something and left
+  the effect still unusable. The order matters as a lesson: curve → no landmark
+  → wash-not-glint → **wrong GEOMETRY** (the conic below, which failed too) →
+  the stroke dash.
 
   **The finding, from the user's screenshot: there were TWO white bands, one
   on the top edge and one on the bottom.** That is not a bad choice of colour
@@ -3740,8 +3758,7 @@ stays the portrait overhaul.
   changes it. This is why the shipped design uses stroke dashes instead.
 
   **The ring went 2px → 3px** on the user's call that day; it is 2.5px now.
-  It is the entire visible area of the effect and so its biggest single
-  multiplier. Its coupling to the inner corners still holds, but today it is
+  It is the entire visible area of the effect. Its coupling to the inner corners still holds, but today it is
   one of FIVE coupled values, listed at the top of this item — change the
   ring width from that list, not from this paragraph.
 
@@ -3781,7 +3798,7 @@ stays the portrait overhaul.
   10px travel, staggered `min(i * 45, 400)ms` in `renderRanked()`. **`--ease`
   was the main culprit, exactly as it was for the rec-card exit.** It is
   `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT: 6px of the 10 was
-  already gone by 45ms, and the card was within 1px of home after **168ms of
+  already gone by 45ms, and the card was within 1px of home after **~168ms of
   a 450ms animation**. So a 10px move effectively happened in a sixth of a
   second, and the remaining 280ms was the card sitting still.
 
@@ -3823,7 +3840,7 @@ stays the portrait overhaul.
   raising this walks straight back into the blur.
 
   **Measured before and after rather than judged by eye:** the card used to
-  be within 1px of home after 169ms of 450ms — **38% of the animation, 62% of
+  be within 1px of home after ~169ms of 450ms — **38% of the animation, 62% of
   it sitting still** — and now reaches that at 440ms of 600ms, **73%**. That
   ratio, not the travel distance, is what "barely visible" actually meant.
 
@@ -4603,7 +4620,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     was reverted the moment the second frame landed; 56/56 tests green and the
     tree clean immediately after.
 
-    **The log frame is the most information-dense image in the set.** It holds
+    **The log frame packs a lot into one image.** It holds
     FOUR outcomes at once: this run (`success`, charged, no suggestions), the
     RS-3 run (`success`, charged, no suggestions — but caused by a TMDB outage),
     and both failures, `TV`/`claude-sonnet-5` and `R`/`claude-haiku-4.5`. **Its
@@ -4622,7 +4639,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     spent only when things go well is not an audit trail.
 
     **A recommendation run that returns nothing.** Not a failure, and included
-    deliberately: it is the clearest single frame proving the app reports an AI
+    deliberately: it is a single frame proving the app reports an AI
     call it paid for even when that call yielded no cards — SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
 
@@ -4877,8 +4894,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   `recommend_v3.md` and `taste_verdict_v7.md` both carry BEGIN/END markers, both
   declare the enclosed text data only, both state that instructions come from
   the surrounding section alone, and both name the "ignore previous
-  instructions" shape explicitly. It survived all seven verdict rewrites, which
-  were chasing register and could easily have dropped it. Source review and
+  instructions" shape explicitly. It is present in all seven verdict versions,
+  v1 to v7 — six rewrites, the last three chasing register, any of which could
+  easily have dropped it. Source review and
   runtime evidence are two different claims; this checkbox is the second.
 
 * [x] **README screenshots + architecture diagram — DONE 2026-09-13.** The

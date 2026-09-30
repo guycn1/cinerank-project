@@ -293,8 +293,8 @@ function toast(message, isError = false) {
  * there is nothing here to solve against the way D-030's numeral width was.
  * A desktop fold fits roughly three or four cards below the header and search
  * box; card mode fits fewer, but its posters are 68px rather than 92px and cost
- * proportionally less. Three is inside the fold at every width, and the cost of
- * being wrong is at most one image request that was not needed yet.
+ * proportionally less. Three is a reasonable guess at a desktop fold, and where
+ * fewer are in view the cost is an image request or two made a little early.
  *
  * Do NOT replace this with a measured fold. That means reading layout during the
  * render — the very thing syncReviewToggles() is structured in three batched
@@ -1771,8 +1771,8 @@ el.recsTrigger.addEventListener('click', async () => {
  * WHICH — only it knows — and this maps it to copy.
  *
  * There used to be one hardcoded sentence here claiming the model had named only
- * films already in the list. That is one of four possible causes, and asserting
- * it for all four was wrong three times out of four. The bad case is
+ * films already in the list. That is one possible cause among several, and
+ * asserting it for all of them was wrong for every other one. The bad case is
  * `tmdb-unreachable`: the AI call really did succeed and really was charged, so
  * the run logs 'success' and nothing else in the app mentions TMDB — the false
  * sentence was the only thing the user would ever see (user-raised, 2026-09-09).

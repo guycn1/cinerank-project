@@ -1446,7 +1446,7 @@ in its rendered output and nothing extra appears; and no markdown syntax —
 backtick, emphasis marker, link bracket, escape, heading, pipe row or comment —
 survives into the rendered prose of any of them.
 
-### Addendum: the full audit, and the defect that had been there for weeks
+### Addendum: the full audit, and the defect that had been there for nine days
 
 The user asked for a proper verification pass — every markdown file rendered end
 to end, and the checker itself proved free of false positives and negatives. Both
@@ -1465,7 +1465,7 @@ stripped. **The fourth was real, and nothing had ever caught it.**
 show the three characters `tidyVerdict()` strips, escaping the backtick with a
 backslash. Escapes do not work inside a code span (rule 1), so the run never
 closed and **GitHub swallowed the rest of the sentence into the code element.**
-It had rendered that way for weeks, through a full staleness sweep and two
+It had rendered that way for nine days, through a full staleness sweep and two
 markdown passes.
 
 (Both forms are shown in a fenced block below, because quoting a broken delimiter
@@ -2742,7 +2742,7 @@ now two selectors, scoped through `.recs__meta` so the verdict banner's own
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
 strands whatever is left over. The user brought two cases: **four cards where
 three fit** renders 3 + 1, with two thirds of the second row empty, and **five
-cards where four fit** renders 4 + 1, with four fifths empty. Both are widths
+cards where four fit** renders 4 + 1, with three quarters empty. Both are widths
 where 2 + 2 and 3 + 2 fit perfectly well.
 
 **The column count moves into JS.** There is no CSS-only fix — `auto-fill` and
@@ -2812,7 +2812,7 @@ Claude's two objections, and what happened to each:
 real objection was to the **strength**, not to the idea. The ranked list dims to
 `0.55`, which is heavy enough to take the other cards out of play — fine in a
 column you are scanning top to bottom, too much in a gallery. The user's answer
-was to port it far lighter — tried at **0.75**, settled at **0.70** minutes
+was to port it lighter — tried at **0.75**, settled at **0.70** minutes
 later: the section still recedes, and every unhovered card stays perfectly
 readable. Claude had treated the ranked list's number as part of the pattern
 rather than as a dial, which is the actual error here; the exact figure was
@@ -4640,8 +4640,8 @@ suggestion; (4) the verdict is length-capped server-side and rendered as
 
 ## D-004 · Model choice: cheap by default
 `anthropic/claude-3.5-haiku` via OpenRouter. The tasks are small (pick 3–6 titles;
-write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-products-and-the-architecture-of-intelligence-in-software-agent-economics): match the model to the task's difficulty;
-the biggest cost lever is model choice. Overridable via `OPENROUTER_MODEL`.
+write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-products-and-the-architecture-of-intelligence-in-software-agent-economics): match the model to the task's difficulty.
+Overridable via `OPENROUTER_MODEL`.
 
 ## D-003 · Cost logging is structural, not decorative
 `recommendation_logs` and `taste_verdict_logs` store `tokens_used` and

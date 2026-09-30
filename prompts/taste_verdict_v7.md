@@ -16,7 +16,7 @@ not a rule, it is a sample.
 
 So v7 deletes the rewrite table, both "too fancy" examples and the long banned-
 word list, keeps only the structural rules, and carries FOUR worked verdicts in
-the target voice instead of one. It is shorter than v6 and shorter than v5.
+the target voice instead of one. It is shorter than v6 and about the length of v5.
 Deliberately a single-variable change: if the register still does not move, the
 prompt is not the lever and the next thing to try is the model or the 0.85
 temperature. Everything about WHAT to say is unchanged since v4. Loaded by

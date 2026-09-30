@@ -145,10 +145,10 @@ export async function getMovieDetails(tmdbId) {
  * TMDB search is close to TOKEN matching rather than fuzzy, so invented titles
  * mostly return zero results and are already dropped, while the fallback earns
  * its keep rescuing real films the model named imprecisely ("Shawshank
- * Redemption", "Spider-Man: Into the Spiderverse"). And the commonest
- * hallucination shape is immune to any matching rule anyway: an invented-sounding
- * title like "The Silent Echo" turns out to be a real obscure film and
- * EXACT-matches. Read D-054 before changing this; the numbers are in it.
+ * Redemption", "Spider-Man: Into the Spiderverse"). And the commonest way
+ * a hallucination gets PAST the check is immune to any matching rule anyway: an
+ * invented-sounding title like "The Silent Echo" turns out to be a real obscure
+ * film and EXACT-matches. Read D-054 before changing this; the numbers are in it.
  *
  * @param {string} title  The title as the model wrote it.
  * @returns {Promise<ShapedMovie | null>} The case-insensitive exact title match

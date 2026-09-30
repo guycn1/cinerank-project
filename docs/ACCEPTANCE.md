@@ -128,8 +128,7 @@ film.) It writes nothing. Anyone can re-run it and read the output.
 ### Verdict
 
 **Satisfied.** Automated coverage that fails on regression, a capture of the real
-application against live TMDB, and a command anyone can re-run. This is currently
-the best-evidenced of the eight.
+application against live TMDB, and a command anyone can re-run.
 
 ## 2 · Adding a movie already in the list is blocked with a clear message, not a duplicate row
 
@@ -473,7 +472,7 @@ called. Both halves of that column are now pinned.
 
 ### Verdict
 
-**Satisfied**, and better evidenced than it was this morning.
+**Satisfied**, with both halves now held by an automated test.
 
 ## 7 · Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error
 

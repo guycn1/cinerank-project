@@ -53,7 +53,7 @@ versions failed to move on the cheaper tier, until the model turned out to be
 the constraint rather than the wording ([`docs/DECISIONS.md`
 D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)).
 It alone runs on `claude-sonnet-5`, at 0.37–0.40¢ a call against 0.20¢ for a
-recommendation — both readable in the [log capture
+recommendation on the demo list of 2026-09-13 — both readable in the [log capture
 below](#every-ai-call-whether-it-worked-or-not), which shows six verdict rows in
 that band. The verdict reads *every* rated film, so its cost grows with the
 list; recommendations read only the top five and stay flat. The log shows the
@@ -163,8 +163,8 @@ The **Based on:** line names the five films that fed the prompt, and the footer
 declares what the call cost. Every title shown has been confirmed against TMDB
 first — one the database has never heard of is dropped rather than rendered as a
 broken card. *Into the Spider-Verse* is the interesting pick: it is reached from
-*Wicked* on the axis of spectacle rather than genre, which a similarity lookup
-would not do.
+*Wicked* on the axis of spectacle rather than genre, a less obvious route than
+a genre match would take.
 
 ### Resisting a prompt injection (Module 17)
 
@@ -245,7 +245,7 @@ prose and are covered in the [Project layout](#project-layout) tree instead.
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). A log that only recorded wins would not be evidence of process. |
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). |
-| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Each rule paired with what breaks if it is undone, and many with the version that was tried first and failed. |
+| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: a component dense with non-obvious decisions, written up so the next change does not silently undo a fix. Each rule paired with what breaks if it is undone, and many with the version that was tried first and failed. |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | [`SPEC.md` § 7.1](SPEC.md#71-must-pass-before-submission)’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |

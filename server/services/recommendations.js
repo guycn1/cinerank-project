@@ -159,9 +159,9 @@ export function tidyReason(raw) {
 
 /**
  * WHY a run produced nothing. The UI used to assert one cause — "the model only
- * named films already in your list" — for all of them, which is wrong three
- * times out of four and, in the tmdb-unreachable case, actively hides an outage
- * behind a confident false statement (user-raised, 2026-09-09).
+ * named films already in your list" — for all of them, which is wrong for every
+ * other cause and, in the tmdb-unreachable case, actively hides an outage behind
+ * a confident false statement (user-raised, 2026-09-09).
  *
  * The service is the only place that knows, so it says so instead of leaving the
  * client to guess. Order matters: an unreachable TMDB outranks everything else,

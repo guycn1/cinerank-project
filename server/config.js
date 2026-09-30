@@ -82,11 +82,13 @@ export const config = {
     minRatedMovies: 2,
     // The ONE feature that does not run on the cheaper tier (D-053). Four prompt
     // versions failed to get Haiku to write in a plain spoken register; the
-    // model turned out to be the constraint, not the wording. Sonnet-5 is the
-    // cheapest real-time Sonnet on OpenRouter ($2/$10 per Mtok against Haiku's
-    // $1/$5 — 2x, and ~0.29c a verdict), so this buys the register for a rounding
-    // error. Recommendations stay on Haiku because their output is checkable
-    // (see `openrouter.model` above).
+    // model turned out to be the constraint, not the wording. When this was
+    // chosen (2026-09-11), Sonnet-5 was the cheapest real-time Sonnet on
+    // OpenRouter, at $2/$10 per Mtok against Haiku's $1/$5 — 2x — so this buys
+    // the register for a rounding error: 0.37–0.40c a verdict on the seven-film
+    // demo list as logged on 2026-09-13, a figure that grows with the list, since
+    // the verdict reads every rated film. Recommendations stay on Haiku because
+    // their output is checkable (see `openrouter.model` above).
     // NOT a `:batch` slug, however cheap it looks in OpenRouter's list — those
     // are asynchronous and would break a live request.
     model: process.env.OPENROUTER_VERDICT_MODEL || 'anthropic/claude-sonnet-5',

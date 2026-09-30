@@ -91,7 +91,7 @@ the reasoning. Rules that keep this honest live in
   touched.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
-  were found rendering wrong on GitHub for weeks ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
+  were found rendering wrong on GitHub for eight days ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
   checker after [`README.md`](../README.md) was found describing another file's verdict sixteen hours
   after that verdict changed — by a reader, not by a sweep ([D-072](DECISIONS.md#d-072--claim-checking-became-a-commit-gate-and-a-file-type-filter-is-why-it-was-needed)). Each gate has
   been proved to bite: the tests and the markdown checker in
@@ -305,7 +305,7 @@ engineering:
 | Feature | Versions | What each change fixed |
 |---|---|---|
 | Recommendations | `recommend_v1` → `v2` → `v3` | v1 read like a plot blurb → v2 second-person voice tied to the user's own ratings → v3 tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
-| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the most consequential finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
+| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6, and about the length of v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the most consequential finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weaker), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
 
 Each prompt file after a v1 carries a "Change from vN" header explaining the
 delta; the two v1 files have no earlier version to compare against.
@@ -349,7 +349,7 @@ still declares what the call cost.
   *titles only*; every title is looked up on TMDB, which supplies poster / year
   / overview. A title TMDB returns no result for is silently dropped, not shown
   as a broken card — measurement showed that is the common outcome for an
-  invented title, not a rare one. The lookup keeps TMDB's best result when the
+  invented title, not a rare one. The lookup keeps TMDB's top result when the
   titles do not match exactly, so every card describes a real film and a
   near-miss is rescued rather than dropped: a trade taken deliberately, with
   the numbers, in [D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened).
@@ -369,8 +369,8 @@ still declares what the call cost.
   OpenRouter's public model list was queried for the actual prices rather than
   guessed — $2/$10 per Mtok against Haiku's $1/$5, which worked out at about
   0.29¢ a verdict on the list as it stood that day. The shipped demo list is
-  longer and the verdict reads all of it, so the figure in the call log is now
-  0.37–0.40¢; the ratio this decision turned on is unchanged. The call log
+  longer and the verdict reads all of it, so the call log showed 0.37–0.40¢ on
+  2026-09-13; the ratio this decision turned on is unchanged. The call log
   renders the model per row, so the split is auditable rather than
   buried in config.
 - **Cost is logged, not estimated away.**
@@ -444,10 +444,10 @@ The deliverable here is the repository, so its failure mode is not a crash — i
 is a sentence that was true when written and quietly stopped being true.
 Staleness sweeps run on many separate days (`git log --oneline --grep=sweep`
 lists them). This section is about why the one on 2026-09-19 found things the
-sweeps before it had walked past for two weeks, because the method is more
+sweeps before it had walked past for nearly two weeks, because the method is more
 reusable than the fixes.
 
-**The diagnostic case.** On 2026-09-11 commit `cc41020` thinned the AI call
+**The diagnostic case.** On 2026-09-06 commit `cc41020` thinned the AI call
 log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** — two comments in
 [`public/styles.css`](../public/styles.css), one of them nine lines above the
