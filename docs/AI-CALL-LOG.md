@@ -121,7 +121,9 @@ Consequences, all of which look like free choices and are not:
 * **`.log-scroll` must stay `overflow: visible`.** It is not the scroller, and
   clipping would round the sticky header and footer cell *fills* against their
   square backgrounds — a curved border with square cell backgrounds inside it,
-  which reads as broken. Its corners are square for the same reason.
+  which reads as broken. Its corners are square for the same reason; the
+  dialog around it keeps its own rounded corners, and in card view each card
+  has rounded corners of its own.
 
 ### `.log-curtain` — why a sticky `<tfoot>` is not enough
 

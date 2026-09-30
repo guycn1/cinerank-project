@@ -2951,7 +2951,9 @@ body:has(dialog[open]) { overflow: hidden; }
      dialog is the scroller), so it cannot clip the sticky thead/tfoot cell
      fills to a radius — the border curved while the backgrounds stayed square.
      Rounding only while a row sits naturally would mean tracking its stuck
-     state on every scroll; not worth it. */
+     state on every scroll; not worth it. Only this box is square: the dialog
+     around it keeps its rounded `--radius` corners, and in card view this box
+     drops its border altogether while each card carries its own rounded one. */
   border: 1px solid var(--line);
   border-bottom: none;
 }
@@ -2961,7 +2963,8 @@ body:has(dialog[open]) { overflow: hidden; }
    of this). Its containing block is the dialog, not the table, so unlike the
    Total row it is never clamped and always reaches the true bottom: nothing from
    the table can show under the Total mid-scroll. Scrolled to the end it un-pins
-   and is simply the empty gap below the table's rounded corners. */
+   and is simply the empty gap between the table's square bottom edge (in card
+   view, the last card) and the dialog's rounded bottom corners. */
 .log-curtain {
   flex: 0 0 auto;
   height: var(--log-curtain-h);
@@ -3483,7 +3486,7 @@ body:has(dialog[open]) { overflow: hidden; }
      fit-content` asks for the shrink-to-fit size explicitly rather than
      relying on the `auto` case again, and `margin-inline: auto` centres the
      now-correctly-sized box within that full span — the same centring
-     principle `.noposter__icon` already uses one screen down (`inset: 0` +
+     principle `.noposter__icon` already uses further down (`inset: 0` +
      `margin: auto` over `top/left: 50%` + a translate), for an analogous
      reason: a percentage anchor plus a compensating transform is two moving
      parts standing in for what one non-percentage technique does directly.

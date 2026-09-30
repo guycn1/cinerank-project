@@ -917,7 +917,7 @@ for (const feature of [
 // than by deleting a route SPEC 4.5 lists. Deliberately asserts the SHAPE and
 // the recommendation-only scope, not the column list: the point is that the
 // route answers and is narrower than /api/ai-log, and pinning all seven columns
-// would just restate the select() a line below it.
+// would just restate the route's own select().
 test('GET /api/recommendations/history returns recommendation runs only', async () => {
   db.results['recommendation_logs:select'] = {
     data: [

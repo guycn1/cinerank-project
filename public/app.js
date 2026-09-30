@@ -765,8 +765,8 @@ function renderRanked() {
     li.className = 'movie-card';
     if (entering) {
       li.classList.add('is-entering');
-      // Step 4b, tuned twice. 45ms -> 70ms was still "almost all at once", and
-      // the reason is a RATIO rather than a number: what decides whether a
+      // Step 4b, tuned four times. 45ms -> 70ms was still "almost all at once",
+      // and the reason is a RATIO rather than a number: what decides whether a
       // stagger reads as a cascade is how many cards are mid-animation at the
       // same instant, which is duration / stagger. At 70ms against a 600ms card
       // that was 8.6 cards in flight -- they overlap into one blob and the

@@ -229,9 +229,15 @@ it now is. Decision entries cited for what another decided: D-051 for the
 (D-057), D-018 in D-069 for the totals row (D-019), D-010 in D-070 for the
 preserve rule (§ Decision Logging), and `SPEC.md` § 3.2 for the AI-pick
 marker (§ 3.3). Positions that had moved: comments sitting above the wrong
-rule or template, "further down" for a media query above, "twenty lines up"
-for two hundred, "the first item" for the second, and the note "at the end of
-the Build status bullet" that seven later merges now follow.
+rule or template, "further down" for a media query above, "the first item"
+for the second, and the note "at the end of the Build status bullet" that
+seven later merges now follow. Pointers that counted lines now name their
+target instead, since a line count drifts with every edit around it. Also
+corrected on the way: the ranked stagger was tuned four times, not twice;
+the AI call log's comments now say which corners are square (the table's)
+and which are rounded (the dialog's, and each card's in card view); and the
+README-screenshots checkbox counts five embedded screenshots and six diagram
+claims, not four and five.
 
 #### 2026-09-29
 
@@ -4956,10 +4962,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 * [x] **README screenshots + architecture diagram — DONE 2026-09-13.** The
   diagram is Mermaid rather than an exported image, so it is text: diffable,
   greppable, and unable to go stale silently the way a PNG would. Beneath it,
-  five claims it makes, each checkable against the code. Four screenshots are
-  embedded — the hero, the recommendations, the AI call log, and a reused
-  resilience frame — each captioned with what it PROVES rather than what it
-  depicts. The README also gained a `## Documentation` map, because nine of the
+  six claims it makes, each checkable against the code. Five screenshots are
+  embedded — the hero, the recommendations, a prompt-injection frame, the AI
+  call log, and a reused resilience frame — each captioned with what it PROVES
+  rather than what it depicts. The README also gained a `## Documentation` map, because nine of the
   eleven deliverables had been reachable only from inside a code block.
 
 * [x] **Joint-project registration — DONE 2026-09-14.** Emailed with both names,
