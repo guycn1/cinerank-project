@@ -125,7 +125,7 @@ the code, the tests or `git log`. Corrected:
   - Counts of the automatic-minimum-size bugs, now named by example.
   - Claims about whether the spec or the first build came first.
 
-**Last, a full staleness sweep of every markdown file and every code
+**Then a full staleness sweep of every markdown file and every code
 comment**, ahead of the thirtieth merge. Corrected:
 - **Wrong from the start:** TMDB serves the posters at `w500`, never `w342`;
   a scaled-up card narrows the gaps either side of it rather than opening
@@ -198,7 +198,7 @@ commits when every merge runs it too, "a log row is ALWAYS written" without
 the case where the write itself fails (R5), D-060's boundary, and inclusive
 breakpoints written as "below 500px", "< 850px" or "500px and up".
 
-**Last, a sweep of every inclusivity claim** ("every", "all", "nothing", "no
+**Next, a sweep of every inclusivity claim** ("every", "all", "nothing", "no
 other", "the rest" and their less obvious forms). Two of them led to the
 gates: `scan-secrets` had no pattern that matched a real OpenRouter key
 (`sk-or-v1-…`, whose hyphens stop the `sk-` pattern short) or a TMDB v3 key,
@@ -235,7 +235,7 @@ though this file said it did: its sticky element had no room inside its own
 unpinned (D-082); the declarations that never took effect are gone, and the
 table view's pinned Total row is untouched.
 
-**Last, a sweep of every comparative and superlative claim** ("the most", "the
+**Next, a sweep of every comparative and superlative claim** ("the most", "the
 only real", "-er than", "far", "x times" and their less obvious forms), each
 checked against the code, `git log`, the captures or `DOSSIER.md`. Corrected
 against source: TMDB's "closest" or "best" result, which the code takes as its
@@ -278,7 +278,7 @@ without example figures that drift, the 57-case proof of `check-markdown` is
 dated, and `docs/PROCESS.md` says the 37 captures were all taken by hand and
 that headless browsers returned as `npm run layout-check`.
 
-**Last, a sweep of every reference** — to a file, a section, a decision entry,
+**Next, a sweep of every reference** — to a file, a section, a decision entry,
 an item, a commit, or a place "above" or "below" — each followed to its target
 and checked that the target says what the pointer claims. `check-claims`
 already resolves whether a target exists; this checked what is there. The
