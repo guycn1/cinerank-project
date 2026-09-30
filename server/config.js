@@ -38,7 +38,9 @@ function required(name) {
 
 /**
  * The whole configuration, resolved once at import. Only the two thresholds and
- * `topN` ever reach the browser, through GET /api/config in server/index.js.
+ * `topN` are served to the browser as config, through GET /api/config in
+ * server/index.js. Two values reach it inside other data: the image base in
+ * every poster URL, and the model names in the AI metadata and log rows.
  */
 export const config = {
   port: Number(process.env.PORT) || 3000,
@@ -98,9 +100,9 @@ const PRICE_PER_MTOK = {
   'anthropic/claude-haiku-4.5': 3.0,
   'anthropic/claude-3-haiku': 0.9,
   'anthropic/claude-sonnet-4.5': 9.0,
-  // Blended and rounded UP so the fallback can never under-report: sonnet-5 is
-  // $2/Mtok in and $10 out, and a verdict is ~93% input, so the true blend is
-  // about 2.6.
+  // Blended and rounded UP so the fallback does not under-report a verdict:
+  // sonnet-5 is $2/Mtok in and $10 out, and a verdict is ~93% input, so the true
+  // blend is about 2.6. 3.0 covers any call up to 12.5% output.
   'anthropic/claude-sonnet-5': 3.0,
   'openai/gpt-4o-mini': 0.4,
 };
