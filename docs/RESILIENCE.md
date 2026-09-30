@@ -465,8 +465,8 @@ close enough to read both at once.
 > and it once did guess, telling users that a bad key in `.env` was a problem
 > "on our side" when it was neither a bug nor the server’s fault. That was found
 > while shooting [`RS-7`](#rs-7--supabase-down), and removed the same afternoon.
-> The real cause is not lost: the line above the response writes it to the
-> server log, and `RS-7` and
+> The real cause is not lost: the `console.error` before the response writes
+> it to the server log, and `RS-7` and
 > [`RS-13`](#rs-13--a-write-fails-and-says-which-film-it-was-about) carry the
 > same string for the same reason. What the user is owed here is what failed —
 > which the client supplies — and no invented reason for it. The one thing the

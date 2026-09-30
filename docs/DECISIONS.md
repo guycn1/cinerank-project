@@ -613,9 +613,9 @@ seventeen of the eighteen identifiers in the two paragraphs already did.
 commit introduced *"the Documentation table above, which is the ONLY place each
 one is described"* — an exclusivity claim planted in the very edit that
 consolidated duplicate descriptions, and false in both readings. Inside the
-[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again at README:375 in
-wording almost identical to its table row, and
-[`docs/RESILIENCE.md`](RESILIENCE.md) at README:192 in a description Claude had
+[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again in its Security notes
+section in wording almost identical to its table row, and
+[`docs/RESILIENCE.md`](RESILIENCE.md) in its Screenshots section in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
 [`docs/MERGE-READINESS.md`](MERGE-READINESS.md) both describe
 [`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in `707b7f2` after the user
@@ -1756,7 +1756,7 @@ this width.
 
 **And the one transition that does move is the one that cannot be seen.** The
 hint shrinks in `renderRecommendations()` ([app.js](../public/app.js), the `setRecsHint(['Based on:
-…'])` call), and eleven lines later, in the same synchronous block, that same
+…'])` call), and later in the same synchronous block, that same
 function fires `el.recsHead.scrollIntoView({ block: 'start' })` —
 [R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
 scroll. At the exact instant the hint loses a line, the page is smooth-scrolling

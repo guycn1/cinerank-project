@@ -66,8 +66,9 @@ app.use('/api/ai-log', aiLogRouter);
  * it was wrong the first time anyone checked — bad Supabase credentials in .env
  * produced "something went wrong on our side" for a problem that was neither a
  * bug nor on the server's side. A vaguer message that is true beats a specific
- * one that is not. The real cause is on the line above, in the server log,
- * where it can be read without being guessed at.
+ * one that is not. The real cause goes to the server log through the
+ * `console.error` before the response, where it can be read without being
+ * guessed at.
  *
  * Logs the error to stderr and responds 500 with `{ error: 'Something went wrong.' }`.
  * Express recognises error middleware by its four parameters, so `_next` must

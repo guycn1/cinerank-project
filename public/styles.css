@@ -1924,7 +1924,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    after search, 620px after the footer CTA, 1040/850px inside the log table).
    The file-wide reduced-motion block at the end and the 400px hyphenation
    toggle, placed after all four rules it overrides, sit elsewhere on purpose.
-   While this block sat ~800 lines away under "utilities", the poster overflow
+   While this block sat far from here, under "utilities", the poster overflow
    survived unnoticed: nothing next to the poster rule hinted that another rule
    resized it. A media query adds no specificity, so these must stay AFTER the base
    rules they override — keep this block below .movie-card and

@@ -470,10 +470,10 @@ reusable than the fixes.
 **The diagnostic case.** On 2026-09-06 commit `cc41020` thinned the AI call
 log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** — two comments in
-[`public/styles.css`](../public/styles.css), one of them nine lines above the
+[`public/styles.css`](../public/styles.css), one of them just above the
 declaration it contradicted, and a sentence in
 [`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) that disagreed with the code block
-quoted five lines beneath it. Every sweep between then and 2026-09-19 read those
+quoted just beneath it. Every sweep between then and 2026-09-19 read those
 files and passed over all three.
 
 **Why they did.** A sweep that reads each file forwards asking *"is this still

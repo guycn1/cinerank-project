@@ -206,8 +206,8 @@
       // did exactly two things: it wrote the "Rate at least 3 movies to unlock
       // recommendations" hint, and it disabled this button. Neither touched the
       // grid. So a dummy run below the threshold rendered its six cards and they
-      // STAYED — the only casualty was the button, and the line below puts that
-      // back. You could sit at zero rated films and still exercise the whole
+      // STAYED — the only casualty was the button, and the `setTimeout` below
+      // puts that back. You could sit at zero rated films and still exercise the whole
       // render path, which is most of why the harness exists.
       //
       // R16 (885a6a5, 2026-09-11 — two days later) added a third statement to

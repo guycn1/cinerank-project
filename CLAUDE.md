@@ -441,9 +441,9 @@ gone.
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
 figures that had drifted. **SIX OF THE FOURTEEN WERE CONTRADICTED BY `main`
-ITSELF within a few lines** — "R3 is the still-open client half" two lines above
+ITSELF within a few lines** — "R3 is the still-open client half" just above
 "R3. DONE", "the verdict's own version of this is still wrong: see R23" against
-R23's own DONE, "this is not a closed section" nine lines above "Nothing further
+R23's own DONE, "this is not a closed section" a short way above "Nothing further
 is scheduled for this section", "Step 6, the only step left" against "THIS STEP
 IS DONE", the ranked list "NOT closed: the user is still raising", and
 `/api/health` "for a future host" when Render's health check has pointed at it
@@ -766,8 +766,9 @@ carries the current state.
     questions Claude had already answered once:** a first numeric pass filtered
     3,681 figures through an allowlist of sixty nouns and therefore could not
     see "the three real scripts/ tools" at all, and a uniqueness claim planted
-    while consolidating duplicate descriptions was false forty lines from where
-    it was written. Eleven defects, and D-074 for the one real decision
+    while consolidating duplicate descriptions was false within the same README,
+    whose Security notes section further down described one of those
+    documents again. Eleven defects, and D-074 for the one real decision
     underneath them.
 
   - **AND A TWENTY-SEVENTH ON 2026-09-17.** Two claims on `main` were false,
@@ -776,8 +777,7 @@ carries the current state.
     while THREE frames show that same generic `500` message, and called RS-14
     "the only frame where a failure could have cost the user something" when
     `RS-10` is the other one. **Each was contradicted inside its own section** —
-    22 lines later and 28 lines later, by sentences that had been sitting there
-    the whole time.
+    further down it, by sentences that had been sitting there the whole time.
 
     Riding along: thirty navigation links in `README.md`, where exactly one
     in-page link had existed; Supabase added to the "called server-side"
@@ -2300,7 +2300,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   was invisible to it.
 
   Fixed by dropping the SQL filter entirely: ONE unfiltered read, then
-  `rated` and the owned set derived from it two lines apart. **Not** the
+  `rated` and the owned set both derived from that one result. **Not** the
   second query the audit first proposed — see D-046 for why, and for the trap
   that settled it: the first version of the test PASSED against the buggy
   code, because every filter method on the fake Supabase builder is a no-op,
@@ -4842,7 +4842,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     **Needs a temporary code change, like RS-9 — TWO of them, one per run, and
     BOTH make a real, charged OpenRouter call.** In `generateRecommendations()`,
     the line is `picks = parseModelJson(result.text);` and only its ARGUMENT
-    changes; the `chat()` call on the line above stays untouched, which is the
+    changes; the `chat()` call just before it stays untouched, which is the
     whole point — the call completes and is billed, and only what gets parsed is
     spoiled.
 
