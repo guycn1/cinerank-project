@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-09-30
+**Last updated:** 2026-10-01
 
 ### Current state
 
@@ -79,6 +79,19 @@ has crossed a figure they name, and re-grep for new sites.
 commit, before the merge, so that `main` never carries it as an open to-do.**
 
 ### What landed, newest first
+
+#### 2026-10-01
+
+**WHAT LANDED ON 2026-10-01: the search row's 500px grid layout is removed,
+because it never applied (D-083).** Found by the enumeration sweep: its
+`@media (max-width: 500px)` block sits above the base `.result-row` rule, so
+the base `display: flex` has won at every width since the layout was written
+on 2026-09-09. The user confirmed it in devtools, forced the grid on with
+`!important` down to ~290px, and preferred the flex layout the app has always
+shown. The dead grid declarations are gone and the row separators stay; a
+layout diff against the previous stylesheet moved nothing in Chrome or Firefox
+at any width from 280px to 800px. The stylesheet comments and the Search
+section now describe the flex stacking as the layout at every width.
 
 #### 2026-09-30
 
@@ -1362,7 +1375,8 @@ and is recorded in this section's bullets below, from the Add button's
 `flex-shrink: 0` onward; it came out of the same whole-app sweep as the
 ranked-list work: the Add button breaking in two, the input refusing to
 yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
-mid-word, and the new grid layout at 500px and below. **Step 5, the portrait
+mid-word, and a grid layout at 500px and below that never took effect and was
+removed (D-083). **Step 5, the portrait
 overhaul at 500px and below, landed here again on 2026-09-12 and is now
 CLOSED** — it gave the results panel a height FLOOR
 (`max(240px, min(340px, 50vh))`) in place of what had become a second ceiling,
@@ -1434,8 +1448,7 @@ further is scheduled for this section.
     that window, and the user could not reproduce it. **Do not "fix" it by
     reserving the widest label's width** — that costs every row width all the
     time to remove a flicker nobody can see, and it makes the crushed-title
-    problem worse. The grid layout at 500px and below also gives the button
-    its own line now, so there is slack where it used to matter.
+    problem worse.
   * **`.search button .busy-label { display: none }` is scoped to the search
     form only**, so the Add button keeps its full "Adding…" label at every
     width. Cosmetic asymmetry, not a defect: its only consequence was the item
@@ -1474,25 +1487,26 @@ further is scheduled for this section.
   these widths: an estimate once put "In your list" at 111px when it measured
   95px, before D-079's type scale (it is 88px now). Common widths
   (360/390/412px) are untouched.
-- **Search results get their own layout at 500px and below** (user-designed,
-  2026-09-09). The Add button moves from the right-hand column to directly
-  UNDER the year/TMDB line, in the title's column, and subtle row separators
-  make it unambiguous which button belongs to which film.
+- **Search results were given their own grid layout at 500px and below**
+  (user-designed, 2026-09-09), **and it never took effect. Removed 2026-10-01
+  (D-083).** The design moved the Add button from the right-hand column to
+  directly UNDER the year/TMDB line, in the title's column: grid rather than
+  flex, because flex can only push a wrapped button onto a new line spanning
+  the whole row, under the POSTER. But the `@media (max-width: 500px)` block
+  sat ABOVE the base `.result-row` rule, and a media query adds no
+  specificity, so the base `display: flex` and the button's
+  `margin-left: auto` won at every width. Found by the 2026-09-30 enumeration
+  sweep in headless Chrome and confirmed by the user in devtools, who then
+  forced the grid on with `!important` at widths down to ~290px and preferred
+  the flex layout the app had always shown. So the grid rules were deleted
+  rather than fixed, and **the flex stacking above is the search row's layout
+  at every width.**
 
-  **Grid, not flex.** The button has to land in the SECOND column beneath the
-  meta; flex can only push it onto a new line spanning the whole row, which
-  puts it under the POSTER with nothing tying it to the film — which is what
-  the user called sloppy. The poster spans both grid rows, so auto-placement
-  drops the meta at 2/1 and the button at 2/2. `margin-left: auto` has to be
-  cleared, or the grid cell shoves the button back to the far edge.
-
-  **This supersedes the flex stacking at 500px and below.** That wrapping
-  fires at ~271–304px, entirely inside this query, so it no longer triggers.
-  The flex rules are KEPT rather than deleted: they are the behaviour above
-  500px, and the fallback if this breakpoint ever moves down. Separators are
-  scoped to this query deliberately — above 500px the button sits beside its
-  film and proximity already says so. `--line` rather than `--line-faint`,
-  since it has to stay visible through the hover tint.
+  The row separators in the same query did apply all along, and stay: on a
+  narrow screen titles wrap and the button may drop to its own line, while
+  above 500px the button sits beside its film and proximity already says
+  which film it belongs to. `--line` rather than `--line-faint`, since it has
+  to stay visible through the hover tint.
 
   **Follow-up the same day, on the user's "never break mid-word at >=250px":**
   once the row stacks the title column is 128px at 250px (under D-079's type

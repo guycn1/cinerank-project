@@ -11,6 +11,55 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-083 · The search row keeps its flex layout at every width; the 500px grid that never applied is removed
+
+*2026-10-01. Found by Claude during the enumeration sweep, confirmed and
+settled by the user.*
+
+**What was found.** On 2026-09-09 the search rows were given a layout of their
+own at 500px and below: a two-column grid with the poster spanning both rows,
+so the Add button landed under the year/TMDB line in the title's column rather
+than out to the right. It never applied. The `@media (max-width: 500px)` block
+sits above the base `.result-row` rule in
+[`public/styles.css`](../public/styles.css), and has done since the commit that
+added it (`e712cda`). A media query adds no specificity, so the later base
+rule's `display: flex` won, and so did the button's `margin-left: auto` over the
+query's `margin-left: 0`. Measured in headless Chrome in a 400px iframe with the
+real stylesheet (computed `display: flex`), then confirmed by the user in
+devtools, where the query's grid declarations show struck through. Only the
+query's row separators ever took effect, since nothing later competes with them.
+The documentation had described the grid as superseding the flex wrapping, and
+the stylesheet called that wrapping unreachable; it was the layout every narrow
+screen had been showing.
+
+**The fork.** Make the grid apply, by moving the block below the base rules, or
+keep the layout the app has always had. The grid was built to stop a wrapped
+button landing under the poster, away from its title, which the user had called
+sloppy on 2026-09-09; the same day the row gap under a wrapped button was
+tightened from 0.9rem to 0.4rem.
+
+**The user's call: keep the flex layout.** They forced the grid on with
+`!important` in devtools and compared the two at window widths down to about
+290px. The grid made no improvement, and they preferred the current layout.
+
+**What changed**, as in
+[D-082](#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is):
+the claim and the dead declarations, not the behaviour. The grid rules are
+removed (`display: grid`, the column template and gaps, `align-items`, the
+poster's `grid-row` and the button's `justify-self` and `margin-left`); every
+one of them was already overridden or inert under flex, so removing them changes
+nothing on screen. Diffed against the previous stylesheet with
+`npm run layout-check -- --baseline=HEAD --expect-same`, search results on
+screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
+about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
+[`CLAUDE.md`](../CLAUDE.md) now describe the flex stacking as the search row's
+layout at every width.
+
+**Trap.** Do not "restore" the grid as though it were a regression: it never
+shipped, and not having it is the decision. And a narrow-width rule that has to
+override a base rule belongs below it, as the ranked list's 620px block
+documents; a query above its base rule is the shape of this bug.
+
 ## D-082 · The card view's Total card is not pinned; only the table view's Total row is
 
 *2026-09-30. Found by measurement during the causal-claims sweep, and settled
