@@ -108,7 +108,7 @@ below included, which the original headless-Chrome run could not reach: 43
 widths from 280px to 1280px in Chrome and Firefox, every badge on its anchored
 edge to within 0.01px, with a swapped-alignment control run catching the
 defect at about 26px. The user had confirmed it on a phone in both
-orientations, the day it shipped and again today.
+orientations, the day it shipped and again on 2026-09-30.
 
 **Then a sweep of every uniqueness claim** ("the only", "exactly one", "every
 other", "nothing else" and their less obvious forms) across all tracked text
