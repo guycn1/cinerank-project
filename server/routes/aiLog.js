@@ -68,7 +68,7 @@ aiLogRouter.get(
     // deleting the six pre-migration rows rather than building permanent
     // partial-coverage markers.
     //
-    // What was WRONG for the whole life of the feature was the UI copy, not
+    // What was WRONG from b3e3446 until 2026-09-13 was the UI copy, not
     // this: the dialog said "Every OpenRouter call CineRank has made" and the
     // footer panel said "Every OpenRouter call", both of which stopped being
     // true the moment the cap bit. Fixed 2026-09-13 (D-069) — the viewer now

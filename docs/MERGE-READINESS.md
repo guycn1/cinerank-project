@@ -4,7 +4,7 @@
 standard: five criteria, each with explicit evidence. **Satisfy all five and the
 work is merge-ready; fail one and it is not, however correct it appears.**
 
-## Verdict as of 2026-09-14
+## Verdict, reached on 2026-09-14
 
 **MERGE-READY. All five criteria are met.**
 
@@ -16,7 +16,7 @@ work is merge-ready; fail one and it is not, however correct it appears.**
 | 4 | Rationale and communication | **Met** |
 | 5 | Full auditability | **Met** |
 
-**This is the first time this document has read merge-ready, and the sequence
+**This was the first time this document read merge-ready, and the sequence
 matters more than the verdict.** It was written on 2026-09-13 and immediately
 failed its own first criterion — at a point when the application was deployed,
 working, and covered by a green test suite. By the usual informal reading it
@@ -50,8 +50,8 @@ larger one on 2026-09-13, the second the following day.
   set: five frames of a real prompt-injection attempt with both AI features
   resisting it, five tied to specific acceptance criteria, and three product
   shots embedded in the README. (Counts drift; the index is the authority.)
-* **The demo seed list is loaded**, so the deployed app is in the state the
-  evidence describes rather than empty.
+* **The demo seed list was loaded on 2026-09-13 (re-verified 2026-09-30)**, so
+  the deployed app is in the state the evidence describes rather than empty.
 
 **Assembling that evidence found three untested happy paths and three real
 defects.** That is the return on this criterion existing at all, and it is worth

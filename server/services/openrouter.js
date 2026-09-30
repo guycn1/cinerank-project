@@ -89,7 +89,7 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7, m
     // in the same log, and only the 401 had anything to do with the key.
     // Falls back to `name`, which is what the 20s cap above produces: an
     // AbortSignal.timeout aborts with a TimeoutError and no `cause` (both
-    // verified against this Node build, not assumed).
+    // verified on Node's built-in fetch).
     // Log-only either way — the route replaces all of this with a calm sentence
     // before the user sees it (R8, D-047).
     throw new OpenRouterError(`OpenRouter unreachable (${err.cause?.code ?? err.name})`);

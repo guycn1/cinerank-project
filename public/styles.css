@@ -97,7 +97,7 @@
 html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
 
 /* Themed scrollbars everywhere. The two engines are split with @supports so
-   neither sees the other's properties: recent Chromium ignores
+   neither sees the other's properties: since Chrome 121, Chromium ignores
    `::-webkit-scrollbar` the moment `scrollbar-width`/`scrollbar-color` is set
    on the element (they're inherited, so a `* {}` rule would poison every
    scroller). `selector(::-webkit-scrollbar)` is true only in Chromium/Safari. */
@@ -272,8 +272,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .gh-link {
   /* The unlit ring between the mark and the start of the hover glow. In `em`,
      so it stays proportional to the icon: as a fixed 0.45rem it was a thin rim
-     on the 63px header mark and nearly a third of the radius on the 24px footer
-     one, which read as a thick dark collar (user-raised, with a screenshot).
+     on the 63px header mark and more than a third of the link's radius on the
+     footer one, then 24px, which read as a thick dark collar (user-raised, with
+     a screenshot).
      0.115em IS that hand-tuned 7.2px, expressed against the header's 63px —
      so the header rim is unchanged to a twentieth of a pixel.
      Changing this can never disturb the header's vertical alignment: the
@@ -2483,9 +2484,8 @@ button:disabled .sparkle-major { animation: none; }
   display: flex;
   flex-direction: column;
   flex: 1; /* fills the card; cards in a row stretch to equal height */
-  /* Added as DEFENSIVE (D-045) and no longer is — corrected in the 2026-09-09
-     sweep rather than left, because it described the present.
-     The reasoning then was that this grid's tracks were `minmax(190px, 1fr)`,
+  /* Added as DEFENSIVE (D-045), and load-bearing since D-050.
+     It was defensive because this grid's tracks were `minmax(190px, 1fr)`,
      whose fixed minimum cannot be pushed open the way the ranked card's `auto`
      minimum was. D-050 replaced those tracks with plain `1fr`, so the automatic
      minimum is back and this declaration is now load-bearing, not insurance —
@@ -3017,11 +3017,12 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-table .sub { display: block; color: var(--ink-faint); font-size: 0.87em; }
 /* Body rows only, and the size is SOLVED rather than picked. Digit grouping
    costs the split about 3% of its width, which would push the Tokens column
-   out, so the type comes down to pay for it. Measured in Inter at the real
-   computed sizes: the binding string is `1,466 in / 111 out`, which is
-   88.86px at 0.84em against 89.17px for today's un-grouped `1466 in / 111
-   out` at 0.87em — so the column does not move, and the body row stays the
-   cell that sets its width (the footer's split measures 87.06px, just under).
+   out, so the type comes down to pay for it. Measured on 2026-09-19 in Inter
+   at the real computed sizes, on the log as it stood that day: the binding
+   string was `1,466 in / 111 out`, which is 88.86px at 0.84em against 89.17px
+   for the un-grouped `1466 in / 111 out` at 0.87em it replaced — so the column
+   did not move, and the body row stayed the cell that sets its width (the
+   footer's split measured 87.06px, just under).
    Anything below ~0.83em hands that role to the footer instead, which is the
    arrangement the note on `tfoot td` exists to prevent.
    The footer is deliberately NOT included: its `.sub` is 0.87em of a 0.8em

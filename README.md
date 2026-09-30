@@ -11,8 +11,9 @@
 it and the top three rated films below](docs/screenshots/readme-1-hero-ranked-list.png)
 
 *The verdict is generated from the list beneath it, and says so checkably:
-"real trucks in a real desert" and "Elphaba belting her lungs out" are both
-lifted from reviews visible in the same screenshot.*
+"real trucks in a real desert" is lifted from the Mad Max review and "Elphaba
+belting her lungs out" is drawn from the Wicked review, both visible in the
+same screenshot.*
 
 A personal movie-ranking app where the database and the AI each earn their place:
 
@@ -249,7 +250,7 @@ prose and are covered in the [Project layout](#project-layout) tree instead.
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | [`SPEC.md` § 7.1](SPEC.md#71-must-pass-before-submission)’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
-| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)’s five criteria for whether this is fit to merge, each with its evidence — and the [standing verdict](docs/MERGE-READINESS.md#verdict-as-of-2026-09-14): **MERGE-READY, all five met**. |
+| [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)’s five criteria for whether this is fit to merge, each with its evidence — and the [standing verdict](docs/MERGE-READINESS.md#verdict-reached-on-2026-09-14): **MERGE-READY, all five met**. |
 | [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
 | [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the [binding rules](CLAUDE.md#working-agreements-binding--added-after-incident-1) added after it destroyed real data. |
 
@@ -377,7 +378,8 @@ path rather than its endpoints.
 
 ## Demo script
 
-1. Start from an empty list → add 3–4 real movies via TMDB search, rate them.
+1. Start from the seeded demo list (seven films, one left unrated) → add a real
+   movie via TMDB search and rate it.
 2. Show the ranked list re-sorting live as ratings change; hit **New verdict**
    for a fresh read on your taste.
 3. Trigger a recommendation run, narrating: top-N pulled → versioned prompt sent
@@ -397,7 +399,8 @@ path rather than its endpoints.
 Hosted on **Render**. The Express server (`app.listen`) needs a Node host —
 Netlify is not an option (static files + serverless functions only). [`render.yaml`](render.yaml)
 in the repo root is the blueprint; a service created by hand in the dashboard
-behaves identically and ignores the file.
+ignores the file, and behaves identically except for the Node version the file
+pins.
 
 **Live URL:** https://cinerank-g6lx.onrender.com
 

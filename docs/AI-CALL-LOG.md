@@ -75,8 +75,9 @@ over *that slice*. Once the two tables hold more than 60 rows between them, the
 That cap is deliberate and is documented at the query. **If you change it,
 change the two strings in [`public/index.html`](../public/index.html) that
 describe the dialog with it** — the blurb inside it and the footer panel that
-opens it. Those two said "every OpenRouter call CineRank has made" for the
-entire life of the feature, which stopped being true the day the cap first bit;
+opens it. Those two said "every OpenRouter call CineRank has made" until
+2026-09-13 (the dialog from `b3e3446`, the panel from `38ca76d`), which stopped
+being true the day the cap first bit;
 see
 [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 

@@ -1,7 +1,8 @@
 # Render blueprint — https://render.com/docs/blueprint-spec
 #
-# Optional: a web service created by hand in the Render dashboard works exactly
-# the same and ignores this file. It is checked in so the deploy is reproducible
+# Optional: a web service created by hand in the Render dashboard ignores this
+# file and works the same, except for the Node version pinned below (see
+# NODE_VERSION). It is checked in so the deploy is reproducible
 # and reviewable rather than living only in someone's browser session.
 #
 # Netlify is NOT an option for this app: it serves static files and serverless
@@ -60,7 +61,7 @@ services:
       # created from this blueprint at Node 22, so a Render-side default bump
       # cannot change its runtime. The live service was created in the
       # dashboard, which does not read this file, so the pin does not apply to
-      # it: that service runs the newest Node that satisfies ">=20".
+      # it: that service takes the newest Node satisfying ">=20" at each build.
       - key: NODE_VERSION
         value: "22"
 

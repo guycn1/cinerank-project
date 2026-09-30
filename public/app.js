@@ -2935,10 +2935,10 @@ function setSheenRate(rate) {
  * never while a sliver of it is still on screen.
  *
  * Feature-detected. An engine without IntersectionObserver keeps the animation
- * running, which is exactly today's behaviour, so the fallback is the status quo
- * rather than a broken state. The observer is deliberately never disconnected:
- * it watches one element that lives as long as the document, so there is nothing
- * to leak and nothing to tear down.
+ * running off-screen as well, the behaviour before this pause existed, so the
+ * fallback is a lost saving rather than a broken state. The observer is
+ * deliberately never disconnected: it watches one element that lives as long as
+ * the document, so there is nothing to leak and nothing to tear down.
  *
  * Called once, from init(). It toggles `.is-offscreen` on the banner; the pause
  * itself is in styles.css.

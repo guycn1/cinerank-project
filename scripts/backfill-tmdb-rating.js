@@ -20,8 +20,8 @@
  * Read the printed plan first, then re-run with --write.
  *
  * Migration 002 and this backfill were applied on 2026-09-08, so on the live
- * database all it can still find are films TMDB has no votes for yet, such as
- * an unreleased one.
+ * database all it can still find are films TMDB had no votes for when they were
+ * added, such as an unreleased one.
  */
 
 import 'dotenv/config';

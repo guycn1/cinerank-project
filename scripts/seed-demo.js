@@ -161,7 +161,8 @@ const SEED = [
       'the dumb stuff.',
   },
   {
-    // AN UNRELEASED FILM, ON PURPOSE: TMDB reports no votes for it, so the card
+    // AN UNRELEASED FILM, ON PURPOSE (unreleased and unvoted, checked
+    // 2026-09-30): TMDB reports no votes for it, so the card
     // draws the muted "No TMDB rating" caption (D-037) instead of a bogus 0.0.
     // Nothing else in this set exercises that path.
     // If this has been released by the time the set is next touched, swap it for

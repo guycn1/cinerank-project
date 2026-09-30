@@ -187,6 +187,22 @@ where the dates give eight or nine days; and the glint's pass count, five on
 ("the highest ratio", "the most heavily probed", "the best-evidenced", "the
 biggest single multiplier") are toned down or gone.
 
+**And a sweep of every temporal claim** ("currently", "still", "yet", "never",
+"today" and their less obvious forms), for present-tense claims that had
+drifted. One reached the dependencies: `npm audit` had come to report a high
+advisory in `brace-expansion`, a dev dependency through `eslint`, and
+`npm audit fix` cleared it, so the "zero across every severity" claims hold.
+Checked against the running system: the gates take a few seconds together,
+not under a second; the live list is the seed list; Shrek 5 is still unvoted
+on TMDB. Scoped to the day they were measured: the AI log's binding token
+string, the Node version the live build picked, the SVG-favicon support
+claim, and Chromium's scrollbar rule (Chrome 121). Also corrected: the
+decisions behind the AI call log number ten since D-082, the footer GitHub
+mark's padding is 2.54px at its 22px, and the revert-as-first-move paragraph
+in `docs/PROCESS.md` now counts the RS-15 and RS-16 edits and the four revert
+commits alongside the glint and RS-9. The demo scripts in
+`README.md` and `SPEC.md` § 7.2 now start from the seeded list.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -1148,9 +1164,10 @@ and stay as written.
     Both lines now go through `toLocaleString()` with no argument, so they
     follow the reader's locale together. **The comma is paid for in type size,
     and the value is solved rather than picked:** `.log-table tbody .sub`
-    drops 0.87em to 0.84em, measured in Inter at the real computed sizes so
-    that the binding string `1,466 in / 111 out` comes to 88.86px against the
-    un-grouped 89.17px — the Tokens column does not move. Body rows ONLY: the
+    drops 0.87em to 0.84em, measured on 2026-09-19 in Inter at the real
+    computed sizes, on the log as it stood that day, so that the binding
+    string `1,466 in / 111 out` came to 88.86px against the un-grouped
+    89.17px — the Tokens column did not move. Body rows ONLY: the
     footer's `.sub` is 0.87em of a 0.8em cell and is already the smaller of
     the two, which is why the selector names `tbody`. The declaration carries
     the arithmetic; read it before changing either number.
@@ -1169,7 +1186,7 @@ and stay as written.
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
-  so each engine sees only its own props — recent Chromium ignores
+  so each engine sees only its own props — since Chrome 121, Chromium ignores
   `::-webkit-scrollbar` once `scrollbar-width`/`scrollbar-color` is set (and those
   inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
   thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
@@ -3446,9 +3463,10 @@ proportional glow. A fixed
 screenshot.** The dark ring the user saw "wrapping" the small mark was the
 link's own `padding` — unlit page background between the glyph and where the
 glow starts — and it was fixed in `rem`, so it did not scale down: a thin rim
-at 63px, nearly a third of the radius at 24px. `--gh-pad` is now `0.115em`,
-which IS the hand-tuned 7.2px expressed against the header's 63px, so the
-header rim moves by 0.05px and the footer's drops 7.20 → 2.76px. **Changing
+at 63px, more than a third of the link's radius at 24px. `--gh-pad` is now
+`0.115em`, which IS the hand-tuned 7.2px expressed against the header's 63px,
+so the header rim moved by 0.05px and the footer's dropped from 7.20px to
+2.76px at 24px (2.54px at the 22px the type scale has made it, D-079). **Changing
 that value can never disturb the header's alignment**, and it is worth
 knowing why: the `margin-top` calc subtracts exactly what the padding adds,
 so the glyph lands in the same place whatever the padding is.
@@ -4297,10 +4315,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   wakes — a minute is the observed worst case, not the typical one. Open the
   link shortly before demoing.
 
-  Node resolves to whatever is newest (`engines` says `>=20`; the live build
-  picked 26.8.1) because the dashboard service ignores `render.yaml`'s
-  `NODE_VERSION` pin. Working fine; pin it in the dashboard if a future deploy
-  ever breaks on a new Node.
+  Node resolves at each build to the newest version satisfying `engines`
+  (`>=20`; the build of 2026-09-07 picked 26.8.1) because the dashboard service
+  ignores `render.yaml`'s `NODE_VERSION` pin. Working fine; pin it in the
+  dashboard if a future deploy ever breaks on a new Node.
 
 * [x] **RECONCILED AGAINST `DOSSIER.md` — DONE 2026-09-13. Do not redo this.**
   `DOSSIER.md` is the course's own grading rules, copied from Moodle by the
@@ -5559,7 +5577,7 @@ the real blob from github.com and read that — it is the only authority.
   Two of them are scoped to what a commit CHANGED — `npm run lint` to `.js`,
   `npm run check-markdown` to `.md` — which is right for a commit and wrong for
   a merge: this is the one moment the branch a reader lands on and the live
-  Render deploy both move, and the whole set costs under a second. **Added
+  Render deploy both move, and the whole set runs in a few seconds. **Added
   2026-09-17, after the twenty-seventh merge went through without the suite
   being run.** That merge touched eight files, every one of them `.md`, so
   nothing could have broken and 60/60 passed when it was finally run — but "it

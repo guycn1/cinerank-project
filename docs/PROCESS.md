@@ -108,13 +108,17 @@ the reasoning. Rules that keep this honest live in
   15 of the 16 days** the project has run, a **median of 2 files per commit** and
   a maximum of 14. (Deliberately not exact figures: they move with every commit,
   including the ones that would be needed to correct them. The single gap is
-  2026-09-18.) It was exercised twice for real, not merely available: four failed
+  2026-09-18.) It was exercised for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
-  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) capture needed a
-  deliberate one-line break in a service, undone with
-  `git checkout -- server/services/recommendations.js` the moment the shot
-  landed. Neither move needed a stash, a branch or a careful hand-undo, because
-  the checkpoint was already there.
+  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path));
+  the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest),
+  [RS-15](RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+  and [RS-16](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist)
+  captures each needed a deliberate edit to a service (RS-15 two of them), each
+  undone with `git checkout -- server/services/recommendations.js` the moment
+  the shot landed; and four revert commits in the history undo a change
+  outright. None of these needed a stash, a branch or a careful hand-undo,
+  because the checkpoint was already there.
 - **Commit messages say why**, and design decisions go to the top of
   [`docs/DECISIONS.md`](DECISIONS.md) (newest first) at the moment they're made
   ([Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation): the
@@ -539,7 +543,7 @@ merges, tests, gates, captures, prompt versions, models, dependencies, reverts.
 **Attention had been going where verification was already cheap.**
 
 So: **a count is safest when it names its members.** Several now do — the gate
-list, the nine decision entries behind the AI call log, the five RS states whose
+list, the ten decision entries behind the AI call log, the five RS states whose
 second frame is an audit-trail shot. A named list is falsified by reading it; a
 bare numeral is falsified only by someone independently recounting, which nobody
 does.

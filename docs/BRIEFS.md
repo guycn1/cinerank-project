@@ -8,7 +8,7 @@ what the code does, drawn from the code — and *explanatory* documentation badl
 because why a thing was built that way is not in the source to be read off.
 
 Both briefs are below. The first already existed and is pointed at rather than
-copied; the second is new.
+copied.
 
 ## 1. Interface brief — the Home screen
 
@@ -71,9 +71,9 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 To stop the next change from silently undoing a fix. This component packs a lot
 of non-obvious decision into little code: one short route file, five cell
 builders in [`public/app.js`](../public/app.js) (`cell`, `abbrCell`,
-`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet, and **nine decision-log entries** behind them —
+`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet, and **ten decision-log entries** behind them —
 [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
-[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history). *(The nine are named rather than counted so the figure can be checked, and
+[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history), [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is). *(The ten are named rather than counted so the figure can be checked, and
 so `check-claims` resolves each one.)*
 
 Several of its rules look like they could be simplified and cannot.

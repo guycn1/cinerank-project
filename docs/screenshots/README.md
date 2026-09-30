@@ -122,9 +122,10 @@ shows three of the seven ranked films — those two features are what
 [`readme-3`](readme-3-ai-call-log.png) are for.
 
 [`readme-1`](readme-1-hero-ranked-list.png) is self-proving and worth a second
-look: the verdict's phrases *"real trucks in a real desert"* and *"Elphaba
-belting her lungs out"* are both lifted from film reviews visible **in the same
-image**, so the grounding can be checked without leaving the frame.
+look: the verdict's *"real trucks in a real desert"* is lifted from the Mad Max
+review and its *"Elphaba belting her lungs out"* is drawn from the Wicked
+review, both visible **in the same image**, so the grounding can be checked
+without leaving the frame.
 
 ## When these were taken
 
