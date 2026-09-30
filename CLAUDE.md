@@ -441,7 +441,7 @@ gone.
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
 figures that had drifted. **SIX OF THE FOURTEEN WERE CONTRADICTED BY `main`
-ITSELF within a few lines** — "R3 is the still-open client half" just above
+ITSELF, in the same file**, two of them within a few lines — "R3 is the still-open client half" just above
 "R3. DONE", "the verdict's own version of this is still wrong: see R23" against
 R23's own DONE, "this is not a closed section" a short way above "Nothing further
 is scheduled for this section", "Step 6, the only step left" against "THIS STEP
@@ -828,8 +828,8 @@ carries the current state.
 
   - **AND A TWENTY-NINTH ON 2026-09-21.** Nineteen claims false on `main`, and
     the useful half is what they have in common: fourteen of them describe a
-    DIFFERENT item's status, and six of those are contradicted by `main` within
-    a few lines of the sentence making the claim. **So the sentence for this one
+    DIFFERENT item's status, and six of those are contradicted by `main` in the
+    same file as the sentence making the claim. **So the sentence for this one
     is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
     one of the six is correct about itself and wrong about its neighbour, which
     is the 2026-09-19 cross-file finding one level down. The other five are

@@ -283,7 +283,7 @@ fires is the thing this document exists to rule out.
   which had gone out of date while the practice it describes stayed consistent,
   and the twenty-sixth carried eleven accuracy defects the user surfaced by
   asking whether particular claims resolve, and the twenty-seventh carried two
-  claims that were false on `main`, each contradicted a few lines below itself —
+  claims that were false on `main`, each contradicted further down its own section —
   the twenty-eighth carried a misaligned score badge on the deployed site
   together with fourteen documentation defects, and the twenty-ninth carried
   fourteen claims that described finished work as still open plus five drifted

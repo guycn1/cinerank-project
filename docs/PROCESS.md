@@ -56,7 +56,7 @@ the reasoning. Rules that keep this honest live in
   The twenty-ninth is the same ground reached from a different direction:
   fourteen claims that described finished work as still open and five figures
   that had drifted — six of the fourteen contradicted by `main` itself
-  within a few lines of the sentence making them.
+  in the same file as the sentence making them.
 - **Secrets never enter code.** `.env` gitignored from commit 2, the first with
   project content (commit 1, a one-line README, was checked by hand and holds
   no secret); a pre-commit
