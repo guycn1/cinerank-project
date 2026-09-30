@@ -41,7 +41,11 @@
  */
 const $ = (sel) => document.querySelector(sel);
 
-/** Every element the app touches, looked up once at load by its id in index.html. */
+/**
+ * The fixed elements the app works with, looked up once at load by their id in
+ * index.html. Three more are found where they are used: the sparkle template,
+ * the verdict's inner panel and the sheen's rects.
+ */
 const el = {
   verdict: $('#verdict'),
   verdictText: $('#verdict-text'),
@@ -1811,7 +1815,8 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 // a coincidence worth collapsing into one constant: the two should stay
 // independently tunable, because the entrance is the half the user asked to be
 // able to watch and the exit only has to be legible.
-// Six cards come to 0.34s + 5x120ms = 0.94s, still inside any real AI call.
+// Six cards come to 0.34s + 5x120ms = 0.94s, shorter than a real AI call
+// typically takes.
 const RECS_EXIT_STAGGER_MS = 120;
 // Must match the `animation` duration on `.rec-card.is-leaving`. Read only by
 // the removal backstop below, which needs to know when the last card is done —
@@ -2109,9 +2114,9 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     el.recsGrid.append(card);
   });
   el.recsMeta.replaceChildren(aiMetaFooter(meta));
-  // Cards are built in the not-yet-rated state, which is correct by construction
-  // today — R2's owned filter means a film already in the list can never be
-  // recommended back, rated or not. Called anyway so the badge's accuracy rests
+  // Cards are built in the not-yet-rated state, which is correct in practice
+  // today — R2's owned filter keeps a film already in the list, rated or not,
+  // out of the recommendations. Called anyway so the badge's accuracy rests
   // on `state.movies` alone rather than on a server-side filter staying correct.
   syncRecCardBadges();
   // Same synchronous task as the appends above, so the browser never paints a

@@ -4,8 +4,8 @@
 
 > Hosted on Render's free tier, which sleeps after ~15 minutes idle — **the first
 > request after a quiet spell takes anywhere from a few seconds to a minute**
-> while the instance wakes. Every load after that is immediate. Worth opening the
-> link shortly before you need it.
+> while the instance wakes. Every load after that is immediate (until the
+> instance sleeps again). Worth opening the link shortly before you need it.
 
 ![The CineRank ranked list, with an AI-generated taste verdict in a banner above
 it and the top three rated films below](docs/screenshots/readme-1-hero-ranked-list.png)
@@ -19,7 +19,8 @@ A personal movie-ranking app where the database and the AI each earn their place
 - **The database** tracks a growing *taste profile* (your rated films + reviews)
   that is read back to ground AI recommendations, and it keeps an **audit log of
   every AI call** — prompt version, model, token split, duration,
-  success/failure, estimated cost. Viewable in-app via the ["AI call
+  success/failure, estimated cost (a run whose row cannot be written is
+  discarded rather than shown). Viewable in-app via the ["AI call
   log"](#every-ai-call-whether-it-worked-or-not) button in the footer.
 - **The AI** (via OpenRouter) has one narrow job — narrow in *scope*, not in
   effort. From your top-rated films and the reviews you wrote about them it
@@ -131,7 +132,9 @@ decoration:
 - **Both AI services write to the database on every call, not only the happy
   ones.** A failed call still produces a row carrying the model, the prompt
   version, the duration and the error text — which is why the in-app log can
-  show failures at all, and why an outage cannot quietly disappear.
+  show failures at all, and why an outage cannot quietly disappear. If the
+  write itself fails, the run is discarded and the cause goes to the server's
+  stderr.
 - **Prompts are files, loaded at call time.** Nothing is inlined in a `.js`
   file, versions are never overwritten, and every log row records which version
   produced it — so any past recommendation or verdict is traceable to the exact
@@ -242,7 +245,7 @@ prose and are covered in the [Project layout](#project-layout) tree instead.
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). A log that only recorded wins would not be evidence of process. |
 | [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). |
-| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Every rule paired with the version that was tried first and failed. |
+| [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: the component with the highest ratio of non-obvious decision to line of code, written up so the next change does not silently undo a fix. Each rule paired with what breaks if it is undone, and many with the version that was tried first and failed. |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | [`SPEC.md` § 7.1](SPEC.md#71-must-pass-before-submission)’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
 | [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
@@ -332,7 +335,7 @@ path rather than its endpoints.
 │   │   ├── tasteVerdict.js      /api/taste-verdict — a new verdict
 │   │   └── aiLog.js             /api/ai-log — both log tables, merged
 │   └── services/
-│       ├── tmdb.js              all TMDB HTTP; the trusted source of movie facts
+│       ├── tmdb.js              all TMDB API calls; the trusted source of movie facts
 │       ├── openrouter.js        the OpenRouter transport both AI features share
 │       ├── promptLoader.js      loads a versioned prompt at call time, fills {{VARS}}
 │       ├── recommendations.js   taste profile → prompt → JSON → verify vs TMDB → log
@@ -383,8 +386,9 @@ path rather than its endpoints.
 4. Open the in-app [**AI call log**](#every-ai-call-whether-it-worked-or-not)
    (footer button) — show prompt version, model, token split, duration, status,
    and per-call cost for both features.
-5. Try a duplicate add and a recommendation run below the 3-rated threshold —
-   show both graceful states.
+5. Show the two guarded states: search for a film already in the list, whose
+   row offers `In your list` in place of Add, and drop below 3 rated films,
+   where the recommendation trigger is disabled with the reason beside it.
 6. (Optional) add a movie whose review is an injection attempt ("ignore previous
    instructions…") and show the verdict staying on-topic.
 
@@ -413,8 +417,8 @@ Deploying it yourself:
 
 **Free-tier caveat:** the instance sleeps after ~15 minutes idle, so the first
 request after a quiet period takes anywhere from a few seconds to a minute while
-it wakes. Subsequent loads are immediate. Worth opening the link shortly before
-demoing it.
+it wakes. Subsequent loads are immediate (until the instance sleeps again).
+Worth opening the link shortly before demoing it.
 
 ## Security notes (course Module 17)
 
@@ -423,7 +427,9 @@ ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, 
 against the product and once against the agentic development environment that
 built it, including the ones that do not apply and why. The short version:
 
-- `.env` is gitignored from the first commit; [`npm run
+- `.env` is gitignored from the second commit, the first with any project
+  content; the root commit, a one-line README, was checked by hand and holds no
+  secret. [`npm run
   scan-secrets`](scripts/scan-secrets.js) checks staged diffs.
 - Frontend uses the Supabase **anon key** only — least privilege, RLS-bounded.
 - User review text feeds both prompts as *untrusted data*, clearly delimited;
@@ -448,5 +454,5 @@ explicit sign-off: a settled milestone, a fix for a defect already published on
 `main`, or a single close-out sync when the work is declared finished. The first
 twenty-one merges were all milestones; every merge since has been a defect fix
 ([D-073](docs/DECISIONS.md#d-073--the-merge-rule-gained-a-second-and-a-third-ground-and-the-correction-that-prompted-it-stays-on-draft)
-records why the rule names three). Every change is committed with a message that
-says *why*.
+records why the rule names three). Changes are committed with messages that say
+*why*.

@@ -3,9 +3,9 @@
  * "SE hygiene" criterion (docs/MERGE-READINESS.md, course Module 16).
  *
  * Deliberately NOT a style linter. Prettier-style formatting rules are left out
- * entirely: this codebase was written by one agent under one set of conventions,
- * so reformatting it would produce a large diff that proves nothing and buries
- * the real history. What is enabled is the set of rules that can catch a DEFECT
+ * entirely: this codebase was mostly written by one agent under one set of
+ * conventions, so reformatting it would produce a large diff that proves
+ * nothing and buries the real history. What is enabled is the set of rules that can catch a DEFECT
  * — an unused binding, a shadowed variable, a promise nobody awaited, a `case`
  * that falls through — plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.

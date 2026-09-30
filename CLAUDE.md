@@ -17,7 +17,7 @@ This project consists of:
 * A genuinely polished, distinctive UI — not a generic default-component look.
 * A genuine, narrow-scope AI feature (OpenRouter-based recommendations) that reads real stored data and writes a real audit log — not a general chatbot bolted onto the app.
 
-Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged.
+Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
 
 
 ## Project Status — Living Log
@@ -131,6 +131,21 @@ The rest was wording: `check-markdown` described as running only on `.md`
 commits when every merge runs it too, "a log row is ALWAYS written" without
 the case where the write itself fails (R5), D-060's boundary, and inclusive
 breakpoints written as "below 500px", "< 850px" or "500px and up".
+
+**Last, a sweep of every inclusivity claim** ("every", "all", "nothing", "no
+other", "the rest" and their less obvious forms). Two of them led to the
+gates: `scan-secrets` had no pattern that matched a real OpenRouter key
+(`sk-or-v1-…`, whose hyphens stop the `sk-` pattern short) or a TMDB v3 key,
+and now has both, each probed against a planted key; and `check-claims` passed
+a relative link to a file that does not exist whenever the path did not start
+with a known directory, and now resolves each link's target in the documents
+it checks (check 11c), probed with four broken links, which it caught, and two
+more inside a code span and a fenced block, which it rightly ignored. The
+reduced-motion block now covers `::after` too, which only the verdict caret
+uses. The rest was wording, including the error
+paths `docs/RESILIENCE.md` lists (nine, where it said seven), the first commit
+(`.env` is ignored from the second; the first was checked by hand), and "every
+call is logged" at the sites the conditional sweep had not reached.
 
 #### 2026-09-29
 
@@ -280,7 +295,9 @@ JSDoc header — `@module` where it exports, `@file` where it does not — and e
 named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
 shapes are typedefs. Each file was proved unchanged as code by tokenizing it
-against its previous version.
+against its previous version. *(Sixteen blocks still had no description
+line and one function no block at all; the 2026-09-29 entry found and filled
+them.)*
 
 Three kinds of function are left undocumented on purpose: one-line helpers
 declared inside another function, one-line methods in object literals (the test
@@ -1354,7 +1371,7 @@ further is scheduled for this section.
   (hyphenated, since D-080, but broken). A `@media (max-width: 300px)` block
   drops `.result-row .meta strong` to 0.9rem, where that word measures 119px
   and fits whole and the column holds about 17 average characters, which
-  covers every word length that occurs in real film titles. **A hard cutoff,
+  covers every typical word length in real film titles. **A hard cutoff,
   not a `clamp()`** — a fluid size would have to start shrinking hundreds of
   pixels earlier to reach 0.9rem by 300px and would visibly touch the wide
   views; 301px and up is provably unchanged.
@@ -2645,7 +2662,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   `syncRecCardBadges()` runs from `loadMovies()` and again at the end of
   `renderRecommendations()` — the second call is redundant today, since R2's
-  owned filter means a rated film can never be recommended back, and it is
+  owned filter keeps a rated film out of the recommendations, and it is
   there so the badge rests on `state.movies` alone rather than on a
   server-side filter staying correct.
 
@@ -4334,7 +4351,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   with the set does not belong in a rule about the set.)
 
   **TMDB, OpenRouter and Supabase are ALL called SERVER-side** — the browser
-  talks only to this app — so DevTools offline mode and request blocking do NOT
+  talks only to this app, apart from poster images from TMDB's image server and
+  fonts from Google — so DevTools offline mode and request blocking do NOT
   simulate them. Forcing means editing `.env` and restarting, except where
   noted. **The ranked list must still be working in every shot except RS-7** —
   that is the point of most of them: one thing broke, the app did not.
@@ -4365,9 +4383,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **TMDB down on add.** **Order matters and is not obvious:** search FIRST
     with a good key so rows render, THEN swap in a bogus key, restart, and click
-    Add on the rows still on screen. There is no other way in — with TMDB down,
-    search itself fails and there is nothing to click. This works only because
-    the results panel is persistent rather than a dropdown (D-024). Expect the
+    Add on the rows still on screen. With TMDB down, a fresh search fails and
+    there is nothing to click. This works because the results panel is
+    persistent rather than a dropdown (D-024). Expect the
     toast: "Couldn’t add “<Title>” — TMDB is unreachable."
 
   - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
@@ -4903,8 +4921,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     text line silently becomes a setext `h2` (confirmed with the renderer), so
     converting would have armed a trap for whoever next edits a blank line.
   * **Escaped underscores inside code spans — FIXED.** These really did render
-    with the backslash showing, and they covered essentially every technical
-    identifier in both documents: all four env var names in § Security & Secrets,
+    with the backslash showing, and they covered technical identifiers in
+    both documents: all four env var names in § Security & Secrets,
     both log table names, every log column, all three check constraints, and
     every prompt filename and version. The user caught this in a screenshot of
     the Module 17 section.
@@ -5076,7 +5094,7 @@ it.
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
    * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has three siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for every claim that points at something resolvable.)
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has three siblings: `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
 
 **This whole section is mapped against the OWASP Top 10 for Agentic Applications
 in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for
@@ -5191,7 +5209,7 @@ deliverable here (Module 8 process documentation), so "it only looks wrong" is
 not a cosmetic category in this project. On 2026-09-12 both `CLAUDE.md` and
 `SPEC.md` were found rendering wrong on GitHub and nobody had noticed: 17 section
 separators showing as a literal `---` paragraph, and a backslash printed inside
-the code chip of essentially every technical identifier in both files — all four
+the code chip of technical identifiers in both files — all four
 env var names in § Security & Secrets, both log tables, every log column, all
 three check constraints, every prompt filename. A rule that is merely written
 down could be re-broken within a session. See D-065.
@@ -5229,7 +5247,7 @@ down could be re-broken within a session. See D-065.
    D-065's addendum records why.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
    the whole block as one paragraph full of pipe characters — not a degraded
-   table, no table at all. The repo’s markdown carries tables in most of its
+   table, no table at all. The repo’s markdown carries tables in many of its
    files, so this is not hypothetical. **No count sits here, on purpose:** the
    number drifts every time a document gains a table, and the rule's point does
    not depend on it. Count the separator rows if the number is ever actually
@@ -5511,14 +5529,15 @@ the real blob from github.com and read that — it is the only authority.
   the bar; the five complexity warnings are a deliberate, documented state — see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
-  every claim in the repository that POINTS AT SOMETHING — a path, a script, a
-  `D-0NN` entry, a quoted commit SHA, a `file.js:123` reference, an identifier
-  in backticks in a document, a function a JS comment names, a capture and its
-  count, an `RS-n` key, a section (every link `#anchor` against the target's
-  real headings, and every prose `§ 4.5` or `§ Title`), a short list of retired
-  phrasings, a passage narrating its own earlier wording (rule 10 under
-  § Markdown Authoring Rules), and any invisible character (U+00A0 and friends,
-  which no reviewer can see by eye) — against the thing it names.
+  the claims in the repository that POINT AT SOMETHING, in these forms — a path
+  or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA, a
+  `file.js:123` reference, an identifier in backticks in a document, a function
+  a JS comment names, a capture and its count, an `RS-n` key, a section (every
+  link `#anchor` against the target's real headings, and every prose `§ 4.5` or
+  `§ Title`), a short list of retired phrasings, a passage narrating its own
+  earlier wording (rule 10 under § Markdown Authoring Rules), and any invisible
+  character (U+00A0 and friends, which no reviewer can see by eye) — against the
+  thing it names.
 
   It exists because a claim can be falsified by an edit to a DIFFERENT file,
   which a per-file staleness sweep structurally cannot see: `README.md` spent

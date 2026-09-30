@@ -139,7 +139,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 
 **CineRank adds a real reason to have a database and a real reason to call an LLM:**
 
-* The **database** doesn't just store movies — it tracks a growing taste profile (your rated movies + reviews) that gets read back later to ground AI recommendations, and it logs every AI recommendation ever generated (so recommendations are auditable, not throwaway).
+* The **database** doesn't just store movies — it tracks a growing taste profile (your rated movies + reviews) that gets read back later to ground AI recommendations, and it logs every AI recommendation ever generated (so recommendations are auditable, not throwaway). *(As built, a run whose log write fails is discarded rather than shown, and its cause goes to the server's stderr.)*
 * The **AI (OpenRouter)** isn't answering open questions — it has exactly one narrow job: given your top-rated movies, suggest similar movies you haven't added yet, with a short reason per pick. It's a small, well-scoped feature, not the engine of the app. *(Well-scoped is exactly right and stays. "Small" undersells what that one job turned out to involve: the run reads the whole list, infers a sensibility from the top five rated films AND the review text attached to them, excludes everything already in the list, and compresses the justification for each pick into one second-person sentence of 8–16 words that has to point at a specific rating or a pattern across them — see [`prompts/recommend_v3.md`](prompts/recommend_v3.md). The scoping claim was never the problem; the size adjective was.)*
 * The **UI** should be genuinely polished and visually engaging — real typography, motion, and thoughtful visual hierarchy, not a generic default-component look. This project wants a fair amount of eye-candy; specific layout and visual choices are left open — see [§ 3](#3-interface-design-module-8) for priorities rather than a fixed look.
 
@@ -320,7 +320,7 @@ Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a
 |created\_at|timestamptz|default now()|
 |prompt\_version|text|e.g. `"v1"` — see [§ 6](#6-ai-features--prompt-discipline)|
 |input\_movie\_ids|uuid\[]|the top-N movies used as taste signal|
-|raw\_model\_output|jsonb|exactly what the model returned, unmodified|
+|raw\_model\_output|jsonb|exactly what the model returned, unmodified *(as built: `{ text, parsed, verification }` — the reply as received, the picks parsed from it, and the per-title verification tally; null when no reply arrived)*|
 |suggested\_titles|text\[]|parsed titles, post-validation|
 |model\_used|text|e.g. `"anthropic/claude-..."` via OpenRouter|
 |tokens\_used|integer|from the OpenRouter response|
@@ -376,7 +376,7 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 
 ### 7.2 Manual Demo Script
 
-*Two steps below have been overtaken by what got built, and the script in [`README.md`](README.md) is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
+*Three steps below have been overtaken by what got built, and the script in [`README.md`](README.md) is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real. Step 5's two states are refused before any request is sent: an Add button for a film already in the list is disabled and reads `In your list`, and below the threshold the recommendation trigger is disabled with the reason beside it, which are the graceful states to show.*
 
 1. Show an empty list → add 3-4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change, and the Taste Verdict Banner generating a fresh one-liner about the taste profile so far.

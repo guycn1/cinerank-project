@@ -16,13 +16,16 @@ Four claims, and every capture below is measured against them:
 1. **The app says what happened, in plain language.** No stack traces, no HTTP
    status codes, no library wording leaking into the interface.
 2. **One dependency failing does not take the page with it.** In every state but
-   one the ranked list is still on screen and still correct. The exception is
+   one the ranked list is still on screen and still correct (in
+   [`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited), correct as that
+   view last loaded it). The exception is
    [`RS-7`](#rs-7--supabase-down), where the list itself is what broke. *(Deliberately
    not a count: the set of states grows, and a count of a growing set is a
    maintenance burden this sentence does not need.)*
 3. **The failure is recorded where a failure belongs.** An AI call that failed
    still writes a row carrying the model, the prompt version, the duration and
-   the real technical cause — which is the half the user never sees.
+   the real technical cause — which is the half the user never sees. If that
+   write fails too, both causes go to the server's stderr instead.
 4. **Work in progress survives a failure that had nothing to do with it.** A
    write that fails leaves what the user typed exactly where they left it, so
    recovering costs a click rather than retyping. This is the one claim the
@@ -37,7 +40,8 @@ Each state has a recipe, kept as [`RS-1`](#rs-1--searching) …
 [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist) in
 [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
 so that any of them can be reproduced exactly. TMDB, OpenRouter and Supabase are
-all called **server-side** — the browser never talks to any of them, so browser
+all called **server-side** — the browser never calls their APIs (it loads only
+poster images from TMDB's image server, and fonts from Google), so browser
 devtools cannot simulate them: most recipes break the relevant key in `.env` and
 restart, and three —
 [`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest),
@@ -114,7 +118,7 @@ a failed add named no film at all, and a naive fix produced doubled messages
 like "Couldn't add 'Heat' — Couldn't reach the movie database". The two halves
 compose exactly once.
 
-This state is only reachable *at all* because the search results panel is
+In this frame the state is reached through the search results panel, which is
 persistent rather than a dropdown
 ([`D-024`](DECISIONS.md#d-024--the-search-results-panel-is-a-persistent-surface-not-a-dropdown))
 — with TMDB down, a fresh search returns nothing to click, so the rows must have
@@ -669,10 +673,11 @@ trail.
 
 ## Error paths the interface cannot reach
 
-The states above are every failure a user can put this application into. They are
-not every error its server can return. **Seven more exist and none of them has a
-frame** — six because the interface refuses the state before a request is ever
-sent, and a seventh because the server never produces the response it handles.
+The states above are every failure a user can put this application into from
+one view of it. They are not every error its server can return. **Nine more exist
+and none of them has a frame** — eight because the interface refuses the state
+before a request is ever sent, and a ninth because the server never produces the
+response it handles.
 
 They are written down rather than left implicit for two reasons. The first is that
 an evidence set should say where its own edges are: a reader who counts the
@@ -689,6 +694,8 @@ description of it.
 | `400` `Nothing to update` | Save always sends both `rating` and `review`, so the body is never empty | `PATCH /api/movies/:id with an empty body → 400 (nothing to update)` |
 | `400` `A review needs a rating — rate the film first.` | The same line: a rating is always present. `POST` writes neither column, so a film cannot be created carrying a review either | `PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500` |
 | `422` `Need at least 3 rated movies` | The trigger ships `disabled` in the markup and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-movie threshold → 422, nothing logged` |
+| `422` `Need at least 2 rated movies` | The same guard on "New verdict", at the verdict's own threshold | `POST /api/taste-verdict below the rated-movie threshold → 422` |
+| `409` `Already in your list` | An Add button for a film already in the list is disabled and reads `In your list` | `POST /api/movies for a movie already in the list → 409` |
 
 **The guards are client-side and the tests are server-side, and that division is
 the whole point.** The guard is why no user meets the error; the test is why
@@ -696,9 +703,12 @@ meeting it would be handled correctly regardless. Remove a guard — loosen the
 slider's bounds, let an empty query through, make the review field savable on its
 own — and an error moves from unreachable to reachable **while every test still
 passes**, because none of them exercises the client. Nothing in this repository
-would flag that.
+would flag that. The last three rows can also be met with the app open in two
+views, where one view's buttons still reflect a list the other has changed (the
+setup [`RS-10`](#rs-10--a-row-deleted-while-it-was-being-edited) uses); each
+answers with the message in its row.
 
-**The seventh inverts that division, which is why it sits outside the table.**
+**The ninth inverts that division, which is why it sits outside the table.**
 `api()` falls back to `Request failed (<status>)` when a response is not OK and
 carries no `error` in its body ([`public/app.js`](../public/app.js)). No route
 in this application produces that shape — every error response sets `error`, the
@@ -708,20 +718,20 @@ this one. The one way to reach it is an unknown `/api/*` path, which falls
 through to Express's built-in finalhandler and answers with HTML rather than
 JSON; the client never requests such a path, and a test (`unknown route → 404`)
 covers the behaviour regardless. Here the guard is server-side and the fallback
-is client-side — exactly the opposite arrangement to the six above, and a reason
+is client-side — exactly the opposite arrangement to the eight above, and a reason
 to keep the fallback rather than delete it as dead code.
 
-One of the six carries a second kind of evidence as well. Before
+One of the eight carries a second kind of evidence as well. Before
 [migration 004](../db/migrations/004_review_requires_rating.sql) added
 `review_requires_rating`, the state it forbids was traced through the interface
 and then checked against the live table, which held **zero** rows in it
 ([`D-041`](DECISIONS.md#d-041--a-rating-less-review-is-forbidden-by-the-database-not-displayed-by-the-renderer)).
-The other five rest on the code alone — which is what an unreachability claim
+The other seven rest on the code alone — which is what an unreachability claim
 actually needs, since no amount of observation shows that a state *cannot*
-occur. Each guard named above is structural rather than conventional: an `<input
+occur. The first five guards are structural rather than conventional: an `<input
 type="range">` cannot emit a value outside its bounds, and a function with
 exactly two call sites cannot be handed a value nobody types. The live check on
-the sixth corroborated the reading; it did not replace it.
+that one corroborated the reading; it did not replace it.
 
 ## What shooting these actually found
 

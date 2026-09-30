@@ -12,7 +12,7 @@ Practice (ASE-26)
 ## 1. Working method
 
 The app was built in a pair-with-an-agent loop: a human sets the goal and the
-acceptance bar, the agent drafts code and prompts, the human reviews every diff
+acceptance bar, the agent drafts code and prompts, the human reviews the changes
 and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in
 [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable):
@@ -29,7 +29,7 @@ the reasoning. Rules that keep this honest live in
   [`docs/SECURITY.md`](SECURITY.md), visible to any reader of the repository's Security tab, was
   found, fixed, and merged under the same sign-off rule as the twenty-one before
   it. The twenty-third, the next day, carried the answer to the question that
-  defect raised — a fifth gate that re-resolves every claim pointing at something,
+  defect raised — a fifth gate that re-resolves claims that point at something,
   and the accuracy sweeps that went with it. The twenty-fourth, the same day,
   carried what that gate cannot reach: claims whose falsifier is not the thing
   they name. A uniqueness or coverage claim asserts something about everything
@@ -56,7 +56,9 @@ the reasoning. Rules that keep this honest live in
   fourteen claims that described finished work as still open and five figures
   that had drifted — six of the fourteen contradicted by `main` itself
   within a few lines of the sentence making them.
-- **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
+- **Secrets never enter code.** `.env` gitignored from commit 2, the first with
+  project content (commit 1, a one-line README, was checked by hand and holds
+  no secret); a pre-commit
   [`npm run scan-secrets`](../scripts/scan-secrets.js) scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: [`render.yaml`](../render.yaml) declares the four secrets as
   `sync: false`, so Render prompts for them in its dashboard and no value ever
@@ -82,18 +84,21 @@ the reasoning. Rules that keep this honest live in
   `npm run scan-secrets` on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
-  re-resolves every claim in the repository that points at something — a path, a
-  decision entry, a commit SHA, an identifier, a section reference, a capture, a
-  retired phrasing. A `draft` → `main` merge runs all five, whatever the diff
+  re-resolves claims in the repository that point at something — a path or a
+  link's target, a decision entry, a commit SHA, an identifier, a section
+  reference, a capture, a retired phrasing. A `draft` → `main` merge runs all five, whatever the diff
   touched.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
   were found rendering wrong on GitHub for weeks ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
   checker after [`README.md`](../README.md) was found describing another file's verdict sixteen hours
-  after that verdict changed — by a reader, not by a sweep ([D-072](DECISIONS.md#d-072--claim-checking-became-a-commit-gate-and-a-file-type-filter-is-why-it-was-needed)). Each gate was
-  proved to bite before being trusted — see
-  [`docs/MERGE-READINESS.md` § 2](MERGE-READINESS.md#2-sound-verification--met).
-- **Every agent invocation starts from a committed checkpoint**, which is what
+  after that verdict changed — by a reader, not by a sweep ([D-072](DECISIONS.md#d-072--claim-checking-became-a-commit-gate-and-a-file-type-filter-is-why-it-was-needed)). Each gate has
+  been proved to bite: the tests and the markdown checker in
+  [`docs/MERGE-READINESS.md` § 2](MERGE-READINESS.md#2-sound-verification--met),
+  the linter on real errors in [§ 3](MERGE-READINESS.md#3-se-hygiene--met-as-of-2026-09-13),
+  the claims checker against planted probes, and the secret scan against a
+  planted OpenRouter key and TMDB key.
+- **Agent work normally starts from a committed checkpoint**, which is what
   makes reverting a cheap first move rather than a last resort. The rule in
   [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round — *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session —
@@ -109,7 +114,7 @@ the reasoning. Rules that keep this honest live in
   `git checkout -- server/services/recommendations.js` the moment the shot
   landed. Neither move needed a stash, a branch or a careful hand-undo, because
   the checkpoint was already there.
-- **Every commit says why**, and design decisions go to the top of
+- **Commit messages say why**, and design decisions go to the top of
   [`docs/DECISIONS.md`](DECISIONS.md) (newest first) at the moment they're made
   ([Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation): the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -132,7 +137,7 @@ autonomy scale runs manual → task assistance → goal assistance → specialis
 general domain autonomy.** This build sat at **task and goal assistance
 throughout, and never above it.** The loop in [§ 1](#1-working-method) is the
 evidence: a human set the goal and the acceptance bar, the agent drafted, and a
-human read every diff and ran the application before the next instruction.
+human reviewed the changes and ran the application between instructions.
 Nothing here was delegated to a level the tool could technically have reached.
 
 **[Module 1](../DOSSIER.md#module-1-what-is-agentic-software-engineering)'s
@@ -212,7 +217,8 @@ commands. That places this build in the **command-line family** — the one that
 exposes the agent loop in the open, hands the developer control over context and
 permissions, and composes with ordinary shell tools. The trade is real and went
 the way it was meant to: less polish than an IDE-integrated agent, and in
-exchange every tool call, every diff and every command was visible before it ran.
+exchange every tool call, diff and command is shown in the session, with the
+permission settings deciding which of them wait for approval before they run.
 
 **Which pillars were actually in play**, since naming them is the point of the
 typology rather than listing all six:
@@ -299,8 +305,9 @@ engineering:
 | Recommendations | `recommend_v1` → `v2` → `v3` | v1 read like a plot blurb → v2 second-person voice tied to the user's own ratings → v3 tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
 | Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the honest finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
 
-Each prompt file carries a "Change from vN" header explaining the delta. Server
--side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
+Each prompt file after a v1 carries a "Change from vN" header explaining the
+delta; the two v1 files have no earlier version to compare against.
+Server-side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
 non-compliant model response is cleaned and truncated on a word boundary before
 it reaches the DOM.
 
@@ -636,7 +643,8 @@ of the record this document exists to show.
   ruled out (static files + serverless functions only; this is a long-lived
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
   first request then takes anywhere from a few seconds to a minute while the
-  instance wakes; every load after that is immediate.
+  instance wakes; every load after that is immediate (until the instance sleeps
+  again).
 - ~~Resilience (TMDB down, OpenRouter down) is implemented but should be
   captured as screenshots for the submission. Deliberately deferred to a
   dedicated pre-submission session, so the shots match the finished UI rather

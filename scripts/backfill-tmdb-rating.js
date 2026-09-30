@@ -13,12 +13,14 @@
  *     created and which is therefore empty everywhere. No pre-existing value —
  *     no rating, no review, no title — can be overwritten by it.
  *   - It targets rows one at a time BY ID, never "all ids".
- *   - It skips any row that already has a value, so re-running is a no-op.
+ *   - It skips any row that already has a value, so re-running changes only
+ *     rows TMDB has since given a rating.
  *   - It is dry-run by default. Writing takes an explicit --write flag.
  * Read the printed plan first, then re-run with --write.
  *
  * Migration 002 and this backfill were applied on 2026-09-08, so on the live
- * database there is nothing left for it to do.
+ * database all it can still find are films TMDB has no votes for yet, such as
+ * an unreleased one.
  */
 
 import 'dotenv/config';

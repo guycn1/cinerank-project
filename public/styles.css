@@ -1143,7 +1143,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    and would have to break: hyphenated, since soft hyphens are honoured at 400px
    and below (D-080), but still broken. At 0.9rem the same word measures 119px
    and fits whole, and the column holds about 17 average characters, which
-   covers every word length that occurs in real film titles.
+   covers every typical word length in real film titles.
    A hard `max-width` cutoff rather than a `clamp()`, deliberately: a fluid size
    would have to start shrinking hundreds of pixels earlier to reach this value
    by 300px, which would visibly touch the wide views that currently look right.
@@ -2275,8 +2275,7 @@ button:disabled .sparkle-major { animation: none; }
    on both counts: the uniform `scale()` pulls both edges inward at once, which
    reads as the card sliding SIDEWAYS rather than leaving — they called the
    result "stuttering" — and they wanted the cards to go one by one, as they
-   arrive. Both are fixed here; that paragraph is not preserved because it was
-   describing live behaviour, not a past decision.
+   arrive. Both are fixed here.
 
    `scaleX` toward ONE edge is what makes it a hinge. The default
    `transform-origin` is the centre, which collapses the card inward from both
@@ -2844,7 +2843,7 @@ body:has(dialog[open]) { overflow: hidden; }
      heading shows a film title too. Nothing changed for this dialog. */
   line-height: 1.3;
 }
-/* The consequence line. --ink-dim and small, like every other explanatory line
+/* The consequence line. --ink-dim and small, like most other explanatory lines
    in the app (.tagline, .result-row .meta, .unrated__hint) — it is context for
    the question above it, not a warning shouting on its own. The stakes are
    carried by the words and by the crimson button, not by colouring the prose. */
@@ -3666,7 +3665,7 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before { animation: none !important; transition: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
   /* REQUIRED by R27, and it was missing. This block kills `animation` and
      `transition`, but a programmatic `scrollIntoView()` is neither — it obeys
      `html { scroll-behavior: smooth }` near the top of this file, so without

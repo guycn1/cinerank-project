@@ -6,9 +6,9 @@
  *
  * WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
  * wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
- * and every technical identifier in both files showing a backslash inside its
- * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on, including
- * all four env var names in the Module 17 security section). The docs are a
+ * and technical identifiers in both files showing a backslash inside their
+ * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on,
+ * including all four env var names in the Module 17 security section). The docs are a
  * graded deliverable here, so "it only looks wrong" is not a small problem, and a
  * rendering fault in a file this long is close to unfindable by eye.
  *
@@ -169,7 +169,7 @@ for (const file of markdownFiles(root)) {
     // Two or more consecutive pipe lines whose SECOND line is not |---|---| is not
     // a table at all: GitHub renders the whole block as one paragraph full of pipe
     // characters. Found by the 2026-09-13 audit, which rendered it to be sure --
-    // most of the repo's markdown files carry tables, so the blast radius is real.
+    // many of the repo's markdown files carry tables, so the blast radius is real.
     if (!inFence && /^[ \t]*\|/.test(line)) {
       if (!pipeRun.length) pipeStart = n;
       pipeRun.push(line);

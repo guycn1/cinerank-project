@@ -1,6 +1,7 @@
 /**
- * All TMDB HTTP calls live here — never inline fetch() in a route handler
- * (CLAUDE.md § Coding Conventions). This module is the trusted source of movie
+ * All TMDB API calls live here — never inline fetch() in a route handler
+ * (CLAUDE.md § Coding Conventions). The browser loads poster images from TMDB's
+ * image server directly, by the URLs this module builds. This module is the trusted source of movie
  * facts: posters, years, overviews. The AI never supplies those.
  *
  * @module server/services/tmdb

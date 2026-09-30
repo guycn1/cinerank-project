@@ -9,7 +9,7 @@ import { supabase } from '../supabase.js';
 import { searchMovies, getMovieDetails, TmdbError } from '../services/tmdb.js';
 
 /**
- * One row of the movies table, as every route here returns it.
+ * One row of the movies table, as the list, add and rate routes return it.
  *
  * @typedef {object} MovieRow
  * @property {string} id  A uuid.

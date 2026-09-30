@@ -228,9 +228,10 @@ regression risk for a lower number in a report.
 
 The same argument applies to the second row.
 [`check-markdown`](../scripts/check-markdown.js)’s rule engine is seven rules
-evaluated over one pass of a file, and every one of them was added because a
-specific defect had already shipped past human review. Its branch count is its
-rule count.
+evaluated over one pass of a file, and each was added for a specific defect:
+either one that had already shipped past human review, or one an audit wrote and
+rendered to confirm it was broken before the checker learned it. Its branch
+count is its rule count.
 
 **The ceiling stays at 20 rather than being raised to hide this.** A warning that
 fires on five real functions is a measurement; a threshold tuned until nothing
@@ -240,9 +241,9 @@ fires is the thing this document exists to rule out.
 
 *A human-readable account of approach and trade-offs.*
 
-* **[`docs/DECISIONS.md`](DECISIONS.md)** — written at the moment each choice
-  was made and in the same commit as the change it explains. The standard it is
-  held to is written into
+* **[`docs/DECISIONS.md`](DECISIONS.md)** — usually written at the moment a
+  choice was made and in the same commit as the change it explains. The
+  standard it is held to is written into
   [`CLAUDE.md`](../CLAUDE.md#decision-logging-non-negotiable): an entry must
   name the alternatives and why each was rejected, record where the author
   overruled the agent *and* where the agent talked the author out of something,

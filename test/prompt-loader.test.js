@@ -62,7 +62,8 @@ test('loadPrompt: substitutes every placeholder occurrence', async () => {
   assert.ok(!user.includes('{{TASTE_PROFILE}}'), 'no placeholder left unsubstituted');
 
   // The fixture's User section carries the placeholder TWICE, the second time
-  // with inner spaces; every real prompt carries each one once per section.
+  // with inner spaces; every real prompt carries its one placeholder once, in
+  // its User section.
   const fixture = await loadPrompt(FIXTURE_VERSION, { X: 'MARK' });
   assert.equal(fixture.user.match(/MARK/g)?.length, 2, 'both occurrences in one section');
   assert.ok(!fixture.user.includes('{{'), 'no placeholder left unsubstituted');

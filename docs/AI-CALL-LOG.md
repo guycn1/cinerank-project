@@ -19,7 +19,7 @@ Commissioned by [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-
 A modal dialog, opened from the footer, listing the 60 most recent calls this
 application has made to OpenRouter — both AI features, successes and failures
 together, with prompt version, model, token split, duration, status and
-estimated cost per row. Every call is kept in the database; the dialog shows
+estimated cost per row. Every row is kept in the database; the dialog shows
 the newest 60 ([§ 2](#2-where-the-data-comes-from)).
 
 It is two claims made visible:

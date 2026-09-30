@@ -185,8 +185,9 @@ search panel while a recommendation card still offered it — and
 closed that by making the Add-button sync document-wide rather than
 panel-scoped.
 
-So the path no camera caught is one the application no longer exposes. The route
-test covers it, which is the right place for a state the interface is designed to
+So the path no camera caught is one the application no longer exposes within a
+single view; two tabs racing each other still reach it, as above. The route test
+covers it, which is the right place for a state the interface is designed to
 make unreachable.
 
 ### Verdict
@@ -336,7 +337,7 @@ single source of truth for the number; the literals in the client are a
 documented fallback for that one request failing, not a second definition
 ([`R20`](../CLAUDE.md#group-e--structure-and-tests)).
 
-### Defence in depth, and one honest consequence
+### Defence in depth, and one consequence
 
 The same shape as
 [criterion 2](#2--adding-a-movie-already-in-the-list-is-blocked-with-a-clear-message-not-a-duplicate-row):
@@ -554,6 +555,18 @@ done
 ```
 
 **No output.** No blob in any commit contains a string of either shape.
+
+A TMDB v3 key has a third shape, 32 lowercase hex characters, and the same
+walk finds none of those either:
+
+```
+git rev-list --all | while read c; do
+  git grep -I -l -E "(^|[^0-9a-fA-F])[0-9a-f]{32}([^0-9a-fA-F]|$)" "$c" --
+done
+```
+
+The Supabase URL is an address rather than a secret, so these three shapes
+cover every credential the project holds.
 
 ### What the first commit actually contained
 

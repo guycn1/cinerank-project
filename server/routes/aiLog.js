@@ -139,9 +139,10 @@ aiLogRouter.get(
     // The viewer deliberately does NOT surface either count (D-019):
     // `renderAiLog()` in public/app.js uses `detailed` only as a truthiness test
     // for whether to draw the in/out sub-line at all, and `timed` the same way
-    // for the duration. Neither count can currently come back short, either:
-    // the six rows written before migration 001, which had no split or
-    // duration, were deleted by hand for presentation (D-019).
+    // for the duration. `timed` cannot currently come back short: the six rows
+    // written before migration 001, which had no split or duration, were
+    // deleted by hand for presentation (D-019). `detailed` is one short for each
+    // call in the window that never completed, since such a call has no split.
     // Both fields are kept anyway: they cost nothing, and they are what stops a
     // future partial-coverage row from silently showing an in/out split that
     // does not add up to the token total.

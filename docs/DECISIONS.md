@@ -988,6 +988,10 @@ The two strings needed different treatment, because they make different claims:
 Both true things now get said: everything is recorded, this window shows the last
 sixty.
 
+> **2026-09-30:** "Every call" here means every call whose log write succeeds.
+> When that write fails, the run is discarded and its cause goes to the
+> server's stderr ([R5](../CLAUDE.md#group-a--functional-bugs)).
+
 ### The generalisable bit
 
 **A false sentence in the UI is invisible to every check this project runs.** The
@@ -4412,6 +4416,12 @@ touched is [`styles.css`](../public/styles.css) — no shared JS/HTML — and (b
 the `@media (max-width: 850px) {` line and its matching close. A browser never
 applies those rules above 850px, so the table view is unaffected by construction,
 not by inspection.
+
+> **2026-09-30:** The table view has since been changed on purpose, each change
+> weighed and measured on its own: the digit-grouped in/out split and its
+> `tbody .sub` size (2026-09-19), the type-scale exemption
+> ([D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
+> and the dialog's cap moving with the page width to 1040px (2026-09-28).
 
 Corollary: the card view's own bugs are fixed *in place* at matching-or-higher
 CSS specificity (the shared `.log-table` rules use `:last-child` /

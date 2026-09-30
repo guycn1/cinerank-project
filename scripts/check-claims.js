@@ -11,12 +11,12 @@
  * falsified. Reading 30k lines by eye does not scale and proves nothing.
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
- * path, a script, a decision entry, a commit, a line number, an identifier, a
- * capture, an RS key, a section (a link's `#anchor` or a prose `§ 4.5` /
- * `§ Title`), a phrase the project has retired (a passage narrating its own
- * earlier wording among them), or an invisible character that no reviewer
- * can see. Every one of those can be resolved against
- * the thing it names, so drift in them is a fact, not a matter of taste.
+ * path or a link's target, a script, a decision entry, a commit, a line number,
+ * an identifier, a capture, an RS key, a section (a link's `#anchor` or a
+ * prose `§ 4.5` / `§ Title`), a phrase the project has retired (a passage
+ * narrating its own earlier wording among them), or an invisible character
+ * that no reviewer can see. Every one of those can be resolved against the
+ * thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
  * the prose is true: a sentence with no referent. "The glow reads as lopsided"
@@ -598,6 +598,32 @@ function checkLinkFragments() {
   }
 }
 
+/**
+ * 11c. Every link and image in a document points at something that exists.
+ *
+ * Check 1 finds a path only when it starts with a known top-level directory,
+ * and 11a moves past a fragment link whose target file is missing, so a
+ * relative link inside docs/ to a misspelt file passed both. This resolves each
+ * link's target the way GitHub does, relative to the file it sits in, and
+ * accepts any existing file or directory. Fenced blocks and code spans are
+ * blanked first, since link syntax quoted there is not a link.
+ */
+function checkLinkTargets() {
+  for (const [f, s] of md) {
+    if (SECTION_EXEMPT(f)) continue;
+    const text = s
+      .replace(/^[ \t]*(```|~~~)[\s\S]*?^[ \t]*\1.*$/gm, (m) => m.replace(/[^\n]/g, ' '))
+      .replace(/(`+)[\s\S]*?\1/g, (m) => m.replace(/[^\n]/g, ' '));
+    for (const m of text.matchAll(/\[(?:[^\][]|\[[^\]]*\])*\]\(([^)\s#]*)(?:#[^)\s]*)?\)/g)) {
+      const href = m[1];
+      if (!href) continue;
+      const target = linkTarget(f, href);
+      if (!target || existsSync(join(root, target))) continue;
+      add('link', `${f}:${text.slice(0, m.index).split('\n').length} links ${href}, which does not exist`);
+    }
+  }
+}
+
 const FILE_ALIASES = { SPEC: 'SPEC.md', CLAUDE: 'CLAUDE.md', README: 'README.md', DOSSIER: 'DOSSIER.md' };
 
 /**
@@ -714,7 +740,8 @@ function checkSectionReferences() {
 for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
   checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
   checkInvisibleCharacters,
-  checkRetiredPhrasing, checkEditHistory, checkLinkFragments, checkSectionReferences]) {
+  checkRetiredPhrasing, checkEditHistory, checkLinkFragments, checkLinkTargets,
+  checkSectionReferences]) {
   check();
 }
 
@@ -723,4 +750,4 @@ if (fail.length) {
   for (const f of fail) console.error(`  ${f}`);
   process.exit(1);
 }
-console.log(`\u2713 check-claims: every resolvable claim checks out (${corpus.length} files)`);
+console.log(`\u2713 check-claims: every claim it resolves checks out (${corpus.length} files)`);

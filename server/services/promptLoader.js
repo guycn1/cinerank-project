@@ -15,8 +15,9 @@ const promptsDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'pr
 
 /**
  * Read `prompts/<version>.md`, drop its leading dev-notes comment, split it into
- * its System and User sections, and substitute every `{{KEY}}` placeholder in
- * both. The file is read on every call; nothing is cached.
+ * its System and User sections, and substitute every `{{KEY}}` placeholder
+ * whose KEY is in `vars`, in both. The file is read on every call; nothing is
+ * cached.
  *
  * @param {string} version  e.g. "recommend_v1" (also the string logged to the DB)
  * @param {Record<string,string>} [vars]  {{PLACEHOLDER}} substitutions

@@ -1,7 +1,7 @@
 /**
  * The recommendations feature (SPEC § 2.2): build a taste profile from the top
  * rated films, ask the model for picks, verify every pick against TMDB, drop
- * what the user already has, and log the call whatever its outcome.
+ * what the user already has, and log the call whether it succeeds or fails.
  *
  * @module server/services/recommendations
  */
@@ -188,7 +188,8 @@ function emptyReasonFor(tally) {
  * Run one recommendation pass. Always writes a row to recommendation_logs
  * (SPEC § 2.2) — the audit record is the point, not a nice-to-have. "Always"
  * means for every AI call made: a failed DB read and an unmet threshold both
- * throw before any call, and so before any row.
+ * throw before any call, and so before any row. If the insert itself fails, the
+ * run is discarded and the cause goes to stderr.
  *
  * @returns {Promise<RecommendationRun>}
  * @throws {RecommendationError} When the DB read fails, when fewer films are

@@ -29,14 +29,14 @@ create table if not exists movies (
 create index if not exists movies_rating_idx on movies (rating desc nulls last);
 
 -- ---------------------------------------------------------------------------
--- 5.2  recommendation_logs — every AI recommendation run, auditable
+-- 5.2  recommendation_logs — the audit trail of AI recommendation runs
 -- ---------------------------------------------------------------------------
 create table if not exists recommendation_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "recommend_v2"
   input_movie_ids    uuid[]  not null,           -- top-N movies used as taste signal
-  raw_model_output   jsonb,                      -- exactly what the model returned
+  raw_model_output   jsonb,                      -- reply text, parsed picks, verification tally; null if no reply
   suggested_titles   text[],                     -- parsed titles, post TMDB validation
   model_used         text,
   tokens_used        integer,                    -- total; split below
