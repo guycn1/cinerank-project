@@ -69,7 +69,13 @@ history also needs a thirtieth entry). Re-grep for new sites.
 (2) The merge count goes 29 → 30 in this file's Build status, `docs/PROCESS.md`
 § 1 and `docs/MERGE-READINESS.md` § 5.
 
-**(3) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
+(3) Re-count the commits with `git rev-list --count draft` and check the two
+figures that state it: `docs/MERGE-READINESS.md` § 4 ("six hundred–odd") and
+the Execution row in `docs/PROCESS.md` ("more than 600 … (measured
+2026-09-29)"). Both held at 677 on 2026-09-30; change them only if the count
+has crossed a figure they name, and re-grep for new sites.
+
+**(4) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
 commit, before the merge, so that `main` never carries it as an open to-do.**
 
 ### What landed, newest first
@@ -296,8 +302,8 @@ named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
 shapes are typedefs. Each file was proved unchanged as code by tokenizing it
 against its previous version. *(Sixteen blocks still had no description
-line and one function no block at all; the 2026-09-29 entry found and filled
-them.)*
+line and one function no block at all; they were found by a parse-based audit
+on 2026-09-29 and each given its description.)*
 
 Three kinds of function are left undocumented on purpose: one-line helpers
 declared inside another function, one-line methods in object literals (the test
