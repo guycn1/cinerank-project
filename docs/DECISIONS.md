@@ -11,6 +11,40 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-082 · The card view's Total card is not pinned; only the table view's Total row is
+
+*2026-09-30. Found by measurement during the causal-claims sweep, and settled
+by the user.*
+
+**What was found.** [`CLAUDE.md`](../CLAUDE.md) said card mode "pins the whole
+`tr.log-total`", and the stylesheet carried `position: sticky` on it. It never
+pinned. In card view the table is `display: block`, so the row's containing
+block is its `<tfoot>`, which is exactly as tall as the row: a sticky element
+cannot leave its containing block, so it had no room to move. Measured in
+headless Chrome at 768px, with the real stylesheet: the Total card sat after
+the 60th card at every scroll position. The table view is unaffected, because
+there the sticky element is each `<td>`, whose containing block is the whole
+table.
+
+**The fork.** Make it pin as described, or keep the behaviour the app has
+always had. Making it pin would need the sticky element moved out of a
+containing block of its own height, a structural change to the card layout.
+
+**The user's call: keep it as it is.** They confirmed the behaviour on a real
+browser, said it had always been this way and that they had never regarded it
+as a defect, and do not want the Total card pinned in card view.
+
+**What changed:** the claim, not the behaviour. The three `sticky`
+declarations that never took effect are removed, the stylesheet comment and
+[`CLAUDE.md`](../CLAUDE.md) now describe the Total card as the last card, and
+[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) says the pinning model is the table
+view's. Removing the declarations was diffed against the previous stylesheet
+in Chrome and Firefox at 400, 800 and 1000px, log dialog open: no element
+moved.
+
+**Trap.** Do not "restore" pinning in card view as if it were a regression.
+It never worked, and not pinning is the decision.
+
 ## D-081 · A dash ends a word for hyphenation, so no soft hyphen ever sits beside one
 
 *2026-09-28. Raised by Claude while closing

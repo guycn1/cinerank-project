@@ -181,7 +181,11 @@ column before the card breakpoint is reached.
 **At 850px and below: one card per call.** `thead` is hidden; each `td` grows a
 label via `td::before { content: attr(data-label) }`; the `<abbr>` shorthands
 expand back to full words with `abbr::after { content: attr(title) }`; reveal
-panels flow inline instead of floating.
+panels flow inline instead of floating. The totals become the last card, which
+is reached by scrolling to the end and is deliberately not pinned
+([`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is));
+the pinning model in [§ 3](#3-the-scrolling-and-pinning-model) is the table
+view's.
 
 **What the boundary costs is specificity.** Card view is a narrower media query,
 not a separate stylesheet, so desktop rules keep applying inside it and several

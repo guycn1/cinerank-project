@@ -169,6 +169,12 @@ own success test, which named a coupling that does not exist: a taller totals
 row still sits flush on the curtain, measured in headless Chrome, and the real
 trap is shortening the curtain without `--log-curtain-h`.
 
+The same measurement showed that the card view's Total card has never pinned,
+though this file said it did: its sticky element had no room inside its own
+`<tfoot>`. The user confirmed it in a real browser and ruled that it stays
+unpinned (D-082); the declarations that never took effect are gone, and the
+table view's pinned Total row is untouched.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -1049,8 +1055,9 @@ and stay as written.
     `.log-scroll` is therefore open at the bottom, and **fully square**: it must
     stay `overflow: visible` (the dialog is the scroller) so it can't clip the
     sticky thead/tfoot cell fills to a radius — a rounded border with square
-    cell backgrounds looked broken. Card mode pins the whole `tr.log-total`
-    (per-cell sticky would stack three boxes).
+    cell backgrounds looked broken. **Card mode does NOT pin the Total** — it is
+    the last card, reached by scrolling to the end, and the user wants it that
+    way (D-082). Only the table view pins its Total row.
 
   - `.log-dialog[open]` carries `display: flex`; a bare rule overrides the UA
     `dialog:not([open])` hide → never closes.

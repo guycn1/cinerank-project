@@ -3428,9 +3428,11 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-reveal ul::before, .log-reveal ul::after,
   .log-reveal p::before,  .log-reveal p::after { display: none; }
 
-  /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
-     again sitting right on top of the curtain. The card's own border is the
-     separator here, so drop the per-cell gradient divider and separators. */
+  /* Cards: the Total is the LAST card, reached by scrolling to the end, and is
+     deliberately NOT pinned (D-082) — the table view's pinned Total row is a
+     desktop-only behaviour. `position: static` undoes the desktop cells'
+     sticky. The card's own border is the separator here, so drop the per-cell
+     gradient divider and separators. */
   .log-table tfoot td {
     position: static;
     background-image: none; /* the card's own border is the separator here */
@@ -3439,9 +3441,6 @@ body:has(dialog[open]) { overflow: hidden; }
   }
   .log-table tfoot td:last-child { background-image: none; }
   .log-table tr.log-total {
-    position: sticky;
-    bottom: var(--log-curtain-h);
-    z-index: 3;
     border-color: var(--amber-deep);
     background: var(--bg-card);
   }
