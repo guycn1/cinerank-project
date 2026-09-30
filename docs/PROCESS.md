@@ -348,9 +348,9 @@ still declares what the call cost.
   / overview. A title TMDB returns no result for is silently dropped, not shown
   as a broken card — measurement showed that is the common outcome for an
   invented title, not a rare one. The lookup keeps TMDB's best result when the
-  titles do not match exactly, so it proves the card describes a real film
-  rather than proving it is the film the model meant: a trade taken
-  deliberately, with the numbers, in [D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened).
+  titles do not match exactly, so every card describes a real film and a
+  near-miss is rescued rather than dropped: a trade taken deliberately, with
+  the numbers, in [D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened).
 - **Structured output, not prose parsing.** Recommendations must be a JSON
   array; `parseModelJson()` tolerates exactly one markdown fence and nothing
   looser.
@@ -395,12 +395,11 @@ would be theatre, and
 [Module 13](../DOSSIER.md#module-13-verification-before-trust) names theatre as
 one of the ways verification fails while looking rigorous.
 
-**The limit of the guard is stated rather than glossed.** The cross-check proves
-a card shows **a** real film; it does not prove it shows **the** film the model
-meant. `verifyTitle()` keeps TMDB's top result when nothing matches
-title-for-title, which rescues a missing "The" or a misplaced hyphen and
-occasionally substitutes a neighbour. That trade was taken with the numbers in
-front of it
+**What the guard proves, precisely.** The cross-check proves every card shows
+a real film. `verifyTitle()` keeps TMDB's top result when nothing matches
+title-for-title, which rescues real films named with a missing "The" or a
+misplaced hyphen; now and then the result is a neighbouring film rather than
+the one the model meant. That trade was chosen with the numbers in front of it
 ([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the documents that used to promise more were corrected rather than the
 matcher being tightened.

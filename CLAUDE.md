@@ -2323,12 +2323,12 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   so the strictest possible matcher still admits it. Tightening buys less
   than it costs.
 
-  **The one genuinely broken case is not a hallucination**, and no matching
-  rule fixes it either: `WALL-E` resolves to `East of Wall` (2025), because
-  TMDB's own title is `WALL·E` with an interpunct and the real film is not in
-  the top 20 results for any spelling tried. Tightening would drop it rather
-  than find it — only a query-side change would find it. Left as a known
-  residual, written down so it is not rediscovered as a new bug.
+  **One title sits outside what any matching rule can reach, and it is not a
+  hallucination:** `WALL-E` resolves to `East of Wall` (2025), because TMDB's
+  own title is `WALL·E` with an interpunct and the real film is not in the top
+  20 results for any spelling tried. A stricter matcher would drop it rather
+  than find it; only a query-side change would find it. Recorded so it is not
+  rediscovered as something new.
 
   **The user's call, made on the measurements: leave the code, fix the
   claim.** The blast-radius claim in CLAUDE.md § Security & Secrets, item 5,
@@ -2808,7 +2808,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   drift again, and probed three ways: dropping either service's flag, or
   making the verdict route advertise unconditionally, all fail.
 
-  **One residual false negative is unfixable and is not a bug:** if the HTTP
+  **One case the client cannot see, by the nature of HTTP:** if the HTTP
   response never reaches the browser, the row exists and the client cannot
   know. It shows the transport message instead.
 
@@ -4206,8 +4206,8 @@ below — this list is the smaller stuff.)
 
   **Measured over three runs of each feature before it was called settled.** The
   verdict names no film in two runs of three; the third lists the two low films,
-  which is the weaker output — so re-roll before a screenshot, and note it is
-  NOT persisted across a page reload. The recommendations are effectively fixed,
+  which is the less characteristic output — so re-roll before a screenshot, and
+  note it is NOT persisted across a page reload. The recommendations are effectively fixed,
   three of four cards identical every run, each mapping to one seed film. That
   one-to-one behaviour is intrinsic to the recommender and is not a seed fault;
   do not chase it with a prompt change.
@@ -5090,7 +5090,7 @@ it.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
 * The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — this is intentionally the lighter-weight of the two prompts.
-* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms the card shows a REAL film, not that it shows THE film the model named** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, so a near-miss resolves to a neighbouring film instead of being dropped. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
+* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 
 ## Security \& Secrets (Module 17)

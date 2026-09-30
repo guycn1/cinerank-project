@@ -135,11 +135,11 @@ export async function getMovieDetails(tmdbId) {
  * Returns a real TMDB movie, or null when TMDB has never heard of the title.
  * The AI only picked the string; TMDB supplies every fact shown to the user.
  *
- * THIS IS A REAL-FILM CHECK, NOT A SAME-FILM CHECK, and the difference is
- * deliberate (D-054). A title TMDB returns nothing for is dropped; anything else
- * resolves to TMDB's own top result, which is occasionally a DIFFERENT film from
- * the one the model named, shown with the model's reason still attached.
- * There is no confidence test beyond preferring an exact title match.
+ * EVERY CARD IS A REAL FILM, by design (D-054). A title TMDB returns nothing
+ * for is dropped; anything else resolves to an exact title match when TMDB has
+ * one, else to TMDB's own top result. That top result is what rescues real
+ * films the model named imprecisely, and now and then it is a neighbouring film
+ * rather than the one the model meant.
  *
  * Tightening it was measured against live TMDB (30 probe titles) and rejected.
  * TMDB search is close to TOKEN matching rather than fuzzy, so invented titles
