@@ -2469,8 +2469,8 @@ function syncMetaSeparator(foot) {
 // scrollHeight / clientWidth), which forces layout, and `resize` fires
 // continuously while a window is dragged — so the work is throttled to at most
 // once per frame. rAF
-// rather than a debounce on purpose: a debounce would leave both measurements
-// visibly stale for the whole drag, where this keeps them live and still does
+// rather than a debounce on purpose: a debounce would leave every measurement
+// below visibly stale for the whole drag, where this keeps them live and still does
 // the reads only once per painted frame.
 //
 // Browser zoom fires `resize` too (it changes the CSS viewport), so this covers
@@ -2918,8 +2918,8 @@ function setSheenRate(rate) {
  * is a PAINT property -- it cannot be handed to the compositor the way a
  * transform can, so every frame re-rasterises those strokes and the halo filter
  * on top of them. Measured cost is nil on ordinary hardware and small even on
- * heavily throttled software rendering (the figures are recorded at
- * `.verdict__sheen rect` in styles.css), so this is not fixing a reported
+ * heavily throttled software rendering (the figures are recorded in D-055, in
+ * docs/DECISIONS.md), so this is not fixing a reported
  * problem. It is that the banner sits at the very top of a page whose actual
  * content is the ranked list below it, so anyone scrolled down is paying for an
  * animation they cannot see -- battery and thermals on a phone, mostly.

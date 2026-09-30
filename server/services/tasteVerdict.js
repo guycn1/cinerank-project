@@ -181,8 +181,9 @@ export async function generateTasteVerdict() {
   };
   const { error: logError } = await supabase.from('taste_verdict_logs').insert(logRow);
   // The row did NOT land, so there is nothing to advertise — `logged` stays
-  // false. This is the one branch that could produce a false NEGATIVE if it were
-  // reordered below the throw beneath it, so leave the order alone.
+  // false. Leave the order alone: moved below the `logged: true` throw beneath
+  // it, this branch would let a failed AI call advertise a row that was never
+  // written — a false positive.
   if (logError) {
     // Identical treatment to recommendations.js, and it must stay identical —
     // R23/D-047 exist because these two drifted into separate error dialects

@@ -137,21 +137,21 @@ something. Four places where it visibly did:
 
 * **The out-of-scope list held under pressure.** Recommendations go stale the
   moment any rating changes, and regenerating them automatically is the obvious
-  fix. It was never built, because exclusion 4 forbids it.
-  [R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
-  instead clears a locked section's stale output and leaves regeneration to the
-  user.
+  fix. It was never built, because exclusion 4 forbids it: the cards stay on
+  screen until the user asks for new ones. The one time the app clears them,
+  [R16](../CLAUDE.md#group-d--visual-and-narrow-viewports), is when the section
+  locks below its threshold, so that it does not sit above cards it says are
+  unavailable. Staleness alone never clears them.
 * **The stakeholder list decided a data question.** TMDB's own score is a
   snapshot written once at add time. Refreshing it would cost a TMDB call per
   film per page load and make the ranked list depend on TMDB being reachable — a
   trade the list owner loses
   ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)).
-* **The definition of done stopped work twice.**
+* **The definition of done stopped work at a line agreed in advance.**
   [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
-  in advance so it did not have to be argued each time. [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) closed as won't-fix
-  on measurement for the same reason.
+  in advance so it did not have to be argued each time.
 * **Naming that reader as a stakeholder changed a whole class of work from
   cosmetic to blocking.** Both long markdown files were found rendering wrong on
   GitHub. If the only stakeholder had been the list owner, that would have been

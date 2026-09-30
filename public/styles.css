@@ -296,8 +296,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 .gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
 
-/* HEADER instance — placement and size. Sized as a peer of the 34px logo mark:
-   a real navigational affordance, not a footnote. */
+/* HEADER instance — placement and size. A real navigational affordance, not a
+   footnote: first sized as a peer of the 34px logo mark, then enlarged 1.5x on
+   the user's call, so it now reads larger than the mark (see `font-size`). */
 .site-head .gh-link {
   grid-column: 2;
   /* Still spans both rows, but top-aligned rather than centred (user-raised:
@@ -468,9 +469,17 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   margin-top: 1.5rem;
   border-radius: var(--radius);
   /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
-     else — so it is the biggest single multiplier on the effect. 2px → 3px on
-     the user's call. Coupled to .verdict__inner's border-radius below: both must
-     move together or the inner corners stop nesting cleanly. */
+     else — so it is the biggest single multiplier on the effect, and was widened
+     from 2px on the user's call.
+     THIS WIDTH (W) IS FIVE COUPLED VALUES, and they must move together:
+       1. this padding, W;
+       2. .verdict__inner's border-radius, --radius - W, or the inner corners
+          stop nesting cleanly;
+       3. .verdict__sheen's top/left, W/2;
+       4. .verdict__sheen's width/height, 100% - W;
+       5. .verdict__sheen rect's rx, --radius - W/2, and its stroke-width, W.
+     Move one alone and the glint overhangs the inner panel or stops reaching
+     the banner's edge. */
   padding: 2.5px;
   /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
@@ -550,9 +559,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
-  /* THE ONE KNOB FOR SPEED. Every layer reads this for BOTH its duration and its
-     delay, which is what lets the busy state change the speed with a single
-     declaration — see the note on the layer block, trap 1. */
+  /* THE ONE KNOB FOR THE RESTING SPEED. Every layer reads this for BOTH its
+     duration and its delay, so one value retunes the lap without pulling the
+     twenty layers apart — see point 2 on the layer block. The busy state does
+     NOT use it: it changes `playbackRate` from app.js, because changing a
+     duration makes the dash jump (point 2 again, and D-056). */
   --sheen-dur: 15s;
   /* THE ONE KNOB FOR BRIGHTNESS, and it is a ratio rather than a taste value.
      The twenty layers are authored at the BUSY peak (0.80); this scales the
@@ -560,7 +571,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      Group opacity scales a composite LINEARLY, and `0.80 * bell(x) * 0.6875` is
      exactly `0.55 * bell(x)`, so the resting band is identical to authoring the
      layers at 0.55 directly — not an approximation of it. That matters because
-     the alphas cannot simply be scaled (trap 2 on the layer block).
+     the alphas cannot simply be scaled (point 3 on the layer block).
      THE HALO BELOW IS INSIDE THIS GROUP AND SO IS SCALED TOO — which is exactly
      right and needs no compensating tweak: the drop-shadow is computed from
      layers that are 0.80/0.55 = 1.4545x brighter, and 1.4545 * 0.6875 = 1.000,
@@ -590,7 +601,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   animation: sheen var(--sheen-dur) linear infinite;
   /* NOT a hardcoded time. `--shift` is each layer's phase as a FRACTION of one
      cycle, so the delay rescales with the duration automatically and the twenty
-     layers stay nested at any speed (trap 1). */
+     layers stay nested at any speed (points 1 and 2 on the layer block). */
   animation-delay: calc(var(--sheen-dur) * var(--shift) * -1);
 }
 /* ===================== THE TAPERED BAND ===========================
@@ -1267,11 +1278,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   border-radius: var(--radius);
   padding: 0.9rem 1.1rem;
   box-shadow: var(--shadow);
-  /* `box-shadow` is in this list deliberately (backlog #19). It was NOT, and the
-     hover rule did not change the shadow either — so the card rose 3px against a
-     completely static shadow. That is why the lift was almost invisible: a lift
-     is sold by its shadow growing and softening, and this one had no elevation
-     cue at all. The fix was never "make the 3px bigger". */
+  /* `box-shadow` is in this list deliberately (backlog #19): the hover glow is
+     most of the effect, and it has to ease in with the scale rather than snap
+     on. When hover changed nothing but a small lift and the shadow sat outside
+     this list, the effect read as barely there (D-043). */
   transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease),
     opacity 0.25s var(--ease);
 }
@@ -1337,10 +1347,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    noticeable thing about the effect — the user spotted it immediately, and it
    read as the card being closer to the film above than the one below.
    `scale()` grows from `transform-origin: 50% 50%`, so it opens both gaps
-   equally. Elevation is still expressed, just by the shadow alone, which is
-   offset downward and is what actually sells depth anyway (that was the whole
-   finding of D-043's second half). The scale was raised 1.012 → 1.02 to keep the
-   effect pronounced now that no vertical movement contributes to it.
+   equally. Elevation is expressed by the glow instead — made of light and
+   centred on the card, with a zero Y-offset on every layer (see the rule below,
+   and D-044). The scale was raised 1.012 → 1.02 to keep the effect pronounced
+   now that no vertical movement contributes to it.
    If a lift is ever wanted back, it cannot be symmetric — that is what
    `translateY` means — so do not "restore" it without re-reading this.
 
@@ -1689,7 +1699,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      the browser whether the text actually overflowed — it has no idea how many
      lines the clamp allows, and must never be given one. That is what makes this
      a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)
-     untouched. Crossing the 620px breakpoint re-clamps, and the rAF-throttled
+     untouched. Crossing the 900px breakpoint re-clamps, and the rAF-throttled
      resize listener re-runs the measurement, which is the same path that already
      handles a window drag changing how many lines the text wraps to. */
   -webkit-line-clamp: 3;
@@ -3419,7 +3429,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
   /* Cards: pin the whole Total card (per-cell sticky would stack three boxes),
      again sitting right on top of the curtain. The card's own border is the
-     separator here, so drop the per-cell shadow. */
+     separator here, so drop the per-cell gradient divider and separators. */
   .log-table tfoot td {
     position: static;
     background-image: none; /* the card's own border is the separator here */
@@ -3678,10 +3688,10 @@ body:has(dialog[open]) { overflow: hidden; }
      smoothness is the decoration. */
   html { scroll-behavior: auto; }
   /* Killing the TRANSITION is not enough for the card hover (#19): without this
-     the lift and scale still applied, just instantly — and sudden movement is
+     the scale would still apply, just instantly — and sudden movement is
      precisely what a motion-sensitive user is asking not to have. The colour
-     cues stay, so the card still responds to the pointer: the deepened shadow,
-     the warm rim and the border are all untouched here. */
+     cues stay, so the card still responds to the pointer: the glow, the lit
+     edge and the border are all untouched here. */
   .movie-card:hover,
   .movie-card:hover .movie-card__poster,
   .rec-card:hover { transform: none; }

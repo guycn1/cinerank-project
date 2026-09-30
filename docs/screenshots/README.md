@@ -129,18 +129,17 @@ image**, so the grounding can be checked without leaving the frame.
 ## When these were taken
 
 All thirty-seven were captured on 2026-09-13 and 2026-09-14, and every one is
-exactly as valid as evidence today as it was then. Three later changes are purely
-cosmetic: the type was scaled to 92%
+exactly as valid as evidence today as it was then.
+
+**The front end has had minor changes since, and every one of them is purely
+cosmetic.** None changes a state, a message, a behaviour or a figure that a
+capture exists to show, so none undermines the evidence any frame provides, and
+no frame differs from the current interface in any way that matters for what
+it demonstrates. Examples, not a complete list: the type was scaled to 92%
 ([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
 the content column narrowed from 1080px to 1040px, and the AI call log's
 single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) — moved
-one colour tier brighter, from `--ink-faint` to `--ink-dim`. None of the
-captures argues anything about type size, page width or that colour, and none
-of the changes touches any state, message, behaviour or figure a capture exists
-to show. The first two are smaller than a single step of the browser's zoom
-control. To the eye the live
-app looks the same as these frames, unless a frame is compared against the live
-page directly.
+one colour tier brighter, from `--ink-faint` to `--ink-dim`.
 
 ## A note on file sizes
 

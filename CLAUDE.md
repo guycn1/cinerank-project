@@ -155,6 +155,20 @@ call is logged" at the sites the conditional sweep had not reached. The AI
 call log's single-line state (loading, empty or failed to load) moved from
 `--ink-faint` to `--ink-dim`, since it is the only thing in the table body.
 
+**Then a sweep of every causal claim** ("X because Y", "so", "which is why"
+and their less obvious forms), for reasons that stopped being the reason when
+the mechanism under them changed. One reached the code: the recommendations
+read now breaks rating ties by `created_at` ascending, as `GET /api/movies`
+does, so a tie at the top-five boundary feeds the prompt the same films the
+ranked list shows first. The rest was wording, among it the glint's speed knob still described as
+driving the busy state (D-056 moved that to `playbackRate`), the verdict ring
+width now enumerating its five coupled values where the pointer to them said
+it would, the hover glow described as a downward shadow, the `qs` override's
+cause (a `~6.15.1` range, not an exact pin), and the AI call log document's
+own success test, which named a coupling that does not exist: a taller totals
+row still sits flush on the curtain, measured in headless Chrome, and the real
+trap is shortening the curtain without `--log-curtain-h`.
+
 #### 2026-09-29
 
 **WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
@@ -1935,8 +1949,8 @@ status is further down this section. What landed:
   asymmetry is the most visible thing about the effect. The card now scales
   only (`scale(1.02)`, raised from 1.012 to keep it pronounced), which grows
   from the centre and opens both gaps equally — 14.3px each. Elevation is
-  still expressed, by the downward-offset shadow alone, which is what sells
-  depth anyway. **A lift cannot be made symmetric** — that is what
+  still expressed, by the shadow alone — rebuilt below as a glow of light with
+  a zero Y-offset. **A lift cannot be made symmetric** — that is what
   `translateY` means — so do not restore one without re-reading this.
 
   **Then the shadow was rebuilt out of light, not black** (D-044, user-raised:
@@ -2418,9 +2432,10 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   will not shrink, or shrinks when it should not, look at the automatic
   minimum size first.
 
-  Note this is NOT the glyph/line-break rule being enforced:
-  `Get recommendations` is that rule's one standing exemption. It is a
-  separate fix that happens to make the exemption moot.
+  Note this was NOT the glyph/line-break rule being enforced:
+  `Get recommendations` was then that rule's one exemption. It was a separate
+  fix that happened to make the exemption moot, and the user lifted the
+  exemption on 2026-09-30.
 
 * **R12. DONE 2026-09-09, with R11 — the two section heads are reunited.**
   `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule
@@ -2500,10 +2515,12 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   `0.55`** (D-049). Claude argued against porting it at all and the user
   overruled that the same day — correctly: the objection was to the ranked
   list's STRENGTH, not to the idea, and 0.65 leaves every unhovered card
-  perfectly readable while the section still recedes. `> *` and not
-  `> .rec-card`, so the metadata footer dims with them instead of being left
-  as the single brightest thing on screen; hovering the footer dims nothing,
-  because the `:has()` tests for a hovered card.
+  perfectly readable while the section still recedes. The metadata footer
+  dims with the cards instead of being left as the single brightest thing on
+  screen — since R29 moved it out of the grid, through a second selector
+  anchored on `.recs` (`.recs:has(.rec-card:hover) .recs__meta .ai-meta`);
+  hovering the footer dims nothing, because the `:has()` tests for a hovered
+  card.
 
   **The live value is 0.65 and `styles.css` is the source of truth for it.
   D-049 says `0.70` and is NOT stale** — it records what was settled on
@@ -4528,8 +4545,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **Shooting it found two real defects, both fixed before the frame was taken,
     and the frame is now the evidence for both.** One root cause: `loadMovies()`
-    destructures on its first line, so a failed `/api/movies` throws before ANY
-    of the four sync functions below that `await` can run, and every element
+    awaits `/api/movies` on its first line and `api()` throws on a failed
+    response, so it stops before ANY of the four sync functions below that
+    `await` can run, and every element
     keeps whatever the markup gave it. `#recs-trigger` shipped without
     `disabled` and so rendered fully live above an empty list (fixed in the
     markup, mirroring `#verdict-refresh`, which the step-4b work had already got
@@ -5063,15 +5081,12 @@ one of them has `white-space: nowrap`. A guard that travels with the text cannot
 be missed by a stylesheet that was never updated. `busyButton()` does the same for every
 spinner label in one line, since every busy label in the app is built there.
 
-**One standing exception:** `Get recommendations` is out of scope for this rule
-by the user's instruction. Its BUSY label is nonetheless covered, because that
-comes from the shared `busyButton()`; only its resting label is exempt.
-**The exemption is moot in practice, and has been since R11:** that item gave
-`.recs__trigger` `white-space: nowrap`, so the label cannot break at all — the
-rule's outcome reached by a different mechanism. The exemption is left standing
-rather than retired because it is the user's to lift, not Claude's. *(Confirmed
-moot on 2026-09-30, and lifted by the user the same day: the rule now covers
-`Get recommendations` like every other label.)*
+**No label is exempt.** `Get recommendations` was out of scope at first, by the
+user's instruction, and the user lifted that exemption on 2026-09-30 once it was
+confirmed moot: R11 had given `.recs__trigger` `white-space: nowrap`, so the
+label cannot break at all — the rule's outcome reached by a different mechanism.
+Its BUSY label was always covered, because that comes from the shared
+`busyButton()`.
 
 **And one case the in-string technique cannot cover at all** (found by R15, which
 put a sparkle icon on that same trigger): an ICON is an element, not a character,

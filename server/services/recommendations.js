@@ -210,14 +210,16 @@ export async function generateRecommendations() {
   // the TASTE PROFILE is "films you have scored", the OWNED set is "films you
   // have, at all". Reading everything once and deriving both is cheaper than two
   // round trips and leaves no filter for the two to drift apart on.
-  // `nullsFirst: false` matches GET /api/movies so the sort is the app's one
-  // ordering rule; the unrated rows are filtered out of `rated` anyway, but a
-  // DESC sort puts NULLs first in Postgres by default and that is worth not
-  // relying on.
+  // Both orderings match GET /api/movies, so the sort is the app's one ordering
+  // rule and a tie at the top-N boundary picks the same films the ranked list
+  // shows first. `nullsFirst: false` because the unrated rows are filtered out
+  // of `rated` anyway, but a DESC sort puts NULLs first in Postgres by default
+  // and that is worth not relying on.
   const { data: all, error } = await supabase
     .from('movies')
     .select('id, tmdb_id, title, year, rating, review')
-    .order('rating', { ascending: false, nullsFirst: false });
+    .order('rating', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: true });
 
   if (error) throw new RecommendationError(`DB read failed: ${error.message}`);
   const library = all ?? [];

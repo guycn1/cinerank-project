@@ -218,15 +218,16 @@ severity with both installed. No MCP
 servers are configured for this project and no third-party agent plugins are used
 — verified, the repository contains no MCP configuration.
 
-**One live advisory is handled explicitly rather than silently.** Express 4 pins
-`qs` to exactly 6.15.3, which carries two moderate advisories that `npm audit
-fix` cannot resolve even with `--force`, because the exact pin leaves no semver
-room. The alternative was Express 5, a major version with breaking changes. The
+**One live advisory is handled explicitly rather than silently.** Express 4 and
+its body-parser ask for `qs` `~6.15.1`, which resolved to 6.15.3 and carries two
+moderate advisories that `npm audit fix` cannot resolve even with `--force`,
+because that range stops below the patched 6.16.0 and leaves no semver room.
+The alternative was Express 5, a major version with breaking changes. The
 chosen fix is an `overrides` entry lifting `qs` to 6.16.0, documented in
 [`package.json`](https://github.com/guycn1/cinerank-project/blob/main/package.json)
 with both advisory IDs, the reason Express 5 was declined, and the note that
 [`test/routes.test.js`](https://github.com/guycn1/cinerank-project/blob/main/test/routes.test.js)
-exercises exactly the query-string and JSON-body paths `qs` parses. An advisory
+exercises the query-string path `qs` parses. An advisory
 reasoned about in writing is worth more than a clean `npm audit` nobody can
 account for.
 

@@ -30,8 +30,11 @@
  * WHY IT GOES THROUGH THE APP'S OWN HTTP API, never through Supabase directly:
  * the blueprint requires the final state to be exactly what the normal UI flow
  * produces. Hand-inserting rows would skip the TMDB fetch that supplies every
- * stored fact, the duplicate guard and the rating validation — so the seeded
- * list would differ from a hand-built one in ways nobody notices until a demo.
+ * stored fact (TMDB's own score and its no-votes rule included) and the
+ * route's handling of the rating and review: rounding to one decimal, the
+ * 2,000-character cap, an empty review stored as null. The database's own
+ * constraints would still apply, but the seeded list would differ from a
+ * hand-built one in ways nobody notices until a demo.
  *
  * FILMS ARE DECLARED BY TITLE AND YEAR, NOT BY tmdb_id, and are resolved through
  * the app's own search endpoint. Hardcoded ids would be unverifiable magic

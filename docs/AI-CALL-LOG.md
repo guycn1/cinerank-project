@@ -139,9 +139,12 @@ the table.
 table. It is the only element adjacent to the totals row in *both* states, pinned
 and at rest, so it cannot go missing mid-scroll or double up at rest.
 
-> **If you make the totals row taller, change `--log-curtain-h` with it.** That
-> custom property is both the curtain's height and the row's pin offset. Change
-> the row alone and a gap opens at the dialog's bottom edge.
+> **To resize the band under the table, change `--log-curtain-h`, never
+> `.log-curtain`'s height on its own.** That custom property is both the
+> curtain's height and the totals row's pin offset. Shorten the curtain alone and
+> a strip opens between the pinned row and the curtain, where scrolling rows show
+> through. The totals row's own height is free to change: it pins by its bottom
+> edge, so a taller row still sits flush on the curtain.
 
 ### The totals divider is painted as backgrounds, not drawn as a border
 
@@ -202,12 +205,12 @@ Each of these looks like it could be simplified. Each cannot.
 |---|---|
 | **`.log-scroll` stays `overflow: visible`** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
 | **`.log-curtain` is a child of the *dialog*, not the table** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
-| **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a gap opens at the dialog's bottom edge |
+| **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a curtain shorter than the offset leaves a strip under the pinned totals row where rows show through |
 | **The totals divider is a background, not a border or shadow** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
 | **The reveal panel's opacity animates on the panel (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
 | **`--reveal-fade` is one property read by two elements** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
 | **The Result column is a fixed width (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
-| **`.log-dialog[open] { display: flex }` is a bare rule** | Without it the UA's `dialog:not([open])` hide is overridden and the dialog never closes |
+| **`display: flex` sits only on `.log-dialog[open]`, never on the bare `.log-dialog` rule** | On the bare rule it would override the UA's `dialog:not([open]) { display: none }`, since any author rule beats the UA stylesheet, and the dialog would never close |
 | **Failed rows render an em dash (`—`) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
@@ -240,11 +243,11 @@ This document should not read as *touch nothing*.
 The brief that commissioned it set the test, and it is a good one:
 
 > Hand it to someone who has never seen the component and ask them to **make the
-> totals row taller.**
+> band under the table shorter.**
 >
-> If they change `--log-curtain-h` along with the row, the document worked. If
-> they change only the row and leave a gap at the dialog's bottom edge, it did
-> not.
+> If they change `--log-curtain-h`, the document worked. If they shorten
+> `.log-curtain` alone and leave a strip under the pinned totals row where table
+> rows show through, it did not.
 
 ## Related
 

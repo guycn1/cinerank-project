@@ -3689,7 +3689,9 @@ useful information for no gain.
 **The value is `null`-able and must stay so.** Rows added before
 [migration 002](../db/migrations/002_tmdb_rating.sql) have no value, and TMDB
 genuinely returns no rating for titles nobody has voted on. `shapeMovie()`
-already maps that to `null`, and the renderer tests `!= null` rather than
+maps an absent average to `null` (TMDB's no-votes `0` needed the same
+treatment, which [D-037](#d-037--tmdbs-vote_average-0-is-an-absence-not-a-score)
+added), and the renderer tests `!= null` rather than
 truthiness — 0.0 is a real average and is falsy, the same trap `isRated`
 documents one block above it.
 
@@ -3891,8 +3893,10 @@ leave the toast for confirmations. This is not a workaround — it is what the r
 of the app already does. Search failures render in the results panel via
 `searchNote()`, the verdict's failure replaces the verdict text, the recs error
 belongs in `#recs-hint`. **Errors go next to the thing that failed; the toast
-reports things that succeeded.** The rate dialog was the one place breaking that
-pattern, and the top-layer problem was the symptom rather than the cause.
+carries confirmations, and only those failures that have no surface of their
+own** — an add, a remove, the list failing to load. The rate dialog was the one
+place breaking that pattern, and the top-layer problem was the symptom rather
+than the cause.
 
 **Trap: do not "fix" this later by making the toast a popover and reverting the
 inline error.** That would restore a page-level error message for a failure whose
@@ -4160,9 +4164,9 @@ perfectly
 the model produces only a search string, TMDB still supplies every fact, blast
 radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md) scopes two,
 and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
-tokens and cost — neither existing log table fits, so it needs
-[migration 002](../db/migrations/002_tmdb_rating.sql), a new service, a
-versioned prompt file and tests, days before submission. Consider revisiting
+tokens and cost — neither existing log table fits, so it needs a new
+migration for a third log table, a new service, a versioned prompt file and
+tests, days before submission. Consider revisiting
 post-submission, if ever.
 
 Decision: reword the empty state to echo the query back —

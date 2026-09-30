@@ -9,12 +9,13 @@
  * SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
  * that the worst case is "nothing happened":
  *   - It only ever runs UPDATE, never DELETE and never a bulk operation.
- *   - It writes exactly ONE column, `tmdb_rating`, which migration 002 has just
- *     created and which is therefore empty everywhere. No pre-existing value —
- *     no rating, no review, no title — can be overwritten by it.
+ *   - It writes exactly ONE column, `tmdb_rating`, so no rating, review or
+ *     title can be touched by it.
+ *   - It never overwrites a `tmdb_rating` either: it reads only rows where the
+ *     column is NULL, and each update repeats that condition, so a value that
+ *     appears between the read and the write is left alone.
  *   - It targets rows one at a time BY ID, never "all ids".
- *   - It skips any row that already has a value, so re-running changes only
- *     rows TMDB has since given a rating.
+ *   - Re-running it therefore changes only rows TMDB has since given a rating.
  *   - It is dry-run by default. Writing takes an explicit --write flag.
  * Read the printed plan first, then re-run with --write.
  *

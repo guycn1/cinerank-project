@@ -69,11 +69,12 @@ the reasoning. Rules that keep this honest live in
   `GHSA-4mjr-xmp4-gh2g` (DoS via `isBuffer`), both named in [`package.json`](../package.json) beside
   the override. `npm audit fix` did nothing — and neither did `--force`, which is
   the point where it would have been easy to either shrug or reach for a major
-  upgrade. The actual cause was that Express 4 pins `qs` to *exactly* the
-  vulnerable `6.15.3`, leaving npm no semver room, so the only move it could see
-  was Express 5 and its breaking changes. An `overrides` entry lifting `qs` to
-  the patched `6.16.0` — a minor bump — cleared both, with the route tests
-  covering exactly the surface involved (query strings, JSON bodies). Recorded in
+  upgrade. The actual cause was that Express 4 and its body-parser ask for
+  `qs` `~6.15.1`, a range that resolved to the vulnerable `6.15.3` and stops
+  below the patched `6.16.0`, leaving npm no semver room, so the only move it
+  could see was Express 5 and its breaking changes. An `overrides` entry lifting
+  `qs` to `6.16.0` — a minor bump — cleared both, with the route tests covering
+  the surface involved: the query string the search route parses. Recorded in
   `package.json` next to the override, because an unexplained override is the
   kind of thing a later reader deletes. `npm audit` now reports zero across every
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
@@ -266,8 +267,9 @@ precaution:
   that exact tag.
 * No broad process kills. Only a PID this session started, and test servers on a
   non-default port.
-* Prefer not to touch the database at all for testing — which is why the
-  recommendations work has a browser debug harness instead.
+* Prefer not to touch the database at all for testing — which is why the route
+  tests run against an in-memory fake of Supabase rather than the live project
+  ([`test/helpers.js`](../test/helpers.js)).
 * No MCP servers and no third-party agent plugins, so the tool surface is the
   one the ADE ships with and nothing more.
 

@@ -44,7 +44,11 @@ const defectRules = {
   'no-self-compare': 'error',
   'no-unmodified-loop-condition': 'error',
   'require-atomic-updates': 'error',
-  'no-await-in-loop': 'off', // deliberate: TMDB verification is sequential on purpose
+  // Off deliberately: every loop that awaits here is sequential on purpose —
+  // TMDB lookups one at a time (recommendation verification, the backfill),
+  // ordered writes in the seed script, polling and retries, and the layout
+  // tools driving one browser and one width at a time.
+  'no-await-in-loop': 'off',
   eqeqeq: ['error', 'always', { null: 'ignore' }], // `!= null` is the project's idiom
   'no-var': 'error',
   'prefer-const': 'error',

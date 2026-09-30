@@ -3,7 +3,8 @@
  *
  * Prompts are never inlined in code (CLAUDE.md § Prompt Versioning). Each file has
  * a leading HTML comment (dev notes), then a "# System" section and a "# User"
- * section. We load at call time so editing a prompt needs no code change.
+ * section. Keeping prompts in files keeps their text out of the code; loading
+ * at call time means an edited file takes effect without a server restart.
  *
  * @module server/services/promptLoader
  */

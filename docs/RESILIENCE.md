@@ -362,9 +362,10 @@ failure and is captured separately as
 
 **The two are told apart by what sits under the empty list, and the difference is
 not cosmetic.** A genuinely empty list shows "No movies yet — search for one above
-to get started."; this frame shows NOTHING there. `loadMovies()` destructures on
-its first line, so a failed `/api/movies` throws before `refreshRanked()` can
-unhide that line — and that is the right outcome, because the user may have a full
+to get started."; this frame shows NOTHING there. `loadMovies()` awaits
+`/api/movies` on its first line, and `api()` throws on a failed response, so the
+function stops before `refreshRanked()` can unhide that line — and that is the
+right outcome, because the user may have a full
 list the app simply cannot reach. Unhiding it here would assert something false.
 
 Both AI triggers are greyed, because the rated-film count comes from data
@@ -375,8 +376,9 @@ TMDB, not Supabase. One dependency down while another works is exactly what the
 interface should show.
 
 **Shooting this frame found two real defects**, neither of which any test could
-have caught. `loadMovies()` reads its response on its first line, so a failed
-request throws before any of the four synchronisation functions below it can run —
+have caught. `loadMovies()` awaits its request on its first line, and a failed
+request throws there, before any of the four synchronisation functions below it
+can run —
 and every element then keeps whatever the markup gave it. "Get recommendations"
 had shipped without a `disabled` attribute and so rendered fully live above an
 empty list. And the verdict's `Reading the room…` placeholder, meant to last a

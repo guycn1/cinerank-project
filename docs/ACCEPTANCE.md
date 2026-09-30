@@ -309,8 +309,10 @@ see its own evidence is doing half a job.)*
 Look at the **"What to watch next"** section:
 
 * **"Get recommendations" is greyed out** — and its sparkle icon is dimmed with
-  it, because the disabled rule is written as `button:disabled .ai-sparkle`. A
-  locked control that still twinkles invites a click that does nothing.
+  it, since the icon takes the button's own colour and opacity. It also stops
+  twinkling: the disabled rule `button:disabled .ai-sparkle` switches its
+  animation off, because a locked control that still twinkles invites a click
+  that does nothing.
 * **The explanation names both numbers**: *"Rate at least 3 movies to unlock
   recommendations (you have 1)."* Not just the requirement — the distance from
   it.

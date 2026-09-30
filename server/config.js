@@ -85,7 +85,8 @@ export const config = {
     // model turned out to be the constraint, not the wording. Sonnet-5 is the
     // cheapest real-time Sonnet on OpenRouter ($2/$10 per Mtok against Haiku's
     // $1/$5 — 2x, and ~0.29c a verdict), so this buys the register for a rounding
-    // error. Recommendations stay on Haiku: nothing there depends on voice.
+    // error. Recommendations stay on Haiku because their output is checkable
+    // (see `openrouter.model` above).
     // NOT a `:batch` slug, however cheap it looks in OpenRouter's list — those
     // are asynchronous and would break a live request.
     model: process.env.OPENROUTER_VERDICT_MODEL || 'anthropic/claude-sonnet-5',

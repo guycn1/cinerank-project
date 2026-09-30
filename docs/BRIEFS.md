@@ -152,8 +152,8 @@ document the thing nobody finishes reading.
 
 [`AI-CALL-LOG.md`](AI-CALL-LOG.md), written 2026-09-14. The test is not length:
 **hand it to someone who has never seen the component and ask them to make the
-totals row taller.** If they change the curtain height with it, the document
-worked. If they change only the row and leave a gap at the dialog's edge, it did
-not. That test is restated as the written document's own
+band under the table shorter.** If they change `--log-curtain-h`, the document
+worked. If they shorten the curtain alone and leave a strip under the pinned
+totals row where table rows show through, it did not. That test is restated as the written document's own
 [closing section](AI-CALL-LOG.md#7-how-to-tell-this-document-worked), so it
 travels with the thing being judged rather than only with the brief.
