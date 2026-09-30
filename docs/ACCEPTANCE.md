@@ -405,9 +405,11 @@ TMDB cannot confirm, a film the user already owns, and two picks resolving to th
 same film. Only the verified, unowned, non-duplicate one survives — and its year
 and `tmdb_id` come from TMDB, not from the model.
 
-**Both were verified load-bearing by deleting each of the three `continue` guards
-in turn; every deletion fails both of them, along with the other tests that reach
-the same guard.**
+**Both were verified load-bearing by deleting each of the three drop guards in
+turn — the ones for those three cases; every deletion fails both of them, along
+with the other tests that reach the same guard.** (The service's fourth `continue`
+guard counts a pick whose lookup could not reach TMDB, and is covered by its own
+test.)
 
 ### Verdict
 

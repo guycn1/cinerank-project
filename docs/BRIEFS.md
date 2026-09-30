@@ -69,10 +69,10 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 ### Purpose
 
 To stop the next change from silently undoing a fix. This component has the
-highest ratio of non-obvious-decision to line-of-code in the project: 76
-lines of route code (174 with its JSDoc), five cell builders in [`public/app.js`](../public/app.js)
-(`cell`, `abbrCell`, `modelCell`, `timeCell`, `resultCell`), about 160
-stylesheet lines, and **nine decision-log entries** behind them —
+highest ratio of non-obvious-decision to line-of-code in the project: one short
+route file, five cell builders in [`public/app.js`](../public/app.js)
+(`cell`, `abbrCell`, `modelCell`, `timeCell`, `resultCell`), one section of the
+stylesheet, and **nine decision-log entries** behind them —
 [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
 [`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history). *(The nine are named rather than counted so the figure can be checked, and
 so `check-claims` resolves each one.)*
@@ -133,7 +133,7 @@ failed:
   opening a row can never reflow the table or steal width from its neighbours.
 * **`.log-scroll` must stay `overflow: visible`** — it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
-* **Card view's two specificity fixes** (D-era, 850px and below): a leftover desktop
+* **Card view's two specificity fixes** (850px and below): a leftover desktop
   separator stacking into a vertical line, and a desktop `last-child` rule
   outranking the card rule and removing the final row's separator.
 * **Six pre-migration-001 rows were deleted by hand

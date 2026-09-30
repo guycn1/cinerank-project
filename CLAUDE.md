@@ -781,7 +781,8 @@ carries the current state.
   the previous set first, one card at a time, like pages of a book (R27, R14,
   R30, D-048). Nothing animates or scrolls on an empty or failed run.
   - The grid's column count is chosen in JS rather than by `auto-fill`, so a row
-    is never left holding one lonely card: four cards where three fit render 2 +
+    is left holding one lonely card only when no even split fits (five cards
+    where two fit stay 2 + 2 + 1): four cards where three fit render 2 +
     2, five where four fit render 3 + 2, and six where four fit render 3 + 3,
     with a short last row centred on a half-column offset (off-backlog,
     user-raised 2026-09-09; D-050 and D-051).
@@ -822,8 +823,9 @@ carries the current state.
   - **Trap: v7 is the version that FAILED on Haiku** — if the verdict is ever
     moved back down a tier, move the prompt back to v6 with it, because v7's
     four examples dilute the rules underneath them on a small model.
-    `temperature: 0.85` and real few-shot (example TURNS rather than prose) were
-    never needed and stay untried.
+    Changing the `temperature` (0.85 on every verdict since v3) and real
+    few-shot (example TURNS rather than prose) were never needed and stay
+    untried.
 * AI call log: every call logged success **or** failure (a run whose log write
   fails is discarded, with the cause sent to stderr — R5); `GET /api/ai-log`
   merges both tables; in-app viewer via the footer `.log-cta` button.

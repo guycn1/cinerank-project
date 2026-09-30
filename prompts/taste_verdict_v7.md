@@ -29,8 +29,8 @@ chain, and it also broke a rule every version since v4 has kept, writing 4
 sentences against a stated 2-3; the app was rolled back to v6 at that point. The
 same file then landed first try on claude-sonnet-5, register and sentence count
 both, and that is the live configuration: taste_verdict_v7 on claude-sonnet-5,
-the one feature not on the cheaper tier. The 0.85 temperature and real few-shot as
-example TURNS were never needed and stay untried. See D-053 in
+the one feature not on the cheaper tier. Changing the 0.85 temperature and real
+few-shot as example TURNS were never needed and stay untried. See D-053 in
 docs/DECISIONS.md.
 
 TRAP, AND IT IS THE REASON THIS NOTE IS HERE: v7 is the version that FAILED on
