@@ -209,6 +209,27 @@ function checkCommitLinks() {
         add('commit', `${f} labels a link ${named} but it points at ${sha.slice(0, 7)}`);
       }
     }
+    // A span of commits links a compare page, base...head, or the history up
+    // to a commit (or `main`). Both ends must be full hashes of real commits,
+    // and the base must be an ancestor of the head, or the page lists the
+    // wrong commits.
+    const span = /\]\(https:\/\/github\.com\/guycn1\/cinerank-project\/(compare|commits)\/([^)\s]+)\)/g;
+    for (const [, kind, ref] of s.matchAll(span)) {
+      const ends = kind === 'compare' ? ref.split('...') : [ref];
+      if (kind === 'commits' && ref === 'main') continue;
+      if (ends.length !== (kind === 'compare' ? 2 : 1) ||
+          ends.some((e) => e.length !== 40 || commitOf(e) !== e)) {
+        add('commit', `${f} links ${kind}/${ref}, which is not made of full commit hashes`);
+        continue;
+      }
+      if (kind === 'compare') {
+        try {
+          execFileSync('git', ['merge-base', '--is-ancestor', ends[0], ends[1]], { cwd: root });
+        } catch {
+          add('commit', `${f} links compare/${ref}, whose base is not an ancestor of its head`);
+        }
+      }
+    }
     if (!linkedDoc(f)) continue;
     let fence = false;
     let alt = false;

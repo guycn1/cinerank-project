@@ -21,7 +21,7 @@
   files, and the Security tab only ever renders the default branch anyway.
 -->
 
-**Framework:** OWASP Top 10 for Agentic Applications, risks `ASI01` to `ASI10`,
+**Framework:** OWASP Top 10 for Agentic Applications, risks [`ASI01`](#asi01--agent-goal-hijack) to [`ASI10`](#asi10--rogue-agents),
 OWASP Gen AI Security Project, published 9 December 2025. Course
 [Module 17](https://github.com/guycn1/cinerank-project/blob/main/DOSSIER.md#module-17-security-and-risk-in-agentic-systems)
 names it as the working checklist for agentic systems.
@@ -58,7 +58,7 @@ the build. Most of the substance sits in the second column.
 | ASI02 | [Tool Misuse & Exploitation](#asi02--tool-misuse--exploitation) | n/a — the model holds no tools | **Realised — [Incident 1](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#incident-log)** |
 | ASI03 | [Identity & Privilege Abuse](#asi03--identity--privilege-abuse) | Controlled — anon key only, RLS-bounded | Controlled — no higher credential exists to hold |
 | ASI04 | [Agentic Supply Chain Vulnerabilities](#asi04--agentic-supply-chain-vulnerabilities) | Controlled — 3 deps, one advisory handled explicitly | Controlled — no MCP servers, no agent plugins |
-| ASI05 | [Unexpected Code Execution](#asi05--unexpected-code-execution) | n/a by construction — verified absent | **Real** — realised as part of Incident 1 |
+| ASI05 | [Unexpected Code Execution](#asi05--unexpected-code-execution) | n/a by construction — verified absent | **Real** — realised as part of [Incident 1](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#incident-log) |
 | ASI06 | [Memory & Context Poisoning](#asi06--memory--context-poisoning) | n/a — no RAG, no cross-call memory | **Real** — the central risk of this project |
 | ASI07 | [Insecure Inter-Agent Communication](#structurally-not-applicable) | n/a — single agent, no protocol | n/a — single agent, no protocol |
 | ASI08 | [Cascading Failures](#asi08--cascading-failures) | Controlled — resilience requirements, tests, and captured evidence in [`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) | Controlled — verification gates + git rollback |
@@ -249,7 +249,7 @@ user and model text reaches the DOM through `textContent` — the string
 never used.
 
 **Build: real, and realised.** The agent ran shell commands throughout the
-build, and the process-kill half of Incident 1 is this risk landing. The
+build, and the process-kill half of [Incident 1](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#incident-log) is this risk landing. The
 containment is the same set of working agreements as
 [ASI02](#asi02--tool-misuse--exploitation), plus the fact that every change
 arrives as a reviewable commit on `draft` and never directly on `main`.
@@ -293,14 +293,14 @@ with it — TMDB down on search, TMDB down on add, TMDB down mid-recommendation,
 OpenRouter down on either feature, the database unreachable, and the app itself
 unreachable. Each is specified in [`SPEC.md` § 2.4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#24-resilience-requirements) and covered by route tests, and
 all of them are now **captured and analysed** in
-[`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) — `RS-1` through `RS-16`, which also reaches
+[`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) — [`RS-1`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-1--searching) through [`RS-16`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist), which also reaches
 past this list to a row deleted under an open dialog and three ways the model can
 return nothing usable while every dependency is healthy. A failed AI call still writes
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (62 tests), `npm run lint`,
-`npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
+**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: [`npm test`](https://github.com/guycn1/cinerank-project/tree/main/test) (62 tests), [`npm run lint`](https://github.com/guycn1/cinerank-project/blob/main/eslint.config.js),
+[`npm run scan-secrets`](https://github.com/guycn1/cinerank-project/blob/main/scripts/scan-secrets.js), [`npm run check-markdown`](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-markdown.js), [`npm run check-claims`](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-claims.js), and git itself — an unbroken history
 from the first commit, with four revert commits and [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476) as of 2026-10-01, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure

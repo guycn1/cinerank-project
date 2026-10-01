@@ -429,8 +429,8 @@ Worth opening the link shortly before demoing it.
 
 ## Security notes (course Module 17)
 
-**Mapped in full against the OWASP Top 10 for Agentic Applications (ASI01 to
-ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
+**Mapped in full against the OWASP Top 10 for Agentic Applications ([ASI01](docs/SECURITY.md#asi01--agent-goal-hijack) to
+[ASI10](docs/SECURITY.md#asi10--rogue-agents)) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
 against the product and once against the agentic development environment that
 built it, including the ones that do not apply and why. The short version:
 

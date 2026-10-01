@@ -80,8 +80,8 @@ What [§ 7.1](../SPEC.md#71-must-pass-before-submission) does not carry, and
 belongs in the framing:
 
 * **Done means [the gates](../CLAUDE.md#version-control-workflow-non-negotiable)
-  pass, not that the code runs.** All FIVE green: `npm test`, `npm run lint`,
-  `npm run scan-secrets`, `npm run check-markdown` and
+  pass, not that the code runs.** All FIVE green: [`npm test`](../test/), [`npm run lint`](../eslint.config.js),
+  [`npm run scan-secrets`](../scripts/scan-secrets.js), [`npm run check-markdown`](../scripts/check-markdown.js) and
   [`npm run check-claims`](../scripts/check-claims.js).
   [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral)'s
   warning is exact here: leave out success criteria and the agent stops when the

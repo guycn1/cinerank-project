@@ -99,7 +99,7 @@ drifts.
 
 *A test plan that probes real behaviour.*
 
-`npm test` runs 62 tests on the Node built-in runner: pure helpers, the prompt
+[`npm test`](../test/) runs 62 tests on the Node built-in runner: pure helpers, the prompt
 loader, and route-level behaviour with Supabase swapped for an in-memory fake and
 TMDB and OpenRouter stubbed, so the suite never touches live data.
 
@@ -154,11 +154,11 @@ it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732).
 
-`npm run lint` runs ESLint 10 over all 26 JavaScript files across four
+[`npm run lint`](../eslint.config.js) runs ESLint 10 over all 26 JavaScript files across four
 environments — Node ES modules, the browser ES module, and two browser
 *classic* scripts kept in [`scripts/`](../scripts/) that the app never serves: the
 [console debug harness](../scripts/debug-recs.js), pasted into a console, and
-the [layout probe](../scripts/layout-probe.js) that `npm run layout-check`
+the [layout probe](../scripts/layout-probe.js) that [`npm run layout-check`](../scripts/layout-check.js)
 injects into the pages it measures. **Current state: zero errors.**
 
 **The config is deliberately not a style linter**, and
@@ -259,14 +259,14 @@ fires is the thing this document exists to rule out.
 * **[`docs/FRAMING.md`](FRAMING.md)** — the problem, the stakeholders, the
   definition of done, and what is deliberately not being built.
 * **[`docs/PROCESS.md`](PROCESS.md)** — the workflow narrative: prompt version
-  chain, guardrails, and Incident 1.
+  chain, guardrails, and [Incident 1](../CLAUDE.md#incident-log).
 * **[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md)** — a component dense with
   non-obvious decisions, written up rule by rule with what breaks if each is
   undone.
 * **[`docs/SECURITY.md`](SECURITY.md)** — all ten OWASP agentic risks, including
   the ones that do not apply and why.
-* **Commit messages** explain *why*, not just what — across over 700
-  commits (`git rev-list --count main` for the exact figure; a number that moves
+* **Commit messages** explain *why*, not just what — across [over 700
+  commits](https://github.com/guycn1/cinerank-project/commits/main) (`git rev-list --count main` for the exact figure; a number that moves
   every commit is not written into a document).
 
 ## 5. Full auditability — MET

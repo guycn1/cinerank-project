@@ -32,7 +32,7 @@ on is more useful than a uniform tick:
 
 | Kind | What it means |
 |---|---|
-| **Automated** | An assertion in `npm test` that fails if the behaviour regresses. The strongest kind, because it keeps being true. |
+| **Automated** | An assertion in [`npm test`](../test/) that fails if the behaviour regresses. The strongest kind, because it keeps being true. |
 | **Captured** | A screenshot of the real application in the state described. Proves it happened once, on a real dependency. |
 | **Repeatable command** | Something anyone can re-run and read the output of. |
 | **Hand-verified** | Someone used the application and saw it. Weakest, and stated as such where it is all there is. |
@@ -330,7 +330,7 @@ the third is the interesting one:
 |---|---|
 | Status is **422** | Not a 500 — this is a state the user can act on, not a fault |
 | The body matches `/at least 3/` | The explanation reaches the client, rather than a bare status |
-| **No `recommendation_logs` row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
+| **No [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
 
 `GET /api/config` is separately tested to serve the threshold numbers, which is
 what lets the client display the rule without hardcoding it. The server is the
@@ -376,7 +376,7 @@ the model names is looked up before a card is drawn and dropped if TMDB has neve
 heard of it.
 
 The **"Based on:"** line names the five films that fed the prompt, and the footer
-declares `recommend_v3`, the model, the token count, the cost and the duration.
+declares [`recommend_v3`](../prompts/recommend_v3.md), the model, the token count, the cost and the duration.
 
 ### Captured — what the audit trail holds
 
@@ -444,7 +444,7 @@ sentence beside it explains *why*.
 ![The verdict banner holding generated text, with a footer declaring prompt
 version, model, tokens, cost and duration](screenshots/readme-1-hero-ranked-list.png)
 
-A generated verdict with `taste_verdict_v7`, `claude-sonnet-5`, its token count,
+A generated verdict with [`taste_verdict_v7`](../prompts/taste_verdict_v7.md), `claude-sonnet-5`, its token count,
 its cost in cents and its duration declared directly beneath it. The verdict
 rows in
 [`screenshots/readme-3-ai-call-log.png`](screenshots/readme-3-ai-call-log.png)
@@ -456,7 +456,7 @@ are the same figures in the audit trail.
   half, asserting the status and that the message names the requirement.
 * **"POST /api/taste-verdict logs a success row with real token and cost data"** —
   the logged half. `status: success`, no error, the stored verdict text, the cost
-  from OpenRouter’s `usage.cost`, the token count and `taste_verdict_v7`. It
+  from OpenRouter’s `usage.cost`, the token count and [`taste_verdict_v7`](../prompts/taste_verdict_v7.md). It
   also [checks the model on both sides of the call](https://github.com/guycn1/cinerank-project/commit/9dfd99af1e07b7b1bb04d1ddbe784d945e1713ee): the request asks for the
   verdict’s own model, `claude-sonnet-5`
   ([`D-053`](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)),
@@ -466,7 +466,7 @@ are the same figures in the audit trail.
   one would fail.
 
 **That second test was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/e71ad7e8ee3c484d2edea2c356d95b9545095f4a) while assembling this entry, because
-it did not exist.** Every `taste_verdict_logs` assertion in the suite was a failure
+it did not exist.** Every [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) assertion in the suite was a failure
 path. The one verdict behaviour this criterion names was the one nothing checked.
 Verified load-bearing: making the service ignore OpenRouter’s reported cost and
 fall back to the estimate table fails it.
@@ -616,7 +616,7 @@ A clean history is a fact about the past.
 and inspects the **staged diff**, so the property is maintained rather than
 merely observed. It is one of
 [five commit gates](../CLAUDE.md#version-control-workflow-non-negotiable),
-alongside `npm test`, `npm run lint`, `npm run check-markdown` and `npm run
+alongside [`npm test`](../test/), [`npm run lint`](../eslint.config.js), [`npm run check-markdown`](../scripts/check-markdown.js) and `npm run
 check-claims`.
 
 ### Verdict

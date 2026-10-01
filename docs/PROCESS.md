@@ -90,9 +90,9 @@ the reasoning. Rules that keep this honest live in
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Five gates, wired into the commit rules rather than left to memory.**
-  `npm test` (62 tests), `npm run lint` (ESLint, defect rules and complexity
+  [`npm test`](../test/) (62 tests), [`npm run lint`](../eslint.config.js) (ESLint, defect rules and complexity
   ceilings — [added 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732), the project had no static analysis before that),
-  `npm run scan-secrets` on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
+  [`npm run scan-secrets`](../scripts/scan-secrets.js) on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
   re-resolves claims in the repository that point at something — a path or a
@@ -116,13 +116,13 @@ the reasoning. Rules that keep this honest live in
   [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round — *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session —
   and committing after each change is what leaves the tree clean before the next
-  one begins. Measured over the whole history on 2026-10-01: **over 700 commits on `main`
+  one begins. Measured over the whole history on 2026-10-01: **[over 700 commits on `main`](https://github.com/guycn1/cinerank-project/commits/main)
   across 23 of the 28 days** the project has run, a **median of 2 files per
   commit** and a maximum of 27, merges excluded. (Deliberately not exact figures: they move with
   every commit, including the ones that would be needed to correct them. Up to
   2026-10-01, the days without a commit are 2026-09-18 and 2026-09-22 to
-  2026-09-25.) It was exercised for real, not merely available: four failed
-  polish passes on the verdict glint were ended by reverting to the last commit
+  2026-09-25.) It was exercised for real, not merely available: [four failed
+  polish passes on the verdict glint](https://github.com/guycn1/cinerank-project/compare/0c730a214d539f66d89133c4fcd58b0c304a5771...dde51c6cdb89f7874a933bfba43b3a74274ff405) were ended by reverting to the last commit
   and [re-deriving one dial at a time](https://github.com/guycn1/cinerank-project/commit/8e04212a5253db5aad4e6afa885853b8a250c676) ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path));
   the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest),
   [RS-15](RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
@@ -140,7 +140,7 @@ the reasoning. Rules that keep this honest live in
   times the agent was wrong — a log of only wins is not evidence of process.
 
 The UI polish phase leans hard on this loop. The AI call log dialog alone took
-~100 small commits — the human runs the app, screenshots what looks off (a
+[~100 small commits](https://github.com/guycn1/cinerank-project/compare/0525b8e7619d1b62d644d752a76c25369fd2cedf...49738c2d2c413815fa7877216553794049c6de95) — the human runs the app, screenshots what looks off (a
 border that doesn't line up mid-scroll, a caret nub, a scrollbar-coloured line
 mistaken for a stray scrollbar), the agent explains the cause and fixes it, the
 human re-checks. Several rounds caught regressions the agent introduced
@@ -210,7 +210,7 @@ stage below is a file a reader can open.
 | **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) — human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
 | **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | over 700 commits on `main` across 23 of the project's first 28 days, median 2 files each, merges excluded (all measured 2026-10-01) | — |
+| **Execution** | [over 700 commits on `main`](https://github.com/guycn1/cinerank-project/commits/main) across 23 of the project's first 28 days, median 2 files each, merges excluded (all measured 2026-10-01) | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
 
@@ -336,8 +336,8 @@ engineering:
 
 | Feature | Versions | What each change fixed |
 |---|---|---|
-| Recommendations | `recommend_v1` → `v2` → `v3` | [v1](https://github.com/guycn1/cinerank-project/commit/baab82343ffea42ba0818350ed9f0a5a9a37509f) read like a plot blurb → [v2](https://github.com/guycn1/cinerank-project/commit/e6951fdf0dca3019f11f370e2ab4321a365e6dc5) second-person voice tied to the user's own ratings → [v3](https://github.com/guycn1/cinerank-project/commit/e871fcd4ca05d4fee1706e6034021e590e0b9dc0) tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
-| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | [v1](https://github.com/guycn1/cinerank-project/commit/baab82343ffea42ba0818350ed9f0a5a9a37509f) cut mid-word and leaked `*markdown*` → [v2](https://github.com/guycn1/cinerank-project/commit/d01505fcfbae2165b9c3c1836aa853ab385bd21d) "finish the sentence, no markdown" → [v3](https://github.com/guycn1/cinerank-project/commit/f3d494bca5e8922c9040be6e45d333e7cc947cbe) over-corrected to one terse line that just parroted the numbers → [v4](https://github.com/guycn1/cinerank-project/commit/d29341f00f1182ef9db7bd8280ec37911263992c) gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → [v5](https://github.com/guycn1/cinerank-project/commit/f73040b4235d03859732e1f2cfa30a402cba843f) changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → [v6](https://github.com/guycn1/cinerank-project/commit/163d524f6cf74a584f1e3e846e508dba35f11c04) because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a second rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **[v7](https://github.com/guycn1/cinerank-project/commit/e6b72c22027095ce420bf6daa7e8ee272c79b3eb) threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6, and about the length of v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the most consequential finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. [Rolled back to v6.](https://github.com/guycn1/cinerank-project/commit/5d5c22950109bd7d6c439eeff50b9d4d258d9d26) Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weaker), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **[The fix was the MODEL](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a), and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
+| Recommendations | [`recommend_v1`](../prompts/recommend_v1.md) → `v2` → `v3` | [v1](https://github.com/guycn1/cinerank-project/commit/baab82343ffea42ba0818350ed9f0a5a9a37509f) read like a plot blurb → [v2](https://github.com/guycn1/cinerank-project/commit/e6951fdf0dca3019f11f370e2ab4321a365e6dc5) second-person voice tied to the user's own ratings → [v3](https://github.com/guycn1/cinerank-project/commit/e871fcd4ca05d4fee1706e6034021e590e0b9dc0) tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
+| Taste verdict | [`taste_verdict_v1`](../prompts/taste_verdict_v1.md) → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | [v1](https://github.com/guycn1/cinerank-project/commit/baab82343ffea42ba0818350ed9f0a5a9a37509f) cut mid-word and leaked `*markdown*` → [v2](https://github.com/guycn1/cinerank-project/commit/d01505fcfbae2165b9c3c1836aa853ab385bd21d) "finish the sentence, no markdown" → [v3](https://github.com/guycn1/cinerank-project/commit/f3d494bca5e8922c9040be6e45d333e7cc947cbe) over-corrected to one terse line that just parroted the numbers → [v4](https://github.com/guycn1/cinerank-project/commit/d29341f00f1182ef9db7bd8280ec37911263992c) gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → [v5](https://github.com/guycn1/cinerank-project/commit/f73040b4235d03859732e1f2cfa30a402cba843f) changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → [v6](https://github.com/guycn1/cinerank-project/commit/163d524f6cf74a584f1e3e846e508dba35f11c04) because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a second rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **[v7](https://github.com/guycn1/cinerank-project/commit/e6b72c22027095ce420bf6daa7e8ee272c79b3eb) threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6, and about the length of v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the most consequential finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. [Rolled back to v6.](https://github.com/guycn1/cinerank-project/commit/5d5c22950109bd7d6c439eeff50b9d4d258d9d26) Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weaker), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **[The fix was the MODEL](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a), and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
 
 Each prompt file after a v1 carries a "Change from vN" header explaining the
 delta; the two v1 files have no earlier version to compare against.
@@ -475,7 +475,7 @@ and recorded as exceptions to the append-only argument the log rests on.
 The deliverable here is the repository, so its failure mode is not a crash — it
 is a sentence that was true when written and quietly stopped being true.
 Staleness sweeps run on many separate days (`git log --oneline --grep=sweep`
-lists them). This section is about why the one on 2026-09-19 found things the
+lists them). This section is about why [the one on 2026-09-19](https://github.com/guycn1/cinerank-project/compare/15b2becf46973598a29e0c218578e55784f9eb5a...977595de1da5157bd896c2058133da5d2392d86e) found things the
 sweeps before it had walked past for nearly two weeks, because the method is more
 reusable than the fixes.
 
@@ -613,7 +613,7 @@ procedure.
 
 ## 6. Tests
 
-`npm test` (Node's built-in runner, no dependency, 62 tests) covers:
+[`npm test`](../test/) (Node's built-in runner, no dependency, 62 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
@@ -624,7 +624,7 @@ procedure.
   ([D-042](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form)),
   the below-threshold guards (422), and — the one that matters most —
   OpenRouter unreachable returning 422 *and* still writing a `status='failed'`
-  row to `recommendation_logs`. That's the "make failure visible" contract
+  row to [`recommendation_logs`](../SPEC.md#52-recommendation_logs). That's the "make failure visible" contract
   under test.
 - **Regression guards**, each added the day the bug was found and each checked
   to fail without its fix: [a film deleted in another tab returning 404 rather
@@ -705,7 +705,7 @@ of the record this document exists to show.
   twenty-four frames**, embedded and argued in [`RESILIENCE.md`](RESILIENCE.md);
   the recipes are greppable in
   [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
-  as `RS-1` through `RS-16`. Shooting them found three real defects that nothing
+  as [`RS-1`](RESILIENCE.md#rs-1--searching) through [`RS-16`](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Shooting them found three real defects that nothing
   else would have, which is the entry worth reading here rather than the count.
 - ~~**The recommendations error state is written and then immediately
   overwritten** by the availability-sync that runs in the same `finally`, so a

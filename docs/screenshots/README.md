@@ -18,7 +18,7 @@ take on trust.
 ## `rs-*` — resilience and state
 
 Recipes for reproducing each of these are in [`CLAUDE.md` § Resilience screenshots](../../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) as
-`RS-1` … `RS-16`. Eight states need two frames, on four different axes. For
+[`RS-1`](../RESILIENCE.md#rs-1--searching) … [`RS-16`](../RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Eight states need two frames, on four different axes. For
 five of them — [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) — the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
@@ -129,7 +129,7 @@ without leaving the frame.
 
 ## When these were taken
 
-All thirty-seven were captured on 2026-09-13 and 2026-09-14, and every one is
+All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com/guycn1/cinerank-project/compare/3ccf020884e83f3b565a028b333bcce1ec8d85ab...233d1df368674127589bf559048445ae8b0010c7), and every one is
 exactly as valid as evidence today as it was then.
 
 **The front end has had minor changes since, and every one of them is purely

@@ -426,13 +426,13 @@ superseding entry regardless.
 PARENTHESES — `someFunction()`. A bare `/api/recommendations/history` in prose
 matches nothing. So a deletion would leave three documents, one of them graded,
 describing a URL that answers 404, with all five gates green. That is exactly
-the no-resolvable-referent class the 2026-09-19 sweep was about, and it would
+the no-resolvable-referent class [the 2026-09-19 sweep](https://github.com/guycn1/cinerank-project/compare/15b2becf46973598a29e0c218578e55784f9eb5a...977595de1da5157bd896c2058133da5d2392d86e) was about, and it would
 have been self-inflicted.
 
 **What was real, and is fixed.** `/history` was the only one of the eleven
 routes with no test — checked by enumerating all eleven against the request
 paths in [`test/routes.test.js`](../test/routes.test.js), not assumed. Two tests now cover it: the
-response shape with recommendation-only scope (a `taste_verdict_logs` row is
+response shape with recommendation-only scope (a [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) row is
 seeded and must NOT appear, so a regression pointing it at the merged read
 fails here), and a DB error surfacing as a 500 without leaking the postgres
 text. Probed by breaking the source, as the suite's standard requires: swapping
@@ -537,7 +537,7 @@ observation, and it is written as such.
 
 ## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
 
-*[2026-09-19](https://github.com/guycn1/cinerank-project/commit/5422fce078e7563a5c8c6a1684a88e8ba8e9400f), established by the user mid-session and then applied file by file
+*[2026-09-19](https://github.com/guycn1/cinerank-project/commit/5422fce078e7563a5c8c6a1684a88e8ba8e9400f), established by the user mid-session and then [applied file by file](https://github.com/guycn1/cinerank-project/compare/649dae6541c71c2aabf4e13e53f65d14306c881b...c95229284469b35a0f8b8cc20a4a08973335118f)
 at their direction. Claude partly disagreed with the one exemption it is
 mostly about, measured it, and was talked round by an argument it had not
 made.*
@@ -960,7 +960,7 @@ model back out of OpenRouter's own response.
 > without the field fell back to the app-wide model on the success path too;
 > `chat()` now falls back to the model the call requested.
 
-That left a handful of wrong rows already in `taste_verdict_logs`.
+That left a handful of wrong rows already in [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs).
 
 ### The disagreement, which is the content of this entry
 
@@ -1136,7 +1136,7 @@ as UI proof.
 **It lost on taste signal, and both AI features degraded together.** Its verdict
 came back as `Wicked and SpongeBob get the love, while Slumdog Millionaire and
 Saw get chucked out for being nasty about it` — four film names mapped to their
-ratings, which is precisely the failure `taste_verdict_v4` was written to end
+ratings, which is precisely the failure [`taste_verdict_v4`](../prompts/taste_verdict_v4.md) was written to end
 ([D-014](#d-014--taste-verdict-over-corrected--taste_verdict_v4)) after v3 did
 the same thing. Its recommendations were Hairspray, Cinderella, The Lego Movie
 and Moana, with two of the four reasons naming Wicked outright.
@@ -1276,7 +1276,7 @@ and
 [D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)
 cost two real bug fixes to settle (a scope leak into placeholder text, and
 grapheme-unsafe iteration that corrupted emoji), and the mid-word breaking they
-prevent is a genuine defect at the widths step 5 was fought over. The hyphens
+prevent is a genuine defect at the widths [step 5](../CLAUDE.md#step-5--the-portrait-overhaul) was fought over. The hyphens
 earn their place in the DOM.
 
 **Fixed at the clipboard instead.** A `copy` listener strips U+00AD from the
@@ -1653,8 +1653,8 @@ before estimating the risk, not after.
 
 ## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
 
-Step 4 of the agreed order, [settled 2026-09-12](https://github.com/guycn1/cinerank-project/commit/b252db9fd8767bc2dc3f0e2125737f7b92099b36). The user had sequenced it behind
-step 4b on the reasoning that "the favicon will most likely derive from the
+[Step 4](../CLAUDE.md#step-4--the-favicon) of the agreed order, [settled 2026-09-12](https://github.com/guycn1/cinerank-project/commit/b252db9fd8767bc2dc3f0e2125737f7b92099b36). The user had sequenced it behind
+[step 4b](../CLAUDE.md#step-4b--seven-polish-items) on the reasoning that "the favicon will most likely derive from the
 logo, so the logo had to be settled before that discussion could start". That
 held — but the derivation turned out to be a re-draw rather than a copy, and the
 copy would have been the wrong artefact.
@@ -1832,7 +1832,7 @@ contradicted.
 reserving the tallest message: `min-height: ~3.1em`, permanently parking 67px of
 blank space above the grid on every narrow viewport, including the roughly
 two-thirds of the time the message is shorter than that. That trades a masked
-one-line shift for unmasked dead space in the exact viewport class step 5 exists
+one-line shift for unmasked dead space in the exact viewport class [step 5](../CLAUDE.md#step-5--the-portrait-overhaul) exists
 to make less cramped. It also hardcodes a line count that is a function of four
 message strings, the font and the viewport width — it goes silently wrong the day
 any of those changes, and nothing would catch it.
@@ -2275,7 +2275,7 @@ it by misreading this entry.
 
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
-Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x
+[Step 4b](../CLAUDE.md#step-4b--seven-polish-items)'s last glint item: while "New verdict" is generating, the band travels ~5x
 faster and brightens. Two dials, and they ended up in two different places.
 
 **[D-055](#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)
@@ -2341,8 +2341,8 @@ do not mirror them here.
 
 ### The failure: four compounding passes, and a framing error under them
 
-The user asked for the band to be subtler, softer-edged and lower-contrast. Four
-passes followed in one day, each moving several values at once: warm the stroke,
+The user asked for the band to be subtler, softer-edged and lower-contrast. [Four
+passes](https://github.com/guycn1/cinerank-project/compare/0c730a214d539f66d89133c4fcd58b0c304a5771...dde51c6cdb89f7874a933bfba43b3a74274ff405) followed in one day, each moving several values at once: warm the stroke,
 add a blur, cut the alpha, narrow the ring, slow the travel. Contrast over the
 ring's three base stops went 3.54 / 2.34 / 1.62 down to 1.40 / 1.26 / 1.12, and
 the user's verdict was that we were "in a loop… overcorrecting more and more".
@@ -3050,7 +3050,7 @@ load either, and swallows the real cause ("Couldn’t reach CineRank…") entire
 Copying that shape would have propagated the bug into a second feature.
 
 So the offer became conditional, and the condition is a fact the server knows and
-the client cannot: *was a `recommendation_logs` row committed for this failure?*
+the client cannot: *was a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row committed for this failure?*
 Of the six throw sites only one qualifies — the failure re-thrown after the log
 insert. A failed DB read happens before any AI call, an unmet threshold never
 reaches one, and a failed log write is by definition unlogged. All three now say
@@ -3262,7 +3262,7 @@ time, including the reasoning that turned out to be too blunt, and that record i
 worth more intact than tidied.
 
 ## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
-Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
+[Backlog #19](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). The user asked for a more pronounced grow-on-hover, describing the
 existing one as "too subtle - I can only notice it on the poster". That sentence
 turned out to be literally, mechanically true, in two ways at once.
 
@@ -3342,7 +3342,7 @@ the app's amber. **The user chose C.**
   not left inert.
 
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
-Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
+[Backlog #16](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
 had not been removed. The obvious fix, putting the context in front of whatever
 came back, was [recorded earlier the same day](https://github.com/guycn1/cinerank-project/commit/22cfc9964cb440f110909998973b69b4c38fb37c), in
@@ -3438,11 +3438,11 @@ was. Caught by running the composer over every scenario, not by eye.
 The shipped `failureText()` was extracted from [`public/app.js`](../public/app.js) and run over all
 ten reported scenarios plus the no-title fallback: every result names the
 operation, names the film where one exists, says "couldn’t" exactly once and ends
-in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
+in a full stop. [`npm test`](../test/) 38/38, including a new guard that the TMDB 502 carries
 `short` **and** that its `error` text is unchanged.
 
 ## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
-Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
+[Backlog #15](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
 film that is unrated but carries a review drew the "Not rated yet" chip and its
 review was never rendered at all — the text sat in the table and no screen ever
 showed it.
@@ -3498,11 +3498,11 @@ any film that has a review. No UI path sends it.
   message must never be shown for a violation of either. Both halves have a test,
   and both were verified to fail without their fix rather than assumed to work.
 * One-directional on purpose. A rating with **no** review stays valid — that is
-  the common case, and backlog #20 is about labelling it in the UI, not
+  the common case, and [backlog #20](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order) is about labelling it in the UI, not
   forbidding it.
 
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
-Backlog #14. Expand a review with "view more…", then rate, add or remove a
+[Backlog #14](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). Expand a review with "view more…", then rate, add or remove a
 *different* film, and it snapped shut. `renderRanked()` opens with
 `replaceChildren()`, and every rebuilt review was constructed with
 `setReviewExpanded(r, toggle, false)` — so the expanded state existed only as a
@@ -3644,7 +3644,7 @@ signature that is merely more sensitive would be its own bug. Related:
 
 
 ## D-038 · Tied films share a rank number, and say so
-Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
+[Backlog #13](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). Two films the user scored 8.0 displayed as **#3** and **#4**. The
 order between them comes from `created_at desc` — which was added more recently —
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
@@ -3751,9 +3751,9 @@ The search row was also switched from truthiness to `!= null` and given
 `toFixed(1)`, so both surfaces now state the same number the same way and are
 absent for the same reason rather than by coincidence.
 
-**Migration 003** nulls the zeros already written by 002 and the backfill. It is
+**[Migration 003](../db/migrations/003_tmdb_rating_zero_is_null.sql)** nulls the zeros already written by 002 and the backfill. It is
 non-destructive — it replaces a value that was never meaningful, and the real
-figure is re-derivable with `npm run backfill-tmdb-rating` at any time.
+figure is re-derivable with [`npm run backfill-tmdb-rating`](../scripts/backfill-tmdb-rating.js) at any time.
 
 This does not supersede
 [[D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)];
@@ -3762,10 +3762,10 @@ value of `0` means.
 
 
 ## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
-Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
+[Backlog #11](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). `shapeMovie()` had always returned `tmdb_rating` and the search
 results had always displayed it, but `POST /api/movies` dropped it because no
 column existed — the number was fetched, shown once, and thrown away the moment
-the film was added. Migration 002 adds the column; the interesting question was
+the film was added. [Migration 002](../db/migrations/002_tmdb_rating.sql) adds the column; the interesting question was
 what the stored value should *mean*.
 
 **[Settled on: the score the film had when it entered your list, written once and
@@ -3806,7 +3806,7 @@ dry-run by default and needs `--write`, updates one row at a time BY ID, writes
 exactly the one column [migration 002](../db/migrations/002_tmdb_rating.sql)
 just created — so no pre-existing value can be overwritten by it — and skips
 rows that already have a value, making a re-run a no-op. It is not run by
-Claude: after Incident 1 the standing rule is that the user drives anything that
+Claude: after [Incident 1](../CLAUDE.md#incident-log) the standing rule is that the user drives anything that
 touches live data.
 
 **Trap.** Applying [migration 002](../db/migrations/002_tmdb_rating.sql) is a
@@ -3888,7 +3888,7 @@ not).
 **The user pushed back, and was right.** Every save calls `loadMovies()`, which
 re-fetches the entire list server-sorted and re-renders it — so a ranking update
 really is triggered on every save, unconditionally. The claim was never false,
-and backlog #16's original wording ("claims a ranking change even when only the
+and [backlog #16](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)'s original wording ("claims a ranking change even when only the
 review was edited") was unfair on the same count. Recorded plainly: the argument
 for deleting the clause was overstated.
 
@@ -3927,7 +3927,7 @@ the messages at the source; it stays on backlog #16.
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
 `.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
 ranking." — was `--crimson`, the app's error colour, on a state where nothing
-has failed. That much was clear from the audit (backlog item #8).
+has failed. That much was clear from the audit ([backlog item #8](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)).
 
 **The obvious fix was to mute it, and it was rejected.** The precedent was
 right there and was the one cited when the item was raised: the search panel's
@@ -4145,7 +4145,7 @@ CSS cannot count characters, so `renderRanked()` marks the digit count with an
 `is-wide` class; the threshold is 99 and not 9 because two digits were measured
 and fit at every width.
 
-**The size took three passes, because the first two were estimated instead of
+**The size took [three passes](https://github.com/guycn1/cinerank-project/compare/6141ca5f24d91d67b317a833df2c5ab28ebed8af...3e0b657345b5a507df4da2699e4bf519c8cb9ed8), because the first two were estimated instead of
 measured — this is the substantive lesson of the entry.** [`2.75rem`](https://github.com/guycn1/cinerank-project/commit/0292bf412c56cb5053eaaa9bf04ae7d332e66644) was derived
 from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
 [`2.1rem`](https://github.com/guycn1/cinerank-project/commit/5375cffe7ef673083cca99086eab8f138d125e81) then over-corrected to a pessimistic ~0.8em, which cleared but made
@@ -4519,7 +4519,7 @@ Two implementation notes worth keeping:
   hide cannot alter the thing it is reacting to.
 
 ## D-020 · The AI-log table view is frozen; card-view work must prove it can't touch it
-The desktop/table view of the AI call log took ~100 commits of screenshot-driven
+The desktop/table view of the AI call log took [~100 commits](https://github.com/guycn1/cinerank-project/compare/0525b8e7619d1b62d644d752a76c25369fd2cedf...49738c2d2c413815fa7877216553794049c6de95) of screenshot-driven
 polish to settle (sticky thead/tfoot via `.log-curtain`, the collapsed-border
 divider painted as gradients, the reveal panel's caret + flip, themed
 scrollbars). It is done and it is fragile — several of those rules are the only
@@ -4624,7 +4624,7 @@ real [`prompts/`](../prompts/) files, so a malformed prompt version fails the su
 helpers were made `export`-ed for testability; no behaviour change. `GET
 /api/health` added for a future Node host. [`docs/PROCESS.md`](PROCESS.md) collects the
 LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
-chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
+chains as prompt-engineering evidence, the model guardrails, [Incident 1](../CLAUDE.md#incident-log) and the
 binding agreement it produced) — the course grades process, so it's a
 deliverable, not a note. Route-level and resilience tests remain manual.
 > **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** route-level and resilience tests [arrived on 2026-09-05](https://github.com/guycn1/cinerank-project/commit/2a5f357c5eaad9118610c08155bccc71049b6f3d), in
@@ -4672,7 +4672,7 @@ file; [`taste_verdict_v1.md`](../prompts/taste_verdict_v1.md) untouched.
 [Added `GET /api/ai-log`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) (both log tables merged, newest first, with totals) and a
 wide modal viewer reachable from a footer link — so the audit trail can be shown
 in the browser during the demo, not only in the Supabase table editor ([SPEC § 7.2](../SPEC.md#72-manual-demo-script)
-step 4). Migration 001 adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
+step 4). [Migration 001](../db/migrations/001_ai_log_details.sql) adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
 `status`, `error_text` to both tables. The services were restructured so that once
 an AI call is attempted a row is **always** written — a handled model/parse/network
 failure logs `status='failed'` with the message, then re-throws for the calm inline
@@ -4684,8 +4684,8 @@ The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
 [v2 asks for a second-person line](https://github.com/guycn1/cinerank-project/commit/e6951fdf0dca3019f11f370e2ab4321a365e6dc5) tied to the user's own ratings/reviews
 ("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
 a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); [`recommend_v1.md`](../prompts/recommend_v1.md) is kept
-untouched and every past `recommendation_logs` row still names the exact prompt
-that produced it. `taste_verdict_v1` is unaffected — versioned independently.
+untouched and every past [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row still names the exact prompt
+that produced it. [`taste_verdict_v1`](../prompts/taste_verdict_v1.md) is unaffected — versioned independently.
 
 ## D-008 · Taste verdict never auto-runs
 The banner shows a threshold message or a "tap for a verdict" prompt on load, and
@@ -4718,7 +4718,7 @@ write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-product
 Overridable via `OPENROUTER_MODEL`.
 
 ## D-003 · Cost logging is structural, not decorative
-`recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
+[`recommendation_logs`](../SPEC.md#52-recommendation_logs) and [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) store `tokens_used` and
 `estimated_cost_usd` per call. `config.estimateCostUsd` uses a small per-model
 price table; unknown models log `null` rather than a wild guess. A log-write
 failure is surfaced as an error, not swallowed — the audit record is the point.

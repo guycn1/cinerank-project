@@ -137,9 +137,10 @@ commit without one: a dated change, a merge named by its ordinal, a
 decision entry's date. That is 244 distinct commits, every URL fetched and
 answering 200. `check-claims` check 4b fails on an unlinked hash, a label
 pointing at a different commit, or a target that is not a full commit hash.
-Before that, `SPEC.md` and `README.md` were given a broad reading of the
-same rule: module, decision, prompt, migration, table and script mentions
-link their targets too. Two claims were found false on the way and
+A contiguous span of commits (a turn, a day's sweep, a run of attempts) links
+its GitHub compare page. All twelve files also read the rule broadly:
+module, decision, prompt, migration, table and script mentions link their
+targets too. Two claims were found false on the way and
 corrected: RESILIENCE.md dated the "on our side" fix to the RS-7 shoot,
 five days late, and D-034 called that same fix "the same afternoon" when
 it landed fifteen minutes before D-034, at night.
@@ -5581,6 +5582,25 @@ stays plain, since neither can hold a link. `npm run check-claims` fails on an
 unlinked hash, on a link labelled with one hash and pointing at another, and on
 a target that is not the full hash of a commit. It cannot check that a prose
 label describes the commit it links; that stays a reading job.
+
+**A span of commits links its range** (the user's rule, 2026-10-01), when the
+span is contiguous and clearly bounded: a spiral turn, a day's sweep, a run of
+attempts. The target is a compare page, `compare/<base>...<head>` with full
+hashes and the base the commit just before the span, or `commits/<hash>` for
+the history up to a commit when the span starts at the root (`commits/main`
+for the whole history). A set that is not contiguous, such as the four revert
+commits, stays plain. `check-claims` fails on a range end that is not the full
+hash of a commit, and on a base that is not an ancestor of its head.
+
+**Read broadly** (the user's rule, 2026-10-01): a mention of anything with a
+home of its own links there, not only a document or a section. A course module
+links its `DOSSIER.md` section; a decision entry, an `RS-n` key and an OWASP
+risk link their entries; an R-item, a step of the agreed order, a ranked-list
+backlog item and Incident 1 link their `CLAUDE.md` sections; a prompt version
+and a migration link their files; a log table links its `SPEC.md` § 5 entry;
+an `npm run` script links its script, `npm run lint` the ESLint config, and
+`npm test` the `test/` directory. A mention quoted as an example of an
+unlinked reference stays plain, as does one inside a quoted UI string.
 
 **Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
 repository* as a stakeholder who never runs the app and cannot ask a question.

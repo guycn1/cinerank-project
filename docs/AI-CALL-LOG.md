@@ -63,7 +63,7 @@ places, and the sections below say why in each case.
 ## 2. Where the data comes from
 
 `GET /api/ai-log` ([`server/routes/aiLog.js`](../server/routes/aiLog.js)) reads
-**two tables** — `recommendation_logs` and `taste_verdict_logs` — normalises
+**two tables** — [`recommendation_logs`](../SPEC.md#52-recommendation_logs) and [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) — normalises
 them into one row shape, merges, sorts by `created_at` descending, and returns
 the newest 60 with a totals object.
 

@@ -5,7 +5,7 @@ movie fact, **OpenRouter** for both AI features, and **Supabase** for storage. A
 of them can be down, and a fourth failure is possible too — the app's own server
 being unreachable from a page already open in the browser.
 
-`npm test` covers what the *server* does in each case: the status codes, the log
+[`npm test`](../test/) covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
 can photograph. Sixteen states, twenty-four frames.
 
@@ -178,7 +178,7 @@ That is the exact inverse of [RS-3](#rs-3--verifying-recommendations), where a
 call *did* succeed and its cost is shown.
 
 **[The log link is conditional](https://github.com/guycn1/cinerank-project/commit/5db718520a0e6f072579b0df6f6d07b091d40530)**, which is the subtle half: it appears only because
-a `recommendation_logs` row was really committed. The server sends a flag saying
+a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was really committed. The server sends a flag saying
 so. Of six places this function can fail, only one qualifies.
 
 ![The AI call log showing a failed row with the real cause, OpenRouter responded
@@ -766,7 +766,7 @@ state and looks at it. That is what this set is for.
 * Recipes for every state, as [`RS-1`](#rs-1--searching) …
   [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist):
   [`CLAUDE.md`, under Pre-submission blockers › Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16).
-* Server-side behaviour for the same cases: `npm test`,
+* Server-side behaviour for the same cases: [`npm test`](../test/),
   [`test/routes.test.js`](../test/routes.test.js).
 * The acceptance criteria these satisfy:
   [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission).
