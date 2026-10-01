@@ -96,7 +96,8 @@ the reasoning. Rules that keep this honest live in
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
   re-resolves claims in the repository that point at something — a path or a
-  link's target, a script, a decision entry, a commit SHA or commit link, a line number, an
+  link's target, a script, a decision entry, a commit SHA, a commit link or a
+  link to a span of commits, a line number, an
   identifier, a section reference, a capture or an `RS-n` key — and fails on a
   retired phrasing, a passage narrating its own earlier wording, or an
   invisible character. A `draft` → `main` merge runs all five, whatever the diff

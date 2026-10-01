@@ -1407,7 +1407,7 @@ section.
 
 ### The decision: delete the separators rather than unescape them
 
-The obvious fix was `---` → `---`, turning each into a real horizontal rule.
+The obvious fix was `\---` → `---`, turning each into a real horizontal rule.
 **The user rejected that from a screenshot and was right on both counts.**
 
 * **A rule there is redundant.** GitHub's stylesheet already puts a
@@ -1602,7 +1602,7 @@ in the repo it can now fail the build on any reappearance, which is what it does
 **And restoring it immediately caught two things, which is the argument for
 probing a check rather than trusting it.** First, the restored rule did not work
 at all: a heredoc ate a backslash and its regex became `/^#{1,6}s/`, matching a
-literal "s" after the hashes and therefore nothing — a check that passes",
+literal "s" after the hashes and therefore nothing — a check that passes,
 silently, forever. The probe caught it in one run. **That is the same failure as
 the tag-balance check in
 [D-064](#d-064--the-favicon-is-an-svg-re-draw-of-the-logo-not-an-export-of-it--and-deliberately-coarser-than-the-mark-it-comes-from):
@@ -3881,7 +3881,7 @@ passes.
 
 **[First pass — deleted it.](https://github.com/guycn1/cinerank-project/commit/9e835731cdf1c240c0cb8153b2962eee088999d4)** The reasoning was that editing only a review does
 not change the ranking, so the clause was an unverified claim of the same kind
-as the central 500 handler's "on our side" ([removed an hour earlier](https://github.com/guycn1/cinerank-project/commit/0e400d4e4025948ea68f97c7515771cc133b1158) on the
+as the central 500 handler's "on our side" ([removed minutes earlier](https://github.com/guycn1/cinerank-project/commit/0e400d4e4025948ea68f97c7515771cc133b1158) on the
 user's own principle: a vaguer message that is true beats a specific one that is
 not).
 

@@ -179,7 +179,9 @@ call *did* succeed and its cost is shown.
 
 **[The log link is conditional](https://github.com/guycn1/cinerank-project/commit/5db718520a0e6f072579b0df6f6d07b091d40530)**, which is the subtle half: it appears only because
 a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was really committed. The server sends a flag saying
-so. Of six places this function can fail, only one qualifies.
+so, and only a failure that comes after its row was written can set it: a
+failed database read, an unmet threshold and a failed log write all leave no
+row, so they offer no link.
 
 ![The AI call log showing a failed row with the real cause, OpenRouter responded
 401](screenshots/rs-4-openrouter-down-recs-log.png)

@@ -58,6 +58,12 @@ merges 21 to 29, the figures and notes describing it were written to `draft`
 first. They went in as one commit, and all five gates ran on it before the
 user confirmed the merge.
 
+Since the thirtieth merge, `draft` carries a defect published on `main` —
+SPEC.md's turn-count footnote rendering as a list item, which the user ruled
+worth a ground-2 merge on its own — plus the work that rode along with its
+fix. As of 2026-10-01 that thirty-first merge waits for the user's
+confirmation.
+
 ### What landed, newest first
 
 #### 2026-10-01
@@ -144,6 +150,22 @@ targets too. Two claims were found false on the way and
 corrected: RESILIENCE.md dated the "on our side" fix to the RS-7 shoot,
 five days late, and D-034 called that same fix "the same afternoon" when
 it landed fifteen minutes before D-034, at night.
+
+**Then a full staleness sweep of every markdown file and every code comment**,
+ahead of the thirty-first merge. One finding reached the code:
+`npm run seed-demo -- --keep` re-rated a seed film already in the list,
+overwriting the user's own rating and review, although the script's comments and
+its printed plan promised such films are left alone; it now skips them. The rest
+was wording:
+- **Gone short:** `check-claims`' own header and check 4b, and its enumeration
+  here and in `docs/PROCESS.md`, now name range links; this file no longer says
+  nothing enforces the linking rule, since its commit links fail `check-claims`.
+- **Wrong as written:** "New verdict" is enabled on load only above the
+  threshold; more than two states go beyond SPEC § 7.1's criterion 7; not every
+  front-end change since the captures was cosmetic (`docs/screenshots/README.md`
+  now names the two that were not); `docs/RESILIENCE.md` no longer counts the
+  recommendation service's throw sites; and D-034's "an hour earlier" was seven
+  minutes.
 
 #### 2026-09-30
 
@@ -5441,8 +5463,9 @@ that it is a correction, not an update.
 **Run `npm run check-markdown` before committing any change that touches a `.md`
 file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6
 and rule 11 below, and reports rule 7 without failing; `npm run check-claims`
-enforces rule 10's unambiguous forms. Rules 8 and 9 and § Every document
-reference is a link are enforced by nothing, so those are the ones to remember.
+enforces rule 10's unambiguous forms and the commit links under § Every
+document reference is a link. Rules 8 and 9, and the rest of that section, are
+enforced by nothing, so those are the ones to remember.
 For the rest, do not rely on memory — the whole point is that the checks do the
 remembering.
 
@@ -5561,7 +5584,8 @@ down could be re-broken within a session. See D-065.
 **If the prose names another document, that name is a link; if it names a
 SECTION of one, the link goes to the SECTION rather than the file.** It is a
 navigation rule, not a rendering one, so `check-markdown` does not enforce it
-and nothing fails when it is ignored — which is exactly why it is written here.
+and, apart from the commit links below, nothing fails when it is ignored —
+which is exactly why it is written here.
 
 **Once per paragraph** (the user's rule, 2026-09-29): a target is linked at its
 first mention in a paragraph, and later mentions of it in the same paragraph
@@ -5828,8 +5852,9 @@ the real blob from github.com and read that — it is the only authority.
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   the claims in the repository that POINT AT SOMETHING, in these forms — a path
-  or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA or a
-  commit link, a `file.js:123` reference, an identifier in backticks in a document, a function
+  or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA, a
+  commit link or a link to a span of commits, a `file.js:123` reference, an
+  identifier in backticks in a document, a function
   a JS comment names, a capture and its count, an `RS-n` key, a section (every
   link `#anchor` against the target's real headings, and every prose `§ 4.5` or
   `§ Title`), a short list of retired phrasings, a passage narrating its own
