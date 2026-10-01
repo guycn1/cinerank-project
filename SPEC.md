@@ -77,8 +77,8 @@ merge to `main`, and the next turn starts with the first commit after that merge
 | 2 | after `0525b8e`, through `d47c960` — 401 | `49738c2` to `d47c960`, sixteen merges |
 | 3 | after `d47c960`, through `0cdc4ec` — 93 | `ba702c2` and `0cdc4ec` |
 
-*(Counted with `git rev-list --count` over each range, merges included: 23 + 401
-+ 93 = 517, the whole history up to `0cdc4ec`.)*
+*(Counted with `git rev-list --count` over each range, merges included:
+23 + 401 + 93 = 517, the whole history up to `0cdc4ec`.)*
 
 ### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
 
