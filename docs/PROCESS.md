@@ -96,7 +96,7 @@ the reasoning. Rules that keep this honest live in
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
   re-resolves claims in the repository that point at something — a path or a
-  link's target, a script, a decision entry, a commit SHA, a line number, an
+  link's target, a script, a decision entry, a commit SHA or commit link, a line number, an
   identifier, a section reference, a capture or an `RS-n` key — and fails on a
   retired phrasing, a passage narrating its own earlier wording, or an
   invisible character. A `draft` → `main` merge runs all five, whatever the diff
@@ -479,7 +479,7 @@ lists them). This section is about why the one on 2026-09-19 found things the
 sweeps before it had walked past for nearly two weeks, because the method is more
 reusable than the fixes.
 
-**The diagnostic case.** On 2026-09-06 commit `cc41020` thinned the AI call
+**The diagnostic case.** On 2026-09-06 commit [`cc41020`](https://github.com/guycn1/cinerank-project/commit/cc41020b76bf43ff6bb9599d0671864d9fb1a015) thinned the AI call
 log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** — two comments in
 [`public/styles.css`](../public/styles.css), one of them just above the

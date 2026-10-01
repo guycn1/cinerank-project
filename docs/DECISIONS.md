@@ -22,7 +22,7 @@ so the Add button landed under the year/TMDB line in the title's column rather
 than out to the right. It never applied. The `@media (max-width: 500px)` block
 sits above the base `.result-row` rule in
 [`public/styles.css`](../public/styles.css), and has done since the commit that
-added it (`e712cda`). A media query adds no specificity, so the later base
+added it ([`e712cda`](https://github.com/guycn1/cinerank-project/commit/e712cdad74f4b0ae02ed4091736de57818eee01c)). A media query adds no specificity, so the later base
 rule's `display: flex` won, and so did the button's `margin-left: auto` over the
 query's `margin-left: 0`. Measured in headless Chrome in a 400px iframe with the
 real stylesheet (computed `display: flex`), then confirmed by the user in
@@ -367,7 +367,7 @@ the Documentation table already describes them, which is [D-074](#d-074--what-th
 summarised as one line each. Claude recommended expanding `public/` and
 `test/`, and giving each route file a purpose line rather than its endpoints:
 endpoints in the tree would be a second copy of
-[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which `b486c10` had just
+[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which [`b486c10`](https://github.com/guycn1/cinerank-project/commit/b486c107f5034806127a3aee43ac920f5d2d963c) had just
 made the [README](../README.md)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
 duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
@@ -477,8 +477,8 @@ all — every one about the VERTICAL axis or about structure, none about
 horizontal alignment.
 
 **What the history actually says.** `align-items` was `flex-end` from
-`0b3864c`, the commit that added TMDB's score. It became `flex-start` in
-`f69b069`, whose subject line is *"fix the rating wrap and button overflow
+[`0b3864c`](https://github.com/guycn1/cinerank-project/commit/0b3864c59c1d13fb0c3987a4a8c19463dde202e3), the commit that added TMDB's score. It became `flex-start` in
+[`f69b069`](https://github.com/guycn1/cinerank-project/commit/f69b06939d0c3690c28a3d8df952dd6fe352574f), whose subject line is *"fix the rating wrap and button overflow
 below 400px"* — which is exactly why it reads as load-bearing. It is not. That
 commit's own message says the alignment hunk was a separate change riding
 along, and the narrow-width fix is a different declaration entirely, the
@@ -628,18 +628,18 @@ gives one of those back to whichever part of the [README](../README.md) already 
 it.** Found as a contradiction: the "deliberately not in the tree" paragraph
 listed the nine [`docs/*.md`](./) as omissions a reader could verify, while the tree
 directly below listed all nine individually. **Claude resolved it the wrong way
-first** (`673702d`), striking them from the paragraph — which removed the
+first** ([`673702d`](https://github.com/guycn1/cinerank-project/commit/673702dc3959cc1b71203634b1653575793862da)), striking them from the paragraph — which removed the
 contradiction and kept the thing that caused it: nine files each carrying TWO
 hand-maintained descriptions. The user asked whether the tree should have
-matched the paragraph instead, and it should have (`a473b29`).
+matched the paragraph instead, and it should have ([`a473b29`](https://github.com/guycn1/cinerank-project/commit/a473b295798db33f935985294cde14b44cc63cc3)).
 
 **What settled it was measurable, not editorial.** The duplication had already
 drifted, that same day, by Claude's own hand, in commits whose subject was
 accuracy: [`docs/MERGE-READINESS.md`](MERGE-READINESS.md)'s table row was
-rewritten in `c2aed57` to say "MERGE-READY, all five met" while its tree line
+rewritten in [`c2aed57`](https://github.com/guycn1/cinerank-project/commit/c2aed57b99535d10f0a3543d6d9bbbc1d7090864) to say "MERGE-READY, all five met" while its tree line
 kept the vaguer "the standing verdict the document itself carries";
 [`docs/ACCEPTANCE.md`](ACCEPTANCE.md)'s row gained "classified by strength ...
-All eight read satisfied" in `565e5f8` while its tree line stayed at "with
+All eight read satisfied" in [`565e5f8`](https://github.com/guycn1/cinerank-project/commit/565e5f8753ef7063188d0a2c6f8d650b7a99542f) while its tree line stayed at "with
 evidence attached". Two of nine pairs, inside one session, while auditing for
 exactly this.
 
@@ -649,12 +649,12 @@ did the same with two each. Claude recommended nesting `scripts/` alone and
 flagged the cost — the tree would then carry two idioms chosen by size, nest
 when a directory has several children and inline the prefix when it has one or
 two, a convention stated nowhere. **The user overrode that narrower scope and
-extended it to `db/` and `docs/`** (`25b7415`), which is the better call: one
+extended it to `db/` and `docs/`** ([`25b7415`](https://github.com/guycn1/cinerank-project/commit/25b741589ece465bf36450538ab4f3fcfa26b862)), which is the better call: one
 visible rule instead of two, and no unstated size threshold for a later session
 to guess at.
 
 **3. Every identifier in the section's prose resolves from the repository
-root.** `routes/` became [`server/routes/`](../server/routes/) (`0c206ff`). Claude looked first for
+root.** `routes/` became [`server/routes/`](../server/routes/) ([`0c206ff`](https://github.com/guycn1/cinerank-project/commit/0c206ff06978398262121f0af06475df20965109)). Claude looked first for
 a mechanical argument — whether `check-claims` resolves one spelling and not
 the other — and there is none: `checkPaths` only matches paths ending in a file
 extension, so a bare directory is invisible to the gate either way. What decided
@@ -671,7 +671,7 @@ section in wording almost identical to its table row, and
 [`docs/RESILIENCE.md`](RESILIENCE.md) in its Screenshots section in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
 [`docs/MERGE-READINESS.md`](MERGE-READINESS.md) both describe
-[`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in `707b7f2` after the user
+[`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in [`707b7f2`](https://github.com/guycn1/cinerank-project/commit/707b7f2118ee57ee45aa4b432e13bf716f81cd0d) after the user
 asked for it to be verified rather than trusted.
 
 **Traps.**
@@ -692,8 +692,8 @@ asked for it to be verified rather than trusted.
 
 **Deliberately not in this entry: the formatting.** Column alignment, wrap
 points, the [`test/`](../test/) line that sat one column left of its siblings, the missing
-`ac-*` family in the screenshots description (`2b49ba4`), the Documentation
-table's two declared omissions (`006983e`). All obviously correct once raised,
+`ac-*` family in the screenshots description ([`2b49ba4`](https://github.com/guycn1/cinerank-project/commit/2b49ba4380d7ae9954fe7ba499976b358c373bc2)), the Documentation
+table's two declared omissions ([`006983e`](https://github.com/guycn1/cinerank-project/commit/006983e711fb3c1cd0d685825a9f9ab961014ba9)). All obviously correct once raised,
 all recoverable by reading the file, all in their commit messages. The
 distinction drawn here, after the user caught it being drawn too coarsely: the
 formatting is presentation, the CONVENTION the formatting established is a rule,
@@ -703,9 +703,9 @@ and only the rule belongs in a decision log.
 
 *2026-09-15, after the user asked whether a wording correction was worth a
 twenty-fifth merge — and said they feared it would be too blatant a deviation
-from the milestone rule even by post-`0cdc4ec` standards.*
+from the milestone rule even by post-[`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) standards.*
 
-Two worries, and they pulled opposite ways: a correction (`671f74a`) was sitting
+Two worries, and they pulled opposite ways: a correction ([`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116)) was sitting
 on `draft` and might never be merged if no further work came, while merging for
 it looked like the clearest breach yet of "only at a notable, settled milestone".
 
@@ -714,9 +714,9 @@ first twenty-one merges, read off `git log --merges --oneline main`: an app
 verified end to end, the AI-call-log table and card views, the taste-verdict and
 search sections, the ranked-list overhaul, the live deployment, four merges of
 the recommendations overhaul, the front-end overhaul completing, the [DOSSIER](../DOSSIER.md)
-reconciliation, and `0cdc4ec`, the final planned merge. Not one incremental
+reconciliation, and [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned merge. Not one incremental
 change among them. And the merges after it each cleared a *different* criterion
-— a defect already published on `main` — which was stated at `94f5325` in its own
+— a defect already published on `main` — which was stated at [`94f5325`](https://github.com/guycn1/cinerank-project/commit/94f5325e8b603b990e9355618449b1bc73aacccd) in its own
 Build-status note **before** it was used, not reached for afterwards. So the
 practice had been consistent the whole time. **What was out of date was the rule
 TEXT**, which still named ground 1 alone.
@@ -732,7 +732,7 @@ history.
 
 **The alternatives, and why each was rejected.**
 
-* **Merge `671f74a` as a twenty-fifth.** The obvious move, and the one three
+* **Merge [`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116) as a twenty-fifth.** The obvious move, and the one three
   consecutive defect merges invited. Rejected on the merits — the sentence it
   fixes is over-compressed rather than misinforming, since the clause after the
   dash carries the argument correctly — and on cost: a merge needs the count
@@ -744,11 +744,11 @@ history.
   bar to hold a candidate against, every merge after the twenty-first had to
   re-derive its justification from nothing. Consistent practice that reads as
   drift is still a documentation defect, and this repo's documentation is graded.
-* **Let `671f74a` sit unmerged and say nothing.** Indistinguishable from an
+* **Let [`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116) sit unmerged and say nothing.** Indistinguishable from an
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: force-pushing over pushed history. The same call was made
-  for `619ed64` and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
+  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -815,7 +815,7 @@ by petering out, and there the fallback is a question, not a merge.
 
 * **Never restore a count of the merges made "since" anything.** That set is
   open, so the figure is false one merge later and no gate will say so. "The
-  first twenty-one" is CLOSED and is safe to state; anchor the tail to `0cdc4ec`
+  first twenty-one" is CLOSED and is safe to state; anchor the tail to [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e)
   instead of counting it.
 * **Do not answer this by teaching the gate to check bare numerals.** It would
   fire on hundreds of legitimate ones, and a check that cries wolf buries the
@@ -1048,7 +1048,7 @@ window.
 
 ### Where the cap came from, and why it stays
 
-`git log -S` puts it in `b3e3446` (2026-09-04), the commit that introduced the
+`git log -S` puts it in [`b3e3446`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) (2026-09-04), the commit that introduced the
 viewer. **There is no decision entry for it and no sign it was ever discussed** —
 the user's own account was "we've always had a very manufactured 60-row cap, from
 day one, and I don't know why". So it was a default typed while building.
@@ -1869,7 +1869,7 @@ writing the steps and was not checked.
 Found while diagnosing the above, and it is the reason a sub-threshold run could
 not simply be forced.
 
-[`scripts/debug-recs.js`](../scripts/debug-recs.js) (96158b1, 2026-09-09)
+[`scripts/debug-recs.js`](../scripts/debug-recs.js) ([96158b1](https://github.com/guycn1/cinerank-project/commit/96158b1827ec2ee436af57d79857b61e893600ef), 2026-09-09)
 carries a `setTimeout(…, 0)` that re-enables `#recs-trigger` after the run's
 `finally` re-disables it. **That workaround was complete when written**: at the
 time, the below-threshold branch of `syncRecommendationsAvailability()` did
@@ -1879,7 +1879,7 @@ six cards and they stayed. Zero rated films was a perfectly usable harness
 state.
 
 **[R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
-(885a6a5, 2026-09-11 — two days later) added a third statement to that same
+([885a6a5](https://github.com/guycn1/cinerank-project/commit/885a6a59eed2abe7f53d50a6504301c44d131907), 2026-09-11 — two days later) added a third statement to that same
 branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`,
 so a locked section cannot sit above six live recommendations. Correct on its
 own terms and unrelated to this file. The consequence is that the harness's
@@ -3403,7 +3403,7 @@ inconsistency (three messages), but
 [`test/routes.test.js`](../test/routes.test.js) asserts one of them verbatim
 with a straight apostrophe, so a tidy-up sweep would have broken a test for a
 cosmetic gain. Left alone and reported instead.
-> **2026-09-30:** fixed later the same day in a commit of its own, `a124934`,
+> **2026-09-30:** fixed later the same day in a commit of its own, [`a124934`](https://github.com/guycn1/cinerank-project/commit/a124934d5cb38cae067ce5ef9eabd39bc41b8f0e),
 > which curled the server-side contractions and updated the one test assertion
 > that quotes a message verbatim. It is ticked under
 > [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14)
@@ -3551,8 +3551,8 @@ already runs on a `requestAnimationFrame` after every render, already captures
 Seeding the class at build time means that pass sees `wasExpanded = true` and its
 existing `it.clips && it.wasExpanded` rule treats a rebuilt card exactly as it
 already treats a resize: still clips, stays open; no longer clips, collapses. No
-new rule was introduced into the code that #5 took four commits (b59a893,
-59127cc, e0038a3, dd5ce2d) to settle — the three-pass measurement, the
+new rule was introduced into the code that #5 took four commits ([b59a893](https://github.com/guycn1/cinerank-project/commit/b59a8933bd748aa3d4b92ec5d401821f8d2878dc),
+[59127cc](https://github.com/guycn1/cinerank-project/commit/59127cc84477dfade590cfaf924d51c77b96739c), [e0038a3](https://github.com/guycn1/cinerank-project/commit/e0038a38fb7910f561efa317a517548a41e2b97e), [dd5ce2d](https://github.com/guycn1/cinerank-project/commit/dd5ce2d7f255da9228638c14217c2029406550fa)) to settle — the three-pass measurement, the
 both-ways `hidden` assignment, and the deliberate absence of any line count in
 JS are all byte-identical.
 
@@ -4415,10 +4415,10 @@ to get out of the way, and they earn their outside-click handler.
 nothing, so there is nothing to get out of the way of.
 
 Both auto-dismissals were built and then removed:
-- **Outside click** (33ad1ec) — pattern-matched from the reveal panels without
+- **Outside click** ([33ad1ec](https://github.com/guycn1/cinerank-project/commit/33ad1ec26f3d662f0e9edc7c7f44157430a91952)) — pattern-matched from the reveal panels without
   checking whether the reason applied. A stray click cost the user a re-typed
   query and another TMDB round-trip.
-- **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
+- **Close on add** ([fdf7ec6](https://github.com/guycn1/cinerank-project/commit/fdf7ec60c79bc6d695250aad2e273e30c0249b23)) — worse, it was self-defeating. It ran in the same
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
   it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
   2026-09-09's
@@ -4434,8 +4434,8 @@ close the results. Adjacent identical glyphs with different meanings is a trap.
 Escape closes it; a new search replaces it; otherwise it stays.
 
 ## D-023 · The reveal-panel fade animates the panel, never `::details-content`
-*Recorded retroactively — decided 2026-09-05 over commits bfafeb2, 1476446,
-de244d7.*
+*Recorded retroactively — decided 2026-09-05 over commits [bfafeb2](https://github.com/guycn1/cinerank-project/commit/bfafeb2a2721898ab5fb7075a7d2f40072953114), [1476446](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467),
+[de244d7](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70).*
 
 The obvious place to animate a `<details>` open/close is `::details-content`,
 which is what the pseudo exists for. Doing that made the panel flicker BEHIND
@@ -4458,8 +4458,8 @@ match, or the panel is yanked mid-fade-out. Both read one custom property,
 `--reveal-fade` on `.log-reveal` — the single knob. Do not split them.
 
 ## D-022 · The AI-log Total row rides on a curtain, not on a sticky `<tfoot>`
-*Recorded retroactively — decided 2026-09-05 after four attempts (842fe03,
-6c08db4, 188b6bf, 58f787b).*
+*Recorded retroactively — decided 2026-09-05 after four attempts ([842fe03](https://github.com/guycn1/cinerank-project/commit/842fe038068aafbbe516561e52ec4b8270ae04ab),
+[6c08db4](https://github.com/guycn1/cinerank-project/commit/6c08db43ab521879e7fb8bc04d2263372fb875a8), [188b6bf](https://github.com/guycn1/cinerank-project/commit/188b6bfd3b133d382c4e5665dfba4b9f3be59ef0), [58f787b](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)).*
 
 Pinning the Total row to the bottom of the log dialog looks like a one-liner and
 is not. What failed, in order:

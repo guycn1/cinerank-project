@@ -8,7 +8,7 @@ deliberately not be built. It is the brief the agent works from.
 where its edges are.
 
 **What is new here and what is not, stated up front.** Three of the four
-artefacts below have been in the repository since `aadaf18` (2026-09-04), the
+artefacts below have been in the repository since [`aadaf18`](https://github.com/guycn1/cinerank-project/commit/aadaf188132b461cbfefedd1fa00d2c513029f41) (2026-09-04), the
 commit that added [`SPEC.md`](../SPEC.md) and [`CLAUDE.md`](../CLAUDE.md): the
 problem statement and the out-of-scope list as
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement), and the testable

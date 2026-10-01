@@ -5554,6 +5554,20 @@ stay plain. Each list item and each table row counts as a paragraph of its
 own. "Same target" means the same destination, so two R-items in one group
 share one link.
 
+**Every commit is a link too** (the user's rule, 2026-10-01). A quoted hash
+links to its commit page on GitHub by the FULL hash,
+`https://github.com/guycn1/cinerank-project/commit/<full hash>`, the one kind
+of link that has to be absolute. So does a mention of a commit that quotes no
+hash, such as the date a change was made or a description of what a commit
+did, wherever the commit can be identified: the words already there become the
+link text. A hash is always linked, even where the paragraph already links
+that commit; a prose mention is linked only where it does not. Same files and
+same exemptions as above, and a hash in a heading or in an image's alt text
+stays plain, since neither can hold a link. `npm run check-claims` fails on an
+unlinked hash, on a link labelled with one hash and pointing at another, and on
+a target that is not the full hash of a commit. It cannot check that a prose
+label describes the commit it links; that stays a reading job.
+
 **Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
 repository* as a stakeholder who never runs the app and cannot ask a question.
 For that reader an unlinked "see D-046" is a number and a scroll bar. Applied
@@ -5780,8 +5794,8 @@ the real blob from github.com and read that — it is the only authority.
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   the claims in the repository that POINT AT SOMETHING, in these forms — a path
-  or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA, a
-  `file.js:123` reference, an identifier in backticks in a document, a function
+  or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA or a
+  commit link, a `file.js:123` reference, an identifier in backticks in a document, a function
   a JS comment names, a capture and its count, an `RS-n` key, a section (every
   link `#anchor` against the target's real headings, and every prose `§ 4.5` or
   `§ Title`), a short list of retired phrasings, a passage narrating its own

@@ -584,7 +584,7 @@ cover every credential the project holds.
 ![GitHub showing commit a93326c: zero parents, one file changed, README.md with a
 single added line](screenshots/ac-8-first-commit.png)
 
-`a93326c` — **`0 parents`**, so it is demonstrably the root commit — **one file
+[`a93326c`](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) — **`0 parents`**, so it is demonstrably the root commit — **one file
 changed**, [`README.md`](../README.md), **one line added**: `# cinerank-project`.
 
 That is GitHub’s repository-creation commit. It contains no code, no configuration
@@ -592,7 +592,7 @@ and no `.env`: **`.env` did not exist in the first commit, and there was nothing
 there for a secret to be in.** The user checked it by hand and confirmed it holds
 no secret.
 
-[`.gitignore`](../.gitignore) arrives in the very next commit, `103c4be`, with
+[`.gitignore`](../.gitignore) arrives in the very next commit, [`103c4be`](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), with
 `.env` on its second line and [`.env.example`](../.env.example) alongside it —
 the first commit that contains any project content at all:
 

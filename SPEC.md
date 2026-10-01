@@ -40,7 +40,7 @@ intent at named
 commit points between turns. **In this repository the commit points are the merges
 to `main`** — the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
-`draft`. (Merges 22 to 30, which follow `0cdc4ec`, the final planned one, are not
+`draft`. (Merges 22 to 30, which follow [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned one, are not
 milestones. Merges 22 to 29 were defect fixes, the second of the three grounds
 [`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
 30th was the close-out sync at the course's final assessment deadline on
@@ -74,27 +74,27 @@ merge to `main`, and the next turn starts with the first commit after that merge
 
 | Turn | Commits | Commit points (merges to `main`) |
 |---|---|---|
-| 1 | from the root commit `a93326c` through `0525b8e` — 23 | `00932c2`, `4a6b183`, `0525b8e` |
-| 2 | after `0525b8e`, through `d47c960` — 401 | `49738c2` to `d47c960`, sixteen merges |
-| 3 | after `d47c960`, through `0cdc4ec` — 93 | `ba702c2` and `0cdc4ec` |
+| 1 | from the root commit [`a93326c`](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) through [`0525b8e`](https://github.com/guycn1/cinerank-project/commit/0525b8e7619d1b62d644d752a76c25369fd2cedf) — 23 | [`00932c2`](https://github.com/guycn1/cinerank-project/commit/00932c24a360227ecbe0025d3aa649d445d8c6b3), [`4a6b183`](https://github.com/guycn1/cinerank-project/commit/4a6b18335ce36ea9ed02ff047b98613852b011cf), [`0525b8e`](https://github.com/guycn1/cinerank-project/commit/0525b8e7619d1b62d644d752a76c25369fd2cedf) |
+| 2 | after [`0525b8e`](https://github.com/guycn1/cinerank-project/commit/0525b8e7619d1b62d644d752a76c25369fd2cedf), through [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1) — 401 | [`49738c2`](https://github.com/guycn1/cinerank-project/commit/49738c2d2c413815fa7877216553794049c6de95) to [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1), sixteen merges |
+| 3 | after [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1), through [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) — 93 | [`ba702c2`](https://github.com/guycn1/cinerank-project/commit/ba702c266d3ac7829f2c1d75b0230cbf86e0998d) and [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) |
 
 *(Counted with `git rev-list --count` over each range, merges included:
-23 + 401 + 93 = 517, the whole history up to `0cdc4ec`.)*
+23 + 401 + 93 = 517, the whole history up to [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e).)*
 
 ### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
 
-Commit points: `00932c2` to `0525b8e` — three merges to `main`.
+Commit points: [`00932c2`](https://github.com/guycn1/cinerank-project/commit/00932c24a360227ecbe0025d3aa649d445d8c6b3) to [`0525b8e`](https://github.com/guycn1/cinerank-project/commit/0525b8e7619d1b62d644d752a76c25369fd2cedf) — three merges to `main`.
 
-The first turn ran fast and end to end — schema and versioned prompts (`baab823`),
-the Express API with isolated service modules (`d5e9702`), the frontend
-(`aee82b4`), and this document and [`CLAUDE.md`](CLAUDE.md) (`aadaf18`). It closed at
-`0525b8e`, whose message reads "functionally complete against SPEC" — the stopping
+The first turn ran fast and end to end — schema and versioned prompts ([`baab823`](https://github.com/guycn1/cinerank-project/commit/baab82343ffea42ba0818350ed9f0a5a9a37509f)),
+the Express API with isolated service modules ([`d5e9702`](https://github.com/guycn1/cinerank-project/commit/d5e9702e7d84105e58d58616b51224b0c4f31e49)), the frontend
+([`aee82b4`](https://github.com/guycn1/cinerank-project/commit/aee82b41557c1eb55e3425fdca2c01a80564ef0b)), and this document and [`CLAUDE.md`](CLAUDE.md) ([`aadaf18`](https://github.com/guycn1/cinerank-project/commit/aadaf188132b461cbfefedd1fa00d2c513029f41)). It closed at
+[`0525b8e`](https://github.com/guycn1/cinerank-project/commit/0525b8e7619d1b62d644d752a76c25369fd2cedf), whose message reads "functionally complete against SPEC" — the stopping
 condition [§ 7.1](#71-must-pass-before-submission) defines had been reached.
 
 ### Turn 2 — the interface requirement emerged from use (2026-09-05 to 2026-09-12)
 
-Commit points: `49738c2` to `d47c960` — both of them merges to `main`, with
-fourteen more between them. The last, `d47c960`, is the merge that completed the
+Commit points: [`49738c2`](https://github.com/guycn1/cinerank-project/commit/49738c2d2c413815fa7877216553794049c6de95) to [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1) — both of them merges to `main`, with
+fourteen more between them. The last, [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1), is the merge that completed the
 front-end overhaul.
 
 [§ 3.2](#32-hierarchy) deliberately declined to prescribe the visual treatment,
@@ -113,7 +113,7 @@ audit ([R1 to R30](CLAUDE.md#step-2--the-recommendations-sub-backlog-r1r30)), th
 [narrow-viewport pass](CLAUDE.md#step-5--the-portrait-overhaul) closed against an
 agreed ~350px target.
 
-**This turn holds a clear co-evolution point.** At `2a1800c`,
+**This turn holds a clear co-evolution point.** At [`2a1800c`](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11),
 [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) step 4's promise that
 every suggestion is "cross-checked against TMDB" was measured against live TMDB
 across 30 probe titles — and found to claim more than the code delivers. The
@@ -124,14 +124,14 @@ was corrected and the code was left alone**
 
 ### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
-Commit points: `ba702c2` and `0cdc4ec` — **93 commits** over three days, from
-`d1aba00`, the first commit after `d47c960`, to `0cdc4ec`, the final planned
+Commit points: [`ba702c2`](https://github.com/guycn1/cinerank-project/commit/ba702c266d3ac7829f2c1d75b0230cbf86e0998d) and [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) — **93 commits** over three days, from
+[`d1aba00`](https://github.com/guycn1/cinerank-project/commit/d1aba00ec865630c747f2692e8d3f10e2d9c3c42), the first commit after [`d47c960`](https://github.com/guycn1/cinerank-project/commit/d47c9601777e5d1f3759a986ba34a6f77bfb56c1), to [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned
 merge, which pinned the turn.
 
 It opened on the documents themselves: both this file and
 [`CLAUDE.md`](CLAUDE.md) were found to be **rendering wrong on GitHub** — a fault
 invisible in the source and never caught by eye. That produced a new verification
-gate, [`npm run check-markdown`](scripts/check-markdown.js) (`d1dd505`), proved in both directions on 2026-09-13
+gate, [`npm run check-markdown`](scripts/check-markdown.js) ([`d1dd505`](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b)), proved in both directions on 2026-09-13
 across 57 cases, together with the authoring rules it enforces in
 [`CLAUDE.md` § Markdown Authoring Rules](CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo).
 

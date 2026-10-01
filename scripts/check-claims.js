@@ -156,6 +156,75 @@ function checkShas() {
   }
 }
 
+/**
+ * The documents CLAUDE.md § Every document reference is a link applies to:
+ * every markdown file except CLAUDE.md, DOSSIER.md and the prompts.
+ *
+ * @param {string} f  A repo-relative path.
+ * @returns {boolean} Whether the linking rule covers it.
+ */
+const linkedDoc = (f) => f.endsWith('.md') && f !== 'CLAUDE.md' && f !== 'DOSSIER.md' &&
+  !f.startsWith('prompts/');
+
+const commitCache = new Map();
+/**
+ * The full hash of the commit a hash names, or null when it names none.
+ *
+ * @param {string} sha  A hash of any length git accepts.
+ * @returns {string|null} The 40-character hash, or null.
+ */
+function commitOf(sha) {
+  if (!commitCache.has(sha)) {
+    let full = null;
+    try {
+      full = execFileSync('git', ['rev-parse', '--verify', '--quiet', `${sha}^{commit}`],
+        { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null;
+    } catch { /* not a commit */ }
+    commitCache.set(sha, full);
+  }
+  return commitCache.get(sha);
+}
+
+/**
+ * 4b. A commit link points at a real commit by its full hash, and a link
+ * labelled with a hash points at that same commit. A label that is prose (a
+ * date, a description of the change) cannot be checked against its target, so
+ * only its target is resolved. In the documents the linking rule covers, a
+ * commit hash outside a link fails too: every hash there is a link (the user's
+ * rule, 2026-10-01). Fenced code, headings (rule 9) and image alt text are
+ * exempt, since none of them can hold a link.
+ */
+function checkCommitLinks() {
+  const link = /\[((?:[^\]\\]|\\.)*)\]\((https:\/\/github\.com\/guycn1\/cinerank-project\/commit\/([0-9a-z]+))\)/g;
+  for (const [f, s] of md) {
+    for (const m of s.matchAll(link)) {
+      const [, label, , sha] = m;
+      const full = commitOf(sha);
+      if (sha.length !== 40 || full !== sha) {
+        add('commit', `${f} links commit ${sha}, which is not the full hash of a commit`);
+        continue;
+      }
+      const named = label.replace(/`/g, '').trim();
+      if (/^[0-9a-f]{7,40}$/.test(named) && !sha.startsWith(named)) {
+        add('commit', `${f} labels a link ${named} but it points at ${sha.slice(0, 7)}`);
+      }
+    }
+    if (!linkedDoc(f)) continue;
+    let fence = false;
+    let alt = false;
+    s.split('\n').forEach((line, i) => {
+      if (/^\s*(```|~~~)/.test(line)) { fence = !fence; return; }
+      if (fence || /^#{1,6}\s/.test(line)) return;
+      if (alt) { if (line.includes('](')) alt = false; return; }
+      if (/!\[[^\]]*$/.test(line)) { alt = true; return; }
+      const prose = line.replace(/!?\[(?:[^\]\\]|\\.)*\]\([^)]*\)/g, ' ');
+      for (const [, sha] of prose.matchAll(/(?<![\w/#.-])`?([0-9a-f]{7,40})`?(?![\w])/g)) {
+        if (commitOf(sha)) add('commit', `${f}:${i + 1} quotes commit ${sha} without linking it`);
+      }
+    });
+  }
+}
+
 /** 5. A file:line reference must be inside that file. */
 function checkLineRefs() {
   // Uppercase initial REQUIRED too: the first version of this regex matched only
@@ -740,7 +809,7 @@ function checkSectionReferences() {
   }
 }
 
-for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
+for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas, checkCommitLinks,
   checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
   checkInvisibleCharacters,
   checkRetiredPhrasing, checkEditHistory, checkLinkFragments, checkLinkTargets,

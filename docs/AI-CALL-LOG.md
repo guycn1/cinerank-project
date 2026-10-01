@@ -77,8 +77,8 @@ change the blurb inside the dialog in
 [`public/index.html`](../public/index.html) with it**, since that sentence
 states the figure. The blurb and the footer panel that opens the dialog both
 claimed every call until 2026-09-13 — the blurb "every OpenRouter call CineRank
-has made" (from `b3e3446`), the panel "Every OpenRouter call" (from
-`38ca76d`) — which stopped being true the day the cap first bit. The panel now
+has made" (from [`b3e3446`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)), the panel "Every OpenRouter call" (from
+[`38ca76d`](https://github.com/guycn1/cinerank-project/commit/38ca76d49bd2d7f7c8979b7dd018a7e2f6841f64)) — which stopped being true the day the cap first bit. The panel now
 says every call is *logged*, a claim about persistence that no cap touches (a
 run whose log write fails is discarded rather than shown, with its cause sent
 to the server's stderr); see
