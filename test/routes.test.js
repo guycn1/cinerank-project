@@ -1,12 +1,18 @@
+/**
+ * @file Route-level tests. The Supabase client is swapped for an in-memory fake so
+ * nothing here touches the live database (CLAUDE.md § Working agreements).
+ * TMDB / OpenRouter are stubbed per-test via globalThis.fetch.
+ *
+ * Every request goes over real HTTP to the app from server/index.js, started
+ * once on an ephemeral port; the fake's canned results and recorded calls are
+ * reset before each test.
+ */
 import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { startApp, makeFakeSupabase, stubFetch, MATRIX_TMDB, UNVOTED_TMDB } from './helpers.js';
 import { config } from '../server/config.js';
 
-// Route-level tests. The Supabase client is swapped for an in-memory fake so
-// nothing here touches the live database (CLAUDE.md § Working agreements).
-// TMDB / OpenRouter are stubbed per-test via globalThis.fetch.
 const db = { results: {} };
 mock.module('../server/supabase.js', {
   namedExports: { supabase: makeFakeSupabase(db) },
@@ -93,7 +99,8 @@ test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', a
 // message that says what to do, not as the central handler's generic 500, which
 // would blame the server for a request that is simply invalid. Unreachable from
 // the UI (the rate dialog always sends a rating from a range input), but a
-// direct API caller can do it — and the demo seed helper will be one.
+// direct API caller can do it — and the demo seed helper, scripts/seed-demo.js,
+// is one.
 test('PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500', async () => {
   db.results['movies:update'] = {
     data: null,
@@ -250,8 +257,9 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 
 // THE SEARCH HAPPY PATH, which had no coverage at all until 2026-09-13.
 // The only two search tests were the 400 for a missing query and the 502 below
-// for TMDB being unreachable -- both failure paths. MATRIX_TMDB, the one fixture
-// carrying a poster, was used exclusively by the ADD tests. So the single
+// for TMDB being unreachable -- both failure paths. Every fixture carrying a
+// poster (MATRIX_TMDB, UNVOTED_TMDB, HEAT_TMDB) reached the suite only through
+// the add and recommendation tests, never through search. So the single
 // behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
 // movie title returns real TMDB results with posters" -- was the one search
 // behaviour the suite never checked.
@@ -273,6 +281,9 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
           title: 'The Matrix Reloaded',
           release_date: '2003-05-15',
           poster_path: null,
+          // Unrounded, as TMDB really sends it. The Matrix's 8.2 already has one
+          // decimal, so it cannot show whether rounding happens at all.
+          vote_average: 7.456,
         },
       ],
     },
@@ -292,7 +303,7 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
       /^https?:\/\/\S+\/matrix\.jpg$/,
       'an absolute poster URL built from the image base, not a bare TMDB path'
     );
-    assert.equal(first.tmdb_rating, 8.2, 'rounded to one decimal');
+    assert.equal(first.tmdb_rating, 8.2);
     assert.equal(typeof first.description, 'string');
 
     assert.equal(
@@ -300,6 +311,7 @@ test('GET /api/movies/search returns shaped TMDB results, posters included', asy
       null,
       "a missing poster_path must shape to null, never a URL ending in \"null\""
     );
+    assert.equal(second.tmdb_rating, 7.5, 'rounded to one decimal');
   } finally {
     restore();
   }
@@ -400,12 +412,13 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
 
 /* ---------- the SUCCESS path: which picks survive verification -------- */
 
-// Until now the only recommendation tests were the two failure paths (the
-// below-threshold 422 and the OpenRouter-down 422), so every rule that decides
-// what a user actually SEES was unproven (backlog R19). There are three, and one
-// run exercises all of them: a pick TMDB cannot confirm is dropped, a pick the
-// user already owns is dropped, and two picks that resolve to the SAME film
-// collapse to one.
+// Before these tests (2026-09-09), the only recommendation tests were the two
+// failure paths (the below-threshold 422 and the OpenRouter-down 422), so every
+// rule that decides what a user actually SEES was unproven (backlog R19). Three
+// of them hold when TMDB answers, and one run exercises all three: a pick TMDB
+// cannot confirm is dropped, a pick the user already owns is dropped, and two
+// picks that resolve to the SAME film collapse to one. The fourth, a lookup that
+// cannot reach TMDB at all, is the tmdb-unreachable empty-run test further down.
 //
 // The stub answers each TMDB lookup by its `query=` fragment, so the four picks
 // are deliberately titles whose first query word is distinct — `url.includes()`
@@ -438,6 +451,13 @@ const FOUR_PICKS = JSON.stringify([
   { title: 'Collateral', reason: 'Resolves to the same film as Heat.' },
 ]);
 
+/**
+ * A successful OpenRouter response body, with fixed usage figures and the
+ * cheaper model echoed back.
+ *
+ * @param {string} content  The model's reply text.
+ * @returns {object} Shaped like OpenRouter's chat completion JSON.
+ */
 function openRouterReply(content) {
   return {
     choices: [{ message: { content } }],
@@ -446,6 +466,12 @@ function openRouterReply(content) {
   };
 }
 
+/**
+ * Stub one full recommendation run: the model names FOUR_PICKS, and TMDB
+ * answers each title so that exactly one pick survives.
+ *
+ * @returns {() => void} The restore function from stubFetch().
+ */
 function stubRecsRun() {
   return stubFetch({
     'openrouter.ai': openRouterReply(FOUR_PICKS),
@@ -553,7 +579,8 @@ test('POST /api/recommendations never suggests a film already in the list but UN
 // R9's other half. Not every failure has something to read: this one dies on the
 // library read, before any AI call, so no recommendation_logs row exists. The
 // response must therefore NOT carry `logged`, or the UI would send the user to
-// an empty log. The below-threshold test above covers the third no-row case.
+// an empty log. The below-threshold tests cover the second no-row case, and the
+// log-write loop further down the third.
 test('POST /api/recommendations failing BEFORE the AI call offers no log link', async () => {
   db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
   const res = await client.post('/api/recommendations');
@@ -576,9 +603,18 @@ test('POST /api/recommendations below the threshold keeps its specific message',
 
 /* ---------- WHY a run came back empty ---------------------------------- */
 
-// The UI used to assert one cause for all of them — "the model only named films
-// already in your list" — which is wrong three times out of four. One test per
-// reason, so the wrong sentence cannot come back by accident.
+/**
+ * The UI used to assert one cause for all of them — "the model only named films
+ * already in your list" — which is wrong three times out of four. One test per
+ * reason, so the wrong sentence cannot come back by accident.
+ *
+ * Sets up a run whose picks all fall away: the recommendation library and a
+ * successful log insert in the fake, and the model and TMDB answers in fetch.
+ *
+ * @param {{ title: string, reason: string }[]} picks  What the model names.
+ * @param {Record<string, unknown>} tmdbStubs  stubFetch() entries for the TMDB lookups.
+ * @returns {() => void} The restore function from stubFetch().
+ */
 function emptyRun(picks, tmdbStubs) {
   db.results['movies:select'] = RECS_LIBRARY;
   db.results['recommendation_logs:insert'] = { data: null, error: null };
@@ -658,22 +694,14 @@ test('a run WITH suggestions carries no emptyReason at all', async () => {
   }
 });
 
-/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+/* ---------- the verdict's success row ---------------------------------- */
 
-// The user's requirement for R23, stated as a rule rather than a scenario: if a
-// row with status 'failed' reaches an AI log table, the response MUST carry
-// `logged` so the UI can point at it. A false negative here is a failure the
-// user is told nothing about while its full cause sits in the log.
-//
-// Both features are asserted the same way and in the same place, because the
-// whole point of R23 was that they had drifted into two different answers to one
-// question.
 // THE VERDICT’S SUCCESS PATH HAD NO LOG COVERAGE until 2026-09-13. Every
-// taste_verdict_logs assertion in this file was a FAILURE path: the 422 below
-// threshold, the model recorded on a failed row, the advertise-the-log
-// invariant, and the lost-cause case when the log write itself fails. So SPEC
-// § 7.1’s sixth criterion -- "a triggered verdict produces a logged row with
-// real token/cost data" -- was the one verdict behaviour nothing checked.
+// taste_verdict_logs assertion in this file was on a FAILURE path: a failed row
+// names its model, a failed row is advertised, a failure before the AI call
+// writes no row, and a failed log write loses neither cause. So SPEC § 7.1’s
+// sixth criterion -- "a triggered verdict produces a logged row with real
+// token/cost data" -- was the one verdict behaviour nothing checked.
 //
 // Mirrors the recommendations success-log test deliberately, so the two
 // features are held to the same standard rather than drifting the way their
@@ -685,15 +713,29 @@ test('POST /api/taste-verdict logs a success row with real token and cost data',
     'openrouter.ai': {
       choices: [{ message: { content: 'You like films that commit to something.' } }],
       usage: { total_tokens: 1480, prompt_tokens: 1385, completion_tokens: 95, cost: 0.0038 },
-      // The verdict is the one call NOT on the app-wide model (D-053).
-      // Asserting it here covers the SUCCESS half of the bug D-070 fixed on
-      // the failure half, where a failed verdict recorded the default instead.
-      model: 'anthropic/claude-sonnet-5',
+      // Deliberately NOT the model requested. OpenRouter echoes the model that
+      // actually served the call, and the row must record that echo; were this
+      // the configured slug, a row that ignored the echo and logged the constant
+      // would be indistinguishable from a correct one. It is also a model the
+      // estimate table PRICES (at 0.01332 for these tokens), so a row that
+      // preferred the estimate over usage.cost would show a different figure.
+      model: 'anthropic/claude-sonnet-4.5',
     },
   });
+  // Record what the app ASKED for. The verdict is the one call NOT on the
+  // app-wide model (D-053), and only the request can show which model was
+  // requested; the echo above is the stub's, whatever was sent.
+  let requested;
+  const stubbed = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    if (String(input).includes('openrouter.ai')) requested = JSON.parse(init.body).model;
+    return stubbed(input, init);
+  };
   try {
     const res = await client.post('/api/taste-verdict');
     assert.equal(res.status, 200);
+    assert.equal(requested, config.tasteVerdict.model, 'the verdict must ask for its own model (D-053)');
+    assert.notEqual(requested, config.openrouter.model);
 
     const logged = db.calls.find((c) => c.table === 'taste_verdict_logs' && c.op === 'insert');
     assert.ok(logged, 'a successful verdict must be logged too, not only a failure');
@@ -706,13 +748,15 @@ test('POST /api/taste-verdict logs a success row with real token and cost data',
     assert.equal(logged.payload.estimated_cost_usd, 0.0038);
     assert.equal(logged.payload.tokens_used, 1480);
     assert.equal(logged.payload.prompt_version, 'taste_verdict_v7');
+    // Covers the SUCCESS half of the bug D-070 fixed on the failure half, where
+    // a failed verdict recorded the default instead.
     assert.equal(
       logged.payload.model_used,
-      'anthropic/claude-sonnet-5',
-      'the success path records the model OpenRouter echoed back, not the app-wide default'
+      'anthropic/claude-sonnet-4.5',
+      'the success path records the model OpenRouter echoed back, not a configured constant'
     );
   } finally {
-    restore();
+    restore(); // puts back the fetch from before stubFetch(), dropping the recorder too
   }
 });
 
@@ -726,6 +770,16 @@ const RATED_FOUR = {
   error: null,
 };
 
+/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
+
+// The user's requirement for R23, stated as a rule rather than a scenario: if a
+// row with status 'failed' reaches an AI log table, the response MUST carry
+// `logged` so the UI can point at it. A false negative here is a failure the
+// user is told nothing about while its full cause sits in the log.
+//
+// Both features are asserted the same way and in the same place, because the
+// whole point of R23 was that they had drifted into two different answers to one
+// question.
 for (const feature of [
   { name: 'recommendations', path: '/api/recommendations', table: 'recommendation_logs', model: config.openrouter.model },
   { name: 'taste verdict', path: '/api/taste-verdict', table: 'taste_verdict_logs', model: config.tasteVerdict.model },
@@ -801,6 +855,9 @@ for (const feature of [
  * unreachable, stderr is the only sink left, so "did it reach stderr" is a real
  * assertion rather than test hygiene — it is the ONLY surviving record of the
  * cause (R5). Capturing also keeps the suite's own output clean.
+ *
+ * @param {() => Promise<unknown>} fn  The call to run, awaited.
+ * @returns {Promise<string>} Everything logged, one call per line.
  */
 async function captureStderr(fn) {
   const lines = [];
@@ -859,12 +916,12 @@ for (const feature of [
 /* ---------- /api/recommendations/history ------------------------------ */
 
 // The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
-// is the one route no test touched, which is the whole reason the endpoint kept
+// was the one route no test touched, which is the whole reason the endpoint kept
 // coming back up as a deletion candidate -- so the gap is closed here rather
 // than by deleting a route SPEC 4.5 lists. Deliberately asserts the SHAPE and
 // the recommendation-only scope, not the column list: the point is that the
 // route answers and is narrower than /api/ai-log, and pinning all seven columns
-// would just restate the select() a line below it.
+// would just restate the route's own select().
 test('GET /api/recommendations/history returns recommendation runs only', async () => {
   db.results['recommendation_logs:select'] = {
     data: [
@@ -918,7 +975,10 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   };
   db.results['taste_verdict_logs:select'] = {
     data: [
-      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: null, estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
+      // A SUCCESS row that still carries error text. The route reports error
+      // text only for rows that failed, so this must come back null; with a null
+      // in the fixture, the assertion below could not tell.
+      { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: 'stale text from an earlier attempt', estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
       // pre-migration-001 shape: no token split, no duration recorded
       { id: 'v0', created_at: '2026-09-04T08:00:00Z', prompt_version: 'taste_verdict_v1', model_used: 'x', tokens_used: 400, prompt_tokens: null, completion_tokens: null, duration_ms: null, status: 'success', error_text: null, estimated_cost_usd: 0.0005, verdict_text: 'Old row.' },
     ],
@@ -939,10 +999,9 @@ test('GET /api/ai-log returns structured result data per row', async () => {
 
   // Totals sum only the calls that recorded a split / duration, and report that
   // coverage as `detailed` / `timed`. NOTE what those two are actually for: the
-  // viewer does NOT print them (D-018 settled that), it only uses them as
+  // viewer does NOT print them (D-019 settled that), it only uses them as
   // truthiness tests — draw the in/out sub-line at all, draw a duration or an
-  // em dash. This comment used to say the viewer "can say the in+out doesn't
-  // cover every call", which it never does.
+  // em dash.
   assert.equal(totals.tokens, 2300);            // 1000 + 900 + 400 (r2 is null)
   assert.equal(totals.promptTokens, 1500);      // r1 700 + v1 800
   assert.equal(totals.completionTokens, 400);   // r1 300 + v1 100

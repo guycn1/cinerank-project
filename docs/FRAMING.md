@@ -45,7 +45,7 @@ is a spreadsheet with extra steps and an AI feature that is a chat box wearing t
 app's colours — both present because the marking scheme expects them. The
 engineering problem is to build one where **the database and the model each earn
 their place**: where the stored ratings are genuinely the input to something, and
-where the model has one narrow job it is actually suited to.
+where the model is given narrow work it is actually suited to.
 
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement) states the same
 problem from the solution's side and predates this file; neither supersedes the
@@ -82,10 +82,7 @@ belongs in the framing:
 * **Done means [the gates](../CLAUDE.md#version-control-workflow-non-negotiable)
   pass, not that the code runs.** All FIVE green: `npm test`, `npm run lint`,
   `npm run scan-secrets`, `npm run check-markdown` and
-  [`npm run check-claims`](../scripts/check-claims.js). (This listed four. It
-  was complete when written on 2026-09-13 and went short two days later, when
-  the claims checker became the fifth gate — the exact failure mode a short
-  enumeration has, since nothing about the sentence looks wrong.)
+  [`npm run check-claims`](../scripts/check-claims.js).
   [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral)'s
   warning is exact here: leave out success criteria and the agent stops when the
   code runs rather than when it works.
@@ -103,7 +100,7 @@ belongs in the framing:
 **Deliberately not part of done:** visual perfection below ~350px viewport
 width, and anything at all below ~290px. That is a scope boundary set with a
 deadline in view, and it is written into
-[`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[`CLAUDE.md`'s step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
 as a rule the agent enforces rather than one the authors have to remember.
 
 ## Out of scope
@@ -135,30 +132,31 @@ gives this list.
 
 ## What the framing actually bought
 
-The test of a framing document is not that it exists but that it constrained
-something. Four places where it visibly did:
+The test of a framing document is not that it exists but that the work bears it
+out. Four places where it does:
 
 * **The out-of-scope list held under pressure.** Recommendations go stale the
   moment any rating changes, and regenerating them automatically is the obvious
-  fix. It was never built, because exclusion 4 forbids it.
-  [R16](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
-  instead clears a locked section's stale output and leaves regeneration to the
-  user.
-* **The stakeholder list decided a data question.** TMDB's own score is a
+  fix. It was never built, because exclusion 4 forbids it: the cards stay on
+  screen until the user asks for new ones. The one time the app clears them,
+  [R16](../CLAUDE.md#group-d--visual-and-narrow-viewports), is when the section
+  locks below its threshold, so that it does not sit above cards it says are
+  unavailable. Staleness alone never clears them.
+* **The stakeholder list accounts for a data question.** TMDB's own score is a
   snapshot written once at add time. Refreshing it would cost a TMDB call per
   film per page load and make the ranked list depend on TMDB being reachable — a
   trade the list owner loses
   ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)).
-* **The definition of done stopped work twice.**
-  [Step 5](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+* **The definition of done stopped work at a line agreed in advance.**
+  [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   closed against the ~350px target, with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
-  in advance so it did not have to be argued each time. R18 closed as won't-fix
-  on measurement for the same reason.
-* **Naming that reader as a stakeholder changed a whole class of work from
-  cosmetic to blocking.** Both long markdown files were found rendering wrong on
-  GitHub. If the only stakeholder had been the list owner, that would have been
-  a shrug; naming someone who only ever sees the repository made it a defect, a
-  fix, and a [permanent verification gate](../scripts/check-markdown.js)
+  in advance so it did not have to be argued each time.
+* **The reader of the repository, as a stakeholder, makes a whole class of work
+  blocking rather than cosmetic.** Both long markdown files were found rendering
+  wrong on GitHub. For the list owner alone that would be a shrug; for someone
+  who only ever sees the repository it is a defect, which is why it got a fix
+  and a
+  [permanent verification gate](../scripts/check-markdown.js)
   ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all),
   [D-066](DECISIONS.md#d-066--the-render-audit-had-been-running-in-the-wrong-github-api-mode-and-it-masked-a-live-defect-for-the-life-of-the-file)).

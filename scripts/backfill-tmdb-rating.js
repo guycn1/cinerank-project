@@ -1,20 +1,28 @@
 #!/usr/bin/env node
-// One-off backfill for migration 002: fills `movies.tmdb_rating` for rows that
-// were added before the column existed.
-//
-//   npm run backfill-tmdb-rating           # dry run — prints, writes nothing
-//   npm run backfill-tmdb-rating -- --write
-//
-// SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
-// that the worst case is "nothing happened":
-//   - It only ever runs UPDATE, never DELETE and never a bulk operation.
-//   - It writes exactly ONE column, `tmdb_rating`, which migration 002 has just
-//     created and which is therefore empty everywhere. No pre-existing value —
-//     no rating, no review, no title — can be overwritten by it.
-//   - It targets rows one at a time BY ID, never "all ids".
-//   - It skips any row that already has a value, so re-running is a no-op.
-//   - It is dry-run by default. Writing takes an explicit --write flag.
-// Read the printed plan first, then re-run with --write.
+/**
+ * @file One-off backfill for migration 002: fills `movies.tmdb_rating` for rows that
+ * were added before the column existed.
+ *
+ *     npm run backfill-tmdb-rating           # dry run — prints, writes nothing
+ *     npm run backfill-tmdb-rating -- --write
+ *
+ * SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
+ * that the worst case is "nothing happened":
+ *   - It only ever runs UPDATE, never DELETE and never a bulk operation.
+ *   - It writes exactly ONE column, `tmdb_rating`, so no rating, review or
+ *     title can be touched by it.
+ *   - It never overwrites a `tmdb_rating` either: it reads only rows where the
+ *     column is NULL, and each update repeats that condition, so a value that
+ *     appears between the read and the write is left alone.
+ *   - It targets rows one at a time BY ID, never "all ids".
+ *   - Re-running it therefore changes only rows TMDB has since given a rating.
+ *   - It is dry-run by default. Writing takes an explicit --write flag.
+ * Read the printed plan first, then re-run with --write.
+ *
+ * Migration 002 and this backfill were applied on 2026-09-08, so on the live
+ * database all it can still find are films TMDB had no votes for when they were
+ * added, such as an unreleased one.
+ */
 
 import 'dotenv/config';
 import { supabase } from '../server/supabase.js';
@@ -25,6 +33,13 @@ const WRITE = process.argv.includes('--write');
 // TMDB's free tier is rate-limited; the list is small and this is a one-off, so
 // a plain serial loop with a small pause is the right shape. No concurrency.
 const PAUSE_MS = 250;
+
+/**
+ * Wait, to stay under TMDB's rate limit between lookups.
+ *
+ * @param {number} ms  How long to wait.
+ * @returns {Promise<void>} Resolves once the time has passed.
+ */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const { data: movies, error } = await supabase
@@ -62,8 +77,10 @@ for (const m of movies) {
     continue;
   }
 
-  // `!= null`, not truthiness: 0.0 is a real TMDB score for a title with votes
-  // averaging zero, and it is falsy.
+  // `!= null`, not truthiness. A 0 cannot arrive here: TMDB's vote scale starts
+  // at 0.5, and shapeMovie() maps a no-votes average of 0 to null (D-037), so
+  // null is the one "no rating" value. Truthiness would still be the wrong test
+  // to leave behind for a rating field.
   if (details.tmdb_rating == null) {
     console.log(`  – ${m.title} — TMDB has no rating for this title; leaving NULL`);
     noValue++;

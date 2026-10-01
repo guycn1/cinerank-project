@@ -1,7 +1,8 @@
 # Render blueprint — https://render.com/docs/blueprint-spec
 #
-# Optional: a web service created by hand in the Render dashboard works exactly
-# the same and ignores this file. It is checked in so the deploy is reproducible
+# Optional: a web service created by hand in the Render dashboard ignores this
+# file and works the same, except for the Node version pinned below (see
+# NODE_VERSION). It is checked in so the deploy is reproducible
 # and reviewable rather than living only in someone's browser session.
 #
 # Netlify is NOT an option for this app: it serves static files and serverless
@@ -17,10 +18,10 @@ services:
     region: frankfurt
 
     # Deploys from `main`, not `draft`. CLAUDE.md treats `main` as the settled
-    # branch and merges to it on three grounds only — a settled milestone, a fix
-    # for a defect already published there, or one close-out sync at the end — so
-    # the public URL only ever moves for one of those. The live site can never be
-    # a half-finished afternoon's work.
+    # branch and merges to it on three grounds only (D-073) — a settled
+    # milestone, a fix for a defect already published there, or one close-out
+    # sync at the end — so the public URL only ever moves for one of those. The
+    # live site can never be a half-finished afternoon's work.
     branch: main
 
     buildCommand: npm ci
@@ -37,7 +38,7 @@ services:
       # control. The four below are entered once in Render's Environment tab.
       - key: SUPABASE_URL
         sync: false
-      # The anon key ONLY — never service_role (CLAUDE.md § Security #3).
+      # The anon key ONLY — never service_role (CLAUDE.md § Security & Secrets #3).
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: TMDB_API_KEY
@@ -56,8 +57,11 @@ services:
       - key: OPENROUTER_VERDICT_MODEL
         value: anthropic/claude-sonnet-5
 
-      # package.json only asks for ">=20". Pinning it here means a Render-side
-      # default bump can't change the runtime under us mid-submission.
+      # package.json only asks for ">=20". Pinning it here holds a service
+      # created from this blueprint at Node 22, so a Render-side default bump
+      # cannot change its runtime. The live service was created in the
+      # dashboard, which does not read this file, so the pin does not apply to
+      # it: that service takes the newest Node satisfying ">=20" at each build.
       - key: NODE_VERSION
         value: "22"
 

@@ -16,9 +16,11 @@ Commissioned by [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-
 
 ## 1. What it is and why it exists
 
-A modal dialog, opened from the footer, listing every call this application has
-made to OpenRouter — both AI features, successes and failures together, with
-prompt version, model, token split, duration, status and estimated cost per row.
+A modal dialog, opened from the footer, listing the 60 most recent calls this
+application has made to OpenRouter — both AI features, successes and failures
+together, with prompt version, model, token split, duration, status and
+estimated cost per row. Every row is kept in the database; the dialog shows
+the newest 60 ([§ 2](#2-where-the-data-comes-from)).
 
 It is two claims made visible:
 
@@ -71,11 +73,15 @@ over *that slice*. Once the two tables hold more than 60 rows between them, the
 `Total · N calls` figure pins at 60 and each new call pushes the oldest out.
 
 That cap is deliberate and is documented at the query. **If you change it,
-change the two strings in [`public/index.html`](../public/index.html) that
-describe the dialog with it** — the blurb inside it and the footer panel that
-opens it. Those two said "every OpenRouter call CineRank has made" for the
-entire life of the feature, which stopped being true the day the cap first bit;
-see
+change the blurb inside the dialog in
+[`public/index.html`](../public/index.html) with it**, since that sentence
+states the figure. The blurb and the footer panel that opens the dialog both
+claimed every call until 2026-09-13 — the blurb "every OpenRouter call CineRank
+has made" (from `b3e3446`), the panel "Every OpenRouter call" (from
+`38ca76d`) — which stopped being true the day the cap first bit. The panel now
+says every call is *logged*, a claim about persistence that no cap touches (a
+run whose log write fails is discarded rather than shown, with its cause sent
+to the server's stderr); see
 [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along).
 
 ### What the route sends structured, and why it matters
@@ -116,7 +122,9 @@ Consequences, all of which look like free choices and are not:
 * **`.log-scroll` must stay `overflow: visible`.** It is not the scroller, and
   clipping would round the sticky header and footer cell *fills* against their
   square backgrounds — a curved border with square cell backgrounds inside it,
-  which reads as broken. Its corners are square for the same reason.
+  which reads as broken. Its corners are square for the same reason; the
+  dialog around it keeps its own rounded corners, and in card view each card
+  has rounded corners of its own.
 
 ### `.log-curtain` — why a sticky `<tfoot>` is not enough
 
@@ -137,9 +145,12 @@ the table.
 table. It is the only element adjacent to the totals row in *both* states, pinned
 and at rest, so it cannot go missing mid-scroll or double up at rest.
 
-> **If you make the totals row taller, change `--log-curtain-h` with it.** That
-> custom property is both the curtain's height and the row's pin offset. Change
-> the row alone and a gap opens at the dialog's bottom edge.
+> **To resize the band under the table, change `--log-curtain-h`, never
+> `.log-curtain`'s height on its own.** That custom property is both the
+> curtain's height and the totals row's pin offset. Shorten the curtain alone and
+> a strip opens between the pinned row and the curtain, where scrolling rows show
+> through. The totals row's own height is free to change: it pins by its bottom
+> edge, so a taller row still sits flush on the curtain.
 
 ### The totals divider is painted as backgrounds, not drawn as a border
 
@@ -176,7 +187,11 @@ column before the card breakpoint is reached.
 **At 850px and below: one card per call.** `thead` is hidden; each `td` grows a
 label via `td::before { content: attr(data-label) }`; the `<abbr>` shorthands
 expand back to full words with `abbr::after { content: attr(title) }`; reveal
-panels flow inline instead of floating.
+panels flow inline instead of floating. The totals become the last card, which
+is reached by scrolling to the end and is deliberately not pinned
+([`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is));
+the pinning model in [§ 3](#3-the-scrolling-and-pinning-model) is the table
+view's.
 
 **What the boundary costs is specificity.** Card view is a narrower media query,
 not a separate stylesheet, so desktop rules keep applying inside it and several
@@ -200,12 +215,12 @@ Each of these looks like it could be simplified. Each cannot.
 |---|---|
 | **`.log-scroll` stays `overflow: visible`** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
 | **`.log-curtain` is a child of the *dialog*, not the table** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
-| **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a gap opens at the dialog's bottom edge |
+| **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a curtain shorter than the offset leaves a strip under the pinned totals row where rows show through |
 | **The totals divider is a background, not a border or shadow** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
 | **The reveal panel's opacity animates on the panel (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
 | **`--reveal-fade` is one property read by two elements** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
-| **The Result column is a fixed `8rem` with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
-| **`.log-dialog[open] { display: flex }` is a bare rule** | Without it the UA's `dialog:not([open])` hide is overridden and the dialog never closes |
+| **The Result column is a fixed width (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
+| **`display: flex` sits only on `.log-dialog[open]`, never on the bare `.log-dialog` rule** | On the bare rule it would override the UA's `dialog:not([open]) { display: none }`, since any author rule beats the UA stylesheet, and the dialog would never close |
 | **Failed rows render an em dash (`—`) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
@@ -213,20 +228,26 @@ Each of these looks like it could be simplified. Each cannot.
 
 This document should not read as *touch nothing*.
 
-* **Colours, spacing and type sizes**, with one caution: `.log-table`'s base
+* **Colours, spacing and type sizes**, with two cautions. `.log-table`'s base
   `font-size` is in `rem` and everything below it is in `em`, so that one value
   scales the whole table. The footer is deliberately `0.8em` so its summed
   figures cannot set a wider max-content than the body rows and shift the
-  columns.
+  columns. And the table is exempt from the app-wide type scale
+  ([`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)):
+  its base and every `rem` inside it that sizes text or a width that text
+  wraps in are written `calc(Nrem / var(--type-scale))`. A plain `rem` added
+  there would shrink with the rest of the app while the table's text did not.
 * **`--reveal-fade`** — one number, both durations.
-* **Column widths**, except the Result column's fixed `8rem`, which is
+* **Column widths**, except the Result column's fixed width, which is
   structural.
 * **The breakpoints** (850px, 1040px) — they were chosen by narrowing the window
   until the table stopped fitting, not derived.
-* **Adding a column.** It flows through `norm()` in the route, the row builder
-  in [`public/app.js`](../public/app.js), and a `data-label` for card view.
-  Nothing about the pinning model needs to know.
-* **The 60-row cap** — but change the two description strings with it
+* **Adding a column.** It flows through each table's `select()` and `norm()` in
+  the route, a `<th>` in [`public/index.html`](../public/index.html), and in
+  [`public/app.js`](../public/app.js) the row builder, a `data-label` for card
+  view, and the `colSpan` of the single-line rows (`9` today) and of the Total
+  row's trailing note. Nothing about the pinning model needs to know.
+* **The 60-row cap** — but change the dialog's blurb with it
   ([§ 2](#2-where-the-data-comes-from)).
 
 ## 7. How to tell this document worked
@@ -234,22 +255,31 @@ This document should not read as *touch nothing*.
 The brief that commissioned it set the test, and it is a good one:
 
 > Hand it to someone who has never seen the component and ask them to **make the
-> totals row taller.**
+> band under the table shorter.**
 >
-> If they change `--log-curtain-h` along with the row, the document worked. If
-> they change only the row and leave a gap at the dialog's bottom edge, it did
-> not.
+> If they change `--log-curtain-h`, the document worked. If they shorten
+> `.log-curtain` alone and leave a strip under the pinned totals row where table
+> rows show through, it did not.
 
 ## Related
 
 * [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) — the
   brief this answers
-* [`DECISIONS.md`](DECISIONS.md) —
+* [`DECISIONS.md`](DECISIONS.md) — the twelve entries that carry the reasoning
+  in the form it was recorded:
+  [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative),
   [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001),
   [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db),
   [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever),
-  [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along)
-  and the reveal-panel entries carry the reasoning in the form it was recorded
+  [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
+  [`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot),
+  [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content),
+  [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9),
+  [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along),
+  [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
+  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  and
+  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is)
 * [`SECURITY.md` — `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
   which this component answers
 * [`SPEC.md` § 5.2](../SPEC.md#52-recommendation_logs) and

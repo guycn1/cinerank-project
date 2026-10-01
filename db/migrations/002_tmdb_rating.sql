@@ -10,8 +10,10 @@
 -- list can show "your 8.5 vs TMDB 7.2".
 --
 -- Nullable, and deliberately so: rows added before this migration have no value
--- and must stay valid. TMDB itself also returns 0/absent for obscure titles that
--- nobody has voted on, which shapeMovie() already maps to null.
+-- and must stay valid. TMDB also has obscure titles that nobody has voted on,
+-- which carry no real score, and shapeMovie() stores null for those: for an
+-- absent average from the start, and for TMDB's no-votes 0 from migration 003
+-- on (see that file).
 alter table movies
   add column if not exists tmdb_rating numeric(3,1);
 

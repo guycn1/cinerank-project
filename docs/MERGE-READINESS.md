@@ -4,7 +4,7 @@
 standard: five criteria, each with explicit evidence. **Satisfy all five and the
 work is merge-ready; fail one and it is not, however correct it appears.**
 
-## Verdict as of 2026-09-14
+## Verdict, reached on 2026-09-14
 
 **MERGE-READY. All five criteria are met.**
 
@@ -16,7 +16,7 @@ work is merge-ready; fail one and it is not, however correct it appears.**
 | 4 | Rationale and communication | **Met** |
 | 5 | Full auditability | **Met** |
 
-**This is the first time this document has read merge-ready, and the sequence
+**This was the first time this document read merge-ready, and the sequence
 matters more than the verdict.** It was written on 2026-09-13 and immediately
 failed its own first criterion — at a point when the application was deployed,
 working, and covered by a green test suite. By the usual informal reading it
@@ -24,7 +24,7 @@ looked finished. Criterion 1 is the one that refuses that reading, and holding i
 open for a day produced the whole capture set, two evidence documents, three real
 defects and three untested happy paths.
 
-**A standard that had passed on the first attempt would have been worth nothing.**
+**A standard that had passed on the first attempt would have found none of that.**
 
 ## 1. Functional completeness — MET
 
@@ -37,8 +37,8 @@ larger one on 2026-09-13, the second the following day.
 
 * **All sixteen resilience states are captured** — twenty-four frames, since
   eight states need a second one: five split the claim between the page and
-  the audit trail, `RS-10` splits it across time because the state is a race,
-  `RS-11` shows one rule on both AI features, and `RS-14` pairs the failed
+  the audit trail, [`RS-10`](RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) splits it across time because the state is a race,
+  [`RS-11`](RESILIENCE.md#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) shows one rule on both AI features, and [`RS-14`](RESILIENCE.md#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works) pairs the failed
   save with the retry that works. They are
   embedded and analysed in [`RESILIENCE.md`](RESILIENCE.md), grouped by which
   dependency failed and each measured against a stated definition of "graceful".
@@ -50,8 +50,8 @@ larger one on 2026-09-13, the second the following day.
   set: five frames of a real prompt-injection attempt with both AI features
   resisting it, five tied to specific acceptance criteria, and three product
   shots embedded in the README. (Counts drift; the index is the authority.)
-* **The demo seed list is loaded**, so the deployed app is in the state the
-  evidence describes rather than empty.
+* **The demo seed list was loaded on 2026-09-13 (re-verified 2026-09-30)**, so
+  the deployed app is in the state the evidence describes rather than empty.
 
 **Assembling that evidence found three untested happy paths and three real
 defects.** That is the return on this criterion existing at all, and it is worth
@@ -111,29 +111,38 @@ verification fails while looking rigorous, and each is answered concretely:
   were each deleted in turn, and every deletion fails exactly the tests that
   claim to cover it. A test that does not fail when you break the thing it tests
   is not a test. The same probing was done for
-  [R23](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
-  log-advertisement invariant (three ways) and R5's dual-failure stderr sink
+  [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
+  log-advertisement invariant (three ways) and [R5](../CLAUDE.md#group-a--functional-bugs)'s dual-failure stderr sink
   (both ways). **Three more tests were added on 2026-09-13 while walking
   [§ 7.1](../SPEC.md#71-must-pass-before-submission), and each was probed the
   same way**: the search happy path (break the poster guard, then the year
   conversion), `DELETE` (drop the error guard so a failed delete answers a false
   204), and the verdict's success log row (make it ignore OpenRouter's reported
-  cost). Every probe failed exactly the intended test and nothing else.
+  cost). Every probe failed the test aimed at it. The year conversion also
+  fails a recommendations test, because a shaped TMDB result feeds the
+  recommendation cards as well as search.
 * **Verification theatre** — the
   [markdown checker](../scripts/check-markdown.js) was proved in *both*
-  directions across 57 cases, 26 that must fail and 31 that must pass. The
-  must-pass half is the half that matters; a checker that fires on valid input
-  gets switched off within a week.
+  directions on 2026-09-13, across 57 cases, 26 that must fail and 31 that
+  must pass. The must-pass half is the half that matters; a checker that fires
+  on valid input gets switched off within a week.
 * **Gate bypass under deadline pressure** — the gates are wired into the commit
   rules in [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
   rather than left to memory, and one of them (`check-markdown`) exists
   precisely because a class of defect had been slipping past human review for
-  weeks.
+  over a week.
 
-**One honest limitation, stated rather than papered over.** The client has no
-automated test harness. Client behaviour is verified by reading, by hand
-testing, and by a [console debug harness](../scripts/debug-recs.js) that fakes a
-recommendation response so UI work costs no OpenRouter credit. Several
+**How the client is verified.** Its layout runs in real headless browsers under
+[`npm run layout-check`](../scripts/layout-check.js), which serves the real
+`public/` against fixture data and checks, at every width it is given, that text
+stays inside its box, no two parts of a card overlap, nothing scrolls sideways,
+words break only where the hyphenation rules allow, the verdict types without
+letters jumping lines, and copied text is clean — with a self-test that plants
+one stylesheet fault for each check but the typing one, which app.js drives,
+and fails unless each is caught. Its behaviour is verified
+by reading, by hand testing, and by a
+[console debug harness](../scripts/debug-recs.js) that fakes a recommendation
+response so UI work costs no OpenRouter credit. Several
 client-side findings in this project were caught by the author with a screenshot
 and not by any tool — that is recorded in the [decision log](DECISIONS.md) where
 it happened rather than smoothed over.
@@ -145,23 +154,23 @@ it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project until 2026-09-13.
 
-`npm run lint` runs ESLint 10 over all 24 JavaScript files across three
-environments — Node ES modules, the browser ES module, and the one browser
-*classic* script that [`index.html`](../public/index.html) loads with a bare
-tag. **Current state: zero errors.** *(This read "ESLint 9 over all 23
-JavaScript files". The version was wrong when written and is corrected rather
-than preserved — the dependency has been `^10.10.0` since `eeb41ef` introduced
-it and was never 9. The file count was right on 2026-09-13 and stopped being so
-two days later, when `scripts/check-claims.js` became the twenty-fourth.)*
+`npm run lint` runs ESLint 10 over all 26 JavaScript files across four
+environments — Node ES modules, the browser ES module, and two browser
+*classic* scripts kept in [`scripts/`](../scripts/) that the app never serves: the
+[console debug harness](../scripts/debug-recs.js), pasted into a console, and
+the [layout probe](../scripts/layout-probe.js) that `npm run layout-check`
+injects into the pages it measures. **Current state: zero errors.**
 
 **The config is deliberately not a style linter**, and
 [`eslint.config.js`](../eslint.config.js) says so at the top. Formatting rules
 are left out entirely: this codebase was written under one consistent set of
 conventions, so reformatting it would produce a large diff that proves nothing
 and buries the history the repository exists to show. What is enabled is the set
-of rules that can catch a *defect* — unused bindings, shadowing, unreachable
-code, duplicate keys and imports, self-comparison, unmodified loop conditions,
-atomic-update races — plus complexity ceilings.
+of rules that can catch a *defect* — undefined names and implicit globals,
+unused bindings, shadowing, switch fallthrough, unreachable code, constant
+conditions, duplicate keys and imports, self-comparison, unmodified loop
+conditions, atomic-update races, loose equality, `var`, and a `let` that is
+never reassigned — plus complexity ceilings.
 
 **The first run found five errors, and the triage is the evidence, not the
 count:**
@@ -182,8 +191,8 @@ count:**
   in the other the save-replace-restore pattern it flags *is* the helper's whole
   purpose.
 
-**Then the linter caught a mistake in the fix itself**, which is the best possible
-argument for having one: both suppression comments were written with the
+**Then the linter caught a mistake in the fix itself**, which is a good argument
+for having one: both suppression comments were written with the
 `eslint-disable-next-line` directive at the *top* of the explanation block, so the
 "next line" was another comment and the directive did nothing. ESLint reported
 both as unused directives and the real errors as still open. Repositioned.
@@ -200,30 +209,34 @@ Five functions exceed the ceiling of 20 and are reported as warnings on every ru
 | `chat` ([`server/services/openrouter.js`](../server/services/openrouter.js)) | 22 |
 | `generateTasteVerdict` ([`server/services/tasteVerdict.js`](../server/services/tasteVerdict.js)) | 21 |
 
-**They are left as they are, and the reason is not deadline pressure.** In
+**They are left as they are, and the reason is NOT deadline pressure.** In
 `generateRecommendations` the branches *are* the feature: each `continue` guard
 and each tally arm exists because of a specific documented finding — the owned
 filter that was reading only rated films
-([R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)),
+([R2](../CLAUDE.md#group-a--functional-bugs)),
 the verification fallback that was overclaimed and then measured
-(R6/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
+([R6](../CLAUDE.md#group-b--the-strength-of-the-verified-against-tmdb-claim)/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the five distinct reasons a run can come back empty, one of which was
-reported to the user as a different reason entirely until it was fixed (R28).
+reported to the user as a different reason entirely until it was fixed ([R28](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
 Extracting them into helpers would lower the number without removing a single
 branch, which is metric-gaming rather than simplification — the hygiene
 equivalent of the verification theatre
 [Module 13](../DOSSIER.md#module-13-verification-before-trust) warns about.
 
-It is also the most heavily probed function in the codebase: seven tests cover it,
-and three of them were confirmed load-bearing by deleting the guards they test.
-Refactoring well-covered, working, deliberately-branchy code days before a
-deadline trades a real regression risk for a lower number in a report.
+It is also well probed: sixteen tests reach it, four of them generated by loops
+shared with the verdict, and deleting any one of its four `continue` guards
+fails the tests written for that guard.
+Refactoring well-covered, working, deliberately-branchy code trades a real
+regression risk for a lower number in a report.
 
-The same argument applies to the fifth.
-[`check-markdown`](../scripts/check-markdown.js)’s rule engine is seven rules
-evaluated over one pass of a file, and every one of them was added because a
-specific defect had already shipped past human review. Its branch count is its
-rule count.
+The same argument applies to the second row.
+[`check-markdown`](../scripts/check-markdown.js)’s per-line rule engine applies
+five rules and one cosmetic note in a single pass over a file (rule 2 needs whole
+paragraphs, so it runs in a pass of its own), and each rule was added for a
+specific defect:
+either one that had already shipped past human review, or one an audit wrote and
+rendered to confirm it was broken before the checker learned it. Its branch
+count is its rule count.
 
 **The ceiling stays at 20 rather than being raised to hide this.** A warning that
 fires on five real functions is a measurement; a threshold tuned until nothing
@@ -233,9 +246,9 @@ fires is the thing this document exists to rule out.
 
 *A human-readable account of approach and trade-offs.*
 
-* **[`docs/DECISIONS.md`](DECISIONS.md)** — written at the moment each choice
-  was made and in the same commit as the change it explains. The standard it is
-  held to is written into
+* **[`docs/DECISIONS.md`](DECISIONS.md)** — usually written at the moment a
+  choice was made and in the same commit as the change it explains. The
+  standard it is held to is written into
   [`CLAUDE.md`](../CLAUDE.md#decision-logging-non-negotiable): an entry must
   name the alternatives and why each was rejected, record where the author
   overruled the agent *and* where the agent talked the author out of something,
@@ -245,9 +258,12 @@ fires is the thing this document exists to rule out.
   definition of done, and what is deliberately not being built.
 * **[`docs/PROCESS.md`](PROCESS.md)** — the workflow narrative: prompt version
   chain, guardrails, and Incident 1.
+* **[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md)** — a component dense with
+  non-obvious decisions, written up rule by rule with what breaks if each is
+  undone.
 * **[`docs/SECURITY.md`](SECURITY.md)** — all ten OWASP agentic risks, including
   the ones that do not apply and why.
-* **Commit messages** explain *why*, not just what — across five hundred–odd
+* **Commit messages** explain *why*, not just what — across over 700
   commits (`git rev-list --count main` for the exact figure; a number that moves
   every commit is not written into a document).
 
@@ -264,8 +280,8 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in [`prompts/`](../prompts), never
   overwritten. A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 29
-  merges to `main` — the twenty-first was the last *planned* one, the
+* **Trajectory** — an unbroken commit history from the very first commit, 30
+  merges to `main` as of 2026-10-01 — the twenty-first was the last *planned* one, the
   twenty-second carried a fix for a rendering defect found afterwards on the
   repository's Security tab, the twenty-third carried the claim-checking gate
   that defect argued for, the twenty-fourth carried a sweep of the claim classes
@@ -273,22 +289,22 @@ fires is the thing this document exists to rule out.
   which had gone out of date while the practice it describes stayed consistent,
   and the twenty-sixth carried eleven accuracy defects the user surfaced by
   asking whether particular claims resolve, and the twenty-seventh carried two
-  claims that were false on `main`, each contradicted a few lines below itself —
+  claims that were false on `main`, each contradicted further down its own section —
   the twenty-eighth carried a misaligned score badge on the deployed site
-  together with fourteen documentation defects, and the twenty-ninth carried
+  together with fourteen documentation defects, the twenty-ninth carried
   fourteen claims that described finished work as still open plus five drifted
-  figures — and **four**
-  revert commits
-  plus one reapply, which is the safety layer
-  visibly firing rather than merely existing. *(This said five reverts until
-  2026-09-14. It was wrong when written, not merely stale: a loose grep for
-  "revert" had counted two commits that merely MENTION reverting in their
-  subject line. Corrected rather than preserved — the rule for a claim that was
-  false when written.)*
-* **The product audits itself, which is unusual and is the point.** Every
+  figures, and the thirtieth was the close-out sync at the course's final
+  assessment deadline, carrying defect fixes too — and, as of 2026-10-01,
+  **four** revert commits plus one reapply, which is the safety layer
+  visibly firing rather than merely existing. *(Counted as commits whose
+  subject BEGINS with a revert — `Revert "…"` or `revert(…)`. A subject that
+  merely mentions reverting does not count, which is why a loose grep for
+  "revert" comes out higher.)*
+* **The product audits itself, and that is the point.** Every
   OpenRouter call, success or failure, writes a row with prompt version, model,
-  token split, cost and duration — and the [in-app AI call log](AI-CALL-LOG.md)
-  surfaces both tables merged, so the audit trail is reachable by the person
+  token split, cost and duration (a run whose row cannot be written is discarded
+  rather than shown) — and the [in-app AI call log](AI-CALL-LOG.md) surfaces
+  both tables merged, so the audit trail is reachable by the person
   being asked to trust the output, not just by someone with database access.
 
 ## How to re-run this

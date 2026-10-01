@@ -29,14 +29,14 @@ create table if not exists movies (
 create index if not exists movies_rating_idx on movies (rating desc nulls last);
 
 -- ---------------------------------------------------------------------------
--- 5.2  recommendation_logs — every AI recommendation run, auditable
+-- 5.2  recommendation_logs — the audit trail of AI recommendation runs
 -- ---------------------------------------------------------------------------
 create table if not exists recommendation_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "recommend_v2"
   input_movie_ids    uuid[]  not null,           -- top-N movies used as taste signal
-  raw_model_output   jsonb,                      -- exactly what the model returned
+  raw_model_output   jsonb,                      -- reply text, parsed picks, verification tally; null if no reply
   suggested_titles   text[],                     -- parsed titles, post TMDB validation
   model_used         text,
   tokens_used        integer,                    -- total; split below
@@ -69,9 +69,10 @@ create table if not exists taste_verdict_logs (
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security
--- Single-user app by design (SPEC § 1). The frontend key is the anon key, which
+-- Single-user app by design (SPEC § 1). The app's key is the anon key, which
 -- respects RLS — this is the concrete least-privilege demo (CLAUDE.md § Security
--- & Scope). The backend also uses the anon key: it never needs service_role.
+-- & Scope). The server holds it and never needs service_role; the browser talks
+-- only to the app's own API and never to Supabase.
 -- These policies allow the anon role full access to the single user's data.
 -- ---------------------------------------------------------------------------
 alter table movies              enable row level security;

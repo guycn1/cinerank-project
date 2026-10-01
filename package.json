@@ -13,12 +13,13 @@
     "check-markdown": "node scripts/check-markdown.js",
     "seed-demo": "node scripts/seed-demo.js",
     "backfill-tmdb-rating": "node scripts/backfill-tmdb-rating.js",
-    "check-claims": "node scripts/check-claims.js"
+    "check-claims": "node scripts/check-claims.js",
+    "layout-check": "node scripts/layout-check.js"
   },
   "engines": {
     "node": ">=20"
   },
-  "_comment_overrides": "Express 4 pins qs to exactly 6.15.3, which carries two moderate advisories (GHSA-x5fp-wj9c-mxmx array-limit bypass, GHSA-4mjr-xmp4-gh2g DoS via isBuffer). npm audit fix cannot resolve them \u2014 even with --force \u2014 because the exact pin leaves no semver room, and the only other route is Express 5, a major version with breaking changes. This override lifts qs to the patched 6.16.0, a minor bump. qs is Express's query-string parser, which is exactly what test/routes.test.js exercises (search query strings, JSON bodies), so the suite covers the risk. Remove this when the project moves to Express 5.",
+  "_comment_overrides": "Express 4 (and its body-parser) require qs ~6.15.1, which resolved to 6.15.3 and carries two moderate advisories (GHSA-x5fp-wj9c-mxmx array-limit bypass, GHSA-4mjr-xmp4-gh2g DoS via isBuffer). npm audit fix cannot resolve them \u2014 even with --force \u2014 because that tilde range stops below the patched 6.16.0, leaving no semver room, and the only other route is Express 5, a major version with breaking changes. This override lifts qs to 6.16.0, a minor bump. qs is Express's query-string parser, and test/routes.test.js exercises that path through the search route's query string, so the suite covers the risk (the JSON bodies go through express.json(), which does not use qs). Remove this when the project moves to Express 5.",
   "overrides": {
     "qs": "^6.16.0"
   },

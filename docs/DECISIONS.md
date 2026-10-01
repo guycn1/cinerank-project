@@ -6,6 +6,382 @@ reasons behind a choice are clearest at the moment it's made, and the agent
 can't recover them later). **Newest first — a new entry goes at the TOP of this
 file, directly under this header.**
 
+**Each entry records a choice as it stood on its date, and is not brought up
+to date as the project moves on.** A later entry that changes an earlier one names it by number, so
+before relying on an older entry, search this file for its number: a newer
+entry that cites it may have moved the figure or the rule.
+
+## D-083 · The search row keeps its flex layout at every width; the 500px grid that never applied is removed
+
+*2026-10-01. Found by Claude during the enumeration sweep, confirmed and
+settled by the user.*
+
+**What was found.** On 2026-09-09 the search rows were given a layout of their
+own at 500px and below: a two-column grid with the poster spanning both rows,
+so the Add button landed under the year/TMDB line in the title's column rather
+than out to the right. It never applied. The `@media (max-width: 500px)` block
+sits above the base `.result-row` rule in
+[`public/styles.css`](../public/styles.css), and has done since the commit that
+added it (`e712cda`). A media query adds no specificity, so the later base
+rule's `display: flex` won, and so did the button's `margin-left: auto` over the
+query's `margin-left: 0`. Measured in headless Chrome in a 400px iframe with the
+real stylesheet (computed `display: flex`), then confirmed by the user in
+devtools, where the query's grid declarations show struck through. Only the
+query's row separators ever took effect. Two of their declarations, the border
+and the bottom margin, have no rival in the later rules; the other three, the
+bottom padding and the two bottom corner radii, do compete with the later base
+rule's `padding` and `border-radius`, and win because
+`.result-row:not(:last-child)` is the more specific selector.
+The documentation had described the grid as superseding the flex wrapping, and
+the stylesheet called that wrapping unreachable; it was the layout every narrow
+screen had been showing.
+
+**The fork.** Make the grid apply, by moving the block below the base rules, or
+keep the layout the app has always had. The grid was built to stop a wrapped
+button landing under the poster, away from its title, which the user had called
+sloppy on 2026-09-09; the same day the row gap under a wrapped button was
+tightened from 0.9rem to 0.4rem.
+
+**The user's call: keep the flex layout.** They forced the grid on with
+`!important` in devtools and compared the two at window widths down to about
+290px. The grid made no improvement, and they preferred the current layout.
+
+**What changed**, as in
+[D-082](#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is):
+the claim and the dead declarations, not the behaviour. The grid rules are
+removed (`display: grid`, the column template and gaps, `align-items`, the
+poster's `grid-row` and the button's `justify-self` and `margin-left`); every
+one of them was already overridden or inert under flex, so removing them changes
+nothing on screen. Diffed against the previous stylesheet with
+`npm run layout-check -- --baseline=HEAD --expect-same`, search results on
+screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
+about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
+[`CLAUDE.md`](../CLAUDE.md) now describe the flex stacking as the search row's
+layout at every width.
+
+**Trap.** Do not "restore" the grid as though it were a regression: it never
+shipped, and not having it is the decision. And a narrow-width rule that has to
+override a base rule belongs below it, as the ranked list's 620px block
+documents; a query above its base rule is the shape of this bug.
+
+## D-082 · The card view's Total card is not pinned; only the table view's Total row is
+
+*2026-09-30. Found by measurement during the causal-claims sweep, and settled
+by the user.*
+
+**What was found.** [`CLAUDE.md`](../CLAUDE.md) said card mode "pins the whole
+`tr.log-total`", and the stylesheet carried `position: sticky` on it. It never
+pinned. In card view the table is `display: block`, so the row's containing
+block is its `<tfoot>`, which is exactly as tall as the row: a sticky element
+cannot leave its containing block, so it had no room to move. Measured in
+headless Chrome at 768px, with the real stylesheet: the Total card sat after
+the 60th card at every scroll position. The table view is unaffected, because
+there the sticky element is each `<td>`, whose containing block is the whole
+table.
+
+**The fork.** Make it pin as described, or keep the behaviour the app has
+always had. Making it pin would need the sticky element moved out of a
+containing block of its own height, a structural change to the card layout.
+
+**The user's call: keep it as it is.** They confirmed the behaviour on a real
+browser, said it had always been this way and that they had never regarded it
+as a defect, and do not want the Total card pinned in card view.
+
+**What changed:** the claim, not the behaviour. The three `sticky`
+declarations that never took effect are removed, the stylesheet comment and
+[`CLAUDE.md`](../CLAUDE.md) now describe the Total card as the last card, and
+[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) says the pinning model is the table
+view's. Removing the declarations was diffed against the previous stylesheet
+in Chrome and Firefox at 400, 800 and 1000px, log dialog open: no element
+moved.
+
+**Trap.** Do not "restore" pinning in card view as if it were a regression.
+It never worked, and not pinning is the decision.
+
+## D-081 · A dash ends a word for hyphenation, so no soft hyphen ever sits beside one
+
+*2026-09-28. Raised by Claude while closing
+[D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them),
+taken on by the user with one condition: do not chase it if the fix risks
+breaking anything.*
+
+**The defect is Chromium's, and it is real at real widths.** [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them) still treated
+"Spider-Man:" as one eleven-grapheme word, so it put soft hyphens on both sides
+of the hyphen. The browser already has a break opportunity right after a hard
+hyphen. When the line breaks there, Chrome and Edge 154 take the soft hyphen
+instead and draw a second hyphen: "Spider--". Firefox 156 suppresses it. On a
+test page of ten dash-heavy strings at every width from 40px to 400px, Chrome
+broke at a soft hyphen beside a dash at 144 widths between 40px and 376px, and
+Firefox 320 times. The same rule also put a soft hyphen before an em dash, so a
+line could end "ending-" with the em dash starting the next.
+
+**The fork was whether to leave it.** Removing break opportunities is the usual
+way to make text overflow or break without a hyphen, and the user had made
+safety the condition. So the risk was measured before anything was built. The
+candidate treats a dash (Unicode `Pd`) as a word separator, like whitespace.
+The parts either side are then judged on their own, and no soft hyphen can sit
+beside a dash. In Chrome, Edge and Firefox it gave:
+
+- **0 breaks at a soft hyphen beside a dash**, and 0 overflow at any width.
+- **Lines starting with a hard hyphen ("Spider|-Man") only at 40–51px**, where
+  "Spider-" cannot fit on a line at all. No column in the app is that narrow.
+- **No new break without a hyphen at 120px or wider**, except the break before
+  an em dash, which is the browser's own opportunity. The committed rule broke
+  at the same place and drew a stray hyphen first.
+
+**Built, then verified in the running app in all three browsers**, with the
+same harness and canned verdict as [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them). The committed code put a soft hyphen
+beside the dash in the verdict's "SquarePants-level". With this change: 0 of
+those, and the other results unchanged, meaning 0 rule violations at 40 widths
+from 290px to 800px, no sideways scroll, no typing jumps, clean clipboard
+payloads and no page errors.
+
+**Trap.** The separator test is an unanchored character class, `[\s\p{Pd}]`,
+because a grapheme can hold more than one code point: `\r\n` is a single
+grapheme. An anchored version would have stopped treating it as whitespace.
+
+## D-080 · Soft hyphens go only inside words of seven or more graphemes, never within three of an end, and `hyphenate-limit-chars` was measured and does not apply to them
+
+*2026-09-28. Raised by the user after
+[D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+moved "Mad Max: Fury Road" onto a mid-word break at 360px.*
+
+**The cause was [D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
+rule, not the type scale.** `softHyphenate()` put a soft hyphen between every
+pair of adjacent graphemes, and line breaking is greedy: the browser takes the
+last break opportunity that fits, and a soft hyphen counts as much as a space.
+So a short word at a line's end broke one or two letters in ("Fury Ro|ad")
+wherever that fitted. The committed CSS did exactly that at 380–390px; the type
+scale moved the band onto 360px. Real hyphenation has minimum lengths for
+exactly this reason.
+
+**The fork: the CSS property `hyphenate-limit-chars`, or the same limits in
+`softHyphenate()`.** The user asked for the property to be tested rigorously
+first and used only if it demonstrably worked. The test was a standalone page:
+thirteen strings, including titles, reviews, emoji, flags, combining accents,
+CJK and a 46-letter unbroken word, at every even width from 40px to 400px,
+under three conditions each. It ran in Chrome 154, Edge 154 and Firefox 156.
+
+- **All three browsers parse the property and compute it as given.**
+- **It has no effect on soft hyphens in any of them.** With and without it,
+  the number of breaks inside short words or near a word's edge was identical:
+  2,020 in Chromium and 2,009 in Firefox, sample for sample.
+- **A positive control shows why.** Firefox does apply the property to
+  automatic hyphenation (`hyphens: auto`): 55 edge breaks became 0 and the
+  break positions changed at 47 widths. Chromium changed nothing there either.
+  The property governs the browser's own hyphenation and ignores
+  hand-placed soft hyphens, which are all this app uses.
+- **Safari could not be tested at all**, which alone would have failed the
+  "demonstrably" bar.
+
+**So the limits live in `softHyphenate()`.** A word, meaning a run of
+non-whitespace, gets soft hyphens only if it has at least 7 graphemes
+(`HYPHENATE_MIN_WORD`). None goes within 3 graphemes of either end
+(`HYPHENATE_MIN_EDGE`). Those numbers are a typesetting judgement, not a
+measurement: they make every four-letter word unbreakable and still let
+"SquarePants" hyphenate as "Squ-arePants". On the same test page the rule broke
+a word inside its limits 0 times in all three browsers, and nothing
+overflowed. The only breaks without a hyphen were places Unicode already allows
+a break, between two flag emoji or inside CJK text, plus Latin text below 70px,
+where a word cannot fit a line at all and `overflow-wrap: anywhere` takes over
+as it always has.
+
+**One trap came with it, found by reasoning and then measured.** The verdict
+typing effect ([D-057](#d-057--the-verdict-typing-effect-a-single-writer-and-two-separate-children-for-what-is-seen-vs-what-is-heard))
+hyphenated each partial string as it typed. Under a length rule, a half-typed
+word is judged by its partial length: it gains break points as it grows, and
+letters already wrapped to the next line jump back up. That showed 83 times on
+the test page. The verdict is now hyphenated once, up front, and each tick
+reveals a longer prefix of that string (`hyphenatedPrefixEnds()`), with 0
+jumps.
+
+**Verified in the running app in all three browsers**, through a local proxy
+that answered the verdict request with canned text, so no OpenRouter call was
+made and no log row written. The app ran in an iframe resized to 40 exact
+widths from 290px to 800px:
+
+| Check | Committed code (control) | This change |
+|---|---|---|
+| Breaks inside a short word or near an edge | 775 Chromium / 736 Firefox | 0 / 0 |
+| Soft hyphens in the DOM breaking the rule | 546 of 625 | 0 of 79 |
+| Breaks without a hyphen, 290–800px | 0 | 0 |
+| Page scrolls sideways at any width | no | no |
+| Letters jumping up a line while the verdict types | 0 | 0 |
+| Invisible characters in copied text | none | none |
+| Verdict text in a copy of the verdict | once | once |
+| Page errors | none | none |
+
+**The clipboard fix of [D-067](#d-067--the-hyphenation-fix-made-the-apps-own-output-un-pasteable-and-the-failure-surfaced-two-steps-away-from-the-cause)
+is untouched and still needed.** Long words still carry soft hyphens, so the
+copy listener still strips them and `.sr-only` stays unselectable. Copies of
+titles, reviews, the finished verdict and the whole page were checked for
+U+00AD and seven other invisible characters, and for the verdict appearing
+twice. To prove those checks could fail, a probe build hyphenated each typing
+slice, disabled the copy listener and made `.sr-only` selectable again. It
+failed all three in Chrome and Firefox: letters jumped during typing, copied
+titles and reviews carried a soft hyphen between the letters of every long
+word, and copying the verdict gave 589 characters for a 259-character verdict.
+
+**One consequence for the demo list.** [D-068](#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)
+put an emoji in the Wicked review as live evidence of
+[D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)'s
+grapheme-safe splitting. That emoji stands alone between spaces, so it is a one-grapheme
+word, and the 7-grapheme minimum means nothing is ever inserted next to it: the
+review would render correctly even if the grapheme bug returned. D-061's safety
+now matters only for an emoji inside a word of seven or more graphemes, which
+nothing in the seed list contains. The comment in [`scripts/seed-demo.js`](../scripts/seed-demo.js) says
+so.
+
+**Traps.**
+
+- **Never hyphenate a typing slice.** Hyphenate the whole string and reveal
+  prefixes of it, or letters jump lines mid-type.
+- **Do not reach for `hyphenate-limit-chars` to replace the JS limits.** It
+  does not apply to soft hyphens in any engine measured here.
+- **The clipboard stripper is not made redundant by fewer soft hyphens.** Any
+  long word still carries them.
+
+## D-079 · The type scale is one root percentage, and the AI call log table and the tie caption are exempt from it
+
+*2026-09-28. Raised by the user: the text read a little too large at the
+browser's default zoom, and they asked what `:root { font-size: 92%; }` would
+break.*
+
+**Nothing, structurally, because every text size here was already `rem` or
+`em`.** The only px `font-size` in [`public/styles.css`](../public/styles.css) is the header GitHub
+icon, which is a graphic. Shrinking text can only free space, so no box
+overflows that did not before; every breakpoint is px and does not move; and
+the JavaScript measures live layout (the busy-button width lock, the
+recommendation grid, the toast probe, the reveal-panel flip), so it follows by
+itself. What changes is proportion: posters, the rank track, recommendation
+cards, the page column and the logo mark are px and keep their size while the
+text inside them shrinks.
+
+**Four ways to do it were weighed.**
+
+- **A root percentage — chosen.** One declaration, and it respects a reader
+  who has raised their browser's default size.
+- **A px root (`14.72px`)** gives the same result at the default and overrides
+  that reader's setting. Rejected.
+- **`zoom: 0.92`** scales the px frame too, like browser zoom. Rejected
+  because the code measures boxes and writes the result back as px: the
+  busy-button width lock and the grid's `--rec-width`. Under CSS zoom a length
+  measured and written back risks being scaled twice.
+- **Rescaling each `font-size` and leaving spacing alone** is about fifty
+  edits for a result few people could tell apart from the one-line version.
+
+**It sits on `html`, not `:root`**, which the user asked about. The two select
+the same element, but `:root` has a pseudo-class's specificity. The
+reduced-motion block overrides `scroll-behavior` with a plain `html` rule, and
+that override only wins because the specificities match.
+
+**The factor is a custom property, `--type-scale`, not a literal 92%**, because
+it is needed in three places. A fluid size written `clamp(rem, vw, rem)` only
+follows the root at its two `rem` ends, so without help the rank numerals and
+section headings would hold still across the middle of the viewport range,
+roughly 540px to 900px, and shrink only outside it. Every such `vw` term is
+therefore multiplied by `--type-scale`, and the measured ratio is 0.920 at every
+width tested.
+
+**The fork was how to protect the smallest text.** The AI call log already ran
+down to 8.6px, for its failure text and the Total row's token split. Claude
+first proposed a floor. Computing every tier argued against a flat one such
+as `max(0.7em, 10px)`: five of the table's seven tiers would land on the same
+10px and stop reading as different kinds of text. Worse, the Total row's split
+is kept small so the summed figures do not widen the columns, and the body
+split's `0.84em` was solved so the Tokens column does not move. Raising the
+Total row's split from 8.6px to 10px could widen that column, and with it
+break the "no horizontal scroll above 850px" fit.
+
+What was built instead exempts the table's base, `calc(0.77rem /
+var(--type-scale))`. Every tier inside is `em` off that base, so all seven keep
+their exact size and ratios. The same exemption goes on each `rem` inside the
+table that sizes text or the width text wraps in: the Result column, the
+reveal panels and the two card-mode label sizes. The table's padding does
+scale, which only adds room. The user agreed, and added the "tied" caption
+(9.9px) to the exemption.
+
+**Deliberately left at px:** the logo mark and the header GitHub icon. They are
+graphics and peers of each other, like the posters. The wordmark beside them
+now reads 8% smaller.
+
+**Verified by measurement, before and after, at 1280, 1000, 900, 800, 700,
+620, 500 and 360px.** Chrome's remote debugging is disabled by policy on this
+machine, and a headless window will not go below about 550px, which is
+[D-062](#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)'s
+width problem again. So each width was an iframe exactly that wide,
+reading computed sizes from inside it. The results:
+
+- Every one of 21 page text sizes, fluid ones included, measured 0.920 of its
+  old value at every width.
+- The table's tiers and the tie caption were unchanged to the hundredth of a
+  pixel.
+- No width scrolled horizontally, and neither did the log dialog.
+- The table's columns moved by at most 2px.
+
+**One finding on the way corrects [D-030](#d-030--three-digit-ranks-are-capped-not-documented-away)'s
+model.** D-030 budgets a three-digit numeral as its track plus the spill into
+the card's padding on one side and the gap on the other. But a line too wide
+for its box is start-aligned whatever `text-align` says. So the numeral stays
+flush with the track's left edge, and the whole overflow goes right, into the
+gap. Measured on the unscaled CSS with a forced "250", the clearance to the
+poster was 6.3px on desktop, 9.2px at 620px and 10.8px in card mode, against
+the ≥10.8px and ≥12.3px that entry and the stylesheet recorded. The type scale
+widens all three, to 10.8px, 11.6px and 13.1px. The live comment and the living
+log now carry the measured figures and the one-sided model.
+
+**The captures in [`docs/screenshots/`](screenshots/) predate this and show the old size.**
+None of them argues anything about type size, so they stand.
+
+**Traps.**
+
+- **A new fluid size must multiply its `vw` term by `--type-scale`.**
+  Otherwise it holds still across part of the viewport range.
+- **A new `rem` inside the log table that sizes text, or a width text wraps
+  in, must use the exempt form.** An `em` needs nothing, because it follows
+  the exempt base.
+- **Changing `--type-scale` moves the [D-030](#d-030--three-digit-ranks-are-capped-not-documented-away) clearances.** Re-measure the
+  620px row before raising it.
+
+## D-078 · The README's Project layout is a connector tree that includes the root, and a route file carries its mount path, not its endpoints
+
+*2026-09-27. Raised by the user with a screenshot of another project's layout
+tree; the scope was settled over two exchanges.*
+
+**The form changed and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)'s
+three rules did not.** That entry set formatting aside as presentation, and the
+`├──` / `│` connectors are its second rule drawn rather than implied. What the
+old tree got wrong was legibility: nesting shown by indentation alone, a
+description column that started at a different position on three lines, and
+wrapped descriptions whose continuation lines sat at the name column, where
+they read as entries of their own. The tree now has one line per entry and one
+description column, and every line fits 100 characters.
+
+**The root is in the tree.** Root files used to be listed in a paragraph above
+it, headed "deliberately not in the tree", so that their omission could be
+checked. Listing them makes the tree itself the check, and the paragraph is
+gone. [`SPEC.md`](../SPEC.md) and [`CLAUDE.md`](../CLAUDE.md) are pointed at rather than described, because
+the Documentation table already describes them, which is [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)'s first rule.
+
+**The fork was over [`server/routes/`](../server/routes/), [`public/`](../public/) and [`test/`](../test/)**, which had been
+summarised as one line each. Claude recommended expanding `public/` and
+`test/`, and giving each route file a purpose line rather than its endpoints:
+endpoints in the tree would be a second copy of
+[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which `b486c10` had just
+made the [README](../README.md)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
+duplicated descriptions drifting within one session. **The user chose to expand
+all three and to annotate the route files with their endpoints, on one
+condition: short, and never the full list of eleven.** So each route file
+carries its mount path and a few verbs (`/api/movies — list, search, add, rate,
+remove`), while methods, and every sub-path except the recommendations line's
+`/history`, stay in § 4.5 alone. `/api/health` and
+`/api/config`, registered in [`server/index.js`](../server/index.js) rather than in a route file,
+appear nowhere in the tree.
+
+**Trap.** Do not grow a route line into its method list. The mount path is
+stable, being where [`server/index.js`](../server/index.js) mounts the router; the method list is
+what § 4.5 maintains, and a second copy of it is the drift [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) measured.
+
 ## D-077 · `/api/recommendations/history` is kept for good, and its coverage gap is closed with a test rather than a deletion
 
 *2026-09-21. The user asked what the endpoint is for and what removing it would
@@ -15,11 +391,15 @@ cleanup" that [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-
 stands: the headless-Chrome icon-clipping question under step 3, which opens
 with "STILL UNRESOLVED as of 2026-09-12" and so cannot be mistaken for
 current.*
+> **2026-09-30:** that question is now resolved too, on the user's ruling, under
+> [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links): a headless browser is
+> never the only measure of layout, a human verifies in a real browser whenever
+> its findings are in doubt, and the real browser's observation stands.
 
 **What it is.** A read-only `GET` returning the last 25 recommendation runs as
 JSON. No UI calls it. Its seven columns are a strict subset of what
 `GET /api/ai-log` returns, verified by diffing the two `.select()` calls rather
-than by trusting D-017's word for it: ai-log reads BOTH log tables, 60 rows
+than by trusting [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it)'s word for it: ai-log reads BOTH log tables, 60 rows
 each, twelve columns including `status`, `error_text`, `duration_ms` and the
 token split.
 
@@ -35,8 +415,8 @@ made it a candidate.
 **Deleting was the option that looked tidy and measured worst.** Five places
 described the endpoint when this was weighed (there are more now, this entry
 among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
-it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), D-017, and a
-checkbox in [`CLAUDE.md`](../CLAUDE.md). Two of those are awkward rather than trivial:
+it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it), and a
+checkbox in [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14). Two of those are awkward rather than trivial:
 `SPEC.md` is **annotated in place, never rewritten**, so the table row would have
 to stay and gain a note; and a decision entry is preserved, so D-017 would need a
 superseding entry regardless.
@@ -64,7 +444,7 @@ reads badly. The measurement reversed it: the documentation cost of removal
 exceeded the code it removed, and the untested-route complaint was never an
 argument for deletion, only for a test.
 
-**One of D-017's three reasons has expired and the other two have not.** It
+**One of [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it)'s three reasons has expired and the other two have not.** It
 cited dangling-reference risk from a PRE-submission deletion; submission has
 happened, so that one is gone. The SPEC-table deviation and the "buys nothing
 on the grading axes" arguments both still hold.
@@ -80,12 +460,14 @@ column: an unvoted title's badge sat visibly left of its neighbours'.
 Measured at 1368px against the real stylesheet — three rated cards, badge right
 edges at 1159.4, **1131.3** and 1159.4, so **28.1px** out. The cause is that
 `.score-block` shrink-wraps to its widest child and its contents were
-left-aligned, so the badge hangs off whichever caption is widest:
-`No TMDB rating` measures 90.2px against `TMDB 7.1`'s 50.9px, and that
-difference IS the 28.1px. It matters for the same reason top-aligning the body
-did (see [D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)'s
-neighbourhood in `public/styles.css`): this is a ranked LIST, and a column that
-does not line up is a column you cannot scan.
+left-aligned, so the badge hangs off the caption whenever the caption is the
+wider child: `No TMDB rating` measures 90.2px against the 62.1px rating badge,
+so on that card the caption sets the block's width and the badge ends 28.1px
+short of the edge, 90.2 minus 62.1. `TMDB 7.1` measures 50.9px, narrower than
+its badge, so on a voted card the badge sets the width and ends flush. It
+matters for the same reason top-aligning the body did (see the comment on
+`.movie-card__body` in [`public/styles.css`](../public/styles.css)): this is a
+ranked LIST, and a column that does not line up is a column you cannot scan.
 
 **The user's worry, and why it was justified but misdirected.** The comments
 around that declaration look like they are defending it, so touching it felt
@@ -131,7 +513,7 @@ set the same property to opposite values is exactly the shape a later tidy-up
 the third place.
 
 **How it was verified, and the one gap.** A static harness reproducing the real
-card markup against the real `public/styles.css`, measured in headless Chrome
+card markup against the real [`public/styles.css`](../public/styles.css), measured in headless Chrome
 with the webfonts explicitly loaded first — Fraunces 900 sets the badge's
 width, so a run that measures before the swap measures the wrong face. Each
 variant was measured at desktop and at card width, and card mode came back
@@ -144,6 +526,14 @@ cascade instead: the 620px block's override applies to every width beneath it,
 and the 400px query sets only `grid-column-start` and `row-gap`, so nothing
 there can reach `align-items`. That is a proof about the cascade, not an
 observation, and it is written as such.
+> **2026-09-30:** observed as well. The user checked the fix on a phone, in
+> portrait and landscape, the day it shipped, and again on 2026-09-30. The same
+> day it was measured in Chrome and Firefox at 43 widths from 280px to 1280px,
+> in an iframe the probe sizes itself, so no window minimum applied: on every
+> rated card the badge sits on the anchored edge (right above 620px, left at
+> 620px and below) to within 0.01px, 400px and below included. A control run
+> with the two alignments swapped put the badges about 26px apart at every
+> width in both browsers, so the measurement can tell the defect from the fix.
 
 ## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
 
@@ -158,12 +548,12 @@ for the stakeholder [`docs/FRAMING.md`](FRAMING.md#stakeholders) already names
 — the reader of the repository, who never runs the app and cannot ask a
 question. For that reader an unlinked "see D-046" is a number and a scroll bar.
 
-Applied to twelve files: this one, `README.md`, `SPEC.md` and the nine others
-under `docs/`. The largest single gain was here — 104 entry-to-entry
+Applied to twelve files: this one, [`README.md`](../README.md), [`SPEC.md`](../SPEC.md) and the nine others
+under [`docs/`](./). The largest single gain was here — 104 entry-to-entry
 cross-references made clickable in a file that had exactly one link in it.
 
 **The fork was the thirteenth file, and there were three options.** Apply it
-uniformly; exempt `CLAUDE.md`; or a narrow middle — link only its outbound
+uniformly; exempt [`CLAUDE.md`](../CLAUDE.md); or a narrow middle — link only its outbound
 document references and skip the intra-project identifiers.
 
 **Measured before arguing, which is what made the argument short:**
@@ -184,22 +574,17 @@ humans.
 
 **That framing was the weaker one, and the user's replacement is what settled
 it.** Audience does not separate the two files cleanly; both are read by both.
-What separates them is WHEN they are read: **`CLAUDE.md` is injected into
+What separates them is WHEN they are read: **[`CLAUDE.md`](../CLAUDE.md) is injected into
 context at the start of every session, and `docs/DECISIONS.md` is opened on
 demand.** A byte in `CLAUDE.md` is a permanent per-session cost paid whether
 anyone needs it; a byte here is paid only when someone reads this file. That is
 why the file that is injected is the exempt one, while this file — within a few
 hundred lines of the same length — was never a candidate for exemption. Size was
-never the reason. *(This sentence first gave the two lengths as 4,488 and 3,860.
-Both were wrong when written, not merely stale: `CLAUDE.md` stood at 4,487, and
-3,860 described THIS file as it was BEFORE the link pass D-075 records — by the
-time the entry existed inside it, it was past 4,000. Corrected rather than
-preserved, per the rule for a claim that was false when written. Exact counts are
-left out now because they move with every entry, and nothing in the argument
-needs them.)*
+never the reason. *(Exact lengths are left out on purpose: they move with every
+entry, and nothing in the argument needs them.)*
 
 **One input is recorded as unverified rather than as fact.** The user had read
-that Claude Code may skim past instructions in a `CLAUDE.md` beyond roughly 400
+that Claude Code may skim past instructions in a [`CLAUDE.md`](../CLAUDE.md) beyond roughly 400
 lines. Claude could not confirm any documented threshold and said so: nothing
 truncates at a line count, and the real effect is the soft degradation of recall
 across a long context rather than a cliff. The DIRECTION is sound and it is a
@@ -208,7 +593,7 @@ should not be cited from this entry as though it were established.
 
 **Both of us then declined the narrow version too**, which is the part that
 makes this a settled decision rather than a deferred one. The reader who would
-benefit lands on `README.md`, and `README.md` already deep-links into this
+benefit lands on [`README.md`](../README.md), and `README.md` already deep-links into this
 file's sections — so the marginal gain is thin even at 1.3%.
 
 **The other two exemptions were not contested and are recorded for
@@ -237,11 +622,11 @@ answer one question.*
 
 The section had drifted into doing three jobs at once: mapping the repository,
 describing each document, and asserting its own completeness. Each ruling below
-gives one of those back to whichever part of the README already does it better.
+gives one of those back to whichever part of the [README](../README.md) already does it better.
 
 **1. Per-file descriptions live in the Documentation table; the tree points at
 it.** Found as a contradiction: the "deliberately not in the tree" paragraph
-listed the nine `docs/*.md` as omissions a reader could verify, while the tree
+listed the nine [`docs/*.md`](./) as omissions a reader could verify, while the tree
 directly below listed all nine individually. **Claude resolved it the wrong way
 first** (`673702d`), striking them from the paragraph — which removed the
 contradiction and kept the thing that caused it: nine files each carrying TWO
@@ -259,7 +644,7 @@ evidence attached". Two of nine pairs, inside one session, while auditing for
 exactly this.
 
 **2. Containment is expressed by a node, never by a repeated prefix.** Six
-`scripts/*` entries each repeated the same nine characters; `db/` and `docs/`
+[`scripts/*`](../scripts/) entries each repeated the same nine characters; [`db/`](../db/) and [`docs/`](./)
 did the same with two each. Claude recommended nesting `scripts/` alone and
 flagged the cost — the tree would then carry two idioms chosen by size, nest
 when a directory has several children and inline the prefix when it has one or
@@ -269,7 +654,7 @@ visible rule instead of two, and no unstated size threshold for a later session
 to guess at.
 
 **3. Every identifier in the section's prose resolves from the repository
-root.** `routes/` became `server/routes/` (`0c206ff`). Claude looked first for
+root.** `routes/` became [`server/routes/`](../server/routes/) (`0c206ff`). Claude looked first for
 a mechanical argument — whether `check-claims` resolves one spelling and not
 the other — and there is none: `checkPaths` only matches paths ending in a file
 extension, so a bare directory is invisible to the gate either way. What decided
@@ -281,9 +666,9 @@ seventeen of the eighteen identifiers in the two paragraphs already did.
 commit introduced *"the Documentation table above, which is the ONLY place each
 one is described"* — an exclusivity claim planted in the very edit that
 consolidated duplicate descriptions, and false in both readings. Inside the
-README, [`docs/SECURITY.md`](SECURITY.md) is described again at README:375 in
-wording almost identical to its table row, and
-[`docs/RESILIENCE.md`](RESILIENCE.md) at README:192 in a description Claude had
+[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again in its Security notes
+section in wording almost identical to its table row, and
+[`docs/RESILIENCE.md`](RESILIENCE.md) in its Screenshots section in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
 [`docs/MERGE-READINESS.md`](MERGE-READINESS.md) both describe
 [`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in `707b7f2` after the user
@@ -291,18 +676,22 @@ asked for it to be verified rather than trusted.
 
 **Traps.**
 
-* **Do not re-expand the nine `docs/*.md` into individual tree lines.** They were
+* **Do not re-expand the nine [`docs/*.md`](./) into individual tree lines.** They were
   there, and two of the nine drifted from the table within a single session. The
   tree line says so at the point of temptation; this entry is why.
 * **Do not flatten a nested directory back to repeated prefixes.** The node form
   IS the convention now, and this entry is the only place it is written down —
   the tree can otherwise only show its shape, not its rule.
+  > **2026-09-30:** no longer the only place.
+  > [D-078](#d-078--the-readmes-project-layout-is-a-connector-tree-that-includes-the-root-and-a-route-file-carries-its-mount-path-not-its-endpoints)
+  > redrew the tree with `├──` / `│` connectors and describes that form as
+  > this entry's second rule drawn rather than implied.
 * **Do not write a bare directory name in that section's prose.** Every
   identifier there resolves from the root, and that is what makes the
   completeness claim checkable rather than decorative.
 
 **Deliberately not in this entry: the formatting.** Column alignment, wrap
-points, the `test/` line that sat one column left of its siblings, the missing
+points, the [`test/`](../test/) line that sat one column left of its siblings, the missing
 `ac-*` family in the screenshots description (`2b49ba4`), the Documentation
 table's two declared omissions (`006983e`). All obviously correct once raised,
 all recoverable by reading the file, all in their commit messages. The
@@ -324,7 +713,7 @@ it looked like the clearest breach yet of "only at a notable, settled milestone"
 first twenty-one merges, read off `git log --merges --oneline main`: an app
 verified end to end, the AI-call-log table and card views, the taste-verdict and
 search sections, the ranked-list overhaul, the live deployment, four merges of
-the recommendations overhaul, the front-end overhaul completing, the DOSSIER
+the recommendations overhaul, the front-end overhaul completing, the [DOSSIER](../DOSSIER.md)
 reconciliation, and `0cdc4ec`, the final planned merge. Not one incremental
 change among them. And the merges after it each cleared a *different* criterion
 — a defect already published on `main` — which was stated at `94f5325` in its own
@@ -359,7 +748,7 @@ history.
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: force-pushing over pushed history. The same call was made
-  for `619ed64` and it was left as written; the correction lives in `CLAUDE.md`
+  for `619ed64` and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -414,6 +803,14 @@ sufficient here rather than merely tidier: [`CLAUDE.md`](../CLAUDE.md) is built
 around a submission deadline. The fallback matters only for a project that ends
 by petering out, and there the fallback is a question, not a merge.
 
+> **2026-10-01:** ground 3 fired for the first time at the thirtieth merge, on
+> the day the course's final assessment deadline passed. The user named that
+> event, so the quiescence prompt was never needed. The same merge also cleared
+> ground 2 on the defects it carried. A close-out sync fires once, so any later
+> merge needs ground 1 or ground 2; the rule in
+> [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) records
+> this under ground 3. The entry above stands as the reasoning at the time.
+
 **Traps that follow.**
 
 * **Never restore a count of the merges made "since" anything.** That set is
@@ -441,7 +838,7 @@ command finds. The pattern in both is the same, and it is not carelessness:
   itself still true. [`README.md`](../README.md) was describing ANOTHER file's
   verdict, so no forward pass could see it. It stayed wrong for sixteen hours,
   through a commit that edited both files.
-* The "name some films" sweep searched documentation and source. `.env.example`
+* The "name some films" sweep searched documentation and source. [`.env.example`](../.env.example)
   is a config template — neither `*.md` nor `*.js` — so a type-filtered search
   skipped it silently, and the retired wording sat in the file a reader opens
   FIRST when setting the project up. Worse, that commit's message asserted the
@@ -458,7 +855,7 @@ miss was findable by re-reading the files that were already being read.
 **Write a checker.** Chosen, as
 [`scripts/check-claims.js`](../scripts/check-claims.js), a fifth commit gate. It
 walks EVERY text file — the extension list is deliberately wide and
-`.env.example` is named in the source comment, because that file is the reason
+[`.env.example`](../.env.example) is named in the source comment, because that file is the reason
 the gate exists — and resolves each claim that points at something: paths,
 scripts, `D-0NN` entries, quoted SHAs, `file:line` references, identifiers in
 backticks, captures, and a list of retired phrasings.
@@ -496,7 +893,7 @@ than at the source.*
 
 GitHub renders [`docs/SECURITY.md`](SECURITY.md) twice, and only one of the two
 had ever been checked. In the ordinary blob view a relative path resolves
-against `docs/`, which is correct and is what every render audit saw. But GitHub
+against [`docs/`](./), which is correct and is what every render audit saw. But GitHub
 also serves that file as the repository's **Security tab** — it looks for a
 security policy in the root, in `.github/` and in `docs/` — and there it
 resolves the same relative paths against the **repository root**. Three
@@ -516,24 +913,24 @@ No relative path can satisfy both bases at once, so there were two real options.
 and plain relative paths work everywhere — no absolute URLs, no branch pinning,
 no hardcoded owner and repo name. **Rejected**, and not for effort: it would
 have rewritten roughly fourteen inbound references across eight files, and it
-would have broken the `docs/` grouping that [`README.md`](../README.md)'s own
+would have broken the [`docs/`](./) grouping that [`README.md`](../README.md)'s own
 documentation map describes to a reader. A large diff across the whole
 repository, days after the planned final merge, to fix six URLs.
 
 **Make the six targets absolute** — `raw.githubusercontent.com` for the captures,
 `github.com/blob` for the two document links. **Chosen.** Six lines, one file.
 
-The cost is honest and stated: they pin to `main`. That is acceptable here
+The cost: they pin to `main`. That is acceptable here
 because the captures are frozen evidence and because the Security tab only ever
 renders the default branch, so a `draft` reader sees the same images either way.
 
 ### The trap this creates, which is why it is written down
 
-Every other document in `docs/` correctly uses relative paths. A consistency
+Every other document in [`docs/`](./) correctly uses relative paths. A consistency
 sweep — exactly the kind this project has run repeatedly — would "fix" these six
 straight back into the defect. Two guards were added rather than one: a comment
 at the top of [`docs/SECURITY.md`](SECURITY.md), and rule 8 under
-[CLAUDE.md](../CLAUDE.md)'s Markdown Authoring Rules. It is a **one-file
+[CLAUDE.md's Markdown Authoring Rules](../CLAUDE.md#the-rules). It is a **one-file
 exception, not a new convention**.
 
 ### Where the process failed, which is the part worth keeping
@@ -559,6 +956,10 @@ recorded `claude-haiku-4.5` while the call that actually failed was
 `claude-sonnet-5`. Successful rows were always correct, because they read the
 model back out of OpenRouter's own response.
 
+> **2026-09-30:** That holds while the response names its model. A reply
+> without the field fell back to the app-wide model on the success path too;
+> `chat()` now falls back to the model the call requested.
+
 That left a handful of wrong rows already in `taste_verdict_logs`.
 
 ### The disagreement, which is the content of this entry
@@ -572,9 +973,12 @@ provide the historical reality of every AI call the app performed. Rows that
 misname the model are not documenting reality; they are false about precisely the
 thing they exist to record.
 
-The mistake was conflating two different kinds of artifact.
-[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001)'s
-preserve-don't-maintain rule governs **narrative** — decision entries, and code
+The mistake was conflating two different kinds of artifact. The
+preserve-don't-maintain rule in
+[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable),
+whose worked example is
+[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001)'s "footer
+link", governs **narrative** — decision entries, and code
 comments that explicitly describe a past state. Those record a *belief held at a
 time*, and they stay valuable as records even when the belief turned out wrong.
 
@@ -608,8 +1012,8 @@ were FALSE. The second is the stronger justification of the two.
 ### Scope, checked rather than assumed
 
 No committed screenshot contains any deleted row. The bad rows were written at
-18:25:22 and 18:43:14; `rs-4-openrouter-down-recs-log.png` tops out at 17:54:01
-and `rs-3-tmdb-down-during-recs-log.png` at 17:44:04. Nothing in the repository
+18:25:22 and 18:43:14; [`rs-4-openrouter-down-recs-log.png`](screenshots/rs-4-openrouter-down-recs-log.png) tops out at 17:54:01
+and [`rs-3-tmdb-down-during-recs-log.png`](screenshots/rs-3-tmdb-down-during-recs-log.png) at 17:44:04. Nothing in the repository
 shows a row that no longer exists, so no evidence needed re-shooting on account
 of the deletion — only on account of the fix.
 
@@ -618,8 +1022,8 @@ Related:
 for the first hand-deletion and the append-only argument,
 [D-053](#d-053--the-taste-verdict-alone-runs-on-a-stronger-model) for the
 two-model split that created the bug,
-[D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001) for the
-preserve-don't-maintain rule this entry marks the boundary of.
+[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable)
+for the preserve-don't-maintain rule this entry marks the boundary of.
 
 ## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
 
@@ -684,13 +1088,17 @@ The two strings needed different treatment, because they make different claims:
 Both true things now get said: everything is recorded, this window shows the last
 sixty.
 
+> **2026-09-30:** "Every call" here means every call whose log write succeeds.
+> When that write fails, the run is discarded and its cause goes to the
+> server's stderr ([R5](../CLAUDE.md#group-a--functional-bugs)).
+
 ### The generalisable bit
 
 **A false sentence in the UI is invisible to every check this project runs.** The
 tests, the linter, the markdown checker and the render audits all look at
 structure; not one of them compares a claim the interface makes against the
 specification that describes the same thing. This survived because the two were
-never read side by side — and the SPEC line was correct the entire time, so there
+never read side by side — and the [SPEC](../SPEC.md) line was correct the entire time, so there
 was nothing to find except by looking at both at once.
 
 It also matters more here than it would elsewhere: the whole argument these
@@ -700,9 +1108,8 @@ undercut, say, a button label.
 
 Related:
 [D-019](#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever),
-which relies on the window;
-[D-018](#d-018--route--resilience-tests-without-touching-the-live-db) for what
-the totals row deliberately does not surface;
+which relies on the window and records what the totals row deliberately does
+not surface;
 [D-065](#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)
 for the other class of defect that was invisible until something rendered it.
 
@@ -890,8 +1297,8 @@ searched for, or told apart from an empty string — and the stripper and the
 inserter have to agree exactly, which is not something two invisible literals
 can be trusted to do. Built with `String.fromCharCode` rather than a backslash
 escape, because escapes in that file have been collapsed by tooling twice
-([R7](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
-and the Environment traps section of [`CLAUDE.md`](../CLAUDE.md)).
+([R7](../CLAUDE.md#group-c--copy-and-consistency),
+and [the Environment traps section of `CLAUDE.md`](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here)).
 
 ### The generalisable bit
 
@@ -914,7 +1321,7 @@ for the hyphenation.
 *Written up the same day it was found, 2026-09-13, while unfreezing
 [`SPEC.md`](../SPEC.md).*
 
-[`CLAUDE.md`](../CLAUDE.md)'s render-and-diff method told every session to post
+[`CLAUDE.md`'s render-and-diff method](../CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) told every session to post
 markdown to `https://api.github.com/markdown` with `"mode": "gfm"`. The
 justification written beside it was reasonable and is still true as far as it
 goes: the two constructs most at risk are tables and task lists, both GitHub
@@ -951,16 +1358,10 @@ lines**, because every audit ran in `gfm`.
 * **`gfm`** renders task lists correctly and fakes the line breaks.
 
 So there is no single authoritative mode, which is the part worth remembering.
-The rule now in [`CLAUDE.md`](../CLAUDE.md) is to use the default for anything
+The rule now in [`CLAUDE.md` § When a change is structural](../CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) is to use the default for anything
 about paragraphs, layout or line breaks, `gfm` only to confirm a task list, and
 — when it genuinely matters — to fetch the real blob from github.com, which is
 the only authority.
-
-**Why this is a correction and not an update.** The old rule was wrong when it
-was written, not made wrong by later events, so it was fixed in place rather
-than preserved as history. The distinction is the one
-[`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable)
-already draws.
 
 **The generalisable lesson, and it is the same one twice.**
 [D-065](#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)'s
@@ -1110,7 +1511,7 @@ in its rendered output and nothing extra appears; and no markdown syntax —
 backtick, emphasis marker, link bracket, escape, heading, pipe row or comment —
 survives into the rendered prose of any of them.
 
-### Addendum: the full audit, and the defect that had been there for weeks
+### Addendum: the full audit, and the defect that had been there for nine days
 
 The user asked for a proper verification pass — every markdown file rendered end
 to end, and the checker itself proved free of false positives and negatives. Both
@@ -1129,7 +1530,7 @@ stripped. **The fourth was real, and nothing had ever caught it.**
 show the three characters `tidyVerdict()` strips, escaping the backtick with a
 backslash. Escapes do not work inside a code span (rule 1), so the run never
 closed and **GitHub swallowed the rest of the sentence into the code element.**
-It had rendered that way for weeks, through a full staleness sweep and two
+It had rendered that way for nine days, through a full staleness sweep and two
 markdown passes.
 
 (Both forms are shown in a fenced block below, because quoting a broken delimiter
@@ -1175,9 +1576,9 @@ paragraph, not the line; the rendered HTML, not the source — and every one was
 missed by a check that looked green at the wrong unit.
 ### Addendum, next day: the separators came out of every file, and the rule became enforceable
 
-This entry originally carved out an exception — `docs/DECISIONS.md` "keeps its 65
-between long entries by choice" — and the checker dropped its separator rule
-rather than fire 38 times against it. **The user then looked at how those
+The first version of this decision carved out an exception — `docs/DECISIONS.md`
+would keep its separators between long entries by choice — and the checker
+dropped its separator rule rather than fire 38 times against it. **The user then looked at how those
 actually rendered and overruled it, correctly.**
 
 Two things decided it, and the second is the one Claude had missed. The rule is
@@ -1327,20 +1728,20 @@ for a factual claim about behaviour, go to the authority, do not aggregate.**
 So SVG-only is safe on every current browser. Safari 18.7 and older still probe
 `/favicon.ico` and still 404 — **the same error as before rather than a new one**,
 and closing it costs a binary asset in a repo that, on 2026-09-12, had none.
-*(The 37 screenshot PNGs landed the next day, so "has none" stopped being true
-almost immediately. The reason still holds in the form that mattered: a .ico
-would be the only binary the APPLICATION ships — everything under public/,
-server/, scripts/, prompts/, db/ and test/ is text.)*
+
+> **2026-09-19:** the 37 screenshot PNGs landed the next day, so "has none" stopped being true
+> almost immediately. The reason still holds in the form that mattered: a .ico
+> would be the only binary the APPLICATION ships — everything under [public/](../public/),
+> [server/](../server/), [scripts/](../scripts/), [prompts/](../prompts/), [db/](../db/) and [test/](../test/) is text.
 
 ### What the console error actually was
 
-[CLAUDE.md](../CLAUDE.md) had said the request "lands on the 404 handler".
+[CLAUDE.md's step 4](../CLAUDE.md#step-4--the-favicon) had said the request "lands on the 404 handler".
 **There is no 404 handler** — [`server/index.js`](../server/index.js) has only a
 central *error* handler, which fires on `next(err)`. The request fell through
 `express.static`, past every API mount, to Express's built-in finalhandler: a
 404 with `Cannot GET /favicon.ico` as `text/html`. Verified by booting the app
-on port 3999 rather than reasoned about. Corrected in place, since it was wrong
-when written.
+on port 3999 rather than reasoned about.
 
 Declaring any icon link is what stops the probe, so the icon and the console
 error are one fix rather than two.
@@ -1371,7 +1772,7 @@ and asserting the file was valid on that basis was the same class of error as
 the headless-Chrome screenshots in
 [D-062](#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified):
 a check that produces a green result without testing the thing that matters. Now
-recorded under the tooling traps in [CLAUDE.md](../CLAUDE.md), together with the
+recorded under [the tooling traps in CLAUDE.md](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here), together with the
 fix — parse it with a real parser, and parse the bytes the server sends rather
 than the file on disk.
 
@@ -1386,7 +1787,7 @@ explicit `width`/`height`.
 
 Two decisions, reached in one investigation and kept together because separating
 them would lose the thread: **(a)**
-[R18](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09) —
+[R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) —
 the last open item in the recommendations sub-backlog — is closed without a code
 change, and **(b)** the `debugRecs` harness is knowingly left half-stale rather
 than patched. The second is what made the first hard to look at.
@@ -1394,7 +1795,7 @@ than patched. The second is what made the first hard to look at.
 ### (a) R18: measured, then dropped
 
 **What
-[R18](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R18](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 claimed.** `.recs__hint { min-height: 1.2em }` "reserves one line for messages
 that run to three or four on a phone, so the grid jumps as the hint changes."
 Filed 2026-09-09 during the recommendations audit, explicitly parked for the
@@ -1416,10 +1817,10 @@ line swing the item described. The other transition the item implies, resting
 this width.
 
 **And the one transition that does move is the one that cannot be seen.** The
-hint shrinks in `renderRecommendations()` (app.js, the `setRecsHint(['Based on:
-…'])` call), and eleven lines later, in the same synchronous block, that same
+hint shrinks in `renderRecommendations()` ([app.js](../public/app.js), the `setRecsHint(['Based on:
+…'])` call), and later in the same synchronous block, that same
 function fires `el.recsHead.scrollIntoView({ block: 'start' })` —
-[R27](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+[R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
 scroll. At the exact instant the hint loses a line, the page is smooth-scrolling
 the section to the top of the viewport and six cards are beginning a 1.75s
 staggered entrance. The user looked for the jump twice, on the run the
@@ -1440,7 +1841,7 @@ any of those changes, and nothing would catch it.
 * *Media-query the `min-height` per breakpoint.* Same hardcoding, now in several
   places, and it still cannot know what the strings are.
 * *Shorten the busy message so every state fits two lines.* The busy line is
-  [R26](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)-classified
+  [R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)-classified
   as a caption and is doing real work — it names the three stages of the run,
   which is the "not a wrapper" evidence
   [SPEC §7.2](../SPEC.md#72-manual-demo-script) asks for. Trimming copy to make
@@ -1477,7 +1878,7 @@ button. Neither touched the grid, so a dummy run below the threshold rendered
 six cards and they stayed. Zero rated films was a perfectly usable harness
 state.
 
-**[R16](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+**[R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 (885a6a5, 2026-09-11 — two days later) added a third statement to that same
 branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`,
 so a locked section cannot sit above six live recommendations. Correct on its
@@ -1496,7 +1897,7 @@ to the real server so films can be added without disarming it.
 comment: a test double that patches around *one observable consequence* of an
 app branch has no way to notice when that branch grows another. Nothing fails,
 nothing warns — the double just quietly covers less than its comment claims. Both
-the header and the branch in `debug-recs.js` now say so, including that the
+the header and the branch in [`debug-recs.js`](../scripts/debug-recs.js) now say so, including that the
 paragraph above the `setTimeout` is no longer a promise that it works.
 
 ## D-062 · `left: 50%` + `width: auto` was silently halving the shrink-to-fit toast's available width — user-diagnosed, not tooling-verified
@@ -1513,8 +1914,8 @@ alone were never proof the page was laid out at that width — every earlier
 assumption that turned out not to hold. The user's own console, on the real
 browser, is what actually resolved this.
 
-**The bug, and how it was found.** A toast reading `"The SpongeBob SquarePants
-Movie" saved.` rendered as an ugly, narrow, three-line wrap on a 380px phone.
+**The bug, and how it was found.** A toast reading `“The SpongeBob SquarePants
+Movie” saved.` rendered as an ugly, narrow, three-line wrap on a 380px phone.
 The obvious suspect was the new content-length-aware widening feature
 ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)-era
 `is-long` logic) misfiring — checked directly via the user's own console and
@@ -1561,26 +1962,26 @@ elements in this file have now hit exactly this shape of trap
 THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 `inset` + `margin: auto` from the start rather than rediscovering this.
 
-**Addendum, same day: this fix immediately broke `toastIsLong()`
-([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
-measurement helper), and the break is worth recording alongside the fix that
-caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
-only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
-`right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
-margin-inline: auto;` — and the probe, still only overriding `left` (to
-`-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
-specified, which per the shrink-to-fit case list stops being shrink-to-fit
-entirely: the box stretches to fill the whole gap between them, enormous since
-`left` sits off-screen. A short toast (`"Hairspray" saved.`) measured as needing
-400px+ on the very next check and was misclassified as long. Fixed by
-neutralising `right`, `bottom` and `margin` in the probe too, not just the
-properties `.toast` happened to set when the probe was first written. **The
-general lesson, not just this one instance:** a measurement probe that clones a
-real class by name, then overrides "the properties that currently matter," is
-exactly one CSS change on the real class away from silently measuring the wrong
-thing. Overriding defensively — every property in the same CATEGORY, not just
-the ones presently in play — is what would have prevented this from breaking at
-all.
+> **2026-09-12, later the same day:** **this fix immediately broke `toastIsLong()`
+> ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
+> measurement helper), and the break is worth recording alongside the fix that
+> caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
+> only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
+> `right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
+> margin-inline: auto;` — and the probe, still only overriding `left` (to
+> `-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
+> specified, which per the shrink-to-fit case list stops being shrink-to-fit
+> entirely: the box stretches to fill the whole gap between them, enormous since
+> `left` sits off-screen. A short toast (`“Hairspray” saved.`) measured as needing
+> 400px+ on the very next check and was misclassified as long. Fixed by
+> neutralising `right`, `bottom` and `margin` in the probe too, not just the
+> properties `.toast` happened to set when the probe was first written. **The
+> general lesson, not just this one instance:** a measurement probe that clones a
+> real class by name, then overrides "the properties that currently matter," is
+> exactly one CSS change on the real class away from silently measuring the wrong
+> thing. Overriding defensively — every property in the same CATEGORY, not just
+> the ones presently in play — is what would have prevented this from breaking at
+> all.
 
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
@@ -1659,11 +2060,11 @@ property in effect at that instant.
 cost estimate was for a different, harder problem (finding WHERE text overflows)
 that this approach never needs to solve.
 
-**As shipped:** `softHyphenate()` in `app.js` runs unconditionally over
-titles, reviews and AI-reason text, with no viewport check inside it at all.
-CSS alone gates whether the embedded soft hyphens are ever honoured: below
-400px (originally 399px — see the addendum) they are; at 400px and above,
-`hyphens: none` suppresses them completely. `hyphens: auto` is removed
+**As shipped:** `softHyphenate()` in [`app.js`](../public/app.js) runs unconditionally over
+titles, reviews, AI-reason text and the verdict, with no viewport check inside
+it at all. CSS alone gates whether the embedded soft hyphens are ever honoured:
+at 400px and below (originally below 400px — see the addendum) they are; above
+400px, `hyphens: none` suppresses them completely. `hyphens: auto` is removed
 entirely — it added nothing once every position already has a soft-hyphen
 opportunity, and it was the one carrying the dictionary dependency that
 caused the original gap.
@@ -1687,36 +2088,40 @@ what caused the original inconsistency (a real word hyphenates, an invented
 one does not) — the soft-hyphen approach is what fixed it, precisely by not
 depending on a dictionary.
 
-**Addendum, same day: extended to `#verdict-text`, `.review` and `.reason`,
-and the threshold moved to 400px inclusive.** Two things worth recording
-about the extension itself, not just the fact of it:
-
-1. **`.review` and `.reason` needed no new CSS at all** — both are plain
-   descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
-   and `hyphens` are inherited properties, and `softHyphenate()` is called
-   directly on their own text in `app.js`. Inheritance alone made them work.
-2. **`#verdict-text` needed the split-channel treatment its own typing effect
-   already uses, and this is the one genuine fork in the extension.** The
-   obvious approach — hyphenate the full verdict string once, before typing
-   it out — was rejected: `setVerdictText()`'s typing loop paces itself off
-   `text.length`, and a hyphenated string is roughly DOUBLE the length of the
-   plain one (a soft hyphen between every letter), so typing it out at the
-   same `VERDICT_TYPE_MS` per character would have quietly doubled the
-   animation's duration, undoing the pace the user tuned by eye (18ms/char,
-   after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
-   tick instead of the string once — `i`/`text.length` stay the plain count,
-   so the pace is exactly what it was, and the hyphenated text is only ever
-   assembled for what's already been revealed. The `aria-hidden` /
-   `.sr-only` split this element already had for the typing effect is what
-   makes any of this safe on an `aria-live="polite"` element in the first
-   place — the hyphenated text goes only into the hidden visible span.
-
-The threshold itself moved from `399px` (an exact reading of "narrower than
-400px") to `400px` inclusive, at the user's own follow-up request — recorded
-here only so a future session does not "restore" 399 by reading the original
-paragraph above without this addendum.
+> **2026-09-12, later the same day:** **extended to `#verdict-text`, `.review` and `.reason`,
+> and the threshold moved to 400px inclusive.** Two things worth recording
+> about the extension itself, not just the fact of it:
+>
+> 1. **`.review` and `.reason` needed no new CSS at all** — both are plain
+>    descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
+>    and `hyphens` are inherited properties, and `softHyphenate()` is called
+>    directly on their own text in [`app.js`](../public/app.js). Inheritance alone made them work.
+> 2. **`#verdict-text` needed the split-channel treatment its own typing effect
+>    already uses, and this is the one genuine fork in the extension.** The
+>    obvious approach — hyphenate the full verdict string once, before typing
+>    it out — was rejected: `setVerdictText()`'s typing loop paces itself off
+>    `text.length`, and a hyphenated string is roughly DOUBLE the length of the
+>    plain one (a soft hyphen between every letter), so typing it out at the
+>    same `VERDICT_TYPE_MS` per character would have quietly doubled the
+>    animation's duration, undoing the pace the user tuned by eye (18ms/char,
+>    after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
+>    tick instead of the string once — `i`/`text.length` stay the plain count,
+>    so the pace is exactly what it was, and the hyphenated text is only ever
+>    assembled for what's already been revealed. The `aria-hidden` /
+>    `.sr-only` split this element already had for the typing effect is what
+>    makes any of this safe on an `aria-live="polite"` element in the first
+>    place — the hyphenated text goes only into the hidden visible span.
+>
+> The threshold itself moved from `399px` (an exact reading of "narrower than
+> 400px") to `400px` inclusive, at the user's own follow-up request — recorded
+> here only so a future session does not "restore" 399 by reading the original
+> paragraph above without this addendum.
 
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
+
+> **2026-09-30:** The gap this entry accepts was closed the same day by
+> [D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all),
+> whose soft hyphens break invented words as cleanly as real ones.
 
 **The ask.** A ranked-card title broke mid-word ("SpongeB" / "ob") on a narrow
 phone width, and `overflow-wrap: anywhere` is exactly why
@@ -1751,7 +2156,7 @@ has to re-run on resize, on zoom, and after a late webfont swap, or it goes
 stale exactly the way that function's own history describes. Worth building for
 a load-bearing feature; not obviously worth it for a cosmetic consistency gap
 that only shows up on invented compound words at the narrowest phone widths —
-precisely the territory [CLAUDE.md](../CLAUDE.md)'s own step 5 rule says to flag
+precisely the territory [CLAUDE.md's own step 5 rule](../CLAUDE.md#step-5--the-portrait-overhaul) says to flag
 rather than chase past a quick fix.
 
 **Put to the user as a real trade-off, not decided unilaterally: leave it, or
@@ -1791,7 +2196,7 @@ value too, before the wrap decision is ever made. One property cannot carry
 two different numbers for two different jobs.
 
 **The fix: a second, empty flex item does the forcing instead.**
-`.verdict__break` — a bare `<span aria-hidden>` added to `index.html` right
+`.verdict__break` — a bare `<span aria-hidden>` added to [`index.html`](../public/index.html) right
 after `.verdict__text`, `display: none` above the breakpoint (not a flex item
 at all, zero effect on wider layouts) and `flex-basis: 100%` with no
 max-width of its own below it. It is what can't share a line with the label
@@ -1825,9 +2230,9 @@ passes `{ typed: true }`; every placeholder, the busy line and both error
 messages render instantly, unchanged from before this item existed.
 
 **Why not the obvious approach — typing straight into `#verdict-text`'s own text
-node.** That element is `aria-live="polite"` (SPEC's accessibility work, already
+node.** That element is `aria-live="polite"` ([SPEC](../SPEC.md)'s accessibility work, already
 covered by
-[R22](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)'s
+[R22](../CLAUDE.md#group-e--structure-and-tests)'s
 lesson about that same recs-hint region): mutating it character-by-character
 would announce it character-by-character. The element needs to carry the FULL,
 correct text for assistive tech from the first frame it changes, while the
@@ -1847,18 +2252,18 @@ more work than the CSS idea but had no hidden measurement step to get wrong.
 
 **Cancellation is a generation counter, not a boolean flag.** Every call bumps
 `verdictTypeGen`; a running loop checks its captured `gen` against the current
-value on every tick and quietly stops if it no longer matches. This is the same
-shape
+value on every tick and quietly stops if it no longer matches. Together with
+the single writer — the shape
 [D-040](#d-040--expanded-reviews-survive-a-re-render-by-lifting-the-state-not-by-reusing-the-elements)'s
-single-writer fix used for expanded reviews, and it is what makes the hazard
+fix used for expanded reviews, which needed no counter — it is what makes the hazard
 this item was flagged with — `syncVerdictAvailability()` or a second click
 landing mid-type — a non-event: the new call's own `setVerdictText()` invocation
 cancels the old one as a side effect of running, so no caller needs to know a
 typewriter exists or ask "is one running?" first.
 
 **One call site deliberately bypasses the helper**, and it is commented at
-the point it does: the `err.logged` branch builds a link (text node + `<a>` +
-text node), not a single string, so there is nothing plausible to type. It
+the point it does: the `err.logged` branch builds a link (text node + a
+`logLink()` button + text node), not a single string, so there is nothing plausible to type. It
 still benefits from the guarantee: the busy branch that always runs first in
 that handler has already cancelled any leftover typer for this run, so the
 bypass cannot race a live animation.
@@ -1893,7 +2298,7 @@ delay-rescaling helps, because the delays were never the problem.
 
 **`playbackRate` fixes it by construction.** The Web Animations API preserves
 `currentTime` when the rate changes, so only velocity changes. The same layer
-stayed at 0.4867 exactly. `setSheenRate()` in `app.js` sets it on the twenty
+stayed at 0.4867 exactly. `setSheenRate()` in [`app.js`](../public/app.js) sets it on the twenty
 animations obtained via `getAnimations()`.
 
 **It also solves the layer-registration problem for free**, which the CSS route
@@ -1921,7 +2326,7 @@ error as well as on success. Under `prefers-reduced-motion` the global
 `animation: none` means `getAnimations()` returns nothing, so `setSheenRate()` is
 a no-op precisely where it should be, while the brightness half still lands.
 
-**Residual, accepted knowingly this time:** velocity changes instantaneously
+**One note:** velocity changes instantaneously
 rather than ramping. That is a different artefact from a position jump, it reads
 as "it sped up", and the user approved it after looking. A rAF ramp of
 `playbackRate` is the fix if it is ever wanted.
@@ -1951,8 +2356,8 @@ speed and NOT the stroke alpha, then reached for the alpha anyway and described
 it as the user overruling that advice. The user challenged it directly — *"why
 do you keep saying I'm asking about the alpha?"* — and was right. Dressing up a
 poor mechanism choice as deference is worse than simply making the choice, and it
-corrupts the record: an earlier version of this entry stated Claude's inference
-as the user's instruction.
+corrupts the record: Claude first wrote its own inference into this log as the
+user's instruction.
 
 Straightening it out paid at once. The next request was "more transparent +
 softer edges", and on a 2px stroke those are THE SAME DIAL: raising `blur()`
@@ -1997,6 +2402,10 @@ solve backwards, `a_k = 1 - (1 - C_k) / (1 - C_k-1)`. **The alphas then peak in
 the MIDDLE layer and come back down**, because inner layers paint onto an
 already-part-opaque stack. No intuitive sequence produces that, which is why the
 block is generated rather than hand-written.
+> **2026-10-01:** in the block this entry shipped, the peak was layer 13 of the
+> 20. [D-056](#d-056--the-busy-cue-changes-playbackrate-not-animation-duration-supersedes-one-call-in-d-055)
+> re-solved the layers at the brighter busy peak, which moved it to layer 16,
+> where [`public/styles.css`](../public/styles.css) has it now.
 
 **3. The layer COUNT is an anti-banding parameter, not a detail.** A dash has
 hard ends, so N layers can only ever make N steps. At five the band was a visible
@@ -2070,7 +2479,7 @@ mechanism to the person who only described a result.
 ## D-054 · The TMDB "verification" claim was softened instead of the matcher being tightened
 
 Backlog item
-[R6](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R6](../CLAUDE.md#group-b--the-strength-of-the-verified-against-tmdb-claim)
 said `verifyTitle()` was overselling itself: it looks for a case-insensitive
 exact title match and otherwise returns `results[0]`, so
 [SPEC §2.2 #4](../SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
@@ -2133,7 +2542,7 @@ what was actually built.
 **The line that matters, and the one to keep saying:** the check confirms a card
 shows **a real film**, not that it shows **the** film the model named. Every fact
 on the card still comes from TMDB and never from the model, which is the half of
-the SPEC clause that was always exactly true.
+the [SPEC](../SPEC.md) clause that was always exactly true.
 
 **One residual, deliberately not fixed.** `WALL-E` resolves to `East of Wall`
 (2025). TMDB's own title is `WALL·E` with an interpunct, and the real film is not
@@ -2188,13 +2597,14 @@ back into bounds — the second symptom resolving with the first is what makes
 **Cheapest real-time Sonnet, checked rather than remembered.** OpenRouter's
 public model list (free, no key, no quota) prices sonnet-5 at **$2/$10 per Mtok**
 against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict** at the list length of 2026-09-11.
-*(The demo seed list two days later lengthened the prompt, and the verdict
-reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
-that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
-this decision turned on is unaffected.)*
 The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
 variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
 break a live request.
+
+> **2026-09-19:** the demo seed list two days later lengthened the prompt, and the verdict
+> reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
+> that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
+> this decision turned on is unaffected.
 
 **Per-FEATURE, not app-wide, because the user is short on quota.** `chat()` takes
 an optional `model` defaulting to the app-wide one; only `tasteVerdict.js`
@@ -2210,7 +2620,7 @@ person, which is the axis Haiku could not reach. The AI call log already renders
 model per row, so the split is visible in the audit trail rather than buried in
 config — which turns a cost decision into demonstrable evidence.
 
-**The honest cost of getting here:** four real OpenRouter calls spent on prompt
+**The cost of getting here:** four real OpenRouter calls spent on prompt
 versions that moved nothing, and a wrong conclusion published in v6's commit
 message ("concrete sentences to steer away from have moved this prompt further
 than any adjective") that v7 disproved a day later.
@@ -2281,9 +2691,8 @@ before, still short of it. Not a shrug at accessibility, and not something to
 re-open with a contrast audit:
 
 *The mitigation is the tier above it.*
-[R26](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
-and
-[D-051](#d-051--card-size-comes-from-the-viewport-never-from-the-result-count-r29)
+[R26](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)'s
+rule, applied to the empty ranked list the same day,
 moved every line that is the **only thing on its surface** up to `--ink-dim`
 (7.28:1) — the availability sentences, all five zero-result messages, the
 failure line, the empty ranked list. What remains on `--ink-faint` sits beside
@@ -2291,6 +2700,11 @@ content that carries the meaning: `No TMDB rating` next to a title, a poster and
 a score; `Based on: …` directly above the cards it introduces; the metadata
 footer under the result it describes. None of it is the sole carrier of
 anything.
+
+> **2026-09-30:** One more line fitted the rule and was still on `--ink-faint`:
+> the AI call log's `.log-empty` row, which is the only thing in the table body
+> while the log loads, when it is empty and when it fails to load. It is
+> `--ink-dim` now.
 
 *And two tiers that read as one is not an accessibility win either* — it removes
 a signal from everybody, including the people the contrast rule is written for.
@@ -2382,7 +2796,7 @@ four-column card is 237px and already under it.
 above.** `fit` is still "how many `--rec-min` cards fit", and a capped card is
 narrower than an uncapped one, so no cap can ever let more cards fit. The
 centring machinery
-[R29](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 had just built absorbs the leftover space for free.
 
 **The consequence of the footer move which was easiest to miss:** the spotlight ([D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section))
@@ -2398,7 +2812,7 @@ now two selectors, scoped through `.recs__meta` so the verdict banner's own
 `repeat(auto-fill, minmax(190px, 1fr))` fills each row as far as it will go and
 strands whatever is left over. The user brought two cases: **four cards where
 three fit** renders 3 + 1, with two thirds of the second row empty, and **five
-cards where four fit** renders 4 + 1, with four fifths empty. Both are widths
+cards where four fit** renders 4 + 1, with three quarters empty. Both are widths
 where 2 + 2 and 3 + 2 fit perfectly well.
 
 **The column count moves into JS.** There is no CSS-only fix — `auto-fill` and
@@ -2420,7 +2834,7 @@ job" is obvious.
 > **2026-09-10:** the restraint is gone, and not because anyone finished the job
 > — its premise expired. It existed solely because balancing made every card
 > ~36% wider;
-> [R29](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+> [R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 > ([D-051](#d-051--card-size-comes-from-the-viewport-never-from-the-result-count-r29))
 > decoupled card width from the count, so it cannot any more, and six cards
 > where four fit now render 3 + 3. `balancedColumns()` is also now
@@ -2468,7 +2882,7 @@ Claude's two objections, and what happened to each:
 real objection was to the **strength**, not to the idea. The ranked list dims to
 `0.55`, which is heavy enough to take the other cards out of play — fine in a
 column you are scanning top to bottom, too much in a gallery. The user's answer
-was to port it far lighter — tried at **0.75**, settled at **0.70** minutes
+was to port it lighter — tried at **0.75**, settled at **0.70** minutes
 later: the section still recedes, and every unhovered card stays perfectly
 readable. Claude had treated the ranked list's number as part of the pattern
 rather than as a dial, which is the actual error here; the exact figure was
@@ -2509,7 +2923,7 @@ as non-negotiable; what follows is only about the mechanism underneath it.
 
 **The backlog told the next session to use a View Transition, and that was the
 wrong instruction.** The
-[R27](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R27](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 entry says so in as many words — "Prefer the View Transition route: it is the
 mechanism this codebase already chose for exactly this problem" — and the ranked
 list really does use one for its re-sort
@@ -2558,7 +2972,7 @@ is added here.** The block kills `animation` and `transition`; a programmatic
 — nothing in the app scrolled programmatically and there are no in-page anchors —
 and went live the moment this feature landed.
 
-**[R14](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+**[R14](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 (grow-on-hover on `.rec-card`) rode along**, because it lands on the same
 element and shares the `backwards` constraint: a forwards fill would have pinned
 `transform: none` and silently cancelled the hover, which is exactly what
@@ -2576,7 +2990,7 @@ and a halo that crosses the gap reads as two cards sharing one glow.
 > [D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section)
 > between the two edits: with every other card at 0.7, a halo crossing the gap
 > falls on something already receding. The paragraph stands as written; the live
-> values are in `styles.css`.
+> values are in [`styles.css`](../public/styles.css).
 
 *`z-index: 3`, not the ranked card's `1`.* Arithmetic, not taste: every
 `.rec-card::before` badge carries `z-index: 2` and resolves in the same stacking
@@ -2605,7 +3019,7 @@ database. Try again in a moment.` since
 [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form).
 
 Nobody had seen it, because
-[R1](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R1](../CLAUDE.md#group-a--functional-bugs)
 wiped the message in the same tick it appeared. Fixing R1 is what made this
 visible, and the user confirmed it in the browser with a bogus OpenRouter key.
 
@@ -2627,7 +3041,7 @@ refused to recreate.
 where the decision is made.
 
 **The part worth recording is
-[R9](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+[R9](../CLAUDE.md#group-c--copy-and-consistency),
 where the backlog's own instruction was wrong.** The seed item said the verdict
 "already does this properly (points at the AI call log); copy that shape".
 Reading it, the verdict's fallback offers the log **unconditionally** — so when
@@ -2660,12 +3074,16 @@ error the same way it carries `short`.
 * **The route must not sniff the message text** to decide which branch to take.
   Both flags are set at their throw sites for that reason.
 * **The verdict still has the unconditional-link bug** (recorded as
-  [R23](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)).
+  [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
   It was
-  left alone deliberately: this pass is R8/R9, and fixing the verdict is a
+  left alone deliberately: this pass is [R8](../CLAUDE.md#group-c--copy-and-consistency)/R9, and fixing the verdict is a
   change to a second feature that the user has not looked at yet. Do not "unify"
   the two by copying the verdict's version back over this one — that is
   backwards.
+  > **2026-09-30:** the verdict's bug was fixed the same day as this entry, as
+  > [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09):
+  > both features now offer the AI call log only when a row was written, by the
+  > rule above. The bullet stands as the state at the time.
 
 ## D-046 · The recommendations read stopped filtering in SQL, because the test could not see the bug otherwise (R2)
 `generateRecommendations()` read the library with one query filtered
@@ -2693,7 +3111,7 @@ profile is "films you have scored", the owned set is "films you have, at all".
 
 **What actually settled it was a failed test, not the argument above.** The test
 was written first, as the
-[R19](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+[R19](../CLAUDE.md#group-e--structure-and-tests)
 work had just established. It asserted that an unrated film in the library is
 never recommended back — and it **passed against the buggy code**. The reason is
 [`test/helpers.js`](../test/helpers.js): every filter method on the fake
@@ -2711,8 +3129,8 @@ be visible.
 
 **Claude was wrong twice here and both are the point.** The first write-up of
 this item
-([R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
-in [CLAUDE.md](../CLAUDE.md)) was correct. But the sibling item R20 — "the
+([R2](../CLAUDE.md#group-a--functional-bugs),
+in [CLAUDE.md](../CLAUDE.md)) was correct. But the sibling item [R20](../CLAUDE.md#group-e--structure-and-tests) — "the
 client hardcodes thresholds the server owns" — was **wrong and was withdrawn**:
 the client fetches `/api/config` at boot and the literals are a documented
 fallback. That claim came from grepping `state.cfg`, which shows the reads and
@@ -2725,8 +3143,8 @@ unfixed bug if it had been written after the fix instead of before it.
 * **Do not push the filter back into the query.** `.not('rating', 'is', null)`
   on that read looks like free work for the database and would immediately make
   the
-  [R2](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
-  test vacuous again, because the fake ignores it. The comment in `helpers.js`
+  [R2](../CLAUDE.md#group-a--functional-bugs)
+  test vacuous again, because the fake ignores it. The comment in [`helpers.js`](../test/helpers.js)
   says so at the no-op itself.
 * **The owned set must come from the unfiltered `library`, never from `rated`.**
   Reverting that one word restores the bug and fails exactly one test — verified
@@ -2735,7 +3153,7 @@ unfixed bug if it had been written after the fix instead of before it.
   rows are filtered out of `rated` anyway, but a DESC sort puts NULLs first in
   Postgres by default and `topN` should not depend on that being remembered.
 * This is the SERVER half only. The client half — rec cards never re-syncing
-  their Add button when ownership changes — was R3, open when this was written
+  their Add button when ownership changes — was [R3](../CLAUDE.md#group-a--functional-bugs), open when this was written
   and closed the same day.
 
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
@@ -2839,7 +3257,7 @@ is the state where the two genuinely converge — not brightness.
 ### Note on process
 This is a case where a trap written in good faith made the next change worse, and
 it took a user report to catch it. The fix is a NEW entry rather than an edit to
-[D-043](#d-043--the-card-hover-was-not-subtle-it-was-being-cancelled-by-the-entrance-animation), per the rule in [CLAUDE.md](../CLAUDE.md): D-043 records what was decided and why at the
+[D-043](#d-043--the-card-hover-was-not-subtle-it-was-being-cancelled-by-the-entrance-animation), per the rule in [CLAUDE.md § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable): D-043 records what was decided and why at the
 time, including the reasoning that turned out to be too blunt, and that record is
 worth more intact than tidied.
 
@@ -2888,7 +3306,7 @@ as "too subtle" rather than as broken. That is why it survived this long.
 there today, so nothing was visibly broken — but it is the same latent trap, and
 adding one later would have silently done nothing.
 > **2026-09-09, later the same day:** "later" arrived —
-> [R14](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
+> [R14](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 > put a grow-on-hover on `.rec-card`, and it works precisely because this fix
 > had already landed. The sentence above stands as the reasoning at the time;
 > the card does have a hover transform now.
@@ -2927,7 +3345,9 @@ the app's amber. **The user chose C.**
 Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
 had not been removed. The obvious fix, putting the context in front of whatever
-came back, was recorded months earlier as unsafe because it produces
+came back, was recorded earlier the same day, in
+[D-034](#d-034--ranking-updated-is-checked-before-it-is-claimed), as unsafe
+because it produces
 "Couldn’t remove “Dune” — Couldn’t reach CineRank. Check your connection and try
 again." Two subjects, two "couldn’t"s, one failure.
 
@@ -2983,6 +3403,11 @@ inconsistency (three messages), but
 [`test/routes.test.js`](../test/routes.test.js) asserts one of them verbatim
 with a straight apostrophe, so a tidy-up sweep would have broken a test for a
 cosmetic gain. Left alone and reported instead.
+> **2026-09-30:** fixed later the same day in a commit of its own, `a124934`,
+> which curled the server-side contractions and updated the one test assertion
+> that quotes a message verbatim. It is ticked under
+> [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14)
+> as the apostrophe-consistency item.
 
 ### Punctuation
 The composer normalises the terminal stop, rather than each cause being fixed by
@@ -3201,7 +3626,7 @@ identifier does not exist any more: the counter is now `position` inside
 of what was decided then and stays as written.
 
 This is the same failure mode `busyButton()` was extracted for —
-[CLAUDE.md](../CLAUDE.md) notes the two AI trigger buttons "had already drifted
+[CLAUDE.md's Taste verdict section](../CLAUDE.md#taste-verdict-section) notes the two AI trigger buttons "had already drifted
 apart twice" before their behaviour was made one function. A rule expressed
 twice will be changed once.
 
@@ -3224,13 +3649,13 @@ order between them comes from `created_at desc` — which was added more recentl
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
 
-*(Signpost added 2026-09-09, and the paragraph above is deliberately NOT rewritten:
-it records the state that made #13 a bug. `created_at desc` was accurate then. The
-tie-break has since been flipped to ASCENDING at the user's request, so a new film
-appends below the ones it ties with instead of jumping above them. Nothing in this
-entry's reasoning changes — the whole point of D-038 is that the order within a tie
-is arbitrary and must not be asserted as a ranking, which is as true ascending as
-descending.)*
+> **2026-09-09:** a signpost; the paragraph above is deliberately NOT rewritten:
+> it records the state that made #13 a bug. `created_at desc` was accurate then. The
+> tie-break has since been flipped to ASCENDING at the user's request, so a new film
+> appends below the ones it ties with instead of jumping above them. Nothing in this
+> entry's reasoning changes — the whole point of D-038 is that the order within a tie
+> is arbitrary and must not be asserted as a ranking, which is as true ascending as
+> descending.
 
 **Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
 use, plus a small muted `tied` caption under the numeral. The skipped number is
@@ -3368,7 +3793,9 @@ useful information for no gain.
 **The value is `null`-able and must stay so.** Rows added before
 [migration 002](../db/migrations/002_tmdb_rating.sql) have no value, and TMDB
 genuinely returns no rating for titles nobody has voted on. `shapeMovie()`
-already maps that to `null`, and the renderer tests `!= null` rather than
+maps an absent average to `null` (TMDB's no-votes `0` needed the same
+treatment, which [D-037](#d-037--tmdbs-vote_average-0-is-an-absence-not-a-score)
+added), and the renderer tests `!= null` rather than
 truthiness — 0.0 is a real average and is falsy, the same trap `isRated`
 documents one block above it.
 
@@ -3387,6 +3814,7 @@ prerequisite, not an optional follow-up: until the column exists, PostgREST
 rejects the insert with PGRST204 and adding any film fails. Adding a nullable
 column is backward compatible with the already-deployed code, so the migration
 can and should be applied BEFORE the next merge to `main`.
+> **2026-09-30:** applied, with the backfill, on 2026-09-08.
 
 
 ## D-035 · The Remove button's label is light, and arithmetic decided that
@@ -3489,6 +3917,11 @@ with whether the film is rated. Do not "simplify" it back to positions.
 through by design, and prefixing it client-side produces doublings like
 `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
 the messages at the source; it stays on backlog #16.
+> **2026-09-30:** fixed later the same day as #16(c), in
+> [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form):
+> each cause carries a short form attached at its source, so a context prefix
+> cannot double it. The item's full record is #16 in
+> [`CLAUDE.md`'s ranked-list backlog](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order).
 
 
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
@@ -3518,7 +3951,7 @@ The em dash that joined them is gone — the chip's edge is the separator.
 **Amber was not picked because it is the accent colour.** It was picked because
 the app already has a marker for this exact idea: `.rec-card::before` renders
 "AI pick · not yet rated" as an amber pill, which is the "clear but subtle
-visual marker" [CLAUDE.md](../CLAUDE.md)'s design notes call for. A film you
+visual marker" [CLAUDE.md's design notes](../CLAUDE.md#frontend-design-notes) call for. A film you
 added but haven't rated is that same state on the other side of the list, so it
 should not invent a second visual language for it. `.unrated__badge` therefore
 borrows that rule's sizing, letter-spacing and radius on purpose — retune one
@@ -3564,8 +3997,10 @@ leave the toast for confirmations. This is not a workaround — it is what the r
 of the app already does. Search failures render in the results panel via
 `searchNote()`, the verdict's failure replaces the verdict text, the recs error
 belongs in `#recs-hint`. **Errors go next to the thing that failed; the toast
-reports things that succeeded.** The rate dialog was the one place breaking that
-pattern, and the top-layer problem was the symptom rather than the cause.
+carries confirmations, and only those failures that have no surface of their
+own** — an add, a remove, the list failing to load. The rate dialog was the one
+place breaking that pattern, and the top-layer problem was the symptom rather
+than the cause.
 
 **Trap: do not "fix" this later by making the toast a popover and reverting the
 inline error.** That would restore a page-level error message for a failure whose
@@ -3583,7 +4018,7 @@ readable for the other ~3s, so they are deliberately left alone.
 rebuilds every card — and each card carried `animation: fade-slide` with a
 staggered delay. Rating one film therefore replayed the *entire* list's entrance:
 ~850ms of the whole page shimmering because one number changed. Removing a film
-was worse — the list vanished and re-entered. Meanwhile the README's demo script
+was worse — the list vanished and re-entered. Meanwhile the [README](../README.md)'s demo script
 promises "the ranked list **re-sorting live** as ratings change", and there was
 no re-sorting to watch: the list blinked out and a new one faded in.
 
@@ -3736,8 +4171,7 @@ case, which is the one the whole clamp is shaped around.
 **Three agent errors, all caught by the user.** (1) The first description of the
 failure claimed the numeral "sits flush against the [card] border" and that
 nothing clipped it — a screenshot showed it vanishing under the poster instead.
-Corrected in place rather than preserved, per the "wrong when written"
-exception. (2) The claim that the fix was a no-op in card mode, and that card
+(2) The claim that the fix was a no-op in card mode, and that card
 mode already cleared the poster on its own — both followed from the same bad
 figure-width estimate; the 40px track is in fact *tighter* relative to its font
 than the 64px one, so the clamp floor had to come down as well as the ceiling.
@@ -3749,7 +4183,7 @@ result.
 **Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It is
 the obvious move and it is wrong: cards with wider ranks get a wider first
 column, so poster left edges stop aligning down the list — trading a problem
-nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled by choice.
+nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled.
 
 
 ## D-029 · Only a rated film earns a rank number — and the crown is not `:first-child`
@@ -3832,15 +4266,15 @@ That left one real fix — ask the model, then re-query TMDB — and it was
 perfectly
 ([D-002](#d-002--the-ai-is-a-component-not-the-product)/[D-005](#d-005--prompt-injection-posture):
 the model produces only a search string, TMDB still supplies every fact, blast
-radius is a weird result). But it is a *third* AI feature where SPEC scopes two,
-and [CLAUDE.md](../CLAUDE.md) requires every OpenRouter call to be logged with
-tokens and cost — neither existing log table fits, so it needs
-[migration 002](../db/migrations/002_tmdb_rating.sql), a new service, a
-versioned prompt file and tests, days before submission. Revisit post-submission
-if ever.
+radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md) scopes two,
+and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
+tokens and cost — neither existing log table fits, so it needs a new
+migration for a third log table, a new service, a versioned prompt file and
+tests, days before submission. Consider revisiting
+post-submission, if ever.
 
 Decision: reword the empty state to echo the query back —
-`No matches for "obamma". Check the spelling, or try a different title.` It
+`No matches for “obamma”. Check the spelling, or try a different title.` It
 detects nothing; it just makes the typo self-evident, since after typing fast
 you do not reliably recall what you typed. It also fixes a small dishonesty: the
 old "try a different title" implied the film was absent, sending the user hunting
@@ -3904,7 +4338,7 @@ and leave the spinner standing alone. Separately, `.search button` is
 
 *Naming note, added later and deliberately not applied to the text below:
 `syncSearchResultButtons()` was renamed `syncAddButtons()` by
-[R3](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09) on
+[R3](../CLAUDE.md#group-a--functional-bugs) on
 2026-09-09, when it stopped sweeping only the search panel and started querying
 the whole document. The old name is left as written throughout this entry
 because it is what the function was called when this was decided — grep for
@@ -3934,29 +4368,29 @@ state set moments earlier.
 
 1. The recommendations error message, written into `#recs-hint` and then wiped by
    `syncRecommendationsAvailability()` in the handler's own `finally` — still
-   open, see [CLAUDE.md](../CLAUDE.md).
+   open, see [CLAUDE.md § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14).
 2. `syncSearchResultButtons()` writing `textContent` into a button that was still
    mid-request, destroying its spinner. Fixed by skipping anything with
    `aria-busy`.
 3. This one.
 
-*(Two dated corrections, 2026-09-09, added rather than folded into the text above,
-which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
-and it turned out to be bigger than described here: the same `finally` wiped the
-SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
-is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
-the whole document; the `aria-busy` skip described in item 2 is unchanged and is
-still the reason it exists. The pattern this entry names — an unconditional sync
-overwriting a deliberate transient state — went on to catch a fourth and fifth
-instance, so the entry's real content has aged well.)*
+> **2026-09-09:** two corrections, added rather than folded into the text above,
+> which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
+> and it turned out to be bigger than described here: the same `finally` wiped the
+> SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
+> is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
+> the whole document; the `aria-busy` skip described in item 2 is unchanged and is
+> still the reason it exists. The pattern this entry names — an unconditional sync
+> overwriting a deliberate transient state — went on to catch a fourth and fifth
+> instance, so the entry's real content has aged well.
 
 Before adding a sync call, check which deliberate states it can reach.
 
 ## D-025 · Hide the browser's search clear button rather than theme it
 `<input type="search">` makes Chromium/Safari draw their own clear "×" inside the
 field. On a near-black amber panel it renders as an unthemed blue glyph — the most
-literal instance of the "generic default-component appearance" [CLAUDE.md](../CLAUDE.md)'s design
-notes rule out.
+literal instance of the "generic default-component appearance" [CLAUDE.md's design
+notes](../CLAUDE.md#frontend-design-notes) rule out.
 
 The obvious fix is to style it via `::-webkit-search-cancel-button`. Rejected:
 **Firefox draws no clear button at all**, so styling leaves the browsers still
@@ -3988,7 +4422,7 @@ Both auto-dismissals were built and then removed:
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
   it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
   2026-09-09's
-  [R3](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09),
+  [R3](../CLAUDE.md#group-a--functional-bugs),
   and still existing precisely to update the OTHER open rows after an add.
   Keeping the panel open serves the real flow: search once, add two films.
 
@@ -4095,10 +4529,19 @@ Decision: once the table view was signed off, **every** subsequent AI-log change
 (the mobile card view, and anything later) must be provably unable to affect it.
 Concretely: card-view CSS lives only inside `@media (max-width: 850px)`, and each
 change is verified with `git diff <last-merge>..HEAD` showing (a) the only file
-touched is `styles.css` — no shared JS/HTML — and (b) every hunk falls between
+touched is [`styles.css`](../public/styles.css) — no shared JS/HTML — and (b) every hunk falls between
 the `@media (max-width: 850px) {` line and its matching close. A browser never
 applies those rules above 850px, so the table view is unaffected by construction,
 not by inspection.
+
+> **2026-09-30:** The table view has since been changed on purpose, each change
+> weighed and measured on its own: the digit-grouped in/out split and its
+> `tbody .sub` size (2026-09-19), the type-scale exemption
+> ([D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
+> and the dialog's cap moving with the page width to 1040px (2026-09-28).
+> Later on 2026-09-30 the single-line loading, empty and failed state moved
+> from `--ink-faint` to `--ink-dim`
+> ([D-052](#d-052----ink-faint-stays-below-wcag-aa-on-purpose)'s note).
 
 Corollary: the card view's own bugs are fixed *in place* at matching-or-higher
 CSS specificity (the shared `.log-table` rules use `:last-child` /
@@ -4152,10 +4595,11 @@ pre-submission deletion carries dangling-reference risk. Instead: one sentence i
 [`docs/PROCESS.md`](PROCESS.md) frames `/api/ai-log` as the primary audit surface and
 `/history` as the narrower per-feature JSON view. Revisit as post-submission
 cleanup.
-*(That revisit happened on 2026-09-21 and confirmed the decision — see
-[D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
-The "unused and untested" above was true when written; it is still unused, and
-it is no longer untested.)*
+
+> **2026-09-21:** that revisit happened and confirmed the decision — see
+> [D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
+> The "unused and untested" above was true when written; it is still unused, and
+> it is no longer untested.
 
 ## D-016 · Accessibility pass
 Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
@@ -4176,13 +4620,17 @@ list's card headings. Decorative spinners are `aria-hidden`. No visual change.
 Added `npm test` on Node's built-in runner (no new dependency) covering the pure
 helpers where every truncation bug actually lived — `parseModelJson`,
 `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
-real `prompts/` files, so a malformed prompt version fails the suite. Those four
+real [`prompts/`](../prompts/) files, so a malformed prompt version fails the suite. Those four
 helpers were made `export`-ed for testability; no behaviour change. `GET
 /api/health` added for a future Node host. [`docs/PROCESS.md`](PROCESS.md) collects the
 LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
 chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
 binding agreement it produced) — the course grades process, so it's a
 deliverable, not a note. Route-level and resilience tests remain manual.
+> **2026-09-30:** route-level and resilience tests arrived on 2026-09-05, in
+> [D-018](#d-018--route--resilience-tests-without-touching-the-live-db), and
+> Render's health check has pointed at `/api/health` since the deploy on
+> 2026-09-07.
 
 ## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
 v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare
@@ -4218,7 +4666,7 @@ literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
 title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `` * _ ` ``, and
 if still over a 300-char ceiling truncates at the last sentence end (else last
 word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
-file; `taste_verdict_v1.md` untouched.
+file; [`taste_verdict_v1.md`](../prompts/taste_verdict_v1.md) untouched.
 
 ## D-010 · In-app AI call log + failure logging (migration 001)
 Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
@@ -4235,7 +4683,7 @@ without logging — those aren't AI calls.
 The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
 v2 asks for a second-person line tied to the user's own ratings/reviews
 ("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
-a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); `recommend_v1.md` is kept
+a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); [`recommend_v1.md`](../prompts/recommend_v1.md) is kept
 untouched and every past `recommendation_logs` row still names the exact prompt
 that produced it. `taste_verdict_v1` is unaffected — versioned independently.
 
@@ -4266,8 +4714,8 @@ suggestion; (4) the verdict is length-capped server-side and rendered as
 
 ## D-004 · Model choice: cheap by default
 `anthropic/claude-3.5-haiku` via OpenRouter. The tasks are small (pick 3–6 titles;
-write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-products-and-the-architecture-of-intelligence-in-software-agent-economics): match the model to the task's difficulty;
-the biggest cost lever is model choice. Overridable via `OPENROUTER_MODEL`.
+write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-products-and-the-architecture-of-intelligence-in-software-agent-economics): match the model to the task's difficulty.
+Overridable via `OPENROUTER_MODEL`.
 
 ## D-003 · Cost logging is structural, not decorative
 `recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
@@ -4285,6 +4733,7 @@ a cross-check. This is the concrete guard against hallucinated movies.
 ## D-001 · Scope: single-user, no auth — and why that isn't a security hole
 The app is one person's movie list. [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)'s real topics — injection, secrets,
 prompt injection, least privilege — are all demonstrable without multi-user auth.
-Least privilege here = the frontend/back-end use the Supabase **anon key**, which
-is RLS-bounded, never the `service_role` key. Adding accounts would be
+Least privilege here = the server uses the Supabase **anon key**, which is
+RLS-bounded, never the `service_role` key; the browser never talks to Supabase at
+all. Adding accounts would be
 manufacturing a demo the app doesn't need.

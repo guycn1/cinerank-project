@@ -1,20 +1,25 @@
 #!/usr/bin/env node
-// Markdown render check (CLAUDE.md § Markdown Authoring Rules). Run before every
-// commit that touches a .md file:  npm run check-markdown
-//
-// WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
-// wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
-// and every technical identifier in both files showing a backslash inside its
-// code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on, including
-// all four env var names in the Module 17 security section). The docs are a
-// graded deliverable here, so "it only looks wrong" is not a small problem, and a
-// rendering fault in a file this long is close to unfindable by eye.
-//
-// The rules below are the ones that were established by measuring every case
-// against GitHub's own Markdown API, not by assumption. See D-065.
-//
-// Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
-// and do NOT fail, so this can be wired into a hook without crying wolf.
+/**
+ * @file Markdown render check (CLAUDE.md § Markdown Authoring Rules). Run before every
+ * commit that touches a .md file, and before every draft -> main merge:
+ *   npm run check-markdown
+ *
+ * WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
+ * wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
+ * and technical identifiers in both files showing a backslash inside their
+ * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on,
+ * including all four env var names in the Module 17 security section). The docs are a
+ * graded deliverable here, so "it only looks wrong" is not a small problem, and a
+ * rendering fault in a file this long is close to unfindable by eye.
+ *
+ * The rules below are the ones that were established by measuring every case
+ * against GitHub's own Markdown API, not by assumption. See D-065. They are
+ * numbered as CLAUDE.md § Markdown Authoring Rules numbers them, so RULE 2 sits
+ * after the per-line pass: it needs a whole paragraph, not one line.
+ *
+ * Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
+ * and do NOT fail, so this can be wired into a hook without crying wolf.
+ */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
@@ -25,11 +30,18 @@ const TICK = String.fromCharCode(96);
 const BS = String.fromCharCode(92);
 const NL = String.fromCharCode(10);
 
-// A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
-// a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
-// so a ~~~ block would have had its contents scanned as prose and flagged. No file
-// uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
-// unaffected, because that is two tildes and this needs three.
+/**
+ * A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
+ * a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
+ * so a ~~~ block would have had its contents scanned as prose and flagged. No file
+ * uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
+ * unaffected, because that is two tildes and this needs three.
+ *
+ * The same test opens and closes a fence; the callers track which by toggling.
+ *
+ * @param {string} line  One source line.
+ * @returns {boolean} Whether the line is a fence delimiter.
+ */
 const isFence = (line) => /^[ \t]*(`{3,}|~{3,})/.test(line);
 
 // Code-span contents where a backslash is REAL CONTENT, not a stray escape.
@@ -59,6 +71,13 @@ const ALLOWED_SPANS = new Set([
 // else (\S, \t) is ordinary content and is not flagged.
 const ESCAPABLE = '!"#$%&' + "'" + '()*+,-./:;<=>?@[' + BS + ']^_`{|}~';
 
+/**
+ * Every .md file under a directory, skipping node_modules and .git.
+ *
+ * @param {string} dir  The directory to walk.
+ * @param {string[]} [out]  Accumulator shared across the recursion.
+ * @returns {string[]} Absolute paths; the same array as `out`, filled.
+ */
 function markdownFiles(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules' || name === '.git') continue;
@@ -101,7 +120,7 @@ for (const file of markdownFiles(root)) {
       });
     }
 
-    // --- RULE 2: no escaped thematic break ------------------------------------
+    // --- RULE 3: no escaped thematic break ------------------------------------
     // All THREE spellings. CommonMark's thematic break is 3+ of -, * or _, so an
     // escaped one is debris whichever character was used. The 2026-09-13 audit
     // found the checker only knew the hyphen spelling: \*** rendered as a literal
@@ -111,7 +130,7 @@ for (const file of markdownFiles(root)) {
                   ' renders as a literal paragraph, not a rule');
     }
 
-    // --- RULE 3: a bare rule under a text line is a SETEXT HEADING -------------
+    // --- RULE 4: a bare rule under a text line is a SETEXT HEADING -------------
     // Silently promotes the line above to a heading. The reason the 2026-09-12
     // fix DELETED the separators instead of unescaping them.
     //
@@ -127,7 +146,7 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 4: no separator immediately before a heading --------------------
+    // --- RULE 5: no separator immediately before a heading --------------------
     // GitHub rules every h1/h2 itself, so one here draws two lines around the
     // heading. This was briefly dropped from the checker because it fired 38
     // times on docs/DECISIONS.md -- and then the user looked at how those
@@ -136,7 +155,7 @@ for (const file of markdownFiles(root)) {
     // and any hit is a real regression. A separator that is NOT before a heading
     // is untouched by this rule; thematic breaks mid-section are fine.
     //
-    // All three spellings, for the same reason as rule 2: *** and ___ produce the
+    // All three spellings, for the same reason as rule 3: *** and ___ produce the
     // identical <hr> and were false negatives until 2026-09-13.
     if (!inFence && n > 1 && /^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
       let j = i + 1;
@@ -146,11 +165,11 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 5: a table needs its separator row -------------------------------
+    // --- RULE 6: a table needs its separator row -------------------------------
     // Two or more consecutive pipe lines whose SECOND line is not |---|---| is not
     // a table at all: GitHub renders the whole block as one paragraph full of pipe
     // characters. Found by the 2026-09-13 audit, which rendered it to be sure --
-    // these files carry 84 table rows between them, so the blast radius is real.
+    // many of the repo's markdown files carry tables, so the blast radius is real.
     if (!inFence && /^[ \t]*\|/.test(line)) {
       if (!pipeRun.length) pipeStart = n;
       pipeRun.push(line);
@@ -177,7 +196,7 @@ for (const file of markdownFiles(root)) {
     errors.push(`${rel}:${pipeStart}  table has no |---| separator row, so it renders as a paragraph of pipes`);
   }
 
-  // --- RULE 5: a code span that is opened and never closed ------------------
+  // --- RULE 2: a code span that is opened and never closed ------------------
   // Per-LINE checks cannot see this: a code span may legally wrap across lines,
   // so an odd backtick count on one line is normal and proves nothing. The unit
   // is the PARAGRAPH, and the test is CommonMark's own rule -- an opening run of
@@ -188,12 +207,17 @@ for (const file of markdownFiles(root)) {
   // characters tidyVerdict() strips, using a backslash to escape the backtick.
   // Escapes do not work in a code span (rule 1), so the run never closed, and the
   // renderer swallowed the rest of the sentence into the code element. It had
-  // been in the file for weeks. The fix is DOUBLE delimiters plus padding spaces,
-  // which this rule correctly accepts.
+  // been in the file for nine days. The fix is DOUBLE delimiters plus padding
+  // spaces, which this rule correctly accepts.
   {
     let para = [];
     let paraStart = 0;
     let fence = false;
+    /**
+     * Judge the paragraph gathered in `para` for an unclosed code span, record
+     * any defect against `paraStart`, and clear it for the next paragraph.
+     * Does nothing when no paragraph is pending.
+     */
     const check = () => {
       if (!para.length) return;
       const text = para.join(NL);

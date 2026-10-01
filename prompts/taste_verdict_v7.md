@@ -16,7 +16,7 @@ not a rule, it is a sample.
 
 So v7 deletes the rewrite table, both "too fancy" examples and the long banned-
 word list, keeps only the structural rules, and carries FOUR worked verdicts in
-the target voice instead of one. It is shorter than v6 and shorter than v5.
+the target voice instead of one. It is shorter than v6 and about the length of v5.
 Deliberately a single-variable change: if the register still does not move, the
 prompt is not the lever and the next thing to try is the model or the 0.85
 temperature. Everything about WHAT to say is unchanged since v4. Loaded by
@@ -29,8 +29,8 @@ chain, and it also broke a rule every version since v4 has kept, writing 4
 sentences against a stated 2-3; the app was rolled back to v6 at that point. The
 same file then landed first try on claude-sonnet-5, register and sentence count
 both, and that is the live configuration: taste_verdict_v7 on claude-sonnet-5,
-the one feature not on the cheaper tier. The 0.85 temperature and real few-shot as
-example TURNS were never needed and stay untried. See D-053 and D-056 in
+the one feature not on the cheaper tier. Changing the 0.85 temperature and real
+few-shot as example TURNS were never needed and stay untried. See D-053 in
 docs/DECISIONS.md.
 
 TRAP, AND IT IS THE REASON THIS NOTE IS HERE: v7 is the version that FAILED on

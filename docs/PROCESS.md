@@ -12,7 +12,7 @@ Practice (ASE-26)
 ## 1. Working method
 
 The app was built in a pair-with-an-agent loop: a human sets the goal and the
-acceptance bar, the agent drafts code and prompts, the human reviews every diff
+acceptance bar, the agent drafts code and prompts, the human reviews the changes
 and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in
 [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable):
@@ -20,8 +20,12 @@ the reasoning. Rules that keep this honest live in
 - **Everything on `draft`; `main` only at a settled milestone, to fix a defect
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
-  twenty-one merges were all the former, and nothing smaller was merged under it;
-  every merge since has been the latter. Twenty-nine merges to `main` (verify with
+  twenty-one merges were all settled milestones, and nothing smaller was merged
+  on that ground; merges 22 to 29 each fixed a defect already published on
+  `main`. The 30th was the close-out sync, made at the course's final assessment
+  deadline on 2026-10-01, and it carried such fixes too; a close-out sync
+  happens only once, so any later merge is a milestone or a defect fix.
+  Thirty merges to `main` as of 2026-10-01 (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -29,7 +33,7 @@ the reasoning. Rules that keep this honest live in
   [`docs/SECURITY.md`](SECURITY.md), visible to any reader of the repository's Security tab, was
   found, fixed, and merged under the same sign-off rule as the twenty-one before
   it. The twenty-third, the next day, carried the answer to the question that
-  defect raised — a fifth gate that re-resolves every claim pointing at something,
+  defect raised — a fifth gate that re-resolves claims that point at something,
   and the accuracy sweeps that went with it. The twenty-fourth, the same day,
   carried what that gate cannot reach: claims whose falsifier is not the thing
   they name. A uniqueness or coverage claim asserts something about everything
@@ -55,8 +59,16 @@ the reasoning. Rules that keep this honest live in
   The twenty-ninth is the same ground reached from a different direction:
   fourteen claims that described finished work as still open and five figures
   that had drifted — six of the fourteen contradicted by `main` itself
-  within a few lines of the sentence making them.
-- **Secrets never enter code.** `.env` gitignored from commit 1; a pre-commit
+  in the same file as the sentence making them. The thirtieth is the
+  close-out sync, made when the course's final assessment deadline passed on
+  2026-10-01, and it cleared the defect ground as well: it carried fixes for
+  real defects live on `main`, among them the verdict banner's run guard, the
+  verdict's model fallback and a secret scanner that matched no real
+  OpenRouter key, along with the claims
+  the sweeps of its last week had found false there.
+- **Secrets never enter code.** `.env` did not exist in commit 1, a one-line
+  README that the user checked by hand and that holds no secret, and it is
+  gitignored from commit 2, the first with project content; a pre-commit
   [`npm run scan-secrets`](../scripts/scan-secrets.js) scans the staged diff for key-shaped strings. The same
   rule shaped the deploy: [`render.yaml`](../render.yaml) declares the four secrets as
   `sync: false`, so Render prompts for them in its dashboard and no value ever
@@ -67,11 +79,12 @@ the reasoning. Rules that keep this honest live in
   `GHSA-4mjr-xmp4-gh2g` (DoS via `isBuffer`), both named in [`package.json`](../package.json) beside
   the override. `npm audit fix` did nothing — and neither did `--force`, which is
   the point where it would have been easy to either shrug or reach for a major
-  upgrade. The actual cause was that Express 4 pins `qs` to *exactly* the
-  vulnerable `6.15.3`, leaving npm no semver room, so the only move it could see
-  was Express 5 and its breaking changes. An `overrides` entry lifting `qs` to
-  the patched `6.16.0` — a minor bump — cleared both, with the route tests
-  covering exactly the surface involved (query strings, JSON bodies). Recorded in
+  upgrade. The actual cause was that Express 4 and its body-parser ask for
+  `qs` `~6.15.1`, a range that resolved to the vulnerable `6.15.3` and stops
+  below the patched `6.16.0`, leaving npm no semver room, so the only move it
+  could see was Express 5 and its breaking changes. An `overrides` entry lifting
+  `qs` to `6.16.0` — a minor bump — cleared both, with the route tests covering
+  the surface involved: the query string the search route parses. Recorded in
   `package.json` next to the override, because an unexplained override is the
   kind of thing a later reader deletes. `npm audit` now reports zero across every
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
@@ -82,34 +95,44 @@ the reasoning. Rules that keep this honest live in
   `npm run scan-secrets` on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
   on every commit, which
-  re-resolves every claim in the repository that points at something — a path, a
-  decision entry, a commit SHA, an identifier, a capture, a retired phrasing.
+  re-resolves claims in the repository that point at something — a path or a
+  link's target, a script, a decision entry, a commit SHA, a line number, an
+  identifier, a section reference, a capture or an `RS-n` key — and fails on a
+  retired phrasing, a passage narrating its own earlier wording, or an
+  invisible character. A `draft` → `main` merge runs all five, whatever the diff
+  touched.
   **Two of them exist because a real defect got past human review**, which is the
   pattern worth naming: the markdown checker was written after both long documents
-  were found rendering wrong on GitHub for weeks ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
+  were found rendering wrong on GitHub for eight days ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all)), and the claims
   checker after [`README.md`](../README.md) was found describing another file's verdict sixteen hours
-  after that verdict changed — by a reader, not by a sweep ([D-072](DECISIONS.md#d-072--claim-checking-became-a-commit-gate-and-a-file-type-filter-is-why-it-was-needed)). Each gate was
-  proved to bite before being trusted — see
-  [`docs/MERGE-READINESS.md` § 2](MERGE-READINESS.md#2-sound-verification--met).
-- **Every agent invocation starts from a committed checkpoint**, which is what
+  after that verdict changed — by a reader, not by a sweep ([D-072](DECISIONS.md#d-072--claim-checking-became-a-commit-gate-and-a-file-type-filter-is-why-it-was-needed)). Each gate has
+  been proved to bite: the tests and the markdown checker in
+  [`docs/MERGE-READINESS.md` § 2](MERGE-READINESS.md#2-sound-verification--met),
+  the linter on real errors in [§ 3](MERGE-READINESS.md#3-se-hygiene--met-as-of-2026-09-13),
+  the claims checker against planted probes, and the secret scan against a
+  planted OpenRouter key and TMDB key.
+- **Agent work normally starts from a committed checkpoint**, which is what
   makes reverting a cheap first move rather than a last resort. The rule in
   [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round — *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session —
   and committing after each change is what leaves the tree clean before the next
-  one begins. Measured over the whole history on 2026-09-19: **more than 500 commits across
-  15 of the 16 days** the project has run, a **median of 2 files per commit** and
-  a maximum of 14. (Deliberately not exact figures: they move with every commit,
-  including the ones that would be needed to correct them. The single gap is
-  2026-09-18 — this read "11 consecutive days, every day" until the figure was
-  re-measured, by which point both the count and the word "consecutive" had
-  stopped being true.) It was exercised twice for real, not merely available: four failed
+  one begins. Measured over the whole history on 2026-10-01: **over 700 commits on `main`
+  across 23 of the 28 days** the project has run, a **median of 2 files per
+  commit** and a maximum of 27, merges excluded. (Deliberately not exact figures: they move with
+  every commit, including the ones that would be needed to correct them. Up to
+  2026-10-01, the days without a commit are 2026-09-18 and 2026-09-22 to
+  2026-09-25.) It was exercised for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
-  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)), and the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) capture needed a
-  deliberate one-line break in a service, undone with
-  `git checkout -- server/services/recommendations.js` the moment the shot
-  landed. Neither move needed a stash, a branch or a careful hand-undo, because
-  the checkpoint was already there.
-- **Every commit says why**, and design decisions go to the top of
+  and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path));
+  the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest),
+  [RS-15](RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure)
+  and [RS-16](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist)
+  captures each needed a deliberate edit to a service (RS-15 two of them), each
+  undone with `git checkout -- server/services/recommendations.js` the moment
+  the shot landed; and four revert commits in the history, as of 2026-10-01, undo a change
+  outright. None of these needed a stash, a branch or a careful hand-undo,
+  because the checkpoint was already there.
+- **Commit messages say why**, and design decisions go to the top of
   [`docs/DECISIONS.md`](DECISIONS.md) (newest first) at the moment they're made
   ([Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation): the
   reasons are clearest then and can't be reconstructed later). Entries record the
@@ -132,7 +155,7 @@ autonomy scale runs manual → task assistance → goal assistance → specialis
 general domain autonomy.** This build sat at **task and goal assistance
 throughout, and never above it.** The loop in [§ 1](#1-working-method) is the
 evidence: a human set the goal and the acceptance bar, the agent drafted, and a
-human read every diff and ran the application before the next instruction.
+human reviewed the changes and ran the application between instructions.
 Nothing here was delegated to a level the tool could technically have reached.
 
 **[Module 1](../DOSSIER.md#module-1-what-is-agentic-software-engineering)'s
@@ -187,7 +210,7 @@ stage below is a file a reader can open.
 | **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) — human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
 | **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | more than 500 commits on `draft` across 15 of the project's 16 days, median 2 files each | — |
+| **Execution** | over 700 commits on `main` across 23 of the project's first 28 days, median 2 files each, merges excluded (all measured 2026-10-01) | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
 
@@ -202,17 +225,18 @@ the discipline the product applies to the agent inside it.
 
 ## The environment this ran in, and what it was allowed to do (Module 5)
 
-Unnumbered on purpose: `docs/PROCESS.md` [§ 1](#1-working-method) and
-[§ 2](#2-prompt-engineering-as-version-control) are referenced by name from
-[`CLAUDE.md`](../CLAUDE.md) and [`SPEC.md`](../SPEC.md), so the numbered
-sections below keep their numbers.
+Unnumbered on purpose: `docs/PROCESS.md` [§ 1](#1-working-method) to
+[§ 4](#4-making-failure-visible-module-13) are referenced by number from
+[`CLAUDE.md`](../CLAUDE.md), [`SPEC.md`](../SPEC.md) and
+[`README.md`](../README.md), so the numbered sections keep their numbers.
 
 **The ADE.** Claude Code in a terminal, on Windows, with Git Bash for POSIX
 commands. That places this build in the **command-line family** — the one that
 exposes the agent loop in the open, hands the developer control over context and
 permissions, and composes with ordinary shell tools. The trade is real and went
 the way it was meant to: less polish than an IDE-integrated agent, and in
-exchange every tool call, every diff and every command was visible before it ran.
+exchange every tool call, diff and command is shown in the session, with the
+permission settings deciding which of them wait for approval before they run.
 
 **Which pillars were actually in play**, since naming them is the point of the
 typology rather than listing all six:
@@ -234,13 +258,31 @@ typology rather than listing all six:
   reacts to. Module 14's own rule is that explicit orchestration is right only
   when the quality gain clears roughly fifteen times the tokens. It would not
   have here.
-* **Computer use** — not used. Headless Chrome was driven a few times for
+* **Computer use** — not used. Headless browsers were driven by scripts, and
+  none of them took any of the 37 captures in
+  [`docs/screenshots/`](screenshots/README.md): the user took every one of those
+  by hand, in a real browser. Early on, headless Chrome was driven for layout
   screenshots, and it went badly enough to be written up
   ([D-062](DECISIONS.md#d-062--left-50--width-auto-was-silently-halving-the-shrink-to-fit-toasts-available-width--user-diagnosed-not-tooling-verified)):
   its reported viewport width repeatedly disagreed with the real browser, and
-  the user's own screenshots were the authority that settled it.
+  the user's own screenshots were the authority that settled it. Headless
+  browsers came back as `npm run layout-check`
+  ([`scripts/layout-check.js`](../scripts/layout-check.js), which serves the app
+  against fixtures, and [`scripts/layout-probe.js`](../scripts/layout-probe.js),
+  which it injects to measure), and that tool sidesteps the fault rather than
+  trusting it: the app runs inside an iframe the tool sizes itself, so no
+  window's own reported width is ever read. The same approach carried the
+  measurements behind the 2026-09-30 re-check of
+  [D-076](DECISIONS.md#d-076--the-score-block-aligns-to-the-edge-it-is-anchored-to-which-is-a-different-edge-in-card-mode--so-the-fix-is-two-rules-not-one)
+  and
+  [D-079](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  to
+  [D-081](DECISIONS.md#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one).
+  Whatever a headless browser reports is a lead, and a real browser settles any
+  doubt about it (the standing rule under
+  [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links)).
 
-**The permission stance, and the honest order it was arrived at.**
+**The permission stance, and the order it was arrived at.**
 [Module 5](../DOSSIER.md#module-5-the-ade-typology-tooling-and-permissions)'s
 principle is minimal footprint: grant only the permissions the task needs,
 prefer reversible actions, and do less when uncertain. That is almost word for
@@ -257,8 +299,9 @@ precaution:
   that exact tag.
 * No broad process kills. Only a PID this session started, and test servers on a
   non-default port.
-* Prefer not to touch the database at all for testing — which is why the
-  recommendations work has a browser debug harness instead.
+* Prefer not to touch the database at all for testing — which is why the route
+  tests run against an in-memory fake of Supabase rather than the live project
+  ([`test/helpers.js`](../test/helpers.js)).
 * No MCP servers and no third-party agent plugins, so the tool surface is the
   one the ADE ships with and nothing more.
 
@@ -269,8 +312,8 @@ exercised, repeatedly, and is traceable in the log:
 
 * **The acceptance bar.** What "done" means, and when a thing is good enough to
   stop.
-  [Step 5](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09)
-  closed against a ~350px target the user set; R18 closed as won't-fix once
+  [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
+  closed against a ~350px target the user set; [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) closed as won't-fix once
   measured.
 * **The merge decision.** Every `draft` to `main` merge required explicit
   confirmation. None was automatic.
@@ -294,10 +337,11 @@ engineering:
 | Feature | Versions | What each change fixed |
 |---|---|---|
 | Recommendations | `recommend_v1` → `v2` → `v3` | v1 read like a plot blurb → v2 second-person voice tied to the user's own ratings → v3 tightened to one 8–16-word sentence after reasons kept getting clamped in the card |
-| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a third rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6 and than v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the honest finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weakest), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
+| Taste verdict | `taste_verdict_v1` → `v2` → `v3` → `v4` → `v5` → `v6` → `v7` | v1 cut mid-word and leaked `*markdown*` → v2 "finish the sentence, no markdown" → v3 over-corrected to one terse line that just parroted the numbers → v4 gave room back (2–3 sentences) and redirected it to *characterise the viewer*, not recite ratings → v5 changed the REGISTER and nothing else: v4 asked for "light and teasing" and got teasing in a literary voice, so v5 asks for plain spoken English — everyday words, contractions, sentences you could say out loud — with a worked example of the too-fancy version to steer away from → v6 because v5 half-landed in a way worth recording: it fixed the sentence SHAPE ("you hit a wall fast", "Basically") and left the critic vocabulary sitting inside those sentences ("gratuitously grim", "suffering played for shock value"), and used a semicolon v5 had asked it to split. v6 applies the out-loud test to every PHRASE rather than the sentence, bans semicolons outright instead of advising against them, and adds a rewrite table plus a second rejected example lifted from v5's own output — concrete sentences to steer away from have moved this prompt further than any adjective → **v7 threw that conclusion out.** v6 did not improve the register either, and counting the chain showed why: negative instructions went 16 → 30 → 37 while worked examples of the TARGET voice stayed at exactly one, and the file doubled in size for no visible gain. v6 had accidentally proved the split — its structural ban ("no semicolons, ever") landed in the very next verdict, its vocabulary bans did nothing. A ban removes an option and supplies no replacement, so the model obeys it and falls back to its own default voice for the words it does choose. v7 deletes the rewrite table, both rejected examples and the banned-word list, keeps the structural rules, and carries FOUR worked verdicts instead of one — shorter than v6, and about the length of v5. Register is a sample, not a rule → **and v7 was the worst of the lot, which is where the most consequential finding is.** It still said "gratuitous" and it broke a rule every version since v4 has held: 4 sentences against a stated 2–3. Rolled back to v6. Three structurally different prompts — bans, more bans, examples — produced the same register, so the prompt was never the lever; what is left is the model (the cheaper tier, where register control is weaker), the 0.85 temperature, or real few-shot as example TURNS rather than prose. Recorded because a v-chain that only shows successful iterations would misrepresent what prompt engineering is actually like: three of these seven cost real money and moved nothing. **The fix was the MODEL, and v7 works on it unchanged** — same prompt, `claude-sonnet-5`, register landed and the sentence count came back into bounds on the first call. The verdict is now the one feature not on the cheaper tier ([D-053](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)) |
 
-Each prompt file carries a "Change from vN" header explaining the delta. Server
--side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
+Each prompt file after a v1 carries a "Change from vN" header explaining the
+delta; the two v1 files have no earlier version to compare against.
+Server-side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
 non-compliant model response is cleaned and truncated on a word boundary before
 it reaches the DOM.
 
@@ -337,10 +381,10 @@ still declares what the call cost.
   *titles only*; every title is looked up on TMDB, which supplies poster / year
   / overview. A title TMDB returns no result for is silently dropped, not shown
   as a broken card — measurement showed that is the common outcome for an
-  invented title, not a rare one. The lookup keeps TMDB's best result when the
-  titles do not match exactly, so it proves the card describes a real film
-  rather than proving it is the film the model meant: a trade taken
-  deliberately, with the numbers, in D-054.
+  invented title, not a rare one. The lookup keeps TMDB's top result when the
+  titles do not match exactly, so every card describes a real film and a
+  near-miss is rescued rather than dropped: a trade taken deliberately, with
+  the numbers, in [D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened).
 - **Structured output, not prose parsing.** Recommendations must be a JSON
   array; `parseModelJson()` tolerates exactly one markdown fence and nothing
   looser.
@@ -357,8 +401,8 @@ still declares what the call cost.
   OpenRouter's public model list was queried for the actual prices rather than
   guessed — $2/$10 per Mtok against Haiku's $1/$5, which worked out at about
   0.29¢ a verdict on the list as it stood that day. The shipped demo list is
-  longer and the verdict reads all of it, so the figure in the call log is now
-  0.37–0.40¢; the ratio this decision turned on is unchanged. The call log
+  longer and the verdict reads all of it, so the call log showed 0.37–0.40¢ on
+  2026-09-13; the ratio this decision turned on is unchanged. The call log
   renders the model per row, so the split is auditable rather than
   buried in config.
 - **Cost is logged, not estimated away.**
@@ -385,12 +429,11 @@ would be theatre, and
 [Module 13](../DOSSIER.md#module-13-verification-before-trust) names theatre as
 one of the ways verification fails while looking rigorous.
 
-**The limit of the guard is stated rather than glossed.** The cross-check proves
-a card shows **a** real film; it does not prove it shows **the** film the model
-meant. `verifyTitle()` keeps TMDB's top result when nothing matches
-title-for-title, which rescues a missing "The" or a misplaced hyphen and
-occasionally substitutes a neighbour. That trade was taken with the numbers in
-front of it
+**What the guard proves, precisely.** The cross-check proves every card shows
+a real film. `verifyTitle()` keeps TMDB's top result when nothing matches
+title-for-title, which rescues real films named with a missing "The" or a
+misplaced hyphen; now and then the result is a neighbouring film rather than
+the one the model meant. That trade was chosen with the numbers in front of it
 ([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the documents that used to promise more were corrected rather than the
 matcher being tightened.
@@ -400,9 +443,12 @@ matcher being tightened.
 Once an AI call is attempted, a log row is **always** written — success *or*
 failure — with `status`, `error_text`, token split and duration. A handled
 model/parse/network failure logs `status='failed'` and then re-throws for a calm
-inline message in the UI. The in-app "AI call log" viewer (footer button) shows
-both log tables merged, so the audit trail is demonstrable in the browser, not
-only in the Supabase table editor.
+inline message in the UI. If the log write itself fails, the cause goes to the
+server's stderr instead and the run is discarded, even a successful one: a
+result with no row behind it is the state the log exists to rule out. The
+in-app "AI call log" viewer (footer button) shows both log tables merged, so
+the audit trail is demonstrable in the browser, not only in the Supabase table
+editor.
 
 `GET /api/ai-log` is the primary audit surface: both features, successes and
 failures, token split, duration, per-call cost, and totals. `GET
@@ -411,7 +457,7 @@ is deliberately kept as the narrower per-feature JSON view — recommendation ru
 only — but nothing in the UI depends on it; the merged log is what the app and
 the demo use.
 
-One honest caveat: six of the earliest log rows predated the migration that
+Note: six of the earliest log rows predated the migration that
 added the token split and duration columns, so they showed blanks in those
 fields. They were deleted by hand, for presentation, rather than left to age out
 of the 60-row window. **Rows have been removed by hand exactly twice in this
@@ -427,19 +473,19 @@ and recorded as exceptions to the append-only argument the log rests on.
 ## Keeping the record true, and what the 2026-09-19 sweep did differently
 
 The deliverable here is the repository, so its failure mode is not a crash — it
-is a sentence that was true when written and quietly stopped being true. Ten
-separate days between 2026-09-07 and 2026-09-19 carry a staleness sweep
-(`git log --oneline --grep=sweep`). This section is about why the last one found
-things the earlier ones had walked past for two weeks, because the method is
-more reusable than the fixes.
+is a sentence that was true when written and quietly stopped being true.
+Staleness sweeps run on many separate days (`git log --oneline --grep=sweep`
+lists them). This section is about why the one on 2026-09-19 found things the
+sweeps before it had walked past for nearly two weeks, because the method is more
+reusable than the fixes.
 
-**The diagnostic case.** On 2026-09-11 commit `cc41020` thinned the AI call
+**The diagnostic case.** On 2026-09-06 commit `cc41020` thinned the AI call
 log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** — two comments in
-[`public/styles.css`](../public/styles.css), one of them nine lines above the
+[`public/styles.css`](../public/styles.css), one of them just above the
 declaration it contradicted, and a sentence in
 [`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) that disagreed with the code block
-quoted five lines beneath it. Every sweep between then and 2026-09-19 read those
+quoted just beneath it. Every sweep between then and 2026-09-19 read those
 files and passed over all three.
 
 **Why they did.** A sweep that reads each file forwards asking *"is this still
@@ -477,9 +523,11 @@ after it changed, and its header says why a sweep had missed it: a staleness
 sweep *"reads each document forwards ('is what this file says about itself still
 true') and cannot see a claim ABOUT ANOTHER FILE that the other file has since
 falsified."* The gate closed that gap for every claim that **points at
-something** — a path, an entry, a capture, an identifier. Nothing closed it for
-claims that merely **characterise** something, and that is the half the
-2026-09-19 sweep worked.
+something** — a path, a script, a decision entry, a commit, a line number, an
+identifier, a capture, an `RS-n` key, a section reference. A claim that merely **characterises** something, such
+as a set described in the abstract or a value paraphrased in prose, has no
+referent for a gate to look up, and the gate's own header says so. That is the
+half the 2026-09-19 sweep worked, by reading.
 
 **The worked example.** Four documents described one enumerable set — the eight
 `RS-n` states needing two captures — and all four disagreed:
@@ -489,11 +537,11 @@ claims that merely **characterise** something, and that is the half the
 | [`MERGE-READINESS.md`](MERGE-READINESS.md) | all eight split page vs audit trail | five do |
 | [`RESILIENCE.md`](RESILIENCE.md) | *every* other pair splits page vs audit trail | false of two of seven |
 | [`screenshots/README.md`](screenshots/README.md) | "for four of them" | five, and three states went unexplained |
-| [`CLAUDE.md`](../CLAUDE.md) | "the first four" | a listing-order artefact; the fifth is listed last |
+| [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) | "the first four" | a listing-order artefact; the fifth is listed last |
 
-**Be precise about what was invisible and what was merely unread**, because the
-honest version is more useful than the flattering one. Only the
-`MERGE-READINESS.md` sentence was strictly unfalsifiable from inside its own
+**Be precise about what was invisible and what was merely unread**, because
+that distinction is what makes the method reusable. Only the
+[`MERGE-READINESS.md`](MERGE-READINESS.md) sentence was strictly unfalsifiable from inside its own
 file — it names no member of the set, so nothing in that document could
 contradict it. The other three were falsifiable in principle and went unread in
 practice for the same reason: checking a sentence that characterises an
@@ -523,16 +571,17 @@ merges, tests, gates, captures, prompt versions, models, dependencies, reverts.
 **Attention had been going where verification was already cheap.**
 
 So: **a count is safest when it names its members.** Several now do — the gate
-list, the nine decision entries behind the AI call log, the five RS states whose
+list, the twelve decision entries behind the AI call log, the five RS states whose
 second frame is an audit-trail shot. A named list is falsified by reading it; a
 bare numeral is falsified only by someone independently recounting, which nobody
 does.
 
 **Three things this owes to earlier work, since the method was not invented from
-nothing.** The [living log](../CLAUDE.md#project-status--living-log) already
+nothing.** The [living log's Build status](../CLAUDE.md#build-status) already
 recorded how merges 22 to 27 each failed — wrong render context, wrong file
 types, a claim whose falsifier it never names, a test not re-applied as its
-subject changed, a filter whose vocabulary limits its reach — and that list was
+subject changed, a filter whose vocabulary limits its reach, a criterion read
+off the source rather than the rendered page — and that list was
 used as the specification for where to look. The earlier sweeps built
 [`check-claims`](../scripts/check-claims.js), which had already eliminated
 paths, commits, identifiers and capture counts as a class, so the whole budget
@@ -570,20 +619,30 @@ procedure.
   `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
   real prompt files, so a malformed prompt version fails the suite.
 - **Routes** ([`test/routes.test.js`](../test/routes.test.js)): input validation
-  (the 400s), duplicate add (409), `GET /api/config` / `/api/health`,
-  TMDB-unreachable (502), the below-threshold guards (422), and — the one that
-  matters most — OpenRouter unreachable returning 422 *and* still writing a
-  `status='failed'` row to `recommendation_logs`. That's the "make failure
-  visible" contract under test.
+  (the 400s), duplicate add (409), `GET /api/config` / `/api/health`, an
+  unknown route (404), TMDB-unreachable (502) and the `short` form it carries
+  ([D-042](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form)),
+  the below-threshold guards (422), and — the one that matters most —
+  OpenRouter unreachable returning 422 *and* still writing a `status='failed'`
+  row to `recommendation_logs`. That's the "make failure visible" contract
+  under test.
 - **Regression guards**, each added the day the bug was found and each checked
   to fail without its fix: a film deleted in another tab returning 404 rather
-  than a 500, TMDB's own rating actually reaching the insert, and TMDB's "no
+  than a 500, TMDB's own rating actually reaching the insert, TMDB's "no
   votes" `vote_average: 0` being stored as `null` instead of as a real score of
-  zero.
+  zero, and both halves of the `review_requires_rating` constraint — its
+  violation answered as a 400 with a usable message, and a violation of one of
+  the table's other check constraints not dressed up as it.
+- **Three happy paths, added 2026-09-13 while walking
+  [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission)**: search
+  returning shaped TMDB results with posters, `DELETE` answering 204 (and a
+  refused delete answering 500 rather than a false 204), and a verdict's
+  success row carrying real token and cost data.
 - **The recommendation SUCCESS path**, added 2026-09-09 — until then the only
   recommendation tests were its two failure paths, so every rule deciding what a
   user actually sees was unproven. One run now asserts that of four model picks
-  only the verified, unowned, non-duplicate one survives; another that an
+  only the verified, unowned, non-duplicate one survives, and that its success
+  row holds exactly the titles shown; another that an
   unrated film already in the list is never recommended back; five more that a
   run which returns nothing reports WHY truthfully, rather than always blaming
   the model for naming films the user already had.
@@ -591,12 +650,20 @@ procedure.
   drift into two answers: whenever a `status='failed'` row reaches a log table
   the response must advertise the AI call log, and whenever no row was written
   it must not. Each of these was verified by breaking the code it guards and
-  confirming the intended test — and only that test — fails.
+  confirming the invariant's own tests fail. Dropping the recommendations
+  flag also fails the OpenRouter-down test, which asserts the same flag from
+  its own side. The same loop asserts that a failed row names the model its
+  own feature calls
+  ([D-070](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history)).
 - **Two failures at once**, added 2026-09-11 and also written as a loop over
   both features: when the AI call fails AND the log write then fails, there is
   no row to hold either cause, so stderr is the only surviving record and the
   test asserts both causes reach it. Probed the same way — dropping the
   composition loses the AI cause, dropping the `console.error` loses both.
+- **The two log views**: `GET /api/ai-log`'s merged, structured rows and
+  totals, and `/api/recommendations/history`'s two tests
+  ([D-077](DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion)),
+  its recommendation-only scope and a database failure surfacing as a 500.
 
 To keep the live database untouched
 ([§5](#5-incident-1--and-the-guardrail-it-produced-module-12)), the Supabase
@@ -606,8 +673,11 @@ through `globalThis.fetch`. [`server/index.js`](../server/index.js) exports
 `app` and only starts listening when run directly, so a test can drive it on an
 ephemeral port.
 
-Still manual: the resilience *UI* states (the calm inline messages) — worth a few
-screenshots for the submission even though the server side is now tested.
+The resilience *UI* states (the calm inline messages) are evidenced by
+screenshots: sixteen states, argued in [`RESILIENCE.md`](RESILIENCE.md). The
+client's layout has a check of its own,
+[`npm run layout-check`](../scripts/layout-check.js), which runs the real page in
+headless browsers against fixture data.
 
 ## 7. Gaps named while building, and how each one closed
 
@@ -623,7 +693,8 @@ of the record this document exists to show.
   ruled out (static files + serverless functions only; this is a long-lived
   `app.listen` server). Free tier, so it sleeps after ~15 minutes idle and the
   first request then takes anywhere from a few seconds to a minute while the
-  instance wakes; every load after that is immediate.
+  instance wakes; every load after that is immediate (until the instance sleeps
+  again).
 - ~~Resilience (TMDB down, OpenRouter down) is implemented but should be
   captured as screenshots for the submission. Deliberately deferred to a
   dedicated pre-submission session, so the shots match the finished UI rather
@@ -632,7 +703,7 @@ of the record this document exists to show.
   well past the nine states this bullet anticipated. **Sixteen states,
   twenty-four frames**, embedded and argued in [`RESILIENCE.md`](RESILIENCE.md);
   the recipes are greppable in
-  [`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
+  [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
   as `RS-1` through `RS-16`. Shooting them found three real defects that nothing
   else would have, which is the entry worth reading here rather than the count.
 - ~~**The recommendations error state is written and then immediately
@@ -640,7 +711,7 @@ of the record this document exists to show.
   failed run shows the user nothing. The verdict side already does it properly —
   its fallback links straight into the AI call log.~~ **Fixed 2026-09-09, and it
   was worse than written on both counts.** It was filed as an error-message bug;
-  the `finally` reassigns the element unconditionally, so the SUCCESS line and
+  the `finally` reassigned the element unconditionally, so the SUCCESS line and
   the zero-result line died with it — a failed run, a successful run and a page
   that had never run were indistinguishable apart from the cards. And the
   verdict was *not* the model to copy: its fallback offered the AI call log for
@@ -651,8 +722,8 @@ of the record this document exists to show.
   treatment applied back to the verdict).
   [D-047](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
   has the reasoning.
-- The prompt-injection defense should be shown with a concrete demo movie whose
-  review is an injection attempt. **Done 2026-09-13** — the film is *The Room*,
+- ~~The prompt-injection defense should be shown with a concrete demo movie whose
+  review is an injection attempt.~~ **Done 2026-09-13** — the film is *The Room*,
   seeded by [`npm run seed-demo -- --with-injection`](../scripts/seed-demo.js)
   and removed after the captures. Five frames,
   [`docs/screenshots/pi-1` … `pi-5`](screenshots/README.md#pi---prompt-injection);

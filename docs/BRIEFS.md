@@ -8,7 +8,7 @@ what the code does, drawn from the code — and *explanatory* documentation badl
 because why a thing was built that way is not in the source to be read off.
 
 Both briefs are below. The first already existed and is pointed at rather than
-copied; the second is new.
+copied.
 
 ## 1. Interface brief — the Home screen
 
@@ -17,9 +17,8 @@ there.** It is not reproduced here, for the same reason the definition of done
 is not reproduced in [`docs/FRAMING.md`](FRAMING.md#definition-of-done): a brief
 held in two places drifts, and then neither is the brief.
 
-It was written as a **governing document alongside the first scaffold** rather
-than retrofitted to a UI, which is the only time an interface brief is worth
-anything, and it breaks the screen into the four parts
+It was written as a **governing document**, and it breaks the screen into the
+four parts
 [Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation)
 names so each could be decided on purpose rather than absorbed from whatever the
 training data treats as ordinary:
@@ -42,7 +41,7 @@ typography and says so in the text, so the openness could not be mistaken for an
 omission. That was the right call for an instruction about *taste* — but it is
 also why the real interface requirements emerged from using the built app rather
 than from the brief, which is the whole of
-[Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-06-to-2026-09-12).
+[Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-05-to-2026-09-12).
 An interface brief can fix the hierarchy and the mental model. It cannot
 anticipate that a hovered card drifts toward its upper neighbour, or that a flex
 item's automatic minimum size will break a button label in two. Those needed a
@@ -55,12 +54,10 @@ running app and a human looking at it.
 worth reading in that order, because the brief is a specification for a document
 and the document can be judged against it.
 
-*(This said "not yet written" until 2026-09-14, on the reasoning that a brief
-naming its own status honestly is worth more than one implying a document exists.
-That was true while it stood. The user read it during a pre-merge sweep and called
-it a real gap, which it was — the brief argues that this component has the highest
-ratio of non-obvious decision to line of code in the project, and then left those
-decisions undocumented.)*
+*(Written after the user, reading this brief during a pre-merge sweep, called
+the missing document a real gap — which it was: the brief argues that this
+component carries an unusual density of non-obvious decisions for its size, and
+those decisions were still undocumented.)*
 
 ### Audience
 
@@ -70,15 +67,13 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 
 ### Purpose
 
-To stop the next change from silently undoing a fix. This component has the
-highest ratio of non-obvious-decision to line-of-code in the project: 124
-lines of route, five cell builders in [`public/app.js`](../public/app.js)
-(`cell`, `abbrCell`, `modelCell`, `timeCell`, `resultCell`), about 160
-stylesheet lines, and **nine decision-log entries** behind them —
+To stop the next change from silently undoing a fix. This component packs a lot
+of non-obvious decision into little code: one short route file, five cell
+builders in [`public/app.js`](../public/app.js) (`cell`, `abbrCell`,
+`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet, and **twelve decision-log entries** behind them —
 [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
-[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history). *(The route was given as "roughly 100" lines; it was 124 when this brief
-was written and is 124 now. The nine are named rather than counted so the
-figure can be checked, and so `check-claims` resolves each one.)*
+[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history), [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it), [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is). *(The twelve are named rather than counted so the figure can be checked, and
+so `check-claims` resolves each one.)*
 
 Several of its rules look like they could be simplified and cannot.
 
@@ -136,7 +131,7 @@ failed:
   opening a row can never reflow the table or steal width from its neighbours.
 * **`.log-scroll` must stay `overflow: visible`** — it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
-* **Card view's two specificity fixes** (D-era, below 850px): a leftover desktop
+* **Card view's two specificity fixes** (850px and below): a leftover desktop
   separator stacking into a vertical line, and a desktop `last-child` rule
   outranking the card rule and removing the final row's separator.
 * **Six pre-migration-001 rows were deleted by hand
@@ -155,8 +150,8 @@ document the thing nobody finishes reading.
 
 [`AI-CALL-LOG.md`](AI-CALL-LOG.md), written 2026-09-14. The test is not length:
 **hand it to someone who has never seen the component and ask them to make the
-totals row taller.** If they change the curtain height with it, the document
-worked. If they change only the row and leave a gap at the dialog's edge, it did
-not. That test is restated as the written document's own
+band under the table shorter.** If they change `--log-curtain-h`, the document
+worked. If they shorten the curtain alone and leave a strip under the pinned
+totals row where table rows show through, it did not. That test is restated as the written document's own
 [closing section](AI-CALL-LOG.md#7-how-to-tell-this-document-worked), so it
 travels with the thing being judged rather than only with the brief.

@@ -1,13 +1,26 @@
 #!/usr/bin/env node
-// Pre-commit secret scan (CLAUDE.md § Security & Secrets #6). Run before every
-// commit:  npm run scan-secrets
-// Scans the staged diff for anything that looks like a real credential. Exits
-// non-zero (blocking the commit if wired as a git hook) when it finds one.
+/**
+ * @file Pre-commit secret scan (CLAUDE.md § Security & Secrets #6). Run before every
+ * commit:  npm run scan-secrets
+ * Scans the staged diff for strings shaped like the credentials this project
+ * uses, and a few common others: the patterns below are the whole list. Exits
+ * non-zero (blocking the commit if wired as a git hook) when one matches.
+ *
+ * Only ADDED lines are scanned, never the whole tree. Exit codes: 0 when
+ * nothing is found, 1 when a line matches a credential pattern, 2 when the
+ * staged diff cannot be read at all.
+ */
 
 import { execSync } from 'node:child_process';
 
 const PATTERNS = [
-  { name: 'OpenRouter / OpenAI key', re: /sk-[a-zA-Z0-9]{20,}/ },
+  { name: 'OpenAI-style key', re: /sk-[a-zA-Z0-9]{20,}/ },
+  // OpenRouter keys read `sk-or-v1-` and then hex, so the hyphens after `sk-`
+  // keep the pattern above from ever reaching the long run it needs.
+  { name: 'OpenRouter key', re: /sk-or-v1-[a-zA-Z0-9]{20,}/ },
+  // A TMDB v3 key is 32 lowercase hex characters with nothing around them.
+  // Git SHAs are 40 or 7, so the bounds keep them out.
+  { name: 'TMDB v3 API key', re: /(?<![0-9a-zA-Z])[0-9a-f]{32}(?![0-9a-zA-Z])/ },
   { name: 'Supabase service_role JWT', re: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/ },
   { name: 'TMDB v4 bearer token', re: /eyJhbGciOiJIUzI1NiJ9/ },
   { name: 'Generic API key assignment', re: /(api[_-]?key|secret|token|password)\s*[:=]\s*['"][^'"\s]{16,}['"]/i },

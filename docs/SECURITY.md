@@ -5,9 +5,7 @@
   RELATIVE, even though every other document in docs/ uses relative paths and a
   consistency sweep will want to. (Links to a heading INSIDE this file are bare
   fragments and need no base, so they are safe in both renderings.)
-  This said SIX until 2026-09-19, which was the count when it was written; the
-  navigational linking pass took it well past that, and a count nobody updates is
-  worse than no count.
+  No count is given on purpose: one that nobody updates is worse than none.
 
   GitHub renders this one file at TWO different base paths. In the blob view of
   docs/SECURITY.md a relative path resolves against docs/, which is correct. But
@@ -50,8 +48,7 @@ unrecoverable data loss. See
 [§ Incident log in `CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#incident-log).
 
 So every risk below is assessed **twice**: once against the product, once against
-the build. Most of the substance sits in the second column. That is the honest
-result rather than a flattering one.
+the build. Most of the substance sits in the second column.
 
 ## Summary
 
@@ -129,8 +126,9 @@ Both are full-page captures and are linked rather than embedded, because inline
 they scale down past the point where their text can be read.
 
 **Corroborated independently of that line:** the verdict call above ran **1,577 tokens** against
-1,491 / 1,482 / 1,488 for the three runs before it, the difference being the
-injected review's weight.
+1,491 / 1,482 / 1,488 for the three runs before it, and its prompt ran 1,466
+tokens against 1,385 for all three: 81 tokens heavier, which is The Room's line
+in the prompt, its review included.
 
 **A trap worth recording, because it nearly produced fake evidence.** The demo
 film was first rated 2, which sorted it *sixth*. Recommendations read only the
@@ -145,8 +143,8 @@ made here: that the guard *exists* is checkable in
 [`prompts/recommend_v3.md`](https://github.com/guycn1/cinerank-project/blob/main/prompts/recommend_v3.md)
 and
 [`prompts/taste_verdict_v7.md`](https://github.com/guycn1/cinerank-project/blob/main/prompts/taste_verdict_v7.md)
-(and it survived all seven verdict rewrites, which were chasing register and
-could easily have dropped it); that it *works* is what these five frames are.
+(and it is present in all seven verdict versions, v1 to v7 — six rewrites, the
+last three chasing register, any of which could easily have dropped it); that it *works* is what these five frames are.
 
 **Build.** Less obvious and worth stating: the agent reads
 [`CLAUDE.md`](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md)
@@ -196,11 +194,15 @@ not as advice.
 
 *Agents inherit or escalate high-privilege credentials.*
 
-The frontend and server use the Supabase **anon key only**, which is
-RLS-bounded. Verified rather than asserted: `service_role` appears nowhere in
-the codebase except in comments forbidding its use, and in the pattern
+The application reaches Supabase with the **anon key only**, which is
+RLS-bounded, and it holds that key on the server: the browser talks only to this
+application's own API, so no Supabase credential ever reaches it. Verified
+rather than asserted: `service_role` appears nowhere in the codebase except in
+comments forbidding its use, and in the pattern
 [`scripts/scan-secrets.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/scan-secrets.js)
-uses to hunt for one. `.env` has been gitignored since the first commit, and
+uses to hunt for one. `.env` did not exist in the first commit, a one-line
+README that the user checked by hand and that holds no secret, and it has been
+gitignored since the second commit, the first with any project content.
 `npm run scan-secrets` runs before every commit.
 
 **Least privilege here means there is no higher-privilege credential to escalate
@@ -220,15 +222,16 @@ severity with both installed. No MCP
 servers are configured for this project and no third-party agent plugins are used
 — verified, the repository contains no MCP configuration.
 
-**One live advisory is handled explicitly rather than silently.** Express 4 pins
-`qs` to exactly 6.15.3, which carries two moderate advisories that `npm audit
-fix` cannot resolve even with `--force`, because the exact pin leaves no semver
-room. The alternative was Express 5, a major version with breaking changes. The
+**One live advisory is handled explicitly rather than silently.** Express 4 and
+its body-parser ask for `qs` `~6.15.1`, which resolved to 6.15.3 and carries two
+moderate advisories that `npm audit fix` cannot resolve even with `--force`,
+because that range stops below the patched 6.16.0 and leaves no semver room.
+The alternative was Express 5, a major version with breaking changes. The
 chosen fix is an `overrides` entry lifting `qs` to 6.16.0, documented in
 [`package.json`](https://github.com/guycn1/cinerank-project/blob/main/package.json)
 with both advisory IDs, the reason Express 5 was declined, and the note that
 [`test/routes.test.js`](https://github.com/guycn1/cinerank-project/blob/main/test/routes.test.js)
-exercises exactly the query-string and JSON-body paths `qs` parses. An advisory
+exercises the query-string path `qs` parses. An advisory
 reasoned about in writing is worth more than a clean `npm audit` nobody can
 account for.
 
@@ -258,7 +261,7 @@ arrives as a reviewable commit on `draft` and never directly on `main`.
 **Product: not applicable.** No RAG, no vector store, no memory carried between
 calls. Each prompt is rebuilt from the user's own database rows at call time.
 
-**Build: real, and this is the risk the course weighs most heavily.**
+**Build: real.**
 [Module 11](https://github.com/guycn1/cinerank-project/blob/main/DOSSIER.md#module-11-context-engineering-the-agents-briefing)'s
 warning is that bad context is the steady, dominant cause of bad agent output
 over time, and that it rots *in silence* — the agent never announces that its
@@ -272,12 +275,10 @@ Three structural answers:
   it is a diff someone can read. Agent-written scratch notes are not treated as
   authority and are not part of the record.
 * **Staleness is actively swept, not assumed away.** Full sweeps across every
-  markdown file and code comment ran repeatedly rather than once: **ten separate
-  days between 2026-09-07 and 2026-09-19** carry one, each finding and correcting
-  claims that had quietly stopped being true. (`git log --oneline --grep=sweep`
-  is the check. This listed three dates, which was the count when it was written
-  and went short every time another sweep ran — the figure is given with its own
-  date for that reason.)
+  markdown file and code comment ran repeatedly rather than once, on many
+  separate days, each finding and correcting claims that had quietly stopped
+  being true. `git log --oneline --grep=sweep` lists them. No count is given,
+  because a count of a set that grows goes short at the next sweep.
 * **A claim that was wrong when written gets corrected, not preserved.**
   Historical records are kept as history; live claims are kept accurate. The
   rule, and the line between the two, are written down in
@@ -300,7 +301,7 @@ composed and sent to stderr, because no row then exists to hold either.
 
 **Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (62 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
-from the first commit, with four revert commits and one reapply, which is the
+from the first commit, with four revert commits and one reapply as of 2026-10-01, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure
 that changes every commit goes stale between one session and the next.)
@@ -310,8 +311,8 @@ that changes every commit goes stale between one session and the next.)
 filter rules in the recommendation service was deleted in turn, to confirm every
 deletion fails exactly the tests that cover it; the
 [markdown checker](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-markdown.js)
-was proved in both directions across 57 cases, 26 that must fail and 31 that
-must pass. A gate nobody has tried to defeat is not known to work.
+was proved in both directions on 2026-09-13, across 57 cases, 26 that must
+fail and 31 that must pass. A gate nobody has tried to defeat is not known to work.
 
 ### ASI09 — Human-Agent Trust Exploitation
 
@@ -322,13 +323,15 @@ must pass. A gate nobody has tried to defeat is not known to work.
 exists.** Every call is logged whether it succeeds or fails, with prompt
 version, model, token split, cost and duration, and it is surfaced *inside the
 app* rather than only in the database, so the audit trail is reachable by the
-person being asked to trust the output. Beyond that: every suggested card
-carries an `AI pick` provenance badge; every fact on a card — poster, year, id —
-comes from TMDB and never from the model; and the taste verdict is labelled **an
-AI-generated read**, wording chosen deliberately over a warmer alternative,
-because that line sits directly above machine-written text.
+person being asked to trust the output. A run whose log write fails is
+discarded rather than shown, with its cause sent to the server's stderr.
+Beyond that: every suggested card carries an `AI pick` provenance badge; every
+fact on a card — poster, year, id — comes from TMDB and never from the model;
+and the taste verdict is labelled **an AI-generated read**, wording chosen
+deliberately over a warmer alternative, because that line sits directly above
+machine-written text.
 
-**The strongest evidence here is an anti-overclaim.**
+**Part of the evidence here is an anti-overclaim.**
 [`SPEC.md` § 2.2 step 4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
 once promised more than the code delivers. Rather than quietly softening it, the
 claim was measured against live TMDB across 30 probe titles and the
@@ -340,7 +343,10 @@ opposite of trading on their trust.
 It exists because the agent was caught making a string of confident wrong claims
 — a browser-support version, a font metric estimated twice and wrong twice, a
 claim about dialog dismissal.
-[Two decision entries](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md)
+Two decision entries,
+[D-054](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)
+and
+[D-063](https://github.com/guycn1/cinerank-project/blob/main/docs/DECISIONS.md#d-063--r18-closed-as-wont-fix-the-reserved-line-premise-was-overstated-and-the-shift-it-describes-is-masked-by-the-scroll-that-happens-at-the-same-instant),
 record measurement overturning the agent's own premise, with its proposed fix
 dropped as a result.
 
@@ -348,7 +354,7 @@ dropped as a result.
 
 *Compromised agents act harmfully while appearing legitimate.*
 
-**The clearest instance in this project is the debug harness, and it is written
+**This project's instance is the debug harness, and it is written
 up rather than buried.** For one day the page loaded
 [`scripts/debug-recs.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/debug-recs.js)
 on every request, and the app answered its own recommendation calls with six
@@ -366,7 +372,7 @@ Three independent mitigations now:
   the route that served it were removed before submission, and the removal was
   verified live rather than by reading the diff: `/debug-recs.js` now answers 404,
   the page answers 200, and the served HTML contains no reference to it. The file
-  stays in `scripts/`, which is outside the static root, so nothing serves it and
+  stays in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/), which is outside the static root, so nothing serves it and
   it can only be used by pasting it into a console deliberately.
 
 The first two mitigations are now redundant and are kept regardless. They cost
@@ -386,16 +392,16 @@ repository; this one is the independent application.
 
 ## What was owed — nothing outstanding
 
-This section listed two items on the morning of 2026-09-13. **Both are
-delivered**, and nothing has replaced them.
+**Both items owed on the morning of 2026-09-13 are delivered**, and nothing has
+replaced them.
 
 **Delivered:** the debug harness is unloaded — the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the
-file itself kept in `scripts/` where nothing serves it. And the prompt-injection
+file itself kept in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/) where nothing serves it. And the prompt-injection
 evidence, which was the live proof of [ASI01](#asi01--agent-goal-hijack)'s
 mitigations. Five frames,
 [`docs/screenshots/pi-1` … `pi-5`](https://github.com/guycn1/cinerank-project/blob/main/docs/screenshots/README.md#pi---prompt-injection),
-analysed under [ASI01](#asi01--agent-goal-hijack) above. It is deliberately
+analysed under ASI01 above. It is deliberately
 recorded there rather than here, next to the claim it substantiates, so a reader
 meets the mitigation and its proof together rather than having to connect two
 sections.

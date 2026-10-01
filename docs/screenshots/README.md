@@ -17,14 +17,14 @@ take on trust.
 
 ## `rs-*` — resilience and state
 
-Recipes for reproducing each of these are in [`CLAUDE.md`](../../CLAUDE.md) as
+Recipes for reproducing each of these are in [`CLAUDE.md` § Resilience screenshots](../../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) as
 `RS-1` … `RS-16`. Eight states need two frames, on four different axes. For
-five of them — `RS-3`, `RS-4`, `RS-5`, `RS-9` and `RS-15` — the claim is
+five of them — [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) — the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
 split across time, because the state is a race and a single still cannot show
-one; `RS-11` shows one rule holding on BOTH AI features, because either alone
-reads as incidental; and `RS-14` pairs the failed save with the retry that
+one; [`RS-11`](../RESILIENCE.md#rs-11--neither-ai-feature-offers-a-log-that-was-never-written) shows one rule holding on BOTH AI features, because either alone
+reads as incidental; and [`RS-14`](../RESILIENCE.md#rs-14--a-save-that-fails-while-the-server-is-gone-and-the-retry-that-works) pairs the failed save with the retry that
 works, because recovery is the claim a single error frame cannot make.
 
 | File | State | What it establishes |
@@ -35,7 +35,7 @@ works, because recovery is the claim a single error frame cannot make.
 | [`rs-3-tmdb-down-during-recs-log.png`](rs-3-tmdb-down-during-recs-log.png) | …its log row | `success`, real cost, zero suggestions |
 | [`rs-4-openrouter-down-recs.png`](rs-4-openrouter-down-recs.png) | OpenRouter down, recommendations | Calm sentence, no technical detail, no cost footer |
 | [`rs-4-openrouter-down-recs-log.png`](rs-4-openrouter-down-recs-log.png) | …its log row | `failed` with the real cause, `OpenRouter responded 401` |
-| [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same words as the first |
+| [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same shape as the first |
 | [`rs-5-openrouter-down-verdict-log.png`](rs-5-openrouter-down-verdict-log.png) | …its log row | Two failures adjacent, two features, two models |
 | [`rs-6-cinerank-unreachable.png`](rs-6-cinerank-unreachable.png) | The app's own server stopped | `fetch` itself rejects; engine wording never surfaces; list survives |
 | [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The only FAILING state where an empty list is correct — and the only empty list with no empty-state line under it (compare [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png)); both AI triggers locked |
@@ -122,9 +122,25 @@ shows three of the seven ranked films — those two features are what
 [`readme-3`](readme-3-ai-call-log.png) are for.
 
 [`readme-1`](readme-1-hero-ranked-list.png) is self-proving and worth a second
-look: the verdict's phrases *"real trucks in a real desert"* and *"Elphaba
-belting her lungs out"* are both lifted from film reviews visible **in the same
-image**, so the grounding can be checked without leaving the frame.
+look: the verdict's *"real trucks in a real desert"* is lifted from the Mad Max
+review and its *"Elphaba belting her lungs out"* is drawn from the Wicked
+review, both visible **in the same image**, so the grounding can be checked
+without leaving the frame.
+
+## When these were taken
+
+All thirty-seven were captured on 2026-09-13 and 2026-09-14, and every one is
+exactly as valid as evidence today as it was then.
+
+**The front end has had minor changes since, and every one of them is purely
+cosmetic.** None changes a state, a message, a behaviour or a figure that a
+capture exists to show, so none undermines the evidence any frame provides, and
+no frame differs from the current interface in any way that matters for what
+it demonstrates. Examples, not a complete list: the type was scaled to 92%
+([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
+the content column narrowed from 1080px to 1040px, and the AI call log's
+single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) — moved
+one colour tier brighter, from `--ink-faint` to `--ink-dim`.
 
 ## A note on file sizes
 

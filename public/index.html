@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CineRank — your personal film ranking</title>
-  <!-- Step 4 of the agreed order. SVG ONLY, no .ico and no PNG set: every
-       current browser supports an SVG favicon (Safari was the last holdout and
-       landed it in 26.0), and declaring any icon here is what stops the browser
+  <!-- Step 4 of the agreed order. SVG ONLY, no .ico and no PNG set: as of
+       2026-09-12 every major browser supports an SVG favicon (Safari was the
+       last to add it, in 26.0), and declaring any icon here is what stops the browser
        auto-probing /favicon.ico -- which had no route, no file and no 404
        handler, so it fell through to Express's finalhandler and was the lone
        console error on a clean load, live site included.
@@ -119,8 +119,9 @@
         <span class="verdict__break" aria-hidden="true"></span>
         <!-- Starts DISABLED, not hidden (step 4b). The locked state shows the
              control greyed out rather than removing it, matching every other
-             locked control in the app; syncVerdictAvailability() is the single
-             writer that enables it. Disabled is also the correct state before
+             locked control in the app; syncVerdictAvailability() enables it
+             whenever the list loads, and a verdict run re-asserts the state
+             itself in its `finally`. Disabled is also the correct state before
              the first /api/movies response, since the rated count is not known
              yet -- and if that request FAILS it stays disabled, which is right:
              the feature genuinely is unavailable. -->
@@ -139,11 +140,9 @@
           placeholder="Search a film to add…"
           aria-label="Search for a movie by title"
         />
-        <!-- aria-label because the word is display:none under 500px, where the
-             magnifier is all that shows; the icon itself is aria-hidden.
-             ("the emoji" until this 2026-09-09 sweep — a leftover from before
-             D-027 replaced it with the inline SVG below, and it contradicted
-             the very next comment.) -->
+        <!-- aria-label because the word is display:none at 500px and below,
+             where the magnifier (the inline SVG below) is all that shows; the
+             icon itself is aria-hidden. -->
         <button type="submit" id="search-btn" aria-label="Search">
           <span class="search-btn__label">Search</span>
           <!-- Inline SVG, not 🔎 and not U+2315 ⌕. The emoji is a fixed
@@ -199,8 +198,10 @@
              It is also the right state before the first response has landed:
              the rated count is not known yet. Do NOT remove this attribute to
              "fix" a disabled button -- the sync writes disabled in BOTH
-             directions on every load, so the only way it stays off is if the
-             movie list never loaded at all, which is exactly when it should. -->
+             directions on every load, so this markup value survives only when
+             the movie list never loaded at all, which is exactly when it
+             should. (Below the rating threshold the button is off too, but
+             because the sync wrote it so.) -->
         <button class="recs__trigger" id="recs-trigger" type="button" disabled>
           Get recommendations
         </button>
@@ -241,7 +242,8 @@
     <p class="site-foot__credit">
       <span>Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.</span>
       <!-- The SECOND repo link — step 3 asked for link(s), plural. Everything
-           except its size comes from the shared .gh-link class.
+           except its size and its halo multiplier (--gh-halo) comes from the
+           shared .gh-link class.
            The SVG path is duplicated from the header's rather than shared, and
            that is a judgement call rather than an oversight. <symbol> + <use>
            WOULD work here — unlike R15's sparkle, nothing selects into this
@@ -274,9 +276,10 @@
       <!-- A failed save reports HERE, not via the toast. A modal dialog sits in
            the top layer and its ::backdrop dims everything below, so a toast
            fired while this is open is both behind it and dimmed — invisible in
-           practice. It also matches how the rest of the app reports failure:
-           inline, next to the thing that failed (search panel, verdict banner,
-           recs hint). The toast stays for confirmations. -->
+           practice. It also matches the search panel, the verdict banner and
+           the recs hint, which report their failures inline, next to the thing
+           that failed. The toast carries confirmations, and the failures of an
+           add, a remove or the first load of the list. -->
       <p class="rate-error" id="rate-error" role="alert" hidden></p>
       <menu>
         <button value="cancel" type="submit" class="ghost" id="rate-cancel">Cancel</button>
@@ -343,14 +346,23 @@
 
   <!-- Poster placeholder icon, cloned by posterNode() for any film TMDB has no
        poster for. Lives here as markup rather than being built in JS so it reads
-       as a drawing, and so it matches the other two icons in this file — the
-       alternative is createElementNS() boilerplate, since document.createElement
-       does NOT produce a real SVG element.
+       as a drawing, and so it matches the other icons in this file, all inline
+       SVG — the alternative is createElementNS() boilerplate, since
+       document.createElement does NOT produce a real SVG element.
        A film strip, not the 🎬 emoji it replaced: an emoji ignores `color`, so it
        could never match the dim placeholder tone, carries its own baseline
        metrics, and looks different on every platform (D-027). The parent
        .noposter carries role="img" and an aria-label naming the film, so this is
        aria-hidden. -->
+  <template id="noposter-icon">
+    <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M8.5 4v16M15.5 4v16" />
+      <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
+    </svg>
+  </template>
+
   <!-- R15. The AI sparkle, cloned into BOTH AI trigger buttons by sparkleNode().
        A template rather than the SVG written into each button, for the same
        reason `.noposter` is one: two copies of a generated path is the shape
@@ -361,7 +373,7 @@
        `.sparkle-major` still matches.
        Inline SVG, not the emoji the item asked for (D-027): an emoji is a fixed
        full-colour image that ignores the button's colour, so it would stay
-       bright while the label dims at 0.45 opacity on a disabled trigger, and
+       bright while the label dims with a disabled trigger's opacity, and
        would not invert with the amber fill on hover. `fill="currentColor"`
        follows all of it for free.
        aria-hidden: both buttons already carry their own text.
@@ -373,15 +385,6 @@
     <svg class="ai-sparkle" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path class="sparkle-major" d="M9.5 1.5 Q12.1 6.9 17.5 9.5 Q12.1 12.1 9.5 17.5 Q6.9 12.1 1.5 9.5 Q6.9 6.9 9.5 1.5 Z" fill="currentColor"/>
       <path d="M18.4 12.8 Q20 15.8 23 17.4 Q20 19 18.4 22 Q16.8 19 13.8 17.4 Q16.8 15.8 18.4 12.8 Z" fill="currentColor"/>
-    </svg>
-  </template>
-
-  <template id="noposter-icon">
-    <svg class="noposter__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="16" rx="2.5" />
-      <path d="M8.5 4v16M15.5 4v16" />
-      <path d="M3 9.3h5.5M3 14.7h5.5M15.5 9.3H21M15.5 14.7H21" />
     </svg>
   </template>
 

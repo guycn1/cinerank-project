@@ -1,12 +1,32 @@
+/**
+ * Runtime configuration: the port, the four secrets and the three service URLs,
+ * the model each AI feature runs on, the two feature thresholds and the top-N
+ * window, and the fallback table for estimating cost.
+ *
+ * Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
+ * single place they enter the process, and the only place the server reads
+ * process.env at all. Outside server/, two dev scripts read it and neither
+ * reads a credential: scripts/seed-demo.js takes CINERANK_URL, a base URL, and
+ * scripts/layout-check.js takes CHROME_PATH, EDGE_PATH and FIREFOX_PATH,
+ * browser locations.
+ *
+ * Importing this module throws if any secret is missing or still holds its
+ * .env.example placeholder, so a misconfigured server fails at boot rather than
+ * on its first request.
+ *
+ * @module server/config
+ */
 import 'dotenv/config';
 
-// Secrets live only in .env (CLAUDE.md § Security & Secrets #1). This module is the
-// single place they enter the process; nothing else reads a SECRET out of
-// process.env. The one other process.env read in the repository is
-// scripts/seed-demo.js's CINERANK_URL, which is a base URL and not a
-// credential. (This said "nothing else reads process.env directly", which that
-// line has falsified since the seed helper was written.)
-
+/**
+ * Read one secret from the environment, refusing an unset or empty value and
+ * the untouched .env.example placeholders (a value starting `your-` or
+ * containing `YOUR-`).
+ *
+ * @param {string} name  The environment variable, e.g. `TMDB_API_KEY`.
+ * @returns {string} The variable's value.
+ * @throws {Error} When the variable is unset, empty or still a placeholder.
+ */
 function required(name) {
   const value = process.env[name];
   if (!value || value.startsWith('your-') || value.includes('YOUR-')) {
@@ -17,6 +37,12 @@ function required(name) {
   return value;
 }
 
+/**
+ * The whole configuration, resolved once at import. Only the two thresholds and
+ * `topN` are served to the browser as config, through GET /api/config in
+ * server/index.js. Two values reach it inside other data: the image base in
+ * every poster URL, and the model names in the AI metadata and log rows.
+ */
 export const config = {
   port: Number(process.env.PORT) || 3000,
 
@@ -35,9 +61,8 @@ export const config = {
     apiKey: required('OPENROUTER_API_KEY'),
     base: 'https://openrouter.ai/api/v1/chat/completions',
     // The app-wide default, and what RECOMMENDATIONS use. The cheaper tier here is
-    // deliberate and is NOT a judgement that the task is small. This comment used
-    // to read 'that task is "name some films"', which was both dismissive and
-    // wrong: the run reads the whole list, infers a taste from the top five rated
+    // deliberate and is NOT a judgement that the task is small: the run reads
+    // the whole list, infers a taste from the top five rated
     // films and the reviews attached to them (topN below), excludes every title
     // already in the list whether rated or not, and justifies each pick in one
     // second-person sentence of 8-16 words tied to a specific rating or a pattern
@@ -58,10 +83,13 @@ export const config = {
     minRatedMovies: 2,
     // The ONE feature that does not run on the cheaper tier (D-053). Four prompt
     // versions failed to get Haiku to write in a plain spoken register; the
-    // model turned out to be the constraint, not the wording. Sonnet-5 is the
-    // cheapest real-time Sonnet on OpenRouter ($2/$10 per Mtok against Haiku's
-    // $1/$5 — 2x, and ~0.29c a verdict), so this buys the register for a rounding
-    // error. Recommendations stay on Haiku: nothing there depends on voice.
+    // model turned out to be the constraint, not the wording. When this was
+    // chosen (2026-09-11), Sonnet-5 was the cheapest real-time Sonnet on
+    // OpenRouter, at $2/$10 per Mtok against Haiku's $1/$5 — 2x — so this buys
+    // the register for a rounding error: 0.37–0.40c a verdict on the seven-film
+    // demo list as logged on 2026-09-13, a figure that grows with the list, since
+    // the verdict reads every rated film. Recommendations stay on Haiku because
+    // their output is checkable (see `openrouter.model` above).
     // NOT a `:batch` slug, however cheap it looks in OpenRouter's list — those
     // are asynchronous and would break a live request.
     model: process.env.OPENROUTER_VERDICT_MODEL || 'anthropic/claude-sonnet-5',
@@ -76,13 +104,22 @@ const PRICE_PER_MTOK = {
   'anthropic/claude-haiku-4.5': 3.0,
   'anthropic/claude-3-haiku': 0.9,
   'anthropic/claude-sonnet-4.5': 9.0,
-  // Blended and rounded UP so the fallback can never under-report: sonnet-5 is
-  // $2/Mtok in and $10 out, and a verdict is ~93% input, so the true blend is
-  // about 2.6.
+  // Blended and rounded UP so the fallback does not under-report a verdict:
+  // sonnet-5 is $2/Mtok in and $10 out, and a verdict is ~93% input, so the true
+  // blend is about 2.6. 3.0 covers any call up to 12.5% output.
   'anthropic/claude-sonnet-5': 3.0,
   'openai/gpt-4o-mini': 0.4,
 };
 
+/**
+ * Estimate the cost of one OpenRouter call from the table above. Used only when
+ * the response carries no exact `usage.cost` of its own.
+ *
+ * @param {string} model  The OpenRouter model slug the call ran on.
+ * @param {number | null | undefined} tokensUsed  Total tokens, prompt plus completion.
+ * @returns {number | null} USD to six decimal places, or null when there are no
+ *   tokens to price or the model is not in the table — never a guess.
+ */
 export function estimateCostUsd(model, tokensUsed) {
   if (!tokensUsed) return null;
   const price = PRICE_PER_MTOK[model];

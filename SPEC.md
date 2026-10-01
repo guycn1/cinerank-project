@@ -19,6 +19,7 @@ promised, the original text **stays exactly as written** and the correction is a
 beside it as an italic parenthetical. Nothing is quietly edited to agree with the
 code: a spec revised into agreement with its own implementation can no longer show
 where the two ever differed, which is the one thing it is uniquely able to show.
+
 **Eleven sections carry such an annotation**, named rather than counted so the
 list cannot quietly go short as the spiral adds more:
 [§ 1](#1-overview--problem-statement),
@@ -39,14 +40,19 @@ intent at named
 commit points between turns. **In this repository the commit points are the merges
 to `main`** — the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
-`draft`. (The merges after `0cdc4ec`, the final planned one, are defect fixes rather
-than milestones — the second ground
-[`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states; nothing
-here counts a merge as a turn, so it does not touch the argument either way.)
+`draft`. (Merges 22 to 30, which follow `0cdc4ec`, the final planned one, are not
+milestones. Merges 22 to 29 were defect fixes, the second of the three grounds
+[`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
+30th was the close-out sync at the course's final assessment deadline on
+2026-10-01, the third ground, and carried defect fixes too. Nothing here counts a merge as
+a turn, so none of them touches the argument either way.)
 Counted that way the project has been through as many turns as it has merges, and
 `git log --merges main` is the authority on that number. It is deliberately not
-repeated here: the same count already lives in two other files and has drifted once
-before.
+repeated here: the same count already lives in
+[`CLAUDE.md`](CLAUDE.md#build-status),
+[`docs/PROCESS.md` § 1](docs/PROCESS.md#1-working-method) and
+[`docs/MERGE-READINESS.md` § 5](docs/MERGE-READINESS.md#5-full-auditability--met),
+and has drifted once before.
 
 **All three are now complete**, which is the form the course's requirement takes:
 a commit history across at least three *full* turns of the spiral. It holds under
@@ -62,33 +68,46 @@ was pinned. It is the more conservative unit, and it is used because three
 narratives are more legible than a list of merges. Neither reading is the
 authority over the other. The merges are the record; the three are the story.
 
+**The three turns do not overlap.** Each is a range of commits that ends at a
+merge to `main`, and the next turn starts with the first commit after that merge:
+
+| Turn | Commits | Commit points (merges to `main`) |
+|---|---|---|
+| 1 | from the root commit `a93326c` through `0525b8e` — 23 | `00932c2`, `4a6b183`, `0525b8e` |
+| 2 | after `0525b8e`, through `d47c960` — 401 | `49738c2` to `d47c960`, sixteen merges |
+| 3 | after `d47c960`, through `0cdc4ec` — 93 | `ba702c2` and `0cdc4ec` |
+
+*(Counted with `git rev-list --count` over each range, merges included: 23 + 401
++ 93 = 517, the whole history up to `0cdc4ec`.)*
+
 ### Turn 1 — frame, build, pin (2026-09-04 to 2026-09-05)
 
-Commit points: `aadaf18` to `0525b8e`.
+Commit points: `00932c2` to `0525b8e` — three merges to `main`.
 
 The first turn ran fast and end to end — schema and versioned prompts (`baab823`),
-the Express API with isolated service modules (`d5e9702`), then the frontend
-(`aee82b4`). This document and [`CLAUDE.md`](CLAUDE.md) were committed at `aadaf18`,
-**after** that first pass rather than before it: the turn was exploratory, and the
-spec pinned what it established. It closed at `0525b8e`, whose message reads
-"functionally complete against SPEC" — the stopping condition
-[§ 7.1](#71-must-pass-before-submission) defines had been reached.
+the Express API with isolated service modules (`d5e9702`), the frontend
+(`aee82b4`), and this document and [`CLAUDE.md`](CLAUDE.md) (`aadaf18`). It closed at
+`0525b8e`, whose message reads "functionally complete against SPEC" — the stopping
+condition [§ 7.1](#71-must-pass-before-submission) defines had been reached.
 
-### Turn 2 — the interface requirement emerged from use (2026-09-06 to 2026-09-12)
+### Turn 2 — the interface requirement emerged from use (2026-09-05 to 2026-09-12)
 
 Commit points: `49738c2` to `d47c960` — both of them merges to `main`, with
-fourteen more between them.
+fourteen more between them. The last, `d47c960`, is the merge that completed the
+front-end overhaul.
 
 [§ 3.2](#32-hierarchy) deliberately declined to prescribe the visual treatment,
 leaving layout, motion and typography to design judgement. Using the finished app is
 what turned that open brief into concrete requirements — a requirement that could
 not have been written before a solution was attempted. The work it produced is
-tracked in [`CLAUDE.md`](CLAUDE.md) rather than here, because that is working state
-and this is intent: a 20-item ranked-list overhaul, a 30-item recommendations audit
-(R1 to R30), seven polish items, and a narrow-viewport pass closed against an agreed
-~350px target.
+tracked in [`CLAUDE.md` § Front-end overhaul](CLAUDE.md#front-end-overhaul-started-2026-09-05--complete-as-of-2026-09-12) rather than here, because that is working state
+and this is intent: the search and taste-verdict sections reworked, a 20-item
+ranked-list overhaul, a 30-item recommendations audit
+([R1 to R30](CLAUDE.md#step-2--the-recommendations-sub-backlog-r1r30)), the
+mobile keypad fix, links to the repository, a favicon, seven polish items, and a
+narrow-viewport pass closed against an agreed ~350px target.
 
-**This turn holds the clearest co-evolution point in the project.** At `2a1800c`,
+**This turn holds a clear co-evolution point.** At `2a1800c`,
 [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) step 4's promise that
 every suggestion is "cross-checked against TMDB" was measured against live TMDB
 across 30 probe titles — and found to claim more than the code delivers. The
@@ -99,15 +118,15 @@ was corrected and the code was left alone**
 
 ### Turn 3 — the trail itself became the deliverable (2026-09-12 to 2026-09-14)
 
-Commit points: `83a5da5` to `4ef7534` — **76 commits**, spanning three days and
-three merges to `main`, plus the merge that closed the turn.
+Commit points: `ba702c2` and `0cdc4ec` — **93 commits** over three days, from
+`d1aba00`, the first commit after `d47c960`, to `0cdc4ec`, the final planned
+merge, which pinned the turn.
 
-A staleness sweep across every markdown file and code comment (`83a5da5`) found
-claims that had quietly stopped being true. Following it, both this file and
+It opened on the documents themselves: both this file and
 [`CLAUDE.md`](CLAUDE.md) were found to be **rendering wrong on GitHub** — a fault
 invisible in the source and never caught by eye. That produced a new verification
-gate, `npm run check-markdown` (`d1dd505`), since proved in both directions across
-57 cases, together with the authoring rules it enforces in
+gate, `npm run check-markdown` (`d1dd505`), proved in both directions on 2026-09-13
+across 57 cases, together with the authoring rules it enforces in
 [`CLAUDE.md` § Markdown Authoring Rules](CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo).
 
 **This turn is closed.** Its stated closing conditions were the pre-submission
@@ -121,14 +140,17 @@ What closed it is what the turn was about. The problem had stopped being "does t
 application work" — it demonstrably did, deployed and green — and had become
 "can any of that be shown to someone who was not here". Answering it produced two
 evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
-[`docs/RESILIENCE.md`](docs/RESILIENCE.md), thirty-seven captures across four
-families, and an architecture diagram. **It also produced three real defects and
+[`docs/RESILIENCE.md`](docs/RESILIENCE.md); the three the course's grading brief
+called for, [`docs/FRAMING.md`](docs/FRAMING.md),
+[`docs/SECURITY.md`](docs/SECURITY.md) and
+[`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md); thirty-seven captures across
+four families; and an architecture diagram. **It also produced three real defects and
 three untested happy paths**, none of which the test suite, the linter or the
 render audits had revealed, because each of those inspects structure and none of
 them puts the application into a state and looks at it.
 
 **Merging to `main` pins this turn rather than closing it** — it was closed by its
-scope being complete, which is the distinction Module 10 draws between a commit
+scope being complete, which is the distinction [Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral) draws between a commit
 point and a turn boundary.
 
 
@@ -138,8 +160,8 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 
 **CineRank adds a real reason to have a database and a real reason to call an LLM:**
 
-* The **database** doesn't just store movies — it tracks a growing taste profile (your rated movies + reviews) that gets read back later to ground AI recommendations, and it logs every AI recommendation ever generated (so recommendations are auditable, not throwaway).
-* The **AI (OpenRouter)** isn't answering open questions — it has exactly one narrow job: given your top-rated movies, suggest similar movies you haven't added yet, with a short reason per pick. It's a small, well-scoped feature, not the engine of the app. *(Well-scoped is exactly right and stays. "Small" undersells what that one job turned out to involve: the run reads the whole list, infers a sensibility from the top five rated films AND the review text attached to them, excludes everything already in the list, and compresses the justification for each pick into one second-person sentence of 8–16 words that has to point at a specific rating or a pattern across them — see [`prompts/recommend_v3.md`](prompts/recommend_v3.md). The scoping claim was never the problem; the size adjective was.)*
+* The **database** doesn't just store movies — it tracks a growing taste profile (your rated movies + reviews) that gets read back later to ground AI recommendations, and it logs every AI recommendation ever generated (so recommendations are auditable, not throwaway). *(As built, a run whose log write fails is discarded rather than shown, and its cause goes to the server's stderr.)*
+* The **AI (OpenRouter)** isn't answering open questions — it has exactly one narrow job: given your top-rated movies, suggest similar movies you haven't added yet, with a short reason per pick. It's a small, well-scoped feature, not the engine of the app. *(Well-scoped is exactly right and stays. "Small" undersells what that one job turned out to involve: the run reads the whole list, infers a sensibility from the top five rated films AND the review text attached to them, excludes everything already in the list, and compresses the justification for each pick into one second-person sentence of 8–16 words that has to point at a specific rating or a pattern across them — see [`prompts/recommend_v3.md`](prompts/recommend_v3.md). The scoping claim was never the problem; the size adjective was. The taste verdict of [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) is a second narrow call beside this one.)*
 * The **UI** should be genuinely polished and visually engaging — real typography, motion, and thoughtful visual hierarchy, not a generic default-component look. This project wants a fair amount of eye-candy; specific layout and visual choices are left open — see [§ 3](#3-interface-design-module-8) for priorities rather than a fixed look.
 
 **Out of scope for v1 (explicit exclusions):**
@@ -148,7 +170,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 * No social features (sharing lists, following other users, public rankings).
 * No editing/moderating AI suggestions beyond accepting or dismissing them.
 
-*(Reconciled 2026-09-13: [`CLAUDE.md`](CLAUDE.md) carried a FOURTH exclusion this list never
+*(Reconciled 2026-09-13: [`CLAUDE.md` § Out of Scope](CLAUDE.md#out-of-scope-v1) carried a FOURTH exclusion this list never
 had — no automatic or background regeneration of recommendations or verdicts. The
 consolidated list, with the reason each one is there, is [`docs/FRAMING.md` § Out of
 scope](docs/FRAMING.md#out-of-scope), which is now the authority. The three above stay as written rather than
@@ -173,9 +195,9 @@ being silently extended.)*
   1. The app pulls the user's **top N rated movies** (N=5 by default) from Supabase.
   2. Sends a **structured, versioned prompt** (see [§ 6](#6-ai-features--prompt-discipline)) to OpenRouter containing those titles + the user's own review text as taste signal.
   3. The model returns a **structured list** (title + one-sentence reason per suggestion) — not free-form prose the app has to parse with regex.
-  4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms the card shows **a real film**, not that it shows **the** film the model meant: a title TMDB returns nothing for is dropped, while a near-miss resolves to TMDB's closest result, which is occasionally a different movie. Tightening the match was measured against live TMDB and deliberately rejected — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
+  4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms every card shows **a real film**: a title TMDB returns nothing for is dropped, and a near-miss resolves to TMDB's top result, which rescues real films the model named imprecisely and now and then lands on a neighbouring one. A stricter match was measured against live TMDB and deliberately not adopted — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
   5. Suggestions already in the user's list are filtered out before being shown.
-* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: [§ 5.2](#52-recommendation_logs) specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed [§ 5.2](#52-recommendation_logs). Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
+* Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way. And as built, a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
 * Recommendations are a **snapshot, not live** — they don't regenerate automatically when new movies are rated; the user explicitly re-triggers when they want fresh ones.
 
 ### 2.3 Taste Verdict Banner (the fun, low-stakes AI touch)
@@ -184,7 +206,7 @@ being silently extended.)*
 * Distinct from the recommendation feature in [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) — this is commentary, not suggestions. Tone should be light/teasing, not generic praise ("Five 10/10 action movies and zero dramas — you watch films to turn your brain off, and honestly? Respect.").
 * Available once **at least 2 movies are rated** (lower bar than recommendations — this is just banter, it doesn't need much signal).
 * Regenerated only on explicit user action (a small "New verdict" refresh button on the banner) — never silently regenerated on every page load, to avoid burning OpenRouter credit on an unrequested repeat call.
-* Same DB-logging and TMDB-independent discipline as [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part): every verdict call is logged ([§ 5.3](#53-taste_verdict_logs)), and a failed/unreachable call shows a quiet fallback message on the banner ("Couldn't come up with a verdict right now") — it never blocks or breaks the rest of the page, since it's the lowest-stakes feature in the app.
+* Same DB-logging and TMDB-independent discipline as [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part): every verdict call is logged ([§ 5.3](#53-taste_verdict_logs)) *(as built, a verdict whose log write fails is discarded rather than shown, with its cause sent to the server's stderr)*, and a failed/unreachable call shows a quiet fallback message on the banner ("Couldn't come up with a verdict right now") — it never blocks or breaks the rest of the page, since it's the lowest-stakes feature in the app.
 
 ### 2.4 Resilience Requirements
 
@@ -221,7 +243,7 @@ Beyond this priority order, the specific visual treatment — layout, styling, a
 * **Loading:** search results and recommendation generation both show a lightweight loading state — recommendation generation especially, since an LLM call can take a few seconds and a frozen button reads as broken.
 * **Empty state:** a brand-new list shows "No movies yet — search for one to get started," not a blank page.
 * **Not-enough-data state:** fewer than 3 rated movies → "Rate at least 3 movies to unlock recommendations" shown directly on the disabled recommendations action, not just a disabled button with no explanation. Similarly, the Taste Verdict Banner shows "Rate at least 2 movies to get a verdict" before that threshold, rather than an empty or broken banner.
-* **Failure state:** TMDB or OpenRouter failures produce a specific, calm inline message (see [§ 2.4](#24-resilience-requirements), the resilience requirements — this pointed at [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch), which specifies only the verdict banner's own fallback) — never a raw error dump or a silently broken button.
+* **Failure state:** TMDB or OpenRouter failures produce a specific, calm inline message (see [§ 2.4](#24-resilience-requirements), the resilience requirements) — never a raw error dump or a silently broken button.
 * **Duplicate handling:** attempting to add a movie already in the list shows a clear "Already in your list" message instead of a duplicate entry or a raw DB constraint error.
 
 *A SIXTH feedback state exists as built and is not in the list above: submitting an EMPTY
@@ -260,7 +282,7 @@ Free, well-documented, instant key approval, huge catalog, provides posters/over
 
 A real relational Postgres database supports the recommendation-log tables relationally (foreign keys to movies), and works from both local dev and any future deployment.
 
-*There are **no foreign keys** in [`db/schema.sql`](db/schema.sql), and there never could have been: [§ 5.2](#52-recommendation_logs) and [§ 5.3](#53-taste_verdict_logs) both specify `input_movie_ids` as `uuid[]`, and Postgres has no per-element foreign key for an array column. So this parenthetical contradicted the data model in the same document from the day both were written — the build followed [§ 5](#5-data-model-supabase--postgres), which is the more specific of the two. The reference is by id and a join back to `movies` is a query rather than a constraint. Incident 1 ([CLAUDE.md § Incident log](CLAUDE.md#incident-log)) is the accidental argument for it: when films were deleted, the log rows survived holding ids that no longer resolve. A cascading foreign key would have destroyed exactly the audit trail those tables exist to keep. The requirement stays as written, annotated, rather than being quietly rewritten to match the code.*
+*There are **no foreign keys** in [`db/schema.sql`](db/schema.sql), and there never could have been: [§ 5.2](#52-recommendation_logs) and [§ 5.3](#53-taste_verdict_logs) both specify `input_movie_ids` as `uuid[]`, and Postgres has no per-element foreign key for an array column. So this parenthetical contradicted the data model in the same document from the day both were written — the build followed [§ 5](#5-data-model-supabase--postgres), which is the more specific of the two. The reference is by id and a join back to `movies` is a query rather than a constraint. Incident 1 ([CLAUDE.md § Incident log](CLAUDE.md#incident-log)) is the accidental argument for it: when films were deleted, the log rows survived holding ids that no longer resolve. A cascading foreign key would have destroyed exactly the audit trail those tables exist to keep. The requirement stays as written, annotated, rather than being quietly rewritten to match the code. The deployment it anticipates happened on 2026-09-07, and the same database serves the live app.*
 
 ### 4.4 High-Level Data Flow
 
@@ -287,7 +309,7 @@ User requests recommendations → Express route →
 |GET|`/api/recommendations/history`|(optional) view past recommendation runs|
 |POST|`/api/taste-verdict`|Generate a new taste verdict banner message|
 
-*Three more endpoints exist as built and are not in the draft above: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the three public threshold numbers, so the client never hardcodes a rule the server owns) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it).*
+*Three more endpoints exist as built, listed here rather than in the table above, which brings this section to all eleven: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the two rated-film thresholds and the top-N count, so the server stays the single source of those numbers; the client's own copies are only a fallback for this request failing) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it) — and is kept for good, with two tests of its own, since [D-077](docs/DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).*
 
 
 ## 5\. Data Model (Supabase / Postgres)
@@ -319,13 +341,13 @@ Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a
 |created\_at|timestamptz|default now()|
 |prompt\_version|text|e.g. `"v1"` — see [§ 6](#6-ai-features--prompt-discipline)|
 |input\_movie\_ids|uuid\[]|the top-N movies used as taste signal|
-|raw\_model\_output|jsonb|exactly what the model returned, unmodified|
+|raw\_model\_output|jsonb|exactly what the model returned, unmodified *(as built: `{ text, parsed, verification }` — the reply as received, the picks parsed from it, and the per-title verification tally; null when no reply arrived)*|
 |suggested\_titles|text\[]|parsed titles, post-validation|
 |model\_used|text|e.g. `"anthropic/claude-..."` via OpenRouter|
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|logged per call, per course requirement on cost tracking|
 
-*Five more columns were added by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible. [`db/schema.sql`](db/schema.sql) is canonical.*
+*Five more columns were added by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
 
 This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different thing.
 
@@ -354,8 +376,8 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 * Each feature has its **own versioned prompt file** — [`prompts/recommend_v1.md`](prompts/recommend_v1.md) and [`prompts/taste_verdict_v1.md`](prompts/taste_verdict_v1.md) — never inlined as strings in application code, never sharing one file. *(Those two names are the pattern, and both files still exist untouched. The chains have since run to `recommend_v3` and `taste_verdict_v7`, which are the live versions; every superseded file is kept, and [`docs/PROCESS.md` § 2](docs/PROCESS.md#2-prompt-engineering-as-version-control) tabulates what each bump fixed.)*
 * The recommendation prompt requires **structured JSON output** (array of `{title, reason}` objects) — the app must not depend on regex-parsing free-form prose.
 * The taste verdict prompt requires a **short plain-text output** (one or two sentences as specified; 2–3 as shipped, see [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)) — no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
-* The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case — an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on [§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part) step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
-* See [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17), item 5 ("Prompt injection awareness"), for how user-supplied review text — which feeds into *both* prompts — is handled safely. *(This pointed at a § Prompt Injection heading that does not exist in CLAUDE.md.)* **The guard is also demonstrated rather than only described: [`docs/screenshots/pi-1` … `pi-5`](docs/screenshots/README.md#pi---prompt-injection) capture a seeded film whose review is a real injection attempt, with both features unaffected and the app's own "Based on:" line confirming the attack text reached the prompt. Mapped against [OWASP ASI01 in `docs/SECURITY.md`](docs/SECURITY.md#asi01--agent-goal-hijack).**
+* The recommendation prompt explicitly instructs the model to suggest only real, existing movies — but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case — an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on § 2.2 step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
+* See [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17), item 5 ("Prompt injection awareness"), for how user-supplied review text — which feeds into *both* prompts — is handled safely. **The guard is also demonstrated rather than only described: [`docs/screenshots/pi-1` … `pi-5`](docs/screenshots/README.md#pi---prompt-injection) capture a seeded film whose review is a real injection attempt, with both features unaffected and the app's own "Based on:" line confirming the attack text reached the prompt. Mapped against [OWASP ASI01 in `docs/SECURITY.md`](docs/SECURITY.md#asi01--agent-goal-hijack).**
 
 
 ## 7\. Testing \& Acceptance Criteria
@@ -371,11 +393,11 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 * \[x] A full recommendation run produces a logged row in `recommendation_logs` with real token/cost data, and shown suggestions have real, TMDB-verified posters — not AI-invented ones.
 * \[x] The Taste Verdict Banner is disabled/shows an explanation below 2 rated movies, and a triggered verdict produces a logged row in `taste_verdict_logs` with real token/cost data.
 * \[x] Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error, not a broken page — this includes the banner falling back gracefully, not breaking the whole Home page. *(Captured and analysed in [`docs/RESILIENCE.md`](docs/RESILIENCE.md): TMDB down across three surfaces as [RS-1](docs/RESILIENCE.md#rs-1--searching), [RS-2](docs/RESILIENCE.md#rs-2--adding-a-film) and [RS-3](docs/RESILIENCE.md#rs-3--verifying-recommendations); OpenRouter down across both AI features as [RS-4](docs/RESILIENCE.md#rs-4--recommendations) and [RS-5](docs/RESILIENCE.md#rs-5--the-taste-verdict). Two further states go beyond what this criterion asks — the database unreachable, [RS-7](docs/RESILIENCE.md#rs-7--supabase-down), and the app’s own server unreachable from an already-open page, [RS-6](docs/RESILIENCE.md#rs-6--the-apps-own-server-is-gone).)*
-* \[x] `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17)).
+* \[x] [`.gitignore`](.gitignore) excludes `.env` from the first commit; `git log` confirms no key ever appears in history (see [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17)).
 
 ### 7.2 Manual Demo Script
 
-*Two steps below have been overtaken by what got built, and the script in [`README.md`](README.md) is the one to actually follow. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real.*
+*Four steps below have been overtaken by what got built, and the script in [`README.md`](README.md#demo-script) is the one to actually follow. Step 1's empty list is no longer where the app opens: it ships with a seven-film demo list ([`docs/DECISIONS.md` D-068](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)), so the README's script starts from that, and an empty list is shown in [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md#3--deleting-and-re-ranking-works-correctly-with-0-1-and-many-movies) instead. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost — which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real. Step 5's two states are refused before any request is sent: an Add button for a film already in the list is disabled and reads `In your list`, and below the threshold the recommendation trigger is disabled with the reason beside it, which are the graceful states to show.*
 
 1. Show an empty list → add 3-4 real movies via TMDB search, rate them.
 2. Show the ranked list re-sorting live as ratings change, and the Taste Verdict Banner generating a fresh one-liner about the taste profile so far.
