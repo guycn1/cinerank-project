@@ -203,8 +203,8 @@ Five functions exceed the ceiling of 20 and are reported as warnings on every ru
 
 | Function | Complexity |
 |---|---|
+| the per-line rule engine ([`scripts/check-markdown.js`](../scripts/check-markdown.js)) | 31 |
 | `generateRecommendations` ([`server/services/recommendations.js`](../server/services/recommendations.js)) | 30 |
-| the per-line rule engine ([`scripts/check-markdown.js`](../scripts/check-markdown.js)) | 29 |
 | the `PATCH` handler ([`server/routes/movies.js`](../server/routes/movies.js)) | 24 |
 | `chat` ([`server/services/openrouter.js`](../server/services/openrouter.js)) | 22 |
 | `generateTasteVerdict` ([`server/services/tasteVerdict.js`](../server/services/tasteVerdict.js)) | 21 |
@@ -229,9 +229,9 @@ fails the tests written for that guard.
 Refactoring well-covered, working, deliberately-branchy code trades a real
 regression risk for a lower number in a report.
 
-The same argument applies to the second row.
+The same argument applies to the markdown checker.
 [`check-markdown`](../scripts/check-markdown.js)’s per-line rule engine applies
-five rules and one cosmetic note in a single pass over a file (rule 2 needs whole
+six rules and one cosmetic note in a single pass over a file (rule 2 needs whole
 paragraphs, so it runs in a pass of its own), and each rule was added for a
 specific defect:
 either one that had already shipped past human review, or one an audit wrote and

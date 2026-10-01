@@ -180,6 +180,19 @@ for (const file of markdownFiles(root)) {
       pipeRun = [];
     }
 
+    // --- RULE 11: no line starts with a plus and a space ----------------------
+    // That is a bullet-list marker, and a bullet list may interrupt a paragraph,
+    // so a sentence re-wrapped to put an arithmetic "+" at the start of a line
+    // turns its tail into a list item. SPEC.md's turn-count footnote shipped that
+    // way: "23 + 401" ended one line and "+ 93 = 517" began the next, which split
+    // the footnote's italic across two blocks so both asterisks printed too.
+    // Only the plus: no file here uses + as a bullet, so any hit is a wrapped
+    // operator, while a - or * after a line of text is usually a real list.
+    if (!inFence && /^[ \t]*\+([ \t]|$)/.test(line)) {
+      errors.push(`${rel}:${n}  a line starting with "+ " renders as a bullet item; ` +
+                  're-wrap so the + is not first on the line');
+    }
+
     // --- COSMETIC: an escape in plain text is noise, not a defect -------------
     if (!inFence) {
       const plain = line.split(TICK).filter((_, k) => k % 2 === 0).join('');

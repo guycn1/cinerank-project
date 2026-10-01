@@ -118,6 +118,18 @@ comment**, ahead of the thirtieth merge. Corrected:
   current `0.7s steps(1)`, the verdict fallback's log link is conditional
   (R23), and `.env.example` no longer calls the anon key frontend-safe.
 
+**After the thirtieth merge, the user found SPEC.md's turn-count footnote
+rendering wrong on GitHub**, a defect the claims sweep earlier the same day had
+put there. Re-wrapped, the footnote's second line began with `+ 93 = 517`, a
+bullet-list marker, so GitHub made the rest of the sentence a list item and
+printed both of the italic's asterisks. Nothing caught it: `check-markdown`
+had no rule for a block marker landing at the start of a wrapped line, the
+asterisks are the unclosed-emphasis class it leaves out on purpose, and the
+HTML render diff runs only for structural edits, which a wording fix was not
+taken to be. The footnote is re-wrapped, and **`check-markdown` now fails on
+any line starting with a plus and a space (rule 11 under § Markdown Authoring
+Rules)**, probed against the footnote as it shipped.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
@@ -5517,6 +5529,14 @@ down could be re-broken within a session. See D-065.
     preserved"), in the markdown and in every code comment. Which side of the
     line a borderline passage falls on is still a reading job; no pattern can
     make that call.
+11. **NEVER START A LINE WITH A PLUS AND A SPACE** (the user's rule,
+    2026-10-01). It is a bullet-list marker, and a bullet list may interrupt a
+    paragraph, so a sentence re-wrapped to put an arithmetic `+` first on a
+    line renders its tail as a list item. SPEC.md's turn-count footnote shipped
+    that way and printed both asterisks of its italic too. Re-wrap so the plus
+    sits mid-line. `check-markdown` fails on it. Only the plus is enforced:
+    no file here uses it as a bullet, while a `-` or `*` after a line of
+    text is usually a real list, so a rule for those would cry wolf.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
