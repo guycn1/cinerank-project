@@ -235,8 +235,10 @@ six rules and one cosmetic note in a single pass over a file (rule 2 needs whole
 paragraphs, so it runs in a pass of its own), and each rule was added for a
 specific defect:
 either one that had already shipped past human review, or one an audit wrote and
-rendered to confirm it was broken before the checker learned it. Its branch
-count is its rule count.
+rendered to confirm it was broken before the checker learned it. Nearly all
+of its branches are the rules' own conditions, so its complexity grows with each
+rule it learns, and moving them into helpers would lower the number without
+removing a branch.
 
 **The ceiling stays at 20 rather than being raised to hide this.** A warning that
 fires on five real functions is a measurement; a threshold tuned until nothing

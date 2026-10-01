@@ -5424,9 +5424,12 @@ that it is a correction, not an update.
 ## Markdown Authoring Rules (binding — every `.md` file in this repo)
 
 **Run `npm run check-markdown` before committing any change that touches a `.md`
-file.** It exits non-zero on a real rendering defect and is the enforcement for
-everything below. Do not rely on remembering these rules — the whole point is
-that the check does the remembering.
+file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6
+and rule 11 below, and reports rule 7 without failing; `npm run check-claims`
+enforces rule 10's unambiguous forms. Rules 8 and 9 and § Every document
+reference is a link are enforced by nothing, so those are the ones to remember.
+For the rest, do not rely on memory — the whole point is that the checks do the
+remembering.
 
 **Why this is binding rather than advisory.** The markdown files ARE a graded
 deliverable here (Module 8 process documentation), so "it only looks wrong" is
