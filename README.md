@@ -363,7 +363,7 @@ path rather than its endpoints.
 │   └── debug-recs.js            dev only: fakes recommendation responses in the browser
 ├── test/                        npm test — Supabase faked, TMDB and OpenRouter stubbed
 │   ├── routes.test.js           the API over real HTTP: validation, failures, AI logging
-│   ├── text-helpers.test.js     model-JSON parsing, text tidying, cost estimates
+│   ├── text-helpers.test.js     model-JSON parsing, text tidying and cutting, cost estimates
 │   ├── prompt-loader.test.js    the real prompt files, plus one in-memory fixture
 │   └── helpers.js               the fake Supabase, the fetch stub, the HTTP client
 ├── docs/

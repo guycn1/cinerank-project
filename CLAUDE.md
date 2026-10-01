@@ -189,8 +189,12 @@ names, entities, HTML, the prompt's own delimiters, backslashes, invisible and
 right-to-left characters, emoji, fake JSON): every one reached both models
 exactly as intended but one class. **A review cut through the middle of an
 emoji** (300 characters for recommendations, 200 for the verdict, 2,000 on
-save) sent half of it, an unpaired surrogate; a real paid run showed OpenRouter
-accepting it, so the model simply got a junk character. `cutText()` in
+save) sent half of it, an unpaired surrogate. Real runs showed OpenRouter
+accepting it and the model reading one junk token (prompt tokens one higher).
+That token is not inert: on a list of made-up titles, where Haiku sits on the
+line between refusing and playing along, the old prompt produced cards in 11
+of 13 runs and the fixed one in 2 of 13. With real titles both produced five
+cards in 13 of 13. `cutText()` in
 `server/text.js` now drops a straddling emoji whole at every server cut, and the
 search note's 40-character echo does the same. The exact OpenRouter request
 bodies for the seed list, the seed list with The Room (the prompt-injection

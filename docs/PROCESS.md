@@ -620,8 +620,7 @@ procedure.
   `tidyReason`, `tidyVerdict`, `cutText`, `estimateCostUsd` — plus `loadPrompt`
   against the real prompt files, so a malformed prompt version fails the suite,
   and against a fixture that pins what reaches the model: entities decoded,
-  review text inserted exactly as written, `  `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
-  real prompt files, so a malformed prompt version fails the suite.` and its kin included.
+  review text inserted exactly as written, `$&` and its kin included.
 - **Routes** ([`test/routes.test.js`](../test/routes.test.js)): input validation
   (the 400s), duplicate add (409), `GET /api/config` / `/api/health`, an
   unknown route (404), TMDB-unreachable (502) and the `short` form it carries
