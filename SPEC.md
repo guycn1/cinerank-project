@@ -152,8 +152,8 @@ evidence documents, [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) and
 [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md); [thirty-seven captures across
 four families](docs/screenshots/README.md); and
 [an architecture diagram](README.md#architecture). **It also produced
-[three real defects and three untested happy paths](docs/MERGE-READINESS.md#what-changed-on-2026-09-13)**, none of which the test suite, the linter or the
-render audits had revealed, because each of those inspects structure and none of
+[three real defects and three untested happy paths](docs/MERGE-READINESS.md#what-changed-on-2026-09-13)**, none of which [the test suite](test/), [the linter](eslint.config.js) or
+[the render audits](CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) had revealed, because each of those inspects structure and none of
 them puts the application into a state and looks at it.
 
 **Merging to `main` pins this turn rather than closing it** — it was closed by its
