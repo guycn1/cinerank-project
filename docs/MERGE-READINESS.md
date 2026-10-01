@@ -128,7 +128,7 @@ verification fails while looking rigorous, and each is answered concretely:
   on valid input gets switched off within a week.
 * **Gate bypass under deadline pressure** — the gates are wired into the commit
   rules in [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
-  rather than left to memory, and one of them (`check-markdown`) exists
+  rather than left to memory, and one of them ([`check-markdown`](../scripts/check-markdown.js)) exists
   precisely because a class of defect had been slipping past human review for
   over a week.
 

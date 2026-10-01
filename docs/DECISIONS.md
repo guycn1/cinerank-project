@@ -98,7 +98,7 @@ removed (`display: grid`, the column template and gaps, `align-items`, the
 poster's `grid-row` and the button's `justify-self` and `margin-left`); every
 one of them was already overridden or inert under flex, so removing them changes
 nothing on screen. Diffed against the previous stylesheet with
-`npm run layout-check -- --baseline=HEAD --expect-same`, search results on
+[`npm run layout-check -- --baseline=HEAD --expect-same`](../scripts/layout-check.js), search results on
 screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
 about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
 [`CLAUDE.md`](../CLAUDE.md) now describe the flex stacking as the search row's
@@ -655,7 +655,7 @@ references in total and all three are the bare string `CLAUDE.md`.
 Twelve files uniformly linked and one not is exactly the shape a later sweep
 "corrects". [The rule and its three exemptions](https://github.com/guycn1/cinerank-project/commit/e8d7a299ba42d75f35e5c459830f4b0730ff38a3) now live in
 [`CLAUDE.md` § Markdown Authoring Rules](../CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo), stated as a navigation
-convention that `check-markdown` does not enforce — nothing fails when it is
+convention that [`check-markdown`](../scripts/check-markdown.js) does not enforce — nothing fails when it is
 ignored, which is precisely why it needed writing down. Do not finish the job
 on the three exempt sets.
 
@@ -700,7 +700,7 @@ to guess at.
 
 **3. Every identifier in the section's prose resolves from the repository
 root.** `routes/` became [`server/routes/`](../server/routes/) ([`0c206ff`](https://github.com/guycn1/cinerank-project/commit/0c206ff06978398262121f0af06475df20965109)). Claude looked first for
-a mechanical argument — whether `check-claims` resolves one spelling and not
+a mechanical argument — whether [`check-claims`](../scripts/check-claims.js) resolves one spelling and not
 the other — and there is none: `checkPaths` only matches paths ending in a file
 extension, so a bare directory is invisible to the gate either way. What decided
 it is that the paragraph's function is to let a reader confirm those entries are
@@ -805,7 +805,7 @@ them. A uniqueness claim has a referent; what it lacks is a falsifier the
 sentence NAMES. Second, and worse for having happened while writing about
 accuracy: the rule shipped with "the three merges since" in five files — a count
 of an OPEN set, which is the exact thing this project had already removed five
-times over. [The user caught it.](https://github.com/guycn1/cinerank-project/commit/7e19832bc85841151afb75113f1afd970a674e1f) `check-claims` could not have: its ten checks all
+times over. [The user caught it.](https://github.com/guycn1/cinerank-project/commit/7e19832bc85841151afb75113f1afd970a674e1f) [`check-claims`](../scripts/check-claims.js) could not have: its ten checks all
 resolve a token that names something, and a bare numeral in prose names nothing.
 
 **[A THIRD ground was added the same day](https://github.com/guycn1/cinerank-project/commit/3ad66c447a6847f50a4395055a9d2e78fb980efc), and the user's first wording of it was
@@ -980,7 +980,7 @@ exception, not a new convention**.
 
 ### Where the process failed, which is the part worth keeping
 
-`check-markdown` cannot catch this class and was not extended to try. The paths
+[`check-markdown`](../scripts/check-markdown.js) cannot catch this class and was not extended to try. The paths
 were valid markdown and valid for their own file; nothing about the source is
 wrong. The render audit could not catch it either, because every audit renders a
 file **in isolation**, where it passes.
@@ -1505,8 +1505,8 @@ were genuinely broken and the checker caught none:
   in kind to the `---` case the checker already had, and strictly worse, because
   it makes a bigger heading. A pure false negative.
 * `***` and `___` before a heading — the same doubled rule around a heading that
-  rule 5 exists to prevent, in the two spellings it did not know.
-* An escaped `\***` — the same literal-debris paragraph rule 3 exists to prevent.
+  [rule 5](../CLAUDE.md#the-rules) exists to prevent, in the two spellings it did not know.
+* An escaped `\***` — the same literal-debris paragraph [rule 3](../CLAUDE.md#the-rules) exists to prevent.
 * A table with no `|---|` separator row — GitHub renders the whole block as one
   paragraph of pipe characters. Not a degraded table: no table. These files carry
   84 table rows between them.
@@ -1544,7 +1544,7 @@ exactly as intended. **An audit tool gets the same treatment as the thing it
 audits: check its output against reality before believing it.**
 
 **And the checker caught this entry being written.** The paragraph above quoting
-`\***` inline tripped rule 1 — correctly, since an escape in a code span does
+`\***` inline tripped [rule 1](../CLAUDE.md#the-rules) — correctly, since an escape in a code span does
 render literally. The two remaining thematic-break spellings joined the
 whole-span allowlist, which was then probed to confirm it still fires on the same
 sequence embedded in a larger span.
@@ -1573,7 +1573,7 @@ stripped. **The fourth was real, and nothing had ever caught it.**
 `docs/DECISIONS.md`
 [D-011](#d-011--taste-verdict-truncation--markdown--taste_verdict_v2) tried to
 show the three characters `tidyVerdict()` strips, escaping the backtick with a
-backslash. Escapes do not work inside a code span (rule 1), so the run never
+backslash. Escapes do not work inside a code span ([rule 1](../CLAUDE.md#the-rules)), so the run never
 closed and **GitHub swallowed the rest of the sentence into the code element.**
 It had rendered that way for nine days, through a full staleness sweep and two
 markdown passes.
@@ -1593,7 +1593,7 @@ backslash was content. It was a failed escape. The entry is removed, and the
 allowlist now warns that an addition must be a backslash which is genuinely part
 of what is being shown.
 
-**Why no existing rule caught it.** Rule 1 looks for a backslash FOLLOWED BY a
+**Why no existing rule caught it.** [Rule 1](../CLAUDE.md#the-rules) looks for a backslash FOLLOWED BY a
 punctuation character; here the backslash was the last character before the
 delimiter. A per-line backtick-parity check does not work either — a code span
 may legally wrap across lines, so 65 lines in these files carry an odd count and
@@ -1601,7 +1601,7 @@ are all correct. The unit has to be the PARAGRAPH, and the test CommonMark's own
 an opening run of N backticks is closed by the next run of EXACTLY N. Run at
 paragraph level across all 15 files, exactly one paragraph failed — this one.
 
-That is now rule 2 in `check-markdown`. **Its first implementation was wrong in a way
+That is now [rule 2](../CLAUDE.md#the-rules) in [`check-markdown`](../scripts/check-markdown.js). **Its first implementation was wrong in a way
 worth recording**: it matched runs with a stack, which is not what CommonMark
 does, and it rejected the very fix it was meant to accept (double delimiters
 holding a literal backtick). Corrected to forward-scanning.
@@ -1674,8 +1674,8 @@ ANY code span contain a backslash". Asking it that way across all five markdown
 files returned five hits: four legitimate (a Windows path, two regex tokens, and
 the literal characters `tidyVerdict()` strips) and the one defect.
 
-**That question is now a script rather than a resolution.** `npm run
-check-markdown` enforces it plus the two structural traps, exits non-zero on a
+**That question is now a script rather than a resolution.**
+[`npm run check-markdown`](../scripts/check-markdown.js) enforces it plus the two structural traps, exits non-zero on a
 real defect, and reports the harmless plain-text escapes without failing. It was
 probed the way this project probes a test — each of the four defects it claims to
 catch was injected into a temporary file and confirmed to fail the check,

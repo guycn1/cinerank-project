@@ -616,8 +616,8 @@ A clean history is a fact about the past.
 and inspects the **staged diff**, so the property is maintained rather than
 merely observed. It is one of
 [five commit gates](../CLAUDE.md#version-control-workflow-non-negotiable),
-alongside [`npm test`](../test/), [`npm run lint`](../eslint.config.js), [`npm run check-markdown`](../scripts/check-markdown.js) and `npm run
-check-claims`.
+alongside [`npm test`](../test/), [`npm run lint`](../eslint.config.js), [`npm run check-markdown`](../scripts/check-markdown.js) and
+[`npm run check-claims`](../scripts/check-claims.js).
 
 ### Verdict
 
