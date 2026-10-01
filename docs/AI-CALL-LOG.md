@@ -76,7 +76,7 @@ That cap is deliberate and is documented at the query. **If you change it,
 change the blurb inside the dialog in
 [`public/index.html`](../public/index.html) with it**, since that sentence
 states the figure. The blurb and the footer panel that opens the dialog both
-claimed every call until 2026-09-13 — the blurb "every OpenRouter call CineRank
+claimed every call [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/26b33829bf1c225d67d90cf97a2cf3333060b132) — the blurb "every OpenRouter call CineRank
 has made" (from [`b3e3446`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)), the panel "Every OpenRouter call" (from
 [`38ca76d`](https://github.com/guycn1/cinerank-project/commit/38ca76d49bd2d7f7c8979b7dd018a7e2f6841f64)) — which stopped being true the day the cap first bit. The panel now
 says every call is *logged*, a claim about persistence that no cap touches (a
@@ -87,10 +87,10 @@ to the server's stderr); see
 ### What the route sends structured, and why it matters
 
 The Result column has exactly three shapes — a recommendation's verified title
-list, a verdict's text, or either feature's error message. An earlier version
+list, a verdict's text, or either feature's error message. [An earlier version](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)
 flattened all three into one `summary` string server-side.
 
-**The route now sends `suggested_titles`, `verdict_text` and `error_text`
+**The route [now sends](https://github.com/guycn1/cinerank-project/commit/20cce5a05b6bcbad16cfde95ef8cd23253b08508) `suggested_titles`, `verdict_text` and `error_text`
 separately**, and the client decides how to render each. That is what makes the
 Result column collapsible at all: you cannot put a pre-flattened sentence behind
 a `<details>` and reveal a list.
@@ -105,16 +105,16 @@ than none, and [a test](../test/routes.test.js) asserts exactly this.
 
 **State this as one mechanism, because the pieces are meaningless apart.**
 
-**The dialog is the single scroller.** `.log-dialog` carries
+**[The dialog is the single scroller.](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** `.log-dialog` carries
 `overflow: auto; max-height: 88vh`. `.log-scroll` — despite the name — is
 `overflow: visible; flex: 0 0 auto` and scrolls nothing.
 
-> **What failed first.** The table scrolled inside a flex-sized `.log-scroll`. On
+> **[What failed first.](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303)** The table scrolled inside a flex-sized `.log-scroll`. On
 > a short viewport that box collapsed to nothing and the table vanished.
 
 Consequences, all of which look like free choices and are not:
 
-* **Only `thead th` pins at the top.** The "AI call log" heading and the Close
+* **[Only `thead th` pins at the top.](https://github.com/guycn1/cinerank-project/commit/15959f94a649dd6f2b06b90eaab466f23b75b815)** The "AI call log" heading and the Close
   button scroll away with everything else. Scroll back up, or press Escape.
 * **`.log-dialog` has no vertical padding** (`padding: 0 1.5rem`; its `header`
   carries the top space) so the pinned `thead` sits flush against the dialog's
@@ -132,7 +132,7 @@ The totals row pins to the bottom. A sticky `<tfoot>` **cannot reach the dialog'
 bottom edge**: it is clamped by its own containing block, the table. Table rows
 therefore peeked underneath it mid-scroll.
 
-`.log-curtain` is an opaque `--bg-raised` band that is a **direct child of the
+[`.log-curtain`](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) is an opaque `--bg-raised` band that is a **direct child of the
 dialog**, so its containing block is the dialog and it is never clamped. It pins
 at `bottom: 0` with `z-index: 2`. The totals row pins at
 `bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it.
@@ -141,7 +141,7 @@ Together they form one solid block from the row down to the dialog's edge.
 Scrolled to the end, both un-pin and the curtain is simply the empty gap below
 the table.
 
-**The table's closing rule is the curtain's `border-top`**, not a border on the
+**[The table's closing rule is the curtain's `border-top`](https://github.com/guycn1/cinerank-project/commit/29fd66022c730272c5eeaf41815fca67b038ae2a)**, not a border on the
 table. It is the only element adjacent to the totals row in *both* states, pinned
 and at rest, so it cannot go missing mid-scroll or double up at rest.
 
@@ -155,7 +155,7 @@ and at rest, so it cannot go missing mid-scroll or double up at rest.
 ### The totals divider is painted as backgrounds, not drawn as a border
 
 The 1.5px rule above the totals row, and the 1px separators between its cells, are
-`linear-gradient` backgrounds:
+[`linear-gradient` backgrounds](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48):
 
 ```css
 background-image:
@@ -163,9 +163,9 @@ background-image:
   linear-gradient(var(--line-faint), var(--line-faint));  /*   1px × 100%, right */
 ```
 
-> **Two failures preceded this.** A real `border-top` is painted by the
+> **Two failures preceded this.** [A real `border-top`](https://github.com/guycn1/cinerank-project/commit/af83cec8ddfb2b22a51f6f13e4fbdf429fa881a8) is painted by the
 > collapsed-border layer, which **leaves it behind when the row pins** — the rule
-> stayed put while the row travelled. A box-shadow does not work either: WebKit
+> stayed put while the row travelled. [A box-shadow does not work either](https://github.com/guycn1/cinerank-project/commit/25e73c79595d25b71b9a651f5a0c29e308d6c8f9): WebKit
 > does not paint outer shadows on table cells at all, and an inset one stops at
 > the collapsed column border, which segmented the rule into pieces.
 
@@ -175,7 +175,7 @@ border — so the collapsed borders are removed from this row entirely
 { border-right: none }`). The cells then sit flush, the divider runs unbroken, and
 both rules travel with the cell when it pins.
 
-The colour is `--line-total`, which is **warm** on purpose: a cool grey line at
+The colour is `--line-total`, which is [**warm** on purpose](https://github.com/guycn1/cinerank-project/commit/0c71fcda2b437e42fbe5e69720c33fb748603eb9): a cool grey line at
 the bottom of a scrolling area reads as a scrollbar.
 
 ## 4. The two view modes
@@ -184,7 +184,7 @@ the bottom of a scrolling area reads as a scrollbar.
 `@media (max-width: 1040px)` that tightens cell padding and narrows the Result
 column before the card breakpoint is reached.
 
-**At 850px and below: one card per call.** `thead` is hidden; each `td` grows a
+**At 850px and below: [one card per call](https://github.com/guycn1/cinerank-project/commit/0cc0581c748efb79fc962b769009ceef44107f18).** `thead` is hidden; each `td` grows a
 label via `td::before { content: attr(data-label) }`; the `<abbr>` shorthands
 expand back to full words with `abbr::after { content: attr(title) }`; reveal
 panels flow inline instead of floating. The totals become the last card, which
@@ -200,8 +200,8 @@ this and are fixed in place rather than by refactoring the shared rules:
 
 | Desktop rule | Specificity | What it did in card view | Fix |
 |---|---|---|---|
-| `.log-table td:not(:last-child)` | 0,2,1 | its `border-right` stacked into a faint vertical line down each card | cleared at matching specificity, card-scoped |
-| `.log-table tbody tr:last-child td` | 0,3,1 | removed the last card's row separators | restored at 0,4,1, card-scoped |
+| `.log-table td:not(:last-child)` | 0,2,1 | its `border-right` stacked into a faint vertical line down each card | [cleared at matching specificity, card-scoped](https://github.com/guycn1/cinerank-project/commit/25035ab2d194139be59100c42b068475a2e66b1d) |
+| `.log-table tbody tr:last-child td` | 0,3,1 | removed the last card's row separators | [restored at 0,4,1, card-scoped](https://github.com/guycn1/cinerank-project/commit/3deea7e7f948d890c48fabaeaada1962b6778984) |
 
 **Fix card-view bugs inside the query, at matching or higher specificity.**
 Refactoring the shared rule to be "cleaner" puts the desktop table back in scope
@@ -213,15 +213,15 @@ Each of these looks like it could be simplified. Each cannot.
 
 | Rule | What breaks if you undo it |
 |---|---|
-| **`.log-scroll` stays `overflow: visible`** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
-| **`.log-curtain` is a child of the *dialog*, not the table** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
+| **[`.log-scroll` stays `overflow: visible`](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
+| **[`.log-curtain` is a child of the *dialog*, not the table](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
 | **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a curtain shorter than the offset leaves a strip under the pinned totals row where rows show through |
-| **The totals divider is a background, not a border or shadow** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
-| **The reveal panel's opacity animates on the panel (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
-| **`--reveal-fade` is one property read by two elements** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
-| **The Result column is a fixed width (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
-| **`display: flex` sits only on `.log-dialog[open]`, never on the bare `.log-dialog` rule** | On the bare rule it would override the UA's `dialog:not([open]) { display: none }`, since any author rule beats the UA stylesheet, and the dialog would never close |
-| **Failed rows render an em dash (`—`) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
+| **[The totals divider is a background, not a border or shadow](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
+| **[The reveal panel's opacity animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467) (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
+| **[`--reveal-fade` is one property read by two elements](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70)** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
+| **[The Result column is a fixed width](https://github.com/guycn1/cinerank-project/commit/9b6fd4072b3587f7b93e62c2b31f299665311f7f) (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
+| **[`display: flex` sits only on `.log-dialog[open]`](https://github.com/guycn1/cinerank-project/commit/50d95c03389b5c3666ab2f2b18945a7e4c525ae4), never on the bare `.log-dialog` rule** | On the bare rule it would override the UA's `dialog:not([open]) { display: none }`, since any author rule beats the UA stylesheet, and the dialog would never close |
+| **[Failed rows render an em dash (`—`)](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
 ## 6. What is safe to change

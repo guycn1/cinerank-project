@@ -136,7 +136,7 @@ top five rated films (`config.recommendations.topN`) while the verdict reads eve
 one — so the attack reached the verdict prompt and **never reached the
 recommendations prompt at all**. Half the evidence would have shown a feature
 resisting an attack it had not been sent, with nothing on screen to reveal it.
-Rated 8 it sorts fourth, inside the window, and both captures are genuine.
+[Rated 8](https://github.com/guycn1/cinerank-project/commit/a17daefce5ce53febb9f4be86f5af6bc664d7360) it sorts fourth, inside the window, and both captures are genuine.
 
 **Source review and runtime evidence are two different claims**, and both are
 made here: that the guard *exists* is checkable in
@@ -200,9 +200,9 @@ application's own API, so no Supabase credential ever reaches it. Verified
 rather than asserted: `service_role` appears nowhere in the codebase except in
 comments forbidding its use, and in the pattern
 [`scripts/scan-secrets.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/scan-secrets.js)
-uses to hunt for one. `.env` did not exist in the first commit, a one-line
+uses to hunt for one. `.env` did not exist in [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), a one-line
 README that the user checked by hand and that holds no secret, and it has been
-gitignored since the second commit, the first with any project content.
+gitignored since [the second commit](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content.
 `npm run scan-secrets` runs before every commit.
 
 **Least privilege here means there is no higher-privilege credential to escalate
@@ -227,7 +227,7 @@ its body-parser ask for `qs` `~6.15.1`, which resolved to 6.15.3 and carries two
 moderate advisories that `npm audit fix` cannot resolve even with `--force`,
 because that range stops below the patched 6.16.0 and leaves no semver room.
 The alternative was Express 5, a major version with breaking changes. The
-chosen fix is an `overrides` entry lifting `qs` to 6.16.0, documented in
+[chosen fix](https://github.com/guycn1/cinerank-project/commit/0d06148f5b70833fe7515c425cda87fdb4f844c4) is an `overrides` entry lifting `qs` to 6.16.0, documented in
 [`package.json`](https://github.com/guycn1/cinerank-project/blob/main/package.json)
 with both advisory IDs, the reason Express 5 was declined, and the note that
 [`test/routes.test.js`](https://github.com/guycn1/cinerank-project/blob/main/test/routes.test.js)
@@ -301,7 +301,7 @@ composed and sent to stderr, because no row then exists to hold either.
 
 **Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (62 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
-from the first commit, with four revert commits and one reapply as of 2026-10-01, which is the
+from the first commit, with four revert commits and [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476) as of 2026-10-01, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure
 that changes every commit goes stale between one session and the next.)
@@ -327,7 +327,7 @@ person being asked to trust the output. A run whose log write fails is
 discarded rather than shown, with its cause sent to the server's stderr.
 Beyond that: every suggested card carries an `AI pick` provenance badge; every
 fact on a card — poster, year, id — comes from TMDB and never from the model;
-and the taste verdict is labelled **an AI-generated read**, wording chosen
+and the taste verdict is labelled [**an AI-generated read**](https://github.com/guycn1/cinerank-project/commit/33ab2b64d37a5c937831c52bde7cc6445c7f9221), wording chosen
 deliberately over a warmer alternative, because that line sits directly above
 machine-written text.
 
@@ -335,7 +335,7 @@ machine-written text.
 [`SPEC.md` § 2.2 step 4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part)
 once promised more than the code delivers. Rather than quietly softening it, the
 claim was measured against live TMDB across 30 probe titles and the
-specification was annotated in place to state exactly how strong the check is
+[specification was annotated in place](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11) to state exactly how strong the check is
 and is not. Telling a user precisely what a verification does *not* cover is the
 opposite of trading on their trust.
 
@@ -355,7 +355,7 @@ dropped as a result.
 *Compromised agents act harmfully while appearing legitimate.*
 
 **This project's instance is the debug harness, and it is written
-up rather than buried.** For one day the page loaded
+up rather than buried.** [For one day the page loaded](https://github.com/guycn1/cinerank-project/commit/c68526b5a75fc541ca7b04771c01a4c7fc1303d5)
 [`scripts/debug-recs.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/debug-recs.js)
 on every request, and the app answered its own recommendation calls with six
 dummy cards — surviving hard refreshes and a cleared cache, because nothing was
@@ -364,11 +364,11 @@ behaviour that looked entirely legitimate, which is this risk in one sentence.
 
 Three independent mitigations now:
 
-* It starts every page load **disarmed** and intercepts nothing until `debugRecs()`
+* It [starts every page load **disarmed**](https://github.com/guycn1/cinerank-project/commit/a3f116e5ec5a8d475b2fa42fd4660588a602d18d) and intercepts nothing until `debugRecs()`
   is called explicitly.
-* It **refuses to install at all** when the hostname ends in `onrender.com`, so the
+* It [**refuses to install at all**](https://github.com/guycn1/cinerank-project/commit/c68526b5a75fc541ca7b04771c01a4c7fc1303d5) when the hostname ends in `onrender.com`, so the
   deployed site is protected even if removal is forgotten.
-* **The two lines that loaded it are GONE (2026-09-13).** The `<script>` tag and
+* **The two lines that loaded it are [GONE (2026-09-13)](https://github.com/guycn1/cinerank-project/commit/8ca70fb1ee6c2615505ad444840f51c501698c6f).** The `<script>` tag and
   the route that served it were removed before submission, and the removal was
   verified live rather than by reading the diff: `/debug-recs.js` now answers 404,
   the page answers 200, and the served HTML contains no reference to it. The file
@@ -395,10 +395,10 @@ repository; this one is the independent application.
 **Both items owed on the morning of 2026-09-13 are delivered**, and nothing has
 replaced them.
 
-**Delivered:** the debug harness is unloaded — the `<script>` tag and the route
+**Delivered:** [the debug harness is unloaded](https://github.com/guycn1/cinerank-project/commit/8ca70fb1ee6c2615505ad444840f51c501698c6f) — the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the
-file itself kept in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/) where nothing serves it. And the prompt-injection
-evidence, which was the live proof of [ASI01](#asi01--agent-goal-hijack)'s
+file itself kept in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/) where nothing serves it. And [the prompt-injection
+evidence](https://github.com/guycn1/cinerank-project/commit/a27e921699e39a074e0024e005d6f2b2dfe0a067), which was the live proof of [ASI01](#asi01--agent-goal-hijack)'s
 mitigations. Five frames,
 [`docs/screenshots/pi-1` … `pi-5`](https://github.com/guycn1/cinerank-project/blob/main/docs/screenshots/README.md#pi---prompt-injection),
 analysed under ASI01 above. It is deliberately

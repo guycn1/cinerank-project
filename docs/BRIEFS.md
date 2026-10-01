@@ -50,11 +50,11 @@ running app and a human looking at it.
 ## 2. Documentation brief — the AI call log
 
 **Status: commissioned here, and WRITTEN — [`AI-CALL-LOG.md`](AI-CALL-LOG.md),
-2026-09-14.** This file is the brief; that file is the result, and the two are
+[2026-09-14](https://github.com/guycn1/cinerank-project/commit/be405c52b354fce8188f69aa5c4131e3c6ec253b).** This file is the brief; that file is the result, and the two are
 worth reading in that order, because the brief is a specification for a document
 and the document can be judged against it.
 
-*(Written after the user, reading this brief during a pre-merge sweep, called
+*([Written](https://github.com/guycn1/cinerank-project/commit/be405c52b354fce8188f69aa5c4131e3c6ec253b) after the user, reading this brief during a pre-merge sweep, called
 the missing document a real gap — which it was: the brief argues that this
 component carries an unusual density of non-obvious decisions for its size, and
 those decisions were still undocumented.)*
@@ -113,27 +113,28 @@ could be a border. The reveal panel's fade looks like it could live on
 Not merely mention. For each, the alternative that was tried first and why it
 failed:
 
-* **The dialog is the single scroller, not the table.** An earlier version
-  scrolled a flex-sized inner box, which collapsed to nothing on a short
+* **[The dialog is the single scroller](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce), not the table.**
+  [An earlier version](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303) scrolled a flex-sized inner box, which collapsed to nothing on a short
   viewport.
-* **`.log-curtain` exists because a sticky `<tfoot>` alone cannot reach the
+* **[`.log-curtain` exists](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) because a sticky `<tfoot>` alone cannot reach the
   dialog's bottom edge** — it is clamped by its own containing block, so rows
   peeked under it mid-scroll.
-* **The totals divider is painted as background gradients**, not a border (the
+* **The totals divider is [painted as background gradients](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)**, not a border (the
   collapsed-border layer leaves it behind on pin) and not a shadow (webkit does
   not paint outer shadows on cells; inset ones stop at the collapsed border).
-* **The reveal panel's opacity animates on the panel, never on
+* **The reveal panel's opacity [animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467), never on
   `::details-content`** — animating the pseudo made it a stacking context only
   while mid-fade, trapping the panel behind later rows.
-* **`--reveal-fade` is one custom property read by two different elements**, and
+* **[`--reveal-fade` is one custom property](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70) read by two different elements**, and
   they must match or the panel is yanked mid-fade.
-* **The Result column is a fixed width with an absolutely positioned panel**, so
+* **[The Result column is a fixed width with an absolutely positioned panel](https://github.com/guycn1/cinerank-project/commit/9b6fd4072b3587f7b93e62c2b31f299665311f7f)**, so
   opening a row can never reflow the table or steal width from its neighbours.
 * **`.log-scroll` must stay `overflow: visible`** — it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
-* **Card view's two specificity fixes** (850px and below): a leftover desktop
-  separator stacking into a vertical line, and a desktop `last-child` rule
-  outranking the card rule and removing the final row's separator.
+* **Card view's two specificity fixes** (850px and below):
+  [a leftover desktop separator](https://github.com/guycn1/cinerank-project/commit/25035ab2d194139be59100c42b068475a2e66b1d) stacking into a vertical line, and
+  [a desktop `last-child` rule](https://github.com/guycn1/cinerank-project/commit/3deea7e7f948d890c48fabaeaada1962b6778984) outranking the card rule and removing
+  the final row's separator.
 * **Six pre-migration-001 rows were deleted by hand
   ([D-019](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))**
   so the totals footer needs no partial-coverage markers. Anyone re-adding old
@@ -148,7 +149,7 @@ document the thing nobody finishes reading.
 
 ### Where it goes, and how to tell it worked
 
-[`AI-CALL-LOG.md`](AI-CALL-LOG.md), written 2026-09-14. The test is not length:
+[`AI-CALL-LOG.md`](AI-CALL-LOG.md), [written 2026-09-14](https://github.com/guycn1/cinerank-project/commit/be405c52b354fce8188f69aa5c4131e3c6ec253b). The test is not length:
 **hand it to someone who has never seen the component and ask them to make the
 band under the table shorter.** If they change `--log-curtain-h`, the document
 worked. If they shorten the curtain alone and leave a strip under the pinned

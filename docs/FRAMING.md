@@ -13,8 +13,8 @@ commit that added [`SPEC.md`](../SPEC.md) and [`CLAUDE.md`](../CLAUDE.md): the
 problem statement and the out-of-scope list as
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement), and the testable
 definition of done as
-[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission). What this file
-adds is the **stakeholder list**, which was genuinely missing, and one place
+[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission). [What this file
+adds](https://github.com/guycn1/cinerank-project/commit/d74e655a78f805670486bd2ac41ca6f29454e79b) is the **stakeholder list**, which was genuinely missing, and one place
 where the four sit together and can be read as a brief rather than found
 scattered. The out-of-scope list is also reconciled here — `SPEC.md` § 1 carried
 three exclusions and `CLAUDE.md` carried four, which is one list too many.
@@ -149,13 +149,13 @@ out. Four places where it does:
   ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)).
 * **The definition of done stopped work at a line agreed in advance.**
   [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
-  closed against the ~350px target, with the band below ~310px outside that
+  [closed against the ~350px target](https://github.com/guycn1/cinerank-project/commit/d5e531a9c738d1e046c4c25dff04b4820512dc02), with the band below ~310px outside that
   target by prior agreement rather than left unfinished — the boundary was set
   in advance so it did not have to be argued each time.
 * **The reader of the repository, as a stakeholder, makes a whole class of work
   blocking rather than cosmetic.** Both long markdown files were found rendering
   wrong on GitHub. For the list owner alone that would be a shrug; for someone
-  who only ever sees the repository it is a defect, which is why it got a fix
+  who only ever sees the repository it is a defect, which is why it got [a fix](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b)
   and a
   [permanent verification gate](../scripts/check-markdown.js)
   ([D-065](DECISIONS.md#d-065--the-markdown-separators-are-deleted-not-unescaped--and-two-of-the-four-suspected-escaping-defects-turned-out-not-to-be-defects-at-all),
