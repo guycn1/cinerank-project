@@ -280,7 +280,8 @@ fires is the thing this document exists to rule out.
 * **Context** — [`CLAUDE.md`](../CLAUDE.md), human-directed and
   version-controlled, with every change to it a reviewable diff.
 * **Tools** — the ten versioned prompt files in [`prompts/`](../prompts), never
-  overwritten. A past recommendation or verdict is traceable to the exact prompt
+  overwritten: what each sends the model is fixed, byte for byte, even where a
+  file was edited so GitHub could display it ([D-084](DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)). A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
 * **Trajectory** — an unbroken commit history from [the very first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), 30
   merges to `main` as of 2026-10-01 — [the twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the last *planned* one,

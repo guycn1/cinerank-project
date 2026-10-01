@@ -13,7 +13,9 @@
  *
  * The fixture also carries the entities a prompt file writes so GitHub can
  * display it (`&lt;` and the like): they must reach the model as the plain
- * characters, decoded once, and never in text substituted into the prompt.
+ * characters, decoded once, and never in text substituted into the prompt. That
+ * text is inserted exactly as given, `$&` and the other sequences replace()
+ * treats as patterns included.
  */
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';

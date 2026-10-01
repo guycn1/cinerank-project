@@ -1,5 +1,6 @@
 /**
- * Loads a versioned prompt file from prompts/ and fills in its placeholders.
+ * Loads a versioned prompt file from prompts/, decodes the entities it writes
+ * for GitHub's sake, and fills in its placeholders.
  *
  * Prompts are never inlined in code (CLAUDE.md § Prompt Versioning). Each file has
  * a leading HTML comment (dev notes), then a "# System" section and a "# User"

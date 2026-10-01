@@ -103,7 +103,8 @@ in a paragraph, not markup and not an instruction.
 ![The taste verdict banner reading normally about the viewer film taste, with
 its cost and token count beneath](https://raw.githubusercontent.com/guycn1/cinerank-project/main/docs/screenshots/pi-2-verdict-resists.png)
 
-This is the feature that receives every rated film review verbatim. No pirate,
+This is the feature that receives the review of every rated film, each cut at
+200 characters; this one is shorter, so it arrived whole. No pirate,
 no BANANA, no system prompt — and the real cost of the call declared underneath.
 
 **3 — The recommendations, unaffected, and proof the attack was delivered.**

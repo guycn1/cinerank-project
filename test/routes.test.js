@@ -913,7 +913,7 @@ for (const feature of [
   });
 }
 
-/* ---------- /api/recommendations/history ------------------------------ */
+/* ---------- a review cut never splits an emoji ------------------------ */
 
 // Half an emoji in a prompt or a stored review. Most emoji take two UTF-16 code
 // units, and the review cuts (300 characters for recommendations, 200 for the
@@ -953,6 +953,8 @@ test('a review cut never ends in half an emoji: both prompts and the stored revi
   const stored = db.calls.find((c) => c.table === 'movies' && c.op === 'update').payload.review;
   assert.equal(stored, 'x'.repeat(1999), 'the straddling emoji is dropped whole, not halved');
 });
+
+/* ---------- /api/recommendations/history ------------------------------ */
 
 // The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
 // was the one route no test touched, which is the whole reason the endpoint kept

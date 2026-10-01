@@ -58,11 +58,16 @@ merges 21 to 29, the figures and notes describing it were written to `draft`
 first. They went in as one commit, and all five gates ran on it before the
 user confirmed the merge.
 
-Since the thirtieth merge, `draft` carries a defect published on `main` —
-SPEC.md's turn-count footnote rendering as a list item, which the user ruled
-worth a ground-2 merge on its own — plus the work that rode along with its
-fix. As of 2026-10-01 that thirty-first merge waits for the user's
-confirmation.
+Since the thirtieth merge, `draft` carries defects published on `main`. The
+first found was SPEC.md's turn-count footnote rendering as a list item, which
+the user ruled worth a ground-2 merge on its own. Since then: `npm run
+seed-demo -- --keep` overwriting a rating it promised to leave alone, a review
+containing `$&` reaching the model as a placeholder's name, a review cut
+through an emoji sending half of it, placeholders GitHub swallowed in the
+recommendation prompts and the RS-8 recipe, D-065's escape examples printed
+without their backslashes, and claims the sweeps found false. Riding along:
+rules 11 and 12 in `check-markdown` and the linking rule's commit links. As of
+2026-10-01 that thirty-first merge waits for the user's confirmation.
 
 ### What landed, newest first
 
@@ -163,7 +168,7 @@ was wording:
 - **Wrong as written:** "New verdict" is enabled on load only above the
   threshold; more than two states go beyond SPEC § 7.1's criterion 7; not every
   front-end change since the captures was cosmetic (`docs/screenshots/README.md`
-  now names the two that were not); `docs/RESILIENCE.md` no longer counts the
+  names those that were not); `docs/RESILIENCE.md` no longer counts the
   recommendation service's throw sites; and D-034's "an hour earlier" was seven
   minutes.
 
@@ -222,6 +227,37 @@ span holding a backslash, a regex, a path or only symbols; entities in code and
 in prose; accidental emphasis, strikethrough and emoji; backslash escapes and
 hard breaks in prose; dropped words and stray spacing; repeated runs that a
 `$&` replacement would leave; and HTML comments. Nothing else was found.
+
+**Then the linking rule, read broadly, reached what had been written since it
+was broadened:** the fixes written up since then link their commits, prompts,
+tables and tests, and across all twelve linked files every `scripts/` tool
+named in prose links its script and a `check-markdown` rule cited by number
+links § The rules. Each
+changed file rendered identically before and after once its links were
+stripped.
+
+**Then a staleness sweep of every markdown file and every code comment against
+what had landed since the thirtieth merge.** The test count, the lint coverage,
+the complexity table and the count of tests reaching `generateRecommendations()`
+were already current. Corrected:
+- **"Untouched" and "never edited" said of the prompts**, which D-084's entity
+  edit made false of the files, though not of what the model receives:
+  `SPEC.md` § 6 called `recommend_v1` untouched and `check-claims` called
+  `prompts/` never edited. `README.md`, `docs/MERGE-READINESS.md` § 5 and
+  `docs/PROCESS.md` § 2 now say what "never overwritten" protects.
+- **Gone short:** `docs/screenshots/README.md` names the no-matches note's emoji
+  cut as a third behaviour change since the captures; Current state names every
+  published defect `draft` carries; the merge-count note under Build status
+  names the three places that describe the merges by range; the loader's
+  module header and the prompt-loader test's header name the entity decoding
+  and the `$&` guard; and the text-helper tests' header names the half-emoji
+  fix beside D-011 to D-014.
+- **Wrong as written:** `docs/SECURITY.md` said the verdict receives every
+  review verbatim, when each is cut at 200 characters, and a test comment said
+  every fixed-length cut in the server goes through `cutText()`, which TMDB's
+  four-character year slice does not.
+- **Misplaced:** the emoji test sat under `test/routes.test.js`'s
+  `/api/recommendations/history` section marker; it has a marker of its own.
 
 #### 2026-09-30
 
@@ -832,7 +868,10 @@ carries the current state.
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
-    — update all three. `draft` continues day to day.
+    — update all three. The merges are also described by range, with no count,
+    in `SPEC.md`'s spiral status, `README.md`'s Workflow section and ground 2
+    under Version Control Workflow, so a merge extends those too. `draft`
+    continues day to day.
 
   - **WHY THE FINAL PLANNED MERGE'S COUNT WAS WRITTEN BEFORE THE MERGE RATHER
     THAN AFTER, since that breaks the rule directly above it.** For the first twenty merges the order

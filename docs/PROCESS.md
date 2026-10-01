@@ -331,7 +331,8 @@ exercised, repeatedly, and is traceable in the log:
 ## 2. Prompt engineering as version control
 
 Neither AI feature's prompt is inlined in code — each is a numbered file under
-[`prompts/`](../prompts), never overwritten, and every log row records which
+[`prompts/`](../prompts), never overwritten (what a version sends the model
+stays fixed, [D-084](DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)), and every log row records which
 version produced it. The iteration history *is* the evidence of prompt
 engineering:
 

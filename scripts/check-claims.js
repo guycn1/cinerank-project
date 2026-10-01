@@ -538,9 +538,9 @@ function reportSelfNarration(f, text, firstLine = 1) {
  * ever self-narration.
  *
  * Covers the markdown, except DOSSIER.md (the course's own text) and prompts/
- * (versioned and never edited), and every comment in the JS, CSS and HTML. A
- * run of consecutive comment lines is read as one passage, so a phrase that
- * wraps is still seen.
+ * (versioned text the model reads, D-084), and every comment in the JS, CSS and
+ * HTML. A run of consecutive comment lines is read as one passage, so a phrase
+ * that wraps is still seen.
  */
 function checkEditHistory() {
   for (const [f, s] of md) {
@@ -576,8 +576,8 @@ function checkEditHistory() {
  * audits of 2026-09-19 found them by hand, and nothing kept them found. 11c,
  * further down, resolves the file each link points at.
  * Sources exempt from all three: this file (it quotes the patterns), prompts/
- * (versioned, never edited) and DOSSIER.md (the course's own text). They are
- * still valid TARGETS.
+ * (versioned text the model reads, D-084) and DOSSIER.md (the course's own
+ * text). They are still valid TARGETS.
  */
 
 /**

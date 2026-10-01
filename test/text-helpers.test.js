@@ -2,8 +2,9 @@
  * @file Unit tests for the server's pure text and cost helpers: parseModelJson(),
  * tidyReason(), tidyVerdict(), cutText() and estimateCostUsd().
  *
- * These are the pure helpers where every past truncation bug lived
- * (see docs/DECISIONS.md D-011..D-014). No network, no DB.
+ * These are the pure helpers that carry the fixes for every past truncation bug
+ * (see docs/DECISIONS.md D-011..D-014, and the half-emoji cut of 2026-10-01,
+ * which cutText() now prevents at every server cut). No network, no DB.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -105,9 +106,10 @@ test('estimateCostUsd: known model, unknown model, zero tokens', () => {
   assert.equal(estimateCostUsd('anthropic/claude-haiku-4.5', 0), null);
 });
 
-// Half an emoji is an unpaired surrogate: not a character at all. Every fixed-length
-// cut in the server goes through cutText(), so a review that reaches a prompt, a
-// stored review and a tidied model reply can never end in one.
+// Half an emoji is an unpaired surrogate: not a character at all. Every cut the
+// server makes to a review or to the model's text goes through cutText(), so a
+// review that reaches a prompt, a stored review and a tidied model reply can
+// never end in one.
 const HALF = /[\ud800-\udbff](?![\udc00-\udfff])/;
 test('cutText: never leaves half an emoji, and otherwise cuts exactly like slice()', () => {
   const x = (n) => 'x'.repeat(n);

@@ -140,7 +140,9 @@ decoration:
 - **[Prompts are files](prompts/), [loaded at call time](server/services/promptLoader.js).** Nothing is inlined in a `.js`
   file, versions are never overwritten, and every log row records which version
   produced it — so any past recommendation or verdict is traceable to the exact
-  text that generated it.
+  text that generated it. (Three files carry entities so GitHub can display
+  their angle brackets; the loader decodes them, so what the model receives is
+  unchanged, [D-084](docs/DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged).)
 - **Two models on one transport.**
   [`openrouter.js`](server/services/openrouter.js) takes an optional model and
   [`tasteVerdict.js`](server/services/tasteVerdict.js) is the only caller that overrides it ([D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), so the split
