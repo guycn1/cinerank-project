@@ -4646,7 +4646,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     Add on the rows still on screen. With TMDB down, a fresh search fails and
     there is nothing to click. This works because the results panel is
     persistent rather than a dropdown (D-024). Expect the
-    toast: "Couldn’t add “<Title>” — TMDB is unreachable."
+    toast: "Couldn’t add “&lt;Title&gt;” — TMDB is unreachable."
 
   - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
     two (seven others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11,
@@ -4816,7 +4816,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   - [x] **RS-8 · CAPTURED 2026-09-13 —
     `docs/screenshots/rs-8-search-no-matches.png`.** **The non-error empty
     state.** Everything working; search a nonsense string. Expect the MUTED note
-    (not crimson): "No matches for “<query>”. Check the spelling, or try a
+    (not crimson): "No matches for “&lt;query&gt;”. Check the spelling, or try a
     different title." One shot, purely to show that an empty result and a
     failure are visibly different — which is the whole of D-033's argument,
     applied in Search.
@@ -4928,7 +4928,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     (RS-13), **View the AI call log** (RS-12). Expect "Couldn’t come up with a
     verdict right now. Try again in a moment." and "Couldn’t generate
     recommendations right now. Try again in a moment.", **both with NO log
-    link** — that absence is the whole of RS-11; then "Couldn’t remove “<Title>”
+    link** — that absence is the whole of RS-11; then "Couldn’t remove “&lt;Title&gt;”
     — Something went wrong."; then, inside the log dialog, "Couldn’t load the
     log — Something went wrong."
 
