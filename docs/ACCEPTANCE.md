@@ -20,7 +20,7 @@ decision". An agent marking its own homework as accepted is the cleanest
 possible way to make the whole exercise circular, which is why the division here
 is a structural one rather than a courtesy.
 
-**They were ticked on 2026-09-14**, by the authors, against what is written
+**They were [ticked on 2026-09-14](https://github.com/guycn1/cinerank-project/commit/4d433d135d4cefc7b1db9c0fc739082a4c1dee30)**, by the authors, against what is written
 below. This document is the basis for that decision rather than a record of it:
 it was complete, and every criterion read a clean `yes`, before any box was
 marked.
@@ -32,7 +32,7 @@ on is more useful than a uniform tick:
 
 | Kind | What it means |
 |---|---|
-| **Automated** | An assertion in `npm test` that fails if the behaviour regresses. The strongest kind, because it keeps being true. |
+| **Automated** | An assertion in [`npm test`](../test/) that fails if the behaviour regresses. The strongest kind, because it keeps being true. |
 | **Captured** | A screenshot of the real application in the state described. Proves it happened once, on a real dependency. |
 | **Repeatable command** | Something anyone can re-run and read the output of. |
 | **Hand-verified** | Someone used the application and saw it. Weakest, and stated as such where it is all there is. |
@@ -63,7 +63,7 @@ in [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) was marked.)*
 
 ## 1 · Searching a real movie title returns real TMDB results with posters
 
-**Assessed 2026-09-13. Three independent kinds of evidence.**
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/a153ece77bf58e68fb885802ce1b792ac1adcce3). Three independent kinds of evidence.**
 
 ### Captured
 
@@ -105,7 +105,7 @@ the word "null".
 fails it too, and incidentally fails an existing recommendations test — a useful
 signal that the field travels further than this route.
 
-**This test was written on 2026-09-13, while assembling this document.** Until
+**This test was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/32557a7bfd3f3af14f391f754b96046b1d5b9d11), while assembling this document.** Until
 then the suite had exactly two search tests, both failure paths: the 400 for a
 missing query and the 502 for TMDB being unreachable. Every fixture carrying a
 poster (`MATRIX_TMDB`, `UNVOTED_TMDB` and `HEAT_TMDB`) reached the suite only
@@ -132,7 +132,7 @@ application against live TMDB, and a command anyone can re-run.
 
 ## 2 · Adding a movie already in the list is blocked with a clear message, not a duplicate row
 
-**Assessed 2026-09-13. Satisfied at three independent layers**, which is worth
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/2fdcdb69e25fc227901ce7e7cc83ceb6f1a24fc8). Satisfied at three independent layers**, which is worth
 stating separately because the criterion makes two claims — that the attempt is
 *blocked with a clear message*, and that no *duplicate row* results — and they are
 guaranteed by different things.
@@ -181,7 +181,7 @@ interface is genuinely awkward: the button is disabled, so it cannot normally be
 clicked. It was reachable through a stale-button race — adding a film from the
 search panel while a recommendation card still offered it — and
 [`R3`](../CLAUDE.md#group-a--functional-bugs)
-closed that by making the Add-button sync document-wide rather than
+[closed that](https://github.com/guycn1/cinerank-project/commit/0ddc6b0c05790b66c3586f06ce44ac4bd6418fc3) by making the Add-button sync document-wide rather than
 panel-scoped.
 
 So the path no camera caught is one the application no longer exposes within a
@@ -197,7 +197,7 @@ outcome impossible rather than merely handled.
 
 ## 3 · Deleting and re-ranking works correctly with 0, 1, and many movies
 
-**Assessed 2026-09-13.** This is the criterion that explicitly asks for *edge
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478).** This is the criterion that explicitly asks for *edge
 cases, not just the happy path*, so the two edge sizes were produced
 deliberately rather than waited for: the demo list was emptied one film at a
 time, captured at one and at zero, and rebuilt from
@@ -236,7 +236,7 @@ all** beside the heading.
 `renderRanked()` guards the subtitle behind the count, because
 `rankedCountLabel(0, 0)` would return `"0 films"` — which, sitting directly above
 *"No movies yet"*, says nothing twice. The guard had no comment explaining itself
-until this capture prompted the question, and now does, so a later tidy-up cannot
+until this capture prompted the question, and [now does](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478), so a later tidy-up cannot
 simplify it into an unconditional call and quietly restore the redundancy.
 
 ### Captured — many
@@ -248,8 +248,8 @@ subtitle.
 
 ### Automated
 
-[`test/routes.test.js`](../test/routes.test.js), two tests, **both written on
-2026-09-13 while assembling this entry** — the endpoint had no coverage at all
+[`test/routes.test.js`](../test/routes.test.js), two tests, **both [written on
+2026-09-13](https://github.com/guycn1/cinerank-project/commit/a6af5f596e43911bcf637345755ee38e594c074f) while assembling this entry** — the endpoint had no coverage at all
 before:
 
 * *"DELETE /api/movies/:id → 204 with no body"* — the status, an empty body, and
@@ -261,7 +261,7 @@ before:
 
 **The gap was conspicuous once looked at.**
 [`test/helpers.js`](../test/helpers.js) has defined a `del()` client method
-since it was written, and nothing had ever called it.
+[since it was written](https://github.com/guycn1/cinerank-project/commit/2a5f357c5eaad9118610c08155bccc71049b6f3d), and nothing had ever called it.
 
 ### What is deliberately not asserted
 
@@ -277,7 +277,7 @@ Two limits, stated rather than papered over:
   [`public/app.js`](../public/app.js), a browser script the Node runner cannot
   import, and the client had no test harness when this was assessed. Its
   behaviour at 0, 1 and many is evidenced by the captures above rather than by
-  assertions. *(Since 2026-09-28,
+  assertions. *([Since 2026-09-28](https://github.com/guycn1/cinerank-project/commit/bde59026c9cc7148b2a0f8129e7d48424981d156),
   [`npm run layout-check`](../scripts/layout-check.js) runs the client in
   headless browsers. It measures layout rather than this function's output, so
   the captures above remain the evidence here.)*
@@ -291,7 +291,7 @@ instead of being left for a reader to discover.
 
 ## 4 · The recommendation action is disabled with an explanation below 3 rated movies
 
-**Assessed 2026-09-13.** The criterion has two halves — *disabled*, and *with an
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/c2b550c58ac294cea7acb4137150c535276102cf).** The criterion has two halves — *disabled*, and *with an
 explanation* — and both are visible in one frame.
 
 ### Captured
@@ -330,7 +330,7 @@ the third is the interesting one:
 |---|---|
 | Status is **422** | Not a 500 — this is a state the user can act on, not a fault |
 | The body matches `/at least 3/` | The explanation reaches the client, rather than a bare status |
-| **No `recommendation_logs` row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
+| **No [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
 
 `GET /api/config` is separately tested to serve the threshold numbers, which is
 what lets the client display the rule without hardcoding it. The server is the
@@ -362,7 +362,7 @@ one place rather than duplicated.
 
 ## 5 · A full recommendation run logs a row with real token/cost data, and every shown suggestion is TMDB-verified
 
-**Assessed 2026-09-13.** Two claims: the run is **logged with real figures**, and
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two claims: the run is **logged with real figures**, and
 the films shown are **real** rather than invented by the model.
 
 ### Captured — what the user sees
@@ -376,7 +376,7 @@ the model names is looked up before a card is drawn and dropped if TMDB has neve
 heard of it.
 
 The **"Based on:"** line names the five films that fed the prompt, and the footer
-declares `recommend_v3`, the model, the token count, the cost and the duration.
+declares [`recommend_v3`](../prompts/recommend_v3.md), the model, the token count, the cost and the duration.
 
 ### Captured — what the audit trail holds
 
@@ -418,7 +418,7 @@ is load-bearing.
 
 ## 6 · The verdict is disabled with an explanation below 2 rated movies, and a triggered verdict logs a row with real token/cost data
 
-**Assessed 2026-09-13.** Two halves again — the locked state, and the logged run.
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two halves again — the locked state, and the logged run.
 
 ### Captured — locked below the threshold
 
@@ -432,7 +432,7 @@ for the same reason as under
 The banner reads **"Rate at least 2 movies to get a verdict (you have 1)."** and
 **"New verdict" is greyed**, its sparkle dimmed with it.
 
-**The button is disabled rather than hidden, and that was a decision.** Below the
+**[The button is disabled rather than hidden](https://github.com/guycn1/cinerank-project/commit/173b84c0dc7ae2df8be23388a40679ee50bd8e70), and that was a decision.** Below the
 threshold it used to be removed from the page entirely, so a new user saw a banner
 with a sentence and no sign anything would ever appear there. Every other locked
 control in the application is disabled rather than absent, so this is consistency
@@ -444,7 +444,7 @@ sentence beside it explains *why*.
 ![The verdict banner holding generated text, with a footer declaring prompt
 version, model, tokens, cost and duration](screenshots/readme-1-hero-ranked-list.png)
 
-A generated verdict with `taste_verdict_v7`, `claude-sonnet-5`, its token count,
+A generated verdict with [`taste_verdict_v7`](../prompts/taste_verdict_v7.md), `claude-sonnet-5`, its token count,
 its cost in cents and its duration declared directly beneath it. The verdict
 rows in
 [`screenshots/readme-3-ai-call-log.png`](screenshots/readme-3-ai-call-log.png)
@@ -456,8 +456,8 @@ are the same figures in the audit trail.
   half, asserting the status and that the message names the requirement.
 * **"POST /api/taste-verdict logs a success row with real token and cost data"** —
   the logged half. `status: success`, no error, the stored verdict text, the cost
-  from OpenRouter’s `usage.cost`, the token count and `taste_verdict_v7`. It
-  also checks the model on both sides of the call: the request asks for the
+  from OpenRouter’s `usage.cost`, the token count and [`taste_verdict_v7`](../prompts/taste_verdict_v7.md). It
+  also [checks the model on both sides of the call](https://github.com/guycn1/cinerank-project/commit/9dfd99af1e07b7b1bb04d1ddbe784d945e1713ee): the request asks for the
   verdict’s own model, `claude-sonnet-5`
   ([`D-053`](DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)),
   and `model_used` records the model OpenRouter reports having served it. The
@@ -465,8 +465,8 @@ are the same figures in the audit trail.
   requested, so a row that logged the configured name instead of the reported
   one would fail.
 
-**That second test was written on 2026-09-13 while assembling this entry, because
-it did not exist.** Every `taste_verdict_logs` assertion in the suite was a failure
+**That second test was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/e71ad7e8ee3c484d2edea2c356d95b9545095f4a) while assembling this entry, because
+it did not exist.** Every [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) assertion in the suite was a failure
 path. The one verdict behaviour this criterion names was the one nothing checked.
 Verified load-bearing: making the service ignore OpenRouter’s reported cost and
 fall back to the estimate table fails it.
@@ -482,7 +482,7 @@ called. Both halves of that column are now pinned.
 
 ## 7 · Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error
 
-**Assessed 2026-09-13.** This criterion has its own document:
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** This criterion has its own document:
 **[`RESILIENCE.md`](RESILIENCE.md)** — sixteen states, twenty-four captures, each
 measured against a stated definition of "graceful". Three are embedded here; the
 rest are there.
@@ -539,7 +539,7 @@ are not.
 
 ## 8 · `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history
 
-**Assessed 2026-09-13. Satisfied.**
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd). [Satisfied.](https://github.com/guycn1/cinerank-project/commit/2ed9ef20f46f1de158248752dde9c99f27e89341)**
 
 Most of the evidence here is **commands** rather than pictures. A screenshot of a
 terminal proves less than the command itself, which anyone can re-run against this
@@ -552,7 +552,7 @@ git log --all --diff-filter=A --name-only --format="" | grep -x "\.env"
 ```
 
 **No output.** `.env` appears in no commit’s file list, on any branch, at any point
-in history — **including the first commit**. It has never been tracked.
+in history — **including [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3)**. It has never been tracked.
 
 ### Does any key-shaped string appear in any blob?
 
@@ -584,15 +584,15 @@ cover every credential the project holds.
 ![GitHub showing commit a93326c: zero parents, one file changed, README.md with a
 single added line](screenshots/ac-8-first-commit.png)
 
-`a93326c` — **`0 parents`**, so it is demonstrably the root commit — **one file
+[`a93326c`](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) — **`0 parents`**, so it is demonstrably the root commit — **one file
 changed**, [`README.md`](../README.md), **one line added**: `# cinerank-project`.
 
-That is GitHub’s repository-creation commit. It contains no code, no configuration
+That is GitHub’s [repository-creation commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3). It contains no code, no configuration
 and no `.env`: **`.env` did not exist in the first commit, and there was nothing
 there for a secret to be in.** The user checked it by hand and confirmed it holds
 no secret.
 
-[`.gitignore`](../.gitignore) arrives in the very next commit, `103c4be`, with
+[`.gitignore`](../.gitignore) arrives in the very next commit, [`103c4be`](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), with
 `.env` on its second line and [`.env.example`](../.env.example) alongside it —
 the first commit that contains any project content at all:
 
@@ -604,8 +604,8 @@ the first commit that contains any project content at all:
 ```
 
 **So the criterion is met in full**: from the first commit onward, `.env` is
-excluded and no key is present — absent from the first commit, which the user
-checked by hand, and ignored from the second, the first with any project content,
+excluded and no key is present — absent from [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), which the user
+checked by hand, and ignored from [the second](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content,
 onward. The root commit needs no exemption from the scans above — it passes them,
 because it holds a single line of README.
 
@@ -616,12 +616,12 @@ A clean history is a fact about the past.
 and inspects the **staged diff**, so the property is maintained rather than
 merely observed. It is one of
 [five commit gates](../CLAUDE.md#version-control-workflow-non-negotiable),
-alongside `npm test`, `npm run lint`, `npm run check-markdown` and `npm run
-check-claims`.
+alongside [`npm test`](../test/), [`npm run lint`](../eslint.config.js), [`npm run check-markdown`](../scripts/check-markdown.js) and
+[`npm run check-claims`](../scripts/check-claims.js).
 
 ### Verdict
 
 **Satisfied.** `.env` has never been tracked in any commit, no key-shaped string
-exists in any blob in any commit, the root commit is shown to have held a single
+exists in any blob in any commit, [the root commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) is shown to have held a single
 line of README and was checked by hand by the user, and the ignore rule has been
-in place since the first commit that contained anything to ignore.
+in place since [the first commit that contained anything to ignore](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9).

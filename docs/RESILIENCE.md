@@ -5,7 +5,7 @@ movie fact, **OpenRouter** for both AI features, and **Supabase** for storage. A
 of them can be down, and a fourth failure is possible too — the app's own server
 being unreachable from a page already open in the browser.
 
-`npm test` covers what the *server* does in each case: the status codes, the log
+[`npm test`](../test/) covers what the *server* does in each case: the status codes, the log
 rows, the error shapes. **This document covers what the user sees**, which no test
 can photograph. Sixteen states, twenty-four frames.
 
@@ -116,7 +116,7 @@ above the search results](screenshots/rs-2-tmdb-down-on-add.png)
 
 **The film's name in that sentence is the point, not decoration.** The server
 sends a short machine-readable cause; the client prefixes the context it already
-knows. Before that mechanism
+knows. Before [that mechanism](https://github.com/guycn1/cinerank-project/commit/75aacfbbc110a831298e7eeb0818d1fe55b49502)
 ([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form))
 a failed add named no film at all, and a naive fix produced doubled messages
 like “Couldn’t add “Heat” — Couldn’t reach the movie database”. The two halves
@@ -147,7 +147,7 @@ returned](screenshots/rs-3-tmdb-down-during-recs-log.png)
 The log row is the other half: **green `success`, real tokens, real cost, and "no
 suggestions".** A run can be simultaneously successful, charged, and empty.
 
-**Before this was fixed, this state lied.** Every empty run reported "the model
+**[Before this was fixed](https://github.com/guycn1/cinerank-project/commit/d72491877ebe303eb14661ecaa81f70431a45c30), this state lied.** Every empty run reported "the model
 only named films already in your list" — one of several possible causes, and not
 this one. Because a verification failure still logs as a success, that sentence was the
 only thing a user would ever see, and a TMDB outage disappeared entirely.
@@ -156,8 +156,8 @@ because it is the only one the user can neither see nor act on.
 
 ## When OpenRouter is unreachable
 
-Both AI features share one transport, and both must fail the same way. They did
-not always: they had drifted into two different error dialects, and the verdict's
+Both AI features share one transport, and both must fail the same way.
+[They did not always](https://github.com/guycn1/cinerank-project/commit/c71f77990373633a7dab9e071cbf6868fe0bfde5): they had drifted into two different error dialects, and the verdict's
 was worse — it offered the AI call log for *every* failure, including ones where
 that log could not load either.
 
@@ -169,7 +169,7 @@ a link to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
 > Couldn’t generate recommendations right now. See the AI call log for details.
 
 **Two absences are the substance.** There is no technical detail in the message
-— before
+— [before](https://github.com/guycn1/cinerank-project/commit/5db718520a0e6f072579b0df6f6d07b091d40530)
 [`R8`](../CLAUDE.md#group-c--copy-and-consistency),
 the route wrapped every cause into the user-facing text, so people saw
 `OpenRouter responded 401`, and worse, `DB read failed:` followed by raw
@@ -177,9 +177,11 @@ Postgres output. And there is **no cost footer**, because nothing succeeded.
 That is the exact inverse of [RS-3](#rs-3--verifying-recommendations), where a
 call *did* succeed and its cost is shown.
 
-**The log link is conditional**, which is the subtle half: it appears only because
-a `recommendation_logs` row was really committed. The server sends a flag saying
-so. Of six places this function can fail, only one qualifies.
+**[The log link is conditional](https://github.com/guycn1/cinerank-project/commit/5db718520a0e6f072579b0df6f6d07b091d40530)**, which is the subtle half: it appears only because
+a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was really committed. The server sends a flag saying
+so, and only a failure that comes after its row was written can set it: a
+failed database read, an unmet threshold and a failed log write all leave no
+row, so they offer no link.
 
 ![The AI call log showing a failed row with the real cause, OpenRouter responded
 401](screenshots/rs-4-openrouter-down-recs-log.png)
@@ -224,7 +226,7 @@ path, not only in the successes.
 
 **That second claim was false until the day this was shot.** A failed verdict
 was logging the app-wide model rather than the one it had actually called. The
-bug was found by looking at an earlier version of this very screenshot, fixed,
+bug was found by looking at an earlier version of this very screenshot, [fixed](https://github.com/guycn1/cinerank-project/commit/db5a05ed25070562b703b257be485e8227e51cfb),
 covered by a test per feature, and the wrong rows removed by hand
 ([`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history)).
 
@@ -250,7 +252,7 @@ different places.
 
 **The footer under that message is the part worth looking at.** A call was made,
 it took 4,221 ms, it cost 0.20¢, and the page says so *on a run that produced no
-cards at all*. It used to return before building that footer, so the one outcome
+cards at all*. It [used to return before building that footer](https://github.com/guycn1/cinerank-project/commit/d72491877ebe303eb14661ecaa81f70431a45c30), so the one outcome
 that charged the user money and showed them nothing was also the only outcome
 that reported no cost anywhere
 ([`R10`](../CLAUDE.md#group-c--copy-and-consistency)).
@@ -326,7 +328,7 @@ the wrong place — resolves to a neighbouring real film rather than being dropp
 deliberately kept). Reaching this state means TMDB returned **nothing at all**
 for every title, which is what a genuinely invented title looks like.
 
-**And the message says what went wrong.** Before
+**And the message says what went wrong.** [Before](https://github.com/guycn1/cinerank-project/commit/d72491877ebe303eb14661ecaa81f70431a45c30)
 [`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 the app's message read "the model only named films already in your list" for
 *every* empty run — it would have been a flat lie here. The causes are now tallied per
@@ -384,9 +386,10 @@ interface should show.
 have caught. `loadMovies()` awaits its request on its first line, and a failed
 request throws there, before any of the four synchronisation functions below it
 can run —
-and every element then keeps whatever the markup gave it. "Get recommendations"
-had shipped without a `disabled` attribute and so rendered fully live above an
-empty list. And the verdict's `Reading the room…` placeholder, meant to last a
+and every element then keeps whatever the markup gave it.
+["Get recommendations" had shipped without a `disabled` attribute](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081) and so
+rendered fully live above an empty list. And
+[the verdict's `Reading the room…` placeholder](https://github.com/guycn1/cinerank-project/commit/27e32b3843c366466217cdc2526dd587bf4c53cf), meant to last a
 fraction of a second, sat there for the life of the page still promising a verdict.
 Both are fixed, and this frame is the fixed state: the trigger is greyed, and the
 banner reads **"Couldn’t read the room — your movies didn’t load."** — an admission
@@ -468,7 +471,9 @@ after the one that writes the failure, in `renderAiLog()` in
 > the one place the app cannot tell a Supabase outage from a bug of its own —
 > and it once did guess, telling users that a bad key in `.env` was a problem
 > "on our side" when it was neither a bug nor the server’s fault. That was found
-> while shooting [`RS-7`](#rs-7--supabase-down), and removed the same afternoon.
+> by the user putting a bad key in `.env`, the state [`RS-7`](#rs-7--supabase-down)
+> photographs, and [removed](https://github.com/guycn1/cinerank-project/commit/0e400d4e4025948ea68f97c7515771cc133b1158) on 2026-09-08, five days before that frame
+> was shot.
 > The real cause is not lost: the `console.error` before the response writes
 > it to the server log, and `RS-7` and
 > [`RS-13`](#rs-13--a-write-fails-and-says-which-film-it-was-about) carry the
@@ -485,7 +490,7 @@ it](screenshots/rs-13-write-fails-remove.png)
 Removing a film with the database gone. The toast is a **context plus a cause**
 ([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form)):
 `failureText()` composes the app's own context with whatever the server sent,
-and the film is named. The two error toasts used to show the cause alone, so a
+and the film is named. The two error toasts [used to show the cause alone](https://github.com/guycn1/cinerank-project/commit/75aacfbbc110a831298e7eeb0818d1fe55b49502), so a
 failed add or remove named no film at all.
 
 The card is still there, which is worth stating precisely rather than
@@ -535,8 +540,8 @@ hand.
 **What it must not do is close.** The form is `method="dialog"`, so submitting
 closes it *by default* — and this application shipped that way once: the write
 went out invisibly, a failure produced an error toast about a dialog that was
-already gone, and the typed review was destroyed with no way to retry. The save
-handler now prevents the default, and reports **inline** rather than through the
+already gone, and the typed review was destroyed with no way to retry. [The save
+handler now prevents the default](https://github.com/guycn1/cinerank-project/commit/386c4ede2a34ab0446cb64113f4ca807946f3626), and [reports **inline**](https://github.com/guycn1/cinerank-project/commit/573c22829ac595f3d448bb8660a8474856222b38) rather than through the
 toast, because a modal `<dialog>` sits in the top layer where no `z-index` can
 lift a toast above it and the `::backdrop` dims it anyway
 ([`D-032`](DECISIONS.md#d-032--a-failed-save-reports-inside-the-rate-dialog-not-via-the-toast)).
@@ -571,7 +576,7 @@ between losing an evening's review and pressing a button twice.
 > ranking did not either, and that clause is checked against a signature of the
 > displayed ranking rather than assumed
 > ([`D-034`](DECISIONS.md#d-034--ranking-updated-is-checked-before-it-is-claimed)).
-> It was briefly deleted outright and the user pushed back correctly — every
+> It was [briefly deleted outright](https://github.com/guycn1/cinerank-project/commit/9e835731cdf1c240c0cb8153b2962eee088999d4) and the user pushed back correctly — every
 > save does recompute the ranking, so the claim was never false; the objection
 > was that it reads as a claim about the outcome.
 
@@ -607,7 +612,7 @@ Save from that stale view is what produces the `404`.
 
 **Three things this establishes, and the third is the one that needed a picture.**
 
-1. **It is a `404`, not a `500`.** The route tests `PGRST116` explicitly and
+1. **[It is a `404`, not a `500`.](https://github.com/guycn1/cinerank-project/commit/d40cfd068ade7289796d7b897e426be0c44c9251)** The route tests `PGRST116` explicitly and
    answers with a message about the film rather than letting the central handler
    blame the server for something that is not its fault
    ([`server/routes/movies.js`](../server/routes/movies.js)). Asserted by `PATCH
@@ -619,7 +624,7 @@ Save from that stale view is what produces the `404`.
    the `409` *“Already in your list”* arguably counts too.
 3. **The typed review survived.** It is still in the box, word for word, and the
    rating is still at 9.5. A modal `<dialog>` submits and closes by default,
-   which would have taken the text with it; the save handler prevents that and
+   which would have taken the text with it; [the save handler prevents that](https://github.com/guycn1/cinerank-project/commit/386c4ede2a34ab0446cb64113f4ca807946f3626) and
    reports inline instead
    ([`D-032`](DECISIONS.md#d-032--a-failed-save-reports-inside-the-rate-dialog-not-via-the-toast))
    — so the failure is recoverable by pressing Save again once the cause is
@@ -671,7 +676,7 @@ earlier runs](screenshots/rs-9-zero-recommendations-log.png)
 They are nearly identical — both `success`, both charged about 0.20¢, both "no
 suggestions" — and they mean opposite things. One is an outage the app could
 easily have hidden; one is an honest, boring result. The app distinguishes them
-correctly on the page. Before
+correctly on the page. [Before](https://github.com/guycn1/cinerank-project/commit/d72491877ebe303eb14661ecaa81f70431a45c30)
 [`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 it called both of them the second thing.
 
@@ -695,13 +700,13 @@ description of it.
 
 | Server error | The guard that makes it unreachable | Test that proves it is handled anyway |
 |---|---|---|
-| `400` `Missing search query` | The submit handler returns before any request when the trimmed query is empty, showing `Type a film title to search.` and putting the caret back in the input | `GET /api/movies/search with no query → 400` |
+| `400` `Missing search query` | [The submit handler returns before any request when the trimmed query is empty](https://github.com/guycn1/cinerank-project/commit/fb3e017aa654be9e00a82a307c41c6c9ab592596), showing `Type a film title to search.` and putting the caret back in the input | `GET /api/movies/search with no query → 400` |
 | `400` `tmdb_id (integer) is required` | `addMovie()` has exactly two call sites — a search row and a recommendation card — and both pass an integer that came from TMDB. The value is never typed by anyone | `POST /api/movies with no tmdb_id → 400`, plus the non-integer case |
 | `400` `Your rating must be between 0 and 10.` | The rating control is `<input type="range" min="0" max="10" step="0.1">`, so the browser cannot emit an out-of-range value | `PATCH /api/movies/:id with rating out of range → 400`, plus the non-numeric case |
 | `400` `Nothing to update` | Save always sends both `rating` and `review`, so the body is never empty | `PATCH /api/movies/:id with an empty body → 400 (nothing to update)` |
 | `400` `A review needs a rating — rate the film first.` | The same line: a rating is always present. `POST` writes neither column, so a film cannot be created carrying a review either | `PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500` |
-| `422` `Need at least 3 rated movies` | The trigger ships `disabled` in the markup and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-movie threshold → 422, nothing logged` |
-| `422` `Need at least 2 rated movies` | The same guard on "New verdict", at the verdict's own threshold | `POST /api/taste-verdict below the rated-movie threshold → 422` |
+| `422` `Need at least 3 rated movies` | The trigger [ships `disabled` in the markup](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081) and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-movie threshold → 422, nothing logged` |
+| `422` `Need at least 2 rated movies` | [The same guard on "New verdict"](https://github.com/guycn1/cinerank-project/commit/173b84c0dc7ae2df8be23388a40679ee50bd8e70), at the verdict's own threshold | `POST /api/taste-verdict below the rated-movie threshold → 422` |
 | `409` `Already in your list` | An Add button for a film already in the list is disabled and reads `In your list` | `POST /api/movies for a movie already in the list → 409` |
 
 **The guards are client-side and the tests are server-side, and that division is
@@ -729,8 +734,8 @@ is client-side — exactly the opposite arrangement to the eight above, and a re
 to keep the fallback rather than delete it as dead code.
 
 One of the eight carries a second kind of evidence as well. Before
-[migration 004](../db/migrations/004_review_requires_rating.sql) added
-`review_requires_rating`, the state it forbids was traced through the interface
+[migration 004](../db/migrations/004_review_requires_rating.sql)
+[added `review_requires_rating`](https://github.com/guycn1/cinerank-project/commit/f7f904620f2e1b24fe080ef8dbdeeb20f04b4b9e), the state it forbids was traced through the interface
 and then checked against the live table, which held **zero** rows in it
 ([`D-041`](DECISIONS.md#d-041--a-rating-less-review-is-forbidden-by-the-database-not-displayed-by-the-renderer)).
 The other seven rest on the code alone — which is what an unreachability claim
@@ -745,13 +750,13 @@ that one corroborated the reading; it did not replace it.
 Worth recording, because it is the argument for doing this work rather than
 asserting the behaviour:
 
-* A **failed taste verdict was logged against a model it never called** — the
+* A **[failed taste verdict was logged against a model it never called](https://github.com/guycn1/cinerank-project/commit/db5a05ed25070562b703b257be485e8227e51cfb)** — the
   app-wide default instead of the verdict's own. Found by reading a log
   screenshot.
   [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history).
-* **"Get recommendations" rendered fully enabled** above a ranked list that had
+* **["Get recommendations" rendered fully enabled](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081)** above a ranked list that had
   failed to load.
-* **The verdict placeholder never retired** when that load failed, leaving the
+* **[The verdict placeholder never retired](https://github.com/guycn1/cinerank-project/commit/27e32b3843c366466217cdc2526dd587bf4c53cf)** when that load failed, leaving the
   banner promising a verdict indefinitely.
 
 All three were invisible to the tests, the linter and the render audits — every
@@ -763,7 +768,7 @@ state and looks at it. That is what this set is for.
 * Recipes for every state, as [`RS-1`](#rs-1--searching) …
   [`RS-16`](#rs-16--the-model-named-films-that-do-not-exist):
   [`CLAUDE.md`, under Pre-submission blockers › Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16).
-* Server-side behaviour for the same cases: `npm test`,
+* Server-side behaviour for the same cases: [`npm test`](../test/),
   [`test/routes.test.js`](../test/routes.test.js).
 * The acceptance criteria these satisfy:
   [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission).

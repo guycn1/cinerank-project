@@ -24,17 +24,17 @@ A personal movie-ranking app where the database and the AI each earn their place
   discarded rather than shown). Viewable in-app via the ["AI call
   log"](#every-ai-call-whether-it-worked-or-not) button in the footer.
 - **The AI** (via OpenRouter) is kept narrow — narrow in *scope*, not in
-  effort. For recommendations it reads your top-rated films and the reviews
+  effort. For [recommendations](SPEC.md#22-ai-powered-recommendations-the-non-wrapper-part) it reads your top-rated films and the reviews
   you wrote about them, infers what you actually respond to, names films you
   have not added, and writes a reason per pick in second person that points at
   a specific film you rated or a pattern across your ratings — one sentence,
   8–16 words, no plot summary. And it is **never trusted for facts**. Every suggested title is
   cross-checked against TMDB, which supplies the real poster, year and overview;
   a title TMDB has never heard of is dropped rather than shown as a broken card.
-- **A Taste Verdict banner** sizes you up as a moviegoer in two or three teasing
+- **A [Taste Verdict banner](SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)** sizes you up as a moviegoer in two or three teasing
   sentences — the low-stakes, fun AI touch, logged with the same discipline.
 
-Stack: Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
+[Stack](SPEC.md#41-stack): Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
 
 Two models are routed through OpenRouter on purpose, and **the split is not a
 hard-task / easy-task one.** Recommendations are the larger job of the two: read
@@ -49,12 +49,12 @@ structurally constrained and externally verifiable — a JSON array whose every
 title is cross-checked against TMDB — so a bad pick is dropped before anyone
 sees it, and `claude-haiku-4.5` is enough precisely *because* it works under
 that supervision. A verdict has nothing to check it against: its only measure is
-whether it sounds like a person, and that is exactly the axis four prompt
-versions failed to move on the cheaper tier, until the model turned out to be
+whether it sounds like a person, and that is exactly the axis
+[four prompt versions](docs/PROCESS.md#2-prompt-engineering-as-version-control) failed to move on the cheaper tier, until the model turned out to be
 the constraint rather than the wording ([`docs/DECISIONS.md`
 D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)).
-It alone runs on `claude-sonnet-5`, at 0.37–0.40¢ a call against 0.20¢ for a
-recommendation on the demo list of 2026-09-13 — both readable in the [log capture
+It alone [runs on `claude-sonnet-5`](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a), at 0.37–0.40¢ a call against 0.20¢ for a
+recommendation on the [demo list](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once) of [2026-09-13](https://github.com/guycn1/cinerank-project/commit/50365dd49dc4a34f6c0ecd0ebac57d6904716fbe) — both readable in the [log capture
 below](#every-ai-call-whether-it-worked-or-not), which shows six verdict rows in
 that band. The verdict reads *every* rated film, so its cost grows with the
 list; recommendations read only the top five and stay flat. The log shows the
@@ -132,25 +132,28 @@ decoration:
   than a false claim or an executable payload.
 - **Both AI services write to the database on every call, not only the happy
   ones.** A failed call still produces a row carrying the model, the prompt
-  version, the duration and the error text — which is why the in-app log can
+  version, the duration and the error text — which is why
+[the in-app log](docs/AI-CALL-LOG.md) can
   show failures at all, and why an outage cannot quietly disappear. If the
   write itself fails, the run is discarded and the cause goes to the server's
   stderr.
-- **Prompts are files, loaded at call time.** Nothing is inlined in a `.js`
+- **[Prompts are files](prompts/), [loaded at call time](server/services/promptLoader.js).** Nothing is inlined in a `.js`
   file, versions are never overwritten, and every log row records which version
   produced it — so any past recommendation or verdict is traceable to the exact
-  text that generated it.
+  text that generated it. (Three files carry entities so GitHub can display
+  their angle brackets; the loader decodes them, so what the model receives is
+  unchanged, [D-084](docs/DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged).)
 - **Two models on one transport.**
   [`openrouter.js`](server/services/openrouter.js) takes an optional model and
-  `tasteVerdict.js` is the only caller that overrides it ([D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), so the split
+  [`tasteVerdict.js`](server/services/tasteVerdict.js) is the only caller that overrides it ([D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), so the split
   costs no second client and shows up per row in the log.
 
-**The reference behind the picture lives in the specification, not here**, so
-each fact has one copy to keep true. [`SPEC.md` §
-4.5](SPEC.md#45-api-endpoints-draft) lists all eleven HTTP routes — eight in
-its table and three in the note beneath it — and [`SPEC.md` §
+The reference behind the picture lives in the specification, not here, so
+each fact has one copy to keep true. **[`SPEC.md` §
+4.5](SPEC.md#45-api-endpoints-draft) lists all eleven HTTP routes** — eight in
+its table and three in the note beneath it — and **[`SPEC.md` §
 5](SPEC.md#5-data-model-supabase--postgres) documents the three tables column
-by column, including what the migrations added. The schema that actually runs
+by column**, including what the migrations added. The schema that actually runs
 is [`db/schema.sql`](db/schema.sql).
 
 ## Screenshots
@@ -224,8 +227,8 @@ page.
 Supabase and the app’s own server each failing independently, a row deleted
 underneath an open dialog, a reply that arrives fine and says nothing usable,
 plus two states that look like failures and are not. Shooting that set found
-three real defects that the tests, the linter and the render audits had all
-passed over.
+[three real defects](docs/MERGE-READINESS.md#what-changed-on-2026-09-13) that [the tests](test/), [the linter](eslint.config.js)
+and [the render audits](CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) had all passed over.
 
 ## Documentation
 
@@ -245,14 +248,14 @@ prose and are covered in the [Project layout](#project-layout) tree instead.
 | [`SPEC.md`](SPEC.md) | The specification, **annotated in place rather than rewritten** — where the built app diverged from what was promised, both texts survive side by side, because a spec revised into agreement with its own implementation can no longer show where the two ever differed. Opens with the [co-evolution spiral](SPEC.md#specification-status--the-co-evolution-spiral-module-10) ([Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral)). |
 | [`docs/FRAMING.md`](docs/FRAMING.md) | Problem, stakeholders, definition of done, and what is deliberately **not** being built ([Module 6](DOSSIER.md#module-6-intent-and-the-discipline-of-problem-framing)). The authority on scope boundaries. |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | **Why the choices are what they are** — including the ones that were wrong, reversed, or argued down by the user ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). A log that only recorded wins would not be evidence of process. |
-| [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: the prompt version chain and what each bump fixed, the guardrails, and the incident that produced them. |
+| [`docs/PROCESS.md`](docs/PROCESS.md) | How this was built with an LLM in the loop: [the prompt version chain](docs/PROCESS.md#2-prompt-engineering-as-version-control) and what each bump fixed, [the guardrails](docs/PROCESS.md#3-guardrails-against-the-model--naming-the-failure-mode-module-3), and [the incident that produced them](docs/PROCESS.md#5-incident-1--and-the-guardrail-it-produced-module-12). |
 | [`docs/BRIEFS.md`](docs/BRIEFS.md) | The two directing documents the work was steered by ([Module 8](DOSSIER.md#module-8-interface-design-and-app-documentation)). |
 | [`docs/AI-CALL-LOG.md`](docs/AI-CALL-LOG.md) | What [the brief above](docs/BRIEFS.md#2-documentation-brief--the-ai-call-log) commissioned: a component dense with non-obvious decisions, written up so the next change does not silently undo a fix. Each rule paired with what breaks if it is undone, and many with the version that was tried first and failed. |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks (`ASI01`–`ASI10`) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | All ten **OWASP Agentic** risks ([`ASI01`–`ASI10`](docs/SECURITY.md#summary)) assessed **twice** — once against the product, once against the agentic development environment that built it — including the ones that do not apply and why ([Module 17](DOSSIER.md#module-17-security-and-risk-in-agentic-systems)). Carries the prompt-injection evidence. |
 | [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) | [`SPEC.md` § 7.1](SPEC.md#71-must-pass-before-submission)’s eight acceptance criteria, walked one at a time with the evidence for each attached and classified by strength, so no criterion claims more support than it has. All eight read satisfied. |
-| [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against a stated definition of "graceful". |
+| [`docs/RESILIENCE.md`](docs/RESILIENCE.md) | What a user sees when each dependency fails — and when one does not. **Sixteen states, twenty-four captures**, embedded and analysed against [a stated definition of "graceful"](docs/RESILIENCE.md#what-graceful-is-taken-to-mean-here). |
 | [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) | [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)’s five criteria for whether this is fit to merge, each with its evidence — and the [standing verdict](docs/MERGE-READINESS.md#verdict-reached-on-2026-09-14): **MERGE-READY, all five met**. |
-| [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, indexed and described. Nothing in it is marked up. |
+| [`docs/screenshots/`](docs/screenshots/) | **Thirty-seven captures**, [indexed and described](docs/screenshots/README.md). Nothing in it is marked up. |
 | [`CLAUDE.md`](CLAUDE.md) | The instructions the agent worked under, kept current across the whole build — including the [binding rules](CLAUDE.md#working-agreements-binding--added-after-incident-1) added after it destroyed real data. |
 
 **Two of those deserve singling out**, because they are where the evidence
@@ -267,8 +270,10 @@ actually lives rather than where it is summarised:
   and the app’s own server each broken independently and photographed; two
   states that look like failures and are not; a row deleted underneath an open
   dialog; and three ways the model can return nothing usable while every
-  dependency is healthy. **Shooting that set found three real defects** that the
-  tests, the linter and the render audits had all passed over, because every one
+  dependency is healthy. **Shooting that set found
+  [three real defects](docs/MERGE-READINESS.md#what-changed-on-2026-09-13)** that [the tests](test/),
+  [the linter](eslint.config.js) and [the render audits](CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) had all
+  passed over, because every one
   of those inspects structure and none of them puts the application into a
   broken state and looks at it.
 
@@ -281,7 +286,7 @@ actually lives rather than where it is summarised:
    For an existing project, also run any newer files in [`db/migrations/`](db/migrations/) in order.
 3. **Keys** — `cp .env.example .env` and fill in:
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (the anon key only — never `service_role`)
-   - `TMDB_API_KEY` (free, instant approval at themoviedb.org)
+   - `TMDB_API_KEY` (free, instant approval at [themoviedb.org](https://www.themoviedb.org/))
    - `OPENROUTER_API_KEY`
 
    Those four are the only ones the app *requires* —
@@ -292,9 +297,9 @@ actually lives rather than where it is summarised:
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 62 tests — helpers, prompt loader, routes, resilience
+   npm test         # 64 tests — helpers, prompt loader, routes, resilience
    ```
-   Health probe for a host: `GET /api/health`.
+   Health probe for a host: [`GET /api/health`](SPEC.md#45-api-endpoints-draft).
 5. **Check a layout change** (no keys needed; installed Chrome and Firefox)
    ```
    npm run layout-check                          # health at 153 widths
@@ -331,6 +336,7 @@ path rather than its endpoints.
 │   ├── index.js                 mounts the routes, serves public/, the central error handler
 │   ├── config.js                the only place the server reads env vars and secrets
 │   ├── supabase.js              one anon-key client; all DB access via the query builder
+│   ├── text.js                  cuts text to a length without splitting an emoji
 │   ├── routes/                  thin routes — no inline fetch(), no inline SQL
 │   │   ├── movies.js            /api/movies — list, search, add, rate, remove
 │   │   ├── recommendations.js   /api/recommendations — a run, plus its /history
@@ -359,7 +365,7 @@ path rather than its endpoints.
 │   └── debug-recs.js            dev only: fakes recommendation responses in the browser
 ├── test/                        npm test — Supabase faked, TMDB and OpenRouter stubbed
 │   ├── routes.test.js           the API over real HTTP: validation, failures, AI logging
-│   ├── text-helpers.test.js     model-JSON parsing, text tidying, cost estimates
+│   ├── text-helpers.test.js     model-JSON parsing, text tidying and cutting, cost estimates
 │   ├── prompt-loader.test.js    the real prompt files, plus one in-memory fixture
 │   └── helpers.js               the fake Supabase, the fetch stub, the HTTP client
 ├── docs/
@@ -379,7 +385,7 @@ path rather than its endpoints.
 
 ## Demo script
 
-1. Start from the seeded demo list (seven films, one left unrated) → add a real
+1. Start from the [seeded demo list](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once) (seven films, one left unrated) → add a real
    movie via TMDB search and rate it.
 2. Show the ranked list re-sorting live as ratings change; hit **New verdict**
    for a fresh read on your taste.
@@ -392,8 +398,8 @@ path rather than its endpoints.
 5. Show the two guarded states: search for a film already in the list, whose
    row offers `In your list` in place of Add, and drop below 3 rated films,
    where the recommendation trigger is disabled with the reason beside it.
-6. (Optional) add a movie whose review is an injection attempt ("ignore previous
-   instructions…") and show the verdict staying on-topic.
+6. (Optional) add [a movie whose review is an injection
+   attempt](#resisting-a-prompt-injection-module-17) ("ignore previous instructions…") and show the verdict staying on-topic.
 
 ## Deployment
 
@@ -417,7 +423,7 @@ Deploying it yourself:
    `SUPABASE_ANON_KEY` (anon key only, never `service_role`), `TMDB_API_KEY`,
    `OPENROUTER_API_KEY`. `PORT` is injected by Render and must not be set —
    [`server/config.js`](server/config.js) already reads it.
-4. Health check path `/api/health`.
+4. Health check path [`/api/health`](SPEC.md#45-api-endpoints-draft).
 
 **Free-tier note:** the instance sleeps after ~15 minutes idle, so the first
 request after a quiet period takes anywhere from a few seconds to a minute while
@@ -426,14 +432,15 @@ Worth opening the link shortly before demoing it.
 
 ## Security notes (course Module 17)
 
-**Mapped in full against the OWASP Top 10 for Agentic Applications (ASI01 to
-ASI10) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
+**Mapped in full against the OWASP Top 10 for Agentic Applications ([ASI01](docs/SECURITY.md#asi01--agent-goal-hijack) to
+[ASI10](docs/SECURITY.md#asi10--rogue-agents)) in [docs/SECURITY.md](docs/SECURITY.md)** — every risk assessed twice, once
 against the product and once against the agentic development environment that
 built it, including the ones that do not apply and why. The short version:
 
-- `.env` did not exist in the first commit, a one-line README that the user
-  checked by hand and that holds no secret, and it is gitignored from the second
-  commit, the first with any project content, onward. [`npm run
+- `.env` [did not exist in the first
+  commit](docs/ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history), [a one-line README](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) that the user
+  checked by hand and that holds no secret, and it is gitignored from [the second
+  commit](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content, onward. [`npm run
   scan-secrets`](scripts/scan-secrets.js) checks staged diffs.
 - The server uses the Supabase **anon key** only — least privilege,
   RLS-bounded — and the browser never receives it.
@@ -459,8 +466,8 @@ explicit sign-off: a settled milestone, a fix for a defect already published on
 `main`, or a single close-out sync when the work is declared finished
 ([D-073](docs/DECISIONS.md#d-073--the-merge-rule-gained-a-second-and-a-third-ground-and-the-correction-that-prompted-it-stays-on-draft)
 records why the rule names three). The first twenty-one merges were all
-milestones, and merges 22 to 29 were defect fixes. The 30th was the close-out
+milestones, and merges 22 to 29 were defect fixes. [The 30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out
 sync, made at the course's final assessment deadline on 2026-10-01, and it
 carried defect fixes too. A close-out sync happens only once, so any later merge
-is a milestone or a defect fix. Changes are committed with messages that say
-*why*.
+is a milestone or a defect fix; the 31st, later that day, was a defect fix.
+Changes are committed with messages that say *why*.

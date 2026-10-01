@@ -829,8 +829,9 @@ function renderRanked() {
         rank.append(tie);
       }
     } else {
-      // No rank to show. Same "no value here" glyph vocabulary as the AI call
-      // log's empty Tokens/Cost cells, so the absence reads as an absence.
+      // No rank to show. A question mark, NOT the em dash the AI call log puts in
+      // an empty Tokens/Cost cell: a dash says "nothing here", while an unrated
+      // film's rank is undetermined until the user rates it (D-029).
       // aria-hidden: the "Not rated yet" line below already says this, and the
       // <ol> still counts every <li>, so a reader would otherwise be told a
       // position this card is explicitly not claiming.
@@ -1342,8 +1343,12 @@ function renderSearchResults(results, query) {
     // self-evident, and "check the spelling" is honest about the two possible
     // causes where the old "try a different title" implied only one.
     // Capped so a pasted essay can't blow the message out. Safe to echo raw
-    // input: searchNote builds with textContent, never innerHTML.
-    const shown = query.length > 40 ? query.slice(0, 40) + '…' : query;
+    // input: searchNote builds with textContent, never innerHTML. The cut steps
+    // back one unit when it would split an emoji's surrogate pair, the same
+    // rule as cutText() in server/text.js, so the note never shows half a glyph.
+    let cut = 40;
+    if (/[\ud800-\udbff]/.test(query[cut - 1] ?? '') && /[\udc00-\udfff]/.test(query[cut] ?? '')) cut -= 1;
+    const shown = query.length > 40 ? query.slice(0, cut) + '…' : query;
     el.searchResults.append(
       searchNote(`No matches for “${shown}”. Check the spelling, or try a different title.`)
     );

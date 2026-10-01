@@ -1,9 +1,10 @@
 /**
  * @file Unit tests for the server's pure text and cost helpers: parseModelJson(),
- * tidyReason(), tidyVerdict() and estimateCostUsd().
+ * tidyReason(), tidyVerdict(), cutText() and estimateCostUsd().
  *
- * These are the pure helpers where every past truncation bug lived
- * (see docs/DECISIONS.md D-011..D-014). No network, no DB.
+ * These are the pure helpers that carry the fixes for every past truncation bug
+ * (see docs/DECISIONS.md D-011..D-014, and the half-emoji cut of 2026-10-01,
+ * which cutText() now prevents at every server cut). No network, no DB.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,6 +12,7 @@ import assert from 'node:assert/strict';
 import { parseModelJson, tidyReason } from '../server/services/recommendations.js';
 import { tidyVerdict } from '../server/services/tasteVerdict.js';
 import { estimateCostUsd } from '../server/config.js';
+import { cutText } from '../server/text.js';
 
 test('parseModelJson: accepts a clean JSON array', () => {
   const out = parseModelJson('[{"title":"Brazil","reason":"you like bold, strange visions"}]');
@@ -102,4 +104,22 @@ test('estimateCostUsd: known model, unknown model, zero tokens', () => {
   assert.equal(estimateCostUsd('anthropic/claude-haiku-4.5', 1_000_000), 3);
   assert.equal(estimateCostUsd('some/unknown-model', 1000), null);
   assert.equal(estimateCostUsd('anthropic/claude-haiku-4.5', 0), null);
+});
+
+// Half an emoji is an unpaired surrogate: not a character at all. Every cut the
+// server makes to a review or to the model's text goes through cutText(), so a
+// review that reaches a prompt, a stored review and a tidied model reply can
+// never end in one.
+const HALF = /[\ud800-\udbff](?![\udc00-\udfff])/;
+test('cutText: never leaves half an emoji, and otherwise cuts exactly like slice()', () => {
+  const x = (n) => 'x'.repeat(n);
+  assert.equal(cutText(x(299) + '🔥tail', 300), x(299), 'an emoji straddling the cut is dropped whole');
+  assert.equal(cutText(x(298) + '🔥tail', 300), x(298) + '🔥', 'an emoji that fits is kept');
+  assert.equal(cutText('short', 300), 'short');
+  const flags = '🇮🇱🇬🇧';
+  assert.equal(cutText(flags, 4), flags.slice(0, 4), 'whole code points either side of the cut: as slice()');
+
+  // The tidy helpers' hard cut, taken when a reply has no space to cut at.
+  assert.doesNotMatch(tidyReason(x(129) + '🔥'.repeat(5)), HALF);
+  assert.doesNotMatch(tidyVerdict(x(449) + '🔥'.repeat(5)), HALF);
 });

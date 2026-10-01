@@ -11,9 +11,54 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-084 · Prompt files write `<` and `>` as entities for GitHub, and the loader decodes them so the model's input is unchanged
+
+*[2026-10-01](https://github.com/guycn1/cinerank-project/commit/840303e459dbb341cb8d7a51cc11c183ffd02c2d). Found by the render audit of every markdown file; the scope was
+[the user's ruling](../CLAUDE.md#prompt-versioning--ai-call-discipline).*
+
+**What was found.** The output contract in
+[`recommend_v1`](../prompts/recommend_v1.md) to
+[`recommend_v3`](../prompts/recommend_v3.md) reads
+`[{ "title": "<movie title>", … }]`. GitHub drops `<movie title>` as an unknown
+HTML tag, so all three files displayed `"title": ""` on GitHub. The model, which
+gets the raw text, was never affected.
+
+**Claude first proposed leaving them alone**, reading the never-overwrite rule
+in [`CLAUDE.md` § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline)
+as forbidding any edit to a versioned file. **The user overruled that:** the
+rule protects the wording the model sees, and was never meant to protect a
+rendering fault. The question that settled the method was theirs too: would the
+fix change what the model receives?
+
+**The fork.** Writing entities into the files alone would have:
+[`loadPrompt()`](../server/services/promptLoader.js) sends the file text as it
+is, so Haiku would have received `&lt;movie title&gt;` in the live
+[`recommend_v3`](../prompts/recommend_v3.md). Harmless in all likelihood, but an
+unmeasured change to a live prompt, and every
+[log row](../SPEC.md#52-recommendation_logs) stamped `recommend_v3` would no
+longer point at the text that produced it. **Chosen:** entities in the files,
+and `loadPrompt()` decoding `&lt;`, `&gt;` and `&amp;` back, in one pass, before placeholders are
+substituted, so a review that happens to contain `&lt;` reaches the model as
+written. No prompt contained an `&` before, so the decoding cannot touch any
+other text in any version.
+
+**Verified byte for byte.** [`loadPrompt()`](../server/services/promptLoader.js)'s
+output for [all ten versions](../prompts/), with no substitutions and with
+realistic ones carrying `<`, `>`, `&`, `&lt;` and `&amp;`, was captured from a
+clean checkout, after the loader change alone, and after the file edits: all
+twenty outputs byte-identical each time.
+[Two test assertions](../test/prompt-loader.test.js) now pin it (the contract reaches the model with plain angle brackets
+and no entity; a substituted entity stays as written), and three loader probes
+were each caught: no decoding, decoding after substitution, and a sequential
+decode that turns `&amp;lt;` into `<`.
+
+**Trap.** Do not move the decoding after substitution, and do not decode in two
+passes. Either changes what the model receives without failing anything but
+the tests above.
+
 ## D-083 · The search row keeps its flex layout at every width; the 500px grid that never applied is removed
 
-*2026-10-01. Found by Claude during the enumeration sweep, confirmed and
+*[2026-10-01](https://github.com/guycn1/cinerank-project/commit/fc62b2604a26432d06e0711bbe1007f34c285960). Found by Claude during the enumeration sweep, confirmed and
 settled by the user.*
 
 **What was found.** On 2026-09-09 the search rows were given a layout of their
@@ -22,7 +67,7 @@ so the Add button landed under the year/TMDB line in the title's column rather
 than out to the right. It never applied. The `@media (max-width: 500px)` block
 sits above the base `.result-row` rule in
 [`public/styles.css`](../public/styles.css), and has done since the commit that
-added it (`e712cda`). A media query adds no specificity, so the later base
+added it ([`e712cda`](https://github.com/guycn1/cinerank-project/commit/e712cdad74f4b0ae02ed4091736de57818eee01c)). A media query adds no specificity, so the later base
 rule's `display: flex` won, and so did the button's `margin-left: auto` over the
 query's `margin-left: 0`. Measured in headless Chrome in a 400px iframe with the
 real stylesheet (computed `display: flex`), then confirmed by the user in
@@ -40,7 +85,7 @@ screen had been showing.
 keep the layout the app has always had. The grid was built to stop a wrapped
 button landing under the poster, away from its title, which the user had called
 sloppy on 2026-09-09; the same day the row gap under a wrapped button was
-tightened from 0.9rem to 0.4rem.
+[tightened from 0.9rem to 0.4rem](https://github.com/guycn1/cinerank-project/commit/53ec4b8acd513f38b6cbba3d9285285620ce7558).
 
 **The user's call: keep the flex layout.** They forced the grid on with
 `!important` in devtools and compared the two at window widths down to about
@@ -53,7 +98,7 @@ removed (`display: grid`, the column template and gaps, `align-items`, the
 poster's `grid-row` and the button's `justify-self` and `margin-left`); every
 one of them was already overridden or inert under flex, so removing them changes
 nothing on screen. Diffed against the previous stylesheet with
-`npm run layout-check -- --baseline=HEAD --expect-same`, search results on
+[`npm run layout-check -- --baseline=HEAD --expect-same`](../scripts/layout-check.js), search results on
 screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
 about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
 [`CLAUDE.md`](../CLAUDE.md) now describe the flex stacking as the search row's
@@ -66,7 +111,7 @@ documents; a query above its base rule is the shape of this bug.
 
 ## D-082 · The card view's Total card is not pinned; only the table view's Total row is
 
-*2026-09-30. Found by measurement during the causal-claims sweep, and settled
+*[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f55e9cbb09eef59364ff79b522be151d59dcb79b). Found by measurement during the causal-claims sweep, and settled
 by the user.*
 
 **What was found.** [`CLAUDE.md`](../CLAUDE.md) said card mode "pins the whole
@@ -100,7 +145,7 @@ It never worked, and not pinning is the decision.
 
 ## D-081 · A dash ends a word for hyphenation, so no soft hyphen ever sits beside one
 
-*2026-09-28. Raised by Claude while closing
+*[2026-09-28](https://github.com/guycn1/cinerank-project/commit/a0a70d80549325d14cd19915dfdaebc692cd6dc6). Raised by Claude while closing
 [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them),
 taken on by the user with one condition: do not chase it if the fix risks
 breaking anything.*
@@ -142,7 +187,7 @@ grapheme. An anchored version would have stopped treating it as whitespace.
 
 ## D-080 · Soft hyphens go only inside words of seven or more graphemes, never within three of an end, and `hyphenate-limit-chars` was measured and does not apply to them
 
-*2026-09-28. Raised by the user after
+*[2026-09-28](https://github.com/guycn1/cinerank-project/commit/91c6de49278254034fe1a54197b6d56a9f4fa982). Raised by the user after
 [D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
 moved "Mad Max: Fury Road" onto a mid-word break at 360px.*
 
@@ -223,7 +268,7 @@ titles and reviews carried a soft hyphen between the letters of every long
 word, and copying the verdict gave 589 characters for a 259-character verdict.
 
 **One consequence for the demo list.** [D-068](#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)
-put an emoji in the Wicked review as live evidence of
+[put an emoji in the Wicked review](https://github.com/guycn1/cinerank-project/commit/751f54f040e292bd924376e0e2950d1496a167fe) as live evidence of
 [D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)'s
 grapheme-safe splitting. That emoji stands alone between spaces, so it is a one-grapheme
 word, and the 7-grapheme minimum means nothing is ever inserted next to it: the
@@ -243,7 +288,7 @@ so.
 
 ## D-079 · The type scale is one root percentage, and the AI call log table and the tie caption are exempt from it
 
-*2026-09-28. Raised by the user: the text read a little too large at the
+*[2026-09-28](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954). Raised by the user: the text read a little too large at the
 browser's default zoom, and they asked what `:root { font-size: 92%; }` would
 break.*
 
@@ -345,7 +390,7 @@ None of them argues anything about type size, so they stand.
 
 ## D-078 · The README's Project layout is a connector tree that includes the root, and a route file carries its mount path, not its endpoints
 
-*2026-09-27. Raised by the user with a screenshot of another project's layout
+*[2026-09-27](https://github.com/guycn1/cinerank-project/commit/abc725497fd9abf072e1ae078fd16ef8fdac6315). Raised by the user with a screenshot of another project's layout
 tree; the scope was settled over two exchanges.*
 
 **The form changed and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve)'s
@@ -367,7 +412,7 @@ the Documentation table already describes them, which is [D-074](#d-074--what-th
 summarised as one line each. Claude recommended expanding `public/` and
 `test/`, and giving each route file a purpose line rather than its endpoints:
 endpoints in the tree would be a second copy of
-[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which `b486c10` had just
+[`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which [`b486c10`](https://github.com/guycn1/cinerank-project/commit/b486c107f5034806127a3aee43ac920f5d2d963c) had just
 made the [README](../README.md)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
 duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
@@ -384,14 +429,14 @@ what § 4.5 maintains, and a second copy of it is the drift [D-074](#d-074--what
 
 ## D-077 · `/api/recommendations/history` is kept for good, and its coverage gap is closed with a test rather than a deletion
 
-*2026-09-21. The user asked what the endpoint is for and what removing it would
+*[2026-09-21](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7). The user asked what the endpoint is for and what removing it would
 break, then chose on the answer. This closes the "revisit as post-submission
 cleanup" that [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it) left open — the last UNDATED open item in
 [`CLAUDE.md`](../CLAUDE.md). One open item remains there and is fine as it
 stands: the headless-Chrome icon-clipping question under step 3, which opens
 with "STILL UNRESOLVED as of 2026-09-12" and so cannot be mistaken for
 current.*
-> **2026-09-30:** that question is now resolved too, on the user's ruling, under
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/6aaae08632aee828fd2928920f42669823cbf1a4):** that question is now resolved too, on the user's ruling, under
 > [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links): a headless browser is
 > never the only measure of layout, a human verifies in a real browser whenever
 > its findings are in doubt, and the real browser's observation stands.
@@ -426,13 +471,13 @@ superseding entry regardless.
 PARENTHESES — `someFunction()`. A bare `/api/recommendations/history` in prose
 matches nothing. So a deletion would leave three documents, one of them graded,
 describing a URL that answers 404, with all five gates green. That is exactly
-the no-resolvable-referent class the 2026-09-19 sweep was about, and it would
+the no-resolvable-referent class [the 2026-09-19 sweep](https://github.com/guycn1/cinerank-project/compare/15b2becf46973598a29e0c218578e55784f9eb5a...977595de1da5157bd896c2058133da5d2392d86e) was about, and it would
 have been self-inflicted.
 
 **What was real, and is fixed.** `/history` was the only one of the eleven
 routes with no test — checked by enumerating all eleven against the request
 paths in [`test/routes.test.js`](../test/routes.test.js), not assumed. Two tests now cover it: the
-response shape with recommendation-only scope (a `taste_verdict_logs` row is
+response shape with recommendation-only scope (a [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) row is
 seeded and must NOT appear, so a regression pointing it at the merged read
 fails here), and a DB error surfacing as a 500 without leaking the postgres
 text. Probed by breaking the source, as the suite's standard requires: swapping
@@ -451,7 +496,7 @@ on the grading axes" arguments both still hold.
 
 ## D-076 · The score block aligns to the edge it is anchored to, which is a different edge in card mode — so the fix is two rules, not one
 
-*2026-09-19, user-raised from a screenshot with a ruler drawn on it. The user
+*[2026-09-19](https://github.com/guycn1/cinerank-project/commit/c891c37ce5f661cceb29ae27137456d51eb80975), user-raised from a screenshot with a ruler drawn on it. The user
 also proposed the one-line fix, asked whether it was safe, and was right to
 ask — the one-line version mirrors the defect instead of removing it.*
 
@@ -477,8 +522,8 @@ all — every one about the VERTICAL axis or about structure, none about
 horizontal alignment.
 
 **What the history actually says.** `align-items` was `flex-end` from
-`0b3864c`, the commit that added TMDB's score. It became `flex-start` in
-`f69b069`, whose subject line is *"fix the rating wrap and button overflow
+[`0b3864c`](https://github.com/guycn1/cinerank-project/commit/0b3864c59c1d13fb0c3987a4a8c19463dde202e3), the commit that added TMDB's score. It became `flex-start` in
+[`f69b069`](https://github.com/guycn1/cinerank-project/commit/f69b06939d0c3690c28a3d8df952dd6fe352574f), whose subject line is *"fix the rating wrap and button overflow
 below 400px"* — which is exactly why it reads as load-bearing. It is not. That
 commit's own message says the alignment hunk was a separate change riding
 along, and the narrow-width fix is a different declaration entirely, the
@@ -526,7 +571,7 @@ cascade instead: the 620px block's override applies to every width beneath it,
 and the 400px query sets only `grid-column-start` and `row-gap`, so nothing
 there can reach `align-items`. That is a proof about the cascade, not an
 observation, and it is written as such.
-> **2026-09-30:** observed as well. The user checked the fix on a phone, in
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/5d4ad7aa990b5112a4dd00e5dce450be765527ac):** observed as well. The user checked the fix on a phone, in
 > portrait and landscape, the day it shipped, and again on 2026-09-30. The same
 > day it was measured in Chrome and Firefox at 43 widths from 280px to 1280px,
 > in an iframe the probe sizes itself, so no window minimum applied: on every
@@ -537,7 +582,7 @@ observation, and it is written as such.
 
 ## D-075 · Every document reference became a link in twelve files and deliberately not in `CLAUDE.md` — the deciding line is which files are injected into context
 
-*2026-09-19, established by the user mid-session and then applied file by file
+*[2026-09-19](https://github.com/guycn1/cinerank-project/commit/5422fce078e7563a5c8c6a1684a88e8ba8e9400f), established by the user mid-session and then [applied file by file](https://github.com/guycn1/cinerank-project/compare/649dae6541c71c2aabf4e13e53f65d14306c881b...c95229284469b35a0f8b8cc20a4a08973335118f)
 at their direction. Claude partly disagreed with the one exemption it is
 mostly about, measured it, and was talked round by an argument it had not
 made.*
@@ -608,15 +653,15 @@ references in total and all three are the bare string `CLAUDE.md`.
 
 **The trap, and why the rule is written down rather than left as practice.**
 Twelve files uniformly linked and one not is exactly the shape a later sweep
-"corrects". The rule and its three exemptions now live in
+"corrects". [The rule and its three exemptions](https://github.com/guycn1/cinerank-project/commit/e8d7a299ba42d75f35e5c459830f4b0730ff38a3) now live in
 [`CLAUDE.md` § Markdown Authoring Rules](../CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo), stated as a navigation
-convention that `check-markdown` does not enforce — nothing fails when it is
+convention that [`check-markdown`](../scripts/check-markdown.js) does not enforce — nothing fails when it is
 ignored, which is precisely why it needed writing down. Do not finish the job
 on the three exempt sets.
 
 ## D-074 · What the README's Project layout section is FOR: descriptions live in the table, containment is a node, identifiers resolve
 
-*2026-09-16, over a run of questions from the user, each of which reversed or
+*[2026-09-16](https://github.com/guycn1/cinerank-project/commit/320273ae65f26a4d158da6d44c2c571065a4f9cd), over a run of questions from the user, each of which reversed or
 widened the answer before it. Three rulings, settled together because they
 answer one question.*
 
@@ -628,18 +673,18 @@ gives one of those back to whichever part of the [README](../README.md) already 
 it.** Found as a contradiction: the "deliberately not in the tree" paragraph
 listed the nine [`docs/*.md`](./) as omissions a reader could verify, while the tree
 directly below listed all nine individually. **Claude resolved it the wrong way
-first** (`673702d`), striking them from the paragraph — which removed the
+first** ([`673702d`](https://github.com/guycn1/cinerank-project/commit/673702dc3959cc1b71203634b1653575793862da)), striking them from the paragraph — which removed the
 contradiction and kept the thing that caused it: nine files each carrying TWO
 hand-maintained descriptions. The user asked whether the tree should have
-matched the paragraph instead, and it should have (`a473b29`).
+matched the paragraph instead, and it should have ([`a473b29`](https://github.com/guycn1/cinerank-project/commit/a473b295798db33f935985294cde14b44cc63cc3)).
 
 **What settled it was measurable, not editorial.** The duplication had already
 drifted, that same day, by Claude's own hand, in commits whose subject was
 accuracy: [`docs/MERGE-READINESS.md`](MERGE-READINESS.md)'s table row was
-rewritten in `c2aed57` to say "MERGE-READY, all five met" while its tree line
+rewritten in [`c2aed57`](https://github.com/guycn1/cinerank-project/commit/c2aed57b99535d10f0a3543d6d9bbbc1d7090864) to say "MERGE-READY, all five met" while its tree line
 kept the vaguer "the standing verdict the document itself carries";
 [`docs/ACCEPTANCE.md`](ACCEPTANCE.md)'s row gained "classified by strength ...
-All eight read satisfied" in `565e5f8` while its tree line stayed at "with
+All eight read satisfied" in [`565e5f8`](https://github.com/guycn1/cinerank-project/commit/565e5f8753ef7063188d0a2c6f8d650b7a99542f) while its tree line stayed at "with
 evidence attached". Two of nine pairs, inside one session, while auditing for
 exactly this.
 
@@ -649,21 +694,21 @@ did the same with two each. Claude recommended nesting `scripts/` alone and
 flagged the cost — the tree would then carry two idioms chosen by size, nest
 when a directory has several children and inline the prefix when it has one or
 two, a convention stated nowhere. **The user overrode that narrower scope and
-extended it to `db/` and `docs/`** (`25b7415`), which is the better call: one
+extended it to `db/` and `docs/`** ([`25b7415`](https://github.com/guycn1/cinerank-project/commit/25b741589ece465bf36450538ab4f3fcfa26b862)), which is the better call: one
 visible rule instead of two, and no unstated size threshold for a later session
 to guess at.
 
 **3. Every identifier in the section's prose resolves from the repository
-root.** `routes/` became [`server/routes/`](../server/routes/) (`0c206ff`). Claude looked first for
-a mechanical argument — whether `check-claims` resolves one spelling and not
+root.** `routes/` became [`server/routes/`](../server/routes/) ([`0c206ff`](https://github.com/guycn1/cinerank-project/commit/0c206ff06978398262121f0af06475df20965109)). Claude looked first for
+a mechanical argument — whether [`check-claims`](../scripts/check-claims.js) resolves one spelling and not
 the other — and there is none: `checkPaths` only matches paths ending in a file
 extension, so a bare directory is invisible to the gate either way. What decided
 it is that the paragraph's function is to let a reader confirm those entries are
 summaries rather than truncations, which means resolving each one, and
 seventeen of the eighteen identifiers in the two paragraphs already did.
 
-**Where Claude was wrong, beyond resolving 1 backwards.** The consolidation
-commit introduced *"the Documentation table above, which is the ONLY place each
+**Where Claude was wrong, beyond resolving 1 backwards.** [The consolidation
+commit](https://github.com/guycn1/cinerank-project/commit/a473b295798db33f935985294cde14b44cc63cc3) introduced *"the Documentation table above, which is the ONLY place each
 one is described"* — an exclusivity claim planted in the very edit that
 consolidated duplicate descriptions, and false in both readings. Inside the
 [README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again in its Security notes
@@ -671,7 +716,7 @@ section in wording almost identical to its table row, and
 [`docs/RESILIENCE.md`](RESILIENCE.md) in its Screenshots section in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
 [`docs/MERGE-READINESS.md`](MERGE-READINESS.md) both describe
-[`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in `707b7f2` after the user
+[`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in [`707b7f2`](https://github.com/guycn1/cinerank-project/commit/707b7f2118ee57ee45aa4b432e13bf716f81cd0d) after the user
 asked for it to be verified rather than trusted.
 
 **Traps.**
@@ -692,8 +737,8 @@ asked for it to be verified rather than trusted.
 
 **Deliberately not in this entry: the formatting.** Column alignment, wrap
 points, the [`test/`](../test/) line that sat one column left of its siblings, the missing
-`ac-*` family in the screenshots description (`2b49ba4`), the Documentation
-table's two declared omissions (`006983e`). All obviously correct once raised,
+`ac-*` family in the screenshots description ([`2b49ba4`](https://github.com/guycn1/cinerank-project/commit/2b49ba4380d7ae9954fe7ba499976b358c373bc2)), the Documentation
+table's two declared omissions ([`006983e`](https://github.com/guycn1/cinerank-project/commit/006983e711fb3c1cd0d685825a9f9ab961014ba9)). All obviously correct once raised,
 all recoverable by reading the file, all in their commit messages. The
 distinction drawn here, after the user caught it being drawn too coarsely: the
 formatting is presentation, the CONVENTION the formatting established is a rule,
@@ -701,11 +746,11 @@ and only the rule belongs in a decision log.
 
 ## D-073 · The merge rule gained a second and a third ground, and the correction that prompted it stays on `draft`
 
-*2026-09-15, after the user asked whether a wording correction was worth a
+*[2026-09-15](https://github.com/guycn1/cinerank-project/commit/ef6c1295c70df33b19eeb6005e62d8963772edaf), after the user asked whether a wording correction was worth a
 twenty-fifth merge — and said they feared it would be too blatant a deviation
-from the milestone rule even by post-`0cdc4ec` standards.*
+from the milestone rule even by post-[`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) standards.*
 
-Two worries, and they pulled opposite ways: a correction (`671f74a`) was sitting
+Two worries, and they pulled opposite ways: a correction ([`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116)) was sitting
 on `draft` and might never be merged if no further work came, while merging for
 it looked like the clearest breach yet of "only at a notable, settled milestone".
 
@@ -714,14 +759,14 @@ first twenty-one merges, read off `git log --merges --oneline main`: an app
 verified end to end, the AI-call-log table and card views, the taste-verdict and
 search sections, the ranked-list overhaul, the live deployment, four merges of
 the recommendations overhaul, the front-end overhaul completing, the [DOSSIER](../DOSSIER.md)
-reconciliation, and `0cdc4ec`, the final planned merge. Not one incremental
+reconciliation, and [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned merge. Not one incremental
 change among them. And the merges after it each cleared a *different* criterion
-— a defect already published on `main` — which was stated at `94f5325` in its own
+— a defect already published on `main` — which was stated at [`94f5325`](https://github.com/guycn1/cinerank-project/commit/94f5325e8b603b990e9355618449b1bc73aacccd) in its own
 Build-status note **before** it was used, not reached for afterwards. So the
 practice had been consistent the whole time. **What was out of date was the rule
 TEXT**, which still named ground 1 alone.
 
-**Decided: write the second ground into the rule, with a test sharp enough to
+**[Decided: write the second ground into the rule](https://github.com/guycn1/cinerank-project/commit/597b297e5897e9aa3c1d057c83e93ddfae322a49), with a test sharp enough to
 exclude things.** Ground 1, a notable settled milestone. Ground 2, a defect
 already published on `main`, the test being whether a reader of `main` would be
 MISINFORMED — a broken render, a claim that misstates the state of the work, a
@@ -732,7 +777,7 @@ history.
 
 **The alternatives, and why each was rejected.**
 
-* **Merge `671f74a` as a twenty-fifth.** The obvious move, and the one three
+* **Merge [`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116) as a twenty-fifth.** The obvious move, and the one three
   consecutive defect merges invited. Rejected on the merits — the sentence it
   fixes is over-compressed rather than misinforming, since the clause after the
   dash carries the argument correctly — and on cost: a merge needs the count
@@ -744,11 +789,11 @@ history.
   bar to hold a candidate against, every merge after the twenty-first had to
   re-derive its justification from nothing. Consistent practice that reads as
   drift is still a documentation defect, and this repo's documentation is graded.
-* **Let `671f74a` sit unmerged and say nothing.** Indistinguishable from an
+* **Let [`671f74a`](https://github.com/guycn1/cinerank-project/commit/671f74a27327f43d322cd7f14f2d61a891199116) sit unmerged and say nothing.** Indistinguishable from an
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: force-pushing over pushed history. The same call was made
-  for `619ed64` and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
+  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -760,10 +805,10 @@ them. A uniqueness claim has a referent; what it lacks is a falsifier the
 sentence NAMES. Second, and worse for having happened while writing about
 accuracy: the rule shipped with "the three merges since" in five files — a count
 of an OPEN set, which is the exact thing this project had already removed five
-times over. The user caught it. `check-claims` could not have: its ten checks all
+times over. [The user caught it.](https://github.com/guycn1/cinerank-project/commit/7e19832bc85841151afb75113f1afd970a674e1f) [`check-claims`](../scripts/check-claims.js) could not have: its ten checks all
 resolve a token that names something, and a bare numeral in prose names nothing.
 
-**A THIRD ground was added the same day, and the user's first wording of it was
+**[A THIRD ground was added the same day](https://github.com/guycn1/cinerank-project/commit/3ad66c447a6847f50a4395055a9d2e78fb980efc), and the user's first wording of it was
 turned down.** They proposed that when `draft` has stood ahead of `main` and
 gained no new commits for "a reasonably long period", that alone should authorise
 a merge — the worry being that with the project essentially finished, nothing
@@ -803,7 +848,7 @@ sufficient here rather than merely tidier: [`CLAUDE.md`](../CLAUDE.md) is built
 around a submission deadline. The fallback matters only for a project that ends
 by petering out, and there the fallback is a question, not a merge.
 
-> **2026-10-01:** ground 3 fired for the first time at the thirtieth merge, on
+> **[2026-10-01](https://github.com/guycn1/cinerank-project/commit/f879957069cce85c1d60d63be0681c1465fdc66e):** ground 3 fired for the first time at the thirtieth merge, on
 > the day the course's final assessment deadline passed. The user named that
 > event, so the quiescence prompt was never needed. The same merge also cleared
 > ground 2 on the defects it carried. A close-out sync fires once, so any later
@@ -815,7 +860,7 @@ by petering out, and there the fallback is a question, not a merge.
 
 * **Never restore a count of the merges made "since" anything.** That set is
   open, so the figure is false one merge later and no gate will say so. "The
-  first twenty-one" is CLOSED and is safe to state; anchor the tail to `0cdc4ec`
+  first twenty-one" is CLOSED and is safe to state; anchor the tail to [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e)
   instead of counting it.
 * **Do not answer this by teaching the gate to check bare numerals.** It would
   fire on hundreds of legitimate ones, and a check that cries wolf buries the
@@ -828,7 +873,7 @@ by petering out, and there the fallback is a question, not a merge.
 
 ## D-072 · Claim-checking became a commit gate, and a file-type filter is why it was needed
 
-*2026-09-15, after the user found two stale claims by accident within a day.*
+*[2026-09-15](https://github.com/guycn1/cinerank-project/commit/404a070fd6a2debe95cf76a1c0e600ab43c0bcc9), after the user found two stale claims by accident within a day.*
 
 Two sweeps that called themselves thorough had each missed something a one-line
 command finds. The pattern in both is the same, and it is not carelessness:
@@ -838,7 +883,7 @@ command finds. The pattern in both is the same, and it is not carelessness:
   itself still true. [`README.md`](../README.md) was describing ANOTHER file's
   verdict, so no forward pass could see it. It stayed wrong for sixteen hours,
   through a commit that edited both files.
-* The "name some films" sweep searched documentation and source. [`.env.example`](../.env.example)
+* [The "name some films" sweep](https://github.com/guycn1/cinerank-project/commit/fd7f4b8b90051e3f097bf727578fb249efa56750) searched documentation and source. [`.env.example`](../.env.example)
   is a config template — neither `*.md` nor `*.js` — so a type-filtered search
   skipped it silently, and the retired wording sat in the file a reader opens
   FIRST when setting the project up. Worse, that commit's message asserted the
@@ -888,7 +933,7 @@ The tool reads whole lines and does not care how long they are.
 
 ## D-071 · SECURITY.md's links were made absolute rather than moving the file to the repo root
 
-*2026-09-14. Found by the user, who was looking at the rendered repository rather
+*[2026-09-14](https://github.com/guycn1/cinerank-project/commit/56c2eaac01445c11462f510542421edf166f9925). Found by the user, who was looking at the rendered repository rather
 than at the source.*
 
 GitHub renders [`docs/SECURITY.md`](SECURITY.md) twice, and only one of the two
@@ -935,7 +980,7 @@ exception, not a new convention**.
 
 ### Where the process failed, which is the part worth keeping
 
-`check-markdown` cannot catch this class and was not extended to try. The paths
+[`check-markdown`](../scripts/check-markdown.js) cannot catch this class and was not extended to try. The paths
 were valid markdown and valid for their own file; nothing about the source is
 wrong. The render audit could not catch it either, because every audit renders a
 file **in isolation**, where it passes.
@@ -948,19 +993,19 @@ whose location we chose for unrelated reasons.
 
 ## D-070 · Log rows that misnamed their model were deleted by hand, not preserved as history
 
-*Written up 2026-09-13, the day the bug behind them was fixed.*
+*[Written up 2026-09-13](https://github.com/guycn1/cinerank-project/commit/1618a5322fc3f07b4164914021485638c4c18d33), the day the bug behind them was fixed.*
 
-The bug is in the commit that precedes this: `tasteVerdict.js` fell back to the
+The bug is in [the commit that precedes this](https://github.com/guycn1/cinerank-project/commit/db5a05ed25070562b703b257be485e8227e51cfb): `tasteVerdict.js` fell back to the
 app-wide model when writing a log row for a FAILED call, so every failed verdict
 recorded `claude-haiku-4.5` while the call that actually failed was
 `claude-sonnet-5`. Successful rows were always correct, because they read the
 model back out of OpenRouter's own response.
 
-> **2026-09-30:** That holds while the response names its model. A reply
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/9f096dcc16733a1f4838c652fcfeb867bc3aedb7):** That holds while the response names its model. A reply
 > without the field fell back to the app-wide model on the success path too;
 > `chat()` now falls back to the model the call requested.
 
-That left a handful of wrong rows already in `taste_verdict_logs`.
+That left a handful of wrong rows already in [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs).
 
 ### The disagreement, which is the content of this entry
 
@@ -1027,7 +1072,7 @@ for the preserve-don't-maintain rule this entry marks the boundary of.
 
 ## D-069 · The AI call log overclaimed its own coverage for the whole life of the feature, and the spec had it right all along
 
-*Written up 2026-09-13, found while shooting the
+*[Written up 2026-09-13](https://github.com/guycn1/cinerank-project/commit/26b33829bf1c225d67d90cf97a2cf3333060b132), found while shooting the
 [RS-4](RESILIENCE.md#rs-4--recommendations) evidence.*
 
 The AI call log dialog said:
@@ -1048,7 +1093,7 @@ window.
 
 ### Where the cap came from, and why it stays
 
-`git log -S` puts it in `b3e3446` (2026-09-04), the commit that introduced the
+`git log -S` puts it in [`b3e3446`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) (2026-09-04), the commit that introduced the
 viewer. **There is no decision entry for it and no sign it was ever discussed** —
 the user's own account was "we've always had a very manufactured 60-row cap, from
 day one, and I don't know why". So it was a default typed while building.
@@ -1088,7 +1133,7 @@ The two strings needed different treatment, because they make different claims:
 Both true things now get said: everything is recorded, this window shows the last
 sixty.
 
-> **2026-09-30:** "Every call" here means every call whose log write succeeds.
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/6bc12cb2c3664acaf2740d8f14690594493e2aa4):** "Every call" here means every call whose log write succeeds.
 > When that write fails, the run is discarded and its cause goes to the
 > server's stderr ([R5](../CLAUDE.md#group-a--functional-bugs)).
 
@@ -1115,7 +1160,7 @@ for the other class of defect that was invisible until something rendered it.
 
 ## D-068 · The demo seed list needs a two-axis persona, because a one-axis one starves both AI features at once
 
-*Written up 2026-09-13, when the seed content was settled.*
+*[Written up 2026-09-13](https://github.com/guycn1/cinerank-project/commit/751f54f040e292bd924376e0e2950d1496a167fe), when the seed content was settled.*
 
 Two candidate seed lists were built and compared by running the real features
 against them. The second was the user's, and it was better than the first on
@@ -1136,7 +1181,7 @@ as UI proof.
 **It lost on taste signal, and both AI features degraded together.** Its verdict
 came back as `Wicked and SpongeBob get the love, while Slumdog Millionaire and
 Saw get chucked out for being nasty about it` — four film names mapped to their
-ratings, which is precisely the failure `taste_verdict_v4` was written to end
+ratings, which is precisely the failure [`taste_verdict_v4`](../prompts/taste_verdict_v4.md) was written to end
 ([D-014](#d-014--taste-verdict-over-corrected--taste_verdict_v4)) after v3 did
 the same thing. Its recommendations were Hairspray, Cinderella, The Lego Movie
 and Moana, with two of the four reasons naming Wicked outright.
@@ -1233,7 +1278,7 @@ for the classifier lesson.
 
 ## D-067 · The hyphenation fix made the app's own output un-pasteable, and the failure surfaced two steps away from the cause
 
-*Written up 2026-09-13, the day it was found.*
+*[Written up 2026-09-13](https://github.com/guycn1/cinerank-project/commit/3b86956f121d4db88375333836012caa93d2f34a), the day it was found.*
 
 `softHyphenate()`
 ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all),
@@ -1276,7 +1321,7 @@ and
 [D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)
 cost two real bug fixes to settle (a scope leak into placeholder text, and
 grapheme-unsafe iteration that corrupted emoji), and the mid-word breaking they
-prevent is a genuine defect at the widths step 5 was fought over. The hyphens
+prevent is a genuine defect at the widths [step 5](../CLAUDE.md#step-5--the-portrait-overhaul) was fought over. The hyphens
 earn their place in the DOM.
 
 **Fixed at the clipboard instead.** A `copy` listener strips U+00AD from the
@@ -1318,7 +1363,7 @@ for the hyphenation.
 
 ## D-066 · The render audit had been running in the wrong GitHub API mode, and it masked a live defect for the life of the file
 
-*Written up the same day it was found, 2026-09-13, while unfreezing
+*[Written up the same day it was found, 2026-09-13](https://github.com/guycn1/cinerank-project/commit/d85e4b00a06619e481c964f84f57e26b66cffe9f), [while unfreezing](https://github.com/guycn1/cinerank-project/commit/1835f47e368eff2a65fbca677668c998c322406d)
 [`SPEC.md`](../SPEC.md).*
 
 [`CLAUDE.md`'s render-and-diff method](../CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) told every session to post
@@ -1343,8 +1388,8 @@ the HTML github.com actually serves for [`SPEC.md`](../SPEC.md) on `main`:
 <strong>Status:</strong> Draft v1</p>
 ```
 
-No `<br>` anywhere. That header had been rendering as one run-on line since the
-file was written, and **every render audit we ever ran displayed it as three tidy
+No `<br>` anywhere. That header had been rendering as one run-on line [since the
+file was written](https://github.com/guycn1/cinerank-project/commit/aadaf188132b461cbfefedd1fa00d2c513029f41), and **every render audit we ever ran displayed it as three tidy
 lines**, because every audit ran in `gfm`.
 
 **The alternatives, and why neither is simply "the right mode".**
@@ -1375,7 +1420,7 @@ same way everything else does.
 ## D-065 · The markdown separators are DELETED, not unescaped — and two of the four suspected escaping defects turned out not to be defects at all
 
 [CLAUDE.md](../CLAUDE.md) and [SPEC.md](../SPEC.md) carried ~110 backslash
-escapes from an old paste. The 2026-09-12 sweep flagged them as cosmetic and
+escapes from an old paste. [The 2026-09-12 sweep](https://github.com/guycn1/cinerank-project/commit/83a5da5f09507f4d4c2d6155c8e7743c68127e2c) flagged them as cosmetic and
 left them; the user pushed back, correctly, that for a course graded
 substantially on workflow documentation the RENDERED markdown IS the
 deliverable, and that a rendering fault in a 3,380-line file is the hardest kind
@@ -1387,15 +1432,15 @@ Every class was rendered through GitHub's own Markdown API before deciding.
 **Two of the four suspected defects were not defects**, and Claude had asserted
 both of them confidently:
 
-* `[ ]` — claimed to "kill the eight checkboxes" in
+* `\[ ]` — claimed to "kill the eight checkboxes" in
   [SPEC § 7.1](../SPEC.md#71-must-pass-before-submission). **False.** An
   escaped bracket in a list item renders as a working, tickable checkbox, byte
   for byte identical to an unescaped one.
-* `1.` in headings — claimed to render as `1.`. **False.** `## 1. Test`
+* `1\.` in headings — claimed to render as `1\.`. **False.** `## 1\. Test`
   renders `<h2>1. Test</h2>`.
-* `&` and plain-text `_` also render correctly. All four classes: left alone.
+* `\&` and plain-text `\_` also render correctly. All four classes: left alone.
 
-The two that were real: **the 17 section separators**, which rendered as a
+[The two that were real](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b): **the 17 section separators**, which rendered as a
 literal `---` paragraph instead of a rule, and **the 54 escaped underscores
 inside code spans**, which showed the backslash to the reader. The second is the
 one that mattered — it covered nearly every technical identifier in both files:
@@ -1407,7 +1452,7 @@ section.
 
 ### The decision: delete the separators rather than unescape them
 
-The obvious fix was `---` → `---`, turning each into a real horizontal rule.
+The obvious fix was `\---` → `---`, turning each into a real horizontal rule.
 **The user rejected that from a screenshot and was right on both counts.**
 
 * **A rule there is redundant.** GitHub's stylesheet already puts a
@@ -1460,8 +1505,8 @@ were genuinely broken and the checker caught none:
   in kind to the `---` case the checker already had, and strictly worse, because
   it makes a bigger heading. A pure false negative.
 * `***` and `___` before a heading — the same doubled rule around a heading that
-  rule 5 exists to prevent, in the two spellings it did not know.
-* An escaped `\***` — the same literal-debris paragraph rule 3 exists to prevent.
+  [rule 5](../CLAUDE.md#the-rules) exists to prevent, in the two spellings it did not know.
+* An escaped `\***` — the same literal-debris paragraph [rule 3](../CLAUDE.md#the-rules) exists to prevent.
 * A table with no `|---|` separator row — GitHub renders the whole block as one
   paragraph of pipe characters. Not a degraded table: no table. These files carry
   84 table rows between them.
@@ -1481,7 +1526,7 @@ CommonMark lets a link destination begin on the next line. Both render visibly
 wrong, both are caught by the render audit, and both are now written down as
 known limitations rather than papered over.
 
-**Verified in both directions, 57 cases: 26 that must fail, 31 that must pass.**
+**[Verified in both directions, 57 cases](https://github.com/guycn1/cinerank-project/commit/646307a2378a3c1d44291c017b69a09c6f6178f1): 26 that must fail, 31 that must pass.**
 The must-pass half is where the value is — escapes inside fenced blocks, escapes
 in plain text, a Windows path and a regex token as genuine content, a span
 wrapped across lines, double and triple delimiters, a valid table, an alignment
@@ -1499,7 +1544,7 @@ exactly as intended. **An audit tool gets the same treatment as the thing it
 audits: check its output against reality before believing it.**
 
 **And the checker caught this entry being written.** The paragraph above quoting
-`\***` inline tripped rule 1 — correctly, since an escape in a code span does
+`\***` inline tripped [rule 1](../CLAUDE.md#the-rules) — correctly, since an escape in a code span does
 render literally. The two remaining thematic-break spellings joined the
 whole-span allowlist, which was then probed to confirm it still fires on the same
 sequence embedded in a larger span.
@@ -1517,7 +1562,7 @@ The user asked for a proper verification pass — every markdown file rendered e
 to end, and the checker itself proved free of false positives and negatives. Both
 found something.
 
-**The render audit compared SOURCE STRUCTURE to RENDERED OUTPUT** for all 15
+**[The render audit compared SOURCE STRUCTURE to RENDERED OUTPUT](https://github.com/guycn1/cinerank-project/commit/6c84cb6472f6462de4e4ad9cb2d7c934d0e50faf)** for all 15
 markdown files (the five docs plus all ten prompt versions): heading counts,
 fenced blocks, table rows, list items and code spans on each side, plus a scan of
 the output for markdown that had leaked into a paragraph. Four files flagged.
@@ -1528,7 +1573,7 @@ stripped. **The fourth was real, and nothing had ever caught it.**
 `docs/DECISIONS.md`
 [D-011](#d-011--taste-verdict-truncation--markdown--taste_verdict_v2) tried to
 show the three characters `tidyVerdict()` strips, escaping the backtick with a
-backslash. Escapes do not work inside a code span (rule 1), so the run never
+backslash. Escapes do not work inside a code span ([rule 1](../CLAUDE.md#the-rules)), so the run never
 closed and **GitHub swallowed the rest of the sentence into the code element.**
 It had rendered that way for nine days, through a full staleness sweep and two
 markdown passes.
@@ -1548,7 +1593,7 @@ backslash was content. It was a failed escape. The entry is removed, and the
 allowlist now warns that an addition must be a backslash which is genuinely part
 of what is being shown.
 
-**Why no existing rule caught it.** Rule 1 looks for a backslash FOLLOWED BY a
+**Why no existing rule caught it.** [Rule 1](../CLAUDE.md#the-rules) looks for a backslash FOLLOWED BY a
 punctuation character; here the backslash was the last character before the
 delimiter. A per-line backtick-parity check does not work either — a code span
 may legally wrap across lines, so 65 lines in these files carry an odd count and
@@ -1556,7 +1601,7 @@ are all correct. The unit has to be the PARAGRAPH, and the test CommonMark's own
 an opening run of N backticks is closed by the next run of EXACTLY N. Run at
 paragraph level across all 15 files, exactly one paragraph failed — this one.
 
-That is now rule 2 in `check-markdown`. **Its first implementation was wrong in a way
+That is now [rule 2](../CLAUDE.md#the-rules) in [`check-markdown`](../scripts/check-markdown.js). **Its first implementation was wrong in a way
 worth recording**: it matched runs with a stack, which is not what CommonMark
 does, and it rejected the very fix it was meant to accept (double delimiters
 holding a literal backtick). Corrected to forward-scanning.
@@ -1589,7 +1634,7 @@ boundary was drawn two different ways with nothing behind the difference. A
 convention applied to 58% of cases is worse than either choice applied to all of
 them. The earlier figure of "65" was wrong as well.
 
-All 38 came out, plus one more in [`docs/PROCESS.md`](PROCESS.md) that nobody
+[All 38 came out](https://github.com/guycn1/cinerank-project/commit/c301fa05c06dd756e80e2716fe80af8c4ad192af), plus one more in [`docs/PROCESS.md`](PROCESS.md) that nobody
 had noticed. Verified the way the rules now require: rendered before and after,
 and the BEFORE html with only its `<hr>` lines stripped is byte-identical to the
 AFTER. Heading, table and code-span counts unchanged — 65 h2, 45 h3, 5 tables,
@@ -1602,7 +1647,7 @@ in the repo it can now fail the build on any reappearance, which is what it does
 **And restoring it immediately caught two things, which is the argument for
 probing a check rather than trusting it.** First, the restored rule did not work
 at all: a heredoc ate a backslash and its regex became `/^#{1,6}s/`, matching a
-literal "s" after the hashes and therefore nothing — a check that passes",
+literal "s" after the hashes and therefore nothing — a check that passes,
 silently, forever. The probe caught it in one run. **That is the same failure as
 the tag-balance check in
 [D-064](#d-064--the-favicon-is-an-svg-re-draw-of-the-logo-not-an-export-of-it--and-deliberately-coarser-than-the-mark-it-comes-from):
@@ -1629,8 +1674,8 @@ ANY code span contain a backslash". Asking it that way across all five markdown
 files returned five hits: four legitimate (a Windows path, two regex tokens, and
 the literal characters `tidyVerdict()` strips) and the one defect.
 
-**That question is now a script rather than a resolution.** `npm run
-check-markdown` enforces it plus the two structural traps, exits non-zero on a
+**That question is now a script rather than a resolution.**
+[`npm run check-markdown`](../scripts/check-markdown.js) enforces it plus the two structural traps, exits non-zero on a
 real defect, and reports the harmless plain-text escapes without failing. It was
 probed the way this project probes a test — each of the four defects it claims to
 catch was injected into a temporary file and confirmed to fail the check,
@@ -1653,8 +1698,8 @@ before estimating the risk, not after.
 
 ## D-064 · The favicon is an SVG re-draw of the logo, not an export of it — and deliberately coarser than the mark it comes from
 
-Step 4 of the agreed order, settled 2026-09-12. The user had sequenced it behind
-step 4b on the reasoning that "the favicon will most likely derive from the
+[Step 4](../CLAUDE.md#step-4--the-favicon) of the agreed order, [settled 2026-09-12](https://github.com/guycn1/cinerank-project/commit/b252db9fd8767bc2dc3f0e2125737f7b92099b36). The user had sequenced it behind
+[step 4b](../CLAUDE.md#step-4b--seven-polish-items) on the reasoning that "the favicon will most likely derive from the
 logo, so the logo had to be settled before that discussion could start". That
 held — but the derivation turned out to be a re-draw rather than a copy, and the
 copy would have been the wrong artefact.
@@ -1729,7 +1774,7 @@ So SVG-only is safe on every current browser. Safari 18.7 and older still probe
 `/favicon.ico` and still 404 — **the same error as before rather than a new one**,
 and closing it costs a binary asset in a repo that, on 2026-09-12, had none.
 
-> **2026-09-19:** the 37 screenshot PNGs landed the next day, so "has none" stopped being true
+> **[2026-09-19](https://github.com/guycn1/cinerank-project/commit/a13823c59b9d08ae9b66e60bea2d808b4547cb5c):** the 37 screenshot PNGs landed the next day, so "has none" stopped being true
 > almost immediately. The reason still holds in the form that mattered: a .ico
 > would be the only binary the APPLICATION ships — everything under [public/](../public/),
 > [server/](../server/), [scripts/](../scripts/), [prompts/](../prompts/), [db/](../db/) and [test/](../test/) is text.
@@ -1776,7 +1821,7 @@ recorded under [the tooling traps in CLAUDE.md](../CLAUDE.md#environment--toolin
 fix — parse it with a real parser, and parse the bytes the server sends rather
 than the file on disk.
 
-Also corrected while the file was open: `maskUnits` is now stated explicitly as
+[Also corrected while the file was open](https://github.com/guycn1/cinerank-project/commit/0ce0551919fb594c297ec2a61fe26b54844846a5): `maskUnits` is now stated explicitly as
 `userSpaceOnUse` with its region given, rather than relying on the
 `objectBoundingBox` default, whose region derives from the masked group's
 geometry box (stroke excluded) and would have put the outer ring's edge within a
@@ -1788,8 +1833,8 @@ explicit `width`/`height`.
 Two decisions, reached in one investigation and kept together because separating
 them would lose the thread: **(a)**
 [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports) —
-the last open item in the recommendations sub-backlog — is closed without a code
-change, and **(b)** the `debugRecs` harness is knowingly left half-stale rather
+the last open item in the recommendations sub-backlog — [is closed without a code
+change](https://github.com/guycn1/cinerank-project/commit/6bd6f0b82c29fc6735fc54b5ae89ed2a4ba7131d), and **(b)** the `debugRecs` harness is knowingly left half-stale rather
 than patched. The second is what made the first hard to look at.
 
 ### (a) R18: measured, then dropped
@@ -1798,7 +1843,7 @@ than patched. The second is what made the first hard to look at.
 [R18](../CLAUDE.md#group-d--visual-and-narrow-viewports)
 claimed.** `.recs__hint { min-height: 1.2em }` "reserves one line for messages
 that run to three or four on a phone, so the grid jumps as the hint changes."
-Filed 2026-09-09 during the recommendations audit, explicitly parked for the
+[Filed 2026-09-09](https://github.com/guycn1/cinerank-project/commit/041754a81c7f5faf8da5f9ed2bcb8d57c8e816fb) during the recommendations audit, explicitly parked for the
 step-5 portrait pass with the instruction to "check it during the portrait pass
 rather than guessing at a number now". That instruction is the only reason this
 entry can be written — the item was never costed by eye.
@@ -1832,7 +1877,7 @@ contradicted.
 reserving the tallest message: `min-height: ~3.1em`, permanently parking 67px of
 blank space above the grid on every narrow viewport, including the roughly
 two-thirds of the time the message is shorter than that. That trades a masked
-one-line shift for unmasked dead space in the exact viewport class step 5 exists
+one-line shift for unmasked dead space in the exact viewport class [step 5](../CLAUDE.md#step-5--the-portrait-overhaul) exists
 to make less cramped. It also hardcodes a line count that is a function of four
 message strings, the font and the viewport width — it goes silently wrong the day
 any of those changes, and nothing would catch it.
@@ -1869,7 +1914,7 @@ writing the steps and was not checked.
 Found while diagnosing the above, and it is the reason a sub-threshold run could
 not simply be forced.
 
-[`scripts/debug-recs.js`](../scripts/debug-recs.js) (96158b1, 2026-09-09)
+[`scripts/debug-recs.js`](../scripts/debug-recs.js) ([96158b1](https://github.com/guycn1/cinerank-project/commit/96158b1827ec2ee436af57d79857b61e893600ef), 2026-09-09)
 carries a `setTimeout(…, 0)` that re-enables `#recs-trigger` after the run's
 `finally` re-disables it. **That workaround was complete when written**: at the
 time, the below-threshold branch of `syncRecommendationsAvailability()` did
@@ -1879,7 +1924,7 @@ six cards and they stayed. Zero rated films was a perfectly usable harness
 state.
 
 **[R16](../CLAUDE.md#group-d--visual-and-narrow-viewports)
-(885a6a5, 2026-09-11 — two days later) added a third statement to that same
+([885a6a5](https://github.com/guycn1/cinerank-project/commit/885a6a59eed2abe7f53d50a6504301c44d131907), 2026-09-11 — two days later) added a third statement to that same
 branch**: `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()`,
 so a locked section cannot sit above six live recommendations. Correct on its
 own terms and unrelated to this file. The consequence is that the harness's
@@ -1943,7 +1988,7 @@ the user's own instinct — asking specifically about `left: 50%` — turned out
 be the real mechanism. Diagnosed correctly by someone who was not staring at the
 CSS spec's shrink-to-fit formula, which is itself worth remembering.
 
-**The fix.** `left: 0; right: 0; width: fit-content; margin-inline: auto;`,
+**[The fix.](https://github.com/guycn1/cinerank-project/commit/2a111d4344f2b67656c1d6dc1922625f59b8f871)** `left: 0; right: 0; width: fit-content; margin-inline: auto;`,
 `transform` reduced to its vertical entrance offset alone. Both edges pinned
 gives shrink-to-fit the FULL viewport with no anchor-point ambiguity;
 `width: fit-content` asks for the shrink-to-fit size explicitly rather than
@@ -1962,7 +2007,7 @@ elements in this file have now hit exactly this shape of trap
 THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 `inset` + `margin: auto` from the start rather than rediscovering this.
 
-> **2026-09-12, later the same day:** **this fix immediately broke `toastIsLong()`
+> **[2026-09-12, later the same day](https://github.com/guycn1/cinerank-project/commit/51bd1deeced4a0c376223576d0a1bbfd1702688a):** **this fix immediately broke `toastIsLong()`
 > ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
 > measurement helper), and the break is worth recording alongside the fix that
 > caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
@@ -1973,8 +2018,8 @@ THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 > specified, which per the shrink-to-fit case list stops being shrink-to-fit
 > entirely: the box stretches to fill the whole gap between them, enormous since
 > `left` sits off-screen. A short toast (`“Hairspray” saved.`) measured as needing
-> 400px+ on the very next check and was misclassified as long. Fixed by
-> neutralising `right`, `bottom` and `margin` in the probe too, not just the
+> 400px+ on the very next check and was misclassified as long. [Fixed by
+> neutralising](https://github.com/guycn1/cinerank-project/commit/db714ae0fe4d3af10ca125a6c0994ce33ded6120) `right`, `bottom` and `margin` in the probe too, not just the
 > properties `.toast` happened to set when the probe was first written. **The
 > general lesson, not just this one instance:** a measurement probe that clones a
 > real class by name, then overrides "the properties that currently matter," is
@@ -1995,13 +2040,13 @@ the verdict but skips the typing animation. Folding both into one condition
 hyphenated every non-typed call along with the real ones — visible in a
 screenshot as "A-I-generated" and "t-aste" broken mid-word in the idle
 placeholder text, which is prose that was never supposed to be touched at
-all. Fixed by checking `!typed` first and returning before hyphenation is
+all. [Fixed by checking `!typed` first](https://github.com/guycn1/cinerank-project/commit/626dad9020e9568454fb37b613fe6fe163930560) and returning before hyphenation is
 even considered; the reduced-motion/empty-text check now only ever runs for
 a real verdict.
 
 **Bug 2, more serious: `softHyphenate()` corrupted multi-unit emoji.**
 Reported as a broken review emoji rendering as two tofu placeholder glyphs.
-The original implementation, `text.replace(/(\S)(?=\S)/g, '$1­')`,
+[The original implementation](https://github.com/guycn1/cinerank-project/commit/8624bba7bcf47f3de2151e7cd6597cddfce8a41b), `text.replace(/(\S)(?=\S)/g, '$1­')`,
 iterates JS STRING INDICES — UTF-16 code units, not visual characters. Most
 emoji are a SURROGATE PAIR (two code units, one code point); the regex
 inserted a character BETWEEN the pair, orphaning both halves, which a
@@ -2060,7 +2105,7 @@ property in effect at that instant.
 cost estimate was for a different, harder problem (finding WHERE text overflows)
 that this approach never needs to solve.
 
-**As shipped:** `softHyphenate()` in [`app.js`](../public/app.js) runs unconditionally over
+**[As shipped:](https://github.com/guycn1/cinerank-project/commit/8624bba7bcf47f3de2151e7cd6597cddfce8a41b)** `softHyphenate()` in [`app.js`](../public/app.js) runs unconditionally over
 titles, reviews, AI-reason text and the verdict, with no viewport check inside
 it at all. CSS alone gates whether the embedded soft hyphens are ever honoured:
 at 400px and below (originally below 400px — see the addendum) they are; above
@@ -2088,7 +2133,7 @@ what caused the original inconsistency (a real word hyphenates, an invented
 one does not) — the soft-hyphen approach is what fixed it, precisely by not
 depending on a dictionary.
 
-> **2026-09-12, later the same day:** **extended to `#verdict-text`, `.review` and `.reason`,
+> **[2026-09-12, later the same day](https://github.com/guycn1/cinerank-project/commit/9e157007e727872a3ca8afbd79d24fd578ac883e):** **extended to `#verdict-text`, `.review` and `.reason`,
 > and the threshold moved to 400px inclusive.** Two things worth recording
 > about the extension itself, not just the fact of it:
 >
@@ -2119,7 +2164,7 @@ depending on a dictionary.
 
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
-> **2026-09-30:** The gap this entry accepts was closed the same day by
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/1386299dd1c06da9c71bc188f8e757a8e2d954e0):** The gap this entry accepts was closed the same day by
 > [D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all),
 > whose soft hyphens break invented words as cleanly as real ones.
 
@@ -2129,7 +2174,7 @@ phone width, and `overflow-wrap: anywhere` is exactly why
 — it is the guard that stops one unbroken word from blowing a card's track open,
 and it breaks wherever it has to, with no regard for syllables.
 
-**The fix.** `hyphens: auto`, paired everywhere that guard already lives over
+**[The fix.](https://github.com/guycn1/cinerank-project/commit/9a87a8b94048639afab6caabe3114176bb7007e7)** `hyphens: auto`, paired everywhere that guard already lives over
 a film title (`.movie-card__body`, `.result-row`, `.rec-card__body`, the rate
 and confirm dialog headings, `.toast`). It does not replace `overflow-wrap`;
 it changes what happens BEFORE that last resort is needed — the browser's own
@@ -2160,7 +2205,7 @@ precisely the territory [CLAUDE.md's own step 5 rule](../CLAUDE.md#step-5--the-p
 rather than chase past a quick fix.
 
 **Put to the user as a real trade-off, not decided unilaterally: leave it, or
-build the JS fallback anyway.** Their call was to leave it. Most real words in
+build the JS fallback anyway.** [Their call was to leave it.](https://github.com/guycn1/cinerank-project/commit/69451fd2a79e854eede2346697499855d6f1fb58) Most real words in
 real film titles already hyphenate correctly, which is the actual improvement
 here; the residual gap is real but narrow, and is now a documented, accepted
 limit rather than an oversight.
@@ -2176,7 +2221,7 @@ demo, a grading rubric complaint, anything beyond this.
 to its own line around 537px. The user wanted that forced earlier, at 680px,
 with the button's own rendered width identical whichever way it wraps.
 
-**First attempt, and why it failed.** `flex-basis: 100%` on `.verdict__refresh`
+**[First attempt](https://github.com/guycn1/cinerank-project/commit/6382a1a1813dfe6681dabb522c97f36255b39098), and why it failed.** `flex-basis: 100%` on `.verdict__refresh`
 under a `@media (max-width: 680px)` block does force the wrap — its
 hypothetical main size becomes the full row width, which the label and verdict
 text ahead of it can never share a line with. But `flex-basis` is not just the
@@ -2184,7 +2229,7 @@ forcing signal, it is also the SIZE: with nothing else left on its new line to
 shrink it back down, the button rendered edge-to-edge across the whole banner.
 Confirmed by screenshot, not assumed.
 
-**Second attempt, and why it ALSO failed — this is the non-obvious part.**
+**[Second attempt](https://github.com/guycn1/cinerank-project/commit/75569cfc9808a07959fa91d83b3ee80ef73ae9eb), and why it ALSO failed — this is the non-obvious part.**
 Adding `max-width: max-content` alongside it, to clamp the rendered size back
 to the button's own content width, undid the wrap outright: the break point
 fell straight back to the natural ~537px. The reason is in the spec, not
@@ -2195,7 +2240,7 @@ by min/max-width. A `max-width` that fixes the rendered size fixes the forcing
 value too, before the wrap decision is ever made. One property cannot carry
 two different numbers for two different jobs.
 
-**The fix: a second, empty flex item does the forcing instead.**
+**[The fix: a second, empty flex item does the forcing instead.](https://github.com/guycn1/cinerank-project/commit/5cb26500709a23f3ae487b0be93d6e2bff7e49c7)**
 `.verdict__break` — a bare `<span aria-hidden>` added to [`index.html`](../public/index.html) right
 after `.verdict__text`, `display: none` above the breakpoint (not a flex item
 at all, zero effect on wider layouts) and `flex-basis: 100%` with no
@@ -2221,7 +2266,7 @@ independent bugs.
 
 ## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
 
-**The choice.** `#verdict-text`'s content is now written through ONE function,
+**The choice.** `#verdict-text`'s content is [now written through ONE function](https://github.com/guycn1/cinerank-project/commit/1b2422ff9bc920a0e473626dd004a77681154611),
 `setVerdictText(text, { typed })`, rather than eight scattered
 `textContent =` assignments. It builds two child spans every call: a
 `.sr-only` one holding the FULL text immediately, and an `aria-hidden`
@@ -2275,7 +2320,7 @@ it by misreading this entry.
 
 ## D-056 · The busy cue changes playbackRate, not animation-duration (supersedes one call in D-055)
 
-Step 4b's last glint item: while "New verdict" is generating, the band travels ~5x
+[Step 4b](../CLAUDE.md#step-4b--seven-polish-items)'s last glint item: while "New verdict" is generating, the band travels ~5x
 faster and brightens. Two dials, and they ended up in two different places.
 
 **[D-055](#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path)
@@ -2296,7 +2341,7 @@ the current instant, so the position necessarily moves. Measured at the moment o
 the switch, a layer went from 0.4867 of its cycle to 0.4333. No amount of
 delay-rescaling helps, because the delays were never the problem.
 
-**`playbackRate` fixes it by construction.** The Web Animations API preserves
+**[`playbackRate` fixes it by construction.](https://github.com/guycn1/cinerank-project/commit/3da82c5e851a0d591d7ae002263ab019c64020fb)** The Web Animations API preserves
 `currentTime` when the rate changes, so only velocity changes. The same layer
 stayed at 0.4867 exactly. `setSheenRate()` in [`app.js`](../public/app.js) sets it on the twenty
 animations obtained via `getAnimations()`.
@@ -2333,16 +2378,16 @@ as "it sped up", and the user approved it after looking. A rAF ramp of
 
 ## D-055 · The verdict glint: overcorrection, a revert, and a band that fades along a path
 
-The mechanism (an SVG stroke dash on `pathLength="100"`) was settled on
-2026-09-11. This entry is about everything after it — the polish, which went
+The mechanism (an SVG stroke dash on `pathLength="100"`) was [settled on
+2026-09-11](https://github.com/guycn1/cinerank-project/commit/7a27d0d075aab31334a537856abe5f186adab437). This entry is about everything after it — the polish, which went
 badly before it went well, and is recorded for the METHOD rather than the
 values. The final numbers live in [`public/styles.css`](../public/styles.css);
 do not mirror them here.
 
 ### The failure: four compounding passes, and a framing error under them
 
-The user asked for the band to be subtler, softer-edged and lower-contrast. Four
-passes followed in one day, each moving several values at once: warm the stroke,
+The user asked for the band to be subtler, softer-edged and lower-contrast. [Four
+passes](https://github.com/guycn1/cinerank-project/compare/0c730a214d539f66d89133c4fcd58b0c304a5771...dde51c6cdb89f7874a933bfba43b3a74274ff405) followed in one day, each moving several values at once: warm the stroke,
 add a blur, cut the alpha, narrow the ring, slow the travel. Contrast over the
 ring's three base stops went 3.54 / 2.34 / 1.62 down to 1.40 / 1.26 / 1.12, and
 the user's verdict was that we were "in a loop… overcorrecting more and more".
@@ -2382,7 +2427,7 @@ The user asked for the band's ends to taper — `linear-gradient(transparent,
 stayed crisp. A blur cannot do that (it softens the thickness too, which is what
 made 15px useless), and a stroke dash has hard ends by definition.
 
-Answer: **stack many dashes of decreasing length, centred on each other, and let
+Answer: **[stack many dashes of decreasing length](https://github.com/guycn1/cinerank-project/commit/8e04212a5253db5aad4e6afa885853b8a250c676), centred on each other, and let
 their alphas composite into a falloff.**
 
 **1. Centre them with negative `animation-delay`, never `stroke-dashoffset`.** A
@@ -2402,7 +2447,7 @@ solve backwards, `a_k = 1 - (1 - C_k) / (1 - C_k-1)`. **The alphas then peak in
 the MIDDLE layer and come back down**, because inner layers paint onto an
 already-part-opaque stack. No intuitive sequence produces that, which is why the
 block is generated rather than hand-written.
-> **2026-10-01:** in the block this entry shipped, the peak was layer 13 of the
+> **[2026-10-01](https://github.com/guycn1/cinerank-project/commit/e7aa7857074fa7357420d7f156d7a647b42d306b):** in the block this entry shipped, the peak was layer 13 of the
 > 20. [D-056](#d-056--the-busy-cue-changes-playbackrate-not-animation-duration-supersedes-one-call-in-d-055)
 > re-solved the layers at the brighter busy peak, which moved it to layer 16,
 > where [`public/styles.css`](../public/styles.css) has it now.
@@ -2523,8 +2568,8 @@ shipping it:
    only because of the fallback, and a recommendation run capped at six cards
    cannot afford to silently shed a third of them for a rare correctness gain.
 
-**The user's call, given those numbers, was to leave the code and fix the
-claim** — the cheapest honest option, and the one that does not risk the demo.
+**[The user's call, given those numbers, was to leave the code and fix the
+claim](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11)** — the cheapest honest option, and the one that does not risk the demo.
 Claude had recommended the 0.75-floor matcher; the measurements are what changed
 the recommendation's footing, and the user weighed run size higher. Corrected
 instead: the JSDoc on `verifyTitle()` (which claimed "or null if no confident
@@ -2567,9 +2612,9 @@ stop blaming the prompt.
 
 | version | strategy | result |
 |---|---|---|
-| v5 | ask for plain spoken English, 17 banned phrases | fixed sentence SHAPE, kept critic vocabulary |
-| v6 | 22 banned phrases + a rewrite table | "no improvement" |
-| v7 | delete the bans, 4 worked examples of the voice | worst of the chain — and broke the 2–3 sentence rule |
+| [v5](https://github.com/guycn1/cinerank-project/commit/f73040b4235d03859732e1f2cfa30a402cba843f) | ask for plain spoken English, 17 banned phrases | fixed sentence SHAPE, kept critic vocabulary |
+| [v6](https://github.com/guycn1/cinerank-project/commit/163d524f6cf74a584f1e3e846e508dba35f11c04) | 22 banned phrases + a rewrite table | "no improvement" |
+| [v7](https://github.com/guycn1/cinerank-project/commit/e6b72c22027095ce420bf6daa7e8ee272c79b3eb) | delete the bans, 4 worked examples of the voice | worst of the chain — and broke the 2–3 sentence rule |
 
 Counting the chain is what broke the loop: the file went 2405 → 4963 chars,
 banned phrases went 1 → 17 → 22, and **worked examples of the target voice
@@ -2584,12 +2629,12 @@ the words it does choose. **Register is a sample, not a rule.**
 
 *And when three structurally different prompts produce the same output, the
 prompt is not the variable.* v7 was written as a falsifiable test — examples
-instead of bans — with the prediction stated in its commit that if it failed,
+instead of bans — with the prediction stated in [its commit](https://github.com/guycn1/cinerank-project/commit/e6b72c22027095ce420bf6daa7e8ee272c79b3eb) that if it failed,
 the lever was elsewhere. It failed. Haiku 4.5 on the same v7 prompt also broke a
 rule it had held since v4 (four sentences against a stated 2–3), which is
 plain instruction-following rather than taste, and pointed the same way.
 
-**So the fix was the model, and it worked on the first try.** Same prompt (v7),
+**[So the fix was the model](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a), and it worked on the first try.** Same prompt (v7),
 `anthropic/claude-sonnet-5`: the register landed, and the sentence count came
 back into bounds — the second symptom resolving with the first is what makes
 "the tier was the constraint" more than a story that fits.
@@ -2601,7 +2646,7 @@ The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
 variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
 break a live request.
 
-> **2026-09-19:** the demo seed list two days later lengthened the prompt, and the verdict
+> **[2026-09-19](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e):** the demo seed list two days later lengthened the prompt, and the verdict
 > reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
 > that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
 > this decision turned on is unaffected.
@@ -2621,8 +2666,8 @@ model per row, so the split is visible in the audit trail rather than buried in
 config — which turns a cost decision into demonstrable evidence.
 
 **The cost of getting here:** four real OpenRouter calls spent on prompt
-versions that moved nothing, and a wrong conclusion published in v6's commit
-message ("concrete sentences to steer away from have moved this prompt further
+versions that moved nothing, and a wrong conclusion published in [v6's commit
+message](https://github.com/guycn1/cinerank-project/commit/163d524f6cf74a584f1e3e846e508dba35f11c04) ("concrete sentences to steer away from have moved this prompt further
 than any adjective") that v7 disproved a day later.
 [`docs/PROCESS.md`](PROCESS.md) records the wrong turns alongside the fix,
 because a prompt chain showing only successful iterations would misrepresent
@@ -2642,7 +2687,7 @@ be brightened, with one constraint: *"its brightness should still be closer to
 how it is right now than to `--ink-dim`; the difference between 'faint' and 'dim'
 should remain noticeable."*
 
-Claude picked the brightest value satisfying that constraint — **#868178**, AA
+Claude [picked the brightest value](https://github.com/guycn1/cinerank-project/commit/cc7196094fdfa18b05186b9049368ba5949b1891) satisfying that constraint — **#868178**, AA
 clear on both grounds at 5.07 / 4.51.
 
 ### The false alarm, which is worth recording on its own
@@ -2652,7 +2697,7 @@ The user reported back that faint was now *"almost indistinguishable"* from dim.
 "No movies yet — search for one above to get started." against "Rate at least 3
 movies to unlock recommendations (you have 0).", expecting the first to be faint
 and the second dim. But the empty-list line had been moved to `--ink-dim` in the
-*same commit*, so they were looking at dim against dim and correctly concluding
+[*same commit*](https://github.com/guycn1/cinerank-project/commit/cc7196094fdfa18b05186b9049368ba5949b1891), so they were looking at dim against dim and correctly concluding
 the two were identical.
 
 **The mechanism is the lesson: two changes to the same visual question shipped
@@ -2666,8 +2711,8 @@ Claude did not catch it either, and acted on the report at face value.
 ### What re-testing actually found
 
 The user then tried candidates in devtools and reported precisely: #868178 *was*
-too close to dim, though not indistinguishable, and the #76716a correction had
-gone a shade too dark. Settled at 30% of the way back: **#7b766e**.
+too close to dim, though not indistinguishable, and [the #76716a correction](https://github.com/guycn1/cinerank-project/commit/ebc52402f4a550a344714381c7c12c1e590b4cbd) had
+gone a shade too dark. [Settled at 30% of the way back](https://github.com/guycn1/cinerank-project/commit/ab8987b976698fc9f216112b368a7abe6dc6d62d): **#7b766e**.
 
 **The metric that decides this is not the one AA is defined against.** Whether
 two type tiers read as two tiers depends on their contrast with *each other*:
@@ -2701,7 +2746,7 @@ a score; `Based on: …` directly above the cards it introduces; the metadata
 footer under the result it describes. None of it is the sole carrier of
 anything.
 
-> **2026-09-30:** One more line fitted the rule and was still on `--ink-faint`:
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532):** One more line fitted the rule and was still on `--ink-faint`:
 > the AI call log's `.log-empty` row, which is the only thing in the table body
 > while the log loads, when it is empty and when it fails to load. It is
 > `--ink-dim` now.
@@ -2736,8 +2781,8 @@ page's single left margin. The user weighed that against a card stretched to
 quality of the layout, while the stretched card is a defect that gets worse the
 wider the window.
 
-**How, and the alternative that was rejected.** `balancedColumns()` became
-`balancedLayout()` and returns a width beside the count: the width from `fit`
+**How, and the alternative that was rejected.** [`balancedColumns()` became
+`balancedLayout()`](https://github.com/guycn1/cinerank-project/commit/bbe83e988f940d51b67561f5f465d602d31a03d2) and returns a width beside the count: the width from `fit`
 (the widest packing the viewport allows), the count from the balancing. The
 obvious implementation was to size each track — `repeat(2k, <half-track>)` plus
 `justify-content: center`. Rejected: it puts a computed pixel length into
@@ -2774,7 +2819,7 @@ index, adding two gaps to the width arithmetic, breaking the half-column offset,
 and dropping auto-placed cards into gutters. Out of the grid it is a plain block
 underneath, full width, coupled to nothing.
 
-**Added hours later, once the user looked at it: a card also needs a MAXIMUM
+**[Added hours later](https://github.com/guycn1/cinerank-project/commit/cc7196094fdfa18b05186b9049368ba5949b1891), once the user looked at it: a card also needs a MAXIMUM
 width, and the reason is height.** Decoupling width from the count fixed the
 one-card case only in the sense that the count no longer chose the width — the
 width still came from `fit`, so each time one fewer column fitted, the survivors
@@ -2815,7 +2860,7 @@ three fit** renders 3 + 1, with two thirds of the second row empty, and **five
 cards where four fit** renders 4 + 1, with three quarters empty. Both are widths
 where 2 + 2 and 3 + 2 fit perfectly well.
 
-**The column count moves into JS.** There is no CSS-only fix — `auto-fill` and
+**[The column count moves into JS.](https://github.com/guycn1/cinerank-project/commit/4021c2e4db08131a29c541547cfb4592efee469a)** There is no CSS-only fix — `auto-fill` and
 `auto-fit` are the only two packing modes, and neither knows the item count. The
 standard balanced-rows formula is two lines: how many rows does the widest layout
 need, then spread the cards evenly over exactly that many. It can never add a
@@ -2831,7 +2876,7 @@ rule is the one implemented: the formula runs only when the natural layout would
 strand a single card. One `> 1` in `balancedColumns()` is the whole of the
 difference, and it is commented as such, because the temptation to "finish the
 job" is obvious.
-> **2026-09-10:** the restraint is gone, and not because anyone finished the job
+> **[2026-09-10](https://github.com/guycn1/cinerank-project/commit/bbe83e988f940d51b67561f5f465d602d31a03d2):** the restraint is gone, and not because anyone finished the job
 > — its premise expired. It existed solely because balancing made every card
 > ~36% wider;
 > [R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
@@ -2882,7 +2927,7 @@ Claude's two objections, and what happened to each:
 real objection was to the **strength**, not to the idea. The ranked list dims to
 `0.55`, which is heavy enough to take the other cards out of play — fine in a
 column you are scanning top to bottom, too much in a gallery. The user's answer
-was to port it lighter — tried at **0.75**, settled at **0.70** minutes
+was to port it lighter — [tried at **0.75**](https://github.com/guycn1/cinerank-project/commit/c1c99d92262bb152bfe5f38a52d8d3f6c92f77f2), [settled at **0.70**](https://github.com/guycn1/cinerank-project/commit/e47f31656d135a0cdf1381930edb64c5b6b55095) minutes
 later: the section still recedes, and every unhovered card stays perfectly
 readable. Claude had treated the ranked list's number as part of the pattern
 rather than as a dial, which is the actual error here; the exact figure was
@@ -2944,7 +2989,7 @@ place to put a scroll in the middle. Getting the stagger back would mean naming
 each card and writing keyframes per pseudo-element — more machinery than the
 two-phase version, to reach the same picture.
 
-So: **a CSS animation each way, and a two-phase render**. The click applies
+So: **[a CSS animation each way, and a two-phase render](https://github.com/guycn1/cinerank-project/commit/58a5994ce65fee9d048e7d1e2e02e68698ed7c2f)**. The click applies
 `.is-leaving` and removes each node on its own `animationend`; the response
 renders fresh cards whose `animationDelay` carries the lead-in and the stagger.
 
@@ -2984,7 +3029,7 @@ Y-offset**, no black layer — with two deliberate differences:
 *The halo is tighter* (34/50px against 40/60px), because these cards sit in a
 grid with a 17.6px horizontal gap rather than a column with a 16px vertical one,
 and a halo that crosses the gap reads as two cards sharing one glow.
-> **2026-09-09, later the same day:** the user widened these by eye to 40/100px
+> **[2026-09-09, later the same day](https://github.com/guycn1/cinerank-project/commit/a9ac6b1909c3c3456f761bf2ec20d0d4295420ff):** the user widened these by eye to 40/100px
 > — looser than the ranked card, not tighter — and the reasoning above did not
 > survive the spotlight added in
 > [D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section)
@@ -3020,7 +3065,7 @@ database. Try again in a moment.` since
 
 Nobody had seen it, because
 [R1](../CLAUDE.md#group-a--functional-bugs)
-wiped the message in the same tick it appeared. Fixing R1 is what made this
+wiped the message in the same tick it appeared. [Fixing R1](https://github.com/guycn1/cinerank-project/commit/5a144646498682941b577ae184796b998bd5820e) is what made this
 visible, and the user confirmed it in the browser with a bogus OpenRouter key.
 
 **Where to draw the line between "show it" and "hide it".** One cause is not a
@@ -3036,7 +3081,7 @@ deleted and
 [D-046](#d-046--the-recommendations-read-stopped-filtering-in-sql-because-the-test-could-not-see-the-bug-otherwise-r2)
 refused to recreate.
 
-*Flag it at the throw site.* Chosen. `RecommendationError` takes
+*[Flag it at the throw site.](https://github.com/guycn1/cinerank-project/commit/5db718520a0e6f072579b0df6f6d07b091d40530)* Chosen. `RecommendationError` takes
 `{ userFacing }`, set on exactly one of its six throw sites. The knowledge lives
 where the decision is made.
 
@@ -3050,7 +3095,7 @@ load either, and swallows the real cause ("Couldn’t reach CineRank…") entire
 Copying that shape would have propagated the bug into a second feature.
 
 So the offer became conditional, and the condition is a fact the server knows and
-the client cannot: *was a `recommendation_logs` row committed for this failure?*
+the client cannot: *was a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row committed for this failure?*
 Of the six throw sites only one qualifies — the failure re-thrown after the log
 insert. A failed DB read happens before any AI call, an unmet threshold never
 reaches one, and a failed log write is by definition unlogged. All three now say
@@ -3080,7 +3125,7 @@ error the same way it carries `short`.
   change to a second feature that the user has not looked at yet. Do not "unify"
   the two by copying the verdict's version back over this one — that is
   backwards.
-  > **2026-09-30:** the verdict's bug was fixed the same day as this entry, as
+  > **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** the verdict's bug was [fixed the same day as this entry](https://github.com/guycn1/cinerank-project/commit/c71f77990373633a7dab9e071cbf6868fe0bfde5), as
   > [R23](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09):
   > both features now offer the AI call log only when a row was written, by the
   > rule above. The bullet stands as the state at the time.
@@ -3103,7 +3148,7 @@ the profile. Obvious, minimal, and the first thing I reached for. Rejected: it
 costs a second round trip, and it leaves the two sets sharing a subject but not a
 source — the exact shape that let them disagree in the first place.
 
-*One unfiltered read, split in JS.* Chosen. `rated` is
+*[One unfiltered read, split in JS.](https://github.com/guycn1/cinerank-project/commit/51ae9948517e822a82a5cf56bf97ed59decf1b2d)* Chosen. `rated` is
 `library.filter((m) => m.rating != null)` and the owned set is
 `library.map((m) => m.tmdb_id)`. One round trip, and the two derivations sit two
 lines apart where a reader can see that they answer different questions: the
@@ -3154,7 +3199,7 @@ unfixed bug if it had been written after the fix instead of before it.
   Postgres by default and `topN` should not depend on that being remembered.
 * This is the SERVER half only. The client half — rec cards never re-syncing
   their Add button when ownership changes — was [R3](../CLAUDE.md#group-a--functional-bugs), open when this was written
-  and closed the same day.
+  and [closed the same day](https://github.com/guycn1/cinerank-project/commit/0ddc6b0c05790b66c3586f06ce44ac4bd6418fc3).
 
 ## D-045 · `overflow-wrap: anywhere`, not `break-word` — the difference is intrinsic sizing
 Found by the user after the backlog closed, with a review consisting of ~400
@@ -3186,7 +3231,7 @@ min-content collapses to roughly one character and the track can no longer be
 pushed open. Same appearance, different arithmetic. **Do not "simplify" it to
 `break-word`.**
 
-The property inherits, so one declaration on `.movie-card__body` covers the
+The property inherits, so [one declaration on `.movie-card__body`](https://github.com/guycn1/cinerank-project/commit/f4694975e79b648027acefad599572247d22c0b2) covers the
 title, the review, #20's placeholder and the unrated hint. It is also the
 property `.log-error` already uses, for the same reason, in the AI call log.
 
@@ -3202,7 +3247,7 @@ by anything, including future non-text content with its own intrinsic width. The
   it cannot be pushed open the way the ranked card was. But the reason text is
   model output derived from the user's own reviews, which is the prompt-injection
   surface, and the card title is not clipped the way `.reason` is.
-  > **2026-09-09:** this premise expired. [D-050](#d-050--the-recs-grid-picks-its-own-column-count-and-deliberately-stops-short) replaced those tracks with plain
+  > **[2026-09-09](https://github.com/guycn1/cinerank-project/commit/6692cc61feae767fadcd74494c6b27312b51ec52):** this premise expired. [D-050](#d-050--the-recs-grid-picks-its-own-column-count-and-deliberately-stops-short) replaced those tracks with plain
   > `1fr` — i.e. `minmax(auto, 1fr)` — so the automatic minimum is back in play
   > and the guard above is now load-bearing rather than defensive. The sweep that
   > noticed also found the gap it left: `.rec-card` ITSELF, which is the grid
@@ -3217,7 +3262,7 @@ Both are marked in the CSS as defensive rather than corrective, so a later reade
 does not mistake them for evidence of bugs that happened.
 
 ## D-044 · On a near-black page, elevation is made of light — superseding D-043's "keep the amber weak"
-Still #19. The user, after the symmetry fix: *"Please make the box-shadow more
+Still #19. The user, after [the symmetry fix](https://github.com/guycn1/cinerank-project/commit/7073fcdd8f095c4972826b8bcdf103405208b6d8): *"Please make the box-shadow more
 pronounced, and more importantly - brighter. It's barely visible against the dark
 background."*
 
@@ -3228,7 +3273,7 @@ is essentially nothing left to darken — the layer was doing almost no work at
 any opacity. That is why the effect read as "barely visible" even after the
 scale was raised. On a dark UI, elevation cannot be a shadow; it has to be light.
 
-So the black layer is **removed rather than reduced** — it was not earning its
+So the black layer is [**removed rather than reduced**](https://github.com/guycn1/cinerank-project/commit/0e7aa301625986994d0ae55c4f63e33a0801d11d) — it was not earning its
 place — and the amber glow carries the whole effect: a lit edge, a warm pool
 below the card, and a wide halo into the page.
 
@@ -3262,7 +3307,7 @@ time, including the reasoning that turned out to be too blunt, and that record i
 worth more intact than tidied.
 
 ## D-043 · The card hover was not subtle, it was being cancelled by the entrance animation
-Backlog #19. The user asked for a more pronounced grow-on-hover, describing the
+[Backlog #19](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). The user asked for a more pronounced grow-on-hover, describing the
 existing one as "too subtle - I can only notice it on the poster". That sentence
 turned out to be literally, mechanically true, in two ways at once.
 
@@ -3294,7 +3339,7 @@ as "too subtle" rather than as broken. That is why it survived this long.
   CSS fix does not — an animation that never runs or never completes (a
   backgrounded tab, `prefers-reduced-motion` removing it entirely) leaves the
   class attached forever, which is the very state being fixed.
-* **`both` → `backwards`** (chosen). One word, no JS. It keeps the half that is
+* **[`both` → `backwards`](https://github.com/guycn1/cinerank-project/commit/d13201f3cae2a83be45d298c8b412e960e02bbdc)** (chosen). One word, no JS. It keeps the half that is
   actually needed — holding the from-state through this card's stagger delay (set
   in JS, up to 400ms) so a card cannot flash at full opacity before its turn —
   and drops the half that caused the bug. **Provably equivalent at rest:** the
@@ -3305,9 +3350,9 @@ as "too subtle" rather than as broken. That is why it survived this long.
 `.rec-card` had the same `both` and was fixed with it. No hover transform exists
 there today, so nothing was visibly broken — but it is the same latent trap, and
 adding one later would have silently done nothing.
-> **2026-09-09, later the same day:** "later" arrived —
+> **[2026-09-09, later the same day](https://github.com/guycn1/cinerank-project/commit/6692cc61feae767fadcd74494c6b27312b51ec52):** "later" arrived —
 > [R14](../CLAUDE.md#group-d--visual-and-narrow-viewports)
-> put a grow-on-hover on `.rec-card`, and it works precisely because this fix
+> [put a grow-on-hover on `.rec-card`](https://github.com/guycn1/cinerank-project/commit/58a5994ce65fee9d048e7d1e2e02e68698ed7c2f), and it works precisely because this fix
 > had already landed. The sentence above stands as the reasoning at the time;
 > the card does have a hover transform now.
 
@@ -3342,10 +3387,10 @@ the app's amber. **The user chose C.**
   not left inert.
 
 ## D-042 · A failure message is a context plus a cause, and the cause carries its own short form
-Backlog #16(c). The add and remove toasts showed the CAUSE alone, so a failed add
+[Backlog #16](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)(c). The add and remove toasts showed the CAUSE alone, so a failed add
 or remove named no film — with several cards on screen, nothing said which one
 had not been removed. The obvious fix, putting the context in front of whatever
-came back, was recorded earlier the same day, in
+came back, was [recorded earlier the same day](https://github.com/guycn1/cinerank-project/commit/22cfc9964cb440f110909998973b69b4c38fb37c), in
 [D-034](#d-034--ranking-updated-is-checked-before-it-is-claimed), as unsafe
 because it produces
 "Couldn’t remove “Dune” — Couldn’t reach CineRank. Check your connection and try
@@ -3385,7 +3430,7 @@ form can be attached **at the source**, and the composer only has to prefer it.
 * **C — reorder: cause first, consequence appended** ("Couldn’t reach CineRank.
   “Dune” was not removed."). Rejected: it makes every toast longer, and a toast
   is on screen for 3.2 seconds.
-* **D — a `short` form attached at the source, one composer** (chosen).
+* **[D — a `short` form attached at the source, one composer](https://github.com/guycn1/cinerank-project/commit/75aacfbbc110a831298e7eeb0818d1fe55b49502)** (chosen).
   `err.short ?? err.message`, prefixed with the context. An endpoint that sends
   no `short` behaves exactly as it did.
 
@@ -3403,7 +3448,7 @@ inconsistency (three messages), but
 [`test/routes.test.js`](../test/routes.test.js) asserts one of them verbatim
 with a straight apostrophe, so a tidy-up sweep would have broken a test for a
 cosmetic gain. Left alone and reported instead.
-> **2026-09-30:** fixed later the same day in a commit of its own, `a124934`,
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** fixed later the same day in a commit of its own, [`a124934`](https://github.com/guycn1/cinerank-project/commit/a124934d5cb38cae067ce5ef9eabd39bc41b8f0e),
 > which curled the server-side contractions and updated the one test assertion
 > that quotes a message verbatim. It is ticked under
 > [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14)
@@ -3438,11 +3483,11 @@ was. Caught by running the composer over every scenario, not by eye.
 The shipped `failureText()` was extracted from [`public/app.js`](../public/app.js) and run over all
 ten reported scenarios plus the no-title fallback: every result names the
 operation, names the film where one exists, says "couldn’t" exactly once and ends
-in a full stop. `npm test` 38/38, including a new guard that the TMDB 502 carries
+in a full stop. [`npm test`](../test/) 38/38, including a new guard that the TMDB 502 carries
 `short` **and** that its `error` text is unchanged.
 
 ## D-041 · A rating-less review is forbidden by the database, not displayed by the renderer
-Backlog #15. `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
+[Backlog #15](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). `renderRanked()` branches `if (!isRated) … else if (m.review)`, so a
 film that is unrated but carries a review drew the "Not rated yet" chip and its
 review was never rendered at all — the text sat in the table and no screen ever
 showed it.
@@ -3471,7 +3516,7 @@ rating is null`) returned zero rows before anything was changed.
   rule is about the **resulting row**, not about the patch. `PATCH {review}`
   alone is perfectly valid when the film is already rated, so the route would
   have to re-read the row to judge it. Postgres already knows the resulting row.
-* **C — a `check` constraint** (the user's). Chosen. `check (review is null or
+* **[C — a `check` constraint](https://github.com/guycn1/cinerank-project/commit/f7f904620f2e1b24fe080ef8dbdeeb20f04b4b9e)** (the user's). Chosen. `check (review is null or
   rating is not null)`, [migration 004](../db/migrations/004_review_requires_rating.sql), folded into [`db/schema.sql`](../db/schema.sql). It is the
   only layer that can enforce the rule in one place at no cost, and it turns the
   renderer's `else if` from accidentally correct into **provably exhaustive**.
@@ -3498,11 +3543,11 @@ any film that has a review. No UI path sends it.
   message must never be shown for a violation of either. Both halves have a test,
   and both were verified to fail without their fix rather than assumed to work.
 * One-directional on purpose. A rating with **no** review stays valid — that is
-  the common case, and backlog #20 is about labelling it in the UI, not
+  the common case, and [backlog #20](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order) is about labelling it in the UI, not
   forbidding it.
 
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
-Backlog #14. Expand a review with "view more…", then rate, add or remove a
+[Backlog #14](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). Expand a review with "view more…", then rate, add or remove a
 *different* film, and it snapped shut. `renderRanked()` opens with
 `replaceChildren()`, and every rebuilt review was constructed with
 `setReviewExpanded(r, toggle, false)` — so the expanded state existed only as a
@@ -3541,7 +3586,7 @@ Three options:
 * **B — persist to `localStorage`.** Rejected: expansion is a transient reading
   state, not a preference. The user confirmed the scope explicitly — it should
   not survive a page reload.
-* **C — a `Set` of movie ids on `state`, seeded into each rebuilt card.**
+* **[C — a `Set` of movie ids on `state`, seeded into each rebuilt card.](https://github.com/guycn1/cinerank-project/commit/99e118b646e7ec4d97caaefc15a0c04bc366380e)**
   Chosen.
   Eight lines of non-comment code, and no change to how often anything renders.
 
@@ -3551,8 +3596,8 @@ already runs on a `requestAnimationFrame` after every render, already captures
 Seeding the class at build time means that pass sees `wasExpanded = true` and its
 existing `it.clips && it.wasExpanded` rule treats a rebuilt card exactly as it
 already treats a resize: still clips, stays open; no longer clips, collapses. No
-new rule was introduced into the code that #5 took four commits (b59a893,
-59127cc, e0038a3, dd5ce2d) to settle — the three-pass measurement, the
+new rule was introduced into the code that #5 took four commits ([b59a893](https://github.com/guycn1/cinerank-project/commit/b59a8933bd748aa3d4b92ec5d401821f8d2878dc),
+[59127cc](https://github.com/guycn1/cinerank-project/commit/59127cc84477dfade590cfaf924d51c77b96739c), [e0038a3](https://github.com/guycn1/cinerank-project/commit/e0038a38fb7910f561efa317a517548a41e2b97e), [dd5ce2d](https://github.com/guycn1/cinerank-project/commit/dd5ce2d7f255da9228638c14217c2029406550fa)) to settle — the three-pass measurement, the
 both-ways `hidden` assignment, and the deliberate absence of any line count in
 JS are all byte-identical.
 
@@ -3586,7 +3631,7 @@ asserted: the diff touches no `replaceChildren`, `requestAnimationFrame`,
 
 
 ## D-039 · "The ranking changed" is not "the order changed" — superseding D-034's signature
-Reported by the user within minutes of [D-038](#d-038--tied-films-share-a-rank-number-and-say-so) shipping. Two films were tied at
+Reported by the user within minutes of [D-038](#d-038--tied-films-share-a-rank-number-and-say-so) [shipping](https://github.com/guycn1/cinerank-project/commit/8731b15c2869ea336f17843d649472d88d2ff9a2). Two films were tied at
 first place; they lowered the rating of the one already drawn *second*. Its card
 correctly went from `1 tied` to `2` — and the toast said only "saved", with no
 "ranking updated" clause.
@@ -3611,7 +3656,7 @@ a three-way tie losing a member.
 **The real fix was not a better signature — it was deleting the second copy.**
 The ranking logic lived only in `renderRanked()`, so the detector had to
 approximate it, and an approximation of a rule is exactly the thing that goes
-stale when the rule changes. `displayedRanking()` now computes it once and both
+stale when the rule changes. [`displayedRanking()` now computes it once](https://github.com/guycn1/cinerank-project/commit/c8d466b1a84fdaa5df198fda97b94707b78f6ec6) and both
 callers read it, so what is drawn and what counts as a change cannot disagree
 again. The signature is `id + displayed rank + tie state`: literally what the
 card shows.
@@ -3644,20 +3689,20 @@ signature that is merely more sensitive would be its own bug. Related:
 
 
 ## D-038 · Tied films share a rank number, and say so
-Backlog #13. Two films the user scored 8.0 displayed as **#3** and **#4**. The
+[Backlog #13](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). Two films the user scored 8.0 displayed as **#3** and **#4**. The
 order between them comes from `created_at desc` — which was added more recently —
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
 
-> **2026-09-09:** a signpost; the paragraph above is deliberately NOT rewritten:
+> **[2026-09-09](https://github.com/guycn1/cinerank-project/commit/1b3ae47f601cf7e37fe34af8814d6d5c6c777916):** a signpost; the paragraph above is deliberately NOT rewritten:
 > it records the state that made #13 a bug. `created_at desc` was accurate then. The
-> tie-break has since been flipped to ASCENDING at the user's request, so a new film
+> tie-break [has since been flipped to ASCENDING](https://github.com/guycn1/cinerank-project/commit/6d58391f6cb32e1d72dff910d8282cd3aab0e695) at the user's request, so a new film
 > appends below the ones it ties with instead of jumping above them. Nothing in this
 > entry's reasoning changes — the whole point of D-038 is that the order within a tie
 > is arbitrary and must not be asserted as a ranking, which is as true ascending as
 > descending.
 
-**Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
+**[Settled on competition ranking (1, 2, 2, 4)](https://github.com/guycn1/cinerank-project/commit/8731b15c2869ea336f17843d649472d88d2ff9a2)**, the convention charts and sport
 use, plus a small muted `tied` caption under the numeral. The skipped number is
 the point: two films are jointly 2nd, so nothing is 3rd.
 
@@ -3734,7 +3779,7 @@ deliberately chosen so a legitimate `0.0` would not be swallowed (the same trap
 because the underlying value was wrong and each renderer was papering over it
 differently.
 
-**Fixed at the source, not in either renderer.** The tempting fix is to make the
+**[Fixed at the source, not in either renderer.](https://github.com/guycn1/cinerank-project/commit/4ce7280bc4da9de699bba10a27d216f4d159ddd7)** The tempting fix is to make the
 ranked card test `> 0` and move on — one character, invisible, and it would have
 worked. Rejected: the wrong value would still be in the database, the two
 renderers would still be encoding the same domain rule in two different ways, and
@@ -3751,9 +3796,9 @@ The search row was also switched from truthiness to `!= null` and given
 `toFixed(1)`, so both surfaces now state the same number the same way and are
 absent for the same reason rather than by coincidence.
 
-**Migration 003** nulls the zeros already written by 002 and the backfill. It is
+**[Migration 003](../db/migrations/003_tmdb_rating_zero_is_null.sql)** nulls the zeros already written by 002 and the backfill. It is
 non-destructive — it replaces a value that was never meaningful, and the real
-figure is re-derivable with `npm run backfill-tmdb-rating` at any time.
+figure is re-derivable with [`npm run backfill-tmdb-rating`](../scripts/backfill-tmdb-rating.js) at any time.
 
 This does not supersede
 [[D-036](#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)];
@@ -3762,14 +3807,14 @@ value of `0` means.
 
 
 ## D-036 · TMDB's rating is a snapshot taken at add time, not a live figure
-Backlog #11. `shapeMovie()` had always returned `tmdb_rating` and the search
+[Backlog #11](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order). `shapeMovie()` had always returned `tmdb_rating` and the search
 results had always displayed it, but `POST /api/movies` dropped it because no
 column existed — the number was fetched, shown once, and thrown away the moment
-the film was added. Migration 002 adds the column; the interesting question was
+the film was added. [Migration 002](../db/migrations/002_tmdb_rating.sql) adds the column; the interesting question was
 what the stored value should *mean*.
 
-**Settled on: the score the film had when it entered your list, written once and
-never refreshed.** That is a defensible thing to compare a personal rating
+**[Settled on: the score the film had when it entered your list, written once and
+never refreshed.](https://github.com/guycn1/cinerank-project/commit/0b3864c59c1d13fb0c3987a4a8c19463dde202e3)** That is a defensible thing to compare a personal rating
 against — "you rated it 8.5, the crowd said 7.2 when you added it" — and it is
 stable, so the comparison does not silently change under the user.
 
@@ -3806,7 +3851,7 @@ dry-run by default and needs `--write`, updates one row at a time BY ID, writes
 exactly the one column [migration 002](../db/migrations/002_tmdb_rating.sql)
 just created — so no pre-existing value can be overwritten by it — and skips
 rows that already have a value, making a re-run a no-op. It is not run by
-Claude: after Incident 1 the standing rule is that the user drives anything that
+Claude: after [Incident 1](../CLAUDE.md#incident-log) the standing rule is that the user drives anything that
 touches live data.
 
 **Trap.** Applying [migration 002](../db/migrations/002_tmdb_rating.sql) is a
@@ -3814,11 +3859,11 @@ prerequisite, not an optional follow-up: until the column exists, PostgREST
 rejects the insert with PGRST204 and adding any film fails. Adding a nullable
 column is backward compatible with the already-deployed code, so the migration
 can and should be applied BEFORE the next merge to `main`.
-> **2026-09-30:** applied, with the backfill, on 2026-09-08.
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** applied, with the backfill, on [2026-09-08](https://github.com/guycn1/cinerank-project/commit/087f31d4836bb64f7d1e99ff9b7189e85af3db8d).
 
 
 ## D-035 · The Remove button's label is light, and arithmetic decided that
-Yesterday's hover pass (#10) gave the confirm dialog's Remove button a darker
+[Yesterday's hover pass](https://github.com/guycn1/cinerank-project/commit/09037de55708e7e3e4a659c92ea7b62f5bff7782) (#10) gave the confirm dialog's Remove button a darker
 crimson fill on hover. The user then asked two things of it: make the rest→hover
 difference **more pronounced**, and **respect the label's contrast**. Measuring
 showed those two requests were in direct conflict, and that the existing button
@@ -3839,7 +3884,7 @@ measured against both states — `#ffffff`, `--ink`, `#000000`, `#1a0605`,
 fails at rest (3.68); black is the best dark option and still only reaches 4.21
 on hover. No label choice alone fixes it; the fills themselves had to move.
 
-**Settled on:** a dedicated pair of role-named fill tokens, `--danger-fill`
+**[Settled on:](https://github.com/guycn1/cinerank-project/commit/2dfc537e05d870e9a5d88f2fce436f297a0b3c31)** a dedicated pair of role-named fill tokens, `--danger-fill`
 (#c83a2f) and `--danger-fill-hover` (#9a2d24), with `--ink` as the label.
 Measured: **4.54:1** at rest, **6.71:1** on hover, and the rest→hover luminance
 step went from **0.683 to 0.572** — the "more pronounced" the user asked for.
@@ -3879,16 +3924,16 @@ they now are: `“X” added…` / `“X” saved…` / `“X” removed.`
 The interesting part is the second clause of the save toast, which took three
 passes.
 
-**First pass — deleted it.** The reasoning was that editing only a review does
+**[First pass — deleted it.](https://github.com/guycn1/cinerank-project/commit/9e835731cdf1c240c0cb8153b2962eee088999d4)** The reasoning was that editing only a review does
 not change the ranking, so the clause was an unverified claim of the same kind
-as the central 500 handler's "on our side" (removed the same afternoon on the
+as the central 500 handler's "on our side" ([removed minutes earlier](https://github.com/guycn1/cinerank-project/commit/0e400d4e4025948ea68f97c7515771cc133b1158) on the
 user's own principle: a vaguer message that is true beats a specific one that is
 not).
 
 **The user pushed back, and was right.** Every save calls `loadMovies()`, which
 re-fetches the entire list server-sorted and re-renders it — so a ranking update
 really is triggered on every save, unconditionally. The claim was never false,
-and backlog #16's original wording ("claims a ranking change even when only the
+and [backlog #16](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)'s original wording ("claims a ranking change even when only the
 review was edited") was unfair on the same count. Recorded plainly: the argument
 for deleting the clause was overstated.
 
@@ -3898,7 +3943,7 @@ stays at #3 the user goes looking for a change that is not there. That is a
 wording problem, not a truth problem — which makes it the user's call, not a
 correctness fix to be made unilaterally.
 
-**Settled on: say it only when it is observably true.** A signature of the
+**[Settled on: say it only when it is observably true.](https://github.com/guycn1/cinerank-project/commit/22cfc9964cb440f110909998973b69b4c38fb37c)** A signature of the
 ranking as displayed is captured before the write and compared after the reload.
 Costs one comparison, and the sentence becomes true in the strong sense — the
 app claims only what it verified. The two rejected options are both defensible
@@ -3917,7 +3962,7 @@ with whether the film is rated. Do not "simplify" it back to positions.
 through by design, and prefixing it client-side produces doublings like
 `Couldn’t remove “Dune” — Couldn’t reach CineRank…`. Fixing that means changing
 the messages at the source; it stays on backlog #16.
-> **2026-09-30:** fixed later the same day as #16(c), in
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** [fixed later the same day](https://github.com/guycn1/cinerank-project/commit/75aacfbbc110a831298e7eeb0818d1fe55b49502) as #16(c), in
 > [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form):
 > each cause carries a short form attached at its source, so a context prefix
 > cannot double it. The item's full record is #16 in
@@ -3927,11 +3972,11 @@ the messages at the source; it stays on backlog #16.
 ## D-033 · The unrated line is a chip, because muting it was the wrong correction
 `.movie-card__body .unrated` — "Not rated yet — rate it to place it in the
 ranking." — was `--crimson`, the app's error colour, on a state where nothing
-has failed. That much was clear from the audit (backlog item #8).
+has failed. That much was clear from the audit ([backlog item #8](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order)).
 
 **The obvious fix was to mute it, and it was rejected.** The precedent was
 right there and was the one cited when the item was raised: the search panel's
-"No matches" had already moved out of `makeError()` into the muted
+"No matches" had already [moved out of `makeError()`](https://github.com/guycn1/cinerank-project/commit/25d2dbc8070dc867673ab9f043599485f268deb1) into the muted
 `.search-note`, precisely because an empty result set is not a failure. Applying
 the same move here — `--ink-dim`, review size — would have landed the line in
 the same colour, the same weight and the same position as a review. The user
@@ -3942,7 +3987,7 @@ transient text in a panel that is about to be replaced; "Not rated yet" is a
 persistent property of a card that will sit in the list until acted on.
 
 **So the correction is a demotion in urgency, not in prominence.** The line is
-distinguished by **shape first, colour second**: `Not rated yet` became a chip,
+distinguished by **shape first, colour second**: `Not rated yet` [became a chip](https://github.com/guycn1/cinerank-project/commit/b37c20bc68dff380095479e95fab54fa548dab5c),
 which no review and no title ever is, so it reads as a status marker before its
 colour registers at all. The instruction ("Rate it to place it in the ranking.")
 stays beside it as quiet `--ink-dim` prose, and wraps below on a narrow card.
@@ -3992,7 +4037,7 @@ would work, but it means fighting the UA's `[popover]` defaults (`position:
 fixed; inset: 0; margin: auto; border: solid`) on a component every flow depends
 on, hours before submission, to serve one call site.
 
-Decision: report the failure **inline in the dialog**, above the buttons, and
+Decision: [report the failure **inline in the dialog**](https://github.com/guycn1/cinerank-project/commit/573c22829ac595f3d448bb8660a8474856222b38), above the buttons, and
 leave the toast for confirmations. This is not a workaround — it is what the rest
 of the app already does. Search failures render in the results panel via
 `searchNote()`, the verdict's failure replaces the verdict text, the recs error
@@ -4045,7 +4090,7 @@ and B meant rewriting the function whose rated/unrated logic
 had just settled. D's failure mode is the opposite: feature-detect, and an
 unsupported browser gets exactly today's behaviour. Nothing half-renders.
 
-**A and D ship together, not D alone.** D on its own would fight the existing
+**[A and D ship together, not D alone.](https://github.com/guycn1/cinerank-project/commit/33e49ce679c0ffac3fba9e3c057c91fb1753662d)** D on its own would fight the existing
 entrance: every rebuilt card still runs `fade-slide` *inside* a snapshot that is
 simultaneously cross-fading it. Muddy. A is what makes D legible.
 
@@ -4113,8 +4158,8 @@ Fraunces Black figures measure 0.66em, so "250" paints ~109px. Its budget is ~99
 legitimately spill into — and the poster, later in DOM order, paints over the
 overflow.
 
-**Claude first recommended NOT fixing it**, and wrote that up as a measured
-non-fix: unreachable below 100 films, demo seed list is 3–4, and each candidate
+**Claude first recommended NOT fixing it**, and [wrote that up as a measured
+non-fix](https://github.com/guycn1/cinerank-project/commit/fae4d45f2e9e955ee5c7bbcc4f076ebeede15afc): unreachable below 100 films, demo seed list is 3–4, and each candidate
 fix looked more expensive than the defect. **The user overruled it on grounds
 Claude had not weighed** — that a reader who meets an unchecked TODO box may not
 read the paragraph under it, and will score "documented limitation" as "too lazy
@@ -4145,16 +4190,16 @@ CSS cannot count characters, so `renderRanked()` marks the digit count with an
 `is-wide` class; the threshold is 99 and not 9 because two digits were measured
 and fit at every width.
 
-**The size took three passes, because the first two were estimated instead of
-measured — this is the substantive lesson of the entry.** `2.75rem` was derived
+**The size took [three passes](https://github.com/guycn1/cinerank-project/compare/6141ca5f24d91d67b317a833df2c5ab28ebed8af...3e0b657345b5a507df4da2699e4bf519c8cb9ed8), because the first two were estimated instead of
+measured — this is the substantive lesson of the entry.** [`2.75rem`](https://github.com/guycn1/cinerank-project/commit/0292bf412c56cb5053eaaa9bf04ae7d332e66644) was derived
 from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
-`2.1rem` then over-corrected to a pessimistic ~0.8em, which cleared but made
+[`2.1rem`](https://github.com/guycn1/cinerank-project/commit/5375cffe7ef673083cca99086eab8f138d125e81) then over-corrected to a pessimistic ~0.8em, which cleared but made
 #100 conspicuously smaller than #99 — sliding back toward the "ugly, sloppy"
-look the fix existed to avoid. Only then was the value actually measured, with
+look the fix existed to avoid. [Only then was the value actually measured](https://github.com/guycn1/cinerank-project/commit/3e0b657345b5a507df4da2699e4bf519c8cb9ed8), with
 `Range.getBoundingClientRect()` on a live `222`: **0.66em per digit** (66.5px at
 a 33.6px font). Solving against that gives `clamp(1.5rem, 4vw, 2.4rem)` —
-*larger* than the pass before it. A further pass then widened the card-mode
-clearance again — 6.8px was mathematically sufficient but still read as cramped,
+*larger* than the pass before it. [A further pass then widened the card-mode
+clearance again](https://github.com/guycn1/cinerank-project/commit/974b21700814395ac53bae22c67285b77b0432b5) — 6.8px was mathematically sufficient but still read as cramped,
 because the eye judges the gap against the 40px track beside it rather than
 against zero. Final: ≥10.8px clear on desktop, ≥12.3px in card mode,
 and a 0.71× step down from the two-digit size. **Re-measure, never re-tune by
@@ -4207,7 +4252,7 @@ Four options were weighed:
   deferral, not a rejection. The film should stay in the list you just added it
   to, quietly nagging. Relocating it makes "Skip for now" feel like the film went
   *somewhere else*.
-* **Chosen: one list, but only rated films consume a number.** A counter
+* **[Chosen: one list, but only rated films consume a number.](https://github.com/guycn1/cinerank-project/commit/8179cc383e1f94c9201e626201fdeb6a342a016a)** A counter
   (`rankNo`) that increments only when `m.rating != null`; unrated cards show a
   glyph in the rank slot instead.
 
@@ -4273,7 +4318,7 @@ migration for a third log table, a new service, a versioned prompt file and
 tests, days before submission. Consider revisiting
 post-submission, if ever.
 
-Decision: reword the empty state to echo the query back —
+Decision: [reword the empty state to echo the query back](https://github.com/guycn1/cinerank-project/commit/cfdeeabd3f83ed61aea9cae9108ce6546e8412e3) —
 `No matches for “obamma”. Check the spelling, or try a different title.` It
 detects nothing; it just makes the typo self-evident, since after typing fast
 you do not reliably recall what you typed. It also fixes a small dishonesty: the
@@ -4302,10 +4347,10 @@ carries its own metrics, so it sits off the baseline next to Inter. It also
 renders differently on every platform — the opposite of the consistency it is
 usually reached for.
 
-- **"+ Add"** uses a plain `+` (U+002B), not the heavy-plus emoji. It is
+- [**"+ Add"** uses a plain `+`](https://github.com/guycn1/cinerank-project/commit/49855a85bb38ff3d7f001203191c5c822438360f) (U+002B), not the heavy-plus emoji. It is
   `currentColor`, so it follows hover and the disabled dim for free, and it
   matches the text-glyph checkmark already in "Added".
-- **The Search button's magnifier is an inline SVG**, not the magnifier emoji and
+- **[The Search button's magnifier is an inline SVG](https://github.com/guycn1/cinerank-project/commit/b28dc9bfa52d9f86035ca134e36e3db30ae1a059)**, not the magnifier emoji and
   not the text glyph `⌕`. `⌕` looks like the right answer and is a trap: it lives
   in Miscellaneous Technical (its actual Unicode name is TELEPHONE RECORDER),
   which is *outside the Inter subset this page downloads*. It would fall through
@@ -4326,8 +4371,8 @@ already, so the switch to SVG quietly *corrected* the orientation rather than
 preserving it. Mirroring is standard only in RTL locales, which this
 single-locale `lang="en"` app is not.
 
-Mechanically the button carries both a `.search-btn__label` and the SVG, and the
-500px breakpoint swaps which displays — cleaner than a `::after`, and
+Mechanically the button carries both a `.search-btn__label` and the SVG, and [the
+500px breakpoint swaps which displays](https://github.com/guycn1/cinerank-project/commit/4a5a820f6d0e703d835c8a3389b52d5f9665969a) — cleaner than a `::after`, and
 `busyButton()` stashes and restores both for free. `busyButton()` wraps its own
 label in a `.busy-label` span for the same reason, so the breakpoint can hide it
 and leave the spinner standing alone. Separately, `.search button` is
@@ -4339,7 +4384,7 @@ and leave the spinner standing alone. Separately, `.search button` is
 *Naming note, added later and deliberately not applied to the text below:
 `syncSearchResultButtons()` was renamed `syncAddButtons()` by
 [R3](../CLAUDE.md#group-a--functional-bugs) on
-2026-09-09, when it stopped sweeping only the search panel and started querying
+[2026-09-09](https://github.com/guycn1/cinerank-project/commit/0ddc6b0c05790b66c3586f06ce44ac4bd6418fc3), when it stopped sweeping only the search panel and started querying
 the whole document. The old name is left as written throughout this entry
 because it is what the function was called when this was decided — grep for
 `syncAddButtons` in [`public/app.js`](../public/app.js) to find it today.
@@ -4353,7 +4398,7 @@ unconditionally reset every owned button to "In your list", wiping the "Added"
 confirmation set moments earlier. Skipping runs nothing, so it kept it. One
 state, two labels, decided by an unrelated round-trip.
 
-Decision: make the "Added" confirmation **sticky** (a `dataset.justAdded` flag
+Decision: [make the "Added" confirmation **sticky**](https://github.com/guycn1/cinerank-project/commit/c6d01d3b055487f32b611d8a2ff5b144c3bcf21f) (a `dataset.justAdded` flag
 honoured by `setAddButtonState`) rather than make skipping reset it. It is the
 more informative of the two labels — it marks what *you* just added versus what
 was already in the list, which matters when adding several films from one result
@@ -4374,8 +4419,8 @@ state set moments earlier.
    `aria-busy`.
 3. This one.
 
-> **2026-09-09:** two corrections, added rather than folded into the text above,
-> which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
+> **[2026-09-09](https://github.com/guycn1/cinerank-project/commit/1b3ae47f601cf7e37fe34af8814d6d5c6c777916):** two corrections, added rather than folded into the text above,
+> which stays as written. **Item 1 is no longer open** — it was [fixed](https://github.com/guycn1/cinerank-project/commit/5a144646498682941b577ae184796b998bd5820e) as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
 > and it turned out to be bigger than described here: the same `finally` wiped the
 > SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
 > is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
@@ -4394,7 +4439,7 @@ notes](../CLAUDE.md#frontend-design-notes) rule out.
 
 The obvious fix is to style it via `::-webkit-search-cancel-button`. Rejected:
 **Firefox draws no clear button at all**, so styling leaves the browsers still
-disagreeing — just with a nicer × in two of them. Hiding it is the only option
+disagreeing — just with a nicer × in two of them. [Hiding it](https://github.com/guycn1/cinerank-project/commit/48190cf972d34759ef96709c830c79a84de73a67) is the only option
 that renders identically everywhere, and cross-browser sameness matters more here
 than a prettier glyph for a submission opened on a browser we do not control.
 
@@ -4415,12 +4460,12 @@ to get out of the way, and they earn their outside-click handler.
 nothing, so there is nothing to get out of the way of.
 
 Both auto-dismissals were built and then removed:
-- **Outside click** (33ad1ec) — pattern-matched from the reveal panels without
+- **Outside click** ([33ad1ec](https://github.com/guycn1/cinerank-project/commit/33ad1ec26f3d662f0e9edc7c7f44157430a91952)) — pattern-matched from the reveal panels without
   checking whether the reason applied. A stray click cost the user a re-typed
   query and another TMDB round-trip.
-- **Close on add** (fdf7ec6) — worse, it was self-defeating. It ran in the same
+- **Close on add** ([fdf7ec6](https://github.com/guycn1/cinerank-project/commit/fdf7ec60c79bc6d695250aad2e273e30c0249b23)) — worse, it was self-defeating. It ran in the same
   tick as `settle('✓ Added')`, so that confirmation could never be painted, and
-  it cancelled out `syncSearchResultButtons()` — renamed `syncAddButtons()` in
+  it cancelled out `syncSearchResultButtons()` — [renamed `syncAddButtons()`](https://github.com/guycn1/cinerank-project/commit/0ddc6b0c05790b66c3586f06ce44ac4bd6418fc3) in
   2026-09-09's
   [R3](../CLAUDE.md#group-a--functional-bugs),
   and still existing precisely to update the OTHER open rows after an add.
@@ -4434,8 +4479,8 @@ close the results. Adjacent identical glyphs with different meanings is a trap.
 Escape closes it; a new search replaces it; otherwise it stays.
 
 ## D-023 · The reveal-panel fade animates the panel, never `::details-content`
-*Recorded retroactively — decided 2026-09-05 over commits bfafeb2, 1476446,
-de244d7.*
+*Recorded retroactively — decided 2026-09-05 over commits [bfafeb2](https://github.com/guycn1/cinerank-project/commit/bfafeb2a2721898ab5fb7075a7d2f40072953114), [1476446](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467),
+[de244d7](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70).*
 
 The obvious place to animate a `<details>` open/close is `::details-content`,
 which is what the pseudo exists for. Doing that made the panel flicker BEHIND
@@ -4458,8 +4503,8 @@ match, or the panel is yanked mid-fade-out. Both read one custom property,
 `--reveal-fade` on `.log-reveal` — the single knob. Do not split them.
 
 ## D-022 · The AI-log Total row rides on a curtain, not on a sticky `<tfoot>`
-*Recorded retroactively — decided 2026-09-05 after four attempts (842fe03,
-6c08db4, 188b6bf, 58f787b).*
+*Recorded retroactively — decided 2026-09-05 after four attempts ([842fe03](https://github.com/guycn1/cinerank-project/commit/842fe038068aafbbe516561e52ec4b8270ae04ab),
+[6c08db4](https://github.com/guycn1/cinerank-project/commit/6c08db43ab521879e7fb8bc04d2263372fb875a8), [188b6bf](https://github.com/guycn1/cinerank-project/commit/188b6bfd3b133d382c4e5665dfba4b9f3be59ef0), [58f787b](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)).*
 
 Pinning the Total row to the bottom of the log dialog looks like a one-liner and
 is not. What failed, in order:
@@ -4498,9 +4543,9 @@ read a generated result, see what it cost. Their UI had drifted anyway — the
 cursor, then kept its hover while disabled. Each was reported separately.
 
 Decision: the shared surfaces are built by shared functions rather than
-reimplemented per feature — `busyButton()` (disable, spinner + "Thinking…",
-lock the width, restore), `aiMetaFooter()` (the prompt/model/tokens/cost/duration
-line plus a link into the log), `logLink()` (the link-styled button that opens
+reimplemented per feature — [`busyButton()`](https://github.com/guycn1/cinerank-project/commit/1b11b90f39bc399050785fb31e1209ba1324cbad) (disable, spinner + "Thinking…",
+lock the width, restore), [`aiMetaFooter()`](https://github.com/guycn1/cinerank-project/commit/ca2b717913aaa24208b1bd0dd43d4b66c8be0740) (the prompt/model/tokens/cost/duration
+line plus a link into the log), [`logLink()`](https://github.com/guycn1/cinerank-project/commit/0b602e57e44a6606254d0e5bc69d6b612dc985ee) (the link-styled button that opens
 the log dialog). One CSS block each, with only *placement* differing per host.
 A third feature would get the same treatment for free, and neither existing one
 can drift again without the other following.
@@ -4510,7 +4555,7 @@ Two implementation notes worth keeping:
 - **The busy width lock is measured, not declared.** `getBoundingClientRect()`
   at click time, cleared on restore. A hardcoded `min-width` silently goes wrong
   the moment a label or font changes, and the two buttons have different labels.
-- **`visibility`, never `display`, for the wrapped-separator fix.** The log link
+- **[`visibility`, never `display`, for the wrapped-separator fix.](https://github.com/guycn1/cinerank-project/commit/93234c01eb622d0302a1f19d3582511e3a022f3a)** The log link
   sits inline after the metadata joined by a "·", and must drop to its own line
   as a whole unit when short of room. CSS has no "did this wrap" selector, so
   `syncMetaSeparator()` measures. Hiding the "·" with `display: none` changes
@@ -4519,13 +4564,13 @@ Two implementation notes worth keeping:
   hide cannot alter the thing it is reacting to.
 
 ## D-020 · The AI-log table view is frozen; card-view work must prove it can't touch it
-The desktop/table view of the AI call log took ~100 commits of screenshot-driven
+The desktop/table view of the AI call log took [~100 commits](https://github.com/guycn1/cinerank-project/compare/0525b8e7619d1b62d644d752a76c25369fd2cedf...49738c2d2c413815fa7877216553794049c6de95) of screenshot-driven
 polish to settle (sticky thead/tfoot via `.log-curtain`, the collapsed-border
 divider painted as gradients, the reveal panel's caret + flip, themed
 scrollbars). It is done and it is fragile — several of those rules are the only
 CSS expression of a hard-won layout fact.
 
-Decision: once the table view was signed off, **every** subsequent AI-log change
+Decision: [once the table view was signed off](https://github.com/guycn1/cinerank-project/commit/49738c2d2c413815fa7877216553794049c6de95), **every** subsequent AI-log change
 (the mobile card view, and anything later) must be provably unable to affect it.
 Concretely: card-view CSS lives only inside `@media (max-width: 850px)`, and each
 change is verified with `git diff <last-merge>..HEAD` showing (a) the only file
@@ -4534,12 +4579,12 @@ the `@media (max-width: 850px) {` line and its matching close. A browser never
 applies those rules above 850px, so the table view is unaffected by construction,
 not by inspection.
 
-> **2026-09-30:** The table view has since been changed on purpose, each change
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/6bc12cb2c3664acaf2740d8f14690594493e2aa4):** The table view has since been changed on purpose, each change
 > weighed and measured on its own: the digit-grouped in/out split and its
-> `tbody .sub` size (2026-09-19), the type-scale exemption
+> `tbody .sub` size ([2026-09-19](https://github.com/guycn1/cinerank-project/commit/caa38e07d6518d6c1b50188cd18e990a931d9826)), the type-scale exemption
 > ([D-079](#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
-> and the dialog's cap moving with the page width to 1040px (2026-09-28).
-> Later on 2026-09-30 the single-line loading, empty and failed state moved
+> and the dialog's cap moving with the page width to 1040px ([2026-09-28](https://github.com/guycn1/cinerank-project/commit/39387c4b2428d89718e8ae719ea3c374de6cbf88)).
+> [Later on 2026-09-30](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532) the single-line loading, empty and failed state moved
 > from `--ink-faint` to `--ink-dim`
 > ([D-052](#d-052----ink-faint-stays-below-wcag-aa-on-purpose)'s note).
 
@@ -4558,7 +4603,7 @@ row. That was a permanent piece of UI complexity paying for a temporary data
 gap: the viewer only ever shows the 60 most recent calls, so those rows will
 fall out of the window on their own after ~47 more calls.
 
-Decision: delete those six rows and drop the coverage markers. The predicate is
+Decision: [delete those six rows and drop the coverage markers](https://github.com/guycn1/cinerank-project/commit/f9fd236478b2534b812e90d0489b79cc473bf1fe). The predicate is
 self-describing — `prompt_tokens is null and completion_tokens is null and
 duration_ms is null` matches exactly the pre-migration rows and can never match
 a new one (every post-migration write records a duration, success or failure).
@@ -4571,7 +4616,7 @@ no way to delete a log row. `totals.detailed` / `totals.timed` stay in the
 handled correctly if it ever recurs; it is just not surfaced in the UI.
 
 ## D-018 · Route + resilience tests without touching the live DB
-Added [`test/routes.test.js`](../test/routes.test.js) covering the [SPEC §7.1](../SPEC.md#71-must-pass-before-submission) checklist items that the pure
+[Added](https://github.com/guycn1/cinerank-project/commit/2a5f357c5eaad9118610c08155bccc71049b6f3d) [`test/routes.test.js`](../test/routes.test.js) covering the [SPEC §7.1](../SPEC.md#71-must-pass-before-submission) checklist items that the pure
 -helper tests couldn't: validation 400s, duplicate 409, TMDB-down 502,
 below-threshold 422, and OpenRouter-down 422 **with** a `status='failed'` row
 written (the [Module 13](../DOSSIER.md#module-13-verification-before-trust) "make failure visible" contract, now enforced). The
@@ -4588,7 +4633,7 @@ No runtime behaviour changed. Chose Node's `--experimental-test-module-mocks`
 `/api/ai-log` (added in [D-010](#d-010--in-app-ai-call-log--failure-logging-migration-001)) is a strict superset of `/history` for the
 recommendation side — both tables, failure status, token split, duration,
 totals — and it's the only log endpoint the UI calls. `/history` is unused and
-untested, so code-hygiene says delete it. Decided to **keep** it: it's listed in
+untested, so code-hygiene says delete it. [Decided to **keep** it](https://github.com/guycn1/cinerank-project/commit/bdfee8a27639cf4d4a2b64834d2e9b80adec1fb3): it's listed in
 [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) (as optional), removing it is a SPEC-table deviation that buys nothing
 on the impression/creativity axes and only a marginal workflow point, and a
 pre-submission deletion carries dangling-reference risk. Instead: one sentence in
@@ -4596,14 +4641,14 @@ pre-submission deletion carries dangling-reference risk. Instead: one sentence i
 `/history` as the narrower per-feature JSON view. Revisit as post-submission
 cleanup.
 
-> **2026-09-21:** that revisit happened and confirmed the decision — see
+> **[2026-09-21](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7):** that revisit happened and confirmed the decision — see
 > [D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
 > The "unused and untested" above was true when written; it is still unused, and
 > it is no longer untested.
 
 ## D-016 · Accessibility pass
-Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
-`aria-label`s so a screen reader in a 20-row list hears which film, not just
+Per-item action buttons (Rate/Edit/Remove, rec cards' Add) [got name-specific
+`aria-label`s](https://github.com/guycn1/cinerank-project/commit/2772c57ebc84c0a64c30a23d6d963c66576a6dee) so a screen reader in a 20-row list hears which film, not just
 "Remove, button" repeated. Added live regions (`role="status" aria-live="polite"`)
 on search results, the recs hint, and the verdict text so async results and
 errors are announced, not just visually swapped. `aria-busy` on the two AI
@@ -4617,26 +4662,26 @@ under the section's `<h2>` (skipping `<h3>`) — now `<h3>`, matching the ranked
 list's card headings. Decorative spinners are `aria-hidden`. No visual change.
 
 ## D-015 · Test suite, health probe, process doc
-Added `npm test` on Node's built-in runner (no new dependency) covering the pure
+[Added `npm test`](https://github.com/guycn1/cinerank-project/commit/7552423eb4e3c2c7af4da646ee184cb09dde20cf) on Node's built-in runner (no new dependency) covering the pure
 helpers where every truncation bug actually lived — `parseModelJson`,
 `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
 real [`prompts/`](../prompts/) files, so a malformed prompt version fails the suite. Those four
 helpers were made `export`-ed for testability; no behaviour change. `GET
 /api/health` added for a future Node host. [`docs/PROCESS.md`](PROCESS.md) collects the
 LLM-augmented workflow story (the recommend v1→v3 / taste_verdict v1→v4 prompt
-chains as prompt-engineering evidence, the model guardrails, Incident 1 and the
+chains as prompt-engineering evidence, the model guardrails, [Incident 1](../CLAUDE.md#incident-log) and the
 binding agreement it produced) — the course grades process, so it's a
 deliverable, not a note. Route-level and resilience tests remain manual.
-> **2026-09-30:** route-level and resilience tests arrived on 2026-09-05, in
+> **[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f7632e771e126df3b388e47c2ef4d13cf3e8e663):** route-level and resilience tests [arrived on 2026-09-05](https://github.com/guycn1/cinerank-project/commit/2a5f357c5eaad9118610c08155bccc71049b6f3d), in
 > [D-018](#d-018--route--resilience-tests-without-touching-the-live-db), and
-> Render's health check has pointed at `/api/health` since the deploy on
-> 2026-09-07.
+> Render's health check has pointed at `/api/health` since [the deploy on
+> 2026-09-07](https://github.com/guycn1/cinerank-project/commit/1ab515febbf960d751596fdd50e1017fbb425178).
 
 ## D-014 · Taste verdict over-corrected → `taste_verdict_v4`
 v3's "ONE sentence, 20–30 words" landed, but the output degenerated into a bare
 ratings-paraphrase ("Matt Murdock's darkness scores higher than Superman's
 earnestness") — a readout, not a verdict, and too terse (user: "shouldn't go this
-far with being short"). v4 gives the room back — 2–3 finished sentences, ~35–60
+far with being short"). [v4 gives the room back](https://github.com/guycn1/cinerank-project/commit/d29341f00f1182ef9db7bd8280ec37911263992c) — 2–3 finished sentences, ~35–60
 words — and redirects the content: characterise the person as a viewer (what they
 chase, what bores them, what kind of moviegoer that makes them), name a film only
 as evidence, never just recite the numbers. `max_tokens` 100 → 180, server
@@ -4645,7 +4690,7 @@ v1–v3 untouched.
 
 ## D-013 · Taste verdict still too long → `taste_verdict_v3`
 v2's "one or two sentences, ~260 chars" still produced ~330-char run-ons
-(em-dashes splicing three clauses). v3 is blunt: ONE sentence, 20–30 words, no
+(em-dashes splicing three clauses). [v3 is blunt](https://github.com/guycn1/cinerank-project/commit/f3d494bca5e8922c9040be6e45d333e7cc947cbe): ONE sentence, 20–30 words, no
 dash/semicolon/"yet/while" clause-chaining, "cut detail not the sentence". Also
 `max_tokens` 160 → 100 so a rambler is physically bounded, and the server
 truncation ceiling 300 → 350 (user request) so a marginally-long verdict still
@@ -4653,7 +4698,7 @@ shows in full. New prompt file; v1/v2 untouched.
 
 ## D-012 · Recommendation reason length → `recommend_v3`
 v2 reasons ran 25–30 words and got clamped in the card ("…delivers that same…").
-Two-sided fix: v3 prompt tightens to one short sentence, 8–16 words, no
+[Two-sided fix](https://github.com/guycn1/cinerank-project/commit/e871fcd4ca05d4fee1706e6034021e590e0b9dc0): v3 prompt tightens to one short sentence, 8–16 words, no
 clause-splicing dashes/semicolons; `tidyReason()` in the service strips markdown
 and truncates at a sentence/word boundary past a 130-char ceiling; and the card
 `.reason` clamp goes 3 → 5 lines so a compliant reason never clips. New prompt
@@ -4662,17 +4707,17 @@ file; v1/v2 untouched.
 ## D-011 · Taste verdict truncation + markdown → `taste_verdict_v2`
 v1 output was hard-sliced at 240 chars, cutting mid-word ("…over c"), and the
 model leaked markdown emphasis (`*Saw*`) that the plain-text banner rendered
-literally. v2 prompt: explicit "finish the sentence", ban asterisks/markdown/
+literally. [v2 prompt](https://github.com/guycn1/cinerank-project/commit/d01505fcfbae2165b9c3c1836aa853ab385bd21d): explicit "finish the sentence", ban asterisks/markdown/
 title-quotes, target ~260 chars. Service: `tidyVerdict()` strips `` * _ ` ``, and
 if still over a 300-char ceiling truncates at the last sentence end (else last
 word + "…"), never mid-word. `max_tokens` 120 → 160 for headroom. New prompt
 file; [`taste_verdict_v1.md`](../prompts/taste_verdict_v1.md) untouched.
 
 ## D-010 · In-app AI call log + failure logging (migration 001)
-Added `GET /api/ai-log` (both log tables merged, newest first, with totals) and a
+[Added `GET /api/ai-log`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) (both log tables merged, newest first, with totals) and a
 wide modal viewer reachable from a footer link — so the audit trail can be shown
 in the browser during the demo, not only in the Supabase table editor ([SPEC § 7.2](../SPEC.md#72-manual-demo-script)
-step 4). Migration 001 adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
+step 4). [Migration 001](../db/migrations/001_ai_log_details.sql) adds `prompt_tokens`, `completion_tokens`, `duration_ms`,
 `status`, `error_text` to both tables. The services were restructured so that once
 an AI call is attempted a row is **always** written — a handled model/parse/network
 failure logs `status='failed'` with the message, then re-throws for the calm inline
@@ -4681,11 +4726,11 @@ without logging — those aren't AI calls.
 
 ## D-009 · Recommendation reason voice → `recommend_v2`
 The v1 reason read like a plot blurb ("A crime thriller about a bank robbery").
-v2 asks for a second-person line tied to the user's own ratings/reviews
+[v2 asks for a second-person line](https://github.com/guycn1/cinerank-project/commit/e6951fdf0dca3019f11f370e2ab4321a365e6dc5) tied to the user's own ratings/reviews
 ("You rated Whiplash a 10 — this has the same slow-burn dread"). Logic change, so
 a new prompt file per [CLAUDE.md § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline); [`recommend_v1.md`](../prompts/recommend_v1.md) is kept
-untouched and every past `recommendation_logs` row still names the exact prompt
-that produced it. `taste_verdict_v1` is unaffected — versioned independently.
+untouched and every past [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row still names the exact prompt
+that produced it. [`taste_verdict_v1`](../prompts/taste_verdict_v1.md) is unaffected — versioned independently.
 
 ## D-008 · Taste verdict never auto-runs
 The banner shows a threshold message or a "tap for a verdict" prompt on load, and
@@ -4718,7 +4763,7 @@ write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-product
 Overridable via `OPENROUTER_MODEL`.
 
 ## D-003 · Cost logging is structural, not decorative
-`recommendation_logs` and `taste_verdict_logs` store `tokens_used` and
+[`recommendation_logs`](../SPEC.md#52-recommendation_logs) and [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) store `tokens_used` and
 `estimated_cost_usd` per call. `config.estimateCostUsd` uses a small per-model
 price table; unknown models log `null` rather than a wild guess. A log-write
 failure is surfaced as an error, not swallowed — the audit record is the point.

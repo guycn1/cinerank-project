@@ -20,7 +20,7 @@ favourite movies, name other real movies they are likely to enjoy.
 Return ONLY a JSON array. No prose before or after. No markdown fences.
 Each element is an object with exactly two string keys:
 
-  [{ "title": "<movie title>", "reason": "<one sentence, max 20 words>" }, ...]
+  [{ "title": "&lt;movie title&gt;", "reason": "&lt;one sentence, max 20 words&gt;" }, ...]
 
 Return between 3 and 6 items. Every "title" MUST be a real, released feature film
 that actually exists — do not invent titles. Do NOT include any movie that already

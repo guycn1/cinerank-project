@@ -18,7 +18,7 @@ take on trust.
 ## `rs-*` — resilience and state
 
 Recipes for reproducing each of these are in [`CLAUDE.md` § Resilience screenshots](../../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) as
-`RS-1` … `RS-16`. Eight states need two frames, on four different axes. For
+[`RS-1`](../RESILIENCE.md#rs-1--searching) … [`RS-16`](../RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Eight states need two frames, on four different axes. For
 five of them — [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) — the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
@@ -76,7 +76,7 @@ Applications — the checklist that module closes on.
 
 A seeded film (*The Room*) whose review is itself an attack: instruction override,
 system-prompt exfiltration and output hijack in one string. Added with
-[`npm run seed-demo -- --with-injection`](../../scripts/seed-demo.js), captured,
+[`npm run seed-demo -- --with-injection`](../../scripts/seed-demo.js), [captured](https://github.com/guycn1/cinerank-project/commit/a27e921699e39a074e0024e005d6f2b2dfe0a067),
 then removed.
 
 | File | What it establishes |
@@ -105,7 +105,7 @@ criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
 | [`ac-2-duplicate-add-blocked.png`](ac-2-duplicate-add-blocked.png) | 2 | A film already in the list showing a disabled "In your list" button beside live "+ Add" rows — with that film visible in the ranking below |
 | [`ac-3-ranking-one-film.png`](ac-3-ranking-one-film.png) | 3, 4, 6 | A single rated film: rank 1, a `1 film` subtitle, and both AI features locked with their thresholds explained |
 | [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png) | 3 | An empty list: the empty-state line, and deliberately no subtitle |
-| [`ac-8-first-commit.png`](ac-8-first-commit.png) | 8 | The repository root commit on GitHub: 0 parents, one file, one line of README — nothing a secret could hide in |
+| [`ac-8-first-commit.png`](ac-8-first-commit.png) | 8 | [The repository root commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) on GitHub: 0 parents, one file, one line of README — nothing a secret could hide in |
 
 ## `readme-*` — product showcase
 
@@ -129,18 +129,24 @@ without leaving the frame.
 
 ## When these were taken
 
-All thirty-seven were captured on 2026-09-13 and 2026-09-14, and every one is
+All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com/guycn1/cinerank-project/compare/3ccf020884e83f3b565a028b333bcce1ec8d85ab...233d1df368674127589bf559048445ae8b0010c7), and every one is
 exactly as valid as evidence today as it was then.
 
-**The front end has had minor changes since, and every one of them is purely
-cosmetic.** None changes a state, a message, a behaviour or a figure that a
-capture exists to show, so none undermines the evidence any frame provides, and
-no frame differs from the current interface in any way that matters for what
-it demonstrates. Examples, not a complete list: the type was scaled to 92%
-([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
-the content column narrowed from 1080px to 1040px, and the AI call log's
-single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) — moved
-one colour tier brighter, from `--ink-faint` to `--ink-dim`.
+**The front end has had minor changes since, nearly all of them cosmetic.** The
+three that changed behaviour fixed states no capture shows: the rate dialog's
+review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
+one film's size and scroll position into the next, the verdict banner
+[keeps a run's message](https://github.com/guycn1/cinerank-project/commit/9f096dcc16733a1f4838c652fcfeb867bc3aedb7)
+when a film is added or rated mid-request, and the no-matches note
+[never echoes half an emoji](https://github.com/guycn1/cinerank-project/commit/ee569cbd7f8138f90392fb486fa9732b2783da6c)
+when it cuts a long query short. None changes a state, a message or a figure that a capture exists
+to show, so none undermines the evidence any frame provides, and no frame
+differs from the current interface in any way that matters for what it
+demonstrates. Cosmetic examples, not a complete list: the type was
+[scaled to 92%](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954) ([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
+the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/cinerank-project/commit/39387c4b2428d89718e8ae719ea3c374de6cbf88), and the AI call
+log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) —
+[moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
 
 ## A note on file sizes
 

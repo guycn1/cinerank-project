@@ -7,6 +7,7 @@
 import { Router } from 'express';
 import { supabase } from '../supabase.js';
 import { searchMovies, getMovieDetails, TmdbError } from '../services/tmdb.js';
+import { cutText } from '../text.js';
 
 /**
  * One row of the movies table, as the list, add and rate routes return it.
@@ -192,7 +193,7 @@ moviesRouter.patch(
       patch.rating = null;
     }
     if (req.body?.review !== undefined) {
-      patch.review = (req.body.review || '').toString().slice(0, 2000) || null;
+      patch.review = cutText((req.body.review || '').toString(), 2000) || null;
     }
     if (Object.keys(patch).length === 0) {
       return res.status(400).json({ error: 'Nothing to update' });

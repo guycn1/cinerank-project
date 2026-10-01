@@ -58,6 +58,20 @@ merges 21 to 29, the figures and notes describing it were written to `draft`
 first. They went in as one commit, and all five gates ran on it before the
 user confirmed the merge.
 
+The thirty-first merge, later on 2026-10-01, is a defect merge (ground 2);
+the Build status note on the thirty-first merge has it. After the thirtieth,
+`draft` carried defects published on `main`. The first found was SPEC.md's
+turn-count footnote rendering as a list item, which the user ruled worth a
+merge on its own. Then: `npm run seed-demo -- --keep` overwriting a rating it
+promised to leave alone, a review containing `$&` reaching the model as a
+placeholder's name, a review cut through an emoji sending half of it,
+placeholders GitHub swallowed in the recommendation prompts and the RS-8
+recipe, D-065's escape examples printed without their backslashes, and claims
+the sweeps found false. Riding along: rules 11 and 12 in `check-markdown` and
+the linking rule's commit and range links. As with the merges before it, the
+figures and notes describing it were written to `draft` first, in one commit,
+and all five gates ran on it before the user confirmed the merge.
+
 ### What landed, newest first
 
 #### 2026-10-01
@@ -117,6 +131,136 @@ comment**, ahead of the thirtieth merge. Corrected:
   section lists every later change to it, the grain bullet points at the
   current `0.7s steps(1)`, the verdict fallback's log link is conditional
   (R23), and `.env.example` no longer calls the anon key frontend-safe.
+
+**After the thirtieth merge, the user found SPEC.md's turn-count footnote
+rendering wrong on GitHub**, a defect the claims sweep earlier the same day had
+put there. Re-wrapped, the footnote's second line began with `+ 93 = 517`, a
+bullet-list marker, so GitHub made the rest of the sentence a list item and
+printed both of the italic's asterisks. Nothing caught it: `check-markdown`
+had no rule for a block marker landing at the start of a wrapped line, the
+asterisks are the unclosed-emphasis class it leaves out on purpose, and the
+HTML render diff runs only for structural edits, which a wording fix was not
+taken to be. The footnote is re-wrapped, and **`check-markdown` now fails on
+any line starting with a plus and a space (rule 11 under § Markdown Authoring
+Rules)**, probed against the footnote as it shipped.
+
+**Then every commit in the twelve linked documents became a link** (the
+user's rule, now under § Every document reference is a link). Every quoted
+hash links its GitHub commit page by the full hash. So does a mention of a
+commit without one: a dated change, a merge named by its ordinal, a
+decision entry's date. That is 244 distinct commits, every URL fetched and
+answering 200. `check-claims` check 4b fails on an unlinked hash, a label
+pointing at a different commit, or a target that is not a full commit hash.
+A contiguous span of commits (a turn, a day's sweep, a run of attempts) links
+its GitHub compare page. All twelve files also read the rule broadly:
+module, decision, prompt, migration, table and script mentions link their
+targets too. Two claims were found false on the way and
+corrected: RESILIENCE.md dated the "on our side" fix to the RS-7 shoot,
+five days late, and D-034 called that same fix "the same afternoon" when
+it landed fifteen minutes before D-034, at night.
+
+**Then a full staleness sweep of every markdown file and every code comment**,
+ahead of the thirty-first merge. One finding reached the code:
+`npm run seed-demo -- --keep` re-rated a seed film already in the list,
+overwriting the user's own rating and review, although the script's comments and
+its printed plan promised such films are left alone; it now skips them. The rest
+was wording:
+- **Gone short:** `check-claims`' own header and check 4b, and its enumeration
+  here and in `docs/PROCESS.md`, now name range links; this file no longer says
+  nothing enforces the linking rule, since its commit links fail `check-claims`.
+- **Wrong as written:** "New verdict" is enabled on load only above the
+  threshold; more than two states go beyond SPEC § 7.1's criterion 7; not every
+  front-end change since the captures was cosmetic (`docs/screenshots/README.md`
+  names those that were not); `docs/RESILIENCE.md` no longer counts the
+  recommendation service's throw sites; and D-034's "an hour earlier" was seven
+  minutes.
+
+**Then a render audit of every markdown file, read off GitHub's own file view
+rather than the Markdown API.** Two placeholders GitHub swallowed as HTML tags:
+the RS-8 recipe's `<query>`, now an entity, and the `<movie title>` in
+`recommend_v1` to `v3`'s output contract, which displayed as `""`. The prompt
+fix needed the loader too (D-084): the files write entities and
+`loadPrompt()` decodes them before substitution, so what the model receives
+is byte-identical, proved for all ten versions.
+
+**And a real bug in the same loader, found on the way and confirmed by the
+user's own test review:** placeholders were filled with a plain string, which
+`replace()` scans for `$` patterns, so a review containing `$&` reached the
+model as `{{TASTE_PROFILE}}` or `{{RATED_MOVIES}}` (`` $` ``, `$'` and `$$` were
+altered too). The value is now inserted through a function, untouched. Every
+prompt without such a sequence is byte-identical, proved over all ten versions,
+and a test pins the special sequences.
+
+**Then an adversarial run of both AI features** with the database faked and
+the network stubbed, fourteen hostile reviews (dollar sequences, placeholder
+names, entities, HTML, the prompt's own delimiters, backslashes, invisible and
+right-to-left characters, emoji, fake JSON): every one reached both models
+exactly as intended but one class. **A review cut through the middle of an
+emoji** (300 characters for recommendations, 200 for the verdict, 2,000 on
+save) sent half of it, an unpaired surrogate. Real runs showed OpenRouter
+accepting it and the model reading one junk token (prompt tokens one higher).
+That token is not inert: on a list of made-up titles, where Haiku sits on the
+line between refusing and playing along, the old prompt produced cards in 11
+of 13 runs and the fixed one in 2 of 13. With real titles both produced five
+cards in 13 of 13. `cutText()` in
+`server/text.js` now drops a straddling emoji whole at every server cut, and the
+search note's 40-character echo does the same. The exact OpenRouter request
+bodies for the seed list, the seed list with The Room (the prompt-injection
+evidence) and the hostile set are byte-identical before and after; only the
+straddling cases changed, each by exactly the half emoji. Two tests, taking the
+suite to 64, and each of the six cut sites was reverted alone and caught.
+
+**And `check-markdown` now fails on a raw HTML tag in prose (rule 12 under
+§ Markdown Authoring Rules)**, in every markdown file with no exemption, the
+prompts and `DOSSIER.md` included. It reads paragraph by paragraph so a code
+span may wrap, and skips comments, code spans, fences, autolinks and an
+escaped `<`. Probed both ways: it catches all eight planted shapes and the
+exact pre-fix lines of `CLAUDE.md` and the three recommendation prompts, and
+GitHub's renderer confirmed each must-pass case displays as literal text. Its
+one known false positive, a tag inside a 4-space indented code block, is
+documented rather than guessed around.
+
+**Then a meaning audit of all 24 tracked markdown files, for text that renders
+validly but not as meant** (user-found from a screenshot of D-065). Four code
+spans in D-065 had lost their backslashes when the entry was written, so its
+list of harmless escape classes read `[ ]`, `1.`, `&` and `_`, and its heading
+example proved nothing. They are restored, and `## 1\. Test` joins
+`check-markdown`'s whole-span allowlist. Checked across every file: every code
+span holding a backslash, a regex, a path or only symbols; entities in code and
+in prose; accidental emphasis, strikethrough and emoji; backslash escapes and
+hard breaks in prose; dropped words and stray spacing; repeated runs that a
+`$&` replacement would leave; and HTML comments. Nothing else was found.
+
+**Then the linking rule, read broadly, reached what had been written since it
+was broadened:** the fixes written up since then link their commits, prompts,
+tables and tests, and across all twelve linked files every `scripts/` tool
+named in prose links its script and a `check-markdown` rule cited by number
+links § The rules. Each
+changed file rendered identically before and after once its links were
+stripped.
+
+**Then a staleness sweep of every markdown file and every code comment against
+what had landed since the thirtieth merge.** The test count, the lint coverage,
+the complexity table and the count of tests reaching `generateRecommendations()`
+were already current. Corrected:
+- **"Untouched" and "never edited" said of the prompts**, which D-084's entity
+  edit made false of the files, though not of what the model receives:
+  `SPEC.md` § 6 called `recommend_v1` untouched and `check-claims` called
+  `prompts/` never edited. `README.md`, `docs/MERGE-READINESS.md` § 5 and
+  `docs/PROCESS.md` § 2 now say what "never overwritten" protects.
+- **Gone short:** `docs/screenshots/README.md` names the no-matches note's emoji
+  cut as a third behaviour change since the captures; Current state names every
+  published defect `draft` carries; the merge-count note under Build status
+  names the three places that describe the merges by range; the loader's
+  module header and the prompt-loader test's header name the entity decoding
+  and the `$&` guard; and the text-helper tests' header names the half-emoji
+  fix beside D-011 to D-014.
+- **Wrong as written:** `docs/SECURITY.md` said the verdict receives every
+  review verbatim, when each is cut at 200 characters, and a test comment said
+  every fixed-length cut in the server goes through `cutText()`, which TMDB's
+  four-character year slice does not.
+- **Misplaced:** the emoji test sat under `test/routes.test.js`'s
+  `/api/recommendations/history` section marker; it has a marker of its own.
 
 #### 2026-09-30
 
@@ -700,12 +844,12 @@ carries the current state.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* As of 2026-10-01, `main` is at the close-out sync made at the course's
-  final assessment deadline that day (ground 3 of the merge rule under Version Control
-  Workflow), which came after the latest settled milestone and the defect
-  merges made since it (ground 2). A close-out sync happens only once, so any
-  later merge is a milestone or a defect fix — no count of those here on
-  purpose, since that set is still open.
+* As of 2026-10-01, `main` is at the thirty-first merge, a defect fix
+  (ground 2 of the merge rule under Version Control Workflow) made later on
+  the day of the close-out sync (ground 3), which itself came after the latest
+  settled milestone and the defect merges made since it. A close-out sync
+  happens only once, so any later merge is a milestone or a defect fix — no
+  count of those here on purpose, since that set is still open.
   - The final PLANNED merge closed the evidence and documentation work
     (2026-09-14); a **twenty-second followed the same day** with one defect fix,
     a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
@@ -716,18 +860,22 @@ carries the current state.
     them, a **twenty-eighth on 2026-09-19** carrying a visible UI defect plus
     the largest accuracy sweep the project had run at that point, a
     **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
-    `main`, and a **thirtieth on 2026-10-01**, the close-out sync at the
-    course's final assessment deadline, carrying defect fixes too — all nine
-    described at the end of this bullet. Before those, the
+    `main`, a **thirtieth on 2026-10-01**, the close-out sync at the
+    course's final assessment deadline, carrying defect fixes too, and a
+    **thirty-first later the same day** carrying the defects found on `main`
+    after it — all ten described at the end of this bullet. Before those, the
     milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
     that the front-end overhaul completing (2026-09-12, `d47c960`), which is
     where the UI steps closed.
 
-  - **Thirty** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
+  - **Thirty-one** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
-    — update all three. `draft` continues day to day.
+    — update all three. The merges are also described by range, with no count,
+    in `SPEC.md`'s spiral status, `README.md`'s Workflow section and ground 2
+    under Version Control Workflow, so a merge extends those too. `draft`
+    continues day to day.
 
   - **WHY THE FINAL PLANNED MERGE'S COUNT WAS WRITTEN BEFORE THE MERGE RATHER
     THAN AFTER, since that breaks the rule directly above it.** For the first twenty merges the order
@@ -919,6 +1067,30 @@ carries the current state.
     ground 1 or ground 2. The count was again written to `draft` first, on
     the user's instruction.
 
+  - **AND A THIRTY-FIRST, LATER ON 2026-10-01 (ground 2).** The first merge
+    after the close-out sync, and the close-out sync not being a promise of
+    silence. Its ground is the set of defects live on `main` after the
+    thirtieth: SPEC.md's turn-count footnote rendering as a list item, put
+    there by the claims sweep the thirtieth carried and found by the user
+    the same day; `npm run seed-demo -- --keep` re-rating a seed film it
+    promised to leave alone; a review containing `$&` reaching the model as a
+    placeholder's name; a review cut through an emoji sending the model half
+    of it; the placeholders GitHub swallowed in the three recommendation
+    prompts and the RS-8 recipe; D-065's escape examples printed without
+    their backslashes; and the claims the day's sweeps found false. Riding
+    along: rules 11 and 12 in `check-markdown`, each probed against the line
+    that shipped; `loadPrompt()` decoding the prompts' entities (D-084) and
+    filling placeholders through a function; `cutText()` at every server cut;
+    the linking rule's commit and range links, with `check-claims` check 4b
+    behind them; and two tests, taking the suite to 64.
+
+    **The sentence for this one:** the defects that mattered sat in what a
+    reader actually receives rather than in any source file — the model's
+    exact request bodies for the half-emoji cut, GitHub's own file view for
+    the swallowed placeholders — and each was found by looking at that
+    rather than at the text that produced it. The count was again written
+    to `draft` first, on the user's instruction.
+
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
   guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
@@ -989,8 +1161,8 @@ carries the current state.
   the criterion is met), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 62 tests). Pure helpers
-  (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
+* Tests: `npm test` (Node built-in runner, 64 tests). Pure helpers
+  (`parseModelJson`, `tidy*`, `cutText`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'` log
   row written), a row deleted mid-edit (404, not a 500), and the two
@@ -1039,7 +1211,9 @@ carries the current state.
     search returning shaped results with posters, `DELETE` answering 204 (and a
     refused delete answering 500, not a false 204), and the verdict's success
     row; a failed row naming the model its own feature calls (D-070), a loop
-    over both features; and the `/api/ai-log` response shape, totals included.
+    over both features; the `/api/ai-log` response shape, totals included; and,
+    added 2026-10-01, a review cut never ending in half an emoji, in both
+    prompts and in the stored review, plus `cutText()` itself.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client had no test harness at the time, so
   every judgement about the recs grid, the entrance stagger, the scroll or the
@@ -4277,7 +4451,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (62).
+  `review_requires_rating` guards all covered by `npm test` (64).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
@@ -4597,7 +4771,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     Add on the rows still on screen. With TMDB down, a fresh search fails and
     there is nothing to click. This works because the results panel is
     persistent rather than a dropdown (D-024). Expect the
-    toast: "Couldn’t add “<Title>” — TMDB is unreachable."
+    toast: "Couldn’t add “&lt;Title&gt;” — TMDB is unreachable."
 
   - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
     two (seven others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11,
@@ -4767,7 +4941,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   - [x] **RS-8 · CAPTURED 2026-09-13 —
     `docs/screenshots/rs-8-search-no-matches.png`.** **The non-error empty
     state.** Everything working; search a nonsense string. Expect the MUTED note
-    (not crimson): "No matches for “<query>”. Check the spelling, or try a
+    (not crimson): "No matches for “&lt;query&gt;”. Check the spelling, or try a
     different title." One shot, purely to show that an empty result and a
     failure are visibly different — which is the whole of D-033's argument,
     applied in Search.
@@ -4879,7 +5053,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     (RS-13), **View the AI call log** (RS-12). Expect "Couldn’t come up with a
     verdict right now. Try again in a moment." and "Couldn’t generate
     recommendations right now. Try again in a moment.", **both with NO log
-    link** — that absence is the whole of RS-11; then "Couldn’t remove “<Title>”
+    link** — that absence is the whole of RS-11; then "Couldn’t remove “&lt;Title&gt;”
     — Something went wrong."; then, inside the log dialog, "Couldn’t load the
     log — Something went wrong."
 
@@ -4969,7 +5143,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     one is a second 401 row, which is not a claim.
 
     **Revert with `git checkout -- server/services/recommendations.js` the
-    moment the last shot lands**, and re-run `npm test` to confirm 62/62 —
+    moment the last shot lands**, and re-run `npm test` to confirm a full pass —
     several route tests fail while either edit is in place, which is expected.
 
   - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
@@ -5007,7 +5181,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     call rather than faking a rejection. The OpenRouter call is real and was
     billed; what is simulated is TMDB's verdict, not the model's reply.
 
-    **Revert and re-run `npm test` for 62/62**, as with RS-9 and RS-15.
+    **Revert and re-run `npm test` for a full pass**, as with RS-9 and RS-15.
 
 #### Remaining evidence and cleanup
 
@@ -5288,6 +5462,7 @@ it.
 ## Prompt Versioning \& AI Call Discipline
 
 * Prompt files live under `prompts/`, named `recommend_v1.md`, `taste_verdict_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend_v3` (second-person, 8–16-word reason); taste verdict uses `taste_verdict_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT_VERSION` const at the top of each service module.
+* **"Never overwrite" protects what the model receives, not the file's bytes** (the user's ruling, 2026-10-01). A prompt file is also a markdown page GitHub renders, and GitHub drops anything shaped like an HTML tag, so a `<` or `>` in a prompt is written `&lt;` / `&gt;` (and `&` as `&amp;`). `loadPrompt()` decodes those three, once, before substituting placeholders, so the model gets the plain characters and user text substituted in is never decoded. Any such edit must leave `loadPrompt()`'s output byte-identical for every version, proved by snapshotting it before and after (D-084).
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
@@ -5412,9 +5587,13 @@ that it is a correction, not an update.
 ## Markdown Authoring Rules (binding — every `.md` file in this repo)
 
 **Run `npm run check-markdown` before committing any change that touches a `.md`
-file.** It exits non-zero on a real rendering defect and is the enforcement for
-everything below. Do not rely on remembering these rules — the whole point is
-that the check does the remembering.
+file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6,
+11 and 12 below, and reports rule 7 without failing; `npm run check-claims`
+enforces rule 10's unambiguous forms and the commit links under § Every
+document reference is a link. Rules 8 and 9, and the rest of that section, are
+enforced by nothing, so those are the ones to remember.
+For the rest, do not rely on memory — the whole point is that the checks do the
+remembering.
 
 **Why this is binding rather than advisory.** The markdown files ARE a graded
 deliverable here (Module 8 process documentation), so "it only looks wrong" is
@@ -5517,19 +5696,71 @@ down could be re-broken within a session. See D-065.
     preserved"), in the markdown and in every code comment. Which side of the
     line a borderline passage falls on is still a reading job; no pattern can
     make that call.
+11. **NEVER START A LINE WITH A PLUS AND A SPACE** (the user's rule,
+    2026-10-01). It is a bullet-list marker, and a bullet list may interrupt a
+    paragraph, so a sentence re-wrapped to put an arithmetic `+` first on a
+    line renders its tail as a list item. SPEC.md's turn-count footnote shipped
+    that way and printed both asterisks of its italic too. Re-wrap so the plus
+    sits mid-line. `check-markdown` fails on it. Only the plus is enforced:
+    no file here uses it as a bullet, while a `-` or `*` after a line of
+    text is usually a real list, so a rule for those would cry wolf.
+12. **NO RAW HTML TAG IN PROSE, IN ANY FILE** (the user's rule, 2026-10-01,
+    with no exemption: not the prompts, not `DOSSIER.md`). GitHub treats
+    anything shaped like a tag as HTML and either escapes it, drops it or
+    renders it, and the source does not say which: the RS-8 recipe's
+    `<query>` displayed as an empty pair of quotes, and the recommendation
+    prompts' `<movie title>` as `""`. Write a literal angle bracket as `&lt;` /
+    `&gt;`, or put the text in a code span. HTML comments, autolinks and a
+    backslash-escaped `<` are fine. The prompts can follow it because
+    `loadPrompt()` decodes the three entities (D-084). `check-markdown` fails
+    on it; a 4-space indented code block is read as prose there, so fence code.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
 **If the prose names another document, that name is a link; if it names a
 SECTION of one, the link goes to the SECTION rather than the file.** It is a
 navigation rule, not a rendering one, so `check-markdown` does not enforce it
-and nothing fails when it is ignored — which is exactly why it is written here.
+and, apart from the commit links below, nothing fails when it is ignored —
+which is exactly why it is written here.
 
 **Once per paragraph** (the user's rule, 2026-09-29): a target is linked at its
 first mention in a paragraph, and later mentions of it in the same paragraph
 stay plain. Each list item and each table row counts as a paragraph of its
 own. "Same target" means the same destination, so two R-items in one group
 share one link.
+
+**Every commit is a link too** (the user's rule, 2026-10-01). A quoted hash
+links to its commit page on GitHub by the FULL hash,
+`https://github.com/guycn1/cinerank-project/commit/<full hash>`, the one kind
+of link that has to be absolute. So does a mention of a commit that quotes no
+hash, such as the date a change was made or a description of what a commit
+did, wherever the commit can be identified: the words already there become the
+link text. A hash is always linked, even where the paragraph already links
+that commit; a prose mention is linked only where it does not. Same files and
+same exemptions as above, and a hash in a heading or in an image's alt text
+stays plain, since neither can hold a link. `npm run check-claims` fails on an
+unlinked hash, on a link labelled with one hash and pointing at another, and on
+a target that is not the full hash of a commit. It cannot check that a prose
+label describes the commit it links; that stays a reading job.
+
+**A span of commits links its range** (the user's rule, 2026-10-01), when the
+span is contiguous and clearly bounded: a spiral turn, a day's sweep, a run of
+attempts. The target is a compare page, `compare/<base>...<head>` with full
+hashes and the base the commit just before the span, or `commits/<hash>` for
+the history up to a commit when the span starts at the root (`commits/main`
+for the whole history). A set that is not contiguous, such as the four revert
+commits, stays plain. `check-claims` fails on a range end that is not the full
+hash of a commit, and on a base that is not an ancestor of its head.
+
+**Read broadly** (the user's rule, 2026-10-01): a mention of anything with a
+home of its own links there, not only a document or a section. A course module
+links its `DOSSIER.md` section; a decision entry, an `RS-n` key and an OWASP
+risk link their entries; an R-item, a step of the agreed order, a ranked-list
+backlog item and Incident 1 link their `CLAUDE.md` sections; a prompt version
+and a migration link their files; a log table links its `SPEC.md` § 5 entry;
+an `npm run` script links its script, `npm run lint` the ESLint config, and
+`npm test` the `test/` directory. A mention quoted as an example of an
+unlinked reference stays plain, as does one inside a quoted UI string.
 
 **Why it earns the churn.** `docs/FRAMING.md` names *the reader of the
 repository* as a stakeholder who never runs the app and cannot ask a question.
@@ -5585,6 +5816,10 @@ buries the ones that matter. The render audit below is the backstop for these.
   would have to flag an odd count of `**` in a paragraph, and that fires on
   perfectly good prose: an exponent like `2**8`, or a redaction written as an odd
   run of asterisks. `DOSSIER.md` already contains `********` twice, deliberately.
+  An unclosed single `*` is the same class, and a rule for it would fire on a
+  lone multiplication sign or a footnote asterisk. SPEC.md's turn-count
+  footnote printed both asterisks of its italic that way on 2026-10-01; rule 11
+  catches the cause there, not the asterisks.
 * **An inline link whose `)` is missing**, which renders the `[text](` literally.
   CommonMark permits a newline between `(` and the destination, so a link may
   legally wrap across lines and a line-scoped rule would flag it.
@@ -5669,7 +5904,7 @@ the real blob from github.com and read that — it is the only authority.
      `main` would be MISINFORMED — a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, the note on the twenty-second merge). **Merges 22 to 30, which follow `0cdc4ec`,
+     status, the note on the twenty-second merge). **Merges 22 to 31, which follow `0cdc4ec`,
      the final planned one, were all made on this ground — the thirtieth as
      well, though its reason was ground 3 — and no merge has ever been made on
      grounds outside this list.** Written as a closed range rather than a COUNT
@@ -5737,7 +5972,7 @@ the real blob from github.com and read that — it is the only authority.
   cannot have broken" is reasoning offered after the fact, not a check made
   before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
-* **Every commit runs `npm test`, and 62/62 is the bar.** The scope is EVERY
+* **Every commit runs `npm test`, and 64/64 is the bar.** The scope is EVERY
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
   MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking
@@ -5754,7 +5989,8 @@ the real blob from github.com and read that — it is the only authority.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
   the claims in the repository that POINT AT SOMETHING, in these forms — a path
   or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA, a
-  `file.js:123` reference, an identifier in backticks in a document, a function
+  commit link or a link to a span of commits, a `file.js:123` reference, an
+  identifier in backticks in a document, a function
   a JS comment names, a capture and its count, an `RS-n` key, a section (every
   link `#anchor` against the target's real headings, and every prose `§ 4.5` or
   `§ Title`), a short list of retired phrasings, a passage narrating its own

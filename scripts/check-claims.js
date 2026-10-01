@@ -11,11 +11,11 @@
  * falsified. Reading 30k lines by eye does not scale and proves nothing.
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
- * path or a link's target, a script, a decision entry, a commit, a line number,
- * an identifier, a capture, an RS key, a section (a link's `#anchor` or a
- * prose `§ 4.5` / `§ Title`), a phrase the project has retired (a passage
- * narrating its own earlier wording among them), or an invisible character
- * that no reviewer can see. Every one of those can be resolved against the
+ * path or a link's target, a script, a decision entry, a commit or a span of
+ * commits, a line number, an identifier, a capture, an RS key, a section (a
+ * link's `#anchor` or a prose `§ 4.5` / `§ Title`), a phrase the project has
+ * retired (a passage narrating its own earlier wording among them), or an
+ * invisible character that no reviewer can see. Every one of those can be resolved against the
  * thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
@@ -153,6 +153,97 @@ function checkShas() {
     } catch {
       add('sha', `${sha} does not resolve`);
     }
+  }
+}
+
+/**
+ * The documents CLAUDE.md § Every document reference is a link applies to:
+ * every markdown file except CLAUDE.md, DOSSIER.md and the prompts.
+ *
+ * @param {string} f  A repo-relative path.
+ * @returns {boolean} Whether the linking rule covers it.
+ */
+const linkedDoc = (f) => f.endsWith('.md') && f !== 'CLAUDE.md' && f !== 'DOSSIER.md' &&
+  !f.startsWith('prompts/');
+
+const commitCache = new Map();
+/**
+ * The full hash of the commit a hash names, or null when it names none.
+ *
+ * @param {string} sha  A hash of any length git accepts.
+ * @returns {string|null} The 40-character hash, or null.
+ */
+function commitOf(sha) {
+  if (!commitCache.has(sha)) {
+    let full = null;
+    try {
+      full = execFileSync('git', ['rev-parse', '--verify', '--quiet', `${sha}^{commit}`],
+        { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || null;
+    } catch { /* not a commit */ }
+    commitCache.set(sha, full);
+  }
+  return commitCache.get(sha);
+}
+
+/**
+ * 4b. A commit link points at a real commit by its full hash, and a link
+ * labelled with a hash points at that same commit. A label that is prose (a
+ * date, a description of the change) cannot be checked against its target, so
+ * only its target is resolved. In the documents the linking rule covers, a
+ * commit hash outside a link fails too: every hash there is a link (the user's
+ * rule, 2026-10-01). Fenced code, headings (rule 9) and image alt text are
+ * exempt, since none of them can hold a link. A link to a span of commits, a
+ * compare page or a commit history, is resolved too, in every document.
+ */
+function checkCommitLinks() {
+  const link = /\[((?:[^\]\\]|\\.)*)\]\((https:\/\/github\.com\/guycn1\/cinerank-project\/commit\/([0-9a-z]+))\)/g;
+  for (const [f, s] of md) {
+    for (const m of s.matchAll(link)) {
+      const [, label, , sha] = m;
+      const full = commitOf(sha);
+      if (sha.length !== 40 || full !== sha) {
+        add('commit', `${f} links commit ${sha}, which is not the full hash of a commit`);
+        continue;
+      }
+      const named = label.replace(/`/g, '').trim();
+      if (/^[0-9a-f]{7,40}$/.test(named) && !sha.startsWith(named)) {
+        add('commit', `${f} labels a link ${named} but it points at ${sha.slice(0, 7)}`);
+      }
+    }
+    // A span of commits links a compare page, base...head, or the history up
+    // to a commit (or `main`). Both ends must be full hashes of real commits,
+    // and the base must be an ancestor of the head, or the page lists the
+    // wrong commits.
+    const span = /\]\(https:\/\/github\.com\/guycn1\/cinerank-project\/(compare|commits)\/([^)\s]+)\)/g;
+    for (const [, kind, ref] of s.matchAll(span)) {
+      const ends = kind === 'compare' ? ref.split('...') : [ref];
+      if (kind === 'commits' && ref === 'main') continue;
+      if (ends.length !== (kind === 'compare' ? 2 : 1) ||
+          ends.some((e) => e.length !== 40 || commitOf(e) !== e)) {
+        add('commit', `${f} links ${kind}/${ref}, which is not made of full commit hashes`);
+        continue;
+      }
+      if (kind === 'compare') {
+        try {
+          execFileSync('git', ['merge-base', '--is-ancestor', ends[0], ends[1]], { cwd: root });
+        } catch {
+          add('commit', `${f} links compare/${ref}, whose base is not an ancestor of its head`);
+        }
+      }
+    }
+    if (!linkedDoc(f)) continue;
+    let fence = false;
+    let alt = false;
+    s.split('\n').forEach((line, i) => {
+      if (/^\s*(```|~~~)/.test(line)) { fence = !fence; return; }
+      if (fence || /^#{1,6}\s/.test(line)) return;
+      if (alt) { if (line.includes('](')) alt = false; return; }
+      if (/!\[[^\]]*$/.test(line)) { alt = true; return; }
+      const prose = line.replace(/!?\[(?:[^\]\\]|\\.)*\]\([^)]*\)/g, ' ');
+      for (const [, sha] of prose.matchAll(/(?<![\w/#.-])`?([0-9a-f]{7,40})`?(?![\w])/g)) {
+        if (commitOf(sha)) add('commit', `${f}:${i + 1} quotes commit ${sha} without linking it`);
+      }
+    });
   }
 }
 
@@ -447,9 +538,9 @@ function reportSelfNarration(f, text, firstLine = 1) {
  * ever self-narration.
  *
  * Covers the markdown, except DOSSIER.md (the course's own text) and prompts/
- * (versioned and never edited), and every comment in the JS, CSS and HTML. A
- * run of consecutive comment lines is read as one passage, so a phrase that
- * wraps is still seen.
+ * (versioned text the model reads, D-084), and every comment in the JS, CSS and
+ * HTML. A run of consecutive comment lines is read as one passage, so a phrase
+ * that wraps is still seen.
  */
 function checkEditHistory() {
   for (const [f, s] of md) {
@@ -485,8 +576,8 @@ function checkEditHistory() {
  * audits of 2026-09-19 found them by hand, and nothing kept them found. 11c,
  * further down, resolves the file each link points at.
  * Sources exempt from all three: this file (it quotes the patterns), prompts/
- * (versioned, never edited) and DOSSIER.md (the course's own text). They are
- * still valid TARGETS.
+ * (versioned text the model reads, D-084) and DOSSIER.md (the course's own
+ * text). They are still valid TARGETS.
  */
 
 /**
@@ -740,7 +831,7 @@ function checkSectionReferences() {
   }
 }
 
-for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas,
+for (const check of [checkPaths, checkNpmScripts, checkDecisions, checkShas, checkCommitLinks,
   checkLineRefs, checkIdentifiers, checkCommentIdentifiers, checkCaptures, checkResilienceKeys,
   checkInvisibleCharacters,
   checkRetiredPhrasing, checkEditHistory, checkLinkFragments, checkLinkTargets,

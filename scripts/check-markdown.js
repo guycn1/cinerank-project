@@ -14,8 +14,8 @@
  *
  * The rules below are the ones that were established by measuring every case
  * against GitHub's own Markdown API, not by assumption. See D-065. They are
- * numbered as CLAUDE.md § Markdown Authoring Rules numbers them, so RULE 2 sits
- * after the per-line pass: it needs a whole paragraph, not one line.
+ * numbered as CLAUDE.md § Markdown Authoring Rules numbers them, so RULES 2 and
+ * 12 sit after the per-line pass: each needs a whole paragraph, not one line.
  *
  * Exits non-zero on a real rendering defect. Cosmetic-only findings are reported
  * and do NOT fail, so this can be wired into a hook without crying wolf.
@@ -61,6 +61,7 @@ const ALLOWED_SPANS = new Set([
   // The rest are this project's own DOCUMENTATION of the escaping problem --
   // they have to show the sequence to describe it. Whole-span matches only.
   BS + '_', BS + '&', BS + '[', BS + '---', '1' + BS + '.', BS + '[ ]',
+  '## 1' + BS + '. Test',                             // D-065's escaped-heading example
   // The other two thematic-break spellings, added 2026-09-13 when rules 3-5
   // learned about them and the docs had to quote them to explain them.
   BS + '***', BS + '___',
@@ -180,6 +181,19 @@ for (const file of markdownFiles(root)) {
       pipeRun = [];
     }
 
+    // --- RULE 11: no line starts with a plus and a space ----------------------
+    // That is a bullet-list marker, and a bullet list may interrupt a paragraph,
+    // so a sentence re-wrapped to put an arithmetic "+" at the start of a line
+    // turns its tail into a list item. SPEC.md's turn-count footnote shipped that
+    // way: "23 + 401" ended one line and "+ 93 = 517" began the next, which split
+    // the footnote's italic across two blocks so both asterisks printed too.
+    // Only the plus: no file here uses + as a bullet, so any hit is a wrapped
+    // operator, while a - or * after a line of text is usually a real list.
+    if (!inFence && /^[ \t]*\+([ \t]|$)/.test(line)) {
+      errors.push(`${rel}:${n}  a line starting with "+ " renders as a bullet item; ` +
+                  're-wrap so the + is not first on the line');
+    }
+
     // --- COSMETIC: an escape in plain text is noise, not a defect -------------
     if (!inFence) {
       const plain = line.split(TICK).filter((_, k) => k % 2 === 0).join('');
@@ -244,6 +258,76 @@ for (const file of markdownFiles(root)) {
       if (isFence(line)) { check(); fence = !fence; return; }
       if (fence) return;
       if (line.trim() === "") { check(); return; }
+      if (!para.length) paraStart = i + 1;
+      para.push(line);
+    });
+    check();
+  }
+
+  // --- RULE 12: no raw HTML tag in prose -------------------------------------
+  // GitHub's renderer treats anything shaped like an HTML tag as HTML. One it
+  // does not allow is either escaped or DROPPED, and nothing in the source says
+  // which: the RS-8 recipe's “<query>” displayed as an empty pair of quotes,
+  // while “<Title>” two recipes away happened to survive, and the recommendation
+  // prompts' "<movie title>" displayed as "". Found only by reading GitHub's own
+  // rendering (2026-10-01). So no raw tag at all, allowed or not: write a literal
+  // angle bracket as &lt; / &gt;, or put the text in a code span. No file is
+  // exempt. The prompts write entities too, and loadPrompt() decodes them, so
+  // the model still receives the plain characters.
+  //
+  // Paragraph by paragraph, like rule 2, because a code span may wrap across
+  // lines. HTML comments are blanked first, keeping their newlines, so a line
+  // number still points at its line; so are code spans, matched by CommonMark's
+  // run-length rule. A backslash-escaped `<` is text, and an autolink such as
+  // <https://…> is not tag-shaped, so neither is flagged.
+  //
+  // One deliberate false positive: a 4-space INDENTED code block is read as
+  // prose, so a tag inside one is flagged. Telling it apart from a list item's
+  // indented continuation needs list context, and a wrong guess there would
+  // miss a real tag. No file here uses one; fence code instead.
+  {
+    const text = lines.join(NL).replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '));
+    const plain = text.split(NL);
+    let para = [];
+    let paraStart = 0;
+    let fence = false;
+    /**
+     * Blank every code span in `s` (delimiters included), keeping its length
+     * and newlines, so what remains is the paragraph's prose.
+     *
+     * @param {string} s  One paragraph.
+     * @returns {string}
+     */
+    const blankCodeSpans = (s) => {
+      const runs = [...s.matchAll(new RegExp(TICK + '+', 'g'))].map((m) => [m.index, m[0].length]);
+      const out = s.split('');
+      let i = 0;
+      while (i < runs.length) {
+        let j = i + 1;
+        while (j < runs.length && runs[j][1] !== runs[i][1]) j += 1;
+        if (j >= runs.length) { i += 1; continue; }
+        for (let k = runs[i][0]; k < runs[j][0] + runs[j][1]; k += 1) if (out[k] !== NL) out[k] = ' ';
+        i = j + 1;
+      }
+      return out.join('');
+    };
+    /**
+     * Report every raw tag in the paragraph gathered in `para`, then clear it.
+     */
+    const check = () => {
+      if (!para.length) return;
+      const prose = blankCodeSpans(para.join(NL));
+      for (const m of prose.matchAll(/(?<!\\)<\/?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?\/?>/g)) {
+        const n = paraStart + (prose.slice(0, m.index).match(/\n/g) || []).length;
+        errors.push(`${rel}:${n}  raw HTML tag ${m[0].slice(0, 40)} in prose: GitHub may drop it; ` +
+                    'write &lt;…&gt; or put it in a code span');
+      }
+      para = [];
+    };
+    plain.forEach((line, i) => {
+      if (isFence(line)) { check(); fence = !fence; return; }
+      if (fence) return;
+      if (line.trim() === '') { check(); return; }
       if (!para.length) paraStart = i + 1;
       para.push(line);
     });

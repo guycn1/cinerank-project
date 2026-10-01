@@ -6,18 +6,18 @@ work is merge-ready; fail one and it is not, however correct it appears.**
 
 ## Verdict, reached on 2026-09-14
 
-**MERGE-READY. All five criteria are met.**
+**[MERGE-READY](https://github.com/guycn1/cinerank-project/commit/4d433d135d4cefc7b1db9c0fc739082a4c1dee30). All five criteria are met.**
 
 | # | Criterion | Status |
 |---|---|---|
-| 1 | Functional completeness, shown end to end | **Met** (2026-09-14) |
+| 1 | Functional completeness, shown end to end | **Met** ([2026-09-14](https://github.com/guycn1/cinerank-project/commit/4d433d135d4cefc7b1db9c0fc739082a4c1dee30)) |
 | 2 | Sound verification that probes real behaviour | **Met** |
 | 3 | SE hygiene: static analysis, linting, complexity | **Met** |
 | 4 | Rationale and communication | **Met** |
 | 5 | Full auditability | **Met** |
 
 **This was the first time this document read merge-ready, and the sequence
-matters more than the verdict.** It was written on 2026-09-13 and immediately
+matters more than the verdict.** It was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732) and immediately
 failed its own first criterion — at a point when the application was deployed,
 working, and covered by a green test suite. By the usual informal reading it
 looked finished. Criterion 1 is the one that refuses that reading, and holding it
@@ -50,7 +50,7 @@ larger one on 2026-09-13, the second the following day.
   set: five frames of a real prompt-injection attempt with both AI features
   resisting it, five tied to specific acceptance criteria, and three product
   shots embedded in the README. (Counts drift; the index is the authority.)
-* **The demo seed list was loaded on 2026-09-13 (re-verified 2026-09-30)**, so
+* **The demo seed list was [loaded on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/50365dd49dc4a34f6c0ecd0ebac57d6904716fbe) (re-verified 2026-09-30)**, so
   the deployed app is in the state the evidence describes rather than empty.
 
 **Assembling that evidence found three untested happy paths and three real
@@ -59,12 +59,12 @@ stating precisely because passing tests had not revealed any of them:
 
 | Found | How |
 |---|---|
-| A failed verdict logged against a model it never called | reading a log screenshot taken for something else |
-| "Get recommendations" fully enabled above a list that had failed to load | shooting the database-down state |
-| The verdict placeholder never retiring on that same failure | the same frame |
-| Search returning results — untested | walking criterion 1 |
-| Deleting a film — **zero** coverage | walking criterion 3 |
-| A verdict being logged on success — untested | walking criterion 6 |
+| [A failed verdict logged against a model it never called](https://github.com/guycn1/cinerank-project/commit/db5a05ed25070562b703b257be485e8227e51cfb) | reading a log screenshot taken for something else |
+| ["Get recommendations" fully enabled above a list that had failed to load](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081) | shooting the database-down state |
+| [The verdict placeholder never retiring on that same failure](https://github.com/guycn1/cinerank-project/commit/27e32b3843c366466217cdc2526dd587bf4c53cf) | the same frame |
+| [Search returning results](https://github.com/guycn1/cinerank-project/commit/32557a7bfd3f3af14f391f754b96046b1d5b9d11) — untested | walking criterion 1 |
+| [Deleting a film](https://github.com/guycn1/cinerank-project/commit/a6af5f596e43911bcf637345755ee38e594c074f) — **zero** coverage | walking criterion 3 |
+| [A verdict being logged on success](https://github.com/guycn1/cinerank-project/commit/e71ad7e8ee3c484d2edea2c356d95b9545095f4a) — untested | walking criterion 6 |
 
 Every one of those six was invisible to the tests, the linter and the render
 audits, because each of those inspects **structure** and none of them puts the
@@ -73,7 +73,7 @@ application into a state and looks at it.
 ### How it closed
 
 **[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission)’s eight
-acceptance boxes were ticked by the authors on 2026-09-14**, against the
+acceptance boxes were [ticked by the authors on 2026-09-14](https://github.com/guycn1/cinerank-project/commit/4d433d135d4cefc7b1db9c0fc739082a4c1dee30)**, against the
 evidence assembled in [`ACCEPTANCE.md`](ACCEPTANCE.md).
 
 **That division of labour is the point, not a formality.** The agent gathered the
@@ -86,7 +86,7 @@ circular.
 **Two submission items sat outside this criterion** and were tracked in
 [`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
 rather than here: putting the live URL on the project sheet, and the
-joint-project registration email. **Both were completed on 2026-09-14.** They
+joint-project registration email. **Both were [completed on 2026-09-14](https://github.com/guycn1/cinerank-project/commit/4ef7534dc688f9e05d23adfe300a9c9c562fde2d).** They
 are recorded separately because they are administration rather than functional
 completeness, and conflating the two would have let a clerical task masquerade
 as an engineering one — in either direction.
@@ -99,7 +99,7 @@ drifts.
 
 *A test plan that probes real behaviour.*
 
-`npm test` runs 62 tests on the Node built-in runner: pure helpers, the prompt
+[`npm test`](../test/) runs 64 tests on the Node built-in runner: pure helpers, the prompt
 loader, and route-level behaviour with Supabase swapped for an in-memory fake and
 TMDB and OpenRouter stubbed, so the suite never touches live data.
 
@@ -115,20 +115,20 @@ verification fails while looking rigorous, and each is answered concretely:
   log-advertisement invariant (three ways) and [R5](../CLAUDE.md#group-a--functional-bugs)'s dual-failure stderr sink
   (both ways). **Three more tests were added on 2026-09-13 while walking
   [§ 7.1](../SPEC.md#71-must-pass-before-submission), and each was probed the
-  same way**: the search happy path (break the poster guard, then the year
-  conversion), `DELETE` (drop the error guard so a failed delete answers a false
-  204), and the verdict's success log row (make it ignore OpenRouter's reported
+  same way**: [the search happy path](https://github.com/guycn1/cinerank-project/commit/32557a7bfd3f3af14f391f754b96046b1d5b9d11) (break the poster guard, then the year
+  conversion), [`DELETE`](https://github.com/guycn1/cinerank-project/commit/a6af5f596e43911bcf637345755ee38e594c074f) (drop the error guard so a failed delete answers a false
+  204), and [the verdict's success log row](https://github.com/guycn1/cinerank-project/commit/e71ad7e8ee3c484d2edea2c356d95b9545095f4a) (make it ignore OpenRouter's reported
   cost). Every probe failed the test aimed at it. The year conversion also
   fails a recommendations test, because a shaped TMDB result feeds the
   recommendation cards as well as search.
 * **Verification theatre** — the
-  [markdown checker](../scripts/check-markdown.js) was proved in *both*
-  directions on 2026-09-13, across 57 cases, 26 that must fail and 31 that
+  [markdown checker](../scripts/check-markdown.js) was [proved in *both*
+  directions on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/646307a2378a3c1d44291c017b69a09c6f6178f1), across 57 cases, 26 that must fail and 31 that
   must pass. The must-pass half is the half that matters; a checker that fires
   on valid input gets switched off within a week.
 * **Gate bypass under deadline pressure** — the gates are wired into the commit
   rules in [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
-  rather than left to memory, and one of them (`check-markdown`) exists
+  rather than left to memory, and one of them ([`check-markdown`](../scripts/check-markdown.js)) exists
   precisely because a class of defect had been slipping past human review for
   over a week.
 
@@ -152,13 +152,13 @@ it happened rather than smoothed over.
 *Evidenced by static analysis, linting, and complexity checks.*
 
 **This criterion was the one genuine hole, and it was closed by measuring rather
-than by declaring.** There was no linter in the project until 2026-09-13.
+than by declaring.** There was no linter in the project [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732).
 
-`npm run lint` runs ESLint 10 over all 26 JavaScript files across four
+[`npm run lint`](../eslint.config.js) runs ESLint 10 over all 27 JavaScript files across four
 environments — Node ES modules, the browser ES module, and two browser
 *classic* scripts kept in [`scripts/`](../scripts/) that the app never serves: the
 [console debug harness](../scripts/debug-recs.js), pasted into a console, and
-the [layout probe](../scripts/layout-probe.js) that `npm run layout-check`
+the [layout probe](../scripts/layout-probe.js) that [`npm run layout-check`](../scripts/layout-check.js)
 injects into the pages it measures. **Current state: zero errors.**
 
 **The config is deliberately not a style linter**, and
@@ -172,7 +172,7 @@ conditions, duplicate keys and imports, self-comparison, unmodified loop
 conditions, atomic-update races, loose equality, `var`, and a `let` that is
 never reassigned — plus complexity ceilings.
 
-**The first run found five errors, and the triage is the evidence, not the
+**[The first run found five errors](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732), and the triage is the evidence, not the
 count:**
 
 * A duplicated `node:path` import in
@@ -203,40 +203,42 @@ Five functions exceed the ceiling of 20 and are reported as warnings on every ru
 
 | Function | Complexity |
 |---|---|
+| the per-line rule engine ([`scripts/check-markdown.js`](../scripts/check-markdown.js)) | 31 |
 | `generateRecommendations` ([`server/services/recommendations.js`](../server/services/recommendations.js)) | 30 |
-| the per-line rule engine ([`scripts/check-markdown.js`](../scripts/check-markdown.js)) | 29 |
 | the `PATCH` handler ([`server/routes/movies.js`](../server/routes/movies.js)) | 24 |
 | `chat` ([`server/services/openrouter.js`](../server/services/openrouter.js)) | 22 |
 | `generateTasteVerdict` ([`server/services/tasteVerdict.js`](../server/services/tasteVerdict.js)) | 21 |
 
 **They are left as they are, and the reason is NOT deadline pressure.** In
 `generateRecommendations` the branches *are* the feature: each `continue` guard
-and each tally arm exists because of a specific documented finding — the owned
-filter that was reading only rated films
+and each tally arm exists because of a specific documented finding — the [owned
+filter that was reading only rated films](https://github.com/guycn1/cinerank-project/commit/51ae9948517e822a82a5cf56bf97ed59decf1b2d)
 ([R2](../CLAUDE.md#group-a--functional-bugs)),
-the verification fallback that was overclaimed and then measured
+the [verification fallback that was overclaimed and then measured](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11)
 ([R6](../CLAUDE.md#group-b--the-strength-of-the-verified-against-tmdb-claim)/[D-054](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 and the five distinct reasons a run can come back empty, one of which was
-reported to the user as a different reason entirely until it was fixed ([R28](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
+reported to the user as a different reason entirely [until it was fixed](https://github.com/guycn1/cinerank-project/commit/d72491877ebe303eb14661ecaa81f70431a45c30) ([R28](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)).
 Extracting them into helpers would lower the number without removing a single
 branch, which is metric-gaming rather than simplification — the hygiene
 equivalent of the verification theatre
 [Module 13](../DOSSIER.md#module-13-verification-before-trust) warns about.
 
-It is also well probed: sixteen tests reach it, four of them generated by loops
+It is also well probed: seventeen tests reach it, four of them generated by loops
 shared with the verdict, and deleting any one of its four `continue` guards
 fails the tests written for that guard.
 Refactoring well-covered, working, deliberately-branchy code trades a real
 regression risk for a lower number in a report.
 
-The same argument applies to the second row.
+The same argument applies to the markdown checker.
 [`check-markdown`](../scripts/check-markdown.js)’s per-line rule engine applies
-five rules and one cosmetic note in a single pass over a file (rule 2 needs whole
-paragraphs, so it runs in a pass of its own), and each rule was added for a
+six rules and one cosmetic note in a single pass over a file
+([rules 2 and 12](../CLAUDE.md#the-rules) need whole paragraphs, so each runs in a pass of its own), and each rule was added for a
 specific defect:
 either one that had already shipped past human review, or one an audit wrote and
-rendered to confirm it was broken before the checker learned it. Its branch
-count is its rule count.
+rendered to confirm it was broken before the checker learned it. Nearly all
+of its branches are the rules' own conditions, so its complexity grows with each
+rule it learns, and moving them into helpers would lower the number without
+removing a branch.
 
 **The ceiling stays at 20 rather than being raised to hide this.** A warning that
 fires on five real functions is a measurement; a threshold tuned until nothing
@@ -257,14 +259,14 @@ fires is the thing this document exists to rule out.
 * **[`docs/FRAMING.md`](FRAMING.md)** — the problem, the stakeholders, the
   definition of done, and what is deliberately not being built.
 * **[`docs/PROCESS.md`](PROCESS.md)** — the workflow narrative: prompt version
-  chain, guardrails, and Incident 1.
+  chain, guardrails, and [Incident 1](../CLAUDE.md#incident-log).
 * **[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md)** — a component dense with
   non-obvious decisions, written up rule by rule with what breaks if each is
   undone.
 * **[`docs/SECURITY.md`](SECURITY.md)** — all ten OWASP agentic risks, including
   the ones that do not apply and why.
-* **Commit messages** explain *why*, not just what — across over 700
-  commits (`git rev-list --count main` for the exact figure; a number that moves
+* **Commit messages** explain *why*, not just what — across [over 700
+  commits](https://github.com/guycn1/cinerank-project/commits/main) (`git rev-list --count main` for the exact figure; a number that moves
   every commit is not written into a document).
 
 ## 5. Full auditability — MET
@@ -278,24 +280,27 @@ fires is the thing this document exists to rule out.
 * **Context** — [`CLAUDE.md`](../CLAUDE.md), human-directed and
   version-controlled, with every change to it a reviewable diff.
 * **Tools** — the ten versioned prompt files in [`prompts/`](../prompts), never
-  overwritten. A past recommendation or verdict is traceable to the exact prompt
+  overwritten: what each sends the model is fixed, byte for byte, even where a
+  file was edited so GitHub could display it ([D-084](DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)). A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 30
-  merges to `main` as of 2026-10-01 — the twenty-first was the last *planned* one, the
-  twenty-second carried a fix for a rendering defect found afterwards on the
-  repository's Security tab, the twenty-third carried the claim-checking gate
-  that defect argued for, the twenty-fourth carried a sweep of the claim classes
-  that gate cannot resolve, the twenty-fifth carried the merge rule itself,
+* **Trajectory** — an unbroken commit history from [the very first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), 31
+  merges to `main` as of 2026-10-01 — [the twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the last *planned* one,
+  [the twenty-second](https://github.com/guycn1/cinerank-project/commit/94f5325e8b603b990e9355618449b1bc73aacccd) carried a fix for a rendering defect found afterwards on the
+  repository's Security tab, [the twenty-third](https://github.com/guycn1/cinerank-project/commit/9050046d63a887bd7689ddd27d56caef77a2f74e) carried the claim-checking gate
+  that defect argued for, [the twenty-fourth](https://github.com/guycn1/cinerank-project/commit/bda1898474e0f7868ff8e91ecb10c56385389080) carried a sweep of the claim classes
+  that gate cannot resolve, [the twenty-fifth](https://github.com/guycn1/cinerank-project/commit/a3f833de99ec47dd17a9118dcadc0a5b1a31829d) carried the merge rule itself,
   which had gone out of date while the practice it describes stayed consistent,
-  and the twenty-sixth carried eleven accuracy defects the user surfaced by
-  asking whether particular claims resolve, and the twenty-seventh carried two
+  and [the twenty-sixth](https://github.com/guycn1/cinerank-project/commit/426dc75ec94d003bfd69361f7ad41643f9bdf8c3) carried eleven accuracy defects the user surfaced by
+  asking whether particular claims resolve, and [the twenty-seventh](https://github.com/guycn1/cinerank-project/commit/c87759d6c35fd935657ca746f57768d73e781954) carried two
   claims that were false on `main`, each contradicted further down its own section —
-  the twenty-eighth carried a misaligned score badge on the deployed site
-  together with fourteen documentation defects, the twenty-ninth carried
+  [the twenty-eighth](https://github.com/guycn1/cinerank-project/commit/0406eae121614827c5be14dfb2487821e70b5769) carried a misaligned score badge on the deployed site
+  together with fourteen documentation defects, [the twenty-ninth](https://github.com/guycn1/cinerank-project/commit/c073acc132fabc04ae956861e8b1e656cc648e7b) carried
   fourteen claims that described finished work as still open plus five drifted
-  figures, and the thirtieth was the close-out sync at the course's final
-  assessment deadline, carrying defect fixes too — and, as of 2026-10-01,
-  **four** revert commits plus one reapply, which is the safety layer
+  figures, and [the thirtieth](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final
+  assessment deadline, carrying defect fixes too, and the thirty-first, later
+  the same day, carried the defects found on `main` after it, two of them in
+  the text the model receives — and, as of 2026-10-01,
+  **four** revert commits plus [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476), which is the safety layer
   visibly firing rather than merely existing. *(Counted as commits whose
   subject BEGINS with a revert — `Revert "…"` or `revert(…)`. A subject that
   merely mentions reverting does not count, which is why a loose grep for
