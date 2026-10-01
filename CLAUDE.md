@@ -58,16 +58,19 @@ merges 21 to 29, the figures and notes describing it were written to `draft`
 first. They went in as one commit, and all five gates ran on it before the
 user confirmed the merge.
 
-Since the thirtieth merge, `draft` carries defects published on `main`. The
-first found was SPEC.md's turn-count footnote rendering as a list item, which
-the user ruled worth a ground-2 merge on its own. Since then: `npm run
-seed-demo -- --keep` overwriting a rating it promised to leave alone, a review
-containing `$&` reaching the model as a placeholder's name, a review cut
-through an emoji sending half of it, placeholders GitHub swallowed in the
-recommendation prompts and the RS-8 recipe, D-065's escape examples printed
-without their backslashes, and claims the sweeps found false. Riding along:
-rules 11 and 12 in `check-markdown` and the linking rule's commit links. As of
-2026-10-01 that thirty-first merge waits for the user's confirmation.
+The thirty-first merge, later on 2026-10-01, is a defect merge (ground 2);
+the Build status note on the thirty-first merge has it. After the thirtieth,
+`draft` carried defects published on `main`. The first found was SPEC.md's
+turn-count footnote rendering as a list item, which the user ruled worth a
+merge on its own. Then: `npm run seed-demo -- --keep` overwriting a rating it
+promised to leave alone, a review containing `$&` reaching the model as a
+placeholder's name, a review cut through an emoji sending half of it,
+placeholders GitHub swallowed in the recommendation prompts and the RS-8
+recipe, D-065's escape examples printed without their backslashes, and claims
+the sweeps found false. Riding along: rules 11 and 12 in `check-markdown` and
+the linking rule's commit and range links. As with the merges before it, the
+figures and notes describing it were written to `draft` first, in one commit,
+and all five gates ran on it before the user confirmed the merge.
 
 ### What landed, newest first
 
@@ -841,12 +844,12 @@ carries the current state.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* As of 2026-10-01, `main` is at the close-out sync made at the course's
-  final assessment deadline that day (ground 3 of the merge rule under Version Control
-  Workflow), which came after the latest settled milestone and the defect
-  merges made since it (ground 2). A close-out sync happens only once, so any
-  later merge is a milestone or a defect fix — no count of those here on
-  purpose, since that set is still open.
+* As of 2026-10-01, `main` is at the thirty-first merge, a defect fix
+  (ground 2 of the merge rule under Version Control Workflow) made later on
+  the day of the close-out sync (ground 3), which itself came after the latest
+  settled milestone and the defect merges made since it. A close-out sync
+  happens only once, so any later merge is a milestone or a defect fix — no
+  count of those here on purpose, since that set is still open.
   - The final PLANNED merge closed the evidence and documentation work
     (2026-09-14); a **twenty-second followed the same day** with one defect fix,
     a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
@@ -857,14 +860,15 @@ carries the current state.
     them, a **twenty-eighth on 2026-09-19** carrying a visible UI defect plus
     the largest accuracy sweep the project had run at that point, a
     **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
-    `main`, and a **thirtieth on 2026-10-01**, the close-out sync at the
-    course's final assessment deadline, carrying defect fixes too — all nine
-    described at the end of this bullet. Before those, the
+    `main`, a **thirtieth on 2026-10-01**, the close-out sync at the
+    course's final assessment deadline, carrying defect fixes too, and a
+    **thirty-first later the same day** carrying the defects found on `main`
+    after it — all ten described at the end of this bullet. Before those, the
     milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
     that the front-end overhaul completing (2026-09-12, `d47c960`), which is
     where the UI steps closed.
 
-  - **Thirty** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
+  - **Thirty-one** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
@@ -1062,6 +1066,30 @@ carries the current state.
     mutation probes. **It is not "final"**: whatever follows is merged on
     ground 1 or ground 2. The count was again written to `draft` first, on
     the user's instruction.
+
+  - **AND A THIRTY-FIRST, LATER ON 2026-10-01 (ground 2).** The first merge
+    after the close-out sync, and the close-out sync not being a promise of
+    silence. Its ground is the set of defects live on `main` after the
+    thirtieth: SPEC.md's turn-count footnote rendering as a list item, put
+    there by the claims sweep the thirtieth carried and found by the user
+    the same day; `npm run seed-demo -- --keep` re-rating a seed film it
+    promised to leave alone; a review containing `$&` reaching the model as a
+    placeholder's name; a review cut through an emoji sending the model half
+    of it; the placeholders GitHub swallowed in the three recommendation
+    prompts and the RS-8 recipe; D-065's escape examples printed without
+    their backslashes; and the claims the day's sweeps found false. Riding
+    along: rules 11 and 12 in `check-markdown`, each probed against the line
+    that shipped; `loadPrompt()` decoding the prompts' entities (D-084) and
+    filling placeholders through a function; `cutText()` at every server cut;
+    the linking rule's commit and range links, with `check-claims` check 4b
+    behind them; and two tests, taking the suite to 64.
+
+    **The sentence for this one:** the defects that mattered sat in what a
+    reader actually receives rather than in any source file — the model's
+    exact request bodies for the half-emoji cut, GitHub's own file view for
+    the swallowed placeholders — and each was found by looking at that
+    rather than at the text that produced it. The count was again written
+    to `draft` first, on the user's instruction.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -5876,7 +5904,7 @@ the real blob from github.com and read that — it is the only authority.
      `main` would be MISINFORMED — a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, the note on the twenty-second merge). **Merges 22 to 30, which follow `0cdc4ec`,
+     status, the note on the twenty-second merge). **Merges 22 to 31, which follow `0cdc4ec`,
      the final planned one, were all made on this ground — the thirtieth as
      well, though its reason was ground 3 — and no merge has ever been made on
      grounds outside this list.** Written as a closed range rather than a COUNT

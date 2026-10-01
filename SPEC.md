@@ -40,8 +40,8 @@ intent at named
 commit points between turns. **In this repository the commit points are the merges
 to `main`** — the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
-`draft`. (Merges 22 to 30, which follow [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned one, are not
-milestones. Merges 22 to 29 were defect fixes, the second of the three grounds
+`draft`. (Merges 22 to 31, which follow [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned one, are not
+milestones. Merges 22 to 29 and the 31st were defect fixes, the second of the three grounds
 [`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
 [30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final assessment deadline on
 2026-10-01, the third ground, and carried defect fixes too. Nothing here counts a merge as

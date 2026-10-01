@@ -469,5 +469,5 @@ records why the rule names three). The first twenty-one merges were all
 milestones, and merges 22 to 29 were defect fixes. [The 30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out
 sync, made at the course's final assessment deadline on 2026-10-01, and it
 carried defect fixes too. A close-out sync happens only once, so any later merge
-is a milestone or a defect fix. Changes are committed with messages that say
-*why*.
+is a milestone or a defect fix; the 31st, later that day, was a defect fix.
+Changes are committed with messages that say *why*.
