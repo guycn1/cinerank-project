@@ -61,6 +61,7 @@ const ALLOWED_SPANS = new Set([
   // The rest are this project's own DOCUMENTATION of the escaping problem --
   // they have to show the sequence to describe it. Whole-span matches only.
   BS + '_', BS + '&', BS + '[', BS + '---', '1' + BS + '.', BS + '[ ]',
+  '## 1' + BS + '. Test',                             // D-065's escaped-heading example
   // The other two thematic-break spellings, added 2026-09-13 when rules 3-5
   // learned about them and the docs had to quote them to explain them.
   BS + '***', BS + '___',

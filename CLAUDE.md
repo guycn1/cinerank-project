@@ -212,6 +212,17 @@ GitHub's renderer confirmed each must-pass case displays as literal text. Its
 one known false positive, a tag inside a 4-space indented code block, is
 documented rather than guessed around.
 
+**Then a meaning audit of all 24 tracked markdown files, for text that renders
+validly but not as meant** (user-found from a screenshot of D-065). Four code
+spans in D-065 had lost their backslashes when the entry was written, so its
+list of harmless escape classes read `[ ]`, `1.`, `&` and `_`, and its heading
+example proved nothing. They are restored, and `## 1\. Test` joins
+`check-markdown`'s whole-span allowlist. Checked across every file: every code
+span holding a backslash, a regex, a path or only symbols; entities in code and
+in prose; accidental emphasis, strikethrough and emoji; backslash escapes and
+hard breaks in prose; dropped words and stray spacing; repeated runs that a
+`$&` replacement would leave; and HTML comments. Nothing else was found.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that

@@ -1430,13 +1430,13 @@ Every class was rendered through GitHub's own Markdown API before deciding.
 **Two of the four suspected defects were not defects**, and Claude had asserted
 both of them confidently:
 
-* `[ ]` — claimed to "kill the eight checkboxes" in
+* `\[ ]` — claimed to "kill the eight checkboxes" in
   [SPEC § 7.1](../SPEC.md#71-must-pass-before-submission). **False.** An
   escaped bracket in a list item renders as a working, tickable checkbox, byte
   for byte identical to an unescaped one.
-* `1.` in headings — claimed to render as `1.`. **False.** `## 1. Test`
+* `1\.` in headings — claimed to render as `1\.`. **False.** `## 1\. Test`
   renders `<h2>1. Test</h2>`.
-* `&` and plain-text `_` also render correctly. All four classes: left alone.
+* `\&` and plain-text `\_` also render correctly. All four classes: left alone.
 
 [The two that were real](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b): **the 17 section separators**, which rendered as a
 literal `---` paragraph instead of a rule, and **the 54 escaped underscores
