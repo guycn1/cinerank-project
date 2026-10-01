@@ -130,6 +130,20 @@ taken to be. The footnote is re-wrapped, and **`check-markdown` now fails on
 any line starting with a plus and a space (rule 11 under § Markdown Authoring
 Rules)**, probed against the footnote as it shipped.
 
+**Then every commit in the twelve linked documents became a link** (the
+user's rule, now under § Every document reference is a link). Every quoted
+hash links its GitHub commit page by the full hash. So does a mention of a
+commit without one: a dated change, a merge named by its ordinal, a
+decision entry's date. That is 244 distinct commits, every URL fetched and
+answering 200. `check-claims` check 4b fails on an unlinked hash, a label
+pointing at a different commit, or a target that is not a full commit hash.
+Before that, `SPEC.md` and `README.md` were given a broad reading of the
+same rule: module, decision, prompt, migration, table and script mentions
+link their targets too. Two claims were found false on the way and
+corrected: RESILIENCE.md dated the "on our side" fix to the RS-7 shoot,
+five days late, and D-034 called that same fix "the same afternoon" when
+it landed fifteen minutes before D-034, at night.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
