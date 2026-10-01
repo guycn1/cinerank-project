@@ -5605,6 +5605,10 @@ buries the ones that matter. The render audit below is the backstop for these.
   would have to flag an odd count of `**` in a paragraph, and that fires on
   perfectly good prose: an exponent like `2**8`, or a redaction written as an odd
   run of asterisks. `DOSSIER.md` already contains `********` twice, deliberately.
+  An unclosed single `*` is the same class, and a rule for it would fire on a
+  lone multiplication sign or a footnote asterisk. SPEC.md's turn-count
+  footnote printed both asterisks of its italic that way on 2026-10-01; rule 11
+  catches the cause there, not the asterisks.
 * **An inline link whose `)` is missing**, which renders the `[text](` literally.
   CommonMark permits a newline between `(` and the destination, so a link may
   legally wrap across lines and a line-scoped rule would flag it.
