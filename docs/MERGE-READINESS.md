@@ -231,8 +231,8 @@ regression risk for a lower number in a report.
 
 The same argument applies to the markdown checker.
 [`check-markdown`](../scripts/check-markdown.js)’s per-line rule engine applies
-six rules and one cosmetic note in a single pass over a file (rule 2 needs whole
-paragraphs, so it runs in a pass of its own), and each rule was added for a
+six rules and one cosmetic note in a single pass over a file (rules 2 and 12 need
+whole paragraphs, so each runs in a pass of its own), and each rule was added for a
 specific defect:
 either one that had already shipped past human review, or one an audit wrote and
 rendered to confirm it was broken before the checker learned it. Nearly all

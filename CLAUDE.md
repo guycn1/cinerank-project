@@ -202,6 +202,16 @@ evidence) and the hostile set are byte-identical before and after; only the
 straddling cases changed, each by exactly the half emoji. Two tests, taking the
 suite to 64, and each of the six cut sites was reverted alone and caught.
 
+**And `check-markdown` now fails on a raw HTML tag in prose (rule 12 under
+§ Markdown Authoring Rules)**, in every markdown file with no exemption, the
+prompts and `DOSSIER.md` included. It reads paragraph by paragraph so a code
+span may wrap, and skips comments, code spans, fences, autolinks and an
+escaped `<`. Probed both ways: it catches all eight planted shapes and the
+exact pre-fix lines of `CLAUDE.md` and the three recommendation prompts, and
+GitHub's renderer confirmed each must-pass case displays as literal text. Its
+one known false positive, a tag inside a 4-space indented code block, is
+documented rather than guessed around.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
@@ -5499,8 +5509,8 @@ that it is a correction, not an update.
 ## Markdown Authoring Rules (binding — every `.md` file in this repo)
 
 **Run `npm run check-markdown` before committing any change that touches a `.md`
-file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6
-and rule 11 below, and reports rule 7 without failing; `npm run check-claims`
+file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6,
+11 and 12 below, and reports rule 7 without failing; `npm run check-claims`
 enforces rule 10's unambiguous forms and the commit links under § Every
 document reference is a link. Rules 8 and 9, and the rest of that section, are
 enforced by nothing, so those are the ones to remember.
@@ -5616,6 +5626,16 @@ down could be re-broken within a session. See D-065.
     sits mid-line. `check-markdown` fails on it. Only the plus is enforced:
     no file here uses it as a bullet, while a `-` or `*` after a line of
     text is usually a real list, so a rule for those would cry wolf.
+12. **NO RAW HTML TAG IN PROSE, IN ANY FILE** (the user's rule, 2026-10-01,
+    with no exemption: not the prompts, not `DOSSIER.md`). GitHub treats
+    anything shaped like a tag as HTML and either escapes it, drops it or
+    renders it, and the source does not say which: the RS-8 recipe's
+    `<query>` displayed as an empty pair of quotes, and the recommendation
+    prompts' `<movie title>` as `""`. Write a literal angle bracket as `&lt;` /
+    `&gt;`, or put the text in a code span. HTML comments, autolinks and a
+    backslash-escaped `<` are fine. The prompts can follow it because
+    `loadPrompt()` decodes the three entities (D-084). `check-markdown` fails
+    on it; a 4-space indented code block is read as prose there, so fence code.
 
 ### Every document reference is a link (the user's rule, 2026-09-19)
 
