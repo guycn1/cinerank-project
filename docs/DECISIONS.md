@@ -1720,10 +1720,11 @@ for a factual claim about behaviour, go to the authority, do not aggregate.**
 So SVG-only is safe on every current browser. Safari 18.7 and older still probe
 `/favicon.ico` and still 404 — **the same error as before rather than a new one**,
 and closing it costs a binary asset in a repo that, on 2026-09-12, had none.
-*(The 37 screenshot PNGs landed the next day, so "has none" stopped being true
-almost immediately. The reason still holds in the form that mattered: a .ico
-would be the only binary the APPLICATION ships — everything under [public/](../public/),
-[server/](../server/), [scripts/](../scripts/), [prompts/](../prompts/), [db/](../db/) and [test/](../test/) is text.)*
+
+> **2026-09-19:** the 37 screenshot PNGs landed the next day, so "has none" stopped being true
+> almost immediately. The reason still holds in the form that mattered: a .ico
+> would be the only binary the APPLICATION ships — everything under [public/](../public/),
+> [server/](../server/), [scripts/](../scripts/), [prompts/](../prompts/), [db/](../db/) and [test/](../test/) is text.
 
 ### What the console error actually was
 
@@ -1953,26 +1954,26 @@ elements in this file have now hit exactly this shape of trap
 THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 `inset` + `margin: auto` from the start rather than rediscovering this.
 
-**Addendum, same day: this fix immediately broke `toastIsLong()`
-([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
-measurement helper), and the break is worth recording alongside the fix that
-caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
-only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
-`right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
-margin-inline: auto;` — and the probe, still only overriding `left` (to
-`-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
-specified, which per the shrink-to-fit case list stops being shrink-to-fit
-entirely: the box stretches to fill the whole gap between them, enormous since
-`left` sits off-screen. A short toast (`“Hairspray” saved.`) measured as needing
-400px+ on the very next check and was misclassified as long. Fixed by
-neutralising `right`, `bottom` and `margin` in the probe too, not just the
-properties `.toast` happened to set when the probe was first written. **The
-general lesson, not just this one instance:** a measurement probe that clones a
-real class by name, then overrides "the properties that currently matter," is
-exactly one CSS change on the real class away from silently measuring the wrong
-thing. Overriding defensively — every property in the same CATEGORY, not just
-the ones presently in play — is what would have prevented this from breaking at
-all.
+> **2026-09-12, later the same day:** **this fix immediately broke `toastIsLong()`
+> ([D-060](#d-060--d-059s-premise-was-wrong--the-leave-it-call-is-reversed-with-a-soft-hyphen-fix-that-needs-no-js-resize-logic-at-all)'s
+> measurement helper), and the break is worth recording alongside the fix that
+> caused it.** `toastIsLong()`'s probe shares the `.toast` class and overrides
+> only `left`/`width` inline. Before this entry's fix, `.toast` set nothing for
+> `right` or `margin`, so that was enough. After it, `.toast` sets `right: 0;
+> margin-inline: auto;` — and the probe, still only overriding `left` (to
+> `-9999px`) and `width` (`auto`), ended up with BOTH `left` and `right`
+> specified, which per the shrink-to-fit case list stops being shrink-to-fit
+> entirely: the box stretches to fill the whole gap between them, enormous since
+> `left` sits off-screen. A short toast (`“Hairspray” saved.`) measured as needing
+> 400px+ on the very next check and was misclassified as long. Fixed by
+> neutralising `right`, `bottom` and `margin` in the probe too, not just the
+> properties `.toast` happened to set when the probe was first written. **The
+> general lesson, not just this one instance:** a measurement probe that clones a
+> real class by name, then overrides "the properties that currently matter," is
+> exactly one CSS change on the real class away from silently measuring the wrong
+> thing. Overriding defensively — every property in the same CATEGORY, not just
+> the ones presently in play — is what would have prevented this from breaking at
+> all.
 
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
@@ -2079,34 +2080,34 @@ what caused the original inconsistency (a real word hyphenates, an invented
 one does not) — the soft-hyphen approach is what fixed it, precisely by not
 depending on a dictionary.
 
-**Addendum, same day: extended to `#verdict-text`, `.review` and `.reason`,
-and the threshold moved to 400px inclusive.** Two things worth recording
-about the extension itself, not just the fact of it:
-
-1. **`.review` and `.reason` needed no new CSS at all** — both are plain
-   descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
-   and `hyphens` are inherited properties, and `softHyphenate()` is called
-   directly on their own text in [`app.js`](../public/app.js). Inheritance alone made them work.
-2. **`#verdict-text` needed the split-channel treatment its own typing effect
-   already uses, and this is the one genuine fork in the extension.** The
-   obvious approach — hyphenate the full verdict string once, before typing
-   it out — was rejected: `setVerdictText()`'s typing loop paces itself off
-   `text.length`, and a hyphenated string is roughly DOUBLE the length of the
-   plain one (a soft hyphen between every letter), so typing it out at the
-   same `VERDICT_TYPE_MS` per character would have quietly doubled the
-   animation's duration, undoing the pace the user tuned by eye (18ms/char,
-   after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
-   tick instead of the string once — `i`/`text.length` stay the plain count,
-   so the pace is exactly what it was, and the hyphenated text is only ever
-   assembled for what's already been revealed. The `aria-hidden` /
-   `.sr-only` split this element already had for the typing effect is what
-   makes any of this safe on an `aria-live="polite"` element in the first
-   place — the hyphenated text goes only into the hidden visible span.
-
-The threshold itself moved from `399px` (an exact reading of "narrower than
-400px") to `400px` inclusive, at the user's own follow-up request — recorded
-here only so a future session does not "restore" 399 by reading the original
-paragraph above without this addendum.
+> **2026-09-12, later the same day:** **extended to `#verdict-text`, `.review` and `.reason`,
+> and the threshold moved to 400px inclusive.** Two things worth recording
+> about the extension itself, not just the fact of it:
+>
+> 1. **`.review` and `.reason` needed no new CSS at all** — both are plain
+>    descendants of `.movie-card__body` / `.rec-card__body`, `overflow-wrap`
+>    and `hyphens` are inherited properties, and `softHyphenate()` is called
+>    directly on their own text in [`app.js`](../public/app.js). Inheritance alone made them work.
+> 2. **`#verdict-text` needed the split-channel treatment its own typing effect
+>    already uses, and this is the one genuine fork in the extension.** The
+>    obvious approach — hyphenate the full verdict string once, before typing
+>    it out — was rejected: `setVerdictText()`'s typing loop paces itself off
+>    `text.length`, and a hyphenated string is roughly DOUBLE the length of the
+>    plain one (a soft hyphen between every letter), so typing it out at the
+>    same `VERDICT_TYPE_MS` per character would have quietly doubled the
+>    animation's duration, undoing the pace the user tuned by eye (18ms/char,
+>    after trying and reverting 15ms). Fixed by hyphenating the SLICE on every
+>    tick instead of the string once — `i`/`text.length` stay the plain count,
+>    so the pace is exactly what it was, and the hyphenated text is only ever
+>    assembled for what's already been revealed. The `aria-hidden` /
+>    `.sr-only` split this element already had for the typing effect is what
+>    makes any of this safe on an `aria-live="polite"` element in the first
+>    place — the hyphenated text goes only into the hidden visible span.
+>
+> The threshold itself moved from `399px` (an exact reading of "narrower than
+> 400px") to `400px` inclusive, at the user's own follow-up request — recorded
+> here only so a future session does not "restore" 399 by reading the original
+> paragraph above without this addendum.
 
 ## D-059 · `hyphens: auto` closes most of the mid-word-break problem, not all of it — and that residual gap is accepted, not fixed
 
@@ -2588,13 +2589,14 @@ back into bounds — the second symptom resolving with the first is what makes
 **Cheapest real-time Sonnet, checked rather than remembered.** OpenRouter's
 public model list (free, no key, no quota) prices sonnet-5 at **$2/$10 per Mtok**
 against Haiku's $1/$5 — 2x, not the 3–5x guessed, and about **0.29¢ a verdict** at the list length of 2026-09-11.
-*(The demo seed list two days later lengthened the prompt, and the verdict
-reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
-that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
-this decision turned on is unaffected.)*
 The newest Sonnet is also the cheapest; every older one is $3/$15. The `:batch`
 variants undercut it at $1/$5 and are a trap — asynchronous endpoints that would
 break a live request.
+
+> **2026-09-19:** the demo seed list two days later lengthened the prompt, and the verdict
+> reads every rated film, so the logged figure is now 0.37–0.40¢ — six rows in
+> that band are visible in `screenshots/readme-3-ai-call-log.png`. The 2x ratio
+> this decision turned on is unaffected.
 
 **Per-FEATURE, not app-wide, because the user is short on quota.** `chat()` takes
 an optional `model` defaulting to the app-wide one; only `tasteVerdict.js`
@@ -3639,13 +3641,13 @@ order between them comes from `created_at desc` — which was added more recentl
 so the numbers asserted a ranking the data does not contain. The defect was never
 the ordering (something has to be drawn first); it was the *claim*.
 
-*(Signpost added 2026-09-09, and the paragraph above is deliberately NOT rewritten:
-it records the state that made #13 a bug. `created_at desc` was accurate then. The
-tie-break has since been flipped to ASCENDING at the user's request, so a new film
-appends below the ones it ties with instead of jumping above them. Nothing in this
-entry's reasoning changes — the whole point of D-038 is that the order within a tie
-is arbitrary and must not be asserted as a ranking, which is as true ascending as
-descending.)*
+> **2026-09-09:** a signpost; the paragraph above is deliberately NOT rewritten:
+> it records the state that made #13 a bug. `created_at desc` was accurate then. The
+> tie-break has since been flipped to ASCENDING at the user's request, so a new film
+> appends below the ones it ties with instead of jumping above them. Nothing in this
+> entry's reasoning changes — the whole point of D-038 is that the order within a tie
+> is arbitrary and must not be asserted as a ranking, which is as true ascending as
+> descending.
 
 **Settled on competition ranking (1, 2, 2, 4)**, the convention charts and sport
 use, plus a small muted `tied` caption under the numeral. The skipped number is
@@ -4364,15 +4366,15 @@ state set moments earlier.
    `aria-busy`.
 3. This one.
 
-*(Two dated corrections, 2026-09-09, added rather than folded into the text above,
-which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
-and it turned out to be bigger than described here: the same `finally` wiped the
-SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
-is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
-the whole document; the `aria-busy` skip described in item 2 is unchanged and is
-still the reason it exists. The pattern this entry names — an unconditional sync
-overwriting a deliberate transient state — went on to catch a fourth and fifth
-instance, so the entry's real content has aged well.)*
+> **2026-09-09:** two corrections, added rather than folded into the text above,
+> which stays as written. **Item 1 is no longer open** — it was fixed as backlog [R1](../CLAUDE.md#group-a--functional-bugs),
+> and it turned out to be bigger than described here: the same `finally` wiped the
+> SUCCESS and zero-result messages too, not only the error. **`syncSearchResultButtons()`
+> is now `syncAddButtons()`**, renamed when R3 widened it from the search panel to
+> the whole document; the `aria-busy` skip described in item 2 is unchanged and is
+> still the reason it exists. The pattern this entry names — an unconditional sync
+> overwriting a deliberate transient state — went on to catch a fourth and fifth
+> instance, so the entry's real content has aged well.
 
 Before adding a sync call, check which deliberate states it can reach.
 
@@ -4585,10 +4587,11 @@ pre-submission deletion carries dangling-reference risk. Instead: one sentence i
 [`docs/PROCESS.md`](PROCESS.md) frames `/api/ai-log` as the primary audit surface and
 `/history` as the narrower per-feature JSON view. Revisit as post-submission
 cleanup.
-*(That revisit happened on 2026-09-21 and confirmed the decision — see
-[D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
-The "unused and untested" above was true when written; it is still unused, and
-it is no longer untested.)*
+
+> **2026-09-21:** that revisit happened and confirmed the decision — see
+> [D-077](#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).
+> The "unused and untested" above was true when written; it is still unused, and
+> it is no longer untested.
 
 ## D-016 · Accessibility pass
 Per-item action buttons (Rate/Edit/Remove, rec cards' Add) got name-specific
