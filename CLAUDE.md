@@ -175,6 +175,14 @@ fix needed the loader too (D-084): the files write entities and
 `loadPrompt()` decodes them before substitution, so what the model receives
 is byte-identical, proved for all ten versions.
 
+**And a real bug in the same loader, found on the way and confirmed by the
+user's own test review:** placeholders were filled with a plain string, which
+`replace()` scans for `$` patterns, so a review containing `$&` reached the
+model as `{{TASTE_PROFILE}}` or `{{RATED_MOVIES}}` (`` $` ``, `$'` and `$$` were
+altered too). The value is now inserted through a function, untouched. Every
+prompt without such a sequence is byte-identical, proved over all ten versions,
+and a test pins the special sequences.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that

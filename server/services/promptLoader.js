@@ -26,8 +26,9 @@ const PROMPT_ENTITIES = { lt: '<', gt: '>', amp: '&' };
 /**
  * Read `prompts/<version>.md`, drop its leading dev-notes comment, decode
  * `&lt;`, `&gt;` and `&amp;`, split it into its System and User sections, and
- * substitute every `{{KEY}}` placeholder whose KEY is in `vars`, in both. The
- * file is read on every call; nothing is cached.
+ * substitute every `{{KEY}}` placeholder whose KEY is in `vars`, in both, with
+ * the value inserted exactly as given. The file is read on every call; nothing
+ * is cached.
  *
  * The decoding comes BEFORE the substitution on purpose: it applies to the
  * prompt's own text only, so a review that happens to contain `&lt;` reaches
@@ -53,8 +54,12 @@ export async function loadPrompt(version, vars = {}) {
   let [, system, user] = sysMatch;
   for (const [key, value] of Object.entries(vars)) {
     const token = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-    system = system.replace(token, value);
-    user = user.replace(token, value);
+    // A FUNCTION, never the string itself: given a string, replace() reads `$&`,
+    // `$'`, `` $` `` and `$$` in it as patterns, so a review containing `$&`
+    // reached the model as the placeholder's own name. A function's return
+    // value is inserted as it stands.
+    system = system.replace(token, () => value);
+    user = user.replace(token, () => value);
   }
   return { system: system.trim(), user: user.trim(), version };
 }

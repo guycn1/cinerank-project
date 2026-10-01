@@ -86,6 +86,12 @@ test('loadPrompt: substitutes every placeholder occurrence', async () => {
   // exactly as written: the decoding belongs to the prompt file alone.
   const review = await loadPrompt(FIXTURE_VERSION, { X: '&lt;3 &amp; more' });
   assert.equal(review.user, 'First &lt;3 &amp; more, then &lt;3 &amp; more again.');
+
+  // Every `$` sequence that String.replace() treats as special in a string
+  // replacement, and two it does not: each must reach the model as typed.
+  const dollars = "$& $' $` $$ $5 $1";
+  const raw = await loadPrompt(FIXTURE_VERSION, { X: dollars });
+  assert.equal(raw.user, `First ${dollars}, then ${dollars} again.`);
 });
 
 test('loadPrompt: taste_verdict_v7 keeps its RATED_MOVIES slot and injection markers', async () => {
