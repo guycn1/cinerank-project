@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-084 · Prompt files write `<` and `>` as entities for GitHub, and the loader decodes them so the model's input is unchanged
 
-*2026-10-01. Found by the render audit of every markdown file; the scope was
+*[2026-10-01](https://github.com/guycn1/cinerank-project/commit/840303e459dbb341cb8d7a51cc11c183ffd02c2d). Found by the render audit of every markdown file; the scope was
 the user's ruling.*
 
 **What was found.** The output contract in
