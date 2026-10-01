@@ -53,8 +53,8 @@ whether it sounds like a person, and that is exactly the axis
 [four prompt versions](docs/PROCESS.md#2-prompt-engineering-as-version-control) failed to move on the cheaper tier, until the model turned out to be
 the constraint rather than the wording ([`docs/DECISIONS.md`
 D-053](docs/DECISIONS.md#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)).
-It alone runs on `claude-sonnet-5`, at 0.37–0.40¢ a call against 0.20¢ for a
-recommendation on the [demo list](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once) of 2026-09-13 — both readable in the [log capture
+It alone [runs on `claude-sonnet-5`](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a), at 0.37–0.40¢ a call against 0.20¢ for a
+recommendation on the [demo list](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once) of [2026-09-13](https://github.com/guycn1/cinerank-project/commit/50365dd49dc4a34f6c0ecd0ebac57d6904716fbe) — both readable in the [log capture
 below](#every-ai-call-whether-it-worked-or-not), which shows six verdict rows in
 that band. The verdict reads *every* rated film, so its cost grows with the
 list; recommendations read only the top five and stay flat. The log shows the
@@ -435,9 +435,9 @@ against the product and once against the agentic development environment that
 built it, including the ones that do not apply and why. The short version:
 
 - `.env` [did not exist in the first
-  commit](docs/ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history), a one-line README that the user
-  checked by hand and that holds no secret, and it is gitignored from the second
-  commit, the first with any project content, onward. [`npm run
+  commit](docs/ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history), [a one-line README](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) that the user
+  checked by hand and that holds no secret, and it is gitignored from [the second
+  commit](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content, onward. [`npm run
   scan-secrets`](scripts/scan-secrets.js) checks staged diffs.
 - The server uses the Supabase **anon key** only — least privilege,
   RLS-bounded — and the browser never receives it.
@@ -463,7 +463,7 @@ explicit sign-off: a settled milestone, a fix for a defect already published on
 `main`, or a single close-out sync when the work is declared finished
 ([D-073](docs/DECISIONS.md#d-073--the-merge-rule-gained-a-second-and-a-third-ground-and-the-correction-that-prompted-it-stays-on-draft)
 records why the rule names three). The first twenty-one merges were all
-milestones, and merges 22 to 29 were defect fixes. The 30th was the close-out
+milestones, and merges 22 to 29 were defect fixes. [The 30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out
 sync, made at the course's final assessment deadline on 2026-10-01, and it
 carried defect fixes too. A close-out sync happens only once, so any later merge
 is a milestone or a defect fix. Changes are committed with messages that say

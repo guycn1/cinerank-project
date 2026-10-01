@@ -311,7 +311,7 @@ that changes every commit goes stale between one session and the next.)
 filter rules in the recommendation service was deleted in turn, to confirm every
 deletion fails exactly the tests that cover it; the
 [markdown checker](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-markdown.js)
-was proved in both directions on 2026-09-13, across 57 cases, 26 that must
+was [proved in both directions on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/646307a2378a3c1d44291c017b69a09c6f6178f1), across 57 cases, 26 that must
 fail and 31 that must pass. A gate nobody has tried to defeat is not known to work.
 
 ### ASI09 — Human-Agent Trust Exploitation

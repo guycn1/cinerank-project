@@ -43,7 +43,7 @@ settled and then locked, after a working session of its own and dozens of commit
 `draft`. (Merges 22 to 30, which follow [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned one, are not
 milestones. Merges 22 to 29 were defect fixes, the second of the three grounds
 [`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
-30th was the close-out sync at the course's final assessment deadline on
+[30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final assessment deadline on
 2026-10-01, the third ground, and carried defect fixes too. Nothing here counts a merge as
 a turn, so none of them touches the argument either way.)
 Counted that way the project has been through as many turns as it has merges, and
@@ -54,7 +54,7 @@ repeated here: the same count already lives in
 [`docs/MERGE-READINESS.md` § 5](docs/MERGE-READINESS.md#5-full-auditability--met),
 and has drifted once before.
 
-**All three are now complete**, which is the form
+**[All three are now complete](https://github.com/guycn1/cinerank-project/commit/b1a08b604e1fc8d3f3d32962ab9ff9920fb96e5a)**, which is the form
 [the course's requirement](DOSSIER.md#how-each-third-is-graded) takes:
 a commit history across at least three *full* turns of the spiral. It holds under
 the conservative reading deliberately — the three narratives below are whole, with
@@ -131,11 +131,11 @@ merge, which pinned the turn.
 It opened on the documents themselves: both this file and
 [`CLAUDE.md`](CLAUDE.md) were found to be **rendering wrong on GitHub** — a fault
 invisible in the source and never caught by eye. That produced a new verification
-gate, [`npm run check-markdown`](scripts/check-markdown.js) ([`d1dd505`](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b)), proved in both directions on 2026-09-13
+gate, [`npm run check-markdown`](scripts/check-markdown.js) ([`d1dd505`](https://github.com/guycn1/cinerank-project/commit/d1dd505cd101add3763036edf612bc2b96cdf94b)), [proved in both directions on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/646307a2378a3c1d44291c017b69a09c6f6178f1)
 across 57 cases, together with the authoring rules it enforces in
 [`CLAUDE.md` § Markdown Authoring Rules](CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo).
 
-**This turn is closed.** Its stated closing conditions were the pre-submission
+**[This turn is closed.](https://github.com/guycn1/cinerank-project/commit/b1a08b604e1fc8d3f3d32962ab9ff9920fb96e5a)** Its stated closing conditions were the pre-submission
 blocker list in
 [`CLAUDE.md`](CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14) and
 [§ 7.1](#71-must-pass-before-submission)'s acceptance checkboxes below; both were
@@ -156,7 +156,7 @@ four families](docs/screenshots/README.md); and
 [the render audits](CLAUDE.md#when-a-change-is-structural-render-it-and-diff-the-html) had revealed, because each of those inspects structure and none of
 them puts the application into a state and looks at it.
 
-**Merging to `main` pins this turn rather than closing it** — it was closed by its
+**[Merging to `main`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) pins this turn rather than closing it** — it was closed by its
 scope being complete, which is the distinction [Module 10](DOSSIER.md#module-10-specifications-and-co-evolution-spiral) draws between a commit
 point and a turn boundary.
 
@@ -177,7 +177,7 @@ Most "movie list" student projects stop at CRUD: add a movie, rate it, see a lis
 * No social features (sharing lists, following other users, public rankings).
 * No editing/moderating AI suggestions beyond accepting or dismissing them.
 
-*(Reconciled 2026-09-13: [`CLAUDE.md` § Out of Scope](CLAUDE.md#out-of-scope-v1) carried a FOURTH exclusion this list never
+*([Reconciled 2026-09-13](https://github.com/guycn1/cinerank-project/commit/d74e655a78f805670486bd2ac41ca6f29454e79b): [`CLAUDE.md` § Out of Scope](CLAUDE.md#out-of-scope-v1) carried a FOURTH exclusion this list never
 had — no automatic or background regeneration of recommendations or verdicts. The
 consolidated list, with the reason each one is there, is [`docs/FRAMING.md` § Out of
 scope](docs/FRAMING.md#out-of-scope), which is now the authority. The three above stay as written rather than
@@ -202,7 +202,7 @@ being silently extended.)*
   1. The app pulls the user's **top N rated movies** (N=5 by default) from Supabase.
   2. Sends a **structured, versioned prompt** (see [§ 6](#6-ai-features--prompt-discipline)) to OpenRouter containing those titles + the user's own review text as taste signal.
   3. The model returns a **structured list** (title + one-sentence reason per suggestion) — not free-form prose the app has to parse with regex.
-  4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms every card shows **a real film**: a title TMDB returns nothing for is dropped, and a near-miss resolves to TMDB's top result, which rescues real films the model named imprecisely and now and then lands on a neighbouring one. A stricter match was measured against live TMDB and deliberately not adopted — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
+  4. Each suggested title is **cross-checked against TMDB** to confirm it's a real movie and to pull its real poster/year/overview — the AI never gets to invent poster URLs or years; it only picks titles, TMDB supplies the facts *(as built, this confirms every card shows **a real film**: a title TMDB returns nothing for is dropped, and a near-miss resolves to TMDB's top result, which rescues real films the model named imprecisely and now and then lands on a neighbouring one. A stricter match was [measured against live TMDB and deliberately not adopted](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11) — see [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened). The second half of this clause is exact as written: every fact on a card comes from TMDB, never from the model. The requirement stays as written, annotated, rather than being quietly rewritten to match the code)*.
   5. Suggestions already in the user's list are filtered out before being shown.
 * Every recommendation run is **logged to the database** (prompt version, model used, input movie titles, raw output, token usage) — see [§ 5.2](#52-recommendation_logs) *(the column is `input_movie_ids` and holds ids, not titles: § 5.2 specifies `uuid[]`, so this bullet and the data model it points at disagreed from the start, and the build followed § 5.2. Every other item in this list is stored literally as named. The titles behind a run's ids are recoverable for films still in the list; what the user was actually SHOWN is stored as text in `suggested_titles` either way. And as built, a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr)*. This turns "the AI said something" into an auditable record, which matters for auditing what the AI actually did, and for debugging.
 * Recommendations are a **snapshot, not live** — they don't regenerate automatically when new movies are rated; the user explicitly re-triggers when they want fresh ones.
@@ -255,7 +255,7 @@ Beyond this priority order, the specific visual treatment — layout, styling, a
 
 *A SIXTH feedback state exists as built and is not in the list above: submitting an EMPTY
 search. It answers with the muted note "Type a film title to search." and returns the caret
-to the input, rather than the silent no-op it was until 2026-09-07. It is the nearest sibling
+to the input, rather than the silent no-op it was [until 2026-09-07](https://github.com/guycn1/cinerank-project/commit/fb3e017aa654be9e00a82a307c41c6c9ab592596). It is the nearest sibling
 of Duplicate handling — a user-input mistake answered inline rather than ignored — and it is
 absent here because it emerged from using the app rather than from this specification. What it
 does, and the `400` `Missing search query` it makes unreachable, are in [`docs/RESILIENCE.md` under the errors the interface cannot
@@ -290,7 +290,7 @@ Free, well-documented, instant key approval, huge catalog, provides posters/over
 
 A real relational Postgres database supports the recommendation-log tables relationally (foreign keys to movies), and works from both local dev and any future deployment.
 
-*There are **no foreign keys** in [`db/schema.sql`](db/schema.sql), and there never could have been: [§ 5.2](#52-recommendation_logs) and [§ 5.3](#53-taste_verdict_logs) both specify `input_movie_ids` as `uuid[]`, and Postgres has no per-element foreign key for an array column. So this parenthetical contradicted the data model in the same document from the day both were written — the build followed [§ 5](#5-data-model-supabase--postgres), which is the more specific of the two. The reference is by id and a join back to [`movies`](#51-movies) is a query rather than a constraint. Incident 1 ([CLAUDE.md § Incident log](CLAUDE.md#incident-log)) is the accidental argument for it: when films were deleted, the log rows survived holding ids that no longer resolve. A cascading foreign key would have destroyed exactly the audit trail those tables exist to keep. The requirement stays as written, annotated, rather than being quietly rewritten to match the code. The deployment it anticipates happened on 2026-09-07, and the same database serves the live app.*
+*There are **no foreign keys** in [`db/schema.sql`](db/schema.sql), and there never could have been: [§ 5.2](#52-recommendation_logs) and [§ 5.3](#53-taste_verdict_logs) both specify `input_movie_ids` as `uuid[]`, and Postgres has no per-element foreign key for an array column. So this parenthetical contradicted the data model in the same document from the day both were written — the build followed [§ 5](#5-data-model-supabase--postgres), which is the more specific of the two. The reference is by id and a join back to [`movies`](#51-movies) is a query rather than a constraint. Incident 1 ([CLAUDE.md § Incident log](CLAUDE.md#incident-log)) is the accidental argument for it: when films were deleted, the log rows survived holding ids that no longer resolve. A cascading foreign key would have destroyed exactly the audit trail those tables exist to keep. The requirement stays as written, annotated, rather than being quietly rewritten to match the code. The deployment it anticipates [happened on 2026-09-07](https://github.com/guycn1/cinerank-project/commit/1ab515febbf960d751596fdd50e1017fbb425178), and the same database serves the live app.*
 
 ### 4.4 High-Level Data Flow
 
@@ -317,7 +317,7 @@ User requests recommendations → Express route →
 |GET|`/api/recommendations/history`|(optional) view past recommendation runs|
 |POST|`/api/taste-verdict`|Generate a new taste verdict banner message|
 
-*Three more endpoints exist as built, listed here rather than in the table above, which brings this section to all eleven: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the two rated-film thresholds and the top-N count, so the server stays the single source of those numbers; the client's own copies are only a fallback for this request failing) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` was kept alongside `/api/ai-log` rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it) — and is kept for good, with two tests of its own, since [D-077](docs/DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).*
+*Three more endpoints exist as built, listed here rather than in the table above, which brings this section to all eleven: `GET /api/ai-log` (both log tables merged, newest 60 — the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the two rated-film thresholds and the top-N count, so the server stays the single source of those numbers; the client's own copies are only a fallback for this request failing) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` [was kept alongside `/api/ai-log`](https://github.com/guycn1/cinerank-project/commit/bdfee8a27639cf4d4a2b64834d2e9b80adec1fb3) rather than dropped — see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it) — and is kept for good, [with two tests of its own](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7), since [D-077](docs/DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).*
 
 
 ## 5\. Data Model (Supabase / Postgres)
@@ -333,8 +333,8 @@ User requests recommendations → Express route →
 |description|text|TMDB overview|
 |poster\_url|text||
 |rating|numeric(3,1)|nullable until rated|
-|tmdb\_rating|numeric(3,1)|*added later, [migration 002](db/migrations/002_tmdb_rating.sql).* TMDB's own score, captured once at ADD time and never refreshed ([D-036](docs/DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)). `vote_average: 0` means "no votes" on TMDB's scale, so it is stored as `null` rather than as a score of zero ([D-037](docs/DECISIONS.md#d-037--tmdbs-vote_average-0-is-an-absence-not-a-score), [migration 003](db/migrations/003_tmdb_rating_zero_is_null.sql))|
-|review|text|nullable *(and, since [migration 004](db/migrations/004_review_requires_rating.sql), only permitted on a rated film — see the constraint note below)*|
+|tmdb\_rating|numeric(3,1)|*[added later](https://github.com/guycn1/cinerank-project/commit/0b3864c59c1d13fb0c3987a4a8c19463dde202e3), [migration 002](db/migrations/002_tmdb_rating.sql).* TMDB's own score, captured once at ADD time and never refreshed ([D-036](docs/DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)). `vote_average: 0` means "no votes" on TMDB's scale, so it is stored as `null` rather than as a score of zero ([D-037](docs/DECISIONS.md#d-037--tmdbs-vote_average-0-is-an-absence-not-a-score), [migration 003](db/migrations/003_tmdb_rating_zero_is_null.sql))|
+|review|text|nullable *(and, [since](https://github.com/guycn1/cinerank-project/commit/f7f904620f2e1b24fe080ef8dbdeeb20f04b4b9e) [migration 004](db/migrations/004_review_requires_rating.sql), only permitted on a rated film — see the constraint note below)*|
 |created\_at|timestamptz|default now()|
 
 Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a clean DB-level answer to the "duplicate handling" UX requirement in [§ 3.4](#34-feedback-including-bad-states).
@@ -355,7 +355,7 @@ Unique constraint on `tmdb_id` — prevents adding the same movie twice, gives a
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|logged per call, per course requirement on cost tracking|
 
-*Five more columns were added by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
+*Five more columns were [added](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
 
 This table is the real DB payoff of the AI feature — it's not just "call the API and show the answer," it's "call the API and keep a real, queryable record of every call," which is a meaningfully different thing.
 
@@ -392,7 +392,7 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 
 ### 7.1 Must Pass Before Submission
 
-***All eight were ticked on 2026-09-14 by the authors, against the evidence assembled in [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by [`npm test`](test/). What a user SEES in each failing case is captured and analysed in [`docs/RESILIENCE.md`](docs/RESILIENCE.md) — sixteen states, twenty-four frames — and the prompt-injection evidence is in [`docs/SECURITY.md` under ASI01](docs/SECURITY.md#asi01--agent-goal-hijack). [`docs/screenshots/README.md`](docs/screenshots/README.md) indexes every capture in the repository.*
+***All eight were [ticked on 2026-09-14](https://github.com/guycn1/cinerank-project/commit/4d433d135d4cefc7b1db9c0fc739082a4c1dee30) by the authors, against the evidence assembled in [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md) — which walks each criterion one at a time, classifies its evidence by strength, and stops short of ticking, because that claim is the authors’ to make and not the agent’s.*** *Server behaviour for these is covered by [`npm test`](test/). What a user SEES in each failing case is captured and analysed in [`docs/RESILIENCE.md`](docs/RESILIENCE.md) — sixteen states, twenty-four frames — and the prompt-injection evidence is in [`docs/SECURITY.md` under ASI01](docs/SECURITY.md#asi01--agent-goal-hijack). [`docs/screenshots/README.md`](docs/screenshots/README.md) indexes every capture in the repository.*
 
 * \[x] Searching a real movie title returns real TMDB results with posters.
 * \[x] Adding a movie already in the list is blocked with a clear message, not a duplicate row.
