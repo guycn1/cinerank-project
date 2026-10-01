@@ -456,8 +456,11 @@ built it, including the ones that do not apply and why. The short version:
 Day-to-day work happens on `draft`. `main` is merged on [three grounds
 only](CLAUDE.md#version-control-workflow-non-negotiable), and never without
 explicit sign-off: a settled milestone, a fix for a defect already published on
-`main`, or a single close-out sync when the work is declared finished. The first
-twenty-one merges were all milestones; every merge since has been a defect fix
+`main`, or a single close-out sync when the work is declared finished
 ([D-073](docs/DECISIONS.md#d-073--the-merge-rule-gained-a-second-and-a-third-ground-and-the-correction-that-prompted-it-stays-on-draft)
-records why the rule names three). Changes are committed with messages that say
+records why the rule names three). The first twenty-one merges were all
+milestones, and merges 22 to 29 were defect fixes. The 30th was the close-out
+sync, made at the course's final assessment deadline on 2026-10-01, and it
+carried defect fixes too. A close-out sync happens only once, so any later merge
+is a milestone or a defect fix. Changes are committed with messages that say
 *why*.

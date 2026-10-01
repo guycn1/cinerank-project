@@ -301,7 +301,7 @@ composed and sent to stderr, because no row then exists to hold either.
 
 **Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: `npm test` (62 tests), `npm run lint`,
 `npm run scan-secrets`, `npm run check-markdown`, `npm run check-claims`, and git itself — an unbroken history
-from the first commit, with four revert commits and one reapply, which is the
+from the first commit, with four revert commits and one reapply as of 2026-10-01, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`
 for the commit count; it is deliberately not written down here, because a figure
 that changes every commit goes stale between one session and the next.)

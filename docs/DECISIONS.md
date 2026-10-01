@@ -803,6 +803,14 @@ sufficient here rather than merely tidier: [`CLAUDE.md`](../CLAUDE.md) is built
 around a submission deadline. The fallback matters only for a project that ends
 by petering out, and there the fallback is a question, not a merge.
 
+> **2026-10-01:** ground 3 fired for the first time at the thirtieth merge, on
+> the day the course's final assessment deadline passed. The user named that
+> event, so the quiescence prompt was never needed. The same merge also cleared
+> ground 2 on the defects it carried. A close-out sync fires once, so any later
+> merge needs ground 1 or ground 2; the rule in
+> [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) records
+> this under ground 3. The entry above stands as the reasoning at the time.
+
 **Traps that follow.**
 
 * **Never restore a count of the merges made "since" anything.** That set is

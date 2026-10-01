@@ -50,35 +50,13 @@ both 2026-09-14. Everything else is done — evidence captured and written up, t
 debug harness unloaded, all five gates green, and every other checkbox on this
 list ticked.
 
-**>>> BEFORE THE 30TH `draft` → `main` MERGE (pending, postponed by the user
-2026-09-29) — do these on `draft` FIRST, in their own commit, then all five
-gates, then ask for explicit confirmation. <<<**
-
-Its ground is likely (not certainly) the FIRST ground-3 close-out sync, though
-`draft` also carries fixes that clear ground 2; **confirm the ground with the
-user before writing anything**, because the wording below depends on it.
-
-(1) Every sentence saying all merges after `0cdc4ec` were defect fixes goes
-false: `README.md` (Workflow, "every merge since has been a defect fix"),
-`docs/PROCESS.md` § 1 ("every merge since has fixed a defect already published
-on `main`"), `SPEC.md` ("The merges after `0cdc4ec` … are defect fixes"), and
-this file twice (ground 2's "Every merge after `0cdc4ec` … has been made on this
-ground", and Build status's "plus the defect merges made since it", whose merge
-history also needs a thirtieth entry). Re-grep for new sites.
-
-(2) The merge count goes 29 → 30 in this file's Build status, `docs/PROCESS.md`
-§ 1 and `docs/MERGE-READINESS.md` § 5.
-
-(3) The commit figures count `main`, and already say "over 700":
-`docs/MERGE-READINESS.md` § 4, and in `docs/PROCESS.md` the Execution row and
-§ 1's measurement (both "measured 2026-10-01"). `main` held 626 on 2026-10-01,
-and the merge brings in the 80-odd commits `draft` has beyond it, so the figure
-becomes true with the merge itself.
-Confirm it after merging with `git rev-list --count main`, and re-grep for new
-sites.
-
-**(4) THIS BLOCK ITSELF must be deleted or rewritten as a record in that same
-commit, before the merge, so that `main` never carries it as an open to-do.**
+The thirtieth `draft` → `main` merge, on 2026-10-01, is the close-out sync
+at the course's final assessment deadline (ground 3), and it clears ground 2
+as well; the Build status note on the thirtieth merge has it. The user
+postponed it on 2026-09-29 and settled its ground on 2026-10-01. As with
+merges 21 to 29, the figures and notes describing it were written to `draft`
+first. They went in as one commit, and all five gates ran on it before the
+user confirmed the merge.
 
 ### What landed, newest first
 
@@ -120,7 +98,7 @@ the code, the tests or `git log`. Corrected:
     is made, outside the UI copy.
   - UI text quoted in the docs uses the UI's curly quotes.
   - The commit figures count `main` and read "over 700", which the 30th merge
-    makes true.
+    made true.
 - **Dropped:**
   - Counts of the automatic-minimum-size bugs, now named by example.
   - Claims about whether the spec or the first build came first.
@@ -291,7 +269,8 @@ preserve rule (§ Decision Logging), and `SPEC.md` § 3.2 for the AI-pick
 marker (§ 3.3). Positions that had moved: comments sitting above the wrong
 rule or template, "further down" for a media query above, "the first item"
 for the second, and the note "at the end of the Build status bullet" that
-seven later merges now follow. Pointers that counted lines now name their
+seven later merges now follow *(seven as of this entry's date; the number
+grows with every merge after it)*. Pointers that counted lines now name their
 target instead, since a line count drifts with every edit around it. Also
 corrected on the way: the ranked stagger was tuned four times, not twice;
 the AI call log's comments now say which corners are square (the table's)
@@ -721,9 +700,12 @@ carries the current state.
 * Supabase project is live; `db/schema.sql` + migrations `001` through `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* `main` is at the latest settled milestone, plus the defect merges made since
-  it (ground 2 of the merge rule under Version Control Workflow — no count here
-  on purpose, since that set is still open).
+* As of 2026-10-01, `main` is at the close-out sync made at the course's
+  final assessment deadline that day (ground 3 of the merge rule under Version Control
+  Workflow), which came after the latest settled milestone and the defect
+  merges made since it (ground 2). A close-out sync happens only once, so any
+  later merge is a milestone or a defect fix — no count of those here on
+  purpose, since that set is still open.
   - The final PLANNED merge closed the evidence and documentation work
     (2026-09-14); a **twenty-second followed the same day** with one defect fix,
     a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
@@ -732,14 +714,16 @@ carries the current state.
     2026-09-16** carrying the accuracy work that followed it, a **twenty-seventh
     on 2026-09-17** carrying two false claims and the legibility work around
     them, a **twenty-eighth on 2026-09-19** carrying a visible UI defect plus
-    the largest accuracy sweep the project had run at that point, and a
+    the largest accuracy sweep the project had run at that point, a
     **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
-    `main` — all eight described at the end of this bullet. Before those, the
+    `main`, and a **thirtieth on 2026-10-01**, the close-out sync at the
+    course's final assessment deadline, carrying defect fixes too — all nine
+    described at the end of this bullet. Before those, the
     milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
     that the front-end overhaul completing (2026-09-12, `d47c960`), which is
     where the UI steps closed.
 
-  - **Twenty-nine** merges; `git log --merges --oneline main` is the source of
+  - **Thirty** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
@@ -916,6 +900,24 @@ carries the current state.
     own contents, which no gate can resolve because the referent is the file
     itself. `check-claims` was green throughout, correctly: none of the nineteen
     points at anything it can look up.
+
+  - **AND A THIRTIETH ON 2026-10-01, the close-out sync (ground 3).** Its
+    event is the course's final assessment deadline, which passed that day;
+    the submission deadline was 2026-09-30 and the deliverables went in on
+    2026-09-14. It is the first merge made on ground 3, and since a close-out
+    sync fires once, the last that ground can carry. It also clears ground 2
+    on its own: the `draft` it brings across carries real defects that were
+    live on `main` — the verdict banner's run guard, the verdict's model
+    fallback in `chat()`, the rate dialog's carried-over review box,
+    `scan-secrets` matching neither a real OpenRouter key nor a TMDB key,
+    `check-claims` passing dead relative links, and the recommendations'
+    tie-break order — plus the claims that the sweeps from 2026-09-26 to
+    2026-10-01 found false on `main`. Riding along: the type scale (D-079), hyphenation inside long
+    words only (D-080, D-081), the 1040px page width, JSDoc on every `.js`
+    file, `npm run layout-check`, and every test proved load-bearing by 94
+    mutation probes. **It is not "final"**: whatever follows is merged on
+    ground 1 or ground 2. The count was again written to `draft` first, on
+    the user's instruction.
 
 ### Implemented
 * Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -5667,9 +5669,11 @@ the real blob from github.com and read that — it is the only authority.
      `main` would be MISINFORMED — a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, the note on the twenty-second merge). **Every merge after `0cdc4ec`, the final
-     planned one, has been made on this ground, and no merge has ever been made
-     on grounds outside this list.** Written without a COUNT of them on purpose: a count of a set
+     status, the note on the twenty-second merge). **Merges 22 to 30, which follow `0cdc4ec`,
+     the final planned one, were all made on this ground — the thirtieth as
+     well, though its reason was ground 3 — and no merge has ever been made on
+     grounds outside this list.** Written as a closed range rather than a COUNT
+     on purpose: a count of a set
      that is still open goes stale at the next merge, and `check-claims` resolves
      tokens that NAME something — a bare numeral in prose names nothing, so
      nothing would catch it. This rule had a drifting "three merges since" in it
@@ -5681,10 +5685,18 @@ the real blob from github.com and read that — it is the only authority.
      `draft`. It is never a reason to batch changes up for later, and never a
      way to merge work in progress.
 
-     **Quiescence is a PROMPT, not a ground.** If `draft` stands ahead and
-     unchanged for a long stretch with no such event declared, Claude must ASK
-     whether the work has ended. The asking is the mechanism: silence alone
-     never authorises a merge, the answer to that question does.
+     **It fired at the thirtieth merge, on 2026-10-01, the day the course's
+     final assessment deadline passed, and it is now spent:** any later merge
+     needs ground 1 or ground 2. The work having been declared finished for the
+     course is not a promise that nothing follows it; whatever does follows
+     under the other two grounds.
+
+     **Quiescence was a PROMPT, not a ground,** while ground 3 was still
+     unspent: had `draft` stood ahead and unchanged for a long stretch with no
+     such event declared, Claude was to ASK whether the work had ended. The
+     asking was the mechanism: silence alone never authorised the merge, the
+     answer to that question did. It was not needed in the end, because the
+     user named the event themselves.
 
      **"Enough time has passed" was the form first proposed, and it was
      rejected** — D-073 has the argument. An undefined period puts the rule back

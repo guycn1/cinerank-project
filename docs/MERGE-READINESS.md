@@ -280,8 +280,8 @@ fires is the thing this document exists to rule out.
 * **Tools** — the ten versioned prompt files in [`prompts/`](../prompts), never
   overwritten. A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
-* **Trajectory** — an unbroken commit history from the very first commit, 29
-  merges to `main` — the twenty-first was the last *planned* one, the
+* **Trajectory** — an unbroken commit history from the very first commit, 30
+  merges to `main` as of 2026-10-01 — the twenty-first was the last *planned* one, the
   twenty-second carried a fix for a rendering defect found afterwards on the
   repository's Security tab, the twenty-third carried the claim-checking gate
   that defect argued for, the twenty-fourth carried a sweep of the claim classes
@@ -291,11 +291,11 @@ fires is the thing this document exists to rule out.
   asking whether particular claims resolve, and the twenty-seventh carried two
   claims that were false on `main`, each contradicted further down its own section —
   the twenty-eighth carried a misaligned score badge on the deployed site
-  together with fourteen documentation defects, and the twenty-ninth carried
+  together with fourteen documentation defects, the twenty-ninth carried
   fourteen claims that described finished work as still open plus five drifted
-  figures — and **four**
-  revert commits
-  plus one reapply, which is the safety layer
+  figures, and the thirtieth was the close-out sync at the course's final
+  assessment deadline, carrying defect fixes too — and, as of 2026-10-01,
+  **four** revert commits plus one reapply, which is the safety layer
   visibly firing rather than merely existing. *(Counted as commits whose
   subject BEGINS with a revert — `Revert "…"` or `revert(…)`. A subject that
   merely mentions reverting does not count, which is why a loose grep for

@@ -40,10 +40,12 @@ intent at named
 commit points between turns. **In this repository the commit points are the merges
 to `main`** — the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
-`draft`. (The merges after `0cdc4ec`, the final planned one, are defect fixes rather
-than milestones — the second ground
-[`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states; nothing
-here counts a merge as a turn, so it does not touch the argument either way.)
+`draft`. (Merges 22 to 30, which follow `0cdc4ec`, the final planned one, are not
+milestones. Merges 22 to 29 were defect fixes, the second of the three grounds
+[`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
+30th was the close-out sync at the course's final assessment deadline on
+2026-10-01, the third ground, and carried defect fixes too. Nothing here counts a merge as
+a turn, so none of them touches the argument either way.)
 Counted that way the project has been through as many turns as it has merges, and
 `git log --merges main` is the authority on that number. It is deliberately not
 repeated here: the same count already lives in

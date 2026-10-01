@@ -21,8 +21,11 @@ the reasoning. Rules that keep this honest live in
   already published there, or as one close-out sync when the work is declared
   finished — and only ever with explicit human sign-off.** The first
   twenty-one merges were all settled milestones, and nothing smaller was merged
-  on that ground; every merge since has fixed a defect already published on
-  `main`. Twenty-nine merges to `main` (verify with
+  on that ground; merges 22 to 29 each fixed a defect already published on
+  `main`. The 30th was the close-out sync, made at the course's final assessment
+  deadline on 2026-10-01, and it carried such fixes too; a close-out sync
+  happens only once, so any later merge is a milestone or a defect fix.
+  Thirty merges to `main` as of 2026-10-01 (verify with
   `git log --merges --oneline main`), each a deliberate decision. The
   twenty-first was the final *planned* one rather than a guarantee that no more
   would follow — and the twenty-second, later the same day, is that distinction
@@ -56,7 +59,13 @@ the reasoning. Rules that keep this honest live in
   The twenty-ninth is the same ground reached from a different direction:
   fourteen claims that described finished work as still open and five figures
   that had drifted — six of the fourteen contradicted by `main` itself
-  in the same file as the sentence making them.
+  in the same file as the sentence making them. The thirtieth is the
+  close-out sync, made when the course's final assessment deadline passed on
+  2026-10-01, and it cleared the defect ground as well: it carried fixes for
+  real defects live on `main`, among them the verdict banner's run guard, the
+  verdict's model fallback and a secret scanner that matched no real
+  OpenRouter key, along with the claims
+  the sweeps of its last week had found false there.
 - **Secrets never enter code.** `.env` did not exist in commit 1, a one-line
   README that the user checked by hand and that holds no secret, and it is
   gitignored from commit 2, the first with project content; a pre-commit
@@ -109,9 +118,10 @@ the reasoning. Rules that keep this honest live in
   and committing after each change is what leaves the tree clean before the next
   one begins. Measured over the whole history on 2026-10-01: **over 700 commits on `main`
   across 23 of the 28 days** the project has run, a **median of 2 files per
-  commit** and a maximum of 27. (Deliberately not exact figures: they move with
-  every commit, including the ones that would be needed to correct them. The
-  days without a commit are 2026-09-18 and 2026-09-22 to 2026-09-25.) It was exercised for real, not merely available: four failed
+  commit** and a maximum of 27, merges excluded. (Deliberately not exact figures: they move with
+  every commit, including the ones that would be needed to correct them. Up to
+  2026-10-01, the days without a commit are 2026-09-18 and 2026-09-22 to
+  2026-09-25.) It was exercised for real, not merely available: four failed
   polish passes on the verdict glint were ended by reverting to the last commit
   and re-deriving one dial at a time ([D-055](DECISIONS.md#d-055--the-verdict-glint-overcorrection-a-revert-and-a-band-that-fades-along-a-path));
   the [RS-9](RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest),
@@ -119,7 +129,7 @@ the reasoning. Rules that keep this honest live in
   and [RS-16](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist)
   captures each needed a deliberate edit to a service (RS-15 two of them), each
   undone with `git checkout -- server/services/recommendations.js` the moment
-  the shot landed; and four revert commits in the history undo a change
+  the shot landed; and four revert commits in the history, as of 2026-10-01, undo a change
   outright. None of these needed a stash, a branch or a careful hand-undo,
   because the checkpoint was already there.
 - **Commit messages say why**, and design decisions go to the top of
@@ -200,7 +210,7 @@ stage below is a file a reader can open.
 | **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) — unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) — human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
 | **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
-| **Execution** | over 700 commits on `main` across 23 of the project's first 28 days (measured 2026-10-01), median 2 files each | — |
+| **Execution** | over 700 commits on `main` across 23 of the project's first 28 days, median 2 files each, merges excluded (all measured 2026-10-01) | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md), and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
 
