@@ -299,7 +299,7 @@ return nothing usable while every dependency is healthy. A failed AI call still 
 a `status='failed'` row, and when the log write *also* fails, both causes are
 composed and sent to stderr, because no row then exists to hold either.
 
-**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: [`npm test`](https://github.com/guycn1/cinerank-project/tree/main/test) (62 tests), [`npm run lint`](https://github.com/guycn1/cinerank-project/blob/main/eslint.config.js),
+**Build.** [Five gates](https://github.com/guycn1/cinerank-project/blob/main/CLAUDE.md#version-control-workflow-non-negotiable) and a rollback layer: [`npm test`](https://github.com/guycn1/cinerank-project/tree/main/test) (64 tests), [`npm run lint`](https://github.com/guycn1/cinerank-project/blob/main/eslint.config.js),
 [`npm run scan-secrets`](https://github.com/guycn1/cinerank-project/blob/main/scripts/scan-secrets.js), [`npm run check-markdown`](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-markdown.js), [`npm run check-claims`](https://github.com/guycn1/cinerank-project/blob/main/scripts/check-claims.js), and git itself — an unbroken history
 from the first commit, with four revert commits and [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476) as of 2026-10-01, which is the
 safety net visibly firing rather than merely existing. (`git rev-list --count main`

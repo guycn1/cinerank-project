@@ -915,6 +915,45 @@ for (const feature of [
 
 /* ---------- /api/recommendations/history ------------------------------ */
 
+// Half an emoji in a prompt or a stored review. Most emoji take two UTF-16 code
+// units, and the review cuts (300 characters for recommendations, 200 for the
+// verdict, 2,000 when a review is saved) used to slice through the middle of
+// one, sending the model and the database an unpaired surrogate. Each review
+// below puts an emoji across one of those cuts.
+test('a review cut never ends in half an emoji: both prompts and the stored review', async () => {
+  const HALF = /[\ud800-\udbff](?![\udc00-\udfff])/;
+  const row = (id, review, rating) => ({ id, tmdb_id: Number(id), title: `Film ${id}`, year: 2000, rating, review });
+  db.results['movies:select'] = {
+    data: [row('1', 'x'.repeat(299) + '🔥tail', 9), row('2', 'x'.repeat(199) + '🔥tail', 8), row('3', 'plain', 7)],
+    error: null,
+  };
+  db.results['recommendation_logs:insert'] = { data: null, error: null };
+  db.results['taste_verdict_logs:insert'] = { data: null, error: null };
+
+  const prompts = [];
+  const restore = stubFetch({});
+  globalThis.fetch = async (url, init) => {
+    prompts.push(JSON.parse(init.body).messages.map((m) => m.content).join('\n'));
+    return { ok: true, status: 200, json: async () => openRouterReply('[]') };
+  };
+  try {
+    await client.post('/api/recommendations');
+    await client.post('/api/taste-verdict');
+  } finally {
+    restore();
+  }
+  assert.equal(prompts.length, 2, 'both features reached OpenRouter');
+  for (const p of prompts) {
+    assert.doesNotMatch(p, HALF);
+    assert.ok(p.includes('x'.repeat(199)), 'the review itself still reaches the prompt');
+  }
+
+  db.results['movies:update'] = { data: { id: '1', rating: 8, review: 'r' }, error: null };
+  await client.patch('/api/movies/1', { rating: 8, review: 'x'.repeat(1999) + '🔥tail' });
+  const stored = db.calls.find((c) => c.table === 'movies' && c.op === 'update').payload.review;
+  assert.equal(stored, 'x'.repeat(1999), 'the straddling emoji is dropped whole, not halved');
+});
+
 // The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
 // was the one route no test touched, which is the whole reason the endpoint kept
 // coming back up as a deletion candidate -- so the gap is closed here rather

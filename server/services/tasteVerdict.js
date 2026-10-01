@@ -10,6 +10,7 @@ import { supabase } from '../supabase.js';
 import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
+import { cutText } from '../text.js';
 
 const PROMPT_VERSION = 'taste_verdict_v7';
 const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35–60 words)
@@ -40,7 +41,7 @@ const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35
 export function tidyVerdict(raw) {
   const v = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (v.length <= MAX_LEN) return v;
-  const head = v.slice(0, MAX_LEN);
+  const head = cutText(v, MAX_LEN);
   const lastSentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
   if (lastSentence > 120) return head.slice(0, lastSentence + 1);
   const lastSpace = head.lastIndexOf(' ');
@@ -87,7 +88,7 @@ export { TasteVerdictError };
  *   200 characters.
  */
 function line(movie) {
-  const review = (movie.review || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  const review = cutText((movie.review || '').replace(/\s+/g, ' ').trim(), 200);
   const base = `- "${movie.title}" — ${movie.rating}/10`;
   return review ? `${base}; review: <<${review}>>` : base;
 }

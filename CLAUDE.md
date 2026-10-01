@@ -183,6 +183,21 @@ altered too). The value is now inserted through a function, untouched. Every
 prompt without such a sequence is byte-identical, proved over all ten versions,
 and a test pins the special sequences.
 
+**Then an adversarial run of both AI features** with the database faked and
+the network stubbed, fourteen hostile reviews (dollar sequences, placeholder
+names, entities, HTML, the prompt's own delimiters, backslashes, invisible and
+right-to-left characters, emoji, fake JSON): every one reached both models
+exactly as intended but one class. **A review cut through the middle of an
+emoji** (300 characters for recommendations, 200 for the verdict, 2,000 on
+save) sent half of it, an unpaired surrogate; a real paid run showed OpenRouter
+accepting it, so the model simply got a junk character. `cutText()` in
+`server/text.js` now drops a straddling emoji whole at every server cut, and the
+search note's 40-character echo does the same. The exact OpenRouter request
+bodies for the seed list, the seed list with The Room (the prompt-injection
+evidence) and the hostile set are byte-identical before and after; only the
+straddling cases changed, each by exactly the half emoji. Two tests, taking the
+suite to 64, and each of the six cut sites was reverted alone and caught.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
@@ -1054,8 +1069,8 @@ carries the current state.
   the criterion is met), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
-* Tests: `npm test` (Node built-in runner, 62 tests). Pure helpers
-  (`parseModelJson`, `tidy*`, `estimateCostUsd`, `loadPrompt`) + route-level
+* Tests: `npm test` (Node built-in runner, 64 tests). Pure helpers
+  (`parseModelJson`, `tidy*`, `cutText`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'` log
   row written), a row deleted mid-edit (404, not a 500), and the two
@@ -1104,7 +1119,9 @@ carries the current state.
     search returning shaped results with posters, `DELETE` answering 204 (and a
     refused delete answering 500, not a false 204), and the verdict's success
     row; a failed row naming the model its own feature calls (D-070), a loop
-    over both features; and the `/api/ai-log` response shape, totals included.
+    over both features; the `/api/ai-log` response shape, totals included; and,
+    added 2026-10-01, a review cut never ending in half an emoji, in both
+    prompts and in the stored review, plus `cutText()` itself.
 * **`scripts/debug-recs.js` — a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client had no test harness at the time, so
   every judgement about the recs grid, the entrance stagger, the scroll or the
@@ -4342,7 +4359,7 @@ below — this list is the smaller stuff.)
   nothing in the app produces, so no code path on `main` can start failing.
 * [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
-  `review_requires_rating` guards all covered by `npm test` (62).
+  `review_requires_rating` guards all covered by `npm test` (64).
 * [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
@@ -5034,7 +5051,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     one is a second 401 row, which is not a claim.
 
     **Revert with `git checkout -- server/services/recommendations.js` the
-    moment the last shot lands**, and re-run `npm test` to confirm 62/62 —
+    moment the last shot lands**, and re-run `npm test` to confirm a full pass —
     several route tests fail while either edit is in place, which is expected.
 
   - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
@@ -5072,7 +5089,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     call rather than faking a rejection. The OpenRouter call is real and was
     billed; what is simulated is TMDB's verdict, not the model's reply.
 
-    **Revert and re-run `npm test` for 62/62**, as with RS-9 and RS-15.
+    **Revert and re-run `npm test` for a full pass**, as with RS-9 and RS-15.
 
 #### Remaining evidence and cleanup
 
@@ -5853,7 +5870,7 @@ the real blob from github.com and read that — it is the only authority.
   cannot have broken" is reasoning offered after the fact, not a check made
   before it. The user asked; Claude had not run it.
 * **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
-* **Every commit runs `npm test`, and 62/62 is the bar.** The scope is EVERY
+* **Every commit runs `npm test`, and 64/64 is the bar.** The scope is EVERY
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
   MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking

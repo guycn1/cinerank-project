@@ -11,6 +11,7 @@ import { config, estimateCostUsd } from '../config.js';
 import { loadPrompt } from './promptLoader.js';
 import { chat, OpenRouterError } from './openrouter.js';
 import { verifyTitle } from './tmdb.js';
+import { cutText } from '../text.js';
 
 const PROMPT_VERSION = 'recommend_v3';
 const REASON_MAX = 130; // safety ceiling; the prompt asks for 8–16 words
@@ -109,7 +110,7 @@ export { RecommendationError };
  *   review collapsed to one line and cut at 300 characters.
  */
 function line(movie) {
-  const review = (movie.review || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+  const review = cutText((movie.review || '').replace(/\s+/g, ' ').trim(), 300);
   const base = `- "${movie.title}" (${movie.year ?? 'n/a'}) — rated ${movie.rating}/10`;
   return review ? `${base}; review: <<${review}>>` : base;
 }
@@ -151,7 +152,7 @@ export function parseModelJson(text) {
 export function tidyReason(raw) {
   const r = raw.replace(/\s+/g, ' ').trim().replace(/[*_`]+/g, '');
   if (r.length <= REASON_MAX) return r;
-  const head = r.slice(0, REASON_MAX);
+  const head = cutText(r, REASON_MAX);
   const dot = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
   if (dot > 40) return head.slice(0, dot + 1);
   const space = head.lastIndexOf(' ');

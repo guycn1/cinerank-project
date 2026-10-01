@@ -90,7 +90,7 @@ the reasoning. Rules that keep this honest live in
   severity, and `qs` resolves to a single `6.16.0` install that both `express`
   and `body-parser` share.
 - **Five gates, wired into the commit rules rather than left to memory.**
-  [`npm test`](../test/) (62 tests), [`npm run lint`](../eslint.config.js) (ESLint, defect rules and complexity
+  [`npm test`](../test/) (64 tests), [`npm run lint`](../eslint.config.js) (ESLint, defect rules and complexity
   ceilings — [added 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732), the project had no static analysis before that),
   [`npm run scan-secrets`](../scripts/scan-secrets.js) on every commit, [`npm run check-markdown`](../scripts/check-markdown.js) on every commit
   touching a `.md` file, and [`npm run check-claims`](../scripts/check-claims.js)
@@ -614,11 +614,14 @@ procedure.
 
 ## 6. Tests
 
-[`npm test`](../test/) (Node's built-in runner, no dependency, 62 tests) covers:
+[`npm test`](../test/) (Node's built-in runner, no dependency, 64 tests) covers:
 
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
-  `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
-  real prompt files, so a malformed prompt version fails the suite.
+  `tidyReason`, `tidyVerdict`, `cutText`, `estimateCostUsd` — plus `loadPrompt`
+  against the real prompt files, so a malformed prompt version fails the suite,
+  and against a fixture that pins what reaches the model: entities decoded,
+  review text inserted exactly as written, `  `tidyReason`, `tidyVerdict`, `estimateCostUsd` — plus `loadPrompt` against the
+  real prompt files, so a malformed prompt version fails the suite.` and its kin included.
 - **Routes** ([`test/routes.test.js`](../test/routes.test.js)): input validation
   (the 400s), duplicate add (409), `GET /api/config` / `/api/health`, an
   unknown route (404), TMDB-unreachable (502) and the `short` form it carries
@@ -666,6 +669,9 @@ procedure.
   totals, and [`/api/recommendations/history`'s two tests](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7)
   ([D-077](DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion)),
   its recommendation-only scope and a database failure surfacing as a 500.
+- **A review cut never ends in half an emoji**: an emoji across the 300- and
+  200-character prompt cuts and the 2,000-character save cut is dropped whole
+  rather than split into an unpaired surrogate.
 
 To keep the live database untouched
 ([§5](#5-incident-1--and-the-guardrail-it-produced-module-12)), the Supabase

@@ -295,7 +295,7 @@ actually lives rather than where it is summarised:
 4. **Run**
    ```
    npm start        # http://localhost:3000
-   npm test         # 62 tests — helpers, prompt loader, routes, resilience
+   npm test         # 64 tests — helpers, prompt loader, routes, resilience
    ```
    Health probe for a host: [`GET /api/health`](SPEC.md#45-api-endpoints-draft).
 5. **Check a layout change** (no keys needed; installed Chrome and Firefox)
@@ -334,6 +334,7 @@ path rather than its endpoints.
 │   ├── index.js                 mounts the routes, serves public/, the central error handler
 │   ├── config.js                the only place the server reads env vars and secrets
 │   ├── supabase.js              one anon-key client; all DB access via the query builder
+│   ├── text.js                  cuts text to a length without splitting an emoji
 │   ├── routes/                  thin routes — no inline fetch(), no inline SQL
 │   │   ├── movies.js            /api/movies — list, search, add, rate, remove
 │   │   ├── recommendations.js   /api/recommendations — a run, plus its /history
