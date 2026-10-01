@@ -25,7 +25,7 @@ the reasoning. Rules that keep this honest live in
   `main`. [The 30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync, made at the course's final assessment
   deadline on 2026-10-01, and it carried such fixes too; a close-out sync
   happens only once, so any later merge is a milestone or a defect fix, and
-  the 31st, later that day, was a defect fix.
+  [the 31st](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later that day, was a defect fix.
   Thirty-one merges to `main` as of 2026-10-01 (verify with
   `git log --merges --oneline main`), each a deliberate decision. [The
   twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the final *planned* one rather than a guarantee that no more

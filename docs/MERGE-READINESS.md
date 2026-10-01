@@ -297,7 +297,7 @@ fires is the thing this document exists to rule out.
   together with fourteen documentation defects, [the twenty-ninth](https://github.com/guycn1/cinerank-project/commit/c073acc132fabc04ae956861e8b1e656cc648e7b) carried
   fourteen claims that described finished work as still open plus five drifted
   figures, and [the thirtieth](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final
-  assessment deadline, carrying defect fixes too, and the thirty-first, later
+  assessment deadline, carrying defect fixes too, and [the thirty-first](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later
   the same day, carried the defects found on `main` after it, two of them in
   the text the model receives — and, as of 2026-10-01,
   **four** revert commits plus [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476), which is the safety layer
