@@ -619,8 +619,9 @@ procedure.
 - **Pure helpers** where every truncation bug actually lived — `parseModelJson`,
   `tidyReason`, `tidyVerdict`, `cutText`, `estimateCostUsd` — plus `loadPrompt`
   against the real prompt files, so a malformed prompt version fails the suite,
-  and against a fixture that pins what reaches the model: entities decoded,
-  review text inserted exactly as written, `$&` and its kin included.
+  and against a fixture that pins what reaches the model:
+  [entities decoded](https://github.com/guycn1/cinerank-project/commit/840303e459dbb341cb8d7a51cc11c183ffd02c2d),
+  [review text inserted exactly as written, `$&` and its kin included](https://github.com/guycn1/cinerank-project/commit/90c03002fd881e5e289c6003043b06e7b3e7047d).
 - **Routes** ([`test/routes.test.js`](../test/routes.test.js)): input validation
   (the 400s), duplicate add (409), `GET /api/config` / `/api/health`, an
   unknown route (404), TMDB-unreachable (502) and the `short` form it carries
@@ -668,7 +669,7 @@ procedure.
   totals, and [`/api/recommendations/history`'s two tests](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7)
   ([D-077](DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion)),
   its recommendation-only scope and a database failure surfacing as a 500.
-- **A review cut never ends in half an emoji**: an emoji across the 300- and
+- **[A review cut never ends in half an emoji](https://github.com/guycn1/cinerank-project/commit/ee569cbd7f8138f90392fb486fa9732b2783da6c)**: an emoji across the 300- and
   200-character prompt cuts and the 2,000-character save cut is dropped whole
   rather than split into an unpaired surrogate.
 
