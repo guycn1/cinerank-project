@@ -132,11 +132,15 @@ without leaving the frame.
 All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com/guycn1/cinerank-project/compare/3ccf020884e83f3b565a028b333bcce1ec8d85ab...233d1df368674127589bf559048445ae8b0010c7), and every one is
 exactly as valid as evidence today as it was then.
 
-**The front end has had minor changes since, and every one of them is purely
-cosmetic.** None changes a state, a message, a behaviour or a figure that a
-capture exists to show, so none undermines the evidence any frame provides, and
-no frame differs from the current interface in any way that matters for what
-it demonstrates. Examples, not a complete list: the type was
+**The front end has had minor changes since, nearly all of them cosmetic.** The
+two that changed behaviour fixed states no capture shows: the rate dialog's
+review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
+one film's size and scroll position into the next, and the verdict banner
+[keeps a run's message](https://github.com/guycn1/cinerank-project/commit/9f096dcc16733a1f4838c652fcfeb867bc3aedb7)
+when a film is added or rated mid-request. None changes a state, a message or a figure that a capture exists
+to show, so none undermines the evidence any frame provides, and no frame
+differs from the current interface in any way that matters for what it
+demonstrates. Cosmetic examples, not a complete list: the type was
 [scaled to 92%](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954) ([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
 the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/cinerank-project/commit/39387c4b2428d89718e8ae719ea3c374de6cbf88), and the AI call
 log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) —

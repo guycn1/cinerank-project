@@ -1893,7 +1893,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 
 /* Ranked list, narrow viewports. Lives HERE, beside the rules it modifies, as
-   the file's other section-specific media queries do (the header's 400px, the
+   the file's other section-specific width queries do (the header's 400px, the
    verdict's 680px, the search section's 500px and 300px, the footer CTA's
    620px, the log table's 1040px and 850px, the toast's 700px and 500px). The
    file-wide reduced-motion block at the end and the 400px hyphenation toggle,

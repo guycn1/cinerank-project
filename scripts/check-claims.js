@@ -11,11 +11,11 @@
  * falsified. Reading 30k lines by eye does not scale and proves nothing.
  *
  * WHAT IT CHECKS is the class of claim that POINTS AT SOMETHING resolvable: a
- * path or a link's target, a script, a decision entry, a commit, a line number,
- * an identifier, a capture, an RS key, a section (a link's `#anchor` or a
- * prose `§ 4.5` / `§ Title`), a phrase the project has retired (a passage
- * narrating its own earlier wording among them), or an invisible character
- * that no reviewer can see. Every one of those can be resolved against the
+ * path or a link's target, a script, a decision entry, a commit or a span of
+ * commits, a line number, an identifier, a capture, an RS key, a section (a
+ * link's `#anchor` or a prose `§ 4.5` / `§ Title`), a phrase the project has
+ * retired (a passage narrating its own earlier wording among them), or an
+ * invisible character that no reviewer can see. Every one of those can be resolved against the
  * thing it names, so drift in them is a fact, not a matter of taste.
  *
  * WHAT IT DELIBERATELY DOES NOT CHECK, so nobody mistakes a green run for proof
@@ -192,7 +192,8 @@ function commitOf(sha) {
  * only its target is resolved. In the documents the linking rule covers, a
  * commit hash outside a link fails too: every hash there is a link (the user's
  * rule, 2026-10-01). Fenced code, headings (rule 9) and image alt text are
- * exempt, since none of them can hold a link.
+ * exempt, since none of them can hold a link. A link to a span of commits, a
+ * compare page or a commit history, is resolved too, in every document.
  */
 function checkCommitLinks() {
   const link = /\[((?:[^\]\\]|\\.)*)\]\((https:\/\/github\.com\/guycn1\/cinerank-project\/commit\/([0-9a-z]+))\)/g;

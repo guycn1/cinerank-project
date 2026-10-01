@@ -829,8 +829,9 @@ function renderRanked() {
         rank.append(tie);
       }
     } else {
-      // No rank to show. Same "no value here" glyph vocabulary as the AI call
-      // log's empty Tokens/Cost cells, so the absence reads as an absence.
+      // No rank to show. A question mark, NOT the em dash the AI call log puts in
+      // an empty Tokens/Cost cell: a dash says "nothing here", while an unrated
+      // film's rank is undetermined until the user rates it (D-029).
       // aria-hidden: the "Not rated yet" line below already says this, and the
       // <ol> still counts every <li>, so a reader would otherwise be told a
       // position this card is explicitly not claiming.

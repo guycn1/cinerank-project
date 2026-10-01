@@ -119,9 +119,9 @@
         <span class="verdict__break" aria-hidden="true"></span>
         <!-- Starts DISABLED, not hidden (step 4b). The locked state shows the
              control greyed out rather than removing it, matching every other
-             locked control in the app; syncVerdictAvailability() enables it
-             whenever the list loads, and a verdict run re-asserts the state
-             itself in its `finally`. Disabled is also the correct state before
+             locked control in the app; syncVerdictAvailability() sets it
+             whenever the list loads, enabled once enough films are rated, and a
+             verdict run re-asserts the state itself in its `finally`. Disabled is also the correct state before
              the first /api/movies response, since the rated count is not known
              yet -- and if that request FAILS it stays disabled, which is right:
              the feature genuinely is unavailable. -->

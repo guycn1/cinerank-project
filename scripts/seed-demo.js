@@ -438,17 +438,20 @@ async function removeAll(existing) {
 }
 
 /**
- * Adds one resolved film if it is not already present, and returns its row id.
+ * Adds one resolved film if it is not already present, and returns its new row
+ * id.
  *
  * @param {ResolvedEntry} r
  * @param {ListedMovie[]} stillThere  The films the run did not delete.
- * @returns {Promise<string | null>} The row id, or null when the add came back
- *   409 because the film is already in the list under another row.
+ * @returns {Promise<string | null>} The new row id, or null when the film is
+ *   already in the list: found in `stillThere`, or refused with a 409.
  * @throws {Error} When the add fails for any other reason.
  */
 async function ensureAdded(r, stillThere) {
-  const already = stillThere.find((m) => m.tmdb_id === r.tmdb_id);
-  if (already) return already.id;
+  // Null, never the existing row's id: the caller rates whatever id comes back,
+  // and a film the run did not delete may carry the user's own rating and
+  // review, which --keep promises to leave alone.
+  if (stillThere.some((m) => m.tmdb_id === r.tmdb_id)) return null;
   const add = await api('/api/movies', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
