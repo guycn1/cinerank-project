@@ -11,6 +11,49 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-084 · Prompt files write `<` and `>` as entities for GitHub, and the loader decodes them so the model's input is unchanged
+
+*2026-10-01. Found by the render audit of every markdown file; the scope was
+the user's ruling.*
+
+**What was found.** The output contract in
+[`recommend_v1`](../prompts/recommend_v1.md) to
+[`recommend_v3`](../prompts/recommend_v3.md) reads
+`[{ "title": "<movie title>", … }]`. GitHub drops `<movie title>` as an unknown
+HTML tag, so all three files displayed `"title": ""` on GitHub. The model, which
+gets the raw text, was never affected.
+
+**Claude first proposed leaving them alone**, reading the never-overwrite rule
+in [`CLAUDE.md` § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline)
+as forbidding any edit to a versioned file. **The user overruled that:** the
+rule protects the wording the model sees, and was never meant to protect a
+rendering fault. The question that settled the method was theirs too: would the
+fix change what the model receives?
+
+**The fork.** Writing entities into the files alone would have: `loadPrompt()`
+sends the file text as it is, so Haiku would have received
+`&lt;movie title&gt;` in the live `recommend_v3`. Harmless in all likelihood,
+but an unmeasured change to a live prompt, and every log row stamped
+`recommend_v3` would no longer point at the text that produced it. **Chosen:**
+entities in the files, and [`loadPrompt()`](../server/services/promptLoader.js)
+decoding `&lt;`, `&gt;` and `&amp;` back, in one pass, before placeholders are
+substituted, so a review that happens to contain `&lt;` reaches the model as
+written. No prompt contained an `&` before, so the decoding cannot touch any
+other text in any version.
+
+**Verified byte for byte.** `loadPrompt()`'s output for all ten versions, with
+no substitutions and with realistic ones carrying `<`, `>`, `&`, `&lt;` and
+`&amp;`, was captured from a clean checkout, after the loader change alone, and
+after the file edits: all twenty outputs byte-identical each time. Two test
+assertions now pin it (the contract reaches the model with plain angle brackets
+and no entity; a substituted entity stays as written), and three loader probes
+were each caught: no decoding, decoding after substitution, and a sequential
+decode that turns `&amp;lt;` into `<`.
+
+**Trap.** Do not move the decoding after substitution, and do not decode in two
+passes. Either changes what the model receives without failing anything but
+the tests above.
+
 ## D-083 · The search row keeps its flex layout at every width; the 500px grid that never applied is removed
 
 *[2026-10-01](https://github.com/guycn1/cinerank-project/commit/fc62b2604a26432d06e0711bbe1007f34c285960). Found by Claude during the enumeration sweep, confirmed and

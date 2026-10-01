@@ -167,6 +167,14 @@ was wording:
   recommendation service's throw sites; and D-034's "an hour earlier" was seven
   minutes.
 
+**Then a render audit of every markdown file, read off GitHub's own file view
+rather than the Markdown API.** Two placeholders GitHub swallowed as HTML tags:
+the RS-8 recipe's `<query>`, now an entity, and the `<movie title>` in
+`recommend_v1` to `v3`'s output contract, which displayed as `""`. The prompt
+fix needed the loader too (D-084): the files write entities and
+`loadPrompt()` decodes them before substitution, so what the model receives
+is byte-identical, proved for all ten versions.
+
 #### 2026-09-30
 
 **WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
@@ -5337,6 +5345,7 @@ it.
 ## Prompt Versioning \& AI Call Discipline
 
 * Prompt files live under `prompts/`, named `recommend_v1.md`, `taste_verdict_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend_v3` (second-person, 8–16-word reason); taste verdict uses `taste_verdict_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT_VERSION` const at the top of each service module.
+* **"Never overwrite" protects what the model receives, not the file's bytes** (the user's ruling, 2026-10-01). A prompt file is also a markdown page GitHub renders, and GitHub drops anything shaped like an HTML tag, so a `<` or `>` in a prompt is written `&lt;` / `&gt;` (and `&` as `&amp;`). `loadPrompt()` decodes those three, once, before substituting placeholders, so the model gets the plain characters and user text substituted in is never decoded. Any such edit must leave `loadPrompt()`'s output byte-identical for every version, proved by snapshotting it before and after (D-084).
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
