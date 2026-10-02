@@ -20,7 +20,7 @@ create table if not exists movies (
   constraint rating_range check (rating is null or (rating >= 0 and rating <= 10)),
   constraint tmdb_rating_range check (tmdb_rating is null or (tmdb_rating >= 0 and tmdb_rating <= 10)),
   -- The rating is the required part, the review the optional one. One-directional:
-  -- a rating with no review is the common case and stays valid. Without this the
+  -- a rating with no review is a common case and stays valid. Without this the
   -- API could write a review onto an unrated film, which no screen ever displays
   -- (backlog #15, D-041, migration 004).
   constraint review_requires_rating check (review is null or rating is not null)
