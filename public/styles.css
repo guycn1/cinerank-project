@@ -734,6 +734,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   padding: 1.1rem 1.4rem;
   display: flex;
   align-items: center;
+  /* Two rules below read this value: .verdict__break's negative margin and the
+     silver rule's `left`, which centres it between the label and the text. */
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -788,6 +790,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   min-width: 12rem;
   font-size: 1rem;
   color: var(--ink);
+  position: relative; /* containing block for the silver rule, ::before below */
   /* D-045's guard, extended here: a verdict is AI-generated prose, not a
      literal file upload, but the taste-verdict prompt has no length limit on
      any SINGLE word, so the same "one unbreakable token can blow a flex item
@@ -805,6 +808,48 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   color: var(--ink-soft);
   letter-spacing: 0.1px;
 }
+/* A thin silver rule beside the real verdict, never beside a placeholder, the
+   busy line or a failure (user-raised, 2026-10-06). The muted class is removed
+   before the verdict starts typing, so the rule is there for the whole typing
+   effect and grows with the text a line at a time.
+   - A pseudo-element sitting in the gap between the label and the text, not a
+     border plus padding: the text box keeps its exact size and position, so
+     nothing moves when a placeholder gives way to the verdict, and no line
+     breaks anywhere differently.
+   - `left` centres the 1px rule in .verdict__inner's `gap: 1rem`: half the
+     gap, less half the rule. Move it with that gap. Where the text wraps under
+     the label it hangs in the panel's 1.4rem padding instead.
+   - The ends taper over 1.25em in eased steps and the middle is a touch
+     brighter, like light along a polished edge. The tapers are in `em`, not
+     `%`, so the top end stays put while the text grows downward; a percentage
+     taper would re-stretch on every new line.
+   - The glow is `drop-shadow`, not `box-shadow`: a box-shadow follows the box
+     and would stay bright where the rule fades out, while a drop-shadow follows
+     the painted alpha. Light, zero offset, as every glow here (D-044). */
+.verdict__text:not(.is-muted)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-0.5rem - 0.5px);
+  width: 1px;
+  background: linear-gradient(to bottom,
+    rgba(226, 228, 236, 0),
+    rgba(226, 228, 236, 0.12) 0.3em,
+    rgba(226, 228, 236, 0.36) 0.7em,
+    rgba(226, 228, 236, 0.56) 1.25em,
+    rgba(236, 238, 244, 0.74) 50%,
+    rgba(226, 228, 236, 0.56) calc(100% - 1.25em),
+    rgba(226, 228, 236, 0.36) calc(100% - 0.7em),
+    rgba(226, 228, 236, 0.12) calc(100% - 0.3em),
+    rgba(226, 228, 236, 0));
+  filter: drop-shadow(0 0 2px rgba(238, 240, 246, 0.5));
+  pointer-events: none;
+  /* ease-out rather than --ease, which would finish the fade in its first
+     tenth: this is meant to be seen arriving beside the first typed words. */
+  animation: verdict-rule-in 0.7s ease-out;
+}
+@keyframes verdict-rule-in { from { opacity: 0; transform: scaleY(0.3); } }
 /* --ink-dim, not --ink-faint: the faintest token was too quiet for text that is
    often the only thing in the banner (a placeholder, or a failure). Note this
    makes the verdict's muted state one step brighter than the OTHER muted-italic

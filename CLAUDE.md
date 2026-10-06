@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-01
+**Last updated:** 2026-10-06
 
 ### Current state
 
@@ -73,6 +73,23 @@ figures and notes describing it were written to `draft` first, in one commit,
 and all five gates ran on it before the user confirmed the merge.
 
 ### What landed, newest first
+
+#### 2026-10-06
+
+**WHAT LANDED ON 2026-10-06: a thin silver rule beside the real verdict**
+(user-raised, from a devtools mock-up of a solid `#666` border). It shows
+whenever the verdict text is not muted, so for the whole typing effect, and
+never beside a placeholder, the busy line or a failure. It is a `::before` in
+the existing gap between the label and the text rather than a border plus
+padding, so no text box moves and no line breaks differently: a layout-check
+diff against the previous stylesheet is the proof. Its ends taper over 1.25em
+in eased steps with a slightly brighter middle, the tapers in `em` so the top
+end stays put while the text types downward; the glow is a `drop-shadow`,
+which follows the taper where a `box-shadow` would not. It fades in over 0.7s,
+and the reduced-motion block's `*::before` rule already stops that. Where the
+text wraps under the label it hangs in the panel's padding. The stylesheet
+comment carries the details, and `.verdict__inner`'s `gap` now says the rule
+reads it.
 
 #### 2026-10-01
 
@@ -1546,7 +1563,9 @@ glint (2026-09-12), that glint speeds up and brightens while a verdict
 generates, "New verdict" is now shown DISABLED when the feature is locked
 rather than hidden, and a new verdict types itself out (D-057). In step 2: a
 failure offers the AI call log only when a log row was written (R23), and the
-muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
+muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24). On
+2026-10-06 the real verdict gained a thin silver rule beside it, absent from
+every muted state (the living log's entry for that day).
 - "New verdict" gets the same busy state as "Get recommendations": disabled,
   spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
   `:hover:not(:disabled)`. Both buttons lock their width for the duration —
