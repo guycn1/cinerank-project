@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-085 · A word's length and its edges count letters only, and a soft hyphen goes only between two letters
 
-*2026-10-08. Spotted by Claude on 2026-10-06 in a headless screenshot of the
+*[2026-10-08](https://github.com/guycn1/cinerank-project/commit/a2327fc09392be3a8e653a9d87ec07827d1d992a). Spotted by Claude on 2026-10-06 in a headless screenshot of the
 verdict at 320px, taken while trying out
 [a silver rule beside it](../CLAUDE.md#2026-10-06) that the user later
 retracted; fixed at the user's request.*
@@ -320,7 +320,7 @@ a break, between two flag emoji or inside CJK text, plus Latin text below 70px,
 where a word cannot fit a line at all and `overflow-wrap: anywhere` takes over
 as it always has.
 
-> **2026-10-08:** both minimums count letters only since
+> **[2026-10-08](https://github.com/guycn1/cinerank-project/commit/a2327fc09392be3a8e653a9d87ec07827d1d992a):** both minimums count letters only since
 > [D-085](#d-085--a-words-length-and-its-edges-count-letters-only-and-a-soft-hyphen-goes-only-between-two-letters),
 > and a soft hyphen goes only between two letters. Counting graphemes let
 > punctuation count as a letter, so "second." was long enough to break as
@@ -372,7 +372,7 @@ now matters only for an emoji inside a word of seven or more graphemes, which
 nothing in the seed list contains. The comment in [`scripts/seed-demo.js`](../scripts/seed-demo.js) says
 so.
 
-> **2026-10-08:** since
+> **[2026-10-08](https://github.com/guycn1/cinerank-project/commit/a2327fc09392be3a8e653a9d87ec07827d1d992a):** since
 > [D-085](#d-085--a-words-length-and-its-edges-count-letters-only-and-a-soft-hyphen-goes-only-between-two-letters)
 > no emoji can carry that risk at all: a soft hyphen goes only between two
 > letters, and no emoji holds two letters in a row.
