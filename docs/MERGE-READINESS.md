@@ -140,8 +140,8 @@ words break only where the hyphenation rules allow, the verdict types without
 letters jumping lines, and copied text is clean — with a self-test that plants
 one stylesheet fault for each check but the typing one, which app.js drives,
 and fails unless each is caught. Its behaviour is verified
-by reading, by hand testing, and by a
-[console debug harness](../scripts/debug-recs.js) that fakes a recommendation
+by reading, by hand testing, and by two console debug harnesses that fake a
+[recommendation](../scripts/debug-recs.js) or a [verdict](../scripts/debug-verdict.js)
 response so UI work costs no OpenRouter credit. Several
 client-side findings in this project were caught by the author with a screenshot
 and not by any tool — that is recorded in the [decision log](DECISIONS.md) where
@@ -154,11 +154,12 @@ it happened rather than smoothed over.
 **This criterion was the one genuine hole, and it was closed by measuring rather
 than by declaring.** There was no linter in the project [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/eeb41ef903de91e5fed2aba69d3d598ceb6ef732).
 
-[`npm run lint`](../eslint.config.js) runs ESLint 10 over all 27 JavaScript files across four
-environments — Node ES modules, the browser ES module, and two browser
-*classic* scripts kept in [`scripts/`](../scripts/) that the app never serves: the
-[console debug harness](../scripts/debug-recs.js), pasted into a console, and
-the [layout probe](../scripts/layout-probe.js) that [`npm run layout-check`](../scripts/layout-check.js)
+[`npm run lint`](../eslint.config.js) runs ESLint 10 over all 28 JavaScript files across four
+environments — Node ES modules, the browser ES module, and three browser
+*classic* scripts kept in [`scripts/`](../scripts/) that the deployed app never runs: the
+console debug harnesses for the [recommendations](../scripts/debug-recs.js)
+and the [verdict](../scripts/debug-verdict.js), and the
+[layout probe](../scripts/layout-probe.js) that [`npm run layout-check`](../scripts/layout-check.js)
 injects into the pages it measures. **Current state: zero errors.**
 
 **The config is deliberately not a style linter**, and

@@ -99,7 +99,7 @@ function checkPaths() {
 
 /** The browser files kept in scripts/, which eslint.config.js parses as classic
  *  scripts rather than modules. Keep the two lists in step. */
-const CLASSIC_SCRIPTS = new Set(['scripts/debug-recs.js', 'scripts/layout-probe.js']);
+const CLASSIC_SCRIPTS = new Set(['scripts/debug-recs.js', 'scripts/debug-verdict.js', 'scripts/layout-probe.js']);
 
 /** This file necessarily quotes the patterns it hunts for, so it never scans itself. */
 const SELF = 'scripts/check-claims.js';

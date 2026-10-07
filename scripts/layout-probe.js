@@ -236,7 +236,12 @@
    * @returns {void}
    */
   function hyphenationIn(el, w, rules) {
-    const isSep = (g) => rules.separatorRe.test(g);
+    // A dash ends a word here whatever app.js's separator says, so D-081 is
+    // checked independently of the code under test. The letter rule (D-085)
+    // keeps a soft hyphen off a dash by itself, so a separator that lost its
+    // dashes would otherwise surface only as breaks in short words, counted by
+    // that same separator, and pass.
+    const isSep = (g) => rules.separatorRe.test(g) || /\p{Pd}/u.test(g);
     const items = []; const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) { let off = 0; for (const g of graphemes(n.data)) { items.push({ n, off, g }); off += g.length; } }
     const vis = []; items.forEach((it, idx) => { if (it.g !== SHY) vis.push({ ...it, idx }); });
@@ -269,14 +274,36 @@
     let ts = i - 1; while (ts > 0 && !isWs(vis[ts - 1].g)) ts--;
     let te = i; while (te + 1 < vis.length && !isWs(vis[te + 1].g)) te++;
     const at = `${w}px ${vis.slice(ts, i).map((x) => x.g).join('')}|${vis.slice(i, te + 1).map((x) => x.g).join('')}`;
-    const L = e - s + 1, k = i - s;
-    const dash = /\p{Pd}/u;
     if (w > rules.threshold) return classifyAboveThreshold({ vis, ts, te, shy, before, after, at, el, rules });
-    if (shy && (dash.test(before) || dash.test(after))) return bump('hyph: soft hyphen next to a dash', at);
-    if (shy && (L < rules.minWord || k < rules.minEdge || L - k < rules.minEdge)) return bump('hyph: short word or too near an edge', at);
-    if (shy) return bump('ok: hyphenated inside a long word');
-    if (dash.test(before)) return bump('ok: after a dash (the browser’s own break)');
+    if (shy) {
+      const fault = softHyphenFault(vis, i, s, e, rules);
+      return fault ? bump(fault, at) : bump('ok: hyphenated inside a long word');
+    }
+    if (/\p{Pd}/u.test(before)) return bump('ok: after a dash (the browser’s own break)');
     return bump('note: broken without a hyphen (a break Unicode allows, or overflow-wrap)', at);
+  }
+
+  /**
+   * Which of softHyphenate()'s rules a break at a soft hyphen breaks, if any: a
+   * dash beside it (D-081), anything but a letter beside it, or a word too
+   * short or a break too near its edge, both counted in letters (D-080, D-085).
+   *
+   * @param {object[]} vis  The element's visible graphemes.
+   * @param {number} i      Index of the first grapheme after the break.
+   * @param {number} s      Index of the word's first grapheme.
+   * @param {number} e      Index of the word's last grapheme.
+   * @param {object} rules
+   * @returns {string|null} The failing category, or null when the break is legal.
+   */
+  function softHyphenFault(vis, i, s, e, rules) {
+    const before = vis[i - 1].g, after = vis[i].g;
+    if (/\p{Pd}/u.test(before) || /\p{Pd}/u.test(after)) return 'hyph: soft hyphen next to a dash';
+    const isLetter = (g) => rules.letterRe.test(g);
+    if (!isLetter(before) || !isLetter(after)) return 'hyph: soft hyphen beside a non-letter';
+    let L = 0, k = 0; // the word's letters, and those before the break
+    for (let j = s; j <= e; j++) if (isLetter(vis[j].g)) { L++; if (j < i) k++; }
+    if (L < rules.minWord || k < rules.minEdge || L - k < rules.minEdge) return 'hyph: short word or too near an edge';
+    return null;
   }
 
   /**
@@ -427,7 +454,7 @@
    * @returns {Promise<{allExact: boolean}>} Whether every width came out exact.
    */
   async function health(cfg) {
-    const rules = { ...cfg.rules, separatorRe: new RegExp(cfg.rules.separator, 'u') };
+    const rules = { ...cfg.rules, separatorRe: new RegExp(cfg.rules.separator, 'u'), letterRe: new RegExp(cfg.rules.letter, 'u') };
     await typeVerdict();
     await fillSurfaces();
     clipboard();

@@ -10,22 +10,21 @@
  * `case` that falls through — plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.
  *
- * Four environments, because this repo ships code to two runtimes and keeps two
- * browser files in scripts/ that the browser parses as CLASSIC scripts but that
- * the app never serves:
+ * Four environments, because this repo ships code to two runtimes and keeps three
+ * browser files in scripts/ that the browser parses as CLASSIC scripts and that
+ * the deployed app never runs:
  *   - Node ES modules: server/, test/, this file, and every Node tool in scripts/ (the
- *     glob is `scripts/*.js` minus the two browser files below, so a new tool
+ *     glob is `scripts/*.js` minus the three browser files below, so a new tool
  *     is covered without this list naming it; check-claims.js keeps the same
- *     two files in CLASSIC_SCRIPTS and parses them the same way)
+ *     three files in CLASSIC_SCRIPTS and parses them the same way)
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
  *   - Browser CLASSIC script, no globals: scripts/layout-probe.js, which only
  *     `npm run layout-check`'s own fixture server injects into the page.
- *   - Browser CLASSIC script: scripts/debug-recs.js. It is pasted into the
- *     browser console, so it is parsed as a script and not as a module. Getting
- *     this wrong makes ESLint report phantom parse errors. (It was briefly
- *     loaded by a bare <script> tag in index.html; that tag and the route that
- *     served it were removed on 2026-09-13, and the parser setting still applies
- *     because a console paste is a classic script too.)
+ *   - Browser CLASSIC scripts: scripts/debug-recs.js and scripts/debug-verdict.js,
+ *     the console harnesses for the recommendations and the verdict. Each is
+ *     parsed as a script and not as a module, because a console paste and a
+ *     bare <script> tag are both classic scripts. Getting this wrong makes
+ *     ESLint report phantom parse errors.
  */
 
 import globals from 'globals';
@@ -73,7 +72,7 @@ export default [
   // Node ES modules — the server, the tests, and the real tooling scripts.
   {
     files: ['server/**/*.js', 'test/**/*.js', 'eslint.config.js', 'scripts/*.js'],
-    ignores: ['scripts/debug-recs.js', 'scripts/layout-probe.js'],
+    ignores: ['scripts/debug-recs.js', 'scripts/debug-verdict.js', 'scripts/layout-probe.js'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
@@ -106,14 +105,13 @@ export default [
     rules: defectRules,
   },
 
-  // The browser CLASSIC script. Pasted into the browser console, so it must be
-  // parsed as a script; parsing it as a module hides nothing but reports
-  // nonsense. (index.html loaded it with a bare <script> tag until 2026-09-13;
-  // that tag and the route serving it are gone, and this setting is unchanged
-  // because a console paste is a classic script too.) It also deliberately defines one global, which is the whole
-  // point of a console harness — hence no-implicit-globals is off here only.
+  // The two console harnesses, browser CLASSIC scripts. A console paste and a
+  // bare <script> tag are both classic scripts, so they must be parsed as
+  // scripts; parsing them as modules hides nothing but reports nonsense. Each
+  // deliberately defines one global, which is the whole point of a console
+  // harness — hence no-implicit-globals is off here only.
   {
-    files: ['scripts/debug-recs.js'],
+    files: ['scripts/debug-recs.js', 'scripts/debug-verdict.js'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'script',

@@ -123,11 +123,9 @@ const SEED = [
       'whole thing for me.',
   },
   {
-    // The spectacle axis, and the emoji slot. The emoji stands alone between
-    // spaces, so it is a one-grapheme word that D-080's minimum never
-    // hyphenates, and this review no longer exercises D-061's grapheme-safe
-    // splitting: that only matters for an emoji inside a word of seven or more
-    // graphemes, which nothing in the seed list contains.
+    // The spectacle axis, and the emoji slot. It no longer exercises D-061's
+    // grapheme-safe splitting, and no emoji can: a soft hyphen goes only
+    // between two letters (D-085), and no emoji holds two letters in a row.
     title: 'Wicked',
     year: 2024,
     rating: 8.6,

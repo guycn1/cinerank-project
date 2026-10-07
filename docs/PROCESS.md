@@ -280,12 +280,15 @@ typology rather than listing all six:
   which it injects to measure), and that tool sidesteps the fault rather than
   trusting it: the app runs inside an iframe the tool sizes itself, so no
   window's own reported width is ever read. The same approach carried the
-  measurements behind the 2026-09-30 re-check of
-  [D-076](DECISIONS.md#d-076--the-score-block-aligns-to-the-edge-it-is-anchored-to-which-is-a-different-edge-in-card-mode--so-the-fix-is-two-rules-not-one)
-  and
+  measurements behind
   [D-079](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
   to
-  [D-081](DECISIONS.md#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one).
+  [D-081](DECISIONS.md#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one),
+  [D-083](DECISIONS.md#d-083--the-search-row-keeps-its-flex-layout-at-every-width-the-500px-grid-that-never-applied-is-removed)
+  and
+  [D-085](DECISIONS.md#d-085--a-words-length-and-its-edges-count-letters-only-and-a-soft-hyphen-goes-only-between-two-letters),
+  and the 2026-09-30 re-check of
+  [D-076](DECISIONS.md#d-076--the-score-block-aligns-to-the-edge-it-is-anchored-to-which-is-a-different-edge-in-card-mode--so-the-fix-is-two-rules-not-one).
   Whatever a headless browser reports is a lead, and a real browser settles any
   doubt about it (the standing rule under
   [`CLAUDE.md` step 3](../CLAUDE.md#step-3--github-links)).

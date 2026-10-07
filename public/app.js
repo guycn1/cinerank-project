@@ -590,10 +590,17 @@ const graphemeSegmenter =
  *  tooling twice (see CLAUDE.md Environment traps, and R7). */
 const SOFT_HYPHEN = String.fromCharCode(0xad);
 
-/** Soft hyphens go only into a word of at least this many graphemes (D-080). */
+/** Soft hyphens go only into a word of at least this many letters (D-080, D-085). */
 const HYPHENATE_MIN_WORD = 7;
-/** ...and never within this many graphemes of either end of it (D-080). */
+/** ...and never within this many letters of either end of it (D-080, D-085). */
 const HYPHENATE_MIN_EDGE = 3;
+/** A grapheme that counts as a letter for the two minimums above, and the only
+ *  kind a soft hyphen may sit between (D-085). Punctuation, digits and emoji do
+ *  not count, so "second." is a six-letter word and never breaks, and
+ *  "couldn’t" never strands "n’t". The one emoji that does is U+2139, the
+ *  information sign, which Unicode classes as a letter. A grapheme holding a
+ *  letter plus combining marks still counts, since the class is unanchored. */
+const HYPHENATE_LETTER = /\p{L}/u;
 /** A grapheme that ends a word for hyphenation: one containing whitespace or a
  *  dash (D-081). Unanchored, because "\r\n" is a single grapheme. */
 const WORD_SEPARATOR = /[\s\p{Pd}]/u;
@@ -607,10 +614,16 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * no dictionary, which is what an invented compound title ("SquarePants")
  * needs and a language pattern algorithm could not supply.
  *
- * ONLY INSIDE A WORD OF HYPHENATE_MIN_WORD+ GRAPHEMES, AND NEVER WITHIN
- * HYPHENATE_MIN_EDGE OF EITHER END (D-080). A word here is a run of graphemes
- * that are neither whitespace nor a dash (Unicode `Pd`): "Spider-Man" is two
- * words, so no soft hyphen ever sits beside a dash (D-081). The browser
+ * ONLY INSIDE A WORD OF HYPHENATE_MIN_WORD+ LETTERS, NEVER WITHIN
+ * HYPHENATE_MIN_EDGE LETTERS OF EITHER END, AND ONLY BETWEEN TWO LETTERS
+ * (D-080, D-085). A word here is a run of graphemes that are neither
+ * whitespace nor a dash (Unicode `Pd`): "Spider-Man" is two words, so no soft
+ * hyphen ever sits beside a dash (D-081). Within a word only letters
+ * (HYPHENATE_LETTER) are counted, so punctuation such as the full stop in
+ * "second." cannot make a six-letter word long enough to break. The letter
+ * rule alone would also keep a soft hyphen off a dash, but the separator is
+ * still needed: it is what makes "Spider" in "Spider-Man" a six-letter word
+ * that takes none. The browser
  * already breaks after a hyphen on its own, and Chromium draws a soft hyphen
  * there as a SECOND hyphen ("Spider--").
  * Line breaking is greedy: the browser takes the LAST break opportunity that
@@ -643,6 +656,11 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * bug in the first place. No hyphenation is a safe, fully inert fallback;
  * silently-corrupted emoji is not. (Baseline note: well inside this file's
  * stated baseline of Chrome/Edge 111 — `Intl.Segmenter` shipped in Chrome 87.)
+ * Since D-085 the letter rule alone keeps a soft hyphen out of every emoji,
+ * whatever the unit, since no emoji holds two letters in a row. Graphemes stay
+ * the unit because one grapheme can hold several letter code points: a
+ * decomposed Hangul syllable holds two or three, and iterating code points
+ * would put a soft hyphen inside it.
  *
  * Whether these embedded points are ever honoured is decided entirely by
  * CSS (`hyphens: none` above 400px, `manual` at 400px and below, on `.movie-card__body`
@@ -683,11 +701,14 @@ function softHyphenate(text) {
     let end = i;
     while (end < graphemes.length && !WORD_SEPARATOR.test(graphemes[end])) end += 1;
     const word = graphemes.slice(i, end);
-    const breakable = word.length >= HYPHENATE_MIN_WORD;
+    const isLetter = word.map((g) => HYPHENATE_LETTER.test(g));
+    const letters = isLetter.filter(Boolean).length;
+    let before = 0; // letters that would end the line at this point
     word.forEach((g, k) => {
       out += g;
-      const before = k + 1; // graphemes that would end the line at this point
-      if (breakable && before >= HYPHENATE_MIN_EDGE && word.length - before >= HYPHENATE_MIN_EDGE) {
+      if (isLetter[k]) before += 1;
+      if (letters >= HYPHENATE_MIN_WORD && isLetter[k] && isLetter[k + 1]
+        && before >= HYPHENATE_MIN_EDGE && letters - before >= HYPHENATE_MIN_EDGE) {
         out += SOFT_HYPHEN;
       }
     });

@@ -11,6 +11,95 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-085 · A word's length and its edges count letters only, and a soft hyphen goes only between two letters
+
+*2026-10-08. Spotted by Claude on 2026-10-06 in a headless screenshot of the
+verdict at 320px, taken while trying out
+[a silver rule beside it](../CLAUDE.md#2026-10-06) that the user later
+retracted; fixed at the user's request.*
+
+**The defect.** [D-080](#d-080--soft-hyphens-go-only-inside-words-of-seven-or-more-graphemes-never-within-three-of-an-end-and-hyphenate-limit-chars-was-measured-and-does-not-apply-to-them)'s
+minimums counted graphemes, and a word was any run of graphemes between
+whitespace and dashes ([D-081](#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one)),
+so punctuation counted as if it were a letter. "second." is seven graphemes,
+which made a six-letter word long enough to break, and the edge minimum then
+allowed "seco-nd.", two letters on the next line. Every six-letter word
+followed by punctuation could break the same way ("brea-th,", "truc-ks,",
+"clev-er;"), "couldn’t" could break as "could-n’t", and runs of digits and of
+emoji took soft hyphens like words ("1,00-0,000").
+
+**The fork.** The obvious fix was to trim punctuation off a word's ends before
+counting. That fixes "second." and nothing else on the list: the apostrophe in
+"couldn’t" still counts toward the edge, and digits and emoji still count as
+letters. **Chosen instead:** only a grapheme holding a letter (`\p{L}`,
+`HYPHENATE_LETTER` in [`public/app.js`](../public/app.js)) counts toward the
+length and the edges, and a soft hyphen goes only between two letters.
+
+- A letter carrying combining marks is one grapheme and still counts.
+- CJK characters are letters, so a CJK run hyphenates exactly as before.
+- Digits never take a soft hyphen: a hyphen inside a number reads as a minus
+  or a range. A long number is left to `overflow-wrap: anywhere`, like any
+  other unbreakable token.
+- Emoji are not letters, U+2139 the information sign aside, so a soft hyphen
+  never sits beside one, and none can be split by one: no emoji holds two
+  letters in a row. [D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)'s
+  grapheme unit stays, because one grapheme can hold several letter code
+  points. Iterating code points put 9 soft hyphens inside the syllables of a
+  decomposed seven-syllable Hangul word, against 0 for graphemes.
+- A dash is not a letter either, so the letter rule alone keeps a soft hyphen
+  off one. [D-081](#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one)'s
+  separator still matters: it is what counts "Spider" in "Spider-Man" as six
+  letters, which take none. Without it the same rule puts three soft hyphens
+  into "Spider".
+
+**Measured, not assumed.** On a fixed set of 33 strings run through
+`softHyphenate()` before and after, the only words that changed carried
+punctuation, digits, emoji or an internal apostrophe; every plain word, the
+46-letter German compound, the accented words, the Japanese run and
+"Spider-Man" kept identical break points. The verdict's typing helper agreed
+with the new output on every string.
+
+**It only ever removes soft hyphens.** Each condition is the old one or
+stricter, since a word's letters never outnumber its graphemes. That was
+checked where the server's text reaches the screen: 24,168 outputs of
+[`cutText()`](../server/text.js),
+[`tidyReason()`](../server/services/recommendations.js) and
+[`tidyVerdict()`](../server/services/tasteVerdict.js) (reviews
+cut at 2,000 characters, reasons, verdicts, and random shorter cuts, with
+emoji, flags and family emoji straddling each cut) gained no soft hyphen, every
+one dropped broke the new rule, and the typing helper revealed every prefix
+exactly. The same check fails when given the old code.
+
+**[`npm run layout-check`](../scripts/layout-check.js) could not have caught
+it, and now can.** Its probe judged breaks by the same grapheme count, so
+"seco-nd." passed as a legal break. It now reads `HYPHENATE_LETTER` out of
+[`app.js`](../public/app.js) with the other rules, counts letters, and fails a soft hyphen beside
+anything but a letter. Proved by mutation: against a copy of the app with the
+old counting restored, it failed at 290–420px in Chrome and Firefox, about 240
+breaks too near a word's edge in each. The real code passes it in both, and
+its self-test still catches every planted fault.
+
+**The first version of this change cost the probe its hold on
+[D-081](#d-081--a-dash-ends-a-word-for-hyphenation-so-no-soft-hyphen-ever-sits-beside-one),
+found by Claude while checking the change against D-081 at the user's request.**
+The probe took its word boundaries from `app.js`'s separator, and what failed
+a separator that had lost its dashes was the soft hyphen it then put beside a
+dash. The letter rule rules that soft hyphen out, so such a separator now shows
+only as breaks in short words, and a probe counting by the same separator
+passes them. Against a copy of the app whose dashes no longer ended a word, it
+passed in Chrome and Firefox, where the same mutation on the code before this
+change failed in both (73 and 186 soft hyphens beside a dash). Now a dash ends
+a word in the probe whatever `app.js` says, and the copy fails in both, with
+651 and 640 breaks in a short word or too near an edge.
+
+**Trap.** Do not go back to `word.length` for the count, and do not drop the
+"between two letters" condition on the grounds that the length test already
+covers it: it is what keeps "n’t" and a number's digits whole. Nor drop
+D-081's separator as redundant now that the letter rule keeps a soft hyphen off
+a dash: it is what keeps "Spider" whole. And keep the probe's own dash rule,
+since a rule it only reads back from `app.js` cannot catch that rule's
+regression.
+
 ## D-084 · Prompt files write `<` and `>` as entities for GitHub, and the loader decodes them so the model's input is unchanged
 
 *[2026-10-01](https://github.com/guycn1/cinerank-project/commit/840303e459dbb341cb8d7a51cc11c183ffd02c2d). Found by the render audit of every markdown file; the scope was
@@ -231,6 +320,12 @@ a break, between two flag emoji or inside CJK text, plus Latin text below 70px,
 where a word cannot fit a line at all and `overflow-wrap: anywhere` takes over
 as it always has.
 
+> **2026-10-08:** both minimums count letters only since
+> [D-085](#d-085--a-words-length-and-its-edges-count-letters-only-and-a-soft-hyphen-goes-only-between-two-letters),
+> and a soft hyphen goes only between two letters. Counting graphemes let
+> punctuation count as a letter, so "second." was long enough to break as
+> "seco-nd.".
+
 **One trap came with it, found by reasoning and then measured.** The verdict
 typing effect ([D-057](#d-057--the-verdict-typing-effect-a-single-writer-and-two-separate-children-for-what-is-seen-vs-what-is-heard))
 hyphenated each partial string as it typed. Under a length rule, a half-typed
@@ -276,6 +371,15 @@ review would render correctly even if the grapheme bug returned. D-061's safety
 now matters only for an emoji inside a word of seven or more graphemes, which
 nothing in the seed list contains. The comment in [`scripts/seed-demo.js`](../scripts/seed-demo.js) says
 so.
+
+> **2026-10-08:** since
+> [D-085](#d-085--a-words-length-and-its-edges-count-letters-only-and-a-soft-hyphen-goes-only-between-two-letters)
+> no emoji can carry that risk at all: a soft hyphen goes only between two
+> letters, and no emoji holds two letters in a row.
+> [D-061](#d-061--two-bugs-in-the-d-060-extension-both-user-caught-with-screenshots--a-scope-regression-and-a-real-correctness-bug-in-softhyphenate)'s
+> grapheme unit still matters for a cluster that holds several letter code
+> points, such as a decomposed Hangul syllable, which nothing in the seed list
+> contains either.
 
 **Traps.**
 

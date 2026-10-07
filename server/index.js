@@ -1,6 +1,8 @@
 /**
  * The Express app: JSON body parsing, the static frontend in public/, two small
- * inline routes, the four API routers and the central error handler.
+ * inline routes, the four API routers and the central error handler. TEMPORARY:
+ * a third inline route serves the verdict debug harness, and this sentence goes
+ * with it (see the route).
  *
  * Exports `app` so the tests can drive it on an ephemeral port, and listens on
  * `config.port` only when run directly (`npm start`).
@@ -23,6 +25,12 @@ app.use(express.json());
 
 // Static frontend (vanilla HTML/CSS/JS — SPEC § 4.1)
 app.use(express.static(join(__dirname, '..', 'public')));
+
+// TEMPORARY: serves the verdict debug harness for the <script> tag at the
+// bottom of public/index.html, while the verdict's layout is worked on. It stays
+// on draft; REMOVE BOTH IN THE LAST COMMIT BEFORE THE NEXT draft -> main MERGE.
+// The harness itself refuses to install on the deployed host either way.
+app.get('/debug-verdict.js', (_req, res) => res.sendFile(join(__dirname, '..', 'scripts', 'debug-verdict.js')));
 
 /**
  * GET /api/health — liveness probe. Most hosts (Render/Railway/Fly) want a

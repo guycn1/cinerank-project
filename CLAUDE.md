@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-06
+**Last updated:** 2026-10-08
 
 ### Current state
 
@@ -47,8 +47,8 @@ links on GitHub's Security tab — which is "final planned" being tested rather
 than contradicted; the Build status note on the twenty-second merge has it. The
 live URL is on the project sheet and the joint-project registration is emailed,
 both 2026-09-14. Everything else is done — evidence captured and written up, the
-debug harness unloaded, all five gates green, and every other checkbox on this
-list ticked.
+recommendations debug harness unloaded, all five gates green, and every other
+checkbox on this list ticked.
 
 The thirtieth `draft` → `main` merge, on 2026-10-01, is the close-out sync
 at the course's final assessment deadline (ground 3), and it clears ground 2
@@ -72,24 +72,72 @@ the linking rule's commit and range links. As with the merges before it, the
 figures and notes describing it were written to `draft` first, in one commit,
 and all five gates ran on it before the user confirmed the merge.
 
+**BEFORE THE NEXT `draft` → `main` MERGE, UNLOAD THE VERDICT DEBUG HARNESS**
+(the user's ruling, 2026-10-08). `draft` loads `scripts/debug-verdict.js` on
+every page through two lines, both marked TEMPORARY: the `<script>` tag at the
+bottom of `public/index.html` and the route serving the file in
+`server/index.js`. They stay on `draft` so the verdict's layout can be tested
+locally without paid calls, and come out in the last commit before that merge.
+The harness file stays, as `scripts/debug-recs.js` did when its own loading
+lines were removed. In the same commit, the harness's entry under Implemented
+and the file's own header stop saying the page loads it, the TEMPORARY sentence
+in `server/index.js`'s module header goes with the route, and
+`docs/SECURITY.md`'s ASI10 section, which covers `debug-recs.js` alone, gains
+the verdict harness and its two safeguards (disarmed on every load, never
+installed on the live host).
+
 ### What landed, newest first
+
+#### 2026-10-08
+
+**WHAT LANDED ON 2026-10-08: a word's length and its edges count letters only,
+for hyphenation (D-085).** Spotted on 2026-10-06 in a screenshot taken while
+trying out the silver rule (that day's entry, below): "second." broke as
+"seco-nd." at 320px. `softHyphenate()` counted punctuation
+as part of a word, so any six-letter word followed by punctuation was long
+enough to break, two letters from its end ("brea-th,", "clev-er;"), and
+"couldn’t", runs of digits and runs of emoji broke too. Only a grapheme
+holding a letter now counts toward D-080's minimums, and a soft hyphen goes
+only between two letters. `npm run layout-check`'s probe counts the same way,
+reading the letter class out of `app.js`, and fails a soft hyphen beside
+anything but a letter.
+
+**The probe also holds D-081 on its own again.** It took its word boundaries
+from `app.js`'s separator, and with the letter rule its check for a soft hyphen
+beside a dash could no longer fire, so a copy of the app whose dashes no longer
+ended a word passed in Chrome and Firefox, where the code before D-085 had
+failed it in both. A dash now ends a word in the probe whatever `app.js` says,
+and the same copy fails. D-085 was also checked against `server/text.js`'s
+cuts: over 24,168 texts they produce, it only ever removed soft hyphens.
+
+**Same day: `scripts/debug-verdict.js`, a console harness for the verdict**
+(user-asked), so the banner's layout can be tested without paid calls; the
+entry under Implemented describes it. The page loads it on `draft` until the
+last commit before the next merge (Current state).
+
+**And the silver rule was retracted by the user**, pending their own further
+testing. The stylesheet no longer carries it.
+
+**Then a staleness sweep of every markdown file and every code comment against
+all of the above.** D-080 gained two dated notes pointing at D-085, on its
+grapheme minimums and on what D-061's grapheme safety still covers. Corrected:
+- **Overtaken by D-085:** the seed comment on the Wicked emoji (no emoji can
+  exercise D-061 now, since none holds two letters in a row);
+  `softHyphenate()`'s JSDoc, which now says why graphemes stay the unit (a
+  decomposed Hangul syllable holds several letters) and why D-081's separator
+  is still needed; the 2026-09-28 entry's grapheme minimums; and the
+  stylesheet's soft-hyphen note, which cited D-080 alone.
+- **Gone short:** `docs/PROCESS.md`'s list of decisions measured in an iframe
+  lacked D-083 and D-085; `docs/FRAMING.md`'s OpenRouter row named only the
+  recommendations harness; `server/index.js`'s module header counted two inline
+  routes beside the harness's third; and Current state's "the debug harness
+  unloaded" now names the recommendations one, since the verdict's is loaded on
+  `draft`.
 
 #### 2026-10-06
 
 **WHAT LANDED ON 2026-10-06: a thin silver rule beside the real verdict**
-(user-raised, from a devtools mock-up of a solid `#666` border). It shows
-whenever the verdict text is not muted, so for the whole typing effect, and
-never beside a placeholder, the busy line or a failure. It is a `::before` in
-the existing gap between the label and the text rather than a border plus
-padding, so no text box moves and no line breaks differently: a layout-check
-diff against the previous stylesheet is the proof. Its ends taper over 1.25em
-in eased steps with a slightly brighter middle, the tapers in `em` so the top
-end stays put while the text types downward; the glow is a `drop-shadow`,
-which follows the taper where a `box-shadow` would not. It fades in over 0.7s,
-and the reduced-motion block's `*::before` rule already stops that. Where the
-text wraps under the label it hangs in the panel's padding. The stylesheet
-comment carries the details, and `.verdict__inner`'s `gap` now says the rule
-reads it.
+(user-raised, `c83bbde`), retracted by the user on 2026-10-08 (above).
 
 #### 2026-10-01
 
@@ -526,7 +574,8 @@ measured figures.
 **Same day: soft hyphens only inside long words (D-080).** `softHyphenate()` put
 one between EVERY pair of graphemes, so a short word at a line's end broke a
 letter or two in ("Fury Ro|ad" at 360px). It now hyphenates only words of 7+ graphemes,
-never within 3 of an end. **`hyphenate-limit-chars` was tested first, at the
+never within 3 of an end. *(Both minimums have counted letters only since
+2026-10-08, D-085.)* **`hyphenate-limit-chars` was tested first, at the
 user's request, and does not apply to soft hyphens** in Chrome, Edge or Firefox.
 Firefox honours it for `hyphens: auto` only, so do not reach for it. **The
 verdict typing now hyphenates the whole verdict once and reveals prefixes:**
@@ -1300,6 +1349,25 @@ carries the current state.
   - The harness also refuses to install itself when the hostname ends in
     `onrender.com`. That guard is now redundant and stays anyway: it costs
     nothing, and it is the belt to a brace that has just been removed.
+* **`scripts/debug-verdict.js` — the same idea for the taste verdict**
+  (2026-10-08, user-asked, so the banner's layout can be judged without paid
+  calls). `debugVerdict(N)` in the console makes the next "New verdict" click
+  yield the first N words of lorem ipsum, cycling the 69-word passage for a
+  longer N; calling it again changes N with no reload. It answers
+  `POST /api/taste-verdict` in the browser after 2–3 seconds, so the busy
+  state, the ring's busy glint, the typing effect and a meta footer with dummy
+  but realistic figures all run for real, while no OpenRouter call is made and
+  no `taste_verdict_logs` row is written. Like `debugRecs`, it starts every load
+  disarmed and refuses to install on `onrender.com`, and the button's own gate
+  (two rated films) still applies.
+  - **Two differences from a real verdict, on purpose:** the text skips
+    `tidyVerdict()`'s 450-character ceiling, so N can go past anything the model
+    produces, and it ends at the Nth word with no full stop.
+  - **Unlike `debug-recs.js`, the page loads it, on `draft` only:** a
+    `<script>` tag at the bottom of `public/index.html` and a route in
+    `server/index.js`, both marked TEMPORARY, which come out before the next
+    merge (Current state). After that it is pasted into the console like
+    `debug-recs.js`.
 * **`npm run layout-check` — the real UI in real headless browsers, for any
   layout change** (2026-09-28, generalised from the harness that verified D-079
   to D-081 and the 1040px width). It serves `public/` itself and answers every
@@ -1316,7 +1384,8 @@ carries the current state.
     (driven by app.js, so the stylesheet cannot break it) and fails unless every
     one is caught. The
     hyphenation rules are read out of app.js and the stylesheet rather than
-    restated.
+    restated, except that a dash always ends a word (D-081), which the probe
+    holds on its own so that a regression of it in app.js cannot pass.
   - **Not a commit gate:** it takes minutes and needs installed browsers. Run it
     before and after a layout change. Chrome and Firefox by default;
     `--browsers=…,edge` adds Edge, whose headless runs can stall part-way, so
@@ -1563,9 +1632,7 @@ glint (2026-09-12), that glint speeds up and brightens while a verdict
 generates, "New verdict" is now shown DISABLED when the feature is locked
 rather than hidden, and a new verdict types itself out (D-057). In step 2: a
 failure offers the AI call log only when a log row was written (R23), and the
-muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24). On
-2026-10-06 the real verdict gained a thin silver rule beside it, absent from
-every muted state (the living log's entry for that day).
+muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
 - "New verdict" gets the same busy state as "Get recommendations": disabled,
   spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
   `:hover:not(:disabled)`. Both buttons lock their width for the duration —
