@@ -100,6 +100,24 @@ after `showModal()`. Reproduced in headless Chrome against the real page at
 400×280: film B opened 89px down, at the bottom, before the fix, and at the top
 after it. The dragged-box case `f5737f9` fixed reads 0 both before and after.
 
+**Same day: a scrolling dialog keeps its rounded corners** (user-found, from
+two screenshots: the rate dialog and the AI call log). Chromium draws a
+scrollbar as a square strip that ignores `border-radius`, so the rate and
+confirm dialogs' painted track jutted past their right-hand corners, and in
+the log dialog, whose track was already transparent, the thumb ran up into the
+curve and over the border. All three dialogs now have a transparent track held
+off both ends by `margin-block: var(--radius)`, so the thumb stays on the
+straight part of the edge. **Firefox had a problem of its own:** with classic
+(always-shown) scrollbars it draws any scrolling box's corners square, a plain
+rounded `div` included; its default overlay scrollbars on Windows were fine.
+`clip-path: inset(0 round var(--radius))` on the three dialogs, in the
+Firefox-only branch, rounds them again; it also clips `--shadow`, a black
+shadow on a black backdrop that shows nothing (D-044). Measured in headless
+Chrome and Firefox at 4x, every right-hand corner of all three dialogs,
+scrolled to the top and to the end: before, square or overrun; after, round,
+with no thumb in a curve. Firefox's classic mode was forced through its
+preferences, so the user's own real-browser check is what settles it.
+
 #### 2026-10-14
 
 **WHAT LANDED ON 2026-10-14: a rule beside the real verdict again, the
@@ -1638,8 +1656,9 @@ and stay as written.
   thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
   `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
   `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
-  `--bg-raised` page / transparent in the dialog. Chrome Fluent still widens the
-  thumb on hover — not CSS-controllable.
+  `--bg-raised` page / transparent in all three dialogs, where it is also held
+  off the rounded corners by `margin-block: var(--radius)` (2026-10-15, below).
+  Chrome Fluent still widens the thumb on hover — not CSS-controllable.
 * Reveal panel fade: the opacity animation + `@starting-style` live on the panel
   (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
   stacking context at any opacity. Animating opacity on `::details-content`
