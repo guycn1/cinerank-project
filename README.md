@@ -31,7 +31,7 @@ A personal movie-ranking app where the database and the AI each earn their place
   8–16 words, no plot summary. And it is **never trusted for facts**. Every suggested title is
   cross-checked against TMDB, which supplies the real poster, year and overview;
   a title TMDB has never heard of is dropped rather than shown as a broken card.
-- **A [Taste Verdict banner](SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)** sizes you up as a moviegoer in two or three teasing
+- **A [Taste Verdict banner](SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)** sizes you up as a moviegoer in two or three playful
   sentences — the low-stakes, fun AI touch, logged with the same discipline.
 
 [Stack](SPEC.md#41-stack): Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
