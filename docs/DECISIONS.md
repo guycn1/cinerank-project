@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-086 · A rounded box never scrolls itself: it clips, and a square box inside it scrolls
 
-*2026-10-15. User-found, from two zoomed screenshots in Chrome: the rate dialog
+*[2026-10-15](https://github.com/guycn1/cinerank-project/commit/b9768c58df7cb4bc80937f3409e10e2b2f935c77). User-found, from two zoomed screenshots in Chrome: the rate dialog
 and the AI call log, each scrolled, each with a broken top-right corner. The
 first fix was Claude's and failed the user's own Firefox check; the scope of
 the second was the user's call.*
