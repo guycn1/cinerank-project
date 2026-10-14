@@ -4866,7 +4866,7 @@ suggestion; (4) the verdict is length-capped server-side and rendered as
 write one teasing sentence). [Module 9](../DOSSIER.md#module-9-cognified-products-and-the-architecture-of-intelligence-in-software-agent-economics): match the model to the task's difficulty.
 Overridable via `OPENROUTER_MODEL`.
 
-> **2026-10-14:** neither task stayed small. On
+> **[2026-10-14](https://github.com/guycn1/cinerank-project/commit/c8e961176cea5b222a6124ca92e4e4bfbf9f7506):** neither task stayed small. On
 > [2026-09-11](https://github.com/guycn1/cinerank-project/commit/9f1a97bf47a8d59a67565b42e6cac73f2220b43a)
 > the verdict moved to a stronger model
 > ([D-053](#d-053--the-taste-verdict-alone-runs-on-a-stronger-model)), and
