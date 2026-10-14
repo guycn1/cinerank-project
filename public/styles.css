@@ -805,7 +805,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   color: var(--ink-soft);
   letter-spacing: 0.1px;
   position: relative;
-  padding-left: 0.6rem;
+  padding-left: 0.65rem;
 }
 /* The rule beside the real verdict. A pseudo-element rather than a
    border-left, because a border is exactly as tall as the paragraph, and the
@@ -901,10 +901,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      darkens whatever lies behind the element, and on a #0b0b0f page there is
      nothing left to darken, so it does no work. This is a BACKGROUND — it
      darkens the button's own interior, which is a real surface at --bg-raised
-     (#14141b) and takes it to about #0d0d12. There is something to darken, so
+     (#14141b) and takes it to about #0e0e13. There is something to darken, so
      black works here and light would not. Do not "correct" this to a light fill
      by analogy with the shadow rule. */
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.3);
   /* Made of LIGHT, not black (D-044): the page is #0b0b0f and the banner
      #14141b, so a black shadow has nothing left to darken and would be
      invisible at any opacity — the user flagged this in the request.

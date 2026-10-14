@@ -102,9 +102,9 @@ driven with `debugVerdict()`: each wrap eased over about 0.3s and the bar
 ended exactly the paragraph's height. `npm run layout-check` passes in Chrome
 and Firefox.
 
-**Same day: "New verdict"'s hover fill went from 0.25 to 0.35 alpha** (the
+**Same day: "New verdict"'s hover fill went from 0.25 to 0.3 alpha** (the
 user's change). R25 and the stylesheet comment now give the new value and the
-colour it darkens the button to, about #0d0d12.
+colour it darkens the button to, about #0e0e13.
 
 #### 2026-10-08
 
@@ -3307,7 +3307,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 * **R25. DONE 2026-09-09 — the "New verdict" button was effectively
   borderless** (user-raised, and correctly diagnosed by them). Settled over
   three rounds of the user looking at it; the hover fill landed at 0.25, and
-  the user raised it to 0.35 on 2026-10-14.
+  the user raised it to 0.3 on 2026-10-14.
   `border: 1px solid var(--line)` measures **1.22** contrast on the banner's
   `--bg-raised` ground — a border that is not, in practice, drawn. R24 had
   just made the prose beside it brighter, so the button receded further.
@@ -3335,7 +3335,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   stays `--ink`.
 
   **Hover, revised by the user after seeing it:** the border lights to amber,
-  the interior takes `background: rgba(0, 0, 0, 0.35)`, and a glow appears —
+  the interior takes `background: rgba(0, 0, 0, 0.3)`, and a glow appears —
   `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
   change; it is already `--ink` at rest, so there is nowhere brighter to go,
   and amber text inside an amber border flattened the button into one colour.
@@ -3346,7 +3346,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   says so at the declaration.** D-044 is about SHADOWS, which darken what
   lies BEHIND an element — and on a `#0b0b0f` page there is nothing left to
   darken. A background darkens the button's OWN interior, a real surface at
-  `--bg-raised` (#14141b → about #0d0d12). There is something to darken, so
+  `--bg-raised` (#14141b → about #0e0e13). There is something to darken, so
   black works here and light would not. Do not "correct" it to a light fill
   by analogy with the shadow rule.
 
