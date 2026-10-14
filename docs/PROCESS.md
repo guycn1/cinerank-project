@@ -496,7 +496,7 @@ log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** — two comments in
 [`public/styles.css`](../public/styles.css), one of them just above the
 declaration it contradicted, and a sentence in
-[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) that disagreed with the code block
+[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md#the-totals-divider-is-painted-as-backgrounds-not-drawn-as-a-border) that disagreed with the code block
 quoted just beneath it. Every sweep between then and 2026-09-19 read those
 files and passed over all three.
 
@@ -516,7 +516,7 @@ nothing was skipped for looking boring:
 | **Vocabulary derived from the corpus** | 4,448 number-plus-noun pairs and 1,264 distinct noun heads, read off a frequency table. An allowlist decided in advance is a filter on what can be found — [a 2026-09-16 pass](https://github.com/guycn1/cinerank-project/commit/c0dc73e083a270e1e81ab1e542287d6fb7884722) proved that by filtering 3,681 figures through sixty nouns and therefore being unable to see three of them |
 | **Cross-file comparison as its own pass** | The upgrade that matters most, and the one with a completeness argument behind it rather than a diligence one — see [below](#a-per-file-sweep-is-structurally-incomplete-not-merely-less-thorough) |
 | **Enumerate the referent set** | *"These eight are all X"* is never falsified by any of the eight. It took listing the directory |
-| **Open the artifacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md) criterion 8 were re-run rather than quoted |
+| **Open the artifacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history) criterion 8 were re-run rather than quoted |
 
 ### A per-file sweep is structurally incomplete, not merely less thorough
 

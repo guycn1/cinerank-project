@@ -190,7 +190,7 @@ nothing on screen. Diffed against the previous stylesheet with
 [`npm run layout-check -- --baseline=HEAD --expect-same`](../scripts/layout-check.js), search results on
 screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
 about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
-[`CLAUDE.md`](../CLAUDE.md) now describe the flex stacking as the search row's
+[`CLAUDE.md`](../CLAUDE.md#search-section) now describe the flex stacking as the search row's
 layout at every width.
 
 **Trap.** Do not "restore" the grid as though it were a regression: it never
@@ -203,7 +203,7 @@ documents; a query above its base rule is the shape of this bug.
 *[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f55e9cbb09eef59364ff79b522be151d59dcb79b). Found by measurement during the causal-claims sweep, and settled
 by the user.*
 
-**What was found.** [`CLAUDE.md`](../CLAUDE.md) said card mode "pins the whole
+**What was found.** [`CLAUDE.md`](../CLAUDE.md#early-polish-and-the-ai-call-log) said card mode "pins the whole
 `tr.log-total`", and the stylesheet carried `position: sticky` on it. It never
 pinned. In card view the table is `display: block`, so the row's containing
 block is its `<tfoot>`, which is exactly as tall as the row: a sticky element
@@ -223,8 +223,8 @@ as a defect, and do not want the Total card pinned in card view.
 
 **What changed:** the claim, not the behaviour. The three `sticky`
 declarations that never took effect are removed, the stylesheet comment and
-[`CLAUDE.md`](../CLAUDE.md) now describe the Total card as the last card, and
-[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md) says the pinning model is the table
+[`CLAUDE.md`](../CLAUDE.md#early-polish-and-the-ai-call-log) now describe the Total card as the last card, and
+[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md#3-the-scrolling-and-pinning-model) says the pinning model is the table
 view's. Removing the declarations was diffed against the previous stylesheet
 in Chrome and Firefox at 400, 800 and 1000px, log dialog open: no element
 moved.
@@ -517,7 +517,7 @@ summarised as one line each. Claude recommended expanding `public/` and
 `test/`, and giving each route file a purpose line rather than its endpoints:
 endpoints in the tree would be a second copy of
 [`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which [`b486c10`](https://github.com/guycn1/cinerank-project/commit/b486c107f5034806127a3aee43ac920f5d2d963c) had just
-made the [README](../README.md)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
+made the [README](../README.md#architecture)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
 duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
 condition: short, and never the full list of eleven.** So each route file
@@ -564,7 +564,7 @@ made it a candidate.
 **Deleting was the option that looked tidy and measured worst.** Five places
 described the endpoint when this was weighed (there are more now, this entry
 among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
-it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it), and a
+it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md#4-making-failure-visible-module-13), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it), and a
 checkbox in [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14). Two of those are awkward rather than trivial:
 `SPEC.md` is **annotated in place, never rewritten**, so the table row would have
 to stay and gain a note; and a decision entry is preserved, so D-017 would need a
@@ -815,9 +815,9 @@ seventeen of the eighteen identifiers in the two paragraphs already did.
 commit](https://github.com/guycn1/cinerank-project/commit/a473b295798db33f935985294cde14b44cc63cc3) introduced *"the Documentation table above, which is the ONLY place each
 one is described"* — an exclusivity claim planted in the very edit that
 consolidated duplicate descriptions, and false in both readings. Inside the
-[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again in its Security notes
-section in wording almost identical to its table row, and
-[`docs/RESILIENCE.md`](RESILIENCE.md) in its Screenshots section in a description Claude had
+[README](../README.md), [`docs/SECURITY.md`](SECURITY.md) is described again in its [Security notes
+section](../README.md#security-notes-course-module-17) in wording almost identical to its table row, and
+[`docs/RESILIENCE.md`](RESILIENCE.md) in its [Screenshots section](../README.md#screenshots) in a description Claude had
 written hours earlier. Outside it, [`SPEC.md`](../SPEC.md) and
 [`docs/MERGE-READINESS.md`](MERGE-READINESS.md) both describe
 [`docs/ACCEPTANCE.md`](ACCEPTANCE.md). Corrected in [`707b7f2`](https://github.com/guycn1/cinerank-project/commit/707b7f2118ee57ee45aa4b432e13bf716f81cd0d) after the user
@@ -887,7 +887,7 @@ history.
   dash carries the argument correctly — and on cost: a merge needs the count
   updated in three files plus a "twenty-fifth" note explaining why a wording fix
   warranted one, which would be longer than the fix and the most self-undermining
-  paragraph in [`CLAUDE.md`](../CLAUDE.md).
+  paragraph in [`CLAUDE.md`](../CLAUDE.md#build-status).
 * **Leave the rule at ground 1 and keep arguing each merge in its own note.**
   That is precisely what produced the *appearance* of erosion: with no written
   bar to hold a candidate against, every merge after the twenty-first had to
@@ -897,7 +897,7 @@ history.
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: force-pushing over pushed history. The same call was made
-  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md)
+  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -1032,7 +1032,7 @@ to protect — and it did, on the first run, naming seven such lines.
 
 The retired-phrase check found an occurrence of "cheap tier" that a hand grep
 had just missed: it sat at the end of a 2,900-character table row in
-[`PROCESS.md`](PROCESS.md), outside the fixed context window the grep printed.
+[`PROCESS.md`](PROCESS.md#2-prompt-engineering-as-version-control), outside the fixed context window the grep printed.
 The tool reads whole lines and does not care how long they are.
 
 ## D-071 · SECURITY.md's links were made absolute rather than moving the file to the repo root
@@ -1062,7 +1062,7 @@ No relative path can satisfy both bases at once, so there were two real options.
 and plain relative paths work everywhere — no absolute URLs, no branch pinning,
 no hardcoded owner and repo name. **Rejected**, and not for effort: it would
 have rewritten roughly fourteen inbound references across eight files, and it
-would have broken the [`docs/`](./) grouping that [`README.md`](../README.md)'s own
+would have broken the [`docs/`](./) grouping that [`README.md`](../README.md#documentation)'s own
 documentation map describes to a reader. A large diff across the whole
 repository, days after the planned final merge, to fix six URLs.
 
@@ -2379,7 +2379,8 @@ passes `{ typed: true }`; every placeholder, the busy line and both error
 messages render instantly, unchanged from before this item existed.
 
 **Why not the obvious approach — typing straight into `#verdict-text`'s own text
-node.** That element is `aria-live="polite"` ([SPEC](../SPEC.md)'s accessibility work, already
+node.** That element is `aria-live="polite"` (the app's accessibility work, listed under
+[`CLAUDE.md` § Implemented](../CLAUDE.md#implemented), already
 covered by
 [R22](../CLAUDE.md#group-e--structure-and-tests)'s
 lesson about that same recs-hint region): mutating it character-by-character
@@ -4167,7 +4168,7 @@ readable for the other ~3s, so they are deliberately left alone.
 rebuilds every card — and each card carried `animation: fade-slide` with a
 staggered delay. Rating one film therefore replayed the *entire* list's entrance:
 ~850ms of the whole page shimmering because one number changed. Removing a film
-was worse — the list vanished and re-entered. Meanwhile the [README](../README.md)'s demo script
+was worse — the list vanished and re-entered. Meanwhile the [README](../README.md#demo-script)'s demo script
 promises "the ranked list **re-sorting live** as ratings change", and there was
 no re-sorting to watch: the list blinked out and a new one faded in.
 
@@ -4415,7 +4416,7 @@ That left one real fix — ask the model, then re-query TMDB — and it was
 perfectly
 ([D-002](#d-002--the-ai-is-a-component-not-the-product)/[D-005](#d-005--prompt-injection-posture):
 the model produces only a search string, TMDB still supplies every fact, blast
-radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md) scopes two,
+radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md#6-ai-features--prompt-discipline) scopes two,
 and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
 tokens and cost — neither existing log table fits, so it needs a new
 migration for a third log table, a new service, a versioned prompt file and

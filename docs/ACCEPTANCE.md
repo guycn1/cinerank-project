@@ -498,7 +498,7 @@ normally](screenshots/rs-1-tmdb-down-on-search.png)
 A plain-language message inside the results panel, and **the ranked list carries
 on** — including each film’s stored TMDB score, which survives the outage
 because it is a snapshot written at add time rather than a live call.
-[`RESILIENCE.md`](RESILIENCE.md) covers two further TMDB surfaces: adding a
+[`RESILIENCE.md`](RESILIENCE.md#when-tmdb-is-unreachable) covers two further TMDB surfaces: adding a
 film, and verification failing mid-recommendation.
 
 ### OpenRouter unreachable — recommendations
