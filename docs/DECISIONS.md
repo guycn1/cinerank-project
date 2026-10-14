@@ -11,6 +11,65 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-087 · An open AI-log reveal panel re-flips on scroll, within the room the pinned rows leave
+
+*2026-10-15. The user's request; the measurement's scope was their call, after
+Claude laid out the risk.*
+
+**The ask.** [`07b946e`](https://github.com/guycn1/cinerank-project/commit/07b946e31fbc31cadde7c87eea476f039dc92030)
+flips a Result cell's reveal panel above its trigger when it will not fit
+below, measured on open, and
+[`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202)
+re-runs that measurement on window resize. Scrolling the log did neither, so
+an open panel slid out of view even where flipping would have kept it in
+sight. The user asked for scrolling to re-flip it the way resizing does.
+
+**The fork.** The scroll trigger alone was small: a passive listener on
+`.log-pane`, once per frame, calling the `repositionPanel()` [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) already
+stores on each panel. But the measurement treated the whole pane as room, and
+mid-scroll the pinned header row covers the pane's top and the pinned Total
+its bottom. The panel's `z-index: 5` beats their 3 and nothing between them
+forms a stacking context, so a panel that "fit" by the pane's edges was
+painted across one of those rows. Claude offered both:
+* **The scroll trigger only**, leaving the measurement byte-identical, as
+  [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) had deliberately kept it. Smallest, and leaves the overlap.
+* **The trigger plus the room narrowed** to the stretch between the pinned
+  rows, on open, on resize and on scroll. The user judged it the better
+  behaviour and chose it, asking for the most careful verification Claude
+  could give, with their own real-browser check to follow.
+
+**A trap Claude walked into while building it.** The first version measured
+the table's `<thead>` and `<tfoot>`. Those row-group boxes never move:
+`position: sticky` is on `thead th` and `tfoot td`, and only the cells pin.
+Mid-scroll the header box sat about 1,070px above the pane and the footer box
+about 1,190px below it, so both limits fell back to the pane's edges and
+the change did almost nothing. **The tests passed anyway**, because their
+independent recomputation of the room measured the same boxes and so agreed
+with the code. What exposed it was a resize test that never flipped, and a
+printout of the geometry behind it. Both the code and the tests now measure
+the first header cell and the first Total cell.
+
+**Verified,** on the real app in Chrome and WebKit through Playwright and in
+Firefox through WebDriver BiDi: six panels of different heights at three
+window sizes, each opened once and then scrolled through in 8px steps without
+reopening, 1,750 positions in all. At every one the side chosen matched an
+independent recomputation from the pinned cells, and wherever the chosen side
+had room the panel lay wholly between the pinned rows; the old behaviour
+(side fixed at opening, measured to the pane's edges) crossed a band at 369 of
+those positions. A closing panel kept its side while scrolled, so it still
+fades out in place; card view stayed inert, with no errors; and stepping the
+window height down and back up flipped an open panel above and back below in
+all three engines. Screenshots of a panel scrolled up against each pinned row
+show it clear of both. The user then confirmed it working in real browsers.
+
+**Traps.**
+* **Measure the pinned cells, never the `<thead>` or `<tfoot>` box.** The
+  boxes scroll away; only the cells stay where they are drawn.
+* **Only an open panel is repositioned.** A closing one keeps its side so it
+  fades out in place, on scroll as on resize.
+* **The flip rule itself is unchanged:** above only when below cannot hold the
+  panel and above is roomier.
+
 ## D-086 · A rounded box never scrolls itself: it clips, and a square box inside it scrolls
 
 *[2026-10-15](https://github.com/guycn1/cinerank-project/commit/b9768c58df7cb4bc80937f3409e10e2b2f935c77). User-found, from two zoomed screenshots in Chrome: the rate dialog

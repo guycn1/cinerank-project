@@ -82,6 +82,7 @@ const el = {
   logClose: $('#log-close'),
   logBody: $('#log-body'),
   logFoot: $('#log-foot'),
+  logTable: $('#log-table'),
   toast: $('#toast'),
   noposterIcon: $('#noposter-icon'),
 };
@@ -2674,7 +2675,7 @@ function timeCell(iso) {
  *
  * This builds that reveal for the last two shapes; resultCell() picks the shape.
  * The returned element also carries `repositionPanel()`, which the resize pass
- * calls on an open panel.
+ * and the log's scroll listener call on an open panel.
  *
  * @param {string} summaryText  The trigger's text.
  * @param {HTMLElement} bodyNode  The panel's content.
@@ -2689,18 +2690,22 @@ function revealDetails(summaryText, bodyNode) {
   details.append(summary, bodyNode);
 
   /**
-   * The panel normally drops below its trigger; near the bottom of the dialog
-   * there isn't room, so flip it above instead. Measured on open rather than
-   * done in CSS because the panel's height depends on its content.
-   * The measurement, unchanged, lifted out of the handler so the resize pass can
-   * re-run it: a panel positioned for the geometry it opened in keeps a stale
-   * side and caret if the window is resized while it is open.
+   * The panel normally drops below its trigger; near the bottom of the visible
+   * area there isn't room, so flip it above instead. Measured rather than done
+   * in CSS because the panel's height depends on its content. Run on open, by
+   * the resize pass, and by the pane's scroll listener, so an open panel keeps
+   * to whichever side still has room as the geometry around it changes.
    *
-   * It stays a closure over the SAME `details` / `summary` / `bodyNode` it always
-   * used, and is stashed on the element rather than re-derived from the DOM
-   * elsewhere. Re-deriving would have been tidier and is the thing not worth
-   * risking here — this way the open path runs byte-identical code on identical
-   * variables, so opening a panel cannot behave differently than before.
+   * The room is what the pinned rows leave: the header row covers the pane's
+   * top and the Total row its bottom, and the panel (z-index 5, over their 3)
+   * would paint across either one. Each row's own edge is used whether it is
+   * pinned or resting at the scroll's ends, since a panel crossing it covers it
+   * either way. In card view the header row is not drawn and the panel sits in
+   * the flow, so a row with no height is simply not a limit.
+   *
+   * It stays a closure over the SAME `details` / `summary` / `bodyNode`, and is
+   * stashed on the element rather than re-derived from the DOM elsewhere, so
+   * every caller runs the same code on the same variables.
    *
    * Also points the panel's caret at the trigger, through `--arrow-x`.
    */
@@ -2708,11 +2713,18 @@ function revealDetails(summaryText, bodyNode) {
     details.classList.remove('log-reveal--above');
     const trigger = summary.getBoundingClientRect();
     // The pane, not the dialog: the pane is what scrolls and what clips the
-    // panel, so its box is the room actually available above and below.
+    // panel. Then narrowed to the stretch between the pinned rows.
+    // The CELLS, not the thead/tfoot boxes: `position: sticky` is on
+    // `thead th` and `tfoot td`, so only the cells pin. The row-group boxes stay
+    // where the table lays them out and scroll away with it.
     const view = el.logPane.getBoundingClientRect();
+    const head = el.logTable.tHead.rows[0]?.cells[0]?.getBoundingClientRect() ?? new DOMRect();
+    const foot = el.logTable.tFoot.rows[0]?.cells[0]?.getBoundingClientRect() ?? new DOMRect();
+    const top = head.height > 0 ? Math.max(view.top, head.bottom) : view.top;
+    const bottom = foot.height > 0 ? Math.min(view.bottom, foot.top) : view.bottom;
     const needed = bodyNode.offsetHeight + 12; // panel + the 0.35rem offset
-    const below = view.bottom - trigger.bottom;
-    const above = trigger.top - view.top;
+    const below = bottom - trigger.bottom;
+    const above = trigger.top - top;
     // Only flip if below genuinely can't hold it AND above is roomier.
     if (below < needed && above > below) details.classList.add('log-reveal--above');
 
@@ -2916,6 +2928,23 @@ function openAiLog() {
 }
 el.openLog.addEventListener('click', openAiLog);
 el.logClose.addEventListener('click', () => el.logDialog.close());
+
+// Scrolling the log moves an open reveal panel's trigger, so re-run the same
+// flip the resize pass runs: a panel near the bottom of the room goes above its
+// trigger rather than under the pinned Total or out of view, and comes back
+// below when the room returns. Once per frame however fast the scroll events
+// come, and only for a panel that is open (a closing one keeps its side so it
+// fades out in place). The decision depends only on where the trigger is, and
+// the panel is out of flow, so flipping it cannot move the trigger and cannot
+// oscillate.
+let logScrollFrame = 0;
+el.logPane.addEventListener('scroll', () => {
+  if (logScrollFrame) return;
+  logScrollFrame = requestAnimationFrame(() => {
+    logScrollFrame = 0;
+    el.logPane.querySelectorAll('.log-reveal[open]').forEach((d) => d.repositionPanel?.());
+  });
+}, { passive: true });
 
 // A reveal panel stays open until you click outside it — clicking its own text
 // keeps it up (so it can be selected/copied); a click anywhere else collapses it.

@@ -123,6 +123,20 @@ real app at 4x: all five round at both ends with unbroken borders, and the
 log's pinning exact in table view and absent in card view. The user confirmed
 it in real Chrome and Firefox.
 
+**Then an open AI-log reveal panel re-flips on scroll (D-087)** (user-asked).
+`619ed64` re-ran the panel's flip on resize; scrolling the log now re-runs it
+too, once per frame, so a panel near the bottom goes above its trigger instead
+of out of view, and comes back below when there is room. The room is now what
+the pinned header and Total rows leave, on open, on resize and on scroll, so
+the panel no longer paints across either one. **Measure the pinned cells, not
+the `<thead>`/`<tfoot>` boxes:** the first version did, and those boxes
+scroll away, so it barely changed anything while its own tests passed, since
+they measured the same boxes. Checked in Chrome, Firefox and WebKit: 1,750
+scroll positions across six panels and three window sizes, every side matching
+an independent recomputation and every fitting panel clear of both pinned
+rows, where the old behaviour crossed one at 369; card view inert; resize
+still flips. The user confirmed it working in real browsers.
+
 #### 2026-10-14
 
 **WHAT LANDED ON 2026-10-14: a rule beside the real verdict again, the
@@ -1647,8 +1661,9 @@ and stay as written.
     (D-019) so the footer needs no partial-coverage markers.
   - **Reveal panel** polish: caret pointing at its trigger (direction +
     `--arrow-x` follow the flip); flips *above* the trigger when there's no
-    room below (measured in JS on `toggle`, kept on close so it doesn't jump
-    mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
+    room below (measured in JS on `toggle`, on resize and on scroll, against
+    the room between the pinned header and Total cells, D-087; kept on close
+    so it doesn't jump mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
     eased on hover; outside-click dismiss. (NOT Esc: `<details>` has no Esc
     behaviour and no handler was ever written for one. Esc closes the whole
     log dialog, which takes the panel with it — not the same thing.)
@@ -1683,8 +1698,9 @@ and stay as written.
   one was open left both stale. The measurement is now re-run from the shared
   page resize pass, guarded on the dialog being open AND the panel being open.
   Done as conservatively as possible — the measurement body was lifted into a
-  closure over its existing variables and is **byte-identical**, so the
-  open path is provably unchanged; nothing about the table's layout is touched.
+  closure over its existing variables and was **byte-identical**, so the
+  open path was provably unchanged (the measurement has since narrowed its
+  room to the pinned rows, D-087); nothing about the table's layout is touched.
   The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
   `@media (max-width: 850px)` — the desktop table view is provably unchanged
