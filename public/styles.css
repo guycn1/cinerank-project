@@ -804,6 +804,27 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .verdict__text:not(.is-muted) {
   color: var(--ink-soft);
   letter-spacing: 0.1px;
+  position: relative;
+  padding-left: 0.6rem;
+}
+/* The rule beside the real verdict. A pseudo-element rather than a
+   border-left, because a border is exactly as tall as the paragraph, and the
+   paragraph grows a whole line at once each time the typing wraps. While a
+   verdict types, setVerdictText() writes the paragraph's height into
+   --verdict-bar-h, so each new line is a change of value this transition can
+   ease. When the typing ends the property is removed, and 100% takes over
+   again, so after that a resize or a re-wrap moves the bar instantly with the
+   text, as a border would. A plain ease-out, not --ease: --ease is built to
+   make an arrival feel instant, and this growth is meant to be seen. */
+.verdict__text:not(.is-muted)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: var(--verdict-bar-h, 100%);
+  background: rgba(255, 255, 255, 0.3);
+  transition: height 0.3s ease-out;
 }
 /* --ink-dim, not --ink-faint: the faintest token was too quiet for text that is
    often the only thing in the banner (a placeholder, or a failure). Note this
@@ -880,10 +901,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      darkens whatever lies behind the element, and on a #0b0b0f page there is
      nothing left to darken, so it does no work. This is a BACKGROUND — it
      darkens the button's own interior, which is a real surface at --bg-raised
-     (#14141b) and takes it to about #0f0f14. There is something to darken, so
+     (#14141b) and takes it to about #0d0d12. There is something to darken, so
      black works here and light would not. Do not "correct" this to a light fill
      by analogy with the shadow rule. */
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.35);
   /* Made of LIGHT, not black (D-044): the page is #0b0b0f and the banner
      #14141b, so a black shadow has nothing left to darken and would be
      invisible at any opacity — the user flagged this in the request.

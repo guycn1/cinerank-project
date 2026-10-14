@@ -2180,6 +2180,7 @@ function clearVerdictMeta() {
 const VERDICT_TYPE_MS = 18; // per character -- the "early ChatGPT" pace, tuned by eye
 let verdictTypeGen = 0; // bumped on every call; a stale loop checks this and stops
 let verdictTypeTimer = null;
+let verdictBarObserver = null; // feeds the paragraph's height to the bar while typing
 
 /**
  * The SINGLE writer for `#verdict-text`'s content (step 4b's typing effect).
@@ -2235,6 +2236,7 @@ function setVerdictText(text, { typed = false } = {}) {
   verdictTypeGen += 1;
   const gen = verdictTypeGen;
   clearTimeout(verdictTypeTimer);
+  stopVerdictBar();
 
   const visible = document.createElement('span');
   visible.className = 'verdict__typed';
@@ -2256,6 +2258,13 @@ function setVerdictText(text, { typed = false } = {}) {
   }
 
   visible.classList.add('is-typing');
+  // The paragraph, not `visible`: a ResizeObserver reports an inline box as
+  // zero-sized. Its border box is the box the bar's 100% resolves against (the
+  // paragraph has no border), and unlike clientHeight it is not rounded.
+  verdictBarObserver = new ResizeObserver(([entry]) => {
+    el.verdictText.style.setProperty('--verdict-bar-h', `${entry.borderBoxSize[0].blockSize}px`);
+  });
+  verdictBarObserver.observe(el.verdictText);
   const hyphenated = softHyphenate(text);
   const ends = hyphenatedPrefixEnds(hyphenated, text);
   let i = 0;
@@ -2268,9 +2277,19 @@ function setVerdictText(text, { typed = false } = {}) {
       verdictTypeTimer = setTimeout(step, VERDICT_TYPE_MS);
     } else {
       visible.classList.remove('is-typing');
+      stopVerdictBar();
     }
   };
   step();
+}
+
+/** Stop feeding the verdict's bar a height, so it falls back to 100% of the
+ *  paragraph. That fallback is a change of value too, so a last re-wrap (the
+ *  caret going away can take a line with it) still eases rather than jumps. */
+function stopVerdictBar() {
+  verdictBarObserver?.disconnect();
+  verdictBarObserver = null;
+  el.verdictText.style.removeProperty('--verdict-bar-h');
 }
 
 /** Is the taste verdict below its rating threshold? ONE predicate, because two
