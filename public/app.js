@@ -1505,8 +1505,11 @@ function openRate(movie, { isNew = false } = {}) {
   setRateError('');
   el.rateDialog.showModal();
   // After showModal(): a closed dialog has no layout box, and a scroll offset
-  // set on an element without one is discarded.
+  // set on an element without one is discarded. The dialog itself scrolls too,
+  // whenever its content is taller than the viewport (a short window, a phone
+  // held sideways), and it keeps its offset across a close just as the box does.
   el.rateReview.scrollTop = 0;
+  el.rateDialog.scrollTop = 0;
 }
 el.rateRange.addEventListener('input', () => {
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);

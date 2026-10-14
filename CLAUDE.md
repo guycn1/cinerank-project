@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-14
+**Last updated:** 2026-10-15
 
 ### Current state
 
@@ -87,6 +87,18 @@ the verdict harness and its two safeguards (disarmed on every load, never
 installed on the live host).
 
 ### What landed, newest first
+
+#### 2026-10-15
+
+**WHAT LANDED ON 2026-10-15: the rate dialog opens at its top for every film**
+(user-found, the rest of what `f5737f9` started on 2026-09-29). That commit
+reset the review box's height and scroll position, but the dialog scrolls too,
+whenever its content is taller than the viewport, and it kept its own offset
+across a close: in a short window, a film's dialog opened wherever the previous
+film's had been left. `openRate()` now also sets the dialog's `scrollTop` to 0
+after `showModal()`. Reproduced in headless Chrome against the real page at
+400×280: film B opened 89px down, at the bottom, before the fix, and at the top
+after it. The dragged-box case `f5737f9` fixed reads 0 both before and after.
 
 #### 2026-10-14
 
