@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-087 · An open AI-log reveal panel re-flips on scroll, within the room the pinned rows leave
 
-*2026-10-15. The user's request; the measurement's scope was their call, after
+*[2026-10-15](https://github.com/guycn1/cinerank-project/commit/cdd0a3267eab55d458dc4d17fe3c9f7c49ba93e4). The user's request; the measurement's scope was their call, after
 Claude laid out the risk.*
 
 **The ask.** [`07b946e`](https://github.com/guycn1/cinerank-project/commit/07b946e31fbc31cadde7c87eea476f039dc92030)
