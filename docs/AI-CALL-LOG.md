@@ -48,7 +48,7 @@ works — and the gap between those two things is the reason this file exists.**
 Nothing visible above tells you that:
 
 * the totals row is pinned by a **second element** underneath it, because a
-  sticky `<tfoot>` cannot reach the dialog's edge on its own;
+  sticky `<tfoot>` cannot reach the scroller's edge on its own;
 * the rule above that row is **two background gradients**, not the border it
   plainly resembles, because a border is left behind when the row pins;
 * the Result cells are collapsed `<details>` whose revealed panels are positioned
@@ -105,9 +105,13 @@ than none, and [a test](../test/routes.test.js) asserts exactly this.
 
 **State this as one mechanism, because the pieces are meaningless apart.**
 
-**[The dialog is the single scroller.](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** `.log-dialog` carries
-`overflow: auto; max-height: 88vh`. `.log-scroll` — despite the name — is
-`overflow: visible; flex: 0 0 auto` and scrolls nothing.
+**[One box is the single scroller](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce): `.log-pane`, the dialog's only
+child.** It carries `overflow: auto` and fills the dialog, which caps it at
+`max-height: 88vh` and only clips it to its rounded corners. The rounding and
+the scrolling live on two boxes because a rounded box that scrolls itself
+loses its corners to its scrollbar ([D-086](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)).
+`.log-scroll` — despite the name — is `overflow: visible; flex: 0 0 auto` and
+scrolls nothing.
 
 > **[What failed first.](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303)** The table scrolled inside a flex-sized `.log-scroll`. On
 > a short viewport that box collapsed to nothing and the table vanished.
@@ -116,8 +120,8 @@ Consequences, all of which look like free choices and are not:
 
 * **[Only `thead th` pins at the top.](https://github.com/guycn1/cinerank-project/commit/15959f94a649dd6f2b06b90eaab466f23b75b815)** The "AI call log" heading and the Close
   button scroll away with everything else. Scroll back up, or press Escape.
-* **`.log-dialog` has no vertical padding** (`padding: 0 1.5rem`; its `header`
-  carries the top space) so the pinned `thead` sits flush against the dialog's
+* **`.log-pane` has no vertical padding** (`padding: 0 1.5rem`; its `header`
+  carries the top space) so the pinned `thead` sits flush against the pane's
   top edge instead of floating below a gap.
 * **`.log-scroll` must stay `overflow: visible`.** It is not the scroller, and
   clipping would round the sticky header and footer cell *fills* against their
@@ -128,16 +132,16 @@ Consequences, all of which look like free choices and are not:
 
 ### `.log-curtain` — why a sticky `<tfoot>` is not enough
 
-The totals row pins to the bottom. A sticky `<tfoot>` **cannot reach the dialog's
+The totals row pins to the bottom. A sticky `<tfoot>` **cannot reach the pane's
 bottom edge**: it is clamped by its own containing block, the table. Table rows
 therefore peeked underneath it mid-scroll.
 
 [`.log-curtain`](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) is an opaque `--bg-raised` band that is a **direct child of the
-dialog**, so its containing block is the dialog and it is never clamped. It pins
+pane**, the scroller, so its containing block is the pane and it is never clamped. It pins
 at `bottom: 0` with `z-index: 2`. The totals row pins at
 `bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it.
 
-Together they form one solid block from the row down to the dialog's edge.
+Together they form one solid block from the row down to the pane's edge.
 Scrolled to the end, both un-pin and the curtain is simply the empty gap below
 the table.
 
@@ -214,7 +218,8 @@ Each of these looks like it could be simplified. Each cannot.
 | Rule | What breaks if you undo it |
 |---|---|
 | **[`.log-scroll` stays `overflow: visible`](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
-| **[`.log-curtain` is a child of the *dialog*, not the table](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
+| **[`.log-curtain` is a child of the *scroller*, not the table](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)** (`.log-pane` since [D-086](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)) | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
+| **[The dialog clips and `.log-pane` scrolls](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)** | A rounded box that scrolls itself loses its right-hand corners to its scrollbar: Chromium draws the scrollbar as a square strip over the curve, and Firefox with always-shown scrollbars draws the corners square |
 | **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a curtain shorter than the offset leaves a strip under the pinned totals row where rows show through |
 | **[The totals divider is a background, not a border or shadow](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
 | **[The reveal panel's opacity animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467) (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |

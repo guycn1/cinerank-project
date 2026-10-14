@@ -106,15 +106,6 @@ html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
     scrollbar-width: thin;
     scrollbar-color: var(--line-strong) transparent;
   }
-  /* Firefox with classic (always-shown) scrollbars draws a scrolling box's
-     corners square, rounded or not, so a dialog that scrolls lost its rounded
-     right-hand corners. Clipping to the same radius rounds them again. The one
-     thing it also clips is --shadow, a black shadow on a black backdrop that
-     shows nothing (D-044). Firefox's default overlay scrollbars on Windows were
-     never affected; this is a no-op there. */
-  .rate-dialog,
-  .confirm-dialog,
-  .log-dialog { clip-path: inset(0 round var(--radius)); }
 }
 @supports selector(::-webkit-scrollbar) {
   ::-webkit-scrollbar { width: var(--sb-w); height: var(--sb-w); }
@@ -134,27 +125,35 @@ html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
   ::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
   ::-webkit-scrollbar-corner { background: var(--bg-raised); }
 
-  /* The log dialog: slightly thinner. */
-  .log-dialog::-webkit-scrollbar { width: var(--sb-dialog-w); }
-  /* All three dialogs are rounded, and Chromium draws a scrollbar as a square
-     strip that ignores border-radius. A painted track therefore stuck out past
-     the rounded corners, and the thumb ran up into the curve and over the
-     border. So the track is transparent (each dialog sits on `--bg-raised`
-     already) and held off both ends by the corner radius, which keeps the
-     thumb on the straight part of the edge. */
-  .rate-dialog::-webkit-scrollbar-track,
-  .confirm-dialog::-webkit-scrollbar-track,
-  .log-dialog::-webkit-scrollbar-track,
-  .rate-dialog::-webkit-scrollbar-corner,
-  .confirm-dialog::-webkit-scrollbar-corner,
-  .log-dialog::-webkit-scrollbar-corner { background: transparent; }
-  .rate-dialog::-webkit-scrollbar-track,
-  .confirm-dialog::-webkit-scrollbar-track,
-  .log-dialog::-webkit-scrollbar-track { margin-block: var(--radius); }
-  /* /4.5, not /4 — the dialog thumb was deliberately tuned proportionally
+  /* The log: slightly thinner. */
+  .log-pane::-webkit-scrollbar { width: var(--sb-dialog-w); }
+  /* The scrollers inside rounded boxes: the rate and confirm dialogs' forms,
+     the log's pane, the search results' list and the review box. Each is a
+     square box clipped by a rounded parent (see `.rate-dialog`), so its track
+     is transparent, letting the parent's own surface show, and held off both
+     ends so the thumb stops short of the parent's curved corners. The margin
+     is 8px less the thumb's own transparent inset, which puts the visible
+     thumb 8px from each end: the gap Firefox's thin thumb leaves by itself,
+     measured, so the two engines look alike. */
+  .rate-dialog > form::-webkit-scrollbar-track,
+  .confirm-dialog > form::-webkit-scrollbar-track,
+  .search-results__list::-webkit-scrollbar-track,
+  .review-box textarea::-webkit-scrollbar-track,
+  .log-pane::-webkit-scrollbar-track,
+  .rate-dialog > form::-webkit-scrollbar-corner,
+  .confirm-dialog > form::-webkit-scrollbar-corner,
+  .search-results__list::-webkit-scrollbar-corner,
+  .review-box textarea::-webkit-scrollbar-corner,
+  .log-pane::-webkit-scrollbar-corner { background: transparent; }
+  .rate-dialog > form::-webkit-scrollbar-track,
+  .confirm-dialog > form::-webkit-scrollbar-track,
+  .search-results__list::-webkit-scrollbar-track,
+  .review-box textarea::-webkit-scrollbar-track { margin-block: calc(8px - var(--sb-w) / 4); }
+  .log-pane::-webkit-scrollbar-track { margin-block: calc(8px - var(--sb-dialog-w) / 4.5); }
+  /* /4.5, not /4 — the log's thumb was deliberately tuned proportionally
      fatter than the page one (2px inset on 9px, vs 3px on 12px). This keeps
      that exact relationship at every size instead of flattening the two. */
-  .log-dialog::-webkit-scrollbar-thumb { border-width: calc(var(--sb-dialog-w) / 4.5); }
+  .log-pane::-webkit-scrollbar-thumb { border-width: calc(var(--sb-dialog-w) / 4.5); }
 }
 
 body {
@@ -1066,7 +1065,6 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 0.5rem;
   /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
      AI log dialog already caps itself at `88vh`. On a short viewport (a phone
      in landscape, a small desktop window) 340px is most of the screen, so the
@@ -1097,8 +1095,21 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      panel with NO cap — worse than the fixed value it replaced. */
   max-height: max(240px, min(340px, 50vh));
   max-height: max(240px, min(340px, 50svh));
-  overflow-y: auto;
+  /* The panel only clips, to its rounded corners; `.search-results__list`
+     inside it scrolls, for the reason given at `.rate-dialog`. */
+  overflow: hidden;
+  flex-direction: column;
   animation: fade-slide 0.3s var(--ease);
+}
+/* Flex only while shown: nothing in this stylesheet restates `[hidden]`, so a
+   bare `display: flex` here would override the browser's own
+   `[hidden] { display: none }` and leave a closed panel on screen. Flex lets
+   the list shrink to the panel's max-height and scroll. */
+.search-results:not([hidden]) { display: flex; }
+.search-results__list {
+  padding: 0.5rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 /* Lines inside the results panel — loading, "no matches", errors, the
    empty-query nudge. Built by searchNote() in app.js. */
@@ -2754,13 +2765,34 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  padding: 1.6rem;
   max-width: 380px;
   width: 90vw;
   box-shadow: var(--shadow);
   /* The global `* { margin: 0 }` reset kills the UA stylesheet's `margin: auto`
      that centres a modal <dialog> — restore it here (centres both axes). */
   margin: auto;
+  /* The dialog never scrolls; its form does, and the dialog clips it to the
+     rounded corners. A rounded box that scrolls itself loses those corners to
+     its scrollbar: Chromium draws the scrollbar as a square strip that ignores
+     border-radius, and Firefox with always-shown scrollbars draws the box's
+     corners square, border and all. A square scroller inside a rounded box
+     that only clips has neither problem, in either engine. The same split is
+     used by the AI call log (`.log-pane`), the search results
+     (`.search-results__list`) and the review box (`.review-box`).
+     Flex so the form can shrink below its content when the UA's max-height
+     caps the dialog on a short viewport; `display` only via [open], so the UA's
+     `dialog:not([open]) { display: none }` still hides a closed one. */
+  padding: 0;
+  overflow: hidden;
+  flex-direction: column;
+}
+.rate-dialog[open],
+.confirm-dialog[open] { display: flex; }
+.rate-dialog > form,
+.confirm-dialog > form {
+  padding: 1.6rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 .rate-dialog::backdrop,
 .confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
@@ -2782,15 +2814,37 @@ body:has(dialog[open]) { overflow: hidden; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
 .rate-dialog input[type='range'] { width: 100%; accent-color: var(--amber); }
-.rate-dialog textarea {
-  width: 100%;
+/* The review box: the wrapper is the rounded, bordered surface and only clips;
+   the textarea inside it is square, borderless and transparent, and does the
+   scrolling. A textarea is a scroller of its own, so given the border and the
+   radius itself it lost its right-hand corners to its scrollbar, the same way
+   the dialogs did (see `.rate-dialog`). The textarea keeps its id, its
+   `rows="3"` and its resize grip, so `openRate()`'s height and scroll resets
+   still act on it, and the wrapper grows with it when the grip is dragged. */
+.review-box {
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: 8px;
+  overflow: hidden;
+}
+.rate-dialog textarea {
+  display: block; /* inline-block would leave a descender gap under it */
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   color: var(--ink);
   font: inherit;
   padding: 0.6rem;
   resize: vertical;
+}
+/* The app's focus ring (the bare `:focus-visible` rule) would be drawn around
+   the textarea, outside it, and the wrapper clips everything outside it. So
+   the ring moves to the wrapper, the same 2px amber at the same 3px offset. */
+.rate-dialog textarea:focus-visible { outline: none; }
+.review-box:has(textarea:focus-visible) {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
 }
 /* Inline save error. Same crimson-on-small-text vocabulary as `.search-note.err`
    — failures are reported next to whatever failed, and the toast is left for
@@ -2917,27 +2971,39 @@ body:has(dialog[open]) { overflow: hidden; }
   background: var(--bg-raised);
   color: var(--ink);
   border-radius: var(--radius);
-  /* No top padding — the sticky thead pins flush to the top edge and the header
-     carries its own top space. No bottom padding either: `.log-curtain` (the
-     last child) provides the gap under the table AND backs the pinned Total. */
-  padding: 0 1.5rem;
   --log-curtain-h: 1.5rem; /* gap under the table == where the Total row pins */
   width: min(var(--page-max), 94vw);
   max-height: 88vh;
   box-shadow: var(--shadow);
   /* restore the centring the global margin reset removes (see .rate-dialog) */
   margin: auto;
-  /* THE DIALOG is the single scroller: header, blurb and table scroll together
-     in one outer scrollbar. Earlier this was inverted — the table scrolled
-     inside a flex-sized `.log-scroll` — which collapsed to nothing on a short
-     viewport. Only the table's own `thead` row stays pinned while scrolling
-     (see `.log-table thead th`); the "AI call log" heading and Close scroll away
-     (Close is a scroll-back-up or Esc away). `display: flex` only via [open] so
-     the UA `dialog:not([open]) { display: none }` still hides a closed dialog. */
+  /* The dialog only clips, to its rounded corners; `.log-pane` inside it is
+     the scroller, for the reason given at `.rate-dialog`. `display: flex` only
+     via [open] so the UA `dialog:not([open]) { display: none }` still hides a
+     closed dialog, and so the pane can shrink to the 88vh cap. */
+  padding: 0;
+  overflow: hidden;
   flex-direction: column;
-  overflow: auto;
 }
 .log-dialog[open] { display: flex; }
+/* THE PANE is the single scroller: header, blurb and table scroll together in
+   one scrollbar. Earlier this was inverted — the table scrolled inside a
+   flex-sized `.log-scroll` — which collapsed to nothing on a short viewport.
+   Only the table's own `thead` row stays pinned while scrolling (see
+   `.log-table thead th`); the "AI call log" heading and Close scroll away (Close
+   is a scroll-back-up or Esc away). Every sticky element in the log pins
+   against this box: the thead to its top, the Total row and `.log-curtain` to
+   its bottom.
+   No top padding — the sticky thead pins flush to the top edge and the header
+   carries its own top space. No bottom padding either: `.log-curtain` (the
+   last child) provides the gap under the table AND backs the pinned Total. */
+.log-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 1.5rem;
+}
 .log-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
 .log-sub { flex: 0 0 auto; }
 .log-dialog header {
@@ -2945,7 +3011,7 @@ body:has(dialog[open]) { overflow: hidden; }
   align-items: center;
   justify-content: space-between;
   flex: 0 0 auto;
-  padding-top: 1.5rem; /* the dialog has none; scrolls away with the header */
+  padding-top: 1.5rem; /* the pane has none; scrolls away with the header */
 }
 .log-dialog h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.4rem; }
 .log-dialog .ghost {
@@ -2957,14 +3023,14 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-sub code { color: var(--ink-dim); background: var(--bg-card); padding: 0 0.3em; border-radius: 4px; }
 
 .log-scroll {
-  overflow: visible; /* no inner scrollbar — the dialog scrolls (see .log-dialog) */
+  overflow: visible; /* no inner scrollbar — the pane scrolls (see .log-pane) */
   flex: 0 0 auto;
   /* Open at the bottom: the closing rule lives on .log-curtain's top border,
      which is directly under the Total row in BOTH states (pinned and at rest).
      A bottom border here would only sit under the Total at rest, and would then
      double up with the curtain's.
      Square corners, deliberately: .log-scroll must stay overflow:visible (the
-     dialog is the scroller), so it cannot clip the sticky thead/tfoot cell
+     pane is the scroller), so it cannot clip the sticky thead/tfoot cell
      fills to a radius — the border curved while the backgrounds stayed square.
      Rounding only while a row sits naturally would mean tracking its stuck
      state on every scroll; not worth it. Only this box is square: the dialog
@@ -2974,9 +3040,9 @@ body:has(dialog[open]) { overflow: hidden; }
   border-bottom: none;
 }
 
-/* An opaque band pinned to the dialog's bottom edge, directly beneath the pinned
+/* An opaque band pinned to the pane's bottom edge, directly beneath the pinned
    Total row (which pins at `bottom: var(--log-curtain-h)` — i.e. exactly on top
-   of this). Its containing block is the dialog, not the table, so unlike the
+   of this). Its containing block is the pane, not the table, so unlike the
    Total row it is never clamped and always reaches the true bottom: nothing from
    the table can show under the Total mid-scroll. Scrolled to the end it un-pins
    and is simply the empty gap between the table's square bottom edge (in card
@@ -3236,7 +3302,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-time span { display: block; }
 
 /* Total row pins just above `.log-curtain`, so the two together form one solid
-   block from the row down to the dialog's bottom edge — no row can peek below. */
+   block from the row down to the pane's bottom edge — no row can peek below. */
 .log-table tfoot td {
   position: sticky; bottom: var(--log-curtain-h); z-index: 3;
   font-weight: 600; border-top: none; border-bottom: none;
@@ -3306,7 +3372,8 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
-  .log-dialog { padding: 0 0.85rem; --log-curtain-h: 1.25rem; }
+  .log-dialog { --log-curtain-h: 1.25rem; }
+  .log-pane { padding: 0 0.85rem; }
   .log-dialog header { padding-top: 1.25rem; }
   .log-table th, .log-table td { padding: 0.45rem 0.28rem; }
   .log-result { width: calc(7rem / var(--type-scale)); max-width: calc(7rem / var(--type-scale)); }

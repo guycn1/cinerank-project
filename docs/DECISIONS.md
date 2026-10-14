@@ -11,6 +11,98 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-086 · A rounded box never scrolls itself: it clips, and a square box inside it scrolls
+
+*2026-10-15. User-found, from two zoomed screenshots in Chrome: the rate dialog
+and the AI call log, each scrolled, each with a broken top-right corner. The
+first fix was Claude's and failed the user's own Firefox check; the scope of
+the second was the user's call.*
+
+**The defect.** Every rounded element in the app that scrolled lost its
+right-hand corners to its scrollbar: the rate and confirm dialogs, the AI call
+log, the review box and the search-results panel. In Chromium a scrollbar is a
+square strip that ignores `border-radius`, so the rate dialog's painted track
+jutted past the curve, and in the log, whose track was already transparent,
+the thumb ran up into the curve and over the border. Firefox's default overlay
+scrollbars were fine; with always-shown scrollbars (Windows' "Always show
+scrollbars", or `widget.windows.overlay-scrollbars.enabled` set to `false`) it
+draws a scrolling box's corners square, border and all. A plain rounded `div`
+does the same in headless Firefox, so it is the engine, not the dialogs.
+
+**What failed first, and where Claude was wrong.** Claude's fix, committed
+and pushed on headless evidence alone as
+[`4f72b73`](https://github.com/guycn1/cinerank-project/commit/4f72b735e454727e97851bafe49d4e7d504e554c),
+gave the dialogs a transparent track held off the corners in Chromium, and
+`clip-path: inset(0 round var(--radius))` in Firefox. The headless captures
+showed round corners. The user's real Firefox showed what they had not made
+plain: Firefox draws the border square, so clipping the box round cuts that
+square border away along the curve, and the dialog's border vanished at its
+right-hand corners. The review box's corners were square too, untouched by any
+of it, because the textarea is a rounded scroller of its own. The standing
+rule that a headless browser is never the only measure of layout was in force
+and was not applied before the commit; the user then asked that nothing be
+committed until they had confirmed it in real browsers.
+
+**The fork.**
+* **Clip the rounded box (`clip-path`).** Rejected on the user's screenshot:
+  it removes Firefox's square border rather than rounding it.
+* **Leave Firefox's always-shown mode alone.** It is opt-in, and the default
+  overlay scrollbars were never affected. Offered, not taken.
+* **Split the two jobs across two boxes.** The rounded element only clips
+  (`overflow: hidden`) and draws the border; a square element inside it
+  scrolls. Nothing that scrolls is rounded, so no engine has a rounded
+  scroller's corner to get wrong, and a clipped child's scrollbar is cut by
+  the parent's curve in both engines. Measured on a plain rounded box in
+  headless Firefox first: border fully drawn and round at both ends, thumb
+  inside. **Chosen.** Chromium still needs the track held off the ends, or
+  the inner scroller's thumb is cut by the parent's curve.
+
+**How each one splits.** The rate and confirm dialogs already had a `<form>`,
+which now scrolls, with no markup change. The review box gains a
+`.review-box` wrapper; the textarea goes square, borderless and transparent
+inside it, and the focus ring moves to the wrapper, which would otherwise
+clip it. The search panel gains `.search-results__list`, and `app.js` writes
+its rows there while the panel keeps `hidden`. The AI call log gains
+`.log-pane`, the dialog's only child, around everything it held. **The log is
+the one that needed care:** its sticky header row, sticky Total row and
+`.log-curtain` all pinned against the dialog as the scroller, and the
+curtain had to be the scroller's direct child
+([D-022](#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot) and
+[`docs/AI-CALL-LOG.md` § 3](AI-CALL-LOG.md#3-the-scrolling-and-pinning-model)).
+Wrapping *everything* in one pane keeps that true one level down, and the
+reveal panel's flip now measures the pane rather than the dialog.
+
+**Scope.** Claude recommended doing the two dialogs and the review box first
+and the log and the search panel as a second step, once the user had seen the
+pattern work. The user chose all five at once.
+
+**The thumb's gap.** Comparing frames, the user preferred the look where the
+thumb stops short of the top and bottom rather than reaching the corners.
+Firefox's thin thumb does that by itself, about 8px from each end, measured
+from a 4x capture; Chromium's track margin is set to 8px less the thumb's own
+transparent inset, so the two engines leave the same gap.
+
+**Verified** in the three engines the app runs on: Chromium and WebKit, Safari's
+engine, through Playwright, and Firefox through WebDriver BiDi with
+always-shown scrollbars forced on, all on the real app at 4x:
+every right-hand corner of all five, scrolled to the top and to the end, round
+with an unbroken border and no thumb in a curve; and the log's pinning, with
+the header row on the pane's top, the curtain on its bottom and the Total row
+flush on the curtain in table view, and the Total not pinned in card view
+([D-082](#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is)).
+The user then confirmed it in real Chrome and Firefox, with no regressions.
+
+**Traps.**
+* **Never give a rounded element `overflow: auto` again.** It reintroduces the
+  defect in both engines; put a square scroller inside it.
+* **`display: flex` on these containers only via `[open]` or
+  `:not([hidden])`.** A bare author `display` overrides the browser's own
+  `display: none` for a closed dialog or a hidden panel.
+* **The log's sticky elements pin against `.log-pane`**, and `.log-curtain`
+  must stay its direct child.
+* **Scroll resets act on the scroller:** `openRate()` resets the form's
+  `scrollTop` now, not the dialog's.
+
 ## D-085 · A word's length and its edges count letters only, and a soft hyphen goes only between two letters
 
 *[2026-10-08](https://github.com/guycn1/cinerank-project/commit/a2327fc09392be3a8e653a9d87ec07827d1d992a). Spotted by Claude on 2026-10-06 in a headless screenshot of the

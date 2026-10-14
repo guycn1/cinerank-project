@@ -162,7 +162,7 @@
           </svg>
         </button>
       </form>
-      <div class="search-results" id="search-results" role="status" aria-live="polite" hidden></div>
+      <div class="search-results" id="search-results" role="status" aria-live="polite" hidden><div class="search-results__list" id="search-list"></div></div>
     </section>
 
     <!-- The ranked list — primary focus (SPEC § 3.2) -->
@@ -272,7 +272,10 @@
       <label for="rate-range">Your rating: <output id="rate-output">7.0</output></label>
       <input type="range" id="rate-range" min="0" max="10" step="0.1" value="7" />
       <label for="rate-review">Review <span>(optional)</span></label>
-      <textarea id="rate-review" rows="3" maxlength="2000" placeholder="One line on why…"></textarea>
+      <!-- The wrapper carries the box's border and rounded corners and clips the
+           textarea, which scrolls as a plain square box inside it; see
+           `.review-box` in styles.css for why the rounded box must not scroll. -->
+      <div class="review-box"><textarea id="rate-review" rows="3" maxlength="2000" placeholder="One line on why…"></textarea></div>
       <!-- A failed save reports HERE, not via the toast. A modal dialog sits in
            the top layer and its ::backdrop dims everything below, so a toast
            fired while this is open is both behind it and dimmed — invisible in
@@ -314,32 +317,36 @@
 
   <!-- AI call log -->
   <dialog id="log-dialog" class="log-dialog" aria-labelledby="log-title">
-    <header>
-      <h3 id="log-title">AI call log</h3>
-      <button type="button" class="ghost" id="log-close">Close</button>
-    </header>
-    <p class="log-sub">
-      The 60 most recent OpenRouter calls — both features, successes and failures.
-      Every call is persisted in <code>recommendation_logs</code> /
-      <code>taste_verdict_logs</code>.
-    </p>
-    <div class="log-scroll">
-      <table class="log-table" id="log-table">
-        <thead>
-          <tr>
-            <th>Feature</th><th>Prompt</th><th>Model</th>
-            <th class="num">Tokens</th><th class="num">Cost</th>
-            <th class="num">Duration</th><th>Status</th><th>Result</th><th>Time</th>
-          </tr>
-        </thead>
-        <tbody id="log-body"></tbody>
-        <tfoot id="log-foot"></tfoot>
-      </table>
+    <!-- The pane scrolls; the dialog only clips it to its rounded corners
+         (see .log-pane in styles.css). Everything that pins pins inside it. -->
+    <div class="log-pane">
+      <header>
+        <h3 id="log-title">AI call log</h3>
+        <button type="button" class="ghost" id="log-close">Close</button>
+      </header>
+      <p class="log-sub">
+        The 60 most recent OpenRouter calls — both features, successes and failures.
+        Every call is persisted in <code>recommendation_logs</code> /
+        <code>taste_verdict_logs</code>.
+      </p>
+      <div class="log-scroll">
+        <table class="log-table" id="log-table">
+          <thead>
+            <tr>
+              <th>Feature</th><th>Prompt</th><th>Model</th>
+              <th class="num">Tokens</th><th class="num">Cost</th>
+              <th class="num">Duration</th><th>Status</th><th>Result</th><th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="log-body"></tbody>
+          <tfoot id="log-foot"></tfoot>
+        </table>
+      </div>
+      <!-- Opaque band pinned to the pane's bottom edge. It backs the pinned
+           Total row so no table content can show underneath it mid-scroll, and at
+           the end of the scroll it is simply the gap below the table. -->
+      <div class="log-curtain" aria-hidden="true"></div>
     </div>
-    <!-- Opaque band pinned to the dialog's bottom edge. It backs the pinned
-         Total row so no table content can show underneath it mid-scroll, and at
-         the end of the scroll it is simply the gap below the table. -->
-    <div class="log-curtain" aria-hidden="true"></div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

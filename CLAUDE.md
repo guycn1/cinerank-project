@@ -95,28 +95,33 @@ installed on the live host).
 reset the review box's height and scroll position, but the dialog scrolls too,
 whenever its content is taller than the viewport, and it kept its own offset
 across a close: in a short window, a film's dialog opened wherever the previous
-film's had been left. `openRate()` now also sets the dialog's `scrollTop` to 0
-after `showModal()`. Reproduced in headless Chrome against the real page at
+film's had been left. `openRate()` now also resets that scroll position after
+`showModal()`, on the dialog's form since D-086 made the form the scroller. Reproduced in headless Chrome against the real page at
 400×280: film B opened 89px down, at the bottom, before the fix, and at the top
 after it. The dragged-box case `f5737f9` fixed reads 0 both before and after.
 
-**Same day: a scrolling dialog keeps its rounded corners** (user-found, from
-two screenshots: the rate dialog and the AI call log). Chromium draws a
-scrollbar as a square strip that ignores `border-radius`, so the rate and
-confirm dialogs' painted track jutted past their right-hand corners, and in
-the log dialog, whose track was already transparent, the thumb ran up into the
-curve and over the border. All three dialogs now have a transparent track held
-off both ends by `margin-block: var(--radius)`, so the thumb stays on the
-straight part of the edge. **Firefox had a problem of its own:** with classic
-(always-shown) scrollbars it draws any scrolling box's corners square, a plain
-rounded `div` included; its default overlay scrollbars on Windows were fine.
-`clip-path: inset(0 round var(--radius))` on the three dialogs, in the
-Firefox-only branch, rounds them again; it also clips `--shadow`, a black
-shadow on a black backdrop that shows nothing (D-044). Measured in headless
-Chrome and Firefox at 4x, every right-hand corner of all three dialogs,
-scrolled to the top and to the end: before, square or overrun; after, round,
-with no thumb in a curve. Firefox's classic mode was forced through its
-preferences, so the user's own real-browser check is what settles it.
+**Same day: a rounded box that scrolls keeps its rounded corners (D-086)**
+(user-found, from two screenshots: the rate dialog and the AI call log).
+Chromium draws a scrollbar as a square strip that ignores `border-radius`,
+and Firefox with always-shown scrollbars draws a scrolling box's corners
+square, border and all; its default overlay scrollbars were fine. **The first
+fix failed the user's Firefox check, and it was committed (`4f72b73`) before
+any real-browser check:** `clip-path` cut Firefox's square border away along
+the curve. Since then nothing is committed until the user has confirmed it in
+real browsers.
+
+**The fix is structural: a rounded element only clips, and a square element
+inside it scrolls.** The rate and confirm dialogs' forms scroll; the review
+textarea sits in a `.review-box` that carries its border, and the focus ring
+moved to the wrapper; the search panel's rows go into `.search-results__list`;
+and everything in the AI call log sits in `.log-pane`, which now carries the
+pinning, so the header row, the Total row and the curtain pin against it.
+Chromium's track is transparent and held off each end so the thumb stops 8px
+short, the gap Firefox's thumb leaves by itself, measured. Checked in Chrome,
+Firefox (always-shown scrollbars forced) and WebKit, Safari's engine, on the
+real app at 4x: all five round at both ends with unbroken borders, and the
+log's pinning exact in table view and absent in card view. The user confirmed
+it in real Chrome and Firefox.
 
 #### 2026-10-14
 
@@ -1521,31 +1526,32 @@ and stay as written.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
   animation 0.6s → 0.5s. It stayed too subtle, and step 4b later made it
   resample instead, at `0.1` and `0.7s steps(1)`, which is what it runs today.
-* AI call log dialog scrolling: **the dialog itself is the single scroller**
-  (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
-  `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
+* AI call log dialog scrolling: **one box is the single scroller, `.log-pane`,
+  the dialog's only child** (`.log-pane { overflow: auto }`; the dialog carries
+  `max-height: 88vh` and only clips it to its rounded corners, D-086;
+  `.log-scroll` is `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
   inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
   pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading
-  and Close scroll away (scroll back up / Esc). `.log-dialog` has **no
+  and Close scroll away (scroll back up / Esc). `.log-pane` has **no
   top/bottom padding** (`padding: 0 1.5rem`; `header` carries `padding-top`) so
   the thead pins flush at the top.
   - **Total row (took several tries — don't "simplify" this):** a sticky
     `<tfoot>` alone never works, because it's clamped by its own containing
-    block (the table) and can't reach the dialog's bottom edge — table rows
+    block (the table) and can't reach the pane's bottom edge — table rows
     always peeked underneath it mid-scroll. The fix is `.log-curtain`: an opaque
-    `--bg-raised` band that is a **direct child of the dialog** (containing
-    block = the dialog, so it's never clamped), `position: sticky; bottom: 0`,
+    `--bg-raised` band that is a **direct child of the pane** (containing
+    block = the pane, the scroller, so it's never clamped), `position: sticky; bottom: 0`,
     `z-index: 2`. The Total row pins at `bottom: var(--log-curtain-h)` with
     `z-index: 3` — exactly on top of it. The two form one solid block down to
-    the dialog edge, so nothing shows underneath. Scrolled to the end both
-    un-pin and the curtain is just the gap below the table (hence `.log-dialog`
+    the pane's edge, so nothing shows underneath. Scrolled to the end both
+    un-pin and the curtain is just the gap below the table (hence `.log-pane`
     has no bottom padding). The table's closing rule is the curtain's
     `border-top` — the only element adjacent to the Total row in BOTH states, so
     it can't go missing mid-scroll or double up at rest.
 
     `.log-scroll` is therefore open at the bottom, and **fully square**: it must
-    stay `overflow: visible` (the dialog is the scroller) so it can't clip the
+    stay `overflow: visible` (the pane is the scroller) so it can't clip the
     sticky thead/tfoot cell fills to a radius — a rounded border with square
     cell backgrounds looked broken. **Card mode does NOT pin the Total** — it is
     the last card, reached by scrolling to the end, and the user wants it that
@@ -1601,10 +1607,10 @@ and stay as written.
     reveal panel on any click outside it (clicks on its own text keep it open so
     it stays selectable). Reveal panels fade (`::details-content` +
     `@starting-style`).
-  - **Sticky rows.** The whole dialog is the single scroller; only `thead`
+  - **Sticky rows.** `.log-pane` is the single scroller; only `thead`
     (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
-    can't reach the dialog edge (clamped by the table), so `.log-curtain` — an
-    opaque `--bg-raised` band, a *direct child of the dialog* — pins under it;
+    can't reach the pane's edge (clamped by the table), so `.log-curtain` — an
+    opaque `--bg-raised` band, a *direct child of the pane* — pins under it;
     the two form one solid block so no row shows through. Curtain's `border-top`
     is the table's closing rule (only element adjacent to Total in both
     states); `.log-scroll` is square (can't clip its sticky children to a
@@ -1656,8 +1662,9 @@ and stay as written.
   thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
   `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
   `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
-  `--bg-raised` page / transparent in all three dialogs, where it is also held
-  off the rounded corners by `margin-block: var(--radius)` (2026-10-15, below).
+  `--bg-raised` page / transparent in every scroller inside a rounded box (the
+  dialogs' forms, `.log-pane`, `.search-results__list`, the review box's
+  textarea), held off each end so the thumb stops 8px short (D-086).
   Chrome Fluent still widens the thumb on hover — not CSS-controllable.
 * Reveal panel fade: the opacity animation + `@starting-style` live on the panel
   (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable

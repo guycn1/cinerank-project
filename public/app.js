@@ -53,6 +53,7 @@ const el = {
   searchForm: $('#search-form'),
   searchInput: $('#search-input'),
   searchResults: $('#search-results'),
+  searchList: $('#search-list'), // what the panel shows; the panel itself only clips it
   searchBtn: $('#search-btn'),
   rankedList: $('#ranked-list'),
   rankedCount: $('#ranked-count'),
@@ -77,6 +78,7 @@ const el = {
   confirmOk: $('#confirm-ok'),
   openLog: $('#open-log'),
   logDialog: $('#log-dialog'),
+  logPane: $('#log-dialog .log-pane'),
   logClose: $('#log-close'),
   logBody: $('#log-body'),
   logFoot: $('#log-foot'),
@@ -1144,7 +1146,7 @@ async function loadMovies() {
 /** Hide and empty the results panel — it should not outlive its query. */
 function closeSearchResults() {
   el.searchResults.hidden = true;
-  el.searchResults.replaceChildren();
+  el.searchList.replaceChildren();
 }
 
 /**
@@ -1178,18 +1180,18 @@ el.searchForm.addEventListener('submit', async (e) => {
   if (!q) {
     // Was a silent no-op. Say why nothing happened and put the caret where the
     // user needs it, rather than letting the button look broken.
-    el.searchResults.replaceChildren(searchNote('Type a film title to search.'));
+    el.searchList.replaceChildren(searchNote('Type a film title to search.'));
     el.searchInput.focus();
     return;
   }
   dismissSoftKeyboard();
   const settle = busyButton(el.searchBtn, 'Searching…');
-  el.searchResults.replaceChildren(makeLoading('Searching…'));
+  el.searchList.replaceChildren(makeLoading('Searching…'));
   try {
     const { results } = await api(`/api/movies/search?q=${encodeURIComponent(q)}`);
     renderSearchResults(results, q);
   } catch (err) {
-    el.searchResults.replaceChildren(makeError(err.message));
+    el.searchList.replaceChildren(makeError(err.message));
   } finally {
     settle();
   }
@@ -1354,7 +1356,7 @@ function syncAddButtons() {
  * @param {string} query  What was searched, trimmed.
  */
 function renderSearchResults(results, query) {
-  el.searchResults.replaceChildren();
+  el.searchList.replaceChildren();
   if (!results.length) {
     // searchNote, not makeError: a search that matched nothing is an empty
     // state, not a failure, and crimson said otherwise.
@@ -1370,7 +1372,7 @@ function renderSearchResults(results, query) {
     let cut = 40;
     if (/[\ud800-\udbff]/.test(query[cut - 1] ?? '') && /[\udc00-\udfff]/.test(query[cut] ?? '')) cut -= 1;
     const shown = query.length > 40 ? query.slice(0, cut) + '…' : query;
-    el.searchResults.append(
+    el.searchList.append(
       searchNote(`No matches for “${shown}”. Check the spelling, or try a different title.`)
     );
     return;
@@ -1413,7 +1415,7 @@ function renderSearchResults(results, query) {
     setAddButtonState(btn, state.ownedTmdbIds.has(r.tmdb_id));
     btn.addEventListener('click', () => addMovie(r.tmdb_id, btn));
     row.append(poster, meta, btn);
-    el.searchResults.append(row);
+    el.searchList.append(row);
   }
 }
 
@@ -1505,11 +1507,11 @@ function openRate(movie, { isNew = false } = {}) {
   setRateError('');
   el.rateDialog.showModal();
   // After showModal(): a closed dialog has no layout box, and a scroll offset
-  // set on an element without one is discarded. The dialog itself scrolls too,
-  // whenever its content is taller than the viewport (a short window, a phone
+  // set on an element without one is discarded. The dialog's form scrolls too,
+  // whenever the dialog is taller than the viewport (a short window, a phone
   // held sideways), and it keeps its offset across a close just as the box does.
   el.rateReview.scrollTop = 0;
-  el.rateDialog.scrollTop = 0;
+  el.rateForm.scrollTop = 0;
 }
 el.rateRange.addEventListener('input', () => {
   el.rateOutput.textContent = Number(el.rateRange.value).toFixed(1);
@@ -2705,7 +2707,9 @@ function revealDetails(summaryText, bodyNode) {
   const positionPanel = () => {
     details.classList.remove('log-reveal--above');
     const trigger = summary.getBoundingClientRect();
-    const view = el.logDialog.getBoundingClientRect();
+    // The pane, not the dialog: the pane is what scrolls and what clips the
+    // panel, so its box is the room actually available above and below.
+    const view = el.logPane.getBoundingClientRect();
     const needed = bodyNode.offsetHeight + 12; // panel + the 0.35rem offset
     const below = view.bottom - trigger.bottom;
     const above = trigger.top - view.top;
