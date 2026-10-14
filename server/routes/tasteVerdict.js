@@ -20,7 +20,7 @@ export const tasteVerdictRouter = Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
- * POST /api/taste-verdict — generate a fresh banner line (SPEC § 2.3).
+ * POST /api/taste-verdict — generate a fresh verdict (SPEC § 2.3).
  * Only ever on explicit user action; never regenerated on page load.
  *
  * Responds 200 with `{ verdict, meta }` as generateTasteVerdict() returns it.

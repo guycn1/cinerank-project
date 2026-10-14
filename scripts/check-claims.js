@@ -464,6 +464,9 @@ function checkInvisibleCharacters() {
 const RETIRED = [
   { phrase: 'name some films', unless: /dismissive/i },
   { phrase: 'cheap tier', unless: /dismissive|inaccurate/i },
+  { phrase: 'the larger job', unless: /undersold|undersell/i },
+  { phrase: 'lighter-weight of the two', unless: /undersold|undersell/i },
+  { phrase: 'lighter feature', unless: /undersold|undersell/i },
 ];
 /**
  * 10. Retired phrasing must not come back.
@@ -473,7 +476,11 @@ const RETIRED = [
  * title already in it, and justifies each pick);
  * "cheap tier" was both dismissive AND inaccurate, since Haiku is a PAID tier and
  * OpenRouter has free models this project never uses. "Cheaper" is the honest
- * comparative against the Sonnet the verdict runs on. A line may still quote the
+ * comparative against the Sonnet the verdict runs on. "The larger job",
+ * "lighter-weight of the two" (prompts) and "lighter feature" undersold the
+ * taste verdict the same way: it reads every rated film and its review and has
+ * to characterise the viewer in a plain spoken register, which took seven
+ * prompt versions and a stronger model (D-053). A line may still quote the
  * retired wording while explaining that it was retired.
  */
 function checkRetiredPhrasing() {

@@ -106,6 +106,30 @@ and Firefox.
 user's change). R25 and the stylesheet comment now give the new value and the
 colour it darkens the button to, about #0e0e13.
 
+**Then the verdict's job was described more accurately** (user-raised, the
+same sweep the recommendations got in `fd7f4b8`). The README called it
+"teasing", which is now "playful", the prompt's own word: teasing pokes fun at
+the person, and the live verdicts mostly take the viewer's side. It also
+reduced the verdict's job to writing two or three sentences, set beside a full
+account of the recommendations' job, so the model split read as a size
+comparison after all, which the same paragraph rules out. That sold short a
+feature that took seven prompt versions and a stronger model to get right
+(D-053). Checked rather than recalled: the verdict reads every rated film and
+its review, where recommendations read the top five; it has to characterise the
+viewer rather than recite the ratings, in a set spoken register;
+`taste_verdict_v7`'s instructions run to 496 words against 321 for
+`recommend_v3`; and it is the heavier call, 1,484 tokens a run against 1,022 in
+the 60-call measurement behind `cce9a7f`. One phrasing in § Prompt Versioning
+was false as well as short: it called the verdict's prompt the lighter of the
+two, and v7 is the longer one.
+
+Both README passages, this file's Tech Stack and Prompt Versioning entries,
+`db/schema.sql`'s section comment and the route's JSDoc now say what the job
+is. `SPEC.md` § 2.3's "just banter" is annotated rather than rewritten, D-004
+gained a dated note, and `check-claims` retires three of the replaced
+phrasings, each probed against the line it replaced. "Low-stakes" stays
+everywhere: that is SPEC's design, and it describes the stakes, not the work.
+
 #### 2026-10-08
 
 **WHAT LANDED ON 2026-10-08: a word's length and its edges count letters only,
@@ -5493,11 +5517,13 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     tier to write in a plain spoken register, and the model turned out to be the
     constraint rather than the wording.
   - **The split is NOT hard task versus easy task, and do not describe it that
-    way.** Recommendations are the larger job: read the whole list, infer a
-    taste from the top five rated films and the reviews attached to them
+    way.** Neither job is the small one. Recommendations read the whole list,
+    infer a taste from the top five rated films and the reviews attached to them
     (`config.recommendations.topN`), exclude every film already in the list
     whether rated or not, and justify each pick in one second-person sentence of
-    8–16 words tied to a specific rating or a pattern across them. What makes
+    8–16 words tied to a specific rating or a pattern across them. The verdict
+    reads every rated film and its review and characterises the viewer, not the
+    ratings, in a plain spoken register. What makes
     the cheaper tier right there is that the output is **checkable** —
     structured JSON, every title cross-checked against TMDB, so a bad pick is
     dropped rather than shown. The verdict has nothing to check it against, so
@@ -5571,7 +5597,7 @@ it.
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
-* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — this is intentionally the lighter-weight of the two prompts.
+* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — plain text because a verdict has nothing structured in it to extract and nothing to check against TMDB; how it reads is its only measure.
 * The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 

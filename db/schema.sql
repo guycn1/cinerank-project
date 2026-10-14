@@ -49,7 +49,7 @@ create table if not exists recommendation_logs (
 );
 
 -- ---------------------------------------------------------------------------
--- 5.3  taste_verdict_logs — same discipline, lighter feature
+-- 5.3  taste_verdict_logs — same discipline, lower-stakes feature
 -- ---------------------------------------------------------------------------
 create table if not exists taste_verdict_logs (
   id                 uuid primary key default gen_random_uuid(),

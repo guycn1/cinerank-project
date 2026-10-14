@@ -31,18 +31,22 @@ A personal movie-ranking app where the database and the AI each earn their place
   8–16 words, no plot summary. And it is **never trusted for facts**. Every suggested title is
   cross-checked against TMDB, which supplies the real poster, year and overview;
   a title TMDB has never heard of is dropped rather than shown as a broken card.
-- **A [Taste Verdict banner](SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)** sizes you up as a moviegoer in two or three playful
-  sentences — the low-stakes, fun AI touch, logged with the same discipline.
+- **A [Taste Verdict banner](SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)** reads every film you've rated and every review
+  you wrote, and sizes you up as a moviegoer in two or three playful sentences:
+  what you go to the films for, and what leaves you cold. The low-stakes, fun AI
+  touch, logged with the same discipline.
 
 [Stack](SPEC.md#41-stack): Node + Express · Supabase (Postgres) · vanilla HTML/CSS/JS · TMDB · OpenRouter.
 
 Two models are routed through OpenRouter on purpose, and **the split is not a
-hard-task / easy-task one.** Recommendations are the larger job of the two: read
-the whole list, infer a sensibility from the top five rated films and the reviews
+hard-task / easy-task one.** Neither job is small. Recommendations read the
+whole list, infer a sensibility from the top five rated films and the reviews
 attached to them, exclude everything already in the list, and compress the
 justification for each pick into one second-person sentence of 8–16 words that
-points at something real in the profile. The verdict writes two or three
-sentences.
+points at something real in the profile. The verdict reads every rated film and
+every review, works out what kind of moviegoer that makes the viewer rather than
+restating the ratings, and says so in two or three finished sentences of plain
+spoken English.
 
 **The split is about what can be checked.** A recommendation's output is
 structurally constrained and externally verifiable — a JSON array whose every
