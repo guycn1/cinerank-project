@@ -149,7 +149,7 @@ log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png)
 [moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
 
 **The interface's copy has also been brought into one consistent dialect of
-English**, so a frame may show a word the app no longer uses, such as "movie"
+English** ([on 2026-10-18](https://github.com/guycn1/cinerank-project/commit/b0f8abd71614acf756da9afe82d974f9e6570a14)), so a frame may show a word the app no longer uses, such as "movie"
 where it now says "film". These are wording changes only, and no screenshot is
 any less valid as evidence because of them: each changed message still appears
 in the same state, for the same reason and in the same place. The captions and
