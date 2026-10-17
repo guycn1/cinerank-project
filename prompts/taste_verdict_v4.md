@@ -8,7 +8,7 @@ want from a film, what bores them, what it says about them — instead of reciti
 ratings. Tone + injection guard unchanged. Loaded by services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

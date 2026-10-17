@@ -664,7 +664,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    3. THE ALPHAS ARE SOLVED, NOT CHOSEN, and they are NOT proportional to the
       brightness. Layers composite multiplicatively: total = 1 - PROD(1 - a_i).
       So scaling them all by a constant does NOT scale the band — it saturates
-      the core toward 1 while the tips rise linearly, which FLATTENS the taper
+      the core towards 1 while the tips rise linearly, which FLATTENS the taper
       back into a hard-edged bar. (Tried by the user: quadrupling every alpha
       took the core/tip ratio from 7:1 down to 4.4:1 and looked worse.)
       That is also why the busy state changes GROUP OPACITY rather than these
@@ -757,7 +757,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   gap: 1rem;
   flex-wrap: wrap;
 }
-/* Step 5, user-raised: LEFT to natural flex-wrap math, "New verdict" only
+/* Step 5, user-raised: LEFT to natural flex-wrap maths, "New verdict" only
    dropped to its own line at ~537px — the point where the label + `.verdict__text`'s
    12rem min-width + the button's own width stopped fitting one row. The user
    wants that forced earlier, at ~680px, with the button's own width UNCHANGED
@@ -930,9 +930,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      invisible at any opacity — the user flagged this in the request.
      ZERO Y-offset, also D-044: this is a GLOW, emitted by a button that has
      just lit up, and a glow radiates evenly. Any Y-offset would make it
-     lopsided, which is the mistake that was made twice in one item on the movie
+     lopsided, which is the mistake that was made twice in one item on the film
      card. Note .search button:hover DOES use an offset amber pool — that one is
-     a FILLED button reading as a lit object casting light downward, which is a
+     a FILLED button reading as a lit object casting light downwards, which is a
      different thing from an outline lighting up. Do not unify them.
      One layer, tight radius, negative spread: the whole request was "very
      subtle", and this element is ~32px tall. */
@@ -1374,7 +1374,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    NO `translateY`, and that is the point rather than an omission. A lift is
    directional: `translateY(-5px)` shrinks the gap above the card by 5px and
    opens the one below by the same amount, so a hovered card visibly drifts
-   toward its upper neighbour. In a vertical LIST, where the card has an
+   towards its upper neighbour. In a vertical LIST, where the card has an
    identical sibling a fixed 1rem away on each side, that asymmetry is the most
    noticeable thing about the effect — the user spotted it immediately, and it
    read as the card being closer to the film above than the one below.
@@ -2115,7 +2115,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    disabled (D-027), and a gradient cannot follow any of that.
    `transform-box: fill-box` is required, not tidiness — without it an SVG
    element's transform-origin resolves against the SVG's own viewport corner, so
-   `scale()` would swing the star toward the top-left instead of breathing in
+   `scale()` would swing the star towards the top-left instead of breathing in
    place.
    `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
    strong ease-OUT that would snap bright and drift back. Every animation
@@ -2320,18 +2320,18 @@ button:disabled .sparkle-major { animation: none; }
    R27 shipped this as a single uniform `translateY(6px) scale(0.97)` fade, on
    the argument that the exit is clearing the decks while a request is already
    in flight and should read as one gesture. The user watched it and disagreed
-   on both counts: the uniform `scale()` pulls both edges inward at once, which
+   on both counts: the uniform `scale()` pulls both edges inwards at once, which
    reads as the card sliding SIDEWAYS rather than leaving — they called the
    result "stuttering" — and they wanted the cards to go one by one, as they
    arrive. Both are fixed here.
 
-   `scaleX` toward ONE edge is what makes it a hinge. The default
-   `transform-origin` is the centre, which collapses the card inward from both
+   `scaleX` towards ONE edge is what makes it a hinge. The default
+   `transform-origin` is the centre, which collapses the card inwards from both
    sides — that is a shrink, and it is the very thing that read as sideways
    movement. `left center` pins the spine and swings the rest shut.
 
    `scaleY` shrinks alongside it — to 0.1, tried at 0.5 first and taken further
-   by the user — so the card collapses toward a horizontal line as it swings
+   by the user — so the card collapses towards a horizontal line as it swings
    shut, rather than simply being deleted at full height. Not to 0: something
    still has to be visibly closing rather than already gone. `left center` gives each axis
    what it needs from one declaration — X hinged at the spine, Y closing evenly
@@ -2398,7 +2398,7 @@ button:disabled .sparkle-major { animation: none; }
    opens the other — and the user spotted that asymmetry on the ranked card
    within minutes. `scale()` grows from the centre and narrows every gap equally,
    which matters more in a GRID than in a column: a lifted card here would drift
-   away from its row-mates as well as toward its upper neighbour.
+   away from its row-mates as well as towards its upper neighbour.
 
    EVERY SHADOW LAYER TAKES A ZERO Y-OFFSET. A shadow is cast and pools away from
    the light; a glow is EMITTED and radiates evenly, so any offset only makes it
@@ -3605,7 +3605,7 @@ body:has(dialog[open]) { overflow: hidden; }
      depth alone, not a second status signal — one glow covers both states
      without a `.toast.err` override. Zero Y-offset on this layer specifically
      (unlike the kept black one): it is a glow, not a cast shadow, so it must
-     radiate evenly rather than pool toward one edge (D-044). Tuned by eye. */
+     radiate evenly rather than pool towards one edge (D-044). Tuned by eye. */
   box-shadow: var(--shadow), 0 0 32px rgba(255, 255, 255, 0.16);
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s var(--ease);
@@ -3725,7 +3725,7 @@ body:has(dialog[open]) { overflow: hidden; }
    `forwards`, but its nodes are removed once the last card finishes, so no live
    card keeps that transform.
    The exit is the shorter of the two, 0.34s (RECS_EXIT_MS in app.js must stay
-   in step with it) against the entrance's 0.75s, and it folds toward its left
+   in step with it) against the entrance's 0.75s, and it folds towards its left
    edge like a closing book (R30) where the entrance rises — leaving is a
    retreat, arriving is a rise. The ENTRANCE is the one the user asked to be
    able to watch.

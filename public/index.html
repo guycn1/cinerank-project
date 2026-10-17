@@ -131,14 +131,14 @@
       </div>
     </section>
 
-    <!-- Add a movie -->
-    <section class="add" aria-label="Add a movie">
+    <!-- Add a film -->
+    <section class="add" aria-label="Add a film">
       <form class="search" id="search-form" autocomplete="off">
         <input
           type="search"
           id="search-input"
           placeholder="Search a film to add…"
-          aria-label="Search for a movie by title"
+          aria-label="Search for a film by title"
         />
         <!-- aria-label because the word is display:none at 500px and below,
              where the magnifier (the inline SVG below) is all that shows; the
@@ -178,7 +178,7 @@
            would have been worse than not looking. -->
       <ol class="ranked__list" id="ranked-list" role="list"></ol>
       <p class="ranked__empty" id="ranked-empty" hidden>
-        No movies yet — search for one above to get started.
+        No films yet — search for one above to get started.
       </p>
     </section>
 
@@ -199,7 +199,7 @@
              the rated count is not known yet. Do NOT remove this attribute to
              "fix" a disabled button -- the sync writes disabled in BOTH
              directions on every load, so this markup value survives only when
-             the movie list never loaded at all, which is exactly when it
+             the film list never loaded at all, which is exactly when it
              should. (Below the rating threshold the button is off too, but
              because the sync wrote it so.) -->
         <button class="recs__trigger" id="recs-trigger" type="button" disabled>
@@ -240,7 +240,7 @@
       </button>
     </div>
     <p class="site-foot__credit">
-      <span>Movie data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.</span>
+      <span>Film data from <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a>.</span>
       <!-- The SECOND repo link — step 3 asked for link(s), plural. Everything
            except its size and its halo multiplier (--gh-halo) comes from the
            shared .gh-link class.

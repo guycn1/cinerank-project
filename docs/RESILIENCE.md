@@ -1,7 +1,7 @@
 # Resilience — what CineRank does when something it depends on fails
 
 This application depends on three things it does not control: **TMDB** for every
-movie fact, **OpenRouter** for both AI features, and **Supabase** for storage. Any
+film fact, **OpenRouter** for both AI features, and **Supabase** for storage. Any
 of them can be down, and a fourth failure is possible too — the app's own server
 being unreachable from a page already open in the browser.
 
@@ -87,7 +87,7 @@ frame can carry any of it. The reasoning is in
 
 ## When TMDB is unreachable
 
-TMDB supplies every movie fact in the app — titles, years, posters, its own
+TMDB supplies every film fact in the app — titles, years, posters, its own
 audience score. Three different surfaces have to cope with losing it.
 
 ### RS-1 · Searching
@@ -119,7 +119,7 @@ sends a short machine-readable cause; the client prefixes the context it already
 knows. Before [that mechanism](https://github.com/guycn1/cinerank-project/commit/75aacfbbc110a831298e7eeb0818d1fe55b49502)
 ([`D-042`](DECISIONS.md#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form))
 a failed add named no film at all, and a naive fix produced doubled messages
-like “Couldn’t add “Heat” — Couldn’t reach the movie database”. The two halves
+like “Couldn’t add “Heat” — Couldn’t reach the film database”. The two halves
 compose exactly once.
 
 In this frame the state is reached through the search results panel, which is
@@ -368,7 +368,7 @@ failure and is captured separately as
 [`ac-3-ranking-empty.png`](screenshots/ac-3-ranking-empty.png).
 
 **The two are told apart by what sits under the empty list, and the difference is
-not cosmetic.** A genuinely empty list shows "No movies yet — search for one above
+not cosmetic.** A genuinely empty list shows "No films yet — search for one above
 to get started."; this frame shows NOTHING there. `loadMovies()` awaits
 `/api/movies` on its first line, and `api()` throws on a failed response, so the
 function stops before `refreshRanked()` can unhide that line — and that is the
@@ -705,9 +705,9 @@ description of it.
 | `400` `Your rating must be between 0 and 10.` | The rating control is `<input type="range" min="0" max="10" step="0.1">`, so the browser cannot emit an out-of-range value | `PATCH /api/movies/:id with rating out of range → 400`, plus the non-numeric case |
 | `400` `Nothing to update` | Save always sends both `rating` and `review`, so the body is never empty | `PATCH /api/movies/:id with an empty body → 400 (nothing to update)` |
 | `400` `A review needs a rating — rate the film first.` | The same line: a rating is always present. `POST` writes neither column, so a film cannot be created carrying a review either | `PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500` |
-| `422` `Need at least 3 rated movies` | The trigger [ships `disabled` in the markup](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081) and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-movie threshold → 422, nothing logged` |
-| `422` `Need at least 2 rated movies` | [The same guard on "New verdict"](https://github.com/guycn1/cinerank-project/commit/173b84c0dc7ae2df8be23388a40679ee50bd8e70), at the verdict's own threshold | `POST /api/taste-verdict below the rated-movie threshold → 422` |
-| `409` `Already in your list` | An Add button for a film already in the list is disabled and reads `In your list` | `POST /api/movies for a movie already in the list → 409` |
+| `422` `Need at least 3 rated films` | The trigger [ships `disabled` in the markup](https://github.com/guycn1/cinerank-project/commit/1bc235a9111645bc74cf0fda0b8a6db01bbd8081) and is enabled only at or above the threshold the server owns | `POST /api/recommendations below the rated-film threshold → 422, nothing logged` |
+| `422` `Need at least 2 rated films` | [The same guard on "New verdict"](https://github.com/guycn1/cinerank-project/commit/173b84c0dc7ae2df8be23388a40679ee50bd8e70), at the verdict's own threshold | `POST /api/taste-verdict below the rated-film threshold → 422` |
+| `409` `Already in your list` | An Add button for a film already in the list is disabled and reads `In your list` | `POST /api/movies for a film already in the list → 409` |
 
 **The guards are client-side and the tests are server-side, and that division is
 the whole point.** The guard is why no user meets the error; the test is why

@@ -181,9 +181,9 @@ emoji took soft hyphens like words ("1,00-0,000").
 
 **The fork.** The obvious fix was to trim punctuation off a word's ends before
 counting. That fixes "second." and nothing else on the list: the apostrophe in
-"couldn’t" still counts toward the edge, and digits and emoji still count as
+"couldn’t" still counts towards the edge, and digits and emoji still count as
 letters. **Chosen instead:** only a grapheme holding a letter (`\p{L}`,
-`HYPHENATE_LETTER` in [`public/app.js`](../public/app.js)) counts toward the
+`HYPHENATE_LETTER` in [`public/app.js`](../public/app.js)) counts towards the
 length and the edges, and a soft hyphen goes only between two letters.
 
 - A letter carrying combining marks is one grapheme and still counts.
@@ -1273,7 +1273,7 @@ provide the historical reality of every AI call the app performed. Rows that
 misname the model are not documenting reality; they are false about precisely the
 thing they exist to record.
 
-The mistake was conflating two different kinds of artifact. The
+The mistake was conflating two different kinds of artefact. The
 preserve-don't-maintain rule in
 [`CLAUDE.md` § Decision Logging](../CLAUDE.md#decision-logging-non-negotiable),
 whose worked example is
@@ -1285,7 +1285,7 @@ time*, and they stay valuable as records even when the belief turned out wrong.
 A row in the AI call log is not narrative. It **asserts a fact about an external
 event**: this call used model M. When the call used model N, the row is not a
 preserved belief, it is wrong data about something that really happened — sitting
-in the one artifact in this project whose entire value is factual accuracy about
+in the one artefact in this project whose entire value is factual accuracy about
 external events. The dialog's own blurb says these are the calls the app made.
 Keeping a row that misstates one preserves an error, not a history.
 
@@ -1991,7 +1991,7 @@ because the tab is the only view that decides a favicon:
 * **D, ring and hub** — inner ring becomes a solid fill. The most robust and the
   least faithful.
 
-**The user picked B**, the furthest toward faithful that still survives 16px.
+**The user picked B**, the furthest towards faithful that still survives 16px.
 Recorded because the rejected options are the content: a later session looking at
 this file will see a mark whose proportions do not match `.mark__reel` and may
 "correct" it back to A, which is the one option already proven not to work.
@@ -2013,9 +2013,9 @@ this file will see a mark whose proportions do not match `.mark__reel` and may
 Claude initially advised that "Safari is the historical laggard" and that an
 airtight fix "would need a real `.ico`". The user asked whether current Safari
 still probes for one. **It does not.** Safari 26.0 added SVG favicon support;
-caniuse shows desktop and iOS Safari unsupported through 18.7 and supported from
-26.0 on, and WebKit's own release notes for 26.0 say it covers favicons rather
-than only the old pinned-tab `mask-icon`.
+caniuse shows desktop and iOS Safari unsupported in 18.7 and earlier but
+supported from 26.0 on, and WebKit's own release notes for 26.0 say it covers
+favicons rather than only the old pinned-tab `mask-icon`.
 
 Worth recording how that was established, because the first attempt failed: a
 plain web search returned two articles flatly contradicting each other — one
@@ -2280,8 +2280,8 @@ THIRD shrink-to-fit, percentage-centred element is ever added, reach for
 > real class by name, then overrides "the properties that currently matter," is
 > exactly one CSS change on the real class away from silently measuring the wrong
 > thing. Overriding defensively — every property in the same CATEGORY, not just
-> the ones presently in play — is what would have prevented this from breaking at
-> all.
+> the ones currently in play — is what would have prevented this from breaking
+> at all.
 
 ## D-061 · Two bugs in the D-060 extension, both user-caught with screenshots — a scope regression and a real correctness bug in `softHyphenate()`
 
@@ -2472,7 +2472,7 @@ demo, a grading rubric complaint, anything beyond this.
 
 ## D-058 · Forcing a flex wrap at a chosen breakpoint needs a SEPARATE element, not a clamp on the item that wraps
 
-**The ask.** "New verdict" was left to natural flex-wrap math and only dropped
+**The ask.** "New verdict" was left to natural flex-wrap maths and only dropped
 to its own line around 537px. The user wanted that forced earlier, at 680px,
 with the button's own rendered width identical whichever way it wraps.
 
@@ -2519,7 +2519,7 @@ reasoning.
 were tried and both are dead ends for the same underlying reason, not two
 independent bugs.
 
-## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs. what is heard
+## D-057 · The verdict typing effect: a single writer, and two separate children for what is seen vs what is heard
 
 **The choice.** `#verdict-text`'s content is [now written through ONE function](https://github.com/guycn1/cinerank-project/commit/1b2422ff9bc920a0e473626dd004a77681154611),
 `setVerdictText(text, { typed })`, rather than eight scattered
@@ -2546,7 +2546,7 @@ same node, so they got two different children instead of one compromise.
 words) that wrap across several lines at the banner's width, and there is no
 CSS-only mechanism that reveals wrapped, proportional-width text
 character-by-character without JS measuring each line — the kind of measurement
-this project has gotten wrong twice before by estimating instead
+this project has got wrong twice before by estimating instead
 ([D-030](#d-030--three-digit-ranks-are-capped-not-documented-away)'s Fraunces
 figure widths). JS driving a `textContent.slice()` loop on a dedicated node was
 more work than the CSS idea but had no hidden measurement step to get wrong.
@@ -2695,7 +2695,7 @@ multiplies every phase shift and the layers stop nesting.
 
 **2. The alphas must be SOLVED, not chosen — and they are not monotonic.**
 Layers composite multiplicatively (`1 - PROD(1 - a)`), so scaling them all
-saturates the core toward 1 while the tips rise linearly, FLATTENING the taper
+saturates the core towards 1 while the tips rise linearly, FLATTENING the taper
 into the hard bar it was meant to replace. The user tried exactly that
 (quadrupling every alpha) and reported it looked worse; measured, the core/tip
 ratio fell from 7:1 to 4.4:1. The right method is to pick the target profile and
@@ -3315,7 +3315,7 @@ specific message — never a raw dump". It was a raw dump. The causes are intern
 — `OpenRouter unreachable (TimeoutError)`, `OpenRouter responded 401`, `Model
 did not return valid JSON`, `DB read failed: <postgres text>` — so an outage
 named our vendor and a JavaScript error class to somebody who wanted a film
-suggestion. The movie path, two files away, has said `Couldn’t reach the movie
+suggestion. The film path, two files away, has said `Couldn’t reach the movie
 database. Try again in a moment.` since
 [D-042](#d-042--a-failure-message-is-a-context-plus-a-cause-and-the-cause-carries-its-own-short-form).
 
@@ -3482,7 +3482,7 @@ before, while the review itself looked correctly wrapped — the most expensive
 kind of near-miss, since the visible symptom would have moved without the cause.
 
 `overflow-wrap: anywhere` is identical in rendering and different in
-**measurement**: its break opportunities DO count toward intrinsic sizes, so
+**measurement**: its break opportunities DO count towards intrinsic sizes, so
 min-content collapses to roughly one character and the track can no longer be
 pushed open. Same appearance, different arithmetic. **Do not "simplify" it to
 `break-word`.**
@@ -3827,7 +3827,7 @@ re-rendering.
 
 Three options:
 
-* **A — reuse card elements keyed by movie id**
+* **A — reuse card elements keyed by film id**
   ([D-031](#d-031--the-ranked-list-re-sorts-with-a-view-transition-not-a-rewritten-renderer)'s
   option B). Fixes #14 as
   a side effect of never destroying the node. **Rejected again, for a reason
@@ -3842,7 +3842,7 @@ Three options:
 * **B — persist to `localStorage`.** Rejected: expansion is a transient reading
   state, not a preference. The user confirmed the scope explicitly — it should
   not survive a page reload.
-* **[C — a `Set` of movie ids on `state`, seeded into each rebuilt card.](https://github.com/guycn1/cinerank-project/commit/99e118b646e7ec4d97caaefc15a0c04bc366380e)**
+* **[C — a `Set` of film ids on `state`, seeded into each rebuilt card.](https://github.com/guycn1/cinerank-project/commit/99e118b646e7ec4d97caaefc15a0c04bc366380e)**
   Chosen.
   Eight lines of non-comment code, and no change to how often anything renders.
 
@@ -3863,7 +3863,7 @@ writer for the class, the label and `aria-expanded`, because those three had
 drifted once. The `Set` is a fourth facet of the same fact. Had the click handler
 owned it, `syncReviewToggles()`'s collapse of a no-longer-clipping review would
 have gone unrecorded, and the DOM and the `Set` would have disagreed from the
-very next render onward — the same drift, one layer down.
+very next render onwards — the same drift, one layer down.
 
 ### Traps
 * `syncReviewToggles()`'s first pass collapses with a bare `classList.remove()`
@@ -4328,7 +4328,7 @@ Four options were laid out:
 * **A — animate first paint only** (~6 lines). Kills the churn, keeps the
   entrance on load. But the list still hard-swaps, and expanded reviews still
   collapse.
-* **B — reuse card elements keyed by movie id** (~50 lines). The "proper" fix:
+* **B — reuse card elements keyed by film id** (~50 lines). The "proper" fix:
   fixes the churn, the collapsing reviews and the poster churn, and is the
   prerequisite for C.
 * **C — B plus a FLIP transition** (~25 more lines). Cards visibly slide.
@@ -4444,13 +4444,13 @@ on and the user accepted:
 
 CSS cannot count characters, so `renderRanked()` marks the digit count with an
 `is-wide` class; the threshold is 99 and not 9 because two digits were measured
-and fit at every width.
+and fitted at every width.
 
 **The size took [three passes](https://github.com/guycn1/cinerank-project/compare/6141ca5f24d91d67b317a833df2c5ab28ebed8af...3e0b657345b5a507df4da2699e4bf519c8cb9ed8), because the first two were estimated instead of
 measured — this is the substantive lesson of the entry.** [`2.75rem`](https://github.com/guycn1/cinerank-project/commit/0292bf412c56cb5053eaaa9bf04ae7d332e66644) was derived
 from a guess that Fraunces Black's figures are ~0.63em; it still clipped.
 [`2.1rem`](https://github.com/guycn1/cinerank-project/commit/5375cffe7ef673083cca99086eab8f138d125e81) then over-corrected to a pessimistic ~0.8em, which cleared but made
-#100 conspicuously smaller than #99 — sliding back toward the "ugly, sloppy"
+#100 conspicuously smaller than #99 — sliding back towards the "ugly, sloppy"
 look the fix existed to avoid. [Only then was the value actually measured](https://github.com/guycn1/cinerank-project/commit/3e0b657345b5a507df4da2699e4bf519c8cb9ed8), with
 `Range.getBoundingClientRect()` on a live `222`: **0.66em per digit** (66.5px at
 a 33.6px font). Solving against that gives `clamp(1.5rem, 4vw, 2.4rem)` —
@@ -4556,7 +4556,7 @@ fuzzy or edit-distance parameter to enable, and TMDB's own website behaves the
 same way. So there was nothing to un-break on our side.
 
 **A local, no-AI spellcheck is not merely expensive, it is impossible here.**
-Correction needs a corpus to correct *toward*, and we have none: the catalogue
+Correction needs a corpus to correct *towards*, and we have none: the catalogue
 lives at TMDB, we only ever see the twelve results of one query, and on a typo we
 see zero. A generic dictionary would not help either — film titles are full of
 proper nouns, invented words and stylised spellings. Nothing in this repo can
@@ -4605,7 +4605,7 @@ usually reached for.
 
 - [**"+ Add"** uses a plain `+`](https://github.com/guycn1/cinerank-project/commit/49855a85bb38ff3d7f001203191c5c822438360f) (U+002B), not the heavy-plus emoji. It is
   `currentColor`, so it follows hover and the disabled dim for free, and it
-  matches the text-glyph checkmark already in "Added".
+  matches the text-glyph tick already in "Added".
 - **[The Search button's magnifier is an inline SVG](https://github.com/guycn1/cinerank-project/commit/b28dc9bfa52d9f86035ca134e36e3db30ae1a059)**, not the magnifier emoji and
   not the text glyph `⌕`. `⌕` looks like the right answer and is a trap: it lives
   in Miscellaneous Technical (its actual Unicode name is TELEPHONE RECORDER),
@@ -4977,7 +4977,7 @@ step 4). [Migration 001](../db/migrations/001_ai_log_details.sql) adds `prompt_t
 `status`, `error_text` to both tables. The services were restructured so that once
 an AI call is attempted a row is **always** written — a handled model/parse/network
 failure logs `status='failed'` with the message, then re-throws for the calm inline
-UI error. Pre-call guards (not enough rated movies, DB read failure) still throw
+UI error. Pre-call guards (not enough rated films, DB read failure) still throw
 without logging — those aren't AI calls.
 
 ## D-009 · Recommendation reason voice → `recommend_v2`
@@ -4994,8 +4994,8 @@ only calls OpenRouter on the explicit "New verdict" click — no burning credit 
 an unrequested repeat call every page load ([SPEC § 2.3](../SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)).
 
 ## D-007 · Ranking is derived, never stored
-`GET /api/movies` returns movies ordered by `rating desc nulls last`; the
-frontend numbers them 1..N on render. No stale `rank` column ([SPEC § 2.1](../SPEC.md#21-core-movie-management-the-crud-but-done-right)).
+`GET /api/movies` returns films ordered by `rating desc nulls last`; the
+frontend numbers them 1..N on render. No stale `rank` column ([SPEC § 2.1](../SPEC.md#21-core-film-management-the-crud-but-done-right)).
 
 ## D-006 · Frontend: vanilla, but not plain
 No framework. The "polished, distinctive" bar ([SPEC § 3](../SPEC.md#3-interface-design-module-8)) is met with deliberate
@@ -5034,12 +5034,12 @@ failure is surfaced as an error, not swallowed — the audit record is the point
 ## D-002 · The AI is a component, not the product
 Two narrow LLM features (recommendations, taste verdict), each in its own service
 module, each with its own versioned prompt file. Either can be mocked or removed
-without touching movie CRUD. The model never supplies a fact shown to the user:
+without touching film CRUD. The model never supplies a fact shown to the user:
 recommendations return *titles only*, and TMDB supplies poster/year/overview after
-a cross-check. This is the concrete guard against hallucinated movies.
+a cross-check. This is the concrete guard against hallucinated films.
 
 ## D-001 · Scope: single-user, no auth — and why that isn't a security hole
-The app is one person's movie list. [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)'s real topics — injection, secrets,
+The app is one person's film list. [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)'s real topics — injection, secrets,
 prompt injection, least privilege — are all demonstrable without multi-user auth.
 Least privilege here = the server uses the Supabase **anon key**, which is
 RLS-bounded, never the `service_role` key; the browser never talks to Supabase at

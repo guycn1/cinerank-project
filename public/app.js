@@ -97,7 +97,7 @@ const state = {
   movies: [],
   cfg: { minRatedForRecommendations: 3, minRatedForVerdict: 2, topN: 5 },
   ownedTmdbIds: new Set(),
-  // Which reviews the user has expanded, by movie id (backlog #14). It lives
+  // Which reviews the user has expanded, by film id (backlog #14). It lives
   // here and NOT in the DOM because renderRanked() rebuilds every card on every
   // render, and a class on a <p> cannot outlive that <p> — so expanding one
   // review and then rating a DIFFERENT film silently collapsed it again.
@@ -402,7 +402,7 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   const busy = document.createElement('span');
   busy.className = 'busy-label';
   // NON-BREAKING space, so the spinner can never be orphaned from its word.
-  // A spinner, a checkmark and a plus are GLYPHS, not words: a label may wrap
+  // A spinner, a tick and a plus are GLYPHS, not words: a label may wrap
   // between real words on a narrow screen, but "⟳ / Adding…" split across two
   // lines is never acceptable. Done here rather than per button because every
   // busy label in the app is built by this one line.
@@ -772,7 +772,7 @@ function renderRanked() {
   const count = state.movies.length;
   // EMPTY LIST SHOWS NO SUBTITLE AT ALL, and the ternary is what makes that so.
   // rankedCountLabel(0, 0) would return "0 films", which beside the empty-state
-  // line -- "No movies yet -- search for one above to get started." -- says
+  // line -- "No films yet — search for one above to get started." -- says
   // nothing twice. Do not simplify this into an unconditional call.
   el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
@@ -837,7 +837,7 @@ function renderRanked() {
       // font size — "250" overran the gap and the poster painted over its last
       // digit. CSS cannot count characters, so the digit count is marked here
       // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
-      // not 9: two digits were measured and fit fine at every width.
+      // not 9: two digits were measured and fitted fine at every width.
       if (ranking[i].rank > 99) rank.classList.add('is-wide');
       // Says the repeated number is deliberate. Without it two adjacent cards
       // showing "2" read as a rendering fault. Deliberately NOT baked into the
@@ -1059,7 +1059,7 @@ function syncReviewToggles() {
     // Deliberately a bare classList.remove() and NOT setReviewExpanded(): this
     // collapse is a measuring fixture, not a state change. Routing it through
     // the single writer would rewrite the label and aria-expanded on every
-    // resize frame, and would clear the movie's entry in state.expandedReviews
+    // resize frame, and would clear the film's entry in state.expandedReviews
     // before pass three has decided whether to put it back. Pass three is where
     // this pass's one real decision gets written.
     if (it.wasExpanded) it.p.classList.remove('expanded');
@@ -1448,7 +1448,7 @@ async function addMovie(tmdbId, btn) {
     // impossible to ever see, and made syncAddButtons() pointless —
     // there would be no other rows left on screen to re-sync. Keeping it lets
     // you add a second film from the same results instead of re-searching.
-    // Prompt to rate the movie right away; "Skip for now" leaves it unrated.
+    // Prompt to rate the film right away; "Skip for now" leaves it unrated.
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
@@ -1494,7 +1494,7 @@ function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
   state.editingIsNew = isNew;
   el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
-  // On a fresh add, closing without saving just leaves the movie unrated —
+  // On a fresh add, closing without saving just leaves the film unrated —
   // make that an explicit "later" choice, not a dead-end "Cancel".
   el.rateCancel.textContent = isNew ? 'Skip for now' : 'Cancel';
   el.rateRange.value = movie.rating ?? 7;
@@ -1736,10 +1736,10 @@ function syncRecommendationsAvailability() {
   if (!ok) {
     state.recsHintFromRun = false; // availability takes the element back (R1)
     el.recsHint.classList.remove('err');
-    setRecsHint(`Rate at least ${need} movies to unlock recommendations (you have ${have}).`);
+    setRecsHint(`Rate at least ${need} films to unlock recommendations (you have ${have}).`);
     // R16. Remove rated films until the count falls under the threshold and the
     // section locks — but the previous run's cards used to stay on screen, so
-    // "Rate at least 3 movies to unlock recommendations" sat directly above six
+    // "Rate at least 3 films to unlock recommendations" sat directly above six
     // recommendations. The section has exactly ONE message channel (this hint),
     // and the availability text has just taken it, so there is no room to
     // caption the cards as a past run without either overloading the single
@@ -1819,7 +1819,7 @@ const EMPTY_REASON_TEXT = {
   'all-owned': 'No new suggestions this time — the model only named films already in your list.',
   'none-named': 'No suggestions this time — the model didn’t name any films. Try again.',
   'tmdb-unreachable':
-    'Couldn’t check any of the suggestions — the movie database is unreachable. Try again in a moment.',
+    'Couldn’t check any of the suggestions — the film database is unreachable. Try again in a moment.',
   unverifiable: 'No new suggestions this time — none of the films it named could be verified.',
   mixed: 'No new suggestions this time.',
 };
@@ -2352,7 +2352,7 @@ function syncVerdictAvailability() {
     state.verdictTextFromRun = false; // availability takes the banner back
     clearVerdictMeta();
     el.verdictText.classList.add('is-muted');
-    setVerdictText(`Rate at least ${need} movies to get a verdict (you have ${have}).`);
+    setVerdictText(`Rate at least ${need} films to get a verdict (you have ${have}).`);
   } else if (!state.verdictTextFromRun) {
     el.verdictText.classList.add('is-muted');
     setVerdictText('Tap “New verdict” for an AI-generated read on your taste.');
@@ -3094,7 +3094,7 @@ document.addEventListener('copy', (e) => {
   try {
     await loadMovies();
   } catch (err) {
-    toast(failureText('Couldn’t load your movies', err), true);
+    toast(failureText('Couldn’t load your films', err), true);
     // THE PLACEHOLDER HAS TO BE RETIRED HERE, because nothing else will.
     // 'Reading the room...' ships in the markup and is replaced by
     // syncVerdictAvailability() -- which loadMovies() calls AFTER its await, so
@@ -3112,6 +3112,6 @@ document.addEventListener('copy', (e) => {
     // the list never loaded -- and 'you have 0' would be a guess presented as a
     // fact, which is exactly the error the recs hint used to make on this path.
     el.verdictText.classList.add('is-muted');
-    setVerdictText('Couldn’t read the room — your movies didn’t load.');
+    setVerdictText('Couldn’t read the room — your films didn’t load.');
   }
 })();

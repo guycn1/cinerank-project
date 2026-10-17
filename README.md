@@ -15,7 +15,7 @@ it and the top three rated films below](docs/screenshots/readme-1-hero-ranked-li
 belting her lungs out" is drawn from the Wicked review, both visible in the
 same screenshot.*
 
-A personal movie-ranking app where the database and the AI each earn their place:
+A personal film-ranking app where the database and the AI each earn their place:
 
 - **The database** tracks a growing *taste profile* (your rated films + reviews)
   that is read back to ground AI recommendations, and it keeps an **audit log of
@@ -200,7 +200,7 @@ The mitigation itself is visible in the [prompt files](prompts/): review text is
 fenced in `BEGIN` / `END` markers labelled *untrusted data*, with a standing
 instruction that the model's instructions come only from outside them. Five
 frames in total —
-[`docs/screenshots/pi-1` through `pi-5`](docs/screenshots/README.md#pi---prompt-injection)
+[`docs/screenshots/pi-1` to `pi-5`](docs/screenshots/README.md#pi---prompt-injection)
 — cover the stored review rendered inert, both AI features resisting, and the
 input paired with each output. Full analysis in
 [docs/SECURITY.md](docs/SECURITY.md) under
@@ -348,7 +348,7 @@ path rather than its endpoints.
 │   │   ├── tasteVerdict.js      /api/taste-verdict — a new verdict
 │   │   └── aiLog.js             /api/ai-log — both log tables, merged
 │   └── services/
-│       ├── tmdb.js              all TMDB API calls; the trusted source of movie facts
+│       ├── tmdb.js              all TMDB API calls; the trusted source of film facts
 │       ├── openrouter.js        the OpenRouter transport both AI features share
 │       ├── promptLoader.js      loads a versioned prompt at call time, fills {{VARS}}
 │       ├── recommendations.js   taste profile → prompt → JSON → verify vs TMDB → log
@@ -392,7 +392,7 @@ path rather than its endpoints.
 ## Demo script
 
 1. Start from the [seeded demo list](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once) (seven films, one left unrated) → add a real
-   movie via TMDB search and rate it.
+   film via TMDB search and rate it.
 2. Show the ranked list re-sorting live as ratings change; hit **New verdict**
    for a fresh read on your taste.
 3. Trigger a recommendation run, narrating: top-N pulled → versioned prompt sent
@@ -404,7 +404,7 @@ path rather than its endpoints.
 5. Show the two guarded states: search for a film already in the list, whose
    row offers `In your list` in place of Add, and drop below 3 rated films,
    where the recommendation trigger is disabled with the reason beside it.
-6. (Optional) add [a movie whose review is an injection
+6. (Optional) add [a film whose review is an injection
    attempt](#resisting-a-prompt-injection-module-17) ("ignore previous instructions…") and show the verdict staying on-topic.
 
 ## Deployment
@@ -446,7 +446,7 @@ built it, including the ones that do not apply and why. The short version:
 - `.env` [did not exist in the first
   commit](docs/ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history), [a one-line README](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) that the user
   checked by hand and that holds no secret, and it is gitignored from [the second
-  commit](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content, onward. [`npm run
+  commit](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content, onwards. [`npm run
   scan-secrets`](scripts/scan-secrets.js) checks staged diffs.
 - The server uses the Supabase **anon key** only — least privilege,
   RLS-bounded — and the browser never receives it.

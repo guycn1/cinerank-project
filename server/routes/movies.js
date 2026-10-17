@@ -1,5 +1,5 @@
 /**
- * The movie CRUD routes, mounted at /api/movies: the ranked list, a TMDB search
+ * The film CRUD routes, mounted at /api/movies: the ranked list, a TMDB search
  * proxy, add, rate/review, and remove.
  *
  * @module server/routes/movies
@@ -89,9 +89,9 @@ moviesRouter.get(
         // consumer behaves exactly as it did. It exists for the client's
         // failureText(), which puts a context in front of the cause and cannot
         // use the full sentence without doubling — 'Couldn’t add “Dune” —
-        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        // Couldn’t reach the film database. Try again in a moment.' (D-042).
         return res.status(502).json({
-          error: "Couldn’t reach the movie database. Try again in a moment.",
+          error: "Couldn’t reach the film database. Try again in a moment.",
           short: 'TMDB is unreachable',
         });
       }
@@ -124,9 +124,9 @@ moviesRouter.post(
         // consumer behaves exactly as it did. It exists for the client's
         // failureText(), which puts a context in front of the cause and cannot
         // use the full sentence without doubling — 'Couldn’t add “Dune” —
-        // Couldn’t reach the movie database. Try again in a moment.' (D-042).
+        // Couldn’t reach the film database. Try again in a moment.' (D-042).
         return res.status(502).json({
-          error: "Couldn’t reach the movie database. Try again in a moment.",
+          error: "Couldn’t reach the film database. Try again in a moment.",
           short: 'TMDB is unreachable',
         });
       }

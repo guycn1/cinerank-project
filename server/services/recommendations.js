@@ -142,7 +142,7 @@ export function parseModelJson(text) {
 }
 
 /**
- * Belt-and-suspenders: strip markdown, and if the model overshoots the word
+ * Belt-and-braces: strip markdown, and if the model overshoots the word
  * budget cut at the last sentence end (else last word), never mid-word.
  *
  * @param {string} raw  One reason as the model wrote it.
@@ -228,7 +228,7 @@ export async function generateRecommendations() {
   const rated = library.filter((m) => m.rating != null);
   if (rated.length < config.recommendations.minRatedMovies) {
     throw new RecommendationError(
-      `Need at least ${config.recommendations.minRatedMovies} rated movies`,
+      `Need at least ${config.recommendations.minRatedMovies} rated films`,
       // The one cause a user can act on, so it reaches them word for word.
       { userFacing: true }
     );

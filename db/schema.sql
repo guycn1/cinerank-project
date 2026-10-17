@@ -35,7 +35,7 @@ create table if not exists recommendation_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "recommend_v2"
-  input_movie_ids    uuid[]  not null,           -- top-N movies used as taste signal
+  input_movie_ids    uuid[]  not null,           -- top-N films used as taste signal
   raw_model_output   jsonb,                      -- reply text, parsed picks, verification tally; null if no reply
   suggested_titles   text[],                     -- parsed titles, post TMDB validation
   model_used         text,
@@ -55,7 +55,7 @@ create table if not exists taste_verdict_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "taste_verdict_v1"
-  input_movie_ids    uuid[]  not null,           -- ALL rated movies (overall taste, not favorites)
+  input_movie_ids    uuid[]  not null,           -- ALL rated films (overall taste, not favourites)
   verdict_text       text,
   model_used         text,
   tokens_used        integer,

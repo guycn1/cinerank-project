@@ -13,7 +13,7 @@ v5 than any adjective did. Everything else — what to say, length, plain text,
 injection guard — is unchanged from v4. Loaded by services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

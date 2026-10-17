@@ -6,7 +6,7 @@ taste_verdict_v2.md when the logic changes. Loaded at call time by
 server/services/tasteVerdict.js — never inlined in code.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

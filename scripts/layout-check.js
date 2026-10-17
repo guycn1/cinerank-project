@@ -283,7 +283,7 @@ const RECOMMENDATIONS = {
 };
 
 const VERDICT = {
-  verdict: 'You gravitate toward uncompromising, extraordinarily physical filmmaking, SquarePants-level absurdity included, and you quietly punish anything that plays it safe. Knives Out lands because it is clever; Saw lands nowhere because it mistakes cruelty for craft.',
+  verdict: 'You gravitate towards uncompromising, extraordinarily physical filmmaking, SquarePants-level absurdity included, and you quietly punish anything that plays it safe. Knives Out lands because it is clever; Saw lands nowhere because it mistakes cruelty for craft.',
   meta: { promptVersion: 'taste_verdict_v7', model: 'fixture/none', tokensUsed: 0, estimatedCostUsd: 0, durationMs: 0 },
 };
 
@@ -324,7 +324,7 @@ function fixtureAiLog() {
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 
 /**
- * Answer one fixture API request. Writes to the movie list are held open.
+ * Answer one fixture API request. Writes to the film list are held open.
  *
  * @param {http.IncomingMessage} req
  * @param {http.ServerResponse} res

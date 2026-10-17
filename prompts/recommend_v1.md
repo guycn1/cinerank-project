@@ -6,7 +6,7 @@ logic changes, add recommend_v2.md and bump the version string passed to the log
 Loaded at call time by server/services/recommendations.js — never inlined in code.
 
 Placeholders filled by the service:
-  {{TASTE_PROFILE}}  — the user's top-N rated movies, one per line, with rating and
+  {{TASTE_PROFILE}}  — the user's top-N rated films, one per line, with rating and
                        (delimited) review text. Review text is UNTRUSTED user input.
 -->
 

@@ -43,7 +43,7 @@ also why the real interface requirements emerged from using the built app rather
 than from the brief, which is the whole of
 [Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-05-to-2026-09-12).
 An interface brief can fix the hierarchy and the mental model. It cannot
-anticipate that a hovered card drifts toward its upper neighbour, or that a flex
+anticipate that a hovered card drifts towards its upper neighbour, or that a flex
 item's automatic minimum size will break a button label in two. Those needed a
 running app and a human looking at it.
 

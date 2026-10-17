@@ -9,7 +9,7 @@ document. It is the authority on scope boundaries; `SPEC.md` § 1 predates it.
 
 ## Project Context
 
-CineRank is a personal movie-ranking app.
+CineRank is a personal film-ranking app.
 
 This project consists of:
 
@@ -17,7 +17,7 @@ This project consists of:
 * A genuinely polished, distinctive UI — not a generic default-component look.
 * Genuine, narrow-scope AI features (OpenRouter-based recommendations and a short taste verdict) that read real stored data and write a real audit log — not a general chatbot bolted onto the app.
 
-Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
+Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank films via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
 
 
 ## Project Status — Living Log
@@ -188,7 +188,7 @@ trying out the silver rule (that day's entry, below): "second." broke as
 as part of a word, so any six-letter word followed by punctuation was long
 enough to break, two letters from its end ("brea-th,", "clev-er;"), and
 "couldn’t", runs of digits and runs of emoji broke too. Only a grapheme
-holding a letter now counts toward D-080's minimums, and a soft hyphen goes
+holding a letter now counts towards D-080's minimums, and a soft hyphen goes
 only between two letters. `npm run layout-check`'s probe counts the same way,
 reading the letter class out of `app.js`, and fails a soft hyphen beside
 anything but a letter.
@@ -636,7 +636,7 @@ reset after it.
 present, typed and correctly named, but 16 blocks had tags and no description
 line, and one file-level function, `SECTION_EXEMPT` in
 `scripts/check-claims.js`, had no block at all. All 17 are fixed, comments only:
-each changed file tokenizes identically to the version before.
+each changed file tokenises identically to the version before.
 
 #### 2026-09-28
 
@@ -748,7 +748,7 @@ only** (`a732e26`, `e07b67a`). Every file opens with a
 JSDoc header — `@module` where it exports, `@file` where it does not — and every
 named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
-shapes are typedefs. Each file was proved unchanged as code by tokenizing it
+shapes are typedefs. Each file was proved unchanged as code by tokenising it
 against its previous version. *(Sixteen blocks still had no description
 line and one function no block at all; they were found by a parse-based audit
 on 2026-09-29 and each given its description.)*
@@ -961,7 +961,7 @@ was ticked by the reconciliation.
   call log's card-view labels no longer misalign when they wrap; and the toast got
   a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware
   widening at 700/500px and below that leaves short messages untouched (D-060-era
-  `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently
+  `is-long` logic), and a real centring bug fix (D-062 — `left: 50%` was silently
   halving its available width for shrink-to-fit sizing, found by the user, not by
   this session's own — repeatedly unreliable — headless-Chrome verification
   attempts).
@@ -998,7 +998,7 @@ carries the current state.
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + migrations `001` through `004`
+* Supabase project is live; `db/schema.sql` + migrations `001` to `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
 * As of 2026-10-01, `main` is at the thirty-first merge, a defect fix
@@ -1249,7 +1249,7 @@ carries the current state.
     to `draft` first, on the user's instruction.
 
 ### Implemented
-* Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
+* Film CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
   guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
   user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
   Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
@@ -1603,7 +1603,7 @@ and stay as written.
     other columns. (An early caveat about the last row's panel being clipped is
     obsolete twice over: `.log-scroll` is `overflow: visible` so it clips nothing,
     and the panel now flips above its trigger when there is no room below.)
-    Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
+    Table text also toned down (`.log-table` colour `#e0dcd3`, was `--ink`).
   - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
     Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
     `taste_verdict_v1`→`TV_v1`, model→slug after the `/`. `abbrCell()` +
@@ -1783,7 +1783,7 @@ muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
 2026-09-07 pass below is
 behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
 and is recorded in this section's bullets below, from the Add button's
-`flex-shrink: 0` onward; it came out of the same whole-app sweep as the
+`flex-shrink: 0` onwards; it came out of the same whole-app sweep as the
 ranked-list work: the Add button breaking in two, the input refusing to
 yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
 mid-word, and a grid layout at 500px and below that never took effect and was
@@ -2216,7 +2216,7 @@ status is further down this section. What landed:
   **All four desktop-only properties are reset inside the existing 620px
   query**, so card mode is untouched; `align-self: stretch` needs no reset
   because the score moves to its own grid row there, sized by itself, where
-  stretch and center are the same box.
+  `stretch` and `center` are the same box.
 
   Top vs centred was settled by a side-by-side screenshot: centring made each
   title's distance from the card's top edge depend on its review length, so
@@ -2305,7 +2305,7 @@ status is further down this section. What landed:
 - **An expanded review stays expanded across a re-render** (#14, D-040).
   `renderRanked()` rebuilds every card, so the `expanded` class died with the
   node it was on: expanding one review and then rating a DIFFERENT film
-  collapsed it. The expansion is now a `Set` of movie ids on `state`, seeded
+  collapsed it. The expansion is now a `Set` of film ids on `state`, seeded
   back into each rebuilt card.
 
   **The backlog row for #14 claimed only D-031's element-reuse rewrite could
@@ -2477,7 +2477,7 @@ status is further down this section. What landed:
 
   **The lift itself was then removed, same day, on the user's report.** A
   `translateY(-5px)` is directional: it shrank the gap ABOVE the card by 5px
-  and opened the one below, so a hovered card drifted toward its upper
+  and opened the one below, so a hovered card drifted towards its upper
   neighbour — measured at 10px above vs 20px below, a 2:1 split the user
   spotted straight away. In a vertical list of identical siblings that
   asymmetry is the most visible thing about the effect. The card now scales
@@ -2924,7 +2924,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   `OpenRouter responded 401`, `DB read failed: <postgres text>`. Now a calm
   sentence, with the technical cause going only to the log row's `error_text`
   (asserted by a test). **One cause survives verbatim:** "Need at least 3
-  rated movies" is the answer to the user's question, not a fault report —
+  rated films" is the answer to the user's question, not a fault report —
   flagged `userFacing` at its throw site rather than pattern-matched in the
   route, so the two cannot drift.
 
@@ -3028,7 +3028,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   have been one edit away from the same invisible bug.
 
   The ranked card's vocabulary ported verbatim: `scale(1.02)` and NO
-  `translateY` (a lift is directional and drifts the card toward one
+  `translateY` (a lift is directional and drifts the card towards one
   neighbour — worse in a grid, where it has row-mates too), an amber border,
   and three glow layers at a **zero Y-offset** with no black layer, because
   on `--bg: #0b0b0f` a black shadow has nothing left to darken (D-044).
@@ -3118,7 +3118,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   Two traps: `transform-box: fill-box` is REQUIRED, since an SVG element's
   `transform-origin` otherwise resolves against the SVG viewport corner and
-  `scale()` swings the star toward the top-left instead of breathing in
+  `scale()` swings the star towards the top-left instead of breathing in
   place; and the animation is switched OFF on a disabled trigger, because a
   locked section twinkling at the user invites a click that does nothing.
 
@@ -3189,7 +3189,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
 * **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
   Remove rated films until the count falls under the threshold: the trigger
-  correctly disabled and the hint correctly said "Rate at least 3 movies to
+  correctly disabled and the hint correctly said "Rate at least 3 films to
   unlock recommendations", directly above six recommendations. The grid and
   the metadata footer are now cleared in the same branch that writes that
   text.
@@ -3430,13 +3430,13 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   **`.search button:hover` DOES use an offset amber pool and that is not an
   inconsistency either:** it is a FILLED button reading as a lit object
-  casting light downward, which is a different thing from an outline lighting
+  casting light downwards, which is a different thing from an outline lighting
   up. Do not unify them.
 
 * **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
   was revised the same day. The two sentences
   `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films
-  as taste signal…" and "Rate at least 3 movies to unlock…" — are
+  as taste signal…" and "Rate at least 3 films to unlock…" — are
   `--ink-dim`.
 
   **As first built, the rule was "who wrote the line": a `.from-run` class
@@ -3731,7 +3731,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   `rec-close` runs `scale(1, 1)` → `scale(0, 0.1)` from
   `transform-origin: left center`, so the card swings shut on a spine instead
-  of collapsing inward from both edges, and collapses toward a horizontal
+  of collapsing inwards from both edges, and collapses towards a horizontal
   line on the way — the user's call, tried at 0.5 first and taken further.
   Not to 0 on that axis: something still has to be visibly closing rather
   than already gone. The opacity runs straight from 1 to 0 across the whole
@@ -3871,7 +3871,7 @@ every width rather than only where the clamp happened to be resting.
 
 **The icon-clipping question, RESOLVED 2026-09-30: the real browser is the
 authority, and the headless finding is discarded.** On 2026-09-12 a
-headless-Chrome screenshot pass (292 through 600px) appeared to show the header
+headless-Chrome screenshot pass (292 to 600px) appeared to show the header
 GitHub icon fully clipped off-canvas from ~510px down. The user's own real
 browser directly contradicted it — a live screenshot at
 `window.innerWidth === 406` showed the icon completely visible, dead centre of
@@ -4007,7 +4007,7 @@ transcription fails at the only size that matters: normalised to a 32-unit
 viewBox the logo's inner ring is **1.12 units — 0.56px at 16px**, which
 aliases into a smudge. Four candidates were drawn and compared at
 16/24/32/64px on light and dark tab strips; the user chose the one that goes
-furthest toward faithful while still holding at 16px (rings 4.0 and 2.2,
+furthest towards faithful while still holding at 16px (rings 4.0 and 2.2,
 notch 34° against the logo's 28.8°).
 
 **DO NOT "CORRECT" ITS PROPORTIONS BACK TO MATCH `.mark__reel`.** They differ
@@ -4021,9 +4021,9 @@ so at the top. Retune only at 16px — every candidate looks fine at 64px.
 **On SVG-only — Claude's first advice here was wrong and the user caught
 it.** It claimed Safari would still probe `/favicon.ico` and that an airtight
 fix needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
-unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
-covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
-and older still probe — the same 404 as before, not a new one.
+unsupported in 18.7 and earlier, supported 26.0+; WebKit's own 26.0 notes say it
+covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7 and
+older still probe — the same 404 as before, not a new one.
 
 **There is no 404 handler** for the probe to land on: `server/index.js` has
 only a central error handler, which fires on `next(err)`. The request falls
@@ -4557,7 +4557,7 @@ below; the search-results panel's height cap became a FLOOR rather than a
 second ceiling; mid-word title breaks hyphenate via `Intl.Segmenter` soft
 hyphens instead of breaking raw (D-060/D-061); the AI call log's card-view
 labels stopped misaligning when they wrap; and the toast got a real
-box-shadow, content-aware widening at 700/500px and below, and a genuine centering
+box-shadow, content-aware widening at 700/500px and below, and a genuine centring
 fix (D-062). **R18 was closed inside this step as won't-fix on measurement
 (D-063)**, which also closed step 2.
 
@@ -4590,7 +4590,7 @@ instruction block corrected to the finished state; the recipes it points at
 are still the working ones. <<<
 
 The checklist is under "Pre-submission blockers" below. The resilience
-screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states.
+screenshots are greppable as `RS-1` to `RS-16` — **sixteen** states.
 **FIVE recipes are order-dependent and will waste a session if skimmed:**
 RS-2 needs a search run BEFORE the key is broken; RS-6 and RS-14 need the
 page loaded BEFORE the server is stopped; RS-10 needs two views and a strict
@@ -4677,7 +4677,7 @@ below — this list is the smaller stuff.)
   commit, which destroyed the obvious way to eyeball the token and produced a
   confident false report that the two tiers were identical. When a token and one
   of its consumers move together, say what is left to compare against.
-* [x] User re-adding lost movies (see Incident 1) — MOOT as of 2026-09-13. The
+* [x] User re-adding lost films (see Incident 1) — MOOT as of 2026-09-13. The
   demo seed list exists and is loaded, so the list the submission ships with is
   the seeded one and there is nothing left to re-add.
 * [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
@@ -4698,14 +4698,14 @@ below — this list is the smaller stuff.)
   **The trap, if this is ever revisited: do NOT auto-size the rank track
   (`minmax(64px, auto)`)** — it would misalign every poster's left edge down the
   list, trading a rare problem for a permanent one. 1000+ is unhandled.
-* [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
+* [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated films
   (not empty) so the ranked list, both AI features, and the call log all work on
   first open. Blueprint agreed with user:
   1. One deliberate taste persona — a specific sensibility (e.g. "bold,
      stranger-than-fiction swings; bored by safe blockbusters"), not a generic
      spread, so the verdict + recs land.
-  2. Rating spread: a couple high, one mid, one low "guilty pleasure /
-     disappointment" outlier for contrast.
+  2. Rating spread: a couple of high ones, one mid, one low "guilty
+     pleasure / disappointment" outlier for contrast.
   3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
      demos the "show more" toggle + injection-safe handling.
   4. Recommendation headroom: likely AI picks not already in the list, real
@@ -4874,7 +4874,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 #### Resilience screenshots, RS-1 to RS-16
 
 * [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and SEVEN
-  MORE ADDED 2026-09-14 (RS-10 through RS-16), all written up in
+  MORE ADDED 2026-09-14 (RS-10 to RS-16), all written up in
   `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
   twenty-four frames embedded, grouped by which dependency failed, each with the
   exact string it must show and the decision it evidences. The recipes below
@@ -4938,7 +4938,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     that would have cost.
 
     **TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search anything.
-    Expect the crimson note inside the results panel: "Couldn’t reach the movie
+    Expect the crimson note inside the results panel: "Couldn’t reach the film
     database. Try again in a moment."
 
   - [x] **RS-2 · CAPTURED 2026-09-13 —
@@ -4985,7 +4985,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations. Distinct
     from RS-1 and RS-2: **the AI call succeeds and is charged while the run
     still produces nothing.** Expect the hint "Couldn’t check any of the
-    suggestions — the movie database is unreachable. Try again in a moment.",
+    suggestions — the film database is unreachable. Try again in a moment.",
     the metadata footer showing the real cost, and — in the AI call log — a
     green `success` row whose `suggested_titles` is empty. Before R28 this state
     claimed the model had only named films already in the list. Costs one real
@@ -5098,7 +5098,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     when the load succeeds).
 
     **A THIRD ELEMENT IS SKIPPED THE SAME WAY AND IS CORRECT — DO NOT "FIX"
-    IT.** `#ranked-empty` reads "No movies yet — search for one above to get
+    IT.** `#ranked-empty` reads "No films yet — search for one above to get
     started." and stays `hidden`, because `refreshRanked()` is below that
     `await` too. That is the right outcome: the user may have a full list and
     the app simply cannot reach it, so unhiding that sentence would assert
@@ -5109,7 +5109,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     exactly what the UI should show.
 
     **Database unreachable.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY`,
-    restart, reload. Expect the toast "Couldn’t load your movies — Something
+    restart, reload. Expect the toast "Couldn’t load your films — Something
     went wrong."
 
     **This is the ONE shot IN THIS SET where the ranked list is legitimately
@@ -5538,10 +5538,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   amendment.
 
 ### Incident log
-* **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
+* **Incident 1 (2026-09-04) — user film data deleted.** During AI-path testing
   Claude ran "delete all movies" as cleanup; the second run also removed the
   Marvel/superhero films the user had added (ratings + reviews lost, not
-  recoverable — free tier has no PITR/backups; logs kept only dead movie ids).
+  recoverable — free tier has no PITR/backups; logs kept only dead film ids).
   Also: Claude's `Get-Process node | Stop-Process` killed the user's running dev
   server. Both are process failures, not code bugs. Mitigations below are now
   binding.
@@ -5563,7 +5563,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 * **Backend:** Node.js + Express
 * **Database:** Supabase (Postgres) — see SPEC.md §5 for schema
 * **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
-* **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
+* **External API #1 (film data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
   - **Two models, on purpose (D-053):** recommendations run on the cheaper
     `anthropic/claude-haiku-4.5`, the taste verdict alone on
@@ -5588,7 +5588,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     feature via `OPENROUTER_MODEL` and `OPENROUTER_VERDICT_MODEL`. Keep these
     calls isolated in their own modules (e.g. `services/recommendations.js` and
     `services/tasteVerdict.js`) so either can be mocked/stripped without
-    touching core movie CRUD logic.
+    touching core film CRUD logic.
 
 
 ## Coding Conventions
@@ -5604,14 +5604,14 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
 The explicit goal is a genuinely polished, distinctive look — not a generic default-component appearance. Concretely:
 
-* Real typography choices (not default system font stack sizes) for the movie title/ranking numbers.
+* Real typography choices (not default system font stack sizes) for the film title/ranking numbers.
 * Good-looking CSS effects and animations.
 * Poster images treated as the primary visual anchor of each card — layout should be built around the poster, not squeeze it in as an afterthought.
 * Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list."
 
 ### Button labels and line breaks (the user's rule, 2026-09-09)
 
-**A glyph is not a word.** A checkmark, a plus, a spinner and the like must NEVER
+**A glyph is not a word.** A tick, a plus, a spinner and the like must NEVER
 be separated from the word they belong to — a two-line `+ Add` or `✓ Added` is
 unacceptable at **any** viewport width, however narrow.
 
@@ -5652,7 +5652,7 @@ it.
 * Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
 * The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
 * The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — plain text because a verdict has nothing structured in it to extract and nothing to check against TMDB; how it reads is its only measure.
-* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
+* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB film, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 
 ## Security \& Secrets (Module 17)
@@ -5660,11 +5660,11 @@ it.
 1. **Never write a secret into source code.** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TMDB_API_KEY`, and `OPENROUTER_API_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
 2. **Never build a database query by concatenating strings.** Use the Supabase JS client's query builder for all reads/writes.
 3. **The app uses only the Supabase anon key, never the service role key.** The server holds it, and the browser never receives it: the frontend talks only to this app's own API. This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) — the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
-4. **Escape/encode any user-provided text before rendering it in the DOM** (movie reviews especially — this is free-text user input) to prevent stored XSS.
+4. **Escape/encode any user-provided text before rendering it in the DOM** (film reviews especially — this is free-text user input) to prevent stored XSS.
 5. **Prompt injection awareness:** the user's own review text is included in **both** AI prompts as taste signal (SPEC.md §2.2, §2.3). This is untrusted input flowing into a prompt. Mitigations:
 
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
-   * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
+   * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to a weird film suggestion, not code execution or data exfiltration, because the output only ever drives a title lookup.
    * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
 6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has four siblings among the commit gates: `npm test` for behaviour, `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
 

@@ -61,7 +61,7 @@ meaning nobody had gathered its evidence rather than that it failed. None does
 now: all eight were walked and all eight read a clean `yes` before any box
 in [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) was marked.)*
 
-## 1 · Searching a real movie title returns real TMDB results with posters
+## 1 · Searching a real film title returns real TMDB results with posters
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/a153ece77bf58e68fb885802ce1b792ac1adcce3). Three independent kinds of evidence.**
 
@@ -130,7 +130,7 @@ film.) It writes nothing. Anyone can re-run it and read the output.
 **Satisfied.** Automated coverage that fails on regression, a capture of the real
 application against live TMDB, and a command anyone can re-run.
 
-## 2 · Adding a movie already in the list is blocked with a clear message, not a duplicate row
+## 2 · Adding a film already in the list is blocked with a clear message, not a duplicate row
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/2fdcdb69e25fc227901ce7e7cc83ceb6f1a24fc8). Satisfied at three independent layers**, which is worth
 stating separately because the criterion makes two claims — that the attempt is
@@ -157,7 +157,7 @@ already there, which is the other half of what the criterion asserts.
 
 ### Automated
 
-[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/movies for a movie
+[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/movies for a film
 already in the list → 409"*. Asserts the status **and** that the body carries
 `Already in your list`, so a regression to a bare 409, or to a generic 500,
 fails it.
@@ -195,7 +195,7 @@ make unreachable.
 halves of the claim in one frame, and a schema constraint that makes the forbidden
 outcome impossible rather than merely handled.
 
-## 3 · Deleting and re-ranking works correctly with 0, 1, and many movies
+## 3 · Deleting and re-ranking works correctly with 0, 1, and many films
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478).** This is the criterion that explicitly asks for *edge
 cases, not just the happy path*, so the two edge sizes were produced
@@ -217,9 +217,9 @@ The card holds rank **1** with no tie marker, which is `displayedRanking()`
 behaving at a list length of one.
 
 **This frame also evidences criteria
-[4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-movies)
+[4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-films)
 and
-[6](#6--the-verdict-is-disabled-with-an-explanation-below-2-rated-movies-and-a-triggered-verdict-logs-a-row-with-real-tokencost-data)**,
+[6](#6--the-verdict-is-disabled-with-an-explanation-below-2-rated-films-and-a-triggered-verdict-logs-a-row-with-real-tokencost-data)**,
 and is referenced again there: with one rated film both AI features are below
 threshold, so each shows a disabled trigger beside an explanation naming the
 number required and the number held.
@@ -235,7 +235,7 @@ all** beside the heading.
 **That absence is deliberate, and it was checked rather than assumed.**
 `renderRanked()` guards the subtitle behind the count, because
 `rankedCountLabel(0, 0)` would return `"0 films"` — which, sitting directly above
-*"No movies yet"*, says nothing twice. The guard had no comment explaining itself
+*"No films yet"*, says nothing twice. The guard had no comment explaining itself
 until this capture prompted the question, and [now does](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478), so a later tidy-up cannot
 simplify it into an unconditional call and quietly restore the redundancy.
 
@@ -289,7 +289,7 @@ shape; the ranking is captured at all three sizes the criterion names; and the t
 places where evidence is observational rather than automated are named above
 instead of being left for a reader to discover.
 
-## 4 · The recommendation action is disabled with an explanation below 3 rated movies
+## 4 · The recommendation action is disabled with an explanation below 3 rated films
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/c2b550c58ac294cea7acb4137150c535276102cf).** The criterion has two halves — *disabled*, and *with an
 explanation* — and both are visible in one frame.
@@ -300,7 +300,7 @@ explanation* — and both are visible in one frame.
 at least 3 movies to unlock recommendations (you have 1)"](screenshots/ac-3-ranking-one-film.png)
 
 *(The same capture appears under
-[criterion 3](#3--deleting-and-re-ranking-works-correctly-with-0-1-and-many-movies),
+[criterion 3](#3--deleting-and-re-ranking-works-correctly-with-0-1-and-many-films),
 where it evidences ranking at a list length of one. It is embedded again here
 rather than cross-referenced, because an entry a reader has to leave in order to
 see its own evidence is doing half a job.)*
@@ -323,7 +323,7 @@ Look at the **"What to watch next"** section:
 ### Automated
 
 [`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
-below the rated-movie threshold → 422, nothing logged"*. Three assertions, and
+below the rated-film threshold → 422, nothing logged"*. Three assertions, and
 the third is the interesting one:
 
 | Asserted | Why it matters |
@@ -341,7 +341,7 @@ documented fallback for that one request failing, not a second definition
 ### Defence in depth, and one consequence
 
 The same shape as
-[criterion 2](#2--adding-a-movie-already-in-the-list-is-blocked-with-a-clear-message-not-a-duplicate-row):
+[criterion 2](#2--adding-a-film-already-in-the-list-is-blocked-with-a-clear-message-not-a-duplicate-row):
 the **client prevents** (a disabled button cannot be clicked) and the **server
 refuses** (422 with a usable message). The server half is therefore not normally
 reachable through the interface — it exists for a direct API call, or a client
@@ -351,7 +351,7 @@ That message is one of exactly two in the application flagged `userFacing` and
 passed to the user verbatim rather than replaced with a calm sentence.
 [`R8`](../CLAUDE.md#group-c--copy-and-consistency)
 established the general rule — technical causes go to the log, not the screen —
-and this is a deliberate exception, because *"Need at least 3 rated movies"* is
+and this is a deliberate exception, because *"Need at least 3 rated films"* is
 the answer to the question the user just asked, not a fault report.
 
 ### Verdict
@@ -416,7 +416,7 @@ test.)
 cost, and the "real, not invented" claim is enforced by a lookup the tests prove
 is load-bearing.
 
-## 6 · The verdict is disabled with an explanation below 2 rated movies, and a triggered verdict logs a row with real token/cost data
+## 6 · The verdict is disabled with an explanation below 2 rated films, and a triggered verdict logs a row with real token/cost data
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two halves again — the locked state, and the logged run.
 
@@ -427,7 +427,7 @@ is load-bearing.
 
 *(Third appearance of this capture — it is embedded rather than cross-referenced
 for the same reason as under
-[criterion 4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-movies).)*
+[criterion 4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-films).)*
 
 The banner reads **"Rate at least 2 movies to get a verdict (you have 1)."** and
 **"New verdict" is greyed**, its sparkle dimmed with it.
@@ -452,7 +452,7 @@ are the same figures in the audit trail.
 
 ### Automated
 
-* **"POST /api/taste-verdict below the rated-movie threshold → 422"** — the locked
+* **"POST /api/taste-verdict below the rated-film threshold → 422"** — the locked
   half, asserting the status and that the message names the requirement.
 * **"POST /api/taste-verdict logs a success row with real token and cost data"** —
   the logged half. `status: success`, no error, the stored verdict text, the cost
@@ -603,11 +603,11 @@ the first commit that contains any project content at all:
 *.local
 ```
 
-**So the criterion is met in full**: from the first commit onward, `.env` is
+**So the criterion is met in full**: from the first commit onwards, `.env` is
 excluded and no key is present — absent from [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), which the user
 checked by hand, and ignored from [the second](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content,
-onward. The root commit needs no exemption from the scans above — it passes them,
-because it holds a single line of README.
+onwards. The root commit needs no exemption from the scans above — it passes
+them, because it holds a single line of README.
 
 ### Ongoing enforcement
 

@@ -187,7 +187,7 @@ test('DELETE /api/movies/:id when the database rejects it → 500, not a false 2
 
 /* ---------- duplicate handling + happy add ----------------------------- */
 
-test('POST /api/movies for a movie already in the list → 409', async () => {
+test('POST /api/movies for a film already in the list → 409', async () => {
   const restore = stubFetch({ 'themoviedb.org': MATRIX_TMDB });
   db.results['movies:insert'] = { data: null, error: { code: '23505', message: 'duplicate key' } };
   try {
@@ -199,7 +199,7 @@ test('POST /api/movies for a movie already in the list → 409', async () => {
   }
 });
 
-test('POST /api/movies happy path → 201 with the saved movie', async () => {
+test('POST /api/movies happy path → 201 with the saved film', async () => {
   const restore = stubFetch({ 'themoviedb.org': MATRIX_TMDB });
   db.results['movies:insert'] = {
     data: { id: 'uuid-1', tmdb_id: 603, title: 'The Matrix', year: 1999 },
@@ -261,7 +261,7 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 // poster (MATRIX_TMDB, UNVOTED_TMDB, HEAT_TMDB) reached the suite only through
 // the add and recommendation tests, never through search. So the single
 // behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
-// movie title returns real TMDB results with posters" -- was the one search
+// film title returns real TMDB results with posters" -- was the one search
 // behaviour the suite never checked.
 //
 // Asserts the whole shaped contract rather than a truthy response, because every
@@ -322,7 +322,7 @@ test('GET /api/movies/search when TMDB is unreachable → 502, calm message', as
   try {
     const res = await client.get('/api/movies/search?q=matrix');
     assert.equal(res.status, 502);
-    assert.match((await res.json()).error, /movie database/i);
+    assert.match((await res.json()).error, /film database/i);
   } finally {
     restore();
   }
@@ -341,7 +341,7 @@ test('POST /api/movies when TMDB is unreachable → 502 (no DB write)', async ()
 
 // Guards the server half of #16(c) (D-042). The TMDB 502 carries a `short`
 // companion to `error` so the client can put a context in front of the cause
-// without doubling ('Couldn’t add “Dune” — Couldn’t reach the movie database.
+// without doubling ('Couldn’t add “Dune” — Couldn’t reach the film database.
 // Try again in a moment.'). Both halves are asserted deliberately: `error` must
 // be UNCHANGED, since every other consumer still reads it and the whole point of
 // adding a field rather than editing one was that nothing existing moves.
@@ -349,7 +349,7 @@ test('the TMDB 502 carries a short form alongside its unchanged error text', asy
   const restore = stubFetch({ 'themoviedb.org': 'throw' });
   try {
     const body = await (await client.post('/api/movies', { tmdb_id: 603 })).json();
-    assert.match(body.error, /movie database/i);
+    assert.match(body.error, /film database/i);
     assert.equal(body.short, 'TMDB is unreachable');
   } finally {
     restore();
@@ -358,7 +358,7 @@ test('the TMDB 502 carries a short form alongside its unchanged error text', asy
 
 /* ---------- not-enough-data guards (pre-AI, so NOT logged) ------------- */
 
-test('POST /api/recommendations below the rated-movie threshold → 422, nothing logged', async () => {
+test('POST /api/recommendations below the rated-film threshold → 422, nothing logged', async () => {
   db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/recommendations');
   assert.equal(res.status, 422);
@@ -366,7 +366,7 @@ test('POST /api/recommendations below the rated-movie threshold → 422, nothing
   assert.equal(db.calls.filter((c) => c.table === 'recommendation_logs').length, 0);
 });
 
-test('POST /api/taste-verdict below the rated-movie threshold → 422', async () => {
+test('POST /api/taste-verdict below the rated-film threshold → 422', async () => {
   db.results['movies:select'] = { data: [{ id: '1', title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/taste-verdict');
   assert.equal(res.status, 422);
@@ -597,7 +597,7 @@ test('POST /api/recommendations below the threshold keeps its specific message',
   db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/recommendations');
   const body = await res.json();
-  assert.match(body.error, /Need at least 3 rated movies/);
+  assert.match(body.error, /Need at least 3 rated films/);
   assert.equal(body.logged, undefined);
 });
 

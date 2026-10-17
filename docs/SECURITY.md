@@ -80,8 +80,8 @@ outside those markers; the recommendation output is constrained to structured
 JSON; every title it names is cross-checked against TMDB before a card is drawn;
 the verdict is length-capped and rendered as plain text, never as HTML.
 
-**Blast radius is the real control.** Even a fully successful injection buys "a
-weird movie suggestion" — the output's only power is to become a TMDB search
+**Blast radius is the real control.** Even a fully successful injection only buys
+a weird film suggestion — the output's only power is to become a TMDB search
 query. It cannot execute, cannot reach the database, and cannot exfiltrate.
 
 **Demonstrated, not asserted — five frames,
@@ -92,7 +92,7 @@ string. What the captures show:
 
 **1 — The attack, stored in the application.**
 
-![A ranked movie card whose review text is a prompt-injection attempt, rendered
+![A ranked film card whose review text is a prompt-injection attempt, rendered
 as ordinary paragraph text](https://raw.githubusercontent.com/guycn1/cinerank-project/main/docs/screenshots/pi-1-injection-review-stored.png)
 
 Held as inert plain text: `textContent`, never `innerHTML`. The string is data
@@ -294,7 +294,7 @@ with it — TMDB down on search, TMDB down on add, TMDB down mid-recommendation,
 OpenRouter down on either feature, the database unreachable, and the app itself
 unreachable. Each is specified in [`SPEC.md` § 2.4](https://github.com/guycn1/cinerank-project/blob/main/SPEC.md#24-resilience-requirements) and covered by route tests, and
 all of them are now **captured and analysed** in
-[`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) — [`RS-1`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-1--searching) through [`RS-16`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist), which also reaches
+[`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) — [`RS-1`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-1--searching) to [`RS-16`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist), which also reaches
 past this list to a row deleted under an open dialog and three ways the model can
 return nothing usable while every dependency is healthy. A failed AI call still writes
 a `status='failed'` row, and when the log write *also* fails, both causes are

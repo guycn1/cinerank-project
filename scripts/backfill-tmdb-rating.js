@@ -49,17 +49,17 @@ const { data: movies, error } = await supabase
   .order('created_at', { ascending: true });
 
 if (error) {
-  console.error('Could not read movies:', error.message);
+  console.error('Could not read films:', error.message);
   console.error('If this says the column does not exist, apply db/migrations/002_tmdb_rating.sql first.');
   process.exit(1);
 }
 
 if (!movies.length) {
-  console.log('Nothing to do — every movie already has a tmdb_rating.');
+  console.log('Nothing to do — every film already has a tmdb_rating.');
   process.exit(0);
 }
 
-console.log(`${movies.length} movie(s) with no tmdb_rating.`);
+console.log(`${movies.length} film(s) with no tmdb_rating.`);
 console.log(WRITE ? 'Mode: WRITE\n' : 'Mode: dry run (pass --write to apply)\n');
 
 let filled = 0;

@@ -43,7 +43,7 @@ recommendationsRouter.post(
         // "OpenRouter responded 401", "Model did not return valid JSON",
         // "DB read failed: <postgres text>". That names our vendor and a JS error
         // class to someone who wanted a film suggestion, and it is nothing like
-        // the movie path's "Couldn’t reach the movie database. Try again in a
+        // the film path's "Couldn’t reach the film database. Try again in a
         // moment." (backlog R8).
         //
         // One cause survives verbatim: not enough rated films is the answer to

@@ -29,7 +29,7 @@ const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35
  */
 
 /**
- * Belt-and-suspenders cleanup of the model's plain-text output:
+ * Belt-and-braces cleanup of the model's plain-text output:
  *  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
  *  - if still over the ceiling, cut at the last sentence end, else last word —
  *    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
@@ -114,7 +114,7 @@ export async function generateTasteVerdict() {
   if (error) throw new TasteVerdictError(`DB read failed: ${error.message}`);
   if (!rated || rated.length < config.tasteVerdict.minRatedMovies) {
     throw new TasteVerdictError(
-      `Need at least ${config.tasteVerdict.minRatedMovies} rated movies`,
+      `Need at least ${config.tasteVerdict.minRatedMovies} rated films`,
       // The one cause a user can act on. No AI call was made, so nothing is
       // logged and nothing may be advertised.
       { userFacing: true }

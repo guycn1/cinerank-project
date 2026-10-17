@@ -148,6 +148,15 @@ the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/ci
 log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) —
 [moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
 
+**The interface's copy has also been brought into one consistent dialect of
+English**, so a frame may show a word the app no longer uses, such as "movie"
+where it now says "film". These are wording changes only, and no screenshot is
+any less valid as evidence because of them: each changed message still appears
+in the same state, for the same reason and in the same place. The captions and
+quotations of the captures in [`ACCEPTANCE.md`](../ACCEPTANCE.md) and
+[`RESILIENCE.md`](../RESILIENCE.md) keep the wording each frame shows, so each
+still matches its image.
+
 ## A note on file sizes
 
 These are full-resolution captures, deliberately. Several exceed 3 MB. They are

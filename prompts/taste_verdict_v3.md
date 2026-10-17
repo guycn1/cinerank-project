@@ -7,7 +7,7 @@ sentence, 20–30 words, no clause-chaining, cut detail not the sentence.
 Tone + injection guard unchanged. Loaded by server/services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

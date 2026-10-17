@@ -7,7 +7,7 @@ leaked "*Saw*" style markdown into a plain-text banner). Tone + injection guard
 unchanged. Loaded at call time by server/services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

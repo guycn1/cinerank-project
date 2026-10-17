@@ -353,7 +353,7 @@ engineering:
 
 Each prompt file after a v1 carries a "Change from vN" header explaining the
 delta; the two v1 files have no earlier version to compare against.
-Server-side `tidyReason()` / `tidyVerdict()` are belt-and-suspenders: even a
+Server-side `tidyReason()` / `tidyVerdict()` are belt-and-braces: even a
 non-compliant model response is cleaned and truncated on a word boundary before
 it reaches the DOM.
 
@@ -516,7 +516,7 @@ nothing was skipped for looking boring:
 | **Vocabulary derived from the corpus** | 4,448 number-plus-noun pairs and 1,264 distinct noun heads, read off a frequency table. An allowlist decided in advance is a filter on what can be found — [a 2026-09-16 pass](https://github.com/guycn1/cinerank-project/commit/c0dc73e083a270e1e81ab1e542287d6fb7884722) proved that by filtering 3,681 figures through sixty nouns and therefore being unable to see three of them |
 | **Cross-file comparison as its own pass** | The upgrade that matters most, and the one with a completeness argument behind it rather than a diligence one — see [below](#a-per-file-sweep-is-structurally-incomplete-not-merely-less-thorough) |
 | **Enumerate the referent set** | *"These eight are all X"* is never falsified by any of the eight. It took listing the directory |
-| **Open the artifacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history) criterion 8 were re-run rather than quoted |
+| **Open the artefacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history) criterion 8 were re-run rather than quoted |
 
 ### A per-file sweep is structurally incomplete, not merely less thorough
 
@@ -723,7 +723,7 @@ of the record this document exists to show.
   twenty-four frames**, embedded and argued in [`RESILIENCE.md`](RESILIENCE.md);
   the recipes are greppable in
   [`CLAUDE.md` § Resilience screenshots](../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16)
-  as [`RS-1`](RESILIENCE.md#rs-1--searching) through [`RS-16`](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Shooting them found three real defects that nothing
+  as [`RS-1`](RESILIENCE.md#rs-1--searching) to [`RS-16`](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Shooting them found three real defects that nothing
   else would have, which is the entry worth reading here rather than the count.
 - ~~**The recommendations error state is written and then immediately
   overwritten** by the availability-sync that runs in the same `finally`, so a
@@ -741,7 +741,7 @@ of the record this document exists to show.
   [the same treatment applied back to the verdict](https://github.com/guycn1/cinerank-project/commit/c71f77990373633a7dab9e071cbf6868fe0bfde5)).
   [D-047](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9)
   has the reasoning.
-- ~~The prompt-injection defense should be shown with a concrete demo movie whose
+- ~~The prompt-injection defence should be shown with a concrete demo film whose
   review is an injection attempt.~~ **[Done 2026-09-13](https://github.com/guycn1/cinerank-project/commit/a27e921699e39a074e0024e005d6f2b2dfe0a067)** — the film is *The Room*,
   seeded by [`npm run seed-demo -- --with-injection`](../scripts/seed-demo.js)
   and removed after the captures. Five frames,

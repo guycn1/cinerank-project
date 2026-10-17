@@ -23,7 +23,7 @@
     32-unit viewBox, which is 0.56px at 16px. It aliases into a smudge or
     disappears outright. Four candidates were drawn and compared at 16/24/32/64px
     on both light and dark tab strips; the user picked this one — the furthest
-    toward faithful that still survives 16px. See step 4 in CLAUDE.md and D-064.
+    towards faithful that still survives 16px. See step 4 in CLAUDE.md and D-064.
 
     THE TWO RINGS AND THE NOTCH ARE THE MARK. If any of the three values below is
     ever retuned, re-check it AT 16px and nowhere else — every one of these was
