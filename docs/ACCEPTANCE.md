@@ -390,16 +390,18 @@ duration and status — beside rows for the other feature and rows that failed.
 
 Two tests carry this, and both were probed by deletion rather than trusted:
 
-**"POST /api/recommendations logs a success row holding exactly the shown titles"**
-asserts `status: success`, a null `error_text`, the real `estimated_cost_usd`
+[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+logs a success row holding exactly the shown titles"*. It asserts
+`status: success`, a null `error_text`, the real `estimated_cost_usd`
 taken from **OpenRouter’s own `usage.cost`** rather than the estimate table, the
 token count, and `prompt_version`. Its sharpest assertion is that
 `suggested_titles` holds **exactly what was shown** — three titles the model named
 and that were then dropped must not appear in the row. An audit trail recording
 what was asked for rather than what was delivered would be worse than none.
 
-**"POST /api/recommendations drops unverifiable, already-owned and duplicate
-picks"** is the verification claim. One run exercises all three drops: a title
+[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+drops unverifiable, already-owned and duplicate picks"*. This is the
+verification claim. One run exercises all three drops: a title
 TMDB cannot confirm, a film the user already owns, and two picks resolving to the
 same film. Only the verified, unowned, non-duplicate one survives — and its year
 and `tmdb_id` come from TMDB, not from the model.
@@ -452,9 +454,9 @@ are the same figures in the audit trail.
 
 ### Automated
 
-* **"POST /api/taste-verdict below the rated-film threshold → 422"** — the locked
+* *"POST /api/taste-verdict below the rated-film threshold → 422"* — the locked
   half, asserting the status and that the message names the requirement.
-* **"POST /api/taste-verdict logs a success row with real token and cost data"** —
+* *"POST /api/taste-verdict logs a success row with real token and cost data"* —
   the logged half. `status: success`, no error, the stored verdict text, the cost
   from OpenRouter’s `usage.cost`, the token count and [`taste_verdict_v7`](../prompts/taste_verdict_v7.md). It
   also [checks the model on both sides of the call](https://github.com/guycn1/cinerank-project/commit/9dfd99af1e07b7b1bb04d1ddbe784d945e1713ee): the request asks for the

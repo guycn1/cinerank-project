@@ -132,7 +132,7 @@ without leaving the frame.
 All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com/guycn1/cinerank-project/compare/3ccf020884e83f3b565a028b333bcce1ec8d85ab...233d1df368674127589bf559048445ae8b0010c7), and every one is
 exactly as valid as evidence today as it was then.
 
-**The front end has had minor changes since, nearly all of them cosmetic.** The
+The front end has had minor changes since, nearly all of them cosmetic. The
 three that changed behaviour fixed states no capture shows: the rate dialog's
 review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
 one film's size and scroll position into the next, the verdict banner
@@ -148,8 +148,8 @@ the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/ci
 log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) —
 [moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
 
-**The interface's copy has also been brought into one consistent dialect of
-English** ([on 2026-10-18](https://github.com/guycn1/cinerank-project/commit/b0f8abd71614acf756da9afe82d974f9e6570a14)), so a frame may show a word the app no longer uses, such as "movie"
+The interface's copy has also been brought into one consistent dialect of
+English ([on 2026-10-18](https://github.com/guycn1/cinerank-project/commit/b0f8abd71614acf756da9afe82d974f9e6570a14)), so a frame may show a word the app no longer uses, such as "movie"
 where it now says "film". These are wording changes only, and no screenshot is
 any less valid as evidence because of them: each changed message still appears
 in the same state, for the same reason and in the same place. The captions and
