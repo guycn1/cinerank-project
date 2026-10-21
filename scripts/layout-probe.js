@@ -188,7 +188,7 @@
 
   /* ---------- clipboard ----------------------------------------------------- */
 
-  const INVISIBLE = new RegExp(`[${SHY}${String.fromCharCode(0x200b, 0x200c, 0x200e, 0x200f, 0x2060, 0xfeff)}]`); // not U+200D: It joins emoji
+  const INVISIBLE = new RegExp(`[${SHY}${String.fromCharCode(0x200b, 0x200c, 0x200e, 0x200f, 0x2060, 0xfeff)}]`); // not U+200D: it joins emoji
 
   /**
    * What the app's copy handler puts on the clipboard for a selection.

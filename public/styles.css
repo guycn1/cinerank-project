@@ -3270,7 +3270,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-style: solid;
   border-color: transparent;
 }
-/* default: Panel BELOW the trigger → caret on top, pointing up */
+/* default: panel BELOW the trigger → caret on top, pointing up */
 .log-reveal ul::before, .log-reveal p::before {
   top: -7px;
   margin-left: -7px;
@@ -3283,7 +3283,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-width: 0 6px 6px 6px;
   border-bottom-color: var(--bg-raised);
 }
-/* flipped: Panel ABOVE the trigger → caret underneath, pointing down */
+/* flipped: panel ABOVE the trigger → caret underneath, pointing down */
 .log-reveal--above ul::before, .log-reveal--above p::before {
   top: auto;
   bottom: -7px;
@@ -3382,7 +3382,7 @@ body:has(dialog[open]) { overflow: hidden; }
    whether the log is loading, empty or failed to load (D-052's rule). */
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-dim); }
 
-/* ---- mid range: Claw back horizontal space (cell + dialog padding, Result
+/* ---- mid range: claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
   .log-dialog { --log-curtain-h: 1.25rem; }
@@ -3392,7 +3392,7 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-result { width: calc(7rem / var(--type-scale)); max-width: calc(7rem / var(--type-scale)); }
 }
 
-/* ---- narrow viewports: Below ~850px the trimmed 9-column table no longer fits
+/* ---- narrow viewports: below ~850px the trimmed 9-column table no longer fits
         the dialog, so render each call as a card (label / value rows). No
         horizontal scroll at any width down to ~300px. ---- */
 @media (max-width: 850px) {

@@ -410,7 +410,7 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
   }
 });
 
-/* ---------- the SUCCESS path: Which picks survive verification -------- */
+/* ---------- the SUCCESS path: which picks survive verification -------- */
 
 // Before these tests (2026-09-09), the only recommendation tests were the two
 // failure paths (the below-threshold 422 and the OpenRouter-down 422), so every
@@ -770,7 +770,7 @@ const RATED_FOUR = {
   error: null,
 };
 
-/* ---------- the invariant: A logged failure is ALWAYS advertised ------- */
+/* ---------- the invariant: a logged failure is ALWAYS advertised ------- */
 
 // The user's requirement for R23, stated as a rule rather than a scenario: if a
 // row with status 'failed' reaches an AI log table, the response MUST carry
@@ -1020,7 +1020,7 @@ test('GET /api/ai-log returns structured result data per row', async () => {
       // text only for rows that failed, so this must come back null; with a null
       // in the fixture, the assertion below could not tell.
       { id: 'v1', created_at: '2026-09-04T11:00:00Z', prompt_version: 'taste_verdict_v4', model_used: 'x', tokens_used: 900, prompt_tokens: 800, completion_tokens: 100, duration_ms: 2000, status: 'success', error_text: 'stale text from an earlier attempt', estimated_cost_usd: 0.001, verdict_text: 'You like bold films.' },
-      // pre-migration-001 shape: No token split, no duration recorded
+      // pre-migration-001 shape: no token split, no duration recorded
       { id: 'v0', created_at: '2026-09-04T08:00:00Z', prompt_version: 'taste_verdict_v1', model_used: 'x', tokens_used: 400, prompt_tokens: null, completion_tokens: null, duration_ms: null, status: 'success', error_text: null, estimated_cost_usd: 0.0005, verdict_text: 'Old row.' },
     ],
     error: null,
