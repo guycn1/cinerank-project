@@ -1,5 +1,5 @@
 /* ============================================================================
-   CineRank — a cinematic, poster-first ranking UI.
+   CineRank – a cinematic, poster-first ranking UI.
    Design intent (CLAUDE.md § Frontend Design Notes / SPEC § 3):
    - the poster is the visual anchor of every card
    - big Fraunces display numerals for rank, like a countdown chart
@@ -12,17 +12,17 @@
   --bg-raised: #14141b;
   --bg-card: #191921;
   --ink: #f4f1ea;
-  --ink-soft: #e8e5de; /* a half-step below --ink — the taste verdict */
+  --ink-soft: #e8e5de; /* a half-step below --ink – the taste verdict */
   --ink-dim: #a29d94;
   /* Nudged up from #6b6760 on 2026-09-10, and DELIBERATELY LEFT SHORT OF WCAG AA
-     — do not "fix" that, read D-052 first.
+     – do not "fix" that, read D-052 first.
      Settled at 30% of the way between two values that were each tried and
      rejected. #868178 was built first, to clear AA (4.5) on both grounds, and
      sits too close to --ink-dim; #76716a was the correction and went a shade too
      dark. The number that decides whether two tiers read as two tiers is their
      contrast with EACH OTHER, not with the background AA is defined against:
-     the original #6b6760 gave 2.09 against --ink-dim, #868178 gave 1.44, and
-     this keeps 1.67 — 80% of the separation the token exists to draw, with the
+     the original #6b6760 gave 2.09 against --ink-dim, #868178 gave 1.44 and
+     this keeps 1.67 – 80% of the separation the token exists to draw, with the
      floor still lifted (3.49 → 4.36 on --bg, 3.11 → 3.87 on a card).
      Both are under AA, knowingly. The tier ABOVE is the mitigation: R26's rule
      moved every line that is the only thing on its surface to --ink-dim, so
@@ -39,24 +39,24 @@
      border colour, and it is too light to carry a readable label as a fill.
      Both of these are dark enough for --ink to clear WCAG AA (4.5:1) on them.
      Do not "simplify" the button back to background: var(--crimson). */
-  --danger-fill: #c83a2f;        /* rest  — --ink on it = 4.54:1 */
-  --danger-fill-hover: #9a2d24;  /* hover — --ink on it = 6.71:1 */
+  --danger-fill: #c83a2f;        /* rest  – --ink on it = 4.54:1 */
+  --danger-fill-hover: #9a2d24;  /* hover – --ink on it = 6.71:1 */
   --line: #26262f;
-  --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line — column separators */
-  --line-strong: #42424f; /* brighter than --line — scrollbar thumb */
-  --line-total: #494540;  /* AI-log Total-row divider — a touch warm, so it doesn't read
+  --line-faint: rgba(255, 255, 255, 0.035); /* fainter than --line – column separators */
+  --line-strong: #42424f; /* brighter than --line – scrollbar thumb */
+  --line-total: #494540;  /* AI-log Total-row divider – a touch warm, so it doesn't read
                              as the (cool-grey) scrollbar thumb sneaking in */
   --radius: 14px;
   --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Scrollbar widths — page and log dialog. The `vw` term is the zoom guard.
+  /* Scrollbar widths – page and log dialog. The `vw` term is the zoom guard.
      No CSS length is immune to browser zoom (px, rem, pt all multiply), but
      zoom shrinks the CSS viewport by the same factor it magnifies by, so a
      vw length holds a roughly CONSTANT physical size as you zoom. A flat
      `12px` became a ~60px slab at 500%.
      The ceilings are the old values and the coefficients are set so the
-     ceiling wins at any viewport ≥ 1000px CSS px — so nothing changes at
+     ceiling wins at any viewport ≥ 1000px CSS px – so nothing changes at
      normal zoom on a normal window; they only bite when the viewport is
      genuinely small OR heavily zoomed. Floors keep the bar grabbable, and
      hold the page:dialog ratio at 4:3 (12:9 → 6:4.5) so the page scrollbar
@@ -66,9 +66,9 @@
   --sb-w: clamp(6px, 1.2vw, 12px);
   --sb-dialog-w: clamp(4.5px, 0.9vw, 9px);
 
-  /* THE type scale (D-079): the root font size as a fraction of the reader's
-     browser default. Everything in `rem` and `em` follows it — all text and
-     most spacing — while the px frame does not: posters, the rank track,
+  /* THE type scale (D-079): The root font size as a fraction of the reader's
+     browser default. Everything in `rem` and `em` follows it – all text and
+     most spacing – while the px frame does not: posters, the rank track,
      rec-card widths, the page column, the logo mark, the header GitHub mark,
      borders and radii, and every breakpoint. A percentage, never a px value, so a reader who has
      raised their browser's default font size still gets the larger text.
@@ -120,12 +120,12 @@ html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
     border: calc(var(--sb-w) / 4) solid transparent;
     background-clip: padding-box;
   }
-  /* a gentle lift, not a jump to --ink-faint — keeps rest vs hover subtle */
+  /* a gentle lift, not a jump to --ink-faint – keeps rest vs hover subtle */
   ::-webkit-scrollbar-thumb:hover { background: #565462; }
   ::-webkit-scrollbar-thumb:active { background: var(--amber-deep); }
   ::-webkit-scrollbar-corner { background: var(--bg-raised); }
 
-  /* The log: slightly thinner. */
+  /* The log: Slightly thinner. */
   .log-pane::-webkit-scrollbar { width: var(--sb-dialog-w); }
   /* The scrollers inside rounded boxes: the rate and confirm dialogs' forms,
      the log's pane, the search results' list and the review box. Each is a
@@ -150,7 +150,7 @@ html { font-size: calc(var(--type-scale) * 100%); scroll-behavior: smooth; }
   .search-results__list::-webkit-scrollbar-track,
   .review-box textarea::-webkit-scrollbar-track { margin-block: calc(8px - var(--sb-w) / 4); }
   .log-pane::-webkit-scrollbar-track { margin-block: calc(8px - var(--sb-dialog-w) / 4.5); }
-  /* /4.5, not /4 — the log's thumb was deliberately tuned proportionally
+  /* /4.5, not /4 – the log's thumb was deliberately tuned proportionally
      fatter than the page one (2px inset on 9px, vs 3px on 12px). This keeps
      that exact relationship at every size instead of flattening the two. */
   .log-pane::-webkit-scrollbar-thumb { border-width: calc(var(--sb-dialog-w) / 4.5); }
@@ -173,18 +173,18 @@ a:hover { text-decoration: underline; }
 
 /* ONE focus ring for the whole app. This used to exist on exactly two controls
    (.log-link and .log-cta__btn, with these same two declarations); every other
-   button, link, summary and field fell back to the browser's own ring — which
+   button, link, summary and field fell back to the browser's own ring – which
    IS drawn, but is engine-coloured and so had the app showing two different
    focus indicators depending on what you tabbed to.
    Deliberately a bare :focus-visible rather than a list of selectors: anything
    focusable added later is covered without being remembered. The confirm dialog
-   is the proof — it was written the same day and a selector list would have
+   is the proof – it was written the same day and a selector list would have
    missed it.
-   :focus-visible, never :focus — it does not fire on a mouse click, so this
+   :focus-visible, never :focus – it does not fire on a mouse click, so this
    cannot change anything a pointer user sees. Only keyboard and assistive
    focus draw the ring.
    NOTE the one control this does NOT reach: `.search input:focus` sets
-   `outline: none` at (0,2,0) and outranks this (0,1,0). That is intentional —
+   `outline: none` at (0,2,0) and outranks this (0,1,0). That is intentional –
    a focused text field with a caret and an amber border is already unambiguous,
    and a ring around a full-width input is heavy. */
 :focus-visible {
@@ -221,14 +221,14 @@ a:hover { text-decoration: underline; }
      opacity had already been pushed 0.035 -> 0.06 in an earlier session and the
      living log's own verdict was "still subtle". `fractalNoise` has a non-zero
      mean, so over a `#0b0b0f` page more opacity adds a grey VEIL before it adds
-     visible speckle — which is why turning that dial alone could not work.
+     visible speckle – which is why turning that dial alone could not work.
      It was raised again to 0.1 once the resampling above was in, and that is the
      right ORDER rather than a contradiction: with the texture actually
      refreshing there is speckle for the extra opacity to strengthen, where
      before there was only a veil to thicken. If it is ever pushed much past
-     this, expect the veil to reappear — the fix then is a zero-mean noise
+     this, expect the veil to reappear – the fix then is a zero-mean noise
      source (an `feComponentTransfer` on the alpha), not more opacity.
-     MIX-BLEND-MODE WAS THE OTHER CANDIDATE AND IS WRONG HERE — measured, not
+     MIX-BLEND-MODE WAS THE OTHER CANDIDATE AND IS WRONG HERE – measured, not
      assumed. `overlay` maps a full-white speck to +0.043 over this page's
      background but +0.450 over a poster midtone, so it would move the grain ONTO
      the posters and OFF the dark background, which is the opposite of the ask.
@@ -239,7 +239,7 @@ a:hover { text-decoration: underline; }
 }
 /* Ten pseudo-random offsets rather than one destination. With `steps(1)` the
    animation holds each until the next, so the texture RESAMPLES instead of
-   drifting along a single diagonal — which is what `steps(2)` on a two-keyframe
+   drifting along a single diagonal – which is what `steps(2)` on a two-keyframe
    version did, and it reads as a slide rather than as grain.
    Every offset is within +-4%; see the budget note at `.grain`'s `inset`. */
 @keyframes grain {
@@ -259,14 +259,14 @@ a:hover { text-decoration: underline; }
 main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 5rem; }
 
 /* header ------------------------------------------------------------------- */
-/* Two columns: the mark and the tagline keep the left one, the repo link takes
+/* Two columns: The mark and the tagline keep the left one, the repo link takes
    the right and spans BOTH rows, so it centres against the header block rather
-   than against either line on its own. Every placement below is explicit —
+   than against either line on its own. Every placement below is explicit –
    auto-placement would happen to produce the same result today and would move
    the day a third element joins the header.
    `minmax(0, 1fr)` on the text column, not `1fr`: `1fr` is `minmax(auto, 1fr)`,
    and that automatic minimum is the root cause behind earlier shrink bugs in
-   this project — the search input, the add button and the ranked card's
+   this project – the search input, the add button and the ranked card's
    track, for example. Here it would let a long word in the
    tagline push the icon off the right edge instead of wrapping. */
 .site-head {
@@ -282,8 +282,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .site-head .mark { grid-column: 1; grid-row: 1; }
 .site-head .tagline { grid-column: 1; grid-row: 2; }
 
-/* The link out to the public repo (step 3). There are TWO of these — one in the
-   header, one at the right edge of the footer's credit line — so THIS rule is
+/* The link out to the public repo (step 3). There are TWO of these – one in the
+   header, one at the right edge of the footer's credit line – so THIS rule is
    the shared look and nothing else. Placement lives with each instance below,
    along with the TWO things that genuinely differ: the size, and the halo
    multiplier the footer needs to read as lit at its smaller scale.
@@ -295,7 +295,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      on the 63px header mark and more than a third of the link's radius on the
      footer one, then 24px, which read as a thick dark collar (user-raised, with
      a screenshot).
-     0.115em IS that hand-tuned 7.2px, expressed against the header's 63px —
+     0.115em IS that hand-tuned 7.2px, expressed against the header's 63px –
      so the header rim is unchanged to a twentieth of a pixel.
      Changing this can never disturb the header's vertical alignment: the
      margin-top below subtracts exactly what the padding adds, so the GLYPH
@@ -308,7 +308,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
                                   baseline gap that would offset the circle */
   padding: var(--gh-pad);
   border-radius: 50%;          /* the mark is round, so the hover glow should be
-                                  too — a rectangular halo round a circular
+                                  too – a rectangular halo round a circular
                                   glyph reads as a box someone forgot to hide */
   color: var(--ink);
   opacity: 0.68;               /* "slightly transparent at rest". Walked up by
@@ -317,14 +317,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 .gh-link svg { width: 1em; height: 1em; display: block; fill: currentColor; }
 
-/* HEADER instance — placement and size. A real navigational affordance, not a
+/* HEADER instance – placement and size. A real navigational affordance, not a
    footnote: first sized as a peer of the 34px logo mark, then enlarged 1.5x on
    the user's call, so it now reads larger than the mark (see `font-size`). */
 .site-head .gh-link {
   grid-column: 2;
   /* Still spans both rows, but top-aligned rather than centred (user-raised:
      centring left it sitting well below the h1). Keeping `span 2` while
-     aligning to `start` is the point — the icon is taller than row 1, and if it
+     aligning to `start` is the point – the icon is taller than row 1, and if it
      occupied row 1 alone that row would stretch to fit it and shove the tagline
      down. Spanning lets it overhang into row 2's space and change nothing.
 
@@ -332,7 +332,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      is worth keeping: it aligns to the top of the h1's LINE BOX, and the line
      box is far taller than the letters. The h1 inherits `line-height: 1.55`, so
      above the cap of the "C" there is half-leading PLUS the font's own
-     ascent-above-cap — together roughly 0.4em of empty space. Top-aligning to
+     ascent-above-cap – together roughly 0.4em of empty space. Top-aligning to
      the box therefore puts the icon visibly above the title it is meant to line
      up with, which is exactly what the second screenshot showed.
 
@@ -362,26 +362,26 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* Step 5, user-raised, alongside the reel fix (.mark__reel, below). ONE declaration is enough
    here because everything about this icon is already expressed in `em` off
-   its own font-size — the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
+   its own font-size – the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
    and the hover halo's blur/spread (both `em`, in the :hover rule below) all
    scale off THIS property, so scaling it scales the icon, its padding AND the
    halo together, exactly as asked, with no separate rule for each.
    Written as the same clamp scaled by `calc(... * 0.75)`, not as an independent
-   clamp with its own numbers — an independent one could drift from the base
+   clamp with its own numbers – an independent one could drift from the base
    size later and nobody would notice the coupling had broken.
    0.75, not the 0.5 first shipped: the user's own follow-up call, after 50%
-   read as too aggressive a cut — this is a QUARTER smaller, not half. */
+   read as too aggressive a cut – this is a QUARTER smaller, not half. */
 @media (max-width: 400px) {
   .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.75); }
 }
 
-/* FOOTER instance — the same mark, small, parked at the right edge of the
+/* FOOTER instance – the same mark, small, parked at the right edge of the
    credit. Everything else arrives from .gh-link, and the hover halo is in `em`
    so it scales itself. The size is a fixed length rather than `em`, because
    .site-foot sets `font-size: 0.85rem` and an em here would make the icon
    depend on a value chosen for body copy. It sits at the top of the credit,
    level with the TMDB logo, and the negative margin cancels the link's own
-   padding so that the glyph, not its hit area, meets that edge — the same
+   padding so that the glyph, not its hit area, meets that edge – the same
    correction the header mark makes. */
 .site-foot__credit .gh-link {
   font-size: 20px;
@@ -389,7 +389,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Bigger glow than the header's, on the user's eye. Not a contradiction of
      the shared `em` sizing: proportional was the right DEFAULT, and a small mark
      on a quiet footer needs a little more spill to register as lit at all. This
-     is the dial — the header keeps 1. */
+     is the dial – the header keeps 1. */
   --gh-halo: 1.35;
 }
 
@@ -404,7 +404,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        Both layers take a ZERO Y-offset, from the same entry: a shadow is cast
        and pools away from the light, a glow is EMITTED and radiates evenly, so
        any offset here would only make it lopsided.
-       Amber and not white: the glyph is already --ink, and a glow the same
+       Amber and not white: The glyph is already --ink, and a glow the same
        colour as the thing glowing is just a blur (R15). The magnitudes echo
        .verdict__refresh:hover rather than inventing a third set.
 
@@ -413,11 +413,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        a fixed 46px halo tuned for the header would have swallowed it whole.
        These are the user's own hand-tuned 22px and 46px
        divided by the header's 63px font-size, so the header is unchanged to
-       within a quarter of a pixel — the conversion is arithmetic, not a
+       within a quarter of a pixel – the conversion is arithmetic, not a
        retune.
        --gh-halo then scales the whole glow per instance. It multiplies the blur
        AND the spread so the shape is scaled rather than distorted; leave the
-       alphas out of it, for the reason above — brightness and size are separate
+       alphas out of it, for the reason above – brightness and size are separate
        dials and mixing them makes neither judgeable. */
     box-shadow:
       0 0 calc(0.35em * var(--gh-halo)) calc(-0.06em * var(--gh-halo))
@@ -428,15 +428,15 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        the negative spreads are untouched on purpose: raising alpha at the same
        time makes a halo read as brighter rather than bigger, and then neither
        dial can be judged on its own. Widen here, brighten in the alphas.
-       A `filter: brightness()` lift was considered for the hover — the user
-       raised it as a possible "more than fully opaque" step — and judged
+       A `filter: brightness()` lift was considered for the hover – the user
+       raised it as a possible "more than fully opaque" step – and judged
        unnecessary once the resting opacity and the halo were tuned. If it is
        ever wanted, it goes here beside the opacity and must join the transition
        list above, or it will snap while everything else eases. */
   }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
-/* Step 4b: the logo really did spin, and nobody could tell — everything visible
+/* Step 4b: The logo really did spin, and nobody could tell – everything visible
    on it was rotationally symmetric, so eight seconds of rotation looked like a
    still image.
    The reel carried ONE asymmetric feature, a conic wedge painted in `var(--bg)`.
@@ -444,7 +444,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    the SECOND background layer, and first-listed paints on top, so it sat
    underneath the amber ring and could not have cut anything even in a colour
    that showed. And had it been on top, `--bg` would have been exactly the right
-   choice — the intent was clearly to notch the ring, not to draw a coloured
+   choice – the intent was clearly to notch the ring, not to draw a coloured
    slice. It could still only ever have notched the INNER ring, because a
    `border` paints above the background and the outer ring would have stayed
    closed.
@@ -458,11 +458,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Step 5, user-raised (a ~292px screenshot showed it squashed into an oval).
      `.mark` is a flex row and `CineRank` is one unbreakable word with a hard
      min-content width, so once the row ran out of room the browser had to
-     shrink SOMETHING — and with no flex-shrink here, the default of 1 let it
+     shrink SOMETHING – and with no flex-shrink here, the default of 1 let it
      take it out of the reel's WIDTH while its explicit `height: 34px` stayed
      fixed, since height isn't the flex-basis dimension in a row container.
      A circle with one axis shrunk and the other pinned is an ellipse. Never
-     shrink at all, at any width — the mark is a fixed-size logo mark, not
+     shrink at all, at any width – the mark is a fixed-size logo mark, not
      fluid content. */
   flex-shrink: 0;
   width: 34px; height: 34px; border-radius: 50%;
@@ -473,7 +473,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   mask: conic-gradient(from 0deg, transparent 0 var(--reel-notch), #000 var(--reel-notch));
   /* The `spin` keyframe is SHARED with the busy-button spinner, which runs it at
      0.7s. Duration lives in each element's own shorthand, so tune the speed
-     here — never in the keyframe, which would drag the spinner with it. */
+     here – never in the keyframe, which would drag the spinner with it. */
   animation: spin 10s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -481,7 +481,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   font-family: 'Fraunces', serif;
   font-weight: 900;
   /* Held in a custom property because the GitHub link's vertical offset is a
-     FRACTION of this size — see --gh-drop. Two separate declarations would
+     FRACTION of this size – see --gh-drop. Two separate declarations would
      silently break that alignment the day one of them was tuned. */
   font-size: var(--title-size);
   letter-spacing: -0.02em;
@@ -494,8 +494,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   position: relative;          /* containing block for .verdict__sheen */
   margin-top: 1.5rem;
   border-radius: var(--radius);
-  /* The ENTIRE visible area of the sheen — .verdict__inner covers everything
-     else — and was widened from 2px on the user's call.
+  /* The ENTIRE visible area of the sheen – .verdict__inner covers everything
+     else – and was widened from 2px on the user's call.
      THIS WIDTH (W) IS FIVE COUPLED VALUES, and they must move together:
        1. this padding, W;
        2. .verdict__inner's border-radius, --radius - W, or the inner corners
@@ -506,15 +506,15 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      Move one alone and the glint overhangs the inner panel or stops reaching
      the banner's edge. */
   padding: 2.5px;
-  /* The warm ring itself. Static — the travelling glint is .verdict__sheen. */
+  /* The warm ring itself. Static – the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
   /* Step 4b's mechanism took five passes on 2026-09-11: four failed, and the
      fifth is .verdict__sheen below. Keeping the dead ends because every one of
      them was a plausible fix that measurably improved something and still
-     failed — and because two of the shapes tried are impossible by
+     failed – and because two of the shapes tried are impossible by
      construction, which is not obvious from the rendered result.
      1. THE CURVE. `var(--ease)` applies to EACH keyframe interval, so both
-        halves were front-loaded — 67% of the travel in the first 0.9s, the last
+        halves were front-loaded – 67% of the travel in the first 0.9s, the last
         2.7s covering 2%, the ring frozen for ~60% of every cycle. A real fault,
         and the THIRD animation in this file wrecked by `--ease` after the
         rec-card exit and the ranked entrance. Fixing it changed almost nothing.
@@ -528,13 +528,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
         BASE, not the page.
      BEHIND ALL THREE: A LINEAR GRADIENT CANNOT DO THIS AT ALL. The user's
      screenshot showed TWO white bands, top edge and bottom. That is not bad
-     stops — a linear gradient paints a straight stripe across the whole box,
+     stops – a linear gradient paints a straight stripe across the whole box,
      and a straight stripe crosses a rectangular ring in two places at once.
-     Passes 1-3 were refining something structurally incapable of the effect.
+     Passes 1–3 were refining something structurally incapable of the effect.
      4. NOR CAN A CONIC ONE, on a box this wide. A conic varies by ANGLE, and
         angle maps to arc length terribly on a 14:1 rectangle: along the top
         edge `dx/dtheta = h + x^2/h`, which is 0.61px/deg at the middle of the
-        edge and 125px/deg at the corner — a 200x swing. So the band was narrow
+        edge and 125px/deg at the corner – a 200x swing. So the band was narrow
         and crawling mid-edge, then ballooned and rocketed into each corner,
         exactly as reported. Averaging px-per-degree over a whole edge makes
         the speed look near-even; only the local derivative shows the swing.
@@ -549,27 +549,27 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      identity: a design decision rather than a contrast target. */
   box-shadow: var(--shadow);
 }
-/* The travelling glint. STROKE DASHES — the only one of the mechanisms tried
+/* The travelling glint. STROKE DASHES – the only one of the mechanisms tried
    that holds a constant width AND a constant speed, because a dash moves along
    the path itself, so neither can vary with where it happens to be.
-   Held W/2 inside the banner (by explicit top/left/width/height — NOT by
+   Held W/2 inside the banner (by explicit top/left/width/height – NOT by
    `inset`, see the rule below) with a W-wide stroke centred on that path, so it
    occupies exactly 0..W from the banner's edge: precisely .verdict's padding
    ring, flush against .verdict__inner. W is the ring width, and it is FIVE
-   coupled values — they are enumerated at .verdict's `padding`.
+   coupled values – they are enumerated at .verdict's `padding`.
    `pathLength="100"` on each rect (set in the markup) renormalises the perimeter
    to 100 units, which is what makes a dasharray mean "n% of the ring, whatever
-   the banner's width" — no JS measuring, and it survives a resize for free.
+   the banner's width" – no JS measuring, and it survives a resize for free.
    Each pair MUST sum to 100, or there is either a second dash on the ring or a
    gap in the loop.
    Dashoffset then runs one whole perimeter per iteration, `linear`, so the loop
    is seamless with no reversal.
    THERE ARE TWENTY OF THEM, not one, and that is the whole of the "smooth
-   edges" answer — see the block below the shared rule. */
+   edges" answer – see the block below the shared rule. */
 .verdict__sheen {
   position: absolute;
   display: block;
-  /* SIZED EXPLICITLY, and an `inset: W/2` shorthand is NOT enough — that was a
+  /* SIZED EXPLICITLY, and an `inset: W/2` shorthand is NOT enough – that was a
      real bug, hit with `inset: 1.5px` back when the ring was 3px.
      An <svg> is a REPLACED element, so `inset` only positions it; it does not
      stretch it the way it would a <div>. With `width: auto` the SVG keeps its
@@ -581,13 +581,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   left: 1.25px;
   width: calc(100% - 2.5px);
   height: calc(100% - 2.5px);
-  /* Required: the viewport is the inset box, so the outer half of the stroke
+  /* Required: The viewport is the inset box, so the outer half of the stroke
      (W/2, centred on the path) would otherwise be clipped away. */
   overflow: visible;
   pointer-events: none;
   /* THE ONE KNOB FOR THE RESTING SPEED. Every layer reads this for BOTH its
      duration and its delay, so one value retunes the lap without pulling the
-     twenty layers apart — see point 2 on the layer block. The busy state does
+     twenty layers apart – see point 2 on the layer block. The busy state does
      NOT use it: it changes `playbackRate` from app.js, because changing a
      duration makes the dash jump (point 2 again, and D-056). */
   --sheen-dur: 15s;
@@ -596,25 +596,25 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      whole group back to the resting peak (0.55). 0.55 / 0.80 = 0.6875.
      Group opacity scales a composite LINEARLY, and `0.80 * bell(x) * 0.6875` is
      exactly `0.55 * bell(x)`, so the resting band is identical to authoring the
-     layers at 0.55 directly — not an approximation of it. That matters because
+     layers at 0.55 directly – not an approximation of it. That matters because
      the alphas cannot simply be scaled (point 3 on the layer block).
-     THE HALO BELOW IS INSIDE THIS GROUP AND SO IS SCALED TOO — which is exactly
+     THE HALO BELOW IS INSIDE THIS GROUP AND SO IS SCALED TOO – which is exactly
      right and needs no compensating tweak: the drop-shadow is computed from
      layers that are 0.80/0.55 = 1.4545x brighter, and 1.4545 * 0.6875 = 1.000,
      so the resting glow also lands unchanged. Do not "fix" the shadow alpha. */
   opacity: 0.6875;
   /* Brightness is a STATE change, not motion, so it eases even though the speed
-     jump cannot. Killed by the reduced-motion block, where it simply snaps —
+     jump cannot. Killed by the reduced-motion block, where it simply snaps –
      correct, since the cue itself must survive for users who get no animation. */
   transition: opacity 0.35s ease;
   /* ONE halo for the whole stack, deliberately on the SVG ROOT rather than on
      each rect: twenty stacked drop-shadows would both compound the glow and pay
      for twenty filter passes a frame instead of one. It is also what R15 says to
-     do — a CSS filter on an SVG CHILD resolves its lengths in the local user
+     do – a CSS filter on an SVG CHILD resolves its lengths in the local user
      coordinate system, where they would scale with the rendered size. (Safe
      either way here, since the <svg> carries no viewBox and user units are CSS
      pixels 1:1, but the root is the rule.)
-     Light, zero-offset, warm — D-044. */
+     Light, zero-offset, warm – D-044. */
   filter: drop-shadow(0 0 5px rgba(255, 226, 170, 0.85));
 }
 .verdict__sheen rect {
@@ -634,15 +634,15 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    TWENTY dashes of decreasing length, centred on each other, whose alphas
    COMPOSITE into a falloff instead of a hard end. This is what makes the band
    fade in and out along its direction of travel rather than switching on and
-   off — a gradient along the path, which is the one thing a stroke dash cannot
+   off – a gradient along the path, which is the one thing a stroke dash cannot
    express directly.
    DO NOT HAND-EDIT THESE TWENTY LINES. They are generated; four separate things
    below are derived from the same parameters, and changing one by eye silently
-   breaks the others. Regenerate instead (the generator is tiny — N layers, band
-   half-length R, and the BUSY peak; it emits exactly this block).
+   breaks the others. Regenerate instead (the generator is tiny – N layers, band
+   half-length R and the BUSY peak; it emits exactly this block).
    NOTE THE ALPHAS HERE ARE THE BUSY ONES (peak 0.80). The resting look comes
    from the group `opacity: 0.6875` on .verdict__sheen, which is 0.55/0.80 and
-   scales the whole composite back down — see the note at that declaration.
+   scales the whole composite back down – see the note at that declaration.
 
    1. CENTRING IS DONE WITH NEGATIVE `animation-delay`, NOT `stroke-dashoffset`.
       A static offset would leave each layer travelling less than a full 100
@@ -655,21 +655,21 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       point 2 a non-issue.
    2. THEREFORE THE DELAYS ARE DERIVED FROM THE DURATION. A delay is an absolute
       time, so changing `animation`'s duration alone multiplies every layer's
-      phase shift and the twenty stop nesting — the taper smears across the ring
+      phase shift and the twenty stop nesting – the taper smears across the ring
       instead of forming a band. Duration and delays move together, always.
       THIS IS ALREADY SOLVED: both the duration and every delay are derived
       from one inherited `--sheen-dur`, so changing that single value rescales
       all twenty phases with it. Never reintroduce a literal time here.
-      NOTE THE BUSY CUE DOES NOT USE IT. Changing the duration at all -- even
-      correctly, with the delays following -- makes the dash JUMP, because a CSS
+      NOTE THE BUSY CUE DOES NOT USE IT. Changing the duration at all – even
+      correctly, with the delays following – makes the dash JUMP, because a CSS
       animation re-evaluates `(currentTime / duration)` at the moment of the
       change. The busy state sets `playbackRate` from app.js instead, which
       preserves currentTime. So `--sheen-dur` is the RESTING speed knob only.
    3. THE ALPHAS ARE SOLVED, NOT CHOSEN, and they are NOT proportional to the
       brightness. Layers composite multiplicatively: total = 1 - PROD(1 - a_i).
-      So scaling them all by a constant does NOT scale the band — it saturates
+      So scaling them all by a constant does NOT scale the band – it saturates
       the core towards 1 while the tips rise linearly, which FLATTENS the taper
-      back into a hard-edged bar. (Tried by the user: quadrupling every alpha
+      back into a hard-edged bar. (Tried by the user: Quadrupling every alpha
       took the core/tip ratio from 7:1 down to 4.4:1 and looked worse.)
       That is also why the busy state changes GROUP OPACITY rather than these
       values: opacity scales a composite linearly, where scaling the alphas does
@@ -681,7 +681,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       THE ALPHAS ARE NOT MONOTONIC. They rise to a peak at layer 16 of 20 and come
       back down, because the inner layers paint onto an already-part-opaque
       stack and need less of their own alpha to move the total.
-   4. TWENTY IS NOT DECORATION — IT IS THE ANTI-BANDING NUMBER. Each layer is a
+   4. TWENTY IS NOT DECORATION – IT IS THE ANTI-BANDING NUMBER. Each layer is a
       hard-edged dash, so N layers can only ever make N steps. At five the band
       was a visible STAIRCASE (max step 0.176 in composite opacity, obvious on
       screen and photographed by the user). Twenty puts the max step at 0.043,
@@ -724,7 +724,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 
 /* ===== THE BUSY CUE (step 4b) =====================================
    While "New verdict" is generating, the band BRIGHTENS here and SPEEDS UP in
-   app.js. The split is not arbitrary — each half is done wherever it can be done
+   app.js. The split is not arbitrary – each half is done wherever it can be done
    without a visible seam.
    BRIGHTNESS BELONGS IN CSS: opacity transitions smoothly, so there is nothing
    to hide. `opacity: 1` lifts the group from its resting 0.6875 back to the
@@ -735,17 +735,17 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    position at that instant and THE DASH JUMPS. The user reported it as plainly
    visible. `setSheenRate()` in app.js sets `playbackRate` on the twenty
    animations instead, which preserves currentTime and changes only the velocity
-   — no jump, and the layers stay in register for free. Do not reintroduce a
+   – no jump, and the layers stay in register for free. Do not reintroduce a
    duration override here; read the note at that function first.
    NO CLASS AND NO STATE OF OUR OWN. `busyButton()` already sets `aria-busy` on
    the trigger for exactly the right window and clears it in the `finally` that
    restores the label, so this cue cannot get stuck on and it ends on an ERROR
    just as it does on success.
-   Reduced motion: the global `animation: none !important` removes the travel, so
+   Reduced motion: The global `animation: none !important` removes the travel, so
    the speed half is silently dropped (and `getAnimations()` returns nothing,
    making setSheenRate a no-op). The brightness half still lands, since opacity
    is not an animation. Either way the button's own spinner and label remain the
-   primary signal — this was never allowed to be the only indication that a call
+   primary signal – this was never allowed to be the only indication that a call
    is in flight. */
 .verdict:has(#verdict-refresh[aria-busy='true']) .verdict__sheen {
   opacity: 1;
@@ -753,7 +753,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 @keyframes sheen { to { stroke-dashoffset: -100; } }
 .verdict__inner {
   background: var(--bg-raised);
-  /* Tracks .verdict's padding — see the note there. */
+  /* Tracks .verdict's padding – see the note there. */
   border-radius: calc(var(--radius) - 2.5px);
   padding: 1.1rem 1.4rem;
   display: flex;
@@ -762,7 +762,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   flex-wrap: wrap;
 }
 /* Step 5, user-raised: LEFT to natural flex-wrap maths, "New verdict" only
-   dropped to its own line at ~537px — the point where the label + `.verdict__text`'s
+   dropped to its own line at ~537px – the point where the label + `.verdict__text`'s
    12rem min-width + the button's own width stopped fitting one row. The user
    wants that forced earlier, at ~680px, with the button's own width UNCHANGED
    by wrapping either way.
@@ -770,21 +770,21 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    underlying reason, and the fix is a third element rather than a third
    attempt on the button:
    1. `flex-basis: 100%` on `.verdict__refresh` forces the wrap, but also
-      SIZES it — with nothing else sharing its new line there is nothing left
+      SIZES it – with nothing else sharing its new line there is nothing left
       to shrink it back down, so it rendered edge-to-edge (stretched).
    2. Adding `max-width: max-content` to claw the size back down undid the
       wrap itself: the WRAP decision is made on the hypothetical main size,
-      which is the flex-basis already clamped by min/max-width — so clamping
+      which is the flex-basis already clamped by min/max-width – so clamping
       the rendered size clamps the forcing value too, before the wrap
       algorithm ever runs, and the break point fell straight back to the
       natural ~537px.
    There is no third value for one property that forces a line break AND
-   leaves the item's own size alone — those are the same number by
+   leaves the item's own size alone – those are the same number by
    definition. `.verdict__break` (in index.html, right after `.verdict__text`)
    is a second, empty flex item that takes the forcing role instead: it alone
    carries `flex-basis: 100%` with no max-width of its own, so IT is what
    can't share a line with the label/text, and the button after it starts a
-   fresh line sized purely by its own content — completely untouched. */
+   fresh line sized purely by its own content – completely untouched. */
 .verdict__break { display: none; } /* not a flex item at all above the breakpoint */
 @media (max-width: 680px) {
   .verdict__break {
@@ -793,7 +793,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
     height: 0;
     overflow: hidden;
     /* Cancels the row-gap this element's own (empty) line would otherwise ADD
-       on top of the real gap between it and the button -- without this the
+       on top of the real gap between it and the button – without this the
        button sits 2rem below the text instead of 1rem. Tied to
        .verdict__inner's `gap: 1rem` above; move both together. */
     margin-bottom: -1rem;
@@ -812,16 +812,16 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   min-width: 12rem;
   font-size: 1rem;
   color: var(--ink);
-  /* D-045's guard, extended here: a verdict is AI-generated prose, not a
+  /* D-045's guard, extended here: A verdict is AI-generated prose, not a
      literal file upload, but the taste-verdict prompt has no length limit on
      any SINGLE word, so the same "one unbreakable token can blow a flex item
      open" risk applies. Paired with `hyphens` for D-060's soft-hyphen
-     approach — see the full note at .movie-card__body; this is the fourth
+     approach – see the full note at .movie-card__body; this is the fourth
      and last of the four elements it now covers. */
   overflow-wrap: anywhere;
   hyphens: none;
 }
-/* The real verdict only — a half-step off white plus a touch of tracking.
+/* The real verdict only – a half-step off white plus a touch of tracking.
    `is-muted` marks every placeholder and the error fallback; those share the
    base font-size above but are `--ink-dim`, italic and untracked (the rule
    below). */
@@ -850,21 +850,21 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   background: rgba(255, 255, 255, 0.3);
   transition: height 0.3s ease-out;
 }
-/* --ink-dim, not --ink-faint: the faintest token was too quiet for text that is
+/* --ink-dim, not --ink-faint: The faintest token was too quiet for text that is
    often the only thing in the banner (a placeholder, or a failure). Note this
    makes the verdict's muted state one step brighter than the OTHER muted-italic
    absences in the app (.score-tmdb.is-muted, .no-review), which stay
-   --ink-faint. The shared vocabulary is muted + italic, not one exact token —
+   --ink-faint. The shared vocabulary is muted + italic, not one exact token –
    those two sit beside real content on a card and should stay quieter than it,
    while this one has nothing to be quieter than. */
 .verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
 /* The typing effect (step 4b) animates THIS span, never `.verdict__text`
-   itself -- that element is `aria-live="polite"` and typing its accessible
+   itself – that element is `aria-live="polite"` and typing its accessible
    text one character at a time would announce it one character at a time.
    `.verdict__typed` is `aria-hidden`; a plain `.sr-only` sibling (built in
    setVerdictText()) carries the full string from the first frame, so the live
    region always has one complete announcement to make. Inherits colour and
-   tracking from `.verdict__text`/`.verdict__text:not(.is-muted)` -- nothing to
+   tracking from `.verdict__text`/`.verdict__text:not(.is-muted)` – nothing to
    set here beyond the caret. */
 .verdict__typed.is-typing::after {
   content: '';
@@ -880,11 +880,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .verdict__refresh {
   background: transparent;
   /* NOT --line, which this was: at #26262f on the banner's --bg-raised ground it
-     measures 1.22 contrast — a border that is, in practice, not drawn. The user
+     measures 1.22 contrast – a border that is, in practice, not drawn. The user
      reported the button as "too subtle and missable" and diagnosed the border
      correctly.
      A translucent amber at 0.3 measures 2.08, so it is present without being
-     loud, and it is WARM — it foreshadows the amber this button becomes on
+     loud, and it is WARM – it foreshadows the amber this button becomes on
      hover, which a neutral grey cannot. Chosen over --line-strong (1.85) for
      exactly that reason: near-identical weight, more meaning. Deliberately a
      long way short of .recs__trigger's full amber border (11.05), because the
@@ -905,12 +905,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Required by the glyph rule once this button carries an icon (R15): a glyph
      must never be separated from the word it belongs to, and everywhere else in
      the app that glue is a non-breaking space inside the string. An icon is an
-     ELEMENT, so no string can hold it — nowrap is the only mechanism, exactly as
+     ELEMENT, so no string can hold it – nowrap is the only mechanism, exactly as
      on `.recs__trigger`. Do not remove it as redundant on a two-word label. */
   white-space: nowrap;
   transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
-/* :not(:disabled) so the amber hover doesn't fight the busy state — same as
+/* :not(:disabled) so the amber hover doesn't fight the busy state – same as
    .recs__trigger below, which this button's busy treatment mirrors. */
 .verdict__refresh:hover:not(:disabled) {
   border-color: var(--amber);
@@ -918,12 +918,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      rest, so there is nowhere brighter for it to go, and amber text inside an
      amber border made the whole button one flat colour. Hover is expressed by
      the three things around the label instead: the border lights (2.08 -> 11.05
-     contrast), the interior recedes, and the glow appears.
+     contrast), the interior recedes and the glow appears.
 
      A translucent BLACK fill here is not a contradiction of D-044, and the
      distinction matters enough to write down. D-044 is about SHADOWS: a shadow
      darkens whatever lies behind the element, and on a #0b0b0f page there is
-     nothing left to darken, so it does no work. This is a BACKGROUND — it
+     nothing left to darken, so it does no work. This is a BACKGROUND – it
      darkens the button's own interior, which is a real surface at --bg-raised
      (#14141b) and takes it to about #0e0e13. There is something to darken, so
      black works here and light would not. Do not "correct" this to a light fill
@@ -931,11 +931,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   background: rgba(0, 0, 0, 0.3);
   /* Made of LIGHT, not black (D-044): the page is #0b0b0f and the banner
      #14141b, so a black shadow has nothing left to darken and would be
-     invisible at any opacity — the user flagged this in the request.
-     ZERO Y-offset, also D-044: this is a GLOW, emitted by a button that has
+     invisible at any opacity – the user flagged this in the request.
+     ZERO Y-offset, also D-044: This is a GLOW, emitted by a button that has
      just lit up, and a glow radiates evenly. Any Y-offset would make it
      lopsided, which is the mistake that was made twice in one item on the film
-     card. Note .search button:hover DOES use an offset amber pool — that one is
+     card. Note .search button:hover DOES use an offset amber pool – that one is
      a FILLED button reading as a lit object casting light downwards, which is a
      different thing from an outline lighting up. Do not unify them.
      One layer, tight radius, negative spread: the whole request was "very
@@ -951,10 +951,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   flex: 1;
   /* `flex: 1` alone is NOT enough, and the root cause is one this project has
      met more than once. A flex item's automatic minimum size is
-     `min-width: auto`, which resolves to min-content — and for an `<input>`
+     `min-width: auto`, which resolves to min-content – and for an `<input>`
      min-content is not its text but its intrinsic size, roughly the 20
      characters of its default `size` attribute. So the input silently refused
-     to shrink past about 20ch + 2.5rem of padding, the row overflowed, and the
+     to shrink past about 20ch + 2.5rem of padding, the row overflowed and the
      button beside it (correctly `flex-shrink: 0`) was pushed off the right edge
      and clipped. At 311px the button was simply gone.
      `min-width: 0` opts out of that automatic minimum so the input pays its
@@ -962,7 +962,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      input has about 150px of text area left at 311px in Firefox and 185px in
      Chrome, which is ample.
      Same family as `.result-row .add-btn`'s `flex-shrink: 0` and the ranked
-     card's `min-width: 0` — when a flex or grid item will not shrink, this
+     card's `min-width: 0` – when a flex or grid item will not shrink, this
      automatic minimum is almost always why. */
   min-width: 0;
   background: var(--bg-card);
@@ -975,12 +975,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 .search input:focus { outline: none; border-color: var(--amber); }
 /* Drop the browser's own clear button. Chromium/Safari draw an unthemed blue ×
-   here; Firefox draws nothing at all — so STYLING it would still leave the
+   here; Firefox draws nothing at all – so STYLING it would still leave the
    browsers disagreeing, just with a nicer × in two of them. Hiding it is the
    only option that looks the same everywhere. It also only half-worked: it
    clears the input but leaves .search-results showing matches for a query no
    longer in the box. `type="search"` stays for the semantics and the mobile
-   keyboard's Search key — this drops only the chrome. */
+   keyboard's Search key – this drops only the chrome. */
 .search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
 /* The magnifier only exists below the narrow breakpoint (see the
    `@media (max-width: 500px)` block below). */
@@ -1006,15 +1006,15 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    .recs__trigger, the search row's Add, the ranked card's Edit and Remove, and
    the dialogs' Cancel): dimming those lets the dark page through their border
    and they visibly switch off. A FILLED button cannot switch off that way, and a
-   saturated amber at 55% still composites to ~#8c6f39 over --bg — measurably
+   saturated amber at 55% still composites to ~#8c6f39 over --bg – measurably
    dimmer, but unmistakably still an amber button. It read as active for the whole second it
    spent saying "Searching…". A filled button's identity IS its fill, so take
    the fill out of the amber family rather than making it translucent. The label
    stays --ink-dim: "Searching…" is information, and should still be readable.
    Eased via the transition above, since a hard flash each way over a ~1s state
    would be worse than the problem.
-   THREE amber-filled buttons can be disabled — this one, .rate-dialog
-   button.primary and .rec-card__body button — and all three swap the fill
+   THREE amber-filled buttons can be disabled – this one, .rate-dialog
+   button.primary and .rec-card__body button – and all three swap the fill
    (R13). (.log-cta__btn is amber-filled too but nothing ever disables
    it: checked against every `disabled =` assignment in app.js.) */
 .search button:disabled {
@@ -1050,7 +1050,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      the button drops to its own line once the row is too narrow for it (see
      `.result-row`). Scoped to this query on purpose rather than applied
      globally: on a wider row the button sits beside its film on one line and
-     proximity already says so. `--line` over `--line-faint` — it has to survive
+     proximity already says so. `--line` over `--line-faint` – it has to survive
      the hover tint, which lightens the row to --bg-raised.
      The search row keeps its flex layout at every width. A grid layout here,
      with the button under the title, is D-083's rejected option: it never took
@@ -1069,22 +1069,22 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  /* Was a bare `340px`, the only fixed-pixel height cap left in the app — the
+  /* Was a bare `340px`, the only fixed-pixel height cap left in the app – the
      AI log dialog already caps itself at `88vh`. On a short viewport (a phone
      in landscape, a small desktop window) 340px is most of the screen, so the
      results panel buried the page behind it. A pure `min(340px, ratio * vh)`
      was tried first and OVERCORRECTED (user-caught, with a screenshot): on a
-     genuinely short viewport — a phone in landscape can report an innerHeight
-     as low as ~240px — a flat percentage of the total crushed the panel down
+     genuinely short viewport – a phone in landscape can report an innerHeight
+     as low as ~240px – a flat percentage of the total crushed the panel down
      to little more than one row, which is exactly the "radically short" look
      being fixed. A landscape-only variant with an even smaller ceiling made
      the SAME mistake harder, not solved it.
-     **The user's actual ask: let the panel stay a normal, comfortable height
-     even when that means it no longer fits the screen — a bit of page scroll
+     **The user's actual ask: Let the panel stay a normal, comfortable height
+     even when that means it no longer fits the screen – a bit of page scroll
      to reach the rest of it is fine; a visibly stunted panel is not.** So this
      is a FLOOR (`max()`), not a second ceiling: below ~480px of viewport
      height the panel holds at 240px regardless of how much shorter the
-     viewport gets — it can and will exceed the viewport itself at the low
+     viewport gets – it can and will exceed the viewport itself at the low
      end, on purpose. Between ~480px and ~680px it still eases down from 340 to
      240 (the "a bit shorter, not radically" middle ground the user asked to
      keep); above that it is the untouched 340px ceiling, exactly as before.
@@ -1096,7 +1096,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      SMALL viewport height, so it stays put while a mobile URL bar collapses,
      where `dvh` would resize the panel mid-scroll. Written as a pair because a
      lone unsupported `svh` would invalidate the whole declaration and leave the
-     panel with NO cap — worse than the fixed value it replaced. */
+     panel with NO cap – worse than the fixed value it replaced. */
   max-height: max(240px, min(340px, 50vh));
   max-height: max(240px, min(340px, 50svh));
   /* The panel only clips, to its rounded corners; `.search-results__list`
@@ -1105,7 +1105,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   flex-direction: column;
   animation: fade-slide 0.3s var(--ease);
 }
-/* Flex only while shown: nothing in this stylesheet restates `[hidden]`, so a
+/* Flex only while shown: Nothing in this stylesheet restates `[hidden]`, so a
    bare `display: flex` here would override the browser's own
    `[hidden] { display: none }` and leave a closed panel on screen. Flex lets
    the list shrink to the panel's max-height and scroll. */
@@ -1115,7 +1115,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   overflow-y: auto;
   min-height: 0;
 }
-/* Lines inside the results panel — loading, "no matches", errors, the
+/* Lines inside the results panel – loading, "no matches", errors, the
    empty-query nudge. Built by searchNote() in app.js. */
 .search-note { padding: 1rem; color: var(--ink-dim); }
 .search-note.err { color: var(--crimson); }
@@ -1126,14 +1126,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 
      The row STACKS instead of crushing its middle column (sweep finding C). At
      283px the title column was down to ~29px and "Papa Obama" fragmented into
-     "Pap / a / Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in
+     "Pap / a / Oba / ma" – `overflow-wrap: anywhere` doing its last-resort job in
      a column that should never have been that narrow. Three columns simply do
      not fit that width, so below a threshold the button drops to its own line
      and the title gets the full row.
      The threshold is NOT a media query and no number here encodes it: flex line
      breaking compares the items' hypothetical sizes against the row, so the
      browser works it out from the button's REAL rendered width. It therefore
-     self-adjusts per row — a wider label stacks earlier than a narrower one
+     self-adjusts per row – a wider label stacks earlier than a narrower one
      ("In your list" before "+ Add", and the busy "Adding…", the widest of the
      four, earliest of all), which is exactly right, since those rows have the
      least room. */
@@ -1141,20 +1141,20 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Split, not one `gap`. The COLUMN gap is the spacing between poster, title
      and button and is unchanged. The ROW gap only ever applies once the row has
      wrapped, and 0.9rem there left the stacked button floating clear of the film
-     it belongs to — the user called it sloppy. Tightening it costs nothing on an
+     it belongs to – the user called it sloppy. Tightening it costs nothing on an
      unwrapped row, where there is no second line for a row gap to sit in. */
   column-gap: 0.9rem;
   row-gap: 0.4rem;
   align-items: center;
   padding: 0.55rem;
   border-radius: 10px;
-  /* Deliberately NOT cursor: pointer — the row itself does nothing, only its
+  /* Deliberately NOT cursor: pointer – the row itself does nothing, only its
      Add button does. The hover tint stays as a row-tracking cue. */
   transition: background 0.15s;
   /* Also defensive. A flex item's automatic minimum size is min-content, the
      same mechanism that blew the ranked card open, and this row is a flex
      container whose text comes from TMDB. Real titles do not contain
-     400-character words, so nothing is known to be broken here — but the guard
+     400-character words, so nothing is known to be broken here – but the guard
      is one declaration and the failure mode is the whole page. */
   overflow-wrap: anywhere;
   hyphens: none; /* see the full note at .movie-card__body */
@@ -1164,9 +1164,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   width: 46px; height: 69px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
   background: var(--bg-raised);
 }
-/* `flex: 1 1 5rem` — the basis is load-bearing and this rule cannot be deleted
+/* `flex: 1 1 5rem` – the basis is load-bearing and this rule cannot be deleted
    as redundant. Without it `.meta` keeps `flex-basis: auto`, whose hypothetical
-   size is MAX-CONTENT — the whole title on one line — so `flex-wrap` above would
+   size is MAX-CONTENT – the whole title on one line – so `flex-wrap` above would
    push the button onto its own line at ANY width as soon as a title got long.
    Pinning the basis to 5rem means the line only breaks when the title column
    would fall under 5rem, about 74px. MEASURED thresholds, from the real rendered
@@ -1179,7 +1179,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    Visually inert above that: today the leftover space goes to the button's
    `margin-left: auto`, and with `flex-grow: 1` it goes to `.meta` instead. The
    button ends at the right edge either way and the text is left-aligned in both,
-   so nothing moves — flex-grow is resolved before auto margins see the free
+   so nothing moves – flex-grow is resolved before auto margins see the free
    space, so they simply get none. */
 .result-row .meta { flex: 1 1 5rem; }
 /* At 300px and below the title drops a notch so words keep fitting WHOLE.
@@ -1202,12 +1202,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   margin-left: auto;
   /* THE SAME BUG `.search button` already documents further up, missed on
      this button. A flex item may shrink below its content, so when the title
-     beside it is long the row squeezes THIS instead — and "+ Add" breaks at its
+     beside it is long the row squeezes THIS instead – and "+ Add" breaks at its
      space into two lines, turning a pill into a lump. It looked width-related
      but is not: it depends on how long the neighbouring TITLE is, which is why
      narrowing the window makes more rows go wrong one at a time rather than all
      at once. On a phone in portrait most titles wrap, so most buttons break.
-     `flex-shrink: 0` is the fix — the button keeps its content width and
+     `flex-shrink: 0` is the fix – the button keeps its content width and
      `.meta` absorbs the pressure, which it can, since it wraps and now also
      carries `overflow-wrap: anywhere`. `white-space: nowrap` makes it
      unbreakable rather than merely unsqueezed, which matters because "In your
@@ -1225,12 +1225,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   font-size: 0.85rem;
   cursor: pointer;
 }
-/* :not(:disabled) so the amber hover cannot fight a disabled state — same
+/* :not(:disabled) so the amber hover cannot fight a disabled state – same
    guard as .recs__trigger / .verdict__refresh / .search button. */
 .result-row .add-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
 /* One rule for all three resting states this button has: busy ("Adding…"),
    just-added ("✓ Added") and already-owned ("In your list"). busyButton()
-   disables it in every case, so :disabled is the single hook. Opacity only —
+   disables it in every case, so :disabled is the single hook. Opacity only –
    dimming the text colour as well would make labels the user needs to READ
    too faint against --bg-raised. */
 .result-row .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -1238,7 +1238,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 /* section headers ----------------------------------------------------- */
 .ranked__head, .recs__head {
   display: flex;
-  flex-wrap: wrap; /* R12 — see the note below */
+  flex-wrap: wrap; /* R12 – see the note below */
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
@@ -1251,12 +1251,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    button, and wrapping the head would have largely masked that the BUTTON
    could be squeezed onto two lines rather than fixing it. R11 fixed the button
    in the same pass, so the split has served its purpose and the two heads
-   answer to one rule again — one LAYOUT rule, that is. `.recs__head` does have a
+   answer to one rule again – one LAYOUT rule, that is. `.recs__head` does have a
    selector of its own further down, for the `scroll-margin-top` that R27's
    scroll target needs; that is about where a scroll stops, not about how the
    head is laid out, and it is not this split creeping back.
-   What it does: the second item drops onto its own line instead of both items
-   squeezing — the film count below "Your ranking", the trigger below "What to
+   What it does: The second item drops onto its own line instead of both items
+   squeezing – the film count below "Your ranking", the trigger below "What to
    watch next".
    NO THRESHOLD IS ENCODED HERE, and none should be. Flex line breaking compares
    HYPOTHETICAL sizes, so the browser derives the break point from the heading’s
@@ -1266,7 +1266,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    been wrong before (the search row records "In your list" as ~88px, not the
    111px guessed).
    Note the lone item on the second line lands at the START, because
-   `justify-content: space-between` parks a single child at flex-start — the same
+   `justify-content: space-between` parks a single child at flex-start – the same
    trap the 620px card-mode block documents. Here that is what we want: the count
    reads as a subtitle under its heading, and the trigger as an action under its
    own. */
@@ -1280,25 +1280,25 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 /* `--ink-dim`, not `--ink-faint` (2026-09-10, user-raised). Three reasons for
    the colour, none of them taste: faint measured 3.49:1 on this ground at the
    time and 4.36 now, under WCAG AA for normal text either way (it moved in the
-   same session — D-052); R26's rule says a line that IS the only thing its
+   same session – D-052); R26's rule says a line that IS the only thing its
    section shows takes the base weight, where the faint tier is for absences
    sitting BESIDE content (`No TMDB rating`, `No review yet` both have a card
    around them); and this is the first thing a first-time visitor sees.
    The padding was `2rem 0`, which put 32px above the line and 80px below it,
-   since `.recs__head` brings its own 3rem — real space doing no work, and the
+   since `.recs__head` brings its own 3rem – real space doing no work, and the
    line read as adrift in it. Claude cut the bottom to zero on the argument that
    the line belongs to the heading above it and should sit nearer that; the user
    tuned it in devtools and put a smaller asymmetry back, which does look
    better. So: tight to its own heading, with just enough beneath the line that
    it does not sit flush on nothing. Tuned by eye, and there is nothing to
-   re-derive here — if it is ever changed again, change it by looking at it. */
+   re-derive here – if it is ever changed again, change it by looking at it. */
 .ranked__empty { color: var(--ink-dim); font-style: italic; padding: 0.8rem 0 1rem; }
 
 /* ranked list ------------------------------------------------------- */
 .ranked__list { list-style: none; display: grid; gap: 1rem; }
 
 .movie-card {
-  /* One source of truth for the poster's width — the grid track AND the image
+  /* One source of truth for the poster's width – the grid track AND the image
      itself both read it, so they cannot fall out of step. They had: the 620px
      query narrowed the track to 68px and left the image declaring 92px, so the
      poster hung 24px into the title column on every phone. Override this one
@@ -1322,44 +1322,44 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* The staggered entrance runs on the FIRST paint only (renderRanked adds the
    class). It used to sit on .movie-card itself, and since every re-render
-   replaces every card, rating one film replayed the whole list's entrance —
+   replaces every card, rating one film replayed the whole list's entrance –
    ~850ms of the page shimmering because one number changed. Later renders are
    animated by a View Transition instead; running both made cards play their
    entrance while the transition cross-faded them, which looked muddy. */
-/* `backwards`, NOT `both` — and this is load-bearing, not tidying (#19, D-043).
+/* `backwards`, NOT `both` – and this is load-bearing, not tidying (#19, D-043).
    `both` = backwards + forwards, and the FORWARDS half is the problem: a filling
    animation keeps applying its final keyframe, and animations outrank normal
    author declarations in the cascade. The entrance keyframe ends at
-   `transform: none` — it was `fade-slide` then and is `card-enter` now, and both
-   do — so
+   `transform: none` – it was `fade-slide` then and is `card-enter` now, and both
+   do – so
    every first-paint card went on being pinned to `transform: none` for the life
-   of the page — silently beating `.movie-card:hover`'s transform. The card lift
+   of the page – silently beating `.movie-card:hover`'s transform. The card lift
    therefore did nothing on a freshly loaded page, and only the poster (which has
    no animation of its own) still moved. That is exactly the symptom this item
    was raised for: "too subtle - I can only notice it on the poster".
    It came back after any add/rate/remove, because those rebuild the cards
-   WITHOUT `is-entering` — which is what made it read as subtle rather than
+   WITHOUT `is-entering` – which is what made it read as subtle rather than
    broken.
    `backwards` keeps the half that is actually needed: holding the from-state
    during this card's stagger delay (set in JS, up to 1200ms), so a card does not
-   flash at full opacity before its turn. Nothing needs the forwards half — the
+   flash at full opacity before its turn. Nothing needs the forwards half – the
    final keyframe is `opacity: 1; transform: none`, which is identical to the
    card's natural resting state. Do NOT put `both` back. */
-/* Step 4b: this entrance ran, and was close to invisible. Three causes, all
+/* Step 4b: This entrance ran, and was close to invisible. Three causes, all
    measured before anything was changed, because the mechanism was never the
    problem.
    1. THE CURVE, which was most of it. `var(--ease)` is
       `cubic-bezier(0.22, 1, 0.36, 1)`, a very front-loaded ease-out: ~67% of the
       way by t=0.2 and within 1px of home after ~168ms of a ~450ms animation. So a
       10px move happened in a sixth of a second and the card then sat still for
-      ~280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` — ~37% by t=0.2 —
+      ~280ms. Now `cubic-bezier(0.25, 0.46, 0.45, 0.94)` – ~37% by t=0.2 –
       which spreads the same distance across ~73% of the duration instead of
       ~37%.
       DELIBERATELY OFF `--ease`: `--ease` is built for arrivals that should
       feel instant, and an entrance you are meant to WATCH is a different job.
    2. Travel 10px → 14px and duration 0.45s → 0.6s. Modest on their own; they
       only read once the curve stopped eating them.
-   3. Its OWN keyframe now, not the shared `fade-slide` — which is also used by
+   3. Its OWN keyframe now, not the shared `fade-slide` – which is also used by
       `.search-results`, where 10px and a snappy curve are right. Same reasoning
       R27 used to give the rec card `rec-enter`: separate names mean tuning one
       can never move the other.
@@ -1370,9 +1370,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .movie-card.is-entering {
   animation: card-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
 }
-/* Grow-on-hover (#19, user-raised: the old effect was "too subtle - I can only
-   notice it on the poster", which was literally true — the card never scaled).
-   Two cues: it grows a little, and the shadow deepens and picks up a faint warm
+/* Grow-on-hover (#19, user-raised: The old effect was "too subtle - I can only
+   notice it on the poster", which was literally true – the card never scaled).
+   Two cues: It grows a little, and the shadow deepens and picks up a faint warm
    rim.
 
    NO `translateY`, and that is the point rather than an omission. A lift is
@@ -1380,26 +1380,26 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    opens the one below by the same amount, so a hovered card visibly drifts
    towards its upper neighbour. In a vertical LIST, where the card has an
    identical sibling a fixed 1rem away on each side, that asymmetry is the most
-   noticeable thing about the effect — the user spotted it immediately, and it
+   noticeable thing about the effect – the user spotted it immediately, and it
    read as the card being closer to the film above than the one below.
    `scale()` grows from `transform-origin: 50% 50%`, so it narrows both gaps
-   equally. Elevation is expressed by the glow instead — made of light and
+   equally. Elevation is expressed by the glow instead – made of light and
    centred on the card, with a zero Y-offset on every layer (see the rule below,
    and D-044). The scale was raised 1.012 → 1.02 to keep the effect pronounced
    now that no vertical movement contributes to it.
-   If a lift is ever wanted back, it cannot be symmetric — that is what
-   `translateY` means — so do not "restore" it without re-reading this.
+   If a lift is ever wanted back, it cannot be symmetric – that is what
+   `translateY` means – so do not "restore" it without re-reading this.
 
    HOVER MUST STAY DISTINGUISHABLE FROM KEYBOARD FOCUS, and the thing keeping
    them apart is SHAPE, not dimness (D-044 supersedes D-043's "keep the alpha at
-   0.10–0.12" — that guidance made the effect invisible, which is what the user
+   0.10–0.12" – that guidance made the effect invisible, which is what the user
    reported). `--amber` is also the `:focus-visible` ring, the #1 crown and the
    "Not rated yet" chip. The ring is a crisp, fully opaque 2px SOLID outline
-   held 3px OFF the card by `outline-offset` — a detached hard line with a gap
+   held 3px OFF the card by `outline-offset` – a detached hard line with a gap
    you can see through. This is translucent, diffuse and attached to the edge.
    Those read as different things at any brightness, which is why the glow can
    be bright. What must NOT happen is this turning into a hard-edged, opaque
-   amber line at the same offset — then the two genuinely converge.
+   amber line at the same offset – then the two genuinely converge.
 
    `@media (hover: hover)`, not a width query: on a touch screen `:hover` sticks
    after a tap until you tap elsewhere, which would leave a card parked in the
@@ -1409,7 +1409,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    The overlap is safe and not by luck: a transform makes the hovered card a
    stacking context, so it paints ABOVE its non-transformed siblings and the
    shadow spills over the next card instead of being covered by it. The scale
-   cannot produce a horizontal scrollbar either — `main` keeps a 14.72–36.8px
+   cannot produce a horizontal scrollbar either – `main` keeps a 14.72–36.8px
    gutter (`clamp(1rem, 4vw, 2.5rem)` under the type scale), and 1.02 on the
    widest card (about 966px inside the 1040px `--page-max`) adds under 10px per
    side against a 36.8px gutter there. Re-check this arithmetic if the scale is
@@ -1420,13 +1420,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
     border-color: rgba(245, 193, 91, 0.5);
     /* REQUIRED once the siblings dim, not decoration. `opacity < 1` creates a
        stacking context, which promotes every dimmed card into the same painting
-       step as this transformed one — and among equals, DOM order decides. The
+       step as this transformed one – and among equals, DOM order decides. The
        card BELOW would then paint over the part of this card's glow that
        spills across the gap beneath it, reintroducing exactly the top/bottom
        asymmetry the zero Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
        is `display: grid`, and grid items take z-index directly. */
     z-index: 1;
-    /* ALL LIGHT, NO BLACK — see D-044. The first version led with
+    /* ALL LIGHT, NO BLACK – see D-044. The first version led with
        `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is
        `--bg: #0b0b0f`, so a black shadow has nothing left to darken. On a dark
        UI, elevation is made of light. The black layer is gone rather than
@@ -1436,7 +1436,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        A GLOW IS NOT A SHADOW: a shadow is cast, so it pools on the side away
        from the light and a downward offset is correct for one. A glow is
        EMITTED, so it radiates equally and any offset just makes it lopsided.
-       The middle layer was `0 16px 38px -10px` — described, in this very
+       The middle layer was `0 16px 38px -10px` – described, in this very
        comment, as "a warm pool below the card". With a 16px offset against an
        ~9px reach, that layer contributed almost nothing ABOVE the card while
        piling up below it, and it is the brightest of the three. The user saw it
@@ -1449,12 +1449,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
       0 0 60px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
 
-  /* Spotlight: hovering one card dims every OTHER card, so the list recedes and
+  /* Spotlight: Hovering one card dims every OTHER card, so the list recedes and
      the one under the pointer is the only thing at full strength.
 
      `:has()` and NOT `.ranked__list:hover .movie-card:not(:hover)`, which is the
      shorter and obvious form. The list has a 1rem `gap`, and that gap is part of
-     the list but part of no card — so crossing it with the pointer satisfies
+     the list but part of no card – so crossing it with the pointer satisfies
      `.ranked__list:hover` while NOTHING matches `:hover`, and every card dims at
      once. Sliding down the list would strobe. `:has(.movie-card:hover)` fires
      only when a card really is hovered. It is already relied on elsewhere in
@@ -1464,7 +1464,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      This only works because D-043 changed the entrance animation's fill from
      `both` to `backwards`. That entrance (`fade-slide` then, `card-enter` since
      step 4b) animates opacity to 1, and a
-     forwards-filling animation keeps applying that final keyframe — which
+     forwards-filling animation keeps applying that final keyframe – which
      outranks normal declarations. With `both`, every first-paint card would have
      been pinned at `opacity: 1` and would simply have refused to dim, silently,
      exactly as the hover transform did. Same bug, different property.
@@ -1482,13 +1482,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    lumped into one `root` group that CROSS-FADES. That is invisible for content
    which neither changed nor moved (an identical image blended with itself), but
    removing a card shortens the list, so everything beneath it genuinely shifts
-   up — and cross-fading content that moved renders it as a ghosted double
+   up – and cross-fading content that moved renders it as a ghosted double
    image at both positions. Giving each block its own name makes the browser
    morph it between the two positions, so it slides instead.
    Outside a transition these declarations have no rendering effect at all.
    Do NOT name `.ranked` itself: the cards inside it are named individually, and
    nesting a named element inside another named one changes which snapshot owns
-   what. Nothing above the list needs a name — it does not move. */
+   what. Nothing above the list needs a name – it does not move. */
 .recs { view-transition-name: recs-section; }
 .site-foot { view-transition-name: site-footer; }
 
@@ -1502,12 +1502,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   text-align: center;
   /* Pinned so the "tied" caption below cannot move the numeral. `line-height: 1`
      already makes this box exactly one em tall, so on a card WITHOUT a caption
-     this declaration changes nothing — it only stops a card WITH one from
+     this declaration changes nothing – it only stops a card WITH one from
      growing, which (the cell being centred by the grid) would otherwise nudge
      its numeral up while its untied neighbours stayed put.
      `em`, not a fixed length, so it tracks the clamp above and both
      `.is-unranked` and `.is-wide`, which each change the font size.
-     Height only — NOT `position: relative`, which would have been the other way
+     Height only – NOT `position: relative`, which would have been the other way
      to take the caption out of the flow. That would move this cell into the
      positioned-paint layer and reverse the poster/numeral overlap order the
      `.is-wide` note below describes. */
@@ -1517,7 +1517,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    this card clips), so it is out of the layout without being out of the flow.
    Every inherited property of the numeral has to be undone: the display face,
    the 900 weight, the transparent fill with its amber stroke, and `.is-top`'s
-   glow — a child would otherwise render as a tiny outlined amber word.
+   glow – a child would otherwise render as a tiny outlined amber word.
    Lowercase and short by design: at 9.92px (0.62rem of the unscaled root; the
    caption is exempt from the type scale, D-079) it measures well under the 40px
    rank track of card mode, which is the narrowest place it has to fit, so it
@@ -1535,7 +1535,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   text-shadow: none;
 }
 /* The top-rated film. Set as a class by renderRanked(), NOT as
-   `.movie-card:first-child` — list position and "highest rated" are different
+   `.movie-card:first-child` – list position and "highest rated" are different
    facts, and they come apart as soon as the list holds an unrated film (with
    nothing rated at all, the positional rule crowned an unrated card). */
 .movie-card__rank.is-top {
@@ -1553,7 +1553,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   color: var(--ink-faint);
   -webkit-text-stroke: 0;
 }
-/* Ranks of 100+ (marked `is-wide` in renderRanked — CSS cannot count digits).
+/* Ranks of 100+ (marked `is-wide` in renderRanked – CSS cannot count digits).
    The numeral does NOT have to fit its track. It may not spill evenly either
    side, though: a line too wide for its box is start-aligned whatever
    `text-align` says, so the numeral stays flush with the track's LEFT edge and
@@ -1563,7 +1563,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    card mode. The card's padding on the left is never used.
    Sizes below are SOLVED, not estimated. Fraunces Black's figures measure
    **0.66em** per digit (Range.getBoundingClientRect on a live "222": 66.5px at
-   33.6px font). Two earlier guesses — 0.63em, then an over-corrected 0.8em —
+   33.6px font). Two earlier guesses – 0.63em, then an over-corrected 0.8em –
    both produced wrong sizes, so do not re-tune this by eye; re-measure.
    Measured clearance between a forced "250" and the poster (D-079): 10.8px on
    desktop, 11.6px at the 620px breakpoint and 13.1px in card mode below it.
@@ -1576,12 +1576,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    and the budget shrinks by 24px in a single step. Lower the ceiling all you
    like, but do not raise this coefficient without re-checking the 620px row.
    This is NOT a no-op
-   in card mode — the 40px track is tighter relative to its font than the
+   in card mode – the 40px track is tighter relative to its font than the
    desktop one, so the floor has to come down too, not just the ceiling.
-   font-size, not `scale`/`transform`: a transform would shrink the absolute
+   font-size, not `scale`/`transform`: A transform would shrink the absolute
    1.5px `-webkit-text-stroke` along with the glyph, leaving a thin, washed-out
-   outline beside its two-digit neighbours. Neither approach affects layout —
-   the track is a fixed width and only the text ever overflowed it — so posters
+   outline beside its two-digit neighbours. Neither approach affects layout –
+   the track is a fixed width and only the text ever overflowed it – so posters
    stay aligned card to card either way.
    Ranks of 1000+ are not handled and are not worth handling. */
 .movie-card__rank.is-wide { font-size: clamp(1.5rem, calc(4vw * var(--type-scale)), 2.4rem); }
@@ -1591,7 +1591,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Height derived, not restated: TMDB posters are 2:3, so 92x138 was already
      exactly this. Originally a calc rather than `aspect-ratio` because the
      placeholder's `::after` sized itself `height: 100%` and needed a definite
-     parent height — that `::after` is gone (the placeholder is now an SVG
+     parent height – that `::after` is gone (the placeholder is now an SVG
      centred with insets, which needs no percentage height), so either would
      work now. Kept as the calc because it is equivalent and swapping it would
      be churn on a rule that is correct. */
@@ -1604,7 +1604,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* Same `hover: hover` gate as the card's own hover, for the same reason: on a
    touch screen this would otherwise stay applied after a tap. Kept at 1.04 even
-   though the card now scales too — the two compound to ~1.06 on the poster,
+   though the card now scales too – the two compound to ~1.06 on the poster,
    which is the point. The poster is the design's primary visual anchor, so it
    should still lead the effect rather than move in lockstep with its card. */
 @media (hover: hover) {
@@ -1615,35 +1615,35 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    tallest thing in the row (138px on desktop), so a short title + review used to
    float in the middle of it with a gap above the title; the title now starts
    level with the top of the poster. The rank numeral is deliberately left
-   CENTRED — it is a large display figure that reads as balanced against the
+   CENTRED – it is a large display figure that reads as balanced against the
    poster, and it was not part of the request.
    Reset in the 620px block so card mode is untouched. */
 /* Nudged down from the grid area's top edge, NOT centred in it. Compared side
    by side against `center` and top alignment won: centring made the title's
    distance from the card's top edge depend on how long its review is, so the
-   titles no longer formed a straight column to scan down — and this is a ranked
+   titles no longer formed a straight column to scan down – and this is a ranked
    LIST, where scanning titles is the primary action. It also pairs the title
    with the score on one header line.
    The margin is the one adjustment on top of that: flush to the very top read
-   as slightly too tight. It is deliberately on .movie-card__body ALONE — the
+   as slightly too tight. It is deliberately on .movie-card__body ALONE – the
    score column must NOT move with it, so the rating stays pinned to the true
    top of the card. Tune this number freely; nothing is solved against it. */
 /* `min-width` + `overflow-wrap` are the guard that stops user text widening the
    card. A 400-character unbroken "ffff…" review blew the whole page open: the
    card's `1fr` track is `minmax(auto, 1fr)`, and that `auto` minimum is the
-   MIN-CONTENT width — which for one unbreakable word is the whole word. The
+   MIN-CONTENT width – which for one unbreakable word is the whole word. The
    track grew to fit it, the card grew with it, and the layout went with them.
    `overflow: hidden` on `.review` did not help, because clipping affects
    painting, not the intrinsic size the track is measured from.
 
    `anywhere`, NOT `break-word`, and the difference is the entire fix. Both wrap
-   identically on screen — normal breaks at spaces, mid-word only when a single
+   identically on screen – normal breaks at spaces, mid-word only when a single
    word cannot fit a line on its own, which is exactly the wanted behaviour. But
    `break-word` is ignored when min-content is CALCULATED, so the track would
    still have been sized to the unbroken word and the card would still have blown
    out. `anywhere` counts those break opportunities in intrinsic sizing, so
    min-content collapses to about one character. Same rendering, different
-   measurement — do not "simplify" this to `break-word`.
+   measurement – do not "simplify" this to `break-word`.
    It inherits, so the title, review, placeholder and unrated hint are all
    covered by the one declaration. Same property the AI log's error cell already
    uses for the same reason.
@@ -1657,26 +1657,26 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    real dictionary/pattern algorithm trusts, so a real word ("childhood")
    hyphenated correctly while an invented compound ("SquarePants") found no
    trusted point at all and fell through to `overflow-wrap: anywhere`'s raw,
-   hyphen-less break — inconsistent, and no CSS knob fixes that ceiling.
+   hyphen-less break – inconsistent, and no CSS knob fixes that ceiling.
    D-059 accepted that gap on the premise that closing it needed resize-aware
    JS measurement. THAT PREMISE WAS WRONG, which is why this replaces it
    rather than sitting beside it (D-060): a SOFT HYPHEN (U+00AD, inserted once
    by `softHyphenate()` in app.js inside every word long enough to hyphenate,
    D-080 and D-085) is a break opportunity wherever it is placed, with none
-   of `hyphens: auto`'s dictionary dependency — AND it needs no JS resize
+   of `hyphens: auto`'s dictionary dependency – AND it needs no JS resize
    logic at all, because a soft hyphen is invisible and zero-width unless it
    is the actual point a line breaks. The text is generated once; CSS ALONE
    decides whether those embedded break points are ever honoured.
-   `hyphens: none` here suppresses every hyphenation opportunity — the
-   embedded soft hyphens included — so above 400px renders BYTE-IDENTICAL to
+   `hyphens: none` here suppresses every hyphenation opportunity – the
+   embedded soft hyphens included – so above 400px renders BYTE-IDENTICAL to
    plain `overflow-wrap: anywhere` with no hyphenation feature at all, exactly
    as the user asked. The override to `hyphens: manual` (the CSS default,
    restored explicitly at 400px and below) is what lets those same soft hyphens
-   start being honoured — live, on resize, with nothing re-rendered.
+   start being honoured – live, on resize, with nothing re-rendered.
    COVERS four elements: `.movie-card__body` (just below), `.rec-card__body`
    (further down), and `.result-row` and `.verdict__text` (both further up),
    each set the same way.
-   `.review` and `.reason` need no CSS of their own at all — both are plain
+   `.review` and `.reason` need no CSS of their own at all – both are plain
    descendants of `.movie-card__body`/`.rec-card__body`, `overflow-wrap` and
    `hyphens` are inherited properties, and `softHyphenate()` is called
    directly on their text in app.js, so they pick up this whole toggle for
@@ -1684,7 +1684,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    toast: both of those double as an ELEMENT'S ACCESSIBLE NAME
    (`aria-labelledby`) or live-region content (`.toast[aria-live]`), so soft
    hyphens embedded in their text would be exposed to a screen reader, not
-   just to the eye — soft hyphens are SUPPOSED to be silent to assistive tech,
+   just to the eye – soft hyphens are SUPPOSED to be silent to assistive tech,
    but implementations have a real history of getting that wrong, and this
    app's accessibility work is not worth trading away for a cosmetic fix.
    `.verdict__text` is `aria-live="polite"` too, and clears this the same way
@@ -1706,14 +1706,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   font-size: 1.15rem;
 }
 .movie-card__body .year { color: var(--ink-dim); font-weight: 400; }
-/* Backlog #20 — a rated film with no review. Same size and top margin as a real
+/* Backlog #20 – a rated film with no review. Same size and top margin as a real
    review, so the line sits exactly where one would, but italic and a step
    fainter (--ink-faint against a review's --ink-dim). That is the vocabulary
    "No TMDB rating" already uses for an absent value: absence should read as
    absence, not as content.
    NOT a modifier on `.review`. syncReviewToggles() selects `.review` to measure
    for clamping, so sharing the class would drag a one-line placeholder into the
-   pass that item #5 took four commits to settle — and it needs none of that
+   pass that item #5 took four commits to settle – and it needs none of that
    rule's `-webkit-box` clamping machinery anyway. */
 .movie-card__body .no-review {
   margin-top: 0.35rem;
@@ -1729,11 +1729,11 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* Three lines on WIDE viewports only; two at 900px and below (overridden in
      the 900px block). Raised from two once the body became top-aligned: three
      lines roughly fill the poster's height instead of leaving dead space under
-     the text — but only where the card is wide enough that the title still fits
+     the text – but only where the card is wide enough that the title still fits
      on one line, which is what the 900px floor is protecting.
      **This number lives ONLY here.** syncReviewToggles() decides whether to show
      a "show more" toggle by measuring `scrollHeight - clientHeight`, which asks
-     the browser whether the text actually overflowed — it has no idea how many
+     the browser whether the text actually overflowed – it has no idea how many
      lines the clamp allows, and must never be given one. That is what makes this
      a CSS-only change and leaves the hard-won measuring logic (b59a893, 59127cc)
      untouched. Crossing the 900px breakpoint re-clamps, and the rAF-throttled
@@ -1764,16 +1764,16 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    makeError() into the muted .search-note: crimson is this app's error colour
    and nothing has gone wrong here.
    But it must not simply go quiet either. In --ink-dim at review size it would
-   sit in the same place, in the same colour, at the same weight as a review —
+   sit in the same place, in the same colour, at the same weight as a review –
    the one thing it must never be read as. So it is distinguished by SHAPE
    first and colour second: a chip, which no review or title ever is.
    Amber, and specifically THIS amber, because the app already has a marker for
-   this exact idea — `.rec-card::before` reads "AI pick · not yet rated" in an
+   this exact idea – `.rec-card::before` reads "AI pick · not yet rated" in an
    amber pill. That is the "clear but subtle marker" CLAUDE.md's design notes
    ask for, and a film you added but haven't rated is the same state on the
    other side of the list. Sizing and letter-spacing are taken from that rule
    deliberately: keep the two in step if either is ever retuned.
-   The chip does NOT get the amber a control gets (.review-toggle, links) —
+   The chip does NOT get the amber a control gets (.review-toggle, links) –
    --amber-deep on the border keeps it a label rather than something to click,
    and it is not focusable, so nothing invites a click that does nothing. The
    Rate button beside it is the affordance. */
@@ -1793,7 +1793,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  white-space: nowrap;  /* short by design — it must never wrap inside the pill */
+  white-space: nowrap;  /* short by design – it must never wrap inside the pill */
 }
 .unrated__hint { color: var(--ink-dim); font-size: 0.82rem; }
 
@@ -1808,7 +1808,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   align-self: stretch;
 }
 /* The score badge sits at the top by default; this drops the buttons to the
-   bottom. An auto MARGIN, not `justify-content: space-between` on the column —
+   bottom. An auto MARGIN, not `justify-content: space-between` on the column –
    for exactly the reason the 620px block documents in the other axis: an
    unrated card has no score badge, and space-between parks a LONE child at the
    START, which would put the buttons at the top of the card. An auto margin
@@ -1817,7 +1817,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    that row's `align-items: center`. */
 .movie-card__score .card-actions { margin-top: auto; }
 /* The rating and TMDB's score as one unit, so the score column still has just
-   two children — this block and the buttons. That matters: the buttons reach the
+   two children – this block and the buttons. That matters: the buttons reach the
    bottom via `margin-top: auto`, and the column's 0.5rem gap would otherwise sit
    between the rating and its own caption, which is far too much. */
 .score-block {
@@ -1827,14 +1827,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      the right: `.movie-card__score` above is `align-items: flex-end`, so the
      block's right edge is the card's right edge. Left-aligning instead makes
      the amber figure hang off the caption whenever the caption is the wider
-     child -- "No TMDB rating" measures 90.2px against a 62.1px badge, so the
+     child – "No TMDB rating" measures 90.2px against a 62.1px badge, so the
      block widened to the caption and an unvoted title's rating sat 28.1px left
      of its neighbours'. Theirs ("TMDB 7.1", 50.9px) are narrower than their
      badges, so there the badge sets the width and ends on the edge. The score
      column stopped being a straight line to scan (measured 2026-09-19, before
      D-079's type scale: three rated cards, two different badge right edges;
      one after this).
-     RESET TO flex-start IN THE 620px BLOCK, and that reset is load-bearing --
+     RESET TO flex-start IN THE 620px BLOCK, and that reset is load-bearing –
      card mode anchors the block LEFT, so the same reasoning inverts. A blanket
      flex-end does not fix the defect, it MIRRORS it into card mode; that was
      built and measured before this was written. Do not collapse the two.
@@ -1844,7 +1844,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      to within 0.01px, at 400px and below included, and the user confirmed it
      on a phone in portrait and landscape.
      It was flex-end originally (0b3864c) and became flex-start in f69b069,
-     whose subject is a narrow-width wrap fix -- but that fix is the
+     whose subject is a narrow-width wrap fix – but that fix is the
      `grid-column-start: 1` rule further down, and the commit message says this
      hunk rode along as a separate change. Nothing here was ever load-bearing
      for that bug. */
@@ -1852,7 +1852,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* TMDB's own score. Faint and small on purpose: the amber figure above is the
    user's, this is context for it, and the size gap is what keeps the two from
-   being confused at a glance. The "TMDB" word is not decoration — it is the
+   being confused at a glance. The "TMDB" word is not decoration – it is the
    only thing distinguishing whose number this is, so do not shorten it away. */
 .score-tmdb {
   color: var(--ink-faint);
@@ -1861,28 +1861,28 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-/* No score at all — TMDB has no votes for this title (D-037). Muted italic is
+/* No score at all – TMDB has no votes for this title (D-037). Muted italic is
    this app's established vocabulary for an absence rather than a value: exactly
    what `.verdict__text.is-muted` uses for every pre-verdict placeholder, and
    what `.no-review` (backlog #20) uses for a missing review.
-   Colour is deliberately NOT changed — `.score-tmdb` is already `--ink-faint`,
+   Colour is deliberately NOT changed – `.score-tmdb` is already `--ink-faint`,
    the faintest ink token there is, so italic alone carries the distinction and
    the line that DOES have a number keeps the weight it was tuned to. */
 .score-tmdb.is-muted { font-style: italic; }
 
-/* UNRATED cards only. `:first-child` IS the "is this film unrated" test here —
+/* UNRATED cards only. `:first-child` IS the "is this film unrated" test here –
    the amber .score-badge is appended before this whenever there is a rating, so
    the caption can only lead the block when there is none.
    Why it needs so much more than the badge's 0.06rem: the badge is 1.5rem with
    a tall line box, so its own half-leading already insets its glyphs from the
-   top of the column. This caption is 0.72rem at line-height 1.3 — barely any
-   half-leading — so with nothing above it, it starts flush against the card's
+   top of the column. This caption is 0.72rem at line-height 1.3 – barely any
+   half-leading – so with nothing above it, it starts flush against the card's
    top edge. This roughly restores the line the title sits on.
    Set by eye against the title, not solved; tune freely. Reset in card mode,
    where the score is a centred ROW and has no top edge to sit against. */
 .score-block > .score-tmdb:first-child { margin-top: 0.45rem; }
-/* RATED cards: the caption follows the amber figure, so it needs only enough to
-   stop the two touching — the pair should still read as one block. Much smaller
+/* RATED cards: The caption follows the amber figure, so it needs only enough to
+   stop the two touching – the pair should still read as one block. Much smaller
    than the unrated inset above, which is doing an entirely different job
    (standing in for the badge's own optical top inset, not separating two lines).
    The two selectors are mutually exclusive and equal specificity (0,3,0), so
@@ -1893,12 +1893,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   font-weight: 900;
   font-size: 1.5rem;
   color: var(--amber);
-  /* A hair off the top edge — NOT half of the title block's 0.3rem, which is
+  /* A hair off the top edge – NOT half of the title block's 0.3rem, which is
      what this was first set to and which visibly over-shot.
      Why so much smaller than you would expect: the rating already carries an
      offset the title does not. It is 1.5rem against the title's 1.15rem at the
      same line-height, so proportionally more half-leading sits above its
-     glyphs — with both boxes top-aligned the rating's text already starts lower
+     glyphs – with both boxes top-aligned the rating's text already starts lower
      inside its own box. The body's 0.3rem was compensating for that; adding
      half of it again pushed the rating BELOW the title's line and broke the
      header line the two are meant to share. Judged from a side-by-side
@@ -1908,8 +1908,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      On .score-badge itself, NOT on .movie-card__score: the column is
      align-self: stretch and its buttons hang off margin-top: auto, so a margin
      on the column would move the whole thing. Here only the rating shifts, the
-     buttons stay pinned to the bottom, and an unrated card — which has no
-     badge at all — is untouched by construction. */
+     buttons stay pinned to the bottom, and an unrated card – which has no
+     badge at all – is untouched by construction. */
   margin-top: 0.06rem;
 }
 .score-badge small { color: var(--ink-faint); font-size: 0.7rem; font-weight: 400; }
@@ -1925,7 +1925,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
-/* `:not(:disabled)` so a button mid-request doesn't light up under the cursor —
+/* `:not(:disabled)` so a button mid-request doesn't light up under the cursor –
    these are outline buttons, so opacity is the right dimming tool here. */
 .card-actions button:hover:not(:disabled) { color: var(--amber); border-color: var(--amber); }
 .card-actions button.danger:hover:not(:disabled) { color: var(--crimson); border-color: var(--crimson); }
@@ -1938,7 +1938,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    effect this floor exists to mitigate.
    Note MITIGATE, not eliminate: the real threshold is wherever a given title
    stops wrapping, and that depends on the title's length, so a long one will
-   still wrap somewhat above 900px. Raise this number if that bothers you —
+   still wrap somewhat above 900px. Raise this number if that bothers you –
    nothing is solved against it.
    This single query covers card mode too, so the 620px block below deliberately
    does NOT repeat the clamp: 620 is inside 900, and two rules setting the same
@@ -1958,17 +1958,17 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    While this block sat far from here, under "utilities", the poster overflow
    survived unnoticed: nothing next to the poster rule hinted that another rule
    resized it. A media query adds no specificity, so these must stay AFTER the base
-   rules they override — keep this block below .movie-card and
+   rules they override – keep this block below .movie-card and
    .movie-card__score, never above them. */
 @media (max-width: 620px) {
-  /* Resize the poster by overriding --poster-w only — the track and the image
+  /* Resize the poster by overriding --poster-w only – the track and the image
      both follow it. Restating a width on .movie-card__poster here is what
      caused the overflow this rule used to have. */
   .movie-card { --poster-w: 68px; grid-template-columns: 40px var(--poster-w) 1fr; }
   .movie-card__score { grid-column: 2 / -1; flex-direction: row; align-items: center; }
   /* The buttons are pushed right by an auto margin, NOT by
      `justify-content: space-between` on the row. space-between only separates
-     two or more children, and an unrated card has no score badge — leaving
+     two or more children, and an unrated card has no score badge – leaving
      .card-actions as the only child, which space-between parks on the LEFT.
      An auto margin eats the free space whether or not a badge is there, so the
      buttons sit bottom-right on every card and an unrated one simply leaves
@@ -1986,7 +1986,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      would push the rating off that centre line. */
   .score-badge { margin-top: 0; }
   /* The column is a ROW here and `.card-actions` is pushed right by an auto
-     margin, so the score block is anchored LEFT -- the inverse of desktop.
+     margin, so the score block is anchored LEFT – the inverse of desktop.
      Its contents follow the edge it sits on, or the rating hangs off the
      widest caption, which is the desktop defect this exists to avoid
      mirroring. See the reasoning on `.score-block` above, and D-076. */
@@ -2001,21 +2001,21 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    the rating badge and the buttons. Two visible failures, same root cause:
    `.score-badge`'s "6.8" and its `<small>` "/10" wrapped onto two lines (the
    badge box got too narrow to hold both), and `.card-actions`' Edit/Remove
-   pair — a flex row with no wrap of its own — overflowed past the card's own
+   pair – a flex row with no wrap of its own – overflowed past the card's own
    right edge rather than shrinking.
    Fix (the user's own, checked and correct): start the row from column 1
-   instead of 2, so it spans the WHOLE card width — rank digit's column
-   included — rather than just poster+title. Written as `grid-column-start`
+   instead of 2, so it spans the WHOLE card width – rank digit's column
+   included – rather than just poster+title. Written as `grid-column-start`
    alone, not the `grid-column` shorthand, so it overrides only the START of
    the 620px block's `2 / -1` and inherits that rule's END (`-1`) rather than
-   restating it — one value moves, the coupling to "wherever the card actually
+   restating it – one value moves, the coupling to "wherever the card actually
    ends" stays intact if the column count ever changes upstream.
    400px, not some fraction of 620px: this is the width the failure was
    actually observed at, not a guess at a round number relative to a wider
    breakpoint that solves a different problem.
    `row-gap` (user-added, following the score row's `margin-top: 0.4rem` being
    dropped in the 620px block above): with that margin gone, the space above
-   the score row came entirely from `.movie-card`'s own `gap: 1.2rem` — the
+   the score row came entirely from `.movie-card`'s own `gap: 1.2rem` – the
    SAME value also spacing the rank/poster/title columns apart. `row-gap`
    alone, not the `gap` shorthand, is what makes that tunable independently:
    the shorthand would have reset `column-gap` to match, tightening the
@@ -2031,8 +2031,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   /* R11. Mechanically the identical bug to `.result-row .add-btn`: a flex item’s
      automatic minimum size let this button shrink below its content, so
      "Get recommendations" broke at its space onto two lines instead of the head
-     wrapping. `flex-shrink: 0` makes the HEADING absorb the pressure — it can,
-     because it wraps — and `white-space: nowrap` stops the label breaking even if
+     wrapping. `flex-shrink: 0` makes the HEADING absorb the pressure – it can,
+     because it wraps – and `white-space: nowrap` stops the label breaking even if
      some later layout does squeeze it.
      The same root cause as, for example, the add button, the search input and the
      ranked card’s blown-out `1fr` track (D-045). When something will not
@@ -2043,7 +2043,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      AND `white-space: nowrap` now does a SECOND job, added by R15: this button
      carries a sparkle icon, and the rule that a glyph must never be separated
      from its word applies to it. Everywhere else that glue is a non-breaking
-     space inside the string — but an icon is an ELEMENT, not a character, so no
+     space inside the string – but an icon is an ELEMENT, not a character, so no
      string can hold it to the words beside it. The nowrap is the only mechanism
      available here, which makes this declaration load-bearing for two separate
      reasons. Do not remove it because R11 looks settled. */
@@ -2060,13 +2060,13 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   transition: background 0.2s, color 0.2s;
 }
 /* Sized in `em` so it tracks the button's font, and nudged onto the text
-   baseline the same way `.spinner` and `.search-btn__icon` are — this button is
+   baseline the same way `.spinner` and `.search-btn__icon` are – this button is
    inline, NOT a flex container, and that is deliberate: `busyButton()` swaps the
    contents for a spinner plus a label that already begins with a non-breaking
    space, so a flex `gap` would sit on top of that space and make the busy state
    wider than the resting one. Following the search button's pattern keeps both
    states spaced identically.
-   1.3em, up from 1.05 — the user asked for bigger and more pronounced, and both
+   1.3em, up from 1.05 – the user asked for bigger and more pronounced, and both
    halves matter: the size is here, the WEIGHT is in the paths (see index.html,
    where the arms were thickened at the waist). The `vertical-align` scales with
    it, -0.16em to -0.28em, or a taller icon sits high against the text. */
@@ -2079,25 +2079,25 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    high against its text. */
 .recs__trigger .ai-sparkle { width: 1.3em; height: 1.3em; vertical-align: -0.28em; }
 /* AMBER, not the button's `--ink`, even though the icon is `fill="currentColor"`
-   and would otherwise inherit it. In this app amber IS the AI marker — the rec
-   card's "AI pick" badge, the fully-amber recs trigger, the AI-call-log link —
+   and would otherwise inherit it. In this app amber IS the AI marker – the rec
+   card's "AI pick" badge, the fully-amber recs trigger, the AI-call-log link –
    so a white sparkle here read as decoration while the identical mark two
    sections down read as a signal. The user spotted it: same glyph, same job,
    two meanings.
    THIS IS NOT R25 BEING UNDONE, and the line matters. R25 says the verdict
    button must stay quieter than `.recs__trigger` and warns against "finishing
-   the job" by making it amber — that is about the button's CHROME, its border
+   the job" by making it amber – that is about the button's CHROME, its border
    and its label, which both stay exactly as R25 left them (`--ink` label, a
    0.3-alpha amber border against the trigger's solid one). What changes is a
    ~15px semantic mark. The hierarchy still reads: one button is amber, the other
    has an amber icon on it.
    Setting `color` rather than `fill` so the paths keep resolving `currentColor`
-   — a `fill` here would work today and would silently stop following anything
+   – a `fill` here would work today and would silently stop following anything
    the icon is later asked to inherit. */
 .verdict__refresh .ai-sparkle { width: 1.15em; height: 1.15em; vertical-align: -0.25em; color: var(--amber); }
 /* ...but NOT while the button is disabled, where the amber above would be the
    only thing still holding its colour. The label dims and the icon did not, so a
-   locked control sat there with a bright gold mark on it — which is exactly the
+   locked control sat there with a bright gold mark on it – which is exactly the
    "invites a click that does nothing" problem R15 switched the animation off to
    avoid, in colour rather than in motion. The user caught it against the recs
    trigger, where it is right by accident: that sparkle carries NO colour of its
@@ -2110,18 +2110,18 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    mark matches its own label. */
 .verdict__refresh:disabled .ai-sparkle { color: inherit; }
 /* The big star twinkles; the small one holds still. Both moving reads as a
-   throbbing icon, one moving reads as a catch of light — which is the whole
+   throbbing icon, one moving reads as a catch of light – which is the whole
    difference between "shiny" and "distracting" on an element that is on screen
    for the entire session.
    NOT a gradient fill, which is the obvious way to make something look shiny and
    would have cost more than it gave: `fill="currentColor"` is what makes this
    icon invert on the amber hover and dim with the label when the button is
    disabled (D-027), and a gradient cannot follow any of that.
-   `transform-box: fill-box` is required, not tidiness — without it an SVG
+   `transform-box: fill-box` is required, not tidiness – without it an SVG
    element's transform-origin resolves against the SVG's own viewport corner, so
    `scale()` would swing the star towards the top-left instead of breathing in
    place.
-   `ease-in-out`, not `--ease`: this is a symmetric loop, and `--ease` is a
+   `ease-in-out`, not `--ease`: This is a symmetric loop, and `--ease` is a
    strong ease-OUT that would snap bright and drift back. Every animation
    deliberately off `--ease` says why at its own declaration. The pattern
    behind most of them: `--ease` is built to make an arrival feel INSTANT, so
@@ -2130,7 +2130,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   0%, 100% { opacity: 0.8; transform: scale(0.94); }
   50% { opacity: 1; transform: scale(1.07); }
 }
-/* The glow the scale alone could not deliver — the user could still barely see
+/* The glow the scale alone could not deliver – the user could still barely see
    the twinkle, so the shine is now light rather than only motion.
    ON THE `<svg>` ROOT, NOT ON THE PATH, and that is the load-bearing bit. A CSS
    `filter` on an SVG child resolves its lengths in the local user coordinate
@@ -2139,9 +2139,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    halo is not clipped: an outer `<svg>` clips its own viewport, so a glow drawn
    inside would be cut off at the box edge, while a CSS filter on the element
    paints outside it freely.
-   White rather than `currentColor`: a glow the same colour as the thing glowing
+   White rather than `currentColor`: A glow the same colour as the thing glowing
    is just a blur. The white is what reads as a glint. It is safe from the
-   disabled state — `.recs__trigger:disabled` sets `opacity` on the BUTTON, so
+   disabled state – `.recs__trigger:disabled` sets `opacity` on the BUTTON, so
    everything inside dims together regardless of colour; only the hover, which
    inverts the icon to `#1a1205` on an amber fill, shows white against amber.
    Same 3s and same easing as the twinkle so the two stay in phase; they are
@@ -2156,7 +2156,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   transform-origin: center;
   animation: sparkle-twinkle 3s ease-in-out infinite;
 }
-/* A disabled button should not be catching the eye — the section is locked and
+/* A disabled button should not be catching the eye – the section is locked and
    the icon twinkling at the user would be inviting a click that does nothing.
    Both animations stop, or the glow would keep pulsing on a dead control. */
 button:disabled .ai-sparkle,
@@ -2164,8 +2164,8 @@ button:disabled .sparkle-major { animation: none; }
 .recs__trigger:hover:not(:disabled) { background: var(--amber); color: #1a1205; }
 .recs__trigger:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--line); color: var(--ink-faint); }
 /* The base is the weight for a line that is the ONLY thing this section is
-   showing: the two availability sentences, a failure, and the zero-result "No
-   new suggestions this time...". Those are not fine print — they are all the
+   showing: the two availability sentences, a failure and the zero-result "No
+   new suggestions this time...". Those are not fine print – they are all the
    user has to read here, so they read as ordinary prose. */
 .recs__hint { color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 1rem; min-height: 1.2em; }
 /* One step back for a line that INTRODUCES content which is on screen or about
@@ -2179,7 +2179,7 @@ button:disabled .sparkle-major { animation: none; }
    the only thing in the section, so it belongs with the availability sentences
    and not with the two captions. Who wrote the line was a good proxy for the
    real question and not the same question. state.recsHintFromRun still exists
-   and still means only what R1 made it mean — may the sync overwrite this? */
+   and still means only what R1 made it mean – may the sync overwrite this? */
 .recs__hint.is-caption { color: var(--ink-faint); }
 /* NOT --crimson, which this was until the R9 log link landed inside it. Two
    measured problems, neither of them taste: the amber link is 2.48x brighter
@@ -2202,7 +2202,7 @@ button:disabled .sparkle-major { animation: none; }
 
 /* R27's scroll target. `scrollIntoView({ block: 'start' })` pins the element's
    top flush against the viewport top, which reads as cropped; this is the one
-   property that offsets it, and it is what scrollIntoView honours — a `margin`
+   property that offsets it, and it is what scrollIntoView honours – a `margin`
    would not be. NOT a reopening of the R12 head split: the layout rules stay on
    the shared `.ranked__head, .recs__head` rule above, and this is about where a
    scroll stops, which only this head is ever the target of. */
@@ -2212,7 +2212,7 @@ button:disabled .sparkle-major { animation: none; }
    `auto-fill` packs every row as full as it will go and strands the remainder:
    four cards in a three-column viewport render 3 + 1, with two thirds of the
    second row empty, and five cards in a four-column one render 4 + 1, with three
-   quarters empty. Both are widths where a balanced split — 2 + 2 and 3 + 2 — fits
+   quarters empty. Both are widths where a balanced split – 2 + 2 and 3 + 2 – fits
    perfectly well and looks far better (user-raised, 2026-09-09).
 
    TRACKS ARE DOUBLED AND EVERY CARD SPANS TWO. That is what buys a HALF-column
@@ -2222,12 +2222,12 @@ button:disabled .sparkle-major { animation: none; }
    the right.
    The doubling costs nothing in width, and that is arithmetic rather than hope:
    a card spans two tracks AND the gap between them, so three cards and their two
-   gaps come to 3(2t + g) + 2g = 6t + 5g — exactly what six tracks and five gaps
+   gaps come to 3(2t + g) + 2g = 6t + 5g – exactly what six tracks and five gaps
    occupy. A doubled grid and a plain k-column grid produce identical cards.
 
    The property is the already-DOUBLED track count rather than a column count
    plus a `calc(… * 2)` here, because support for a math function in `repeat()`'s
-   first argument is not somewhere to be adventurous — a `var()` that substitutes
+   first argument is not somewhere to be adventurous – a `var()` that substitutes
    a plain integer is unambiguously valid everywhere. It has a fallback so the
    declaration can never be invalid, but that is insurance, not a design
    decision: JS sets the real value in the same synchronous task that appends the
@@ -2236,24 +2236,24 @@ button:disabled .sparkle-major { animation: none; }
    is in `balancedLayout()` in app.js. (It was `balancedColumns()`, returning a
    count alone, until R29 made the width its business too.) */
 .recs__grid {
-  list-style: none; /* R21 — it is a `ul` now; `role="list"` keeps the semantics */
+  list-style: none; /* R21 – it is a `ul` now; `role="list"` keeps the semantics */
   display: grid;
   /* The narrowest a card may be, and the single source of truth for it: JS reads
      this property to work out how many columns actually fit. It no longer
-     appears in `grid-template-columns` — with the count decided ahead of time
-     there is no `minmax()` left to put it in — so do not delete it as unused. */
+     appears in `grid-template-columns` – with the count decided ahead of time
+     there is no `minmax()` left to put it in – so do not delete it as unused. */
   --rec-min: 190px;
   /* The WIDEST a card may be, and the reason is height rather than width: the
      poster is `aspect-ratio: 2/3`, so every pixel of extra width costs 1.5 of
      height. Without a cap, each time one fewer column fits the survivors
-     inherit all the space — at one card per row that meant a ~585px poster on
+     inherit all the space – at one card per row that meant a ~585px poster on
      an 869px window. Read by `balancedLayout()` exactly as `--rec-min` is; the
      two together are the card's allowed width band, and both live here so the
      stylesheet stays the single source of truth for them. */
   --rec-max: 250px;
   grid-template-columns: repeat(var(--rec-tracks, 6), 1fr);
   gap: 1.1rem;
-  /* R29 — A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK.
+  /* R29 – A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK.
      `--rec-width` is exactly the room `--rec-tracks` cards need at the width the
      VIEWPORT allows, so the auto margins centre whatever is left over. One
      returned card is therefore one normal-sized card with the slack split evenly
@@ -2275,17 +2275,17 @@ button:disabled .sparkle-major { animation: none; }
      start becomes. */
   grid-column: auto / span 2;
   /* THE AUTOMATIC MINIMUM SIZE AGAIN, and this time it is a
-     regression the D-050 grid rewrite introduced — caught in the 2026-09-09
+     regression the D-050 grid rewrite introduced – caught in the 2026-09-09
      staleness sweep, not by a user.
      The tracks used to be `minmax(190px, 1fr)`, whose FIXED minimum floors the
      track and stops any item's min-content from raising it. They are now plain
-     `1fr` — which is `minmax(auto, 1fr)` — so the automatic minimum is back in
+     `1fr` – which is `minmax(auto, 1fr)` – so the automatic minimum is back in
      play, and a grid item's is its min-content width. This card is a column
      flex container holding an `<img>` whose percentage width is treated as
      `auto` during intrinsic sizing, so the card's min-content is roughly the
      poster's INTRINSIC width (TMDB serves w500). On a phone that is wider than
      the whole track, which would push the grid open and give the page a
-     horizontal scrollbar — exactly D-045's bug, one element out.
+     horizontal scrollbar – exactly D-045's bug, one element out.
      `min-width: 0` opts out, which is what the old fixed minimum was doing for
      free. `.rec-card__body` already had it; the CARD is the grid item and never
      did, because until D-050 nothing needed it to. */
@@ -2294,22 +2294,22 @@ button:disabled .sparkle-major { animation: none; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  /* backwards, not both: same reason as .movie-card.is-entering (D-043). That
-     trap is no longer latent here — R14 put a hover transform on this very
+  /* backwards, not both: Same reason as .movie-card.is-entering (D-043). That
+     trap is no longer latent here – R14 put a hover transform on this very
      element, and `both` would pin `transform: none` from the final keyframe and
      silently beat it, exactly as it did to the ranked card. Zero visual change
      at rest: the final keyframe already equals this card's resting state.
      Its own keyframe rather than the ranked card's: a rec card is roughly three
      times the height of a ranked one, and the 10px of travel it would have
      inherited read as a flicker rather than an arrival (R27). Separate names
-     mean tuning one can never move the other — which paid off at step 4b, when
+     mean tuning one can never move the other – which paid off at step 4b, when
      the ranked card was retuned and split onto `card-enter` without this moving
      at all. */
   animation: rec-enter 0.75s var(--ease) backwards;
   position: relative;
   display: flex;
   flex-direction: column;
-  /* R14. Same four properties, same 0.25s, same easing as .movie-card — the two
+  /* R14. Same four properties, same 0.25s, same easing as .movie-card – the two
      card types should answer a pointer identically. `opacity` is in the list for
      the spotlight below: without it the other cards would snap to 0.65 and back
      rather than easing, and at this subtlety a snap is the only thing you would
@@ -2325,26 +2325,26 @@ button:disabled .sparkle-major { animation: none; }
    the argument that the exit is clearing the decks while a request is already
    in flight and should read as one gesture. The user watched it and disagreed
    on both counts: the uniform `scale()` pulls both edges inwards at once, which
-   reads as the card sliding SIDEWAYS rather than leaving — they called the
-   result "stuttering" — and they wanted the cards to go one by one, as they
+   reads as the card sliding SIDEWAYS rather than leaving – they called the
+   result "stuttering" – and they wanted the cards to go one by one, as they
    arrive. Both are fixed here.
 
    `scaleX` towards ONE edge is what makes it a hinge. The default
    `transform-origin` is the centre, which collapses the card inwards from both
-   sides — that is a shrink, and it is the very thing that read as sideways
+   sides – that is a shrink, and it is the very thing that read as sideways
    movement. `left center` pins the spine and swings the rest shut.
 
-   `scaleY` shrinks alongside it — to 0.1, tried at 0.5 first and taken further
-   by the user — so the card collapses towards a horizontal line as it swings
+   `scaleY` shrinks alongside it – to 0.1, tried at 0.5 first and taken further
+   by the user – so the card collapses towards a horizontal line as it swings
    shut, rather than simply being deleted at full height. Not to 0: something
    still has to be visibly closing rather than already gone. `left center` gives each axis
-   what it needs from one declaration — X hinged at the spine, Y closing evenly
+   what it needs from one declaration – X hinged at the spine, Y closing evenly
    on the middle.
 
    TRANSFORM-ORIGIN IS SCOPED TO `.is-leaving`, DELIBERATELY. Putting it on
    `.rec-card` would silently move the hover `scale(1.018)` off centre, and that
    effect depends on growing from the middle so it narrows the gaps on both sides
-   equally — the whole finding of D-043's lift removal. One property, two
+   equally – the whole finding of D-043's lift removal. One property, two
    effects, and only one of them wants an offset origin.
 
    `pointer-events: none` because the footer's AI-call-log link stays clickable
@@ -2361,16 +2361,16 @@ button:disabled .sparkle-major { animation: none; }
    the way by t=0.1 and 67% by t=0.2. Each card therefore did its whole visible
    move in the first ~70ms of a 340ms animation, so six cards 55ms apart flashed
    through their moves inside a few hundred milliseconds and looked simultaneous
-   — the stagger was real and had nothing left to separate. `ease-in` inverts
+   – the stagger was real and had nothing left to separate. `ease-in` inverts
    that (2% at t=0.1, 32% at t=0.5): the card holds, then leaves, which is what
    makes each departure a discrete event. It is also the right shape for a
-   departure on its own terms — things accelerate away, they decelerate in.
+   departure on its own terms – things accelerate away, they decelerate in.
    Total for a full six cards is 0.34s + 5x120ms = 0.94s. That is the budget's
    ceiling and it is deliberate: the exit only ever runs while a request is in
    flight, and an AI call is seconds. */
 .recs .is-leaving { pointer-events: none; }
 .rec-card.is-leaving {
-  /* 0.34s — kept in step with `RECS_EXIT_MS` in app.js, which the removal
+  /* 0.34s – kept in step with `RECS_EXIT_MS` in app.js, which the removal
      backstop reads. Change both or the backstop fires early. */
   animation: rec-close 0.34s ease-in forwards;
   transform-origin: left center;
@@ -2394,12 +2394,12 @@ button:disabled .sparkle-major { animation: none; }
   z-index: 2;
 }
 
-/* R14 — grow-on-hover, ported from the ranked card (D-043 + D-044) rather than
-   invented a second time. Identical vocabulary on purpose: scale only, an amber
-   border, and elevation made of LIGHT.
+/* R14 – grow-on-hover, ported from the ranked card (D-043 + D-044) rather than
+   invented a second time. Identical vocabulary on purpose: Scale only, an amber
+   border and elevation made of LIGHT.
 
-   NO `translateY`. A lift is directional — it shrinks the gap on one side and
-   opens the other — and the user spotted that asymmetry on the ranked card
+   NO `translateY`. A lift is directional – it shrinks the gap on one side and
+   opens the other – and the user spotted that asymmetry on the ranked card
    within minutes. `scale()` grows from the centre and narrows every gap equally,
    which matters more in a GRID than in a column: a lifted card here would drift
    away from its row-mates as well as towards its upper neighbour.
@@ -2414,7 +2414,7 @@ button:disabled .sparkle-major { animation: none; }
    (34/50px against its 40/60px), reasoning that these cards sit 1.1rem apart in
    a grid rather than 1rem apart in a column, so a halo crossing a horizontal gap
    would read as two cards sharing one glow. The user then widened them by eye to
-   40/100px — looser than the ranked card, not tighter — and that is the value
+   40/100px – looser than the ranked card, not tighter – and that is the value
    here. The original worry does not survive the spotlight that landed between
    the two edits (D-049): with every other card at 0.65, a halo spilling across
    the gap falls on something already receding, so it reinforces the focus
@@ -2428,14 +2428,14 @@ button:disabled .sparkle-major { animation: none; }
    `position: relative` with `z-index: auto`, so those badges resolve in the same
    stacking context as the cards themselves. A transform makes THIS card a
    stacking context, but at `auto` it still paints in the positioned-descendant
-   step — below anything at a positive z-index. At 1 a neighbouring card's badge
+   step – below anything at a positive z-index. At 1 a neighbouring card's badge
    would paint over this card's glow; 3 clears it.
 
    No horizontal scrollbar. R29 caps a card at `--rec-max` (250px) and centres
-   the grid, so 1.018 overhangs even the widest card by about 2.3px per side —
+   the grid, so 1.018 overhangs even the widest card by about 2.3px per side –
    far inside `main`'s side padding, which never drops below 1rem. Re-derive
    rather than trusting the figure if the scale or the cap is raised.
-   The glow's own size is not part of that arithmetic however far it is pushed —
+   The glow's own size is not part of that arithmetic however far it is pushed –
    a box-shadow is ink overflow, which never contributes scrollable overflow.
 
    `@media (hover: hover)`, never a width query: on a touch screen `:hover`
@@ -2452,9 +2452,9 @@ button:disabled .sparkle-major { animation: none; }
       0 0 100px -10px rgba(245, 193, 91, 0.24); /* wide halo into the page */
   }
   /* Spotlight, ported from the ranked list on the user's instruction (D-049).
-     Claude argued against porting it at all and was overruled — the objection
+     Claude argued against porting it at all and was overruled – the objection
      was to the ranked list's STRENGTH, not to the idea, and the user's answer
-     was to bring it across lighter — 0.65, tuned by the user's eye,
+     was to bring it across lighter – 0.65, tuned by the user's eye,
      against the ranked list's 0.55: enough that the section
      recedes, little enough that the other five cards stay perfectly readable and
      the grid still works as the side-by-side comparison it is for.
@@ -2462,7 +2462,7 @@ button:disabled .sparkle-major { animation: none; }
      `:has()` and NOT a plain `:hover` on the container, which is the shorter and
      obvious form. The grid has a 1.1rem gap that belongs to the grid but to no
      card, so the short form would fire while the pointer merely crosses a gap,
-     dimming EVERYTHING with nothing lit — and moving between cards would strobe.
+     dimming EVERYTHING with nothing lit – and moving between cards would strobe.
      `:has(.rec-card:hover)` fires only when a card really is hovered, and
      hovering the FOOTER dims nothing at all for the same reason.
 
@@ -2471,7 +2471,7 @@ button:disabled .sparkle-major { animation: none; }
      AI-call-log link, which at 0.65 is still legible and one pointer-move from
      full strength. (This originally read `> *` rather than `> .rec-card` on the
      grid, because the footer was then a grid child. R29 moved it out, so it is
-     two selectors now — see the rule below.)
+     two selectors now – see the rule below.)
 
      The transition lives on `.rec-card` (and just below, for the footer), never
      here: a transition declared only in the hovered state eases in and snaps
@@ -2481,13 +2481,13 @@ button:disabled .sparkle-major { animation: none; }
      `z-index: 3` above: `opacity < 1` makes each dimmed sibling paint as though
      it were positioned at `z-index: 0`, so without a positive z-index here the
      card below would paint over this card's glow. And the entrance fill being
-     `backwards` — with `both`, `rec-enter`'s final `opacity: 1` would have been
+     `backwards` – with `both`, `rec-enter`'s final `opacity: 1` would have been
      pinned on every card and they would simply have refused to dim, silently
      (D-043, same bug one property over from the transform). */
   /* The anchor is `.recs`, not `.recs__grid`, and that is R29's doing rather
      than a tidy-up: the metadata footer moved OUT of the grid, and dimming only
      what is left inside would leave it the single brightest thing on screen at
-     the exact moment attention is meant to be on one card — which is the whole
+     the exact moment attention is meant to be on one card – which is the whole
      of D-049's `> *`. Two selectors now, because the footer is no longer a
      sibling of the cards.
      Hovering the FOOTER still dims nothing: the `:has()` tests for a hovered
@@ -2501,7 +2501,7 @@ button:disabled .sparkle-major { animation: none; }
 
 /* R17. The badge asserts two things and only one of them survives being acted
    on: "AI pick" stays true forever, "not yet rated" stops being true the moment
-   the user adds the film and rates it — which is the FIRST thing the card
+   the user adds the film and rates it – which is the FIRST thing the card
    invites them to do, since adding opens the rate dialog. The card behind the
    dialog then sat there contradicting the ranked list.
    The false half is dropped rather than the whole badge: the provenance marker
@@ -2523,7 +2523,7 @@ button:disabled .sparkle-major { animation: none; }
      It was defensive because this grid's tracks were `minmax(190px, 1fr)`,
      whose fixed minimum cannot be pushed open the way the ranked card's `auto`
      minimum was. D-050 replaced those tracks with plain `1fr`, so the automatic
-     minimum is back and this declaration is now load-bearing, not insurance —
+     minimum is back and this declaration is now load-bearing, not insurance –
      which matters, because the text here is model output derived from the user's
      own reviews (the prompt-injection surface) and the title is not clipped the
      way `.reason` is. See the matching `min-width: 0` on `.rec-card` itself. */
@@ -2532,22 +2532,22 @@ button:disabled .sparkle-major { animation: none; }
   hyphens: none; /* see the full note at .movie-card__body */
 }
 /* The live toggle for all four `hyphens: none` declarations (search row,
-   ranked card, rec card, verdict text) — see the full note at
+   ranked card, rec card, verdict text) – see the full note at
    .movie-card__body for why this exists and why it is scoped to exactly
    these four selectors, `.review`/`.reason` inheriting theirs from two of
    them rather than needing their own entry here.
    Placed here, after all four base rules, on purpose: an equal-specificity
    override only wins if it is LATER in source order, and .rec-card__body's
    own `hyphens: none` (just above) is the last of the four to appear in this
-   file — `.verdict__text`'s sits much earlier (near the top, with the rest of
+   file – `.verdict__text`'s sits much earlier (near the top, with the rest of
    the verdict banner). A media query placed any earlier than ALL FOUR would
    be silently overridden by whichever base rule came after it.
-   400px, inclusive — changed from the original 399px (which read the user's
+   400px, inclusive – changed from the original 399px (which read the user's
    first wording, "narrower than 400px", literally) at their own follow-up
    request. Now the SAME boundary as the two unrelated `max-width: 400px`
    queries elsewhere in this file (the header GitHub icon's size and the score
    row's grid-column fix), which is a coincidence of separate asks landing on
-   the same number, not a dependency — do not merge the queries, they style
+   the same number, not a dependency – do not merge the queries, they style
    different things. */
 @media (max-width: 400px) {
   .movie-card__body,
@@ -2586,19 +2586,19 @@ button:disabled .sparkle-major { animation: none; }
    exists to fix, and WORSE here: on the search button the wrong state lasted the
    second it said "Searching…", while on a rec card "✓ Added" / "In your list" is
    a permanent resting state. Amber at 0.5 over the card composites to #876d3e
-   and still contrasts 3.57 against it — an unmistakably amber, unmistakably
+   and still contrasts 3.57 against it – an unmistakably amber, unmistakably
    clickable-looking button that does nothing.
    The fill leaves the amber family, per the rule the search button settled. It
    canNOT reuse that rule's --bg-card value, though: --bg-card IS the rec card's
    own background, so the button would vanish into it entirely. --line is a hair
    LIGHTER than the card (1.16), so the button still reads as its own element,
-   and --ink-dim on it measures 5.56 — clear of AA (4.5) for its normal-size label.
-   Those two figures follow the search button's own (1.12 shape, 6.48 label) —
+   and --ink-dim on it measures 5.56 – clear of AA (4.5) for its normal-size label.
+   Those two figures follow the search button's own (1.12 shape, 6.48 label) –
    a near-identical shape contrast and a label clear of AA in both: the
    established design already says a disabled fill nearly
    dissolves and the LABEL carries the readability. This matches it rather than
    inventing a second answer.
-   cursor: not-allowed, not default — the identical labels on
+   cursor: not-allowed, not default – the identical labels on
    .result-row .add-btn:disabled and .search button:disabled both use it. */
 .rec-card__body button:disabled {
   background: var(--line);
@@ -2606,7 +2606,7 @@ button:disabled .sparkle-major { animation: none; }
   cursor: not-allowed;
 }
 
-/* Footer under a generated AI result — the call's metadata plus a link into the
+/* Footer under a generated AI result – the call's metadata plus a link into the
    full log. One block shared by the recommendations grid and the verdict banner
    (built by aiMetaFooter() in app.js); only the placement differs per host. */
 .ai-meta {
@@ -2615,13 +2615,13 @@ button:disabled .sparkle-major { animation: none; }
   border-top: 1px dashed var(--line);
   padding-top: 0.8rem;
 }
-/* A link-styled button that opens the AI call log. Used in three places — the
+/* A link-styled button that opens the AI call log. Used in three places – the
    meta footer under a generated result, and the error fallbacks of the verdict
-   and of the recommendations — so it is its own class, not an element of any
+   and of the recommendations – so it is its own class, not an element of any
    one block. */
 .log-link {
   /* inline-block is load-bearing: an inline-block never breaks internally, so
-     the link always moves as one whole unit rather than splitting mid-phrase —
+     the link always moves as one whole unit rather than splitting mid-phrase –
      wherever it sits. nowrap belts-and-braces the same guarantee. In the meta
      footer that wrap is also what syncMetaSeparator() watches for, to hide the
      joining .ai-meta__sep. */
@@ -2637,13 +2637,13 @@ button:disabled .sparkle-major { animation: none; }
 }
 .log-link:hover { color: var(--amber-bright); }
 
-/* Placement under the recs: the footer has its own slot below the grid. It was
+/* Placement under the recs: The footer has its own slot below the grid. It was
    `.recs__grid .ai-meta { grid-column: 1 / -1 }` until R29 moved it there. The
    grid's `gap` used to separate the two, so the margin here replaces it at the
-   same 1.1rem — put on the FOOTER and not on the empty slot, so a run that
+   same 1.1rem – put on the FOOTER and not on the empty slot, so a run that
    produced no footer contributes nothing. */
 .recs__meta .ai-meta { margin-top: 1.1rem; }
-/* Placement: .verdict__inner is a wrapping flex row — take a full row of its own. */
+/* Placement: .verdict__inner is a wrapping flex row – take a full row of its own. */
 .verdict__inner .ai-meta { flex: 1 0 100%; }
 
 /* footer / dialog / toast ----------------------------------------- */
@@ -2656,7 +2656,7 @@ button:disabled .sparkle-major { animation: none; }
   border-top: 1px solid var(--line);
 }
 
-/* AI call log — the "not a ChatGPT wrapper" proof (SPEC § 7.2). Given a
+/* AI call log – the "not a ChatGPT wrapper" proof (SPEC § 7.2). Given a
    real call-to-action rather than a link buried in a sentence. */
 .log-cta {
   display: flex;
@@ -2709,7 +2709,7 @@ button:disabled .sparkle-major { animation: none; }
    `space-between` rather than an auto margin, because there are exactly two
    children and nothing here needs to survive a third being added quietly.
    The credit, the TMDB logo and the notice, is wrapped in its own <span> so
-   the <a> is a sibling of all of it — without it the icon would be just
+   the <a> is a sibling of all of it – without it the icon would be just
    another inline word after the full stop and would sit wherever the line
    happened to end. */
 .site-foot__credit {
@@ -2782,7 +2782,7 @@ body:has(dialog[open]) { overflow: hidden; }
   width: 90vw;
   box-shadow: var(--shadow);
   /* The global `* { margin: 0 }` reset kills the UA stylesheet's `margin: auto`
-     that centres a modal <dialog> — restore it here (centres both axes). */
+     that centres a modal <dialog> – restore it here (centres both axes). */
   margin: auto;
   /* The dialog never scrolls; its form does, and the dialog clips it to the
      rounded corners. A rounded box that scrolls itself loses those corners to
@@ -2811,10 +2811,10 @@ body:has(dialog[open]) { overflow: hidden; }
 .confirm-dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
 /* A film title goes inside BOTH of these headings ("Rate “X”", "Remove “X”?"),
    and titles are arbitrary strings, so the guard belongs on the shared rule. It
-   used to sit on `.confirm-dialog h3` alone — the reasoning was written down
+   used to sit on `.confirm-dialog h3` alone – the reasoning was written down
    once and applied to one of the two headings that needed it.
-   Moved rather than duplicated: the same property in two rules is the shape that
-   gets changed in one of them later. Provably identical for the confirm dialog —
+   Moved rather than duplicated: The same property in two rules is the shape that
+   gets changed in one of them later. Provably identical for the confirm dialog –
    both rules are specificity (0,1,1), and with no competing declaration left, the
    value simply comes from here instead of from below. */
 .rate-dialog h3,
@@ -2827,7 +2827,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .rate-dialog label span { color: var(--ink-faint); }
 .rate-dialog output { color: var(--amber); font-weight: 600; }
 .rate-dialog input[type='range'] { width: 100%; accent-color: var(--amber); }
-/* The review box: the wrapper is the rounded, bordered surface and only clips;
+/* The review box: The wrapper is the rounded, bordered surface and only clips;
    the textarea inside it is square, borderless and transparent, and does the
    scrolling. A textarea is a scroller of its own, so given the border and the
    radius itself it lost its right-hand corners to its scrollbar, the same way
@@ -2860,7 +2860,7 @@ body:has(dialog[open]) { overflow: hidden; }
   outline-offset: 3px;
 }
 /* Inline save error. Same crimson-on-small-text vocabulary as `.search-note.err`
-   — failures are reported next to whatever failed, and the toast is left for
+   – failures are reported next to whatever failed, and the toast is left for
    confirmations. `hidden` is honoured by the global `[hidden]` handling, and it
    sits directly above the buttons so it reads as "this is why Save didn't
    work". */
@@ -2888,7 +2888,7 @@ body:has(dialog[open]) { overflow: hidden; }
    Cancel going amber alongside an amber-filled Save is not a clash: outline and
    fill stay obviously different, and the log dialog's Close already does exactly
    this.
-   `:not(:disabled)` throughout, per the rule the Search button settled — a
+   `:not(:disabled)` throughout, per the rule the Search button settled – a
    button mid-save must not light up under the cursor.
    The press is a 1px nudge down, and these are the first `:active` states on
    any button in the app; nothing else has one to be inconsistent with. */
@@ -2930,8 +2930,8 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 /* Confirm dialog -----------------------------------------------------
-   Everything structural — the panel shell, the backdrop, the Fraunces
-   heading, the button row and the ghost/disabled treatments — is SHARED with
+   Everything structural – the panel shell, the backdrop, the Fraunces
+   heading, the button row and the ghost/disabled treatments – is SHARED with
    .rate-dialog by adding this class to those selector lists above, not by
    copying their declarations here. Adding a selector to a list cannot change
    what the other selectors in it match, so the rate dialog is provably
@@ -2948,7 +2948,7 @@ body:has(dialog[open]) { overflow: hidden; }
   line-height: 1.3;
 }
 /* The consequence line. --ink-dim and small, like most other explanatory lines
-   in the app (.tagline, .result-row .meta, .unrated__hint) — it is context for
+   in the app (.tagline, .result-row .meta, .unrated__hint) – it is context for
    the question above it, not a warning shouting on its own. The stakes are
    carried by the words and by the crimson button, not by colouring the prose. */
 .confirm-dialog .confirm-body {
@@ -2963,7 +2963,7 @@ body:has(dialog[open]) { overflow: hidden; }
    forced by arithmetic rather than taste.** A dark label on a fill imposes a
    FLOOR on how dark the fill may go: #2a0f0c needs the fill at >= 0.2137
    relative luminance to clear 4.5:1, and the original fill (--crimson,
-   #e2574c) sat at 0.2351 — barely above it. So the hover could not get
+   #e2574c) sat at 0.2351 – barely above it. So the hover could not get
    meaningfully darker without failing AA, which is exactly what happened: it
    measured 3.59:1. Amber has no such problem because it is ~2.5x brighter
    (relLum 0.583 vs 0.235), which is why .primary keeps its dark #1a1205.
@@ -3000,14 +3000,14 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .log-dialog[open] { display: flex; }
 /* THE PANE is the single scroller: header, blurb and table scroll together in
-   one scrollbar. Earlier this was inverted — the table scrolled inside a
-   flex-sized `.log-scroll` — which collapsed to nothing on a short viewport.
+   one scrollbar. Earlier this was inverted – the table scrolled inside a
+   flex-sized `.log-scroll` – which collapsed to nothing on a short viewport.
    Only the table's own `thead` row stays pinned while scrolling (see
    `.log-table thead th`); the "AI call log" heading and Close scroll away (Close
    is a scroll-back-up or Esc away). Every sticky element in the log pins
    against this box: the thead to its top, the Total row and `.log-curtain` to
    its bottom.
-   No top padding — the sticky thead pins flush to the top edge and the header
+   No top padding – the sticky thead pins flush to the top edge and the header
    carries its own top space. No bottom padding either: `.log-curtain` (the
    last child) provides the gap under the table AND backs the pinned Total. */
 .log-pane {
@@ -3036,15 +3036,15 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-sub code { color: var(--ink-dim); background: var(--bg-card); padding: 0 0.3em; border-radius: 4px; }
 
 .log-scroll {
-  overflow: visible; /* no inner scrollbar — the pane scrolls (see .log-pane) */
+  overflow: visible; /* no inner scrollbar – the pane scrolls (see .log-pane) */
   flex: 0 0 auto;
-  /* Open at the bottom: the closing rule lives on .log-curtain's top border,
+  /* Open at the bottom: The closing rule lives on .log-curtain's top border,
      which is directly under the Total row in BOTH states (pinned and at rest).
      A bottom border here would only sit under the Total at rest, and would then
      double up with the curtain's.
      Square corners, deliberately: .log-scroll must stay overflow:visible (the
      pane is the scroller), so it cannot clip the sticky thead/tfoot cell
-     fills to a radius — the border curved while the backgrounds stayed square.
+     fills to a radius – the border curved while the backgrounds stayed square.
      Rounding only while a row sits naturally would mean tracking its stuck
      state on every scroll; not worth it. Only this box is square: the dialog
      around it keeps its rounded `--radius` corners, and in card view this box
@@ -3054,7 +3054,7 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 /* An opaque band pinned to the pane's bottom edge, directly beneath the pinned
-   Total row (which pins at `bottom: var(--log-curtain-h)` — i.e. exactly on top
+   Total row (which pins at `bottom: var(--log-curtain-h)` – i.e. exactly on top
    of this). Its containing block is the pane, not the table, so unlike the
    Total row it is never clamped and always reaches the true bottom: nothing from
    the table can show under the Total mid-scroll. Scrolled to the end it un-pins
@@ -3067,13 +3067,13 @@ body:has(dialog[open]) { overflow: hidden; }
   bottom: 0;
   z-index: 2; /* over the rows, under the Total (3) */
   background: var(--bg-raised);
-  /* ONLY a top border — that single line is the table's closing rule, and the
+  /* ONLY a top border – that single line is the table's closing rule, and the
      curtain is directly under the Total row in both states. Giving it sides and
      a rounded bottom too made the empty band read as a detached box mid-scroll. */
   border-top: 1px solid var(--line);
 }
 /* Base cell size; the header/sub/badge sizes below are `em` so this one
-   value scales the whole table. ~10% down from 0.86rem — room to spare.
+   value scales the whole table. ~10% down from 0.86rem – room to spare.
    Exempt from the type scale (D-079), and so is every `rem` inside this table
    that sizes text or the width text wraps in: the Result column, the reveal
    panels, and in card mode the labels and the expanded abbreviations. Its
@@ -3093,14 +3093,14 @@ body:has(dialog[open]) { overflow: hidden; }
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
-/* Abbreviated cells (Feature R/TV, Prompt R_v3, Model …) — the full string is
+/* Abbreviated cells (Feature R/TV, Prompt R_v3, Model …) – the full string is
    in the <abbr> title; dotted underline + help cursor signals it. */
 .log-table abbr {
   text-decoration: underline dotted var(--ink-faint);
   text-underline-offset: 2px;
   cursor: help;
 }
-/* Column separators — deliberately fainter than the row borders. */
+/* Column separators – deliberately fainter than the row borders. */
 .log-table th:not(:last-child),
 .log-table td:not(:last-child) {
   border-right: 1px solid var(--line-faint);
@@ -3123,14 +3123,14 @@ body:has(dialog[open]) { overflow: hidden; }
    out, so the type comes down to pay for it. Measured on 2026-09-19 in Inter
    at the real computed sizes, on the log as it stood that day: the binding
    string was `1,466 in / 111 out`, which is 88.86px at 0.84em against 89.17px
-   for the un-grouped `1466 in / 111 out` at 0.87em it replaced — so the column
+   for the un-grouped `1466 in / 111 out` at 0.87em it replaced – so the column
    did not move, and the body row stayed the cell that sets its width (the
    footer's split measured 87.06px, just under).
    Anything below ~0.83em hands that role to the footer instead, which is the
    arrangement the note on `tfoot td` exists to prevent.
    The footer is deliberately NOT included: its `.sub` is 0.87em of a 0.8em
    cell, so it is already the smaller of the two.
-   The out side never carries a comma — `maxTokens` is 600 for
+   The out side never carries a comma – `maxTokens` is 600 for
    recommendations and 180 for the verdict, so it cannot reach four digits. */
 .log-table tbody .sub { font-size: 0.84em; }
 /* The footer cells are bold; its sub-lines shouldn't inherit that. `normal`
@@ -3139,10 +3139,10 @@ body:has(dialog[open]) { overflow: hidden; }
    second line instead of widening it (see the font-size note on tfoot td). */
 .log-table tfoot .sub { font-weight: 400; white-space: normal; }
 
-/* Result column: collapsed to a short trigger, full content one click away in a
+/* Result column: Collapsed to a short trigger, full content one click away in a
    <details>. The column is pinned to a fixed width; the revealed content is
    positioned OUT OF FLOW (a small floating panel), so opening a row can never
-   widen the column or the table — it just overlays the rows below. */
+   widen the column or the table – it just overlays the rows below. */
 .log-result {
   width: calc(8rem / var(--type-scale));
   max-width: calc(8rem / var(--type-scale));
@@ -3152,7 +3152,7 @@ body:has(dialog[open]) { overflow: hidden; }
    only when the value is null, so rows with real numbers keep their colour. */
 .log-table .log-empty-val { color: var(--ink-faint); }
 
-/* Error text only — the reveal triggers keep the base size. The column is
+/* Error text only – the reveal triggers keep the base size. The column is
    pinned (width/max-width on .log-result), so `overflow-wrap: anywhere` is what
    makes a long message wrap inside that width instead of stretching the column:
    an unbroken token (a URL, a long error code) would otherwise set the cell's
@@ -3160,11 +3160,11 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-result--error { color: var(--crimson); }
 .log-result--error .log-error {
   display: block;
-  font-size: 0.7em; /* small — a long error must not read chunky in a pinned column */
+  font-size: 0.7em; /* small – a long error must not read chunky in a pinned column */
   line-height: 1.35;
   /* `.log-table td { white-space: nowrap }` is more specific than
      `.log-result { white-space: normal }`, so it wins on the cell and the span
-     inherits it — the text couldn't wrap however narrow the column. Set it
+     inherits it – the text couldn't wrap however narrow the column. Set it
      here explicitly; `overflow-wrap: anywhere` then also breaks an unbroken
      token so min-content never exceeds the pinned width. */
   white-space: normal;
@@ -3173,7 +3173,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 .log-reveal {
   position: relative;
-  --reveal-fade: 250ms; /* single knob — drives both the opacity fade and how
+  --reveal-fade: 250ms; /* single knob – drives both the opacity fade and how
                            long ::details-content stays rendered on close */
 }
 .log-reveal summary {
@@ -3208,7 +3208,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-radius: 8px;
   /* A white glow, not a black drop: on a near-black UI a dark shadow has
      nothing to darken and reads as almost nothing. The dark layer only adds
-     weight underneath. Every layer is heavily blurred on purpose — a hard
+     weight underneath. Every layer is heavily blurred on purpose – a hard
      0-blur ring would draw a line straight across the caret's base and nick
      each of its corners, which is what the previous version did. */
   box-shadow:
@@ -3221,7 +3221,7 @@ body:has(dialog[open]) { overflow: hidden; }
   line-height: 1.5;
   white-space: normal;
   overflow-wrap: break-word;
-  /* Fade in/out HERE, on the panel — it's already position:absolute + z-index so
+  /* Fade in/out HERE, on the panel – it's already position:absolute + z-index so
      it's its own stacking context regardless of opacity. Animating opacity on
      ::details-content instead made the *pseudo* a stacking context only while
      0<opacity<1, trapping the panel behind later rows mid-fade. */
@@ -3254,7 +3254,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 /* Caret pointing back at the trigger: two stacked FILLED triangles (outer in
    the border colour, inner in the fill, 1px smaller and lower). Not a rotated
-   bordered square — that shape's two borders terminate in square caps, which
+   bordered square – that shape's two borders terminate in square caps, which
    after rotation stick out as little nubs at the caret's base corners. Filled
    shapes have clean edges, and the inner triangle covers the panel's own
    border across the base so the rim joins it continuously.
@@ -3270,7 +3270,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-style: solid;
   border-color: transparent;
 }
-/* default: panel BELOW the trigger → caret on top, pointing up */
+/* default: Panel BELOW the trigger → caret on top, pointing up */
 .log-reveal ul::before, .log-reveal p::before {
   top: -7px;
   margin-left: -7px;
@@ -3283,7 +3283,7 @@ body:has(dialog[open]) { overflow: hidden; }
   border-width: 0 6px 6px 6px;
   border-bottom-color: var(--bg-raised);
 }
-/* flipped: panel ABOVE the trigger → caret underneath, pointing down */
+/* flipped: Panel ABOVE the trigger → caret underneath, pointing down */
 .log-reveal--above ul::before, .log-reveal--above p::before {
   top: auto;
   bottom: -7px;
@@ -3299,42 +3299,42 @@ body:has(dialog[open]) { overflow: hidden; }
   border-bottom-color: transparent;
 }
 /* ::details-content is what <details> uses to show/hide the panel
-   (content-visibility). Keep it rendered through the close fade — no opacity
+   (content-visibility). Keep it rendered through the close fade – no opacity
    here (see the panel rule above for why). Engines without ::details-content /
    @starting-style just snap; prefers-reduced-motion disables it. */
 .log-reveal::details-content {
-  /* Same duration as the panel's opacity fade — if this is shorter, the panel
+  /* Same duration as the panel's opacity fade – if this is shorter, the panel
      is yanked out of rendering mid-fade-out. */
   transition: content-visibility var(--reveal-fade) allow-discrete;
 }
 
-/* Time column: date on line 1, clock on line 2 — keeps the column narrow. The
+/* Time column: Date on line 1, clock on line 2 – keeps the column narrow. The
    all-figures text reads chunkier than the lowercase columns at the same size,
    so nudge it down a hair and tighten the two-line stack. */
 .log-time { font-size: 0.9em; line-height: 1.45; }
 .log-time span { display: block; }
 
 /* Total row pins just above `.log-curtain`, so the two together form one solid
-   block from the row down to the pane's bottom edge — no row can peek below. */
+   block from the row down to the pane's bottom edge – no row can peek below. */
 .log-table tfoot td {
   position: sticky; bottom: var(--log-curtain-h); z-index: 3;
   font-weight: 600; border-top: none; border-bottom: none;
-  /* Smaller than the body rows, for two reasons. It reads less chunky, and —
-     since every cell including the footer feeds `table-layout: auto` — it
+  /* Smaller than the body rows, for two reasons. It reads less chunky, and –
+     since every cell including the footer feeds `table-layout: auto` – it
      keeps the footer's summed figures from setting a wider max-content than
      the body rows and shifting the columns. The binding pair is the token
      split: the footer sums up to sixty calls, so its in and out figures are
      never shorter than any body row's, and are usually a digit or more longer. */
   font-size: 0.8em;
-  /* Drawing this divider is fiddly. It can't be a real `border-top` — the
+  /* Drawing this divider is fiddly. It can't be a real `border-top` – the
      collapsed-border layer paints that and leaves it behind when the row pins.
      Anything painted by the cell itself (inset shadow, background) is confined
      to the cell's own paint area, and under `border-collapse: collapse` that
-     area STOPS at the collapsed column border — which is what broke the rule
+     area STOPS at the collapsed column border – which is what broke the rule
      into segments. So: take the collapsed borders off this row entirely (below)
-     and paint BOTH rules as backgrounds — a 1.5px divider across the top and a 1px
+     and paint BOTH rules as backgrounds – a 1.5px divider across the top and a 1px
      column separator at each cell's right edge. Cells are then truly adjacent,
-     so the divider is continuous, the separators are still there, and both
+     so the divider is continuous, the separators are still there and both
      travel with the cell when it pins. */
   background-color: var(--bg-card);
   background-image:
@@ -3349,13 +3349,13 @@ body:has(dialog[open]) { overflow: hidden; }
   padding-bottom: calc(0.36rem - 1.5px);
 }
 /* Both rules above are painted BY THE CELL, so they stop dead at any collapsed
-   column border — that is what segmented the divider. Remove those borders on
+   column border – that is what segmented the divider. Remove those borders on
    this row so the cells sit flush and the divider runs unbroken. The extra
    `:not(:last-child)` is needed to outrank the column-separator rule. */
 .log-table tfoot td:not(:last-child) { border-right: none; }
 /* The label spans Feature+Prompt+Model, which are far wider than its text, so
    unlike the rest of the footer it is not part of the column-width constraint
-   — give it back a readable size. The trailing note is muted; it explains the
+   – give it back a readable size. The trailing note is muted; it explains the
    Duration total rather than being data. */
 .log-table tfoot .log-total__label { font-size: 1.1em; }
 .log-table tfoot .log-total__pad {
@@ -3363,7 +3363,7 @@ body:has(dialog[open]) { overflow: hidden; }
   font-style: italic;
   color: var(--ink-faint);
 }
-/* Last cell: keep the divider, drop the separator — no column follows it. */
+/* Last cell: Keep the divider, drop the separator – no column follows it. */
 .log-table tfoot td:last-child {
   background-image: linear-gradient(var(--line-total), var(--line-total));
   background-size: 100% 1.5px;
@@ -3378,11 +3378,11 @@ body:has(dialog[open]) { overflow: hidden; }
 .log-badge.ok { background: rgba(90, 180, 120, 0.15); color: #7fce9b; }
 .log-badge.fail { background: rgba(226, 87, 76, 0.16); color: var(--crimson); }
 .log-feature { font-weight: 600; }
-/* --ink-dim, not --ink-faint: this line is the only thing in the table body,
+/* --ink-dim, not --ink-faint: This line is the only thing in the table body,
    whether the log is loading, empty or failed to load (D-052's rule). */
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-dim); }
 
-/* ---- mid range: claw back horizontal space (cell + dialog padding, Result
+/* ---- mid range: Claw back horizontal space (cell + dialog padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
   .log-dialog { --log-curtain-h: 1.25rem; }
@@ -3392,7 +3392,7 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-result { width: calc(7rem / var(--type-scale)); max-width: calc(7rem / var(--type-scale)); }
 }
 
-/* ---- narrow viewports: below ~850px the trimmed 9-column table no longer fits
+/* ---- narrow viewports: Below ~850px the trimmed 9-column table no longer fits
         the dialog, so render each call as a card (label / value rows). No
         horizontal scroll at any width down to ~300px. ---- */
 @media (max-width: 850px) {
@@ -3424,7 +3424,7 @@ body:has(dialog[open]) { overflow: hidden; }
     overflow-wrap: break-word;
   }
   /* Kill the desktop column separator (`.log-table td:not(:last-child)`,
-     specificity 0,2,1 — it outranks the `border: none` above and would otherwise
+     specificity 0,2,1 – it outranks the `border: none` above and would otherwise
      stack into a faint vertical line down each card). Keep a horizontal hairline
      between the label/value rows instead. */
   .log-table td:not(:last-child) {
@@ -3440,9 +3440,9 @@ body:has(dialog[open]) { overflow: hidden; }
     border-bottom: 1px solid var(--line-faint);
   }
   /* Step 5, user-raised with a screenshot: "TOTAL TOKENS" wrapped to two lines
-     and read right-aligned instead of left. Root cause: this pseudo-element
+     and read right-aligned instead of left. Root cause: This pseudo-element
      sets no `text-align` of its own, so it INHERITS `text-align: right` from
-     `.log-table td` above — the rule that correctly right-aligns the VALUE
+     `.log-table td` above – the rule that correctly right-aligns the VALUE
      column. On a single-line label that is invisible: a floated box with no
      explicit width shrinks to fit its own content, so there is no leftover
      space for `text-align` to redistribute either way. It only becomes
@@ -3455,12 +3455,12 @@ body:has(dialog[open]) { overflow: hidden; }
      placed on just one would leave the exact same bug live on the other.
      Checked against every label this table can show (`Feature`, `Prompt`,
      `Model`, `Tokens`, `Cost`, `Duration`, `Status`, `Result`, `Time`, `Total
-     tokens`, `Total cost`, `Total duration`) — the three "Total …" labels are
+     tokens`, `Total cost`, `Total duration`) – the three "Total …" labels are
      the only ones long enough to wrap in practice, and "Total duration" (14
      characters) is LONGER than "Total tokens" (12) and shares the exact same
      cell width in card mode, so it wraps at an equal-or-wider viewport and
      was already showing the identical bug, unphotographed. This one
-     declaration fixes it too, for the same inheritance reason — not two
+     declaration fixes it too, for the same inheritance reason – not two
      separate patches for two labels that happen to look different. */
   .log-table td::before {
     content: attr(data-label);
@@ -3476,8 +3476,8 @@ body:has(dialog[open]) { overflow: hidden; }
 
   /* Cells with a sub-line (only the two token cells, a row's and the Total's: a
      total stacked over its in/out split)
-     cannot centre the label with a float — a float pins to the top, so the
-     label sat high against a two-line value. Grid instead: the label spans both
+     cannot centre the label with a float – a float pins to the top, so the
+     label sat high against a two-line value. Grid instead: The label spans both
      rows, so `align-items: center` lands it at the true vertical middle, while
      the value and its sub stay stacked and right-aligned like every other row.
      Card view only; desktop `.sub` (block) and cell centring are untouched. */
@@ -3491,7 +3491,7 @@ body:has(dialog[open]) { overflow: hidden; }
     float: none;
     margin-right: 0;
     grid-row: 1 / span 2;
-    /* Positions the BOX at the start of the grid cell — a different concern
+    /* Positions the BOX at the start of the grid cell – a different concern
        from the TEXT inside it wrapping right-aligned, which is what the
        user's screenshot actually showed. That is `text-align: left` on the
        shared `.log-table td::before` rule above, inherited here on purpose;
@@ -3500,7 +3500,7 @@ body:has(dialog[open]) { overflow: hidden; }
   }
   .log-table td:has(.sub) > .sub { grid-column: 2; }
 
-  /* There's width for the full strings here — swap the abbreviations out. */
+  /* There's width for the full strings here – swap the abbreviations out. */
   .log-table td abbr {
     text-decoration: none;
     cursor: auto;
@@ -3513,12 +3513,12 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-time span + span::before { content: '\00a0'; }
 
   .log-result { width: auto; max-width: none; }
-  /* card mode has room — let the error read at the normal card size */
+  /* card mode has room – let the error read at the normal card size */
   .log-result--error .log-error { font-size: inherit; }
   /* Keep the "view verdict" / "N suggestions" trigger on the label's line and
      drop the panel to a full-width block beneath it. The old `inline-block`
      reveal shrink-wrapped to its open panel; once that got wide the whole box
-     (summary included) wrapped below the floated label — the ugly line break.
+     (summary included) wrapped below the floated label – the ugly line break.
      `display: block` + a cleared panel fixes it, and makes the recommendation
      <ul> and the verdict <p> the SAME width here (their different widths are a
      desktop-table concern, set outside this media query and left untouched). */
@@ -3541,8 +3541,8 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-reveal ul::before, .log-reveal ul::after,
   .log-reveal p::before,  .log-reveal p::after { display: none; }
 
-  /* Cards: the Total is the LAST card, reached by scrolling to the end, and is
-     deliberately NOT pinned (D-082) — the table view's pinned Total row is a
+  /* Cards: The Total is the LAST card, reached by scrolling to the end, and is
+     deliberately NOT pinned (D-082) – the table view's pinned Total row is a
      desktop-only behaviour. `position: static` undoes the desktop cells'
      sticky. The card's own border is the separator here, so drop the per-cell
      gradient divider and separators. */
@@ -3550,7 +3550,7 @@ body:has(dialog[open]) { overflow: hidden; }
     position: static;
     background-image: none; /* the card's own border is the separator here */
     padding-bottom: 0.4rem;
-    font-size: 1em; /* no columns to protect here — match the other cards */
+    font-size: 1em; /* no columns to protect here – match the other cards */
   }
   .log-table tfoot td:last-child { background-image: none; }
   .log-table tr.log-total {
@@ -3571,24 +3571,24 @@ body:has(dialog[open]) { overflow: hidden; }
   bottom: 1.5rem;
   /* Step 5, user-caught: `left: 50%` + `width: auto` was quietly starving the
      shrink-to-fit calculation of half the viewport. Transforms are a
-     post-layout visual effect — they never feed back into sizing — so the
+     post-layout visual effect – they never feed back into sizing – so the
      browser computes the box's width BEFORE `translateX(-50%)` ever runs,
      using `left: 50%` as if the box's untransformed left edge really did sit
      at the horizontal centre. That leaves only the space from there to the
      viewport's right edge as "available" for shrink-to-fit, i.e. roughly
-     HALF the real viewport — measured directly on a reported bug: a 380px
+     HALF the real viewport – measured directly on a reported bug: a 380px
      viewport produced a 187px-wide toast for a message that should have
      rendered as one full-width line. 380/2 = 190, near-exact.
-     `left: 0; right: 0` gives shrink-to-fit the FULL viewport instead —
+     `left: 0; right: 0` gives shrink-to-fit the FULL viewport instead –
      both edges are pinned, so there is no anchor-point ambiguity. `width:
      fit-content` asks for the shrink-to-fit size explicitly rather than
      relying on the `auto` case again, and `margin-inline: auto` centres the
-     now-correctly-sized box within that full span — the same centring
+     now-correctly-sized box within that full span – the same centring
      principle `.noposter__icon` already uses further down (`inset: 0` +
      `margin: auto` over `top/left: 50%` + a translate), for an analogous
      reason: a percentage anchor plus a compensating transform is two moving
      parts standing in for what one non-percentage technique does directly.
-     `transform` now only carries the vertical entrance offset — the
+     `transform` now only carries the vertical entrance offset – the
      horizontal half was purely compensating for `left: 50%` and has nothing
      left to correct. */
   left: 0;
@@ -3605,17 +3605,17 @@ body:has(dialog[open]) { overflow: hidden; }
   /* `var(--shadow)` alone (a BLACK drop shadow) is D-044's exact trap: on
      `--bg: #0b0b0f` there is almost nothing left for black to darken. By the
      numbers, `--shadow`'s 0.7-alpha black over this background moves the
-     rendered colour from rgb(11,11,15) to roughly rgb(3,3,5) — an 8-unit
+     rendered colour from rgb(11,11,15) to roughly rgb(3,3,5) – an 8-unit
      shift, essentially invisible, which is exactly why the user reported it
      as "barely visible at all". Kept as the FIRST layer anyway: the toast can
      still overlap a lighter poster or bright text below it, where a directional
      black shadow does real work.
-     The second layer is what actually sells "floating above the page" here —
+     The second layer is what actually sells "floating above the page" here –
      a soft WHITE glow, the same fix D-044/R14/R15/the GitHub link all use on
      this background: light is visible against near-black where black is not.
-     Neutral white, not amber: the border-left already carries the success/
+     Neutral white, not amber: The border-left already carries the success/
      error distinction (var(--amber) / var(--crimson)), so the shadow's job is
-     depth alone, not a second status signal — one glow covers both states
+     depth alone, not a second status signal – one glow covers both states
      without a `.toast.err` override. Zero Y-offset on this layer specifically
      (unlike the kept black one): it is a glow, not a cast shadow, so it must
      radiate evenly rather than pool towards one edge (D-044). Tuned by eye. */
@@ -3625,31 +3625,31 @@ body:has(dialog[open]) { overflow: hidden; }
   z-index: 10000;
   max-width: 90vw;
   /* The toast prints film titles and server error text. `max-width` caps the
-     BOX, so without this an unbreakable word does not wrap — it spills straight
+     BOX, so without this an unbreakable word does not wrap – it spills straight
      out of the rounded panel. Same one-line guard the dialogs and cards carry. */
   overflow-wrap: anywhere;
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
 
-/* Step 5, user-raised: the toast is otherwise shrink-to-fit (no `width`, just
+/* Step 5, user-raised: The toast is otherwise shrink-to-fit (no `width`, just
    the `max-width: 90vw` ceiling above), so a short message like "Saved." sits
-   narrow while a long error stretches wider — fine on a wide screen, cramped
+   narrow while a long error stretches wider – fine on a wide screen, cramped
    on a phone, where every extra millimetre of tap-target and line width
-   counts. Two tiers, wider than "normal" — never narrower, both are strictly
+   counts. Two tiers, wider than "normal" – never narrower, both are strictly
    additive on top of the base rule above.
-   SCOPED to `.toast.is-long` — user-raised, same day, with a worked example:
+   SCOPED to `.toast.is-long` – user-raised, same day, with a worked example:
    a short toast ("Dune saved.") must look IDENTICAL at 1000px, 600px and
    450px, and only widen once its text would already need more than one line
    at a normal, >700px width. That "would it wrap at normal width" question
-   cannot be answered by CSS alone — a media query only knows the CURRENT
-   viewport, not whether a piece of TEXT would fit at a DIFFERENT, wider one —
+   cannot be answered by CSS alone – a media query only knows the CURRENT
+   viewport, not whether a piece of TEXT would fit at a DIFFERENT, wider one –
    so `toastIsLong()` in app.js measures it once per call (an invisible,
    unconstrained probe sharing this class, so font/padding/border match
    exactly) and toggles `is-long` before the toast is ever shown. A short
    toast never carries the class, so it keeps the base rule's shrink-to-fit
    sizing at every width, exactly as asked.
-   `min-width`, not `width`, at 700px — a FLOOR, not a fixed size: it only
+   `min-width`, not `width`, at 700px – a FLOOR, not a fixed size: it only
    pulls up a toast that would otherwise be narrower than this, so a short-
    but-still-long-enough-to-wrap toast gets noticeably wider while an
    already-wide error is untouched.
@@ -3657,11 +3657,11 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (max-width: 700px) {
   .toast.is-long { min-width: 25rem; }
 }
-/* At 500px the ask changes shape — every LONG toast should read as nearly
+/* At 500px the ask changes shape – every LONG toast should read as nearly
    full-width with a small margin either side, not just "wider than its own
    content". That needs an explicit `width`, not another floor. Still gated
    on `.is-long`, for the exact same reason as the 700px tier above.
-   `min-width: 0` resets the 700px tier's floor -- left in place, it would win
+   `min-width: 0` resets the 700px tier's floor – left in place, it would win
    over this narrower width the moment `calc(100% - 1.5rem)` dropped below
    25rem (viewports under ~390px), forcing the toast WIDER than the viewport
    itself and overflowing it sideways. `max-width` is raised to match `width`
@@ -3693,7 +3693,7 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 /* Announced, never seen (R22). The recs hint is the section's only live region,
    so anything a screen reader needs to hear about a run has to reach THAT
-   element — the cards themselves are not announced and should not be, six at a
+   element – the cards themselves are not announced and should not be, six at a
    time. `clip-path: inset(50%)` rather than the older `clip: rect(...)`, and
    `white-space: nowrap` so a long string cannot be collapsed to a single
    character column and read out one letter per line by some engines. */
@@ -3721,7 +3721,7 @@ body:has(dialog[open]) { overflow: hidden; }
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 /* The ranked card's entrance (step 4b). Split off `fade-slide` so its travel can
    be tuned without moving `.search-results`, which still uses that one. Ends at
-   `transform: none` so it composes with the hover scale — see the `backwards`
+   `transform: none` so it composes with the hover scale – see the `backwards`
    note on .movie-card.is-entering, which this must keep satisfying. */
 @keyframes card-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
@@ -3731,7 +3731,7 @@ body:has(dialog[open]) { overflow: hidden; }
    The travel is 18px. The ranked card then travelled 10px, and 10px under a
    ~300px-tall poster card is a twitch, not an arrival. The ranked card has
    since moved to 14px on its own, which is exactly the independence the split
-   was for — do not re-sync them.
+   was for – do not re-sync them.
    The entrance ends at `transform: none` so it composes cleanly with the hover
    scale (R14), and it fills `backwards`, so it never leaves a transform behind.
    The exit ends folded shut (rec-close, below) and holds there with
@@ -3739,7 +3739,7 @@ body:has(dialog[open]) { overflow: hidden; }
    card keeps that transform.
    The exit is the shorter of the two, 0.34s (RECS_EXIT_MS in app.js must stay
    in step with it) against the entrance's 0.75s, and it folds towards its left
-   edge like a closing book (R30) where the entrance rises — leaving is a
+   edge like a closing book (R30) where the entrance rises – leaving is a
    retreat, arriving is a rise. The ENTRANCE is the one the user asked to be
    able to watch.
    The exit is staggered at RECS_EXIT_STAGGER_MS (120ms, the same figure as the
@@ -3765,7 +3765,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 /* Poster placeholder. The icon is an inline SVG cloned from a <template> (see
    posterNode), replacing a 🎬 emoji that could not take a colour, sat off the
-   baseline, and rendered differently on every platform — D-027.
+   baseline and rendered differently on every platform – D-027.
    Centred by absolute positioning rather than `display: grid; place-items`,
    because `.rec-card .noposter` sets `display: block` at a higher specificity
    and would win. Positioning sidesteps that entirely and works the same in all
@@ -3792,16 +3792,16 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   /* REQUIRED by R27, and it was missing. This block kills `animation` and
-     `transition`, but a programmatic `scrollIntoView()` is neither — it obeys
+     `transition`, but a programmatic `scrollIntoView()` is neither – it obeys
      `html { scroll-behavior: smooth }` near the top of this file, so without
      this line a motion-sensitive user would get a smoothly animated page scroll
      after every recommendation run. It was latent until R27 landed: nothing in
      the app scrolled programmatically and there are no in-page anchors. The jump
-     still happens, instantly, which is the point — the scroll is functional, the
+     still happens, instantly, which is the point – the scroll is functional, the
      smoothness is the decoration. */
   html { scroll-behavior: auto; }
   /* Killing the TRANSITION is not enough for the card hover (#19): without this
-     the scale would still apply, just instantly — and sudden movement is
+     the scale would still apply, just instantly – and sudden movement is
      precisely what a motion-sensitive user is asking not to have. The colour
      cues stay, so the card still responds to the pointer: the glow, the lit
      edge and the border are all untouched here. */

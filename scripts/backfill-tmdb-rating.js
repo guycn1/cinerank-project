@@ -3,7 +3,7 @@
  * @file One-off backfill for migration 002: fills `movies.tmdb_rating` for rows that
  * were added before the column existed.
  *
- *     npm run backfill-tmdb-rating           # dry run — prints, writes nothing
+ *     npm run backfill-tmdb-rating           # dry run – prints, writes nothing
  *     npm run backfill-tmdb-rating -- --write
  *
  * SAFETY (CLAUDE.md § Working agreements). This script is deliberately built so
@@ -55,7 +55,7 @@ if (error) {
 }
 
 if (!movies.length) {
-  console.log('Nothing to do — every film already has a tmdb_rating.');
+  console.log('Nothing to do – every film already has a tmdb_rating.');
   process.exit(0);
 }
 
@@ -71,7 +71,7 @@ for (const m of movies) {
   try {
     details = await getMovieDetails(m.tmdb_id);
   } catch (err) {
-    console.log(`  ✗ ${m.title} — TMDB lookup failed (${err.message})`);
+    console.log(`  ✗ ${m.title} – TMDB lookup failed (${err.message})`);
     failed++;
     await sleep(PAUSE_MS);
     continue;
@@ -82,14 +82,14 @@ for (const m of movies) {
   // null is the one "no rating" value. Truthiness would still be the wrong test
   // to leave behind for a rating field.
   if (details.tmdb_rating == null) {
-    console.log(`  – ${m.title} — TMDB has no rating for this title; leaving NULL`);
+    console.log(`  – ${m.title} – TMDB has no rating for this title; leaving NULL`);
     noValue++;
     await sleep(PAUSE_MS);
     continue;
   }
 
   if (!WRITE) {
-    console.log(`  → ${m.title} — would set tmdb_rating = ${details.tmdb_rating}`);
+    console.log(`  → ${m.title} – would set tmdb_rating = ${details.tmdb_rating}`);
     filled++;
     await sleep(PAUSE_MS);
     continue;
@@ -105,10 +105,10 @@ for (const m of movies) {
     .is('tmdb_rating', null);
 
   if (upErr) {
-    console.log(`  ✗ ${m.title} — update failed (${upErr.message})`);
+    console.log(`  ✗ ${m.title} – update failed (${upErr.message})`);
     failed++;
   } else {
-    console.log(`  ✓ ${m.title} — tmdb_rating = ${details.tmdb_rating}`);
+    console.log(`  ✓ ${m.title} – tmdb_rating = ${details.tmdb_rating}`);
     filled++;
   }
   await sleep(PAUSE_MS);

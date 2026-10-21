@@ -1,11 +1,11 @@
 /**
  * @file CineRank frontend. Vanilla ES module (SPEC § 4.1).
- * Security: all user-supplied / model-supplied text is written via textContent or
- * createTextNode — never innerHTML — so a review or verdict can't inject markup
+ * Security: All user-supplied / model-supplied text is written via textContent or
+ * createTextNode – never innerHTML – so a review or verdict can't inject markup
  * (CLAUDE.md § Security & Secrets #4). The taste verdict is plain text by design.
  *
  * Loaded by public/index.html as a module. The page is one screen: the taste
- * verdict banner, search, the ranked list, recommendations, and the AI call log
+ * verdict banner, search, the ranked list, recommendations and the AI call log
  * dialog, all driven from `state` and the element handles in `el`. Nothing is
  * exported; init() at the bottom wires everything up.
  */
@@ -61,7 +61,7 @@ const el = {
   recsTrigger: $('#recs-trigger'),
   recsHint: $('#recs-hint'),
   recsGrid: $('#recs-grid'),
-  recsHead: $('#recs-head'), // R27's scroll target — see renderRecommendations
+  recsHead: $('#recs-head'), // R27's scroll target – see renderRecommendations
   recsMeta: $('#recs-meta'), // the AI meta footer's slot, outside the grid (R29)
   rateDialog: $('#rate-dialog'),
   rateForm: $('#rate-form'),
@@ -99,22 +99,22 @@ const state = {
   ownedTmdbIds: new Set(),
   // Which reviews the user has expanded, by film id (backlog #14). It lives
   // here and NOT in the DOM because renderRanked() rebuilds every card on every
-  // render, and a class on a <p> cannot outlive that <p> — so expanding one
+  // render, and a class on a <p> cannot outlive that <p> – so expanding one
   // review and then rating a DIFFERENT film silently collapsed it again.
   // Lifting the state out is the fix; keeping the elements alive instead is the
   // element-reuse rewrite D-031 rejected, and it stays rejected (D-040).
-  // Session-only by choice: a reading state is not worth persisting to storage.
+  // Session-only by choice: A reading state is not worth persisting to storage.
   expandedReviews: new Set(),
   editing: null,
   editingIsNew: false, // the rate dialog is for a film added seconds ago
   // Does #recs-hint currently belong to a RUN (busy / "Based on:" / no-picks /
   // error) rather than to the availability sync? Without this,
   // syncRecommendationsAvailability() reassigned that element unconditionally
-  // and wiped every one of those in the same tick they were written — the run's
+  // and wiped every one of those in the same tick they were written – the run's
   // own `finally` calls the sync (backlog R1). `verdictTextFromRun` below is
   // the same guard for the verdict banner.
   recsHintFromRun: false,
-  // Does #verdict-text currently belong to a RUN (the busy line, the verdict, or
+  // Does #verdict-text currently belong to a RUN (the busy line, the verdict or
   // its failure message) rather than to syncVerdictAvailability()? Set when a
   // run STARTS, so an add or rate landing mid-request cannot replace the busy
   // line with the idle placeholder, and cleared when the feature locks, so the
@@ -141,14 +141,14 @@ async function api(path, options) {
   try {
     res = await fetch(path, options);
   } catch {
-    // fetch only rejects on a network-level failure — server down, DNS, or the
+    // fetch only rejects on a network-level failure – server down, DNS or the
     // browser offline. Its message is engine-specific ("Failed to fetch" in
     // Chromium, "NetworkError when attempting to fetch resource" in Firefox)
     // and reads like a stack trace, so it never reaches the UI. An HTTP error
     // response is a different thing and keeps the server's own wording below.
     const err = new Error('Couldn’t reach CineRank. Check your connection and try again.');
     // A COMPOSABLE form of the same fact, for the sinks that put a context in
-    // front of it — see failureText(). The long form above is a complete
+    // front of it – see failureText(). The long form above is a complete
     // sentence with its own subject AND its own advice, so prefixing it produced
     // "Couldn’t load the log: Couldn’t reach CineRank. Check your connection…":
     // two subjects and two "couldn’t"s for one failure.
@@ -160,10 +160,10 @@ async function api(path, options) {
     const err = new Error(body.error || `Request failed (${res.status})`);
     // Optional and absent from nearly every response: a route sends `short` only
     // when its own message is too self-contained to sit after a context prefix.
-    // Purely additive — an endpoint that omits it behaves exactly as before,
+    // Purely additive – an endpoint that omits it behaves exactly as before,
     // because failureText() falls back to the full message.
     if (body.short) err.short = body.short;
-    // Same shape, same reasons: optional, additive, and absent from nearly every
+    // Same shape, same reasons: Optional, additive and absent from nearly every
     // response. It says a failure of ours was written to an AI log table, so a UI
     // may offer the log without promising a row that does not exist (R9).
     if (body.logged) err.logged = true;
@@ -176,29 +176,29 @@ async function api(path, options) {
  * Compose a failure message: what the user was trying to do, then why it failed.
  *
  * Backlog #16(c). The two action toasts used to show the cause ALONE, so a failed
- * add or remove named no film — with three cards on screen, nothing said which
+ * add or remove named no film – with three cards on screen, nothing said which
  * one had not been removed. The obvious fix, pasting the context in front of
  * whatever came back, breaks on causes that are already complete sentences:
  * "Couldn’t load the log: Couldn’t reach CineRank. Check your connection and try
- * again." That is not unpredictability to be defended against — there are two
+ * again." That is not unpredictability to be defended against – there are two
  * kinds of message here and the client knows which it has. It either fabricated
  * the cause itself (api()'s transport failure) or the server told it, so the
  * short form is attached at the source and this only has to prefer it.
  *
  * A cause with no `short` is passed through whole, which is right for the terse
- * ones: "Couldn’t remove “Dune” — Something went wrong." reads correctly,
+ * ones: "Couldn’t remove “Dune” – Something went wrong." reads correctly,
  * because that message says nothing about WHAT failed and the context is the
  * only specific thing in the sentence.
  *
  * Used by every sink that adds a context, so the rule cannot be applied four
- * different ways — the same reason busyButton() and displayedRanking() exist.
+ * different ways – the same reason busyButton() and displayedRanking() exist.
  * Sinks that are already surrounded by their own context (the search note, the
  * verdict banner, the rate dialog's inline error) deliberately do NOT use this:
  * there the operation is obvious from where the message appears.
  *
  * @param {string} context  What was being attempted, e.g. `Couldn’t add “Dune”`.
  * @param {ApiError} err  The failure, from api() or anywhere else.
- * @returns {string} `context — cause`, always ending in terminal punctuation.
+ * @returns {string} `context – cause`, always ending in terminal punctuation.
  */
 function failureText(context, err) {
   const cause = err.short ?? err.message;
@@ -206,13 +206,13 @@ function failureText(context, err) {
   // The causes are inconsistent and most of them are not ours to edit: the 409
   // reads "Already in your list" with no stop, the 500 reads "Something went
   // wrong." with one. Left alone, the same toast would end with a full stop or
-  // without one depending on which failure produced it — the exact defect the
+  // without one depending on which failure produced it – the exact defect the
   // verdict's missing "for details." was.
-  return `${context} — ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
+  return `${context} – ${/[.!?…]$/.test(cause) ? cause : `${cause}.`}`;
 }
 
 // The widest `max-width: 90vw` ever gets while styles.css's narrow-viewport
-// widening rules (`@media (max-width: 700px)`) are still in play -- 90% of
+// widening rules (`@media (max-width: 700px)`) are still in play – 90% of
 // 700px. If a message's natural, unconstrained single line fits inside this,
 // it fits at every wider viewport too, so it counts as "normal width" for
 // toastIsLong() below. Tied to those two CSS values; move this if either
@@ -221,14 +221,14 @@ const TOAST_SINGLE_LINE_MAX = 630;
 
 /**
  * Would `text` already need more than one line at a normal, >700px toast
- * width — i.e. is it "long" under the user's own definition (step 5,
+ * width – i.e. is it "long" under the user's own definition (step 5,
  * user-raised with a worked example: "Dune saved." must look identical at
  * 1000/600/450px; only a message that already wraps at normal width should
  * ever widen). A media query alone cannot answer this: it only knows the
  * CURRENT viewport, never whether a piece of text would fit at a DIFFERENT
  * one, so this measures it directly.
  * The probe shares the real `.toast` class (same font, padding, border) but
- * neutralises EVERY positioning/sizing property inline -- inline styles win
+ * neutralises EVERY positioning/sizing property inline – inline styles win
  * over the class's stylesheet rules regardless of specificity or which media
  * query is currently active, so the reading is the text's TRUE natural
  * width, independent of whatever the actual browser viewport happens to be
@@ -237,19 +237,19 @@ const TOAST_SINGLE_LINE_MAX = 630;
  * D-062, and the trap this repeats: `.toast` now centres itself with
  * `left: 0; right: 0; width: fit-content; margin-inline: auto` (D-062's own
  * fix). The FIRST version of this probe overrode only `left`/`width`, so it
- * still inherited the class's `right: 0` and `margin-inline: auto` -- with
+ * still inherited the class's `right: 0` and `margin-inline: auto` – with
  * BOTH `left` (overridden here to -9999px) and `right` (still 0, inherited)
  * specified and `width: auto`, the box model stops being shrink-to-fit
  * entirely and instead stretches to fill the whole (enormous, since one edge
- * sits off-screen) gap between them -- which is why a short toast like
+ * sits off-screen) gap between them – which is why a short toast like
  * `“Hairspray” saved.` was measured as needing 400px+ and misclassified as
  * long the moment D-062 landed. Every property the class's positioning could
  * plausibly use is now explicitly neutralised here, not just the ones it
- * happened to use at the time this was written -- so a future change to how
+ * happened to use at the time this was written – so a future change to how
  * `.toast` centres itself can't silently break this measurement again the
  * same way.
- * A throwaway, invisible, off-screen element -- never the real, currently
- * showing toast -- so measuring one toast can't flicker or resize another.
+ * A throwaway, invisible, off-screen element – never the real, currently
+ * showing toast – so measuring one toast can't flicker or resize another.
  *
  * @param {string} text  The toast message.
  * @returns {boolean} True when its single-line width exceeds TOAST_SINGLE_LINE_MAX.
@@ -300,8 +300,8 @@ function toast(message, isError = false) {
  * fewer are in view the cost is an image request or two made a little early.
  *
  * Do NOT replace this with a measured fold. That means reading layout during the
- * render — the very thing syncReviewToggles() is structured in three batched
- * passes to avoid — to save a single request.
+ * render – the very thing syncReviewToggles() is structured in three batched
+ * passes to avoid – to save a single request.
  */
 const EAGER_POSTERS = 3;
 
@@ -311,7 +311,7 @@ const EAGER_POSTERS = 3;
  * Cloned rather than written into each button, because it now appears on BOTH
  * AI triggers and two copies of a generated path is the shape that gets
  * regenerated in one place and not the other. Same reason `.noposter` is a
- * template — and the same reason `<use href>`, the usual sprite answer, is not
+ * template – and the same reason `<use href>`, the usual sprite answer, is not
  * used here: `<use>` puts its content in a shadow tree that document CSS cannot
  * select into, and only the LARGE star is meant to twinkle. A clone is real DOM,
  * so `.sparkle-major` still matches.
@@ -339,9 +339,9 @@ function posterNode(url, title, { eager = false } = {}) {
   if (url) {
     const img = document.createElement('img');
     img.src = url;
-    img.alt = `${title} — poster`;
+    img.alt = `${title} – poster`;
     // `lazy` defers the request until the browser knows the image is near the
-    // viewport, which it cannot know before layout — so a poster that is ALREADY
+    // viewport, which it cannot know before layout – so a poster that is ALREADY
     // on screen at first paint is delayed for nothing. These images are built in
     // JS after /api/movies returns, so the preload scanner was never going to
     // see them either way; the win is a layout pass on the first few cards, not
@@ -354,7 +354,7 @@ function posterNode(url, title, { eager = false } = {}) {
   const ph = document.createElement('div');
   ph.className = 'noposter';
   ph.setAttribute('role', 'img');
-  ph.setAttribute('aria-label', `${title} — no poster available`);
+  ph.setAttribute('aria-label', `${title} – no poster available`);
   // Cloned from the <template> in index.html rather than built here: SVG needs
   // createElementNS to produce real elements, and the icon reads better as
   // markup next to the page's other inline-SVG icons (D-027).
@@ -375,8 +375,8 @@ function spinnerNode() {
 }
 
 /**
- * Put a button into its busy state — disabled, `aria-busy`, a spinner and a
- * label, at its current width — and return the function that ends it.
+ * Put a button into its busy state – disabled, `aria-busy`, a spinner and a
+ * label, at its current width – and return the function that ends it.
  * Every busy button in the app goes through here (both AI triggers, Search,
  * Add, Save and Remove) so their busy behaviour can't drift apart.
  *
@@ -388,7 +388,7 @@ function spinnerNode() {
  *   with a label it shows that text and stays disabled.
  */
 function busyButton(btn, busyLabel = 'Thinking…') {
-  const label = [...btn.childNodes]; // keep the nodes — a label may be wrapped in a <span>
+  const label = [...btn.childNodes]; // keep the nodes – a label may be wrapped in a <span>
   btn.disabled = true;
   btn.setAttribute('aria-busy', 'true');
   // Lock the current width first, so a shorter busy label cannot visibly shrink
@@ -409,7 +409,7 @@ function busyButton(btn, busyLabel = 'Thinking…') {
   busy.textContent = '\u00A0' + busyLabel;
   btn.replaceChildren(spinnerNode(), busy);
   // Ends the busy state. With no argument the button goes back exactly as it
-  // was, enabled. Pass text to settle on a new label instead and stay disabled —
+  // was, enabled. Pass text to settle on a new label instead and stay disabled –
   // for an action that cannot be repeated ("✓ Added", "In your list").
   return (settledLabel) => {
     btn.removeAttribute('aria-busy');
@@ -436,20 +436,20 @@ const ratedCount = () => state.movies.filter((m) => m.rating != null).length;
  * work only when there is any.
  *
  * It used to be `N films · N rated` (backlog #16). Three things were wrong with
- * that. It restated the first number in the app's STEADY state — once everything
- * is rated, "5 films · 5 rated" is one fact wearing two hats — so it was longest
+ * that. It restated the first number in the app's STEADY state – once everything
+ * is rated, "5 films · 5 rated" is one fact wearing two hats – so it was longest
  * exactly when it had least to say. It made the reader subtract to reach the one
  * actionable fact, how many still need rating. And the `·` joined a set to its
  * own SUBSET, where every other use of that separator in this app joins peer
  * facts (`2023 · TMDB 7.2` in a search row, the AI meta footer, `Total · 3
- * calls`) — which is why "5 films · 3 rated" reads as two tallies rather than
+ * calls`) – which is why "5 films · 3 rated" reads as two tallies rather than
  * "3 of the 5".
  *
  * Silence is the "all rated" signal. The clause exists to flag outstanding work,
  * so nothing outstanding means nothing to say; unrated cards carry their own
  * "Not rated yet" chip, so the fact is still on screen.
  *
- * `none rated yet` and not `N not rated yet` when nothing is rated at all —
+ * `none rated yet` and not `N not rated yet` when nothing is rated at all –
  * otherwise both numbers are equal again and the doubling is back. That branch
  * is also what settled the wording against the shorter "N unrated", which reads
  * better after a numeral but would need a SECOND vocabulary here, since
@@ -469,22 +469,22 @@ function rankedCountLabel(count, rated) {
 }
 
 /**
- * The ranking AS DISPLAYED: for every film, the number its card shows (null
+ * The ranking AS DISPLAYED: For every film, the number its card shows (null
  * when unrated) and whether it shares that number with another film.
  *
  * ONE function, used by both renderRanked() and rankSignature(), because the
- * two must never disagree about what "the ranking" is — and they did. This
+ * two must never disagree about what "the ranking" is – and they did. This
  * logic lived only in the renderer, so the detector had to approximate it, and
  * the approximation was wrong in a way nobody would guess: see rankSignature().
  *
  * Competition ranking (1, 2, 2, 4). `position` is where a film sits and always
  * increments; `shown` repeats across a tie, then jumps to the next position.
- * Deliberately NOT the array index — only a rated film has a rank, so an
+ * Deliberately NOT the array index – only a rated film has a rank, so an
  * unrated one must not consume a number (D-029).
  *
  * `shared` is counted up front rather than by peeking at neighbours: adjacency
  * would also work (the list arrives sorted by rating) but would have to
- * special-case the first and last film. Keyed by the rating NUMBER — the column
+ * special-case the first and last film. Keyed by the rating NUMBER – the column
  * is numeric(3,1), so 8.0 and 8.0 are exactly equal and 8.0 vs 8.1 are exactly
  * not.
  *
@@ -522,14 +522,14 @@ function displayedRanking(movies) {
  *    already sort last, so a low rating can leave it exactly where it was)
  *    while its slot changes from "?" to a number.
  *  - Break a tie for first place by lowering the LOWER-placed of the two, and
- *    nothing moves at all — it was already drawn second — yet it goes from
+ *    nothing moves at all – it was already drawn second – yet it goes from
  *    "1 tied" to "2". This one shipped broken: the signature was id + rated,
  *    so it saw no change and the toast said only "saved".
  *  - A tie forming or dissolving changes the caption without changing the
  *    number.
  *
  * Hence id + displayed rank + tie state: literally what the card shows.
- * Compared as a string rather than element-by-element — the array is small, and
+ * Compared as a string rather than element-by-element – the array is small, and
  * one !== is harder to get subtly wrong than a hand-rolled loop.
  *
  * @returns {string} e.g. `a1:1:false|b2:2:true|c3:2:true|d4:?:false`.
@@ -544,14 +544,14 @@ const rankSignature = () =>
  * its new order instead of teleporting.
  *
  * The API snapshots the WHOLE document before and after `update()` and morphs
- * between the two. It cannot be scoped to one section — so the discipline is on
+ * between the two. It cannot be scoped to one section – so the discipline is on
  * the caller: put ONLY the thing that should animate inside `update()`, and let
  * everything else already be settled before this is called. Anything unchanged
  * and unmoved cross-fades against an identical copy of itself, which is
  * invisible by construction.
  *
  * Falls straight through to a plain call when unsupported or when the user asks
- * for reduced motion — an unsupported browser gets exactly the old behaviour,
+ * for reduced motion – an unsupported browser gets exactly the old behaviour,
  * which is what makes this safe. (Baseline: Chrome/Edge 111, Firefox 144,
  * Safari 18.)
  *
@@ -586,9 +586,9 @@ const graphemeSegmenter =
 
 /** U+00AD, the soft hyphen. NAMED because it is INVISIBLE IN SOURCE: a literal
  *  one sat in the string literal below, where it could not be read, searched
- *  for, or told apart from an empty string. It also has to be stripped from the
+ *  for or told apart from an empty string. It also has to be stripped from the
  *  clipboard by the copy handler further down, and the inserter and the stripper
- *  must agree -- so they share this one definition. Built with fromCharCode
+ *  must agree – so they share this one definition. Built with fromCharCode
  *  rather than a backslash escape: escapes in this file have been collapsed by
  *  tooling twice (see CLAUDE.md Environment traps, and R7). */
 const SOFT_HYPHEN = String.fromCharCode(0xad);
@@ -611,7 +611,7 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
 /**
  * Insert soft hyphens (U+00AD) between adjacent GRAPHEME CLUSTERS inside long
  * words (step 5, D-060/D-061, supersedes D-059's `hyphens: auto`). A soft
- * hyphen is a break OPPORTUNITY, not a break — it renders as nothing at all
+ * hyphen is a break OPPORTUNITY, not a break – it renders as nothing at all
  * unless it is the exact point a line actually breaks, so this is invisible
  * and inert wherever nothing needs to break. Unlike `hyphens: auto`, it needs
  * no dictionary, which is what an invented compound title ("SquarePants")
@@ -640,25 +640,25 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * Anything the limits leave unbreakable still cannot overflow: the columns
  * this is used in carry `overflow-wrap: anywhere` as the last resort.
  *
- * GRAPHEME CLUSTERS, NOT RAW CHARACTERS — D-061, user-caught with a
+ * GRAPHEME CLUSTERS, NOT RAW CHARACTERS – D-061, user-caught with a
  * screenshot of a review's emoji rendered as two tofu glyphs. The first
  * version of this function split on `/(\S)(?=\S)/g`, which iterates JS
- * STRING INDICES — UTF-16 code units, not visual characters. Most emoji
+ * STRING INDICES – UTF-16 code units, not visual characters. Most emoji
  * (🎬, 😀, …) are a SURROGATE PAIR: two code units for one code point.
  * Splitting between them with an inserted character orphans both halves,
  * which is exactly what a browser renders as a broken-glyph placeholder.
- * A regex `u` flag alone would not have been enough either — it fixes
+ * A regex `u` flag alone would not have been enough either – it fixes
  * surrogate pairs but a flag emoji or a ZWJ family emoji is MULTIPLE full
  * code points joined into one user-perceived character, and code-point
  * iteration is still free to split those apart.
  * `Intl.Segmenter({ granularity: 'grapheme' })` is the correct unit: it is
  * Unicode's own definition of "one character a reader sees", and it is
  * capable of surrogate pairs, ZWJ sequences and combining marks all in one.
- * Falls straight through to the PLAIN, unmodified text where unsupported —
+ * Falls straight through to the PLAIN, unmodified text where unsupported –
  * never to the old character-by-character regex, which is what caused this
  * bug in the first place. No hyphenation is a safe, fully inert fallback;
- * silently-corrupted emoji is not. (Baseline note: well inside this file's
- * stated baseline of Chrome/Edge 111 — `Intl.Segmenter` shipped in Chrome 87.)
+ * silently-corrupted emoji is not. (Baseline note: Well inside this file's
+ * stated baseline of Chrome/Edge 111 – `Intl.Segmenter` shipped in Chrome 87.)
  * Since D-085 the letter rule alone keeps a soft hyphen out of every emoji,
  * whatever the unit, since no emoji holds two letters in a row. Graphemes stay
  * the unit because one grapheme can hold several letter code points: a
@@ -668,17 +668,17 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  * Whether these embedded points are ever honoured is decided entirely by
  * CSS (`hyphens: none` above 400px, `manual` at 400px and below, on `.movie-card__body`
  * / `.rec-card__body` / `.result-row` / `.verdict__text`; `.review` and
- * `.reason` inherit theirs from the first two) — this function runs
+ * `.reason` inherit theirs from the first two) – this function runs
  * UNCONDITIONALLY, with no viewport check and no resize listener. That is
  * the whole reason this replaces D-059's "needs JS measurement" premise
  * rather than confirming it: the text is generated once, and the SAME text
  * starts or stops respecting its own embedded hyphens live, as the media
  * query flips on resize, with nothing here re-run.
- * Called on every film title, review and AI-reason text — all plain visible
+ * Called on every film title, review and AI-reason text – all plain visible
  * content with no accessible-name or live-region role to leak into. On the
  * verdict, called ONLY on the real, AI-generated text (see the `typed` guard
- * in `setVerdictText()`) — never on a placeholder or an error message.
- * Deliberately NOT used on the rate/confirm dialog headings or the toast —
+ * in `setVerdictText()`) – never on a placeholder or an error message.
+ * Deliberately NOT used on the rate/confirm dialog headings or the toast –
  * see the CSS note at `.movie-card__body` for why: both double as an
  * accessible name or live-region content, and a soft hyphen embedded there
  * would reach a screen reader, not just the eye. `#verdict-text` IS
@@ -691,7 +691,7 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
  *   `Intl.Segmenter` is unavailable.
  */
 function softHyphenate(text) {
-  if (!graphemeSegmenter) return text; // unsupported -- plain text, never the broken regex
+  if (!graphemeSegmenter) return text; // unsupported – plain text, never the broken regex
   const graphemes = [...graphemeSegmenter.segment(text)].map((s) => s.segment);
   let out = '';
   let i = 0;
@@ -772,14 +772,14 @@ function renderRanked() {
   const count = state.movies.length;
   // EMPTY LIST SHOWS NO SUBTITLE AT ALL, and the ternary is what makes that so.
   // rankedCountLabel(0, 0) would return "0 films", which beside the empty-state
-  // line -- "No films yet — search for one above to get started." -- says
+  // line – "No films yet – search for one above to get started." – says
   // nothing twice. Do not simplify this into an unconditional call.
   el.rankedCount.textContent = count ? rankedCountLabel(count, ratedCount()) : '';
   el.rankedEmpty.hidden = count > 0;
 
   // Computed ONCE, by the same function rankSignature() uses, so what is drawn
   // and what counts as "the ranking changed" cannot drift apart. Films the user
-  // scored identically must not be told apart by a number — the order between
+  // scored identically must not be told apart by a number – the order between
   // them is only `created_at` ascending, i.e. the order they were added in,
   // which has nothing to do with taste (backlog #13).
   const ranking = displayedRanking(state.movies);
@@ -793,48 +793,48 @@ function renderRanked() {
       // and the reason is a RATIO rather than a number: what decides whether a
       // stagger reads as a cascade is how many cards are mid-animation at the
       // same instant, which is duration / stagger. At 70ms against a 600ms card
-      // that was 8.6 cards in flight -- they overlap into one blob and the
+      // that was 8.6 cards in flight – they overlap into one blob and the
       // stagger has nothing left to separate. 180ms took it to 3.3 and overshot
       // ("almost too slow"); 125ms sits at 4.8, each arrival still its own event
       // with the list still brisk. Walked 45 -> 70 -> 180 -> 135 -> 125 by eye,
-      // which is worth knowing -- the useful band is narrow and nowhere near
+      // which is worth knowing – the useful band is narrow and nowhere near
       // where the value started, so do not retune it in small steps from here.
       // So tune this AGAINST the duration on .movie-card.is-entering, never on
       // its own: raising that duration without raising this walks straight back
       // into the same blur.
       // The cap STAYS, and must: this list is unbounded. It bites at card 10 now
       // (10 * 125 > 1200), so a long list still assembles in 1.8s rather than
-      // growing without limit -- a clump at the tail is the accepted cost of
+      // growing without limit – a clump at the tail is the accepted cost of
       // that, and it is invisible on the list lengths this app actually holds.
       li.style.animationDelay = `${Math.min(i * 125, 1200)}ms`;
     }
     // Pairs this card's before/after snapshots so the browser morphs it from
     // its old position to its new one. The name must be a valid CSS ident and
-    // unique across the document, hence the prefix — a bare UUID can start with
+    // unique across the document, hence the prefix – a bare UUID can start with
     // a digit, and a duplicate aborts the whole transition.
     li.style.viewTransitionName = `movie-${m.id}`;
 
     // `!= null`, never truthiness: 0.0 is a rating the user deliberately gave,
-    // and `0` is falsy — `m.rating ? …` would silently demote a 0.0 film to
+    // and `0` is falsy – `m.rating ? …` would silently demote a 0.0 film to
     // "unrated", losing its rank, its score badge and its Edit label at once.
     const isRated = m.rating != null;
 
     const rank = document.createElement('div');
     rank.className = 'movie-card__rank';
     if (isRated) {
-      // 1, 2, 2, 4 — the skipped 3 is the point, not a bug: two films are
+      // 1, 2, 2, 4 – the skipped 3 is the point, not a bug: two films are
       // jointly 2nd, so nothing is 3rd.
       rank.append(document.createTextNode(String(ranking[i].rank)));
       // The #1 crown is applied HERE, not by a `:first-child` CSS rule. "First
       // in the list" and "your top-rated film" are different facts, and they
-      // come apart the moment the list holds an unrated film — with nothing
+      // come apart the moment the list holds an unrated film – with nothing
       // rated yet, the positional rule crowned a film with no rating at all.
       // A tie at the very top crowns BOTH films, which is correct rather than a
       // side effect: D-029 defines this as "your top-rated film", and if two are
       // scored the same then both are.
       if (ranking[i].rank === 1) rank.classList.add('is-top');
       // Three digits are wider than the rank gutter can hold at the desktop
-      // font size — "250" overran the gap and the poster painted over its last
+      // font size – "250" overran the gap and the poster painted over its last
       // digit. CSS cannot count characters, so the digit count is marked here
       // and the size capped in `.movie-card__rank.is-wide`. Threshold is 99,
       // not 9: two digits were measured and fitted fine at every width.
@@ -843,7 +843,7 @@ function renderRanked() {
       // showing "2" read as a rendering fault. Deliberately NOT baked into the
       // numeral as "=2", the UK chart convention: that would widen the glyph and
       // walk straight into the measured figure-width budget D-030 solved.
-      // It is also readable text rather than an aria-label — a label on a
+      // It is also readable text rather than an aria-label – a label on a
       // generic <div> is not reliably exposed, so a screen reader is left with
       // "2 tied", which is exactly right anyway.
       if (ranking[i].tied) {
@@ -856,7 +856,7 @@ function renderRanked() {
       // No rank to show. A question mark, NOT the em dash the AI call log puts in
       // an empty Tokens/Cost cell: a dash says "nothing here", while an unrated
       // film's rank is undetermined until the user rates it (D-029).
-      // aria-hidden: the "Not rated yet" line below already says this, and the
+      // aria-hidden: The "Not rated yet" line below already says this, and the
       // <ol> still counts every <li>, so a reader would otherwise be told a
       // position this card is explicitly not claiming.
       rank.classList.add('is-unranked');
@@ -878,8 +878,8 @@ function renderRanked() {
     body.append(h3);
     if (!isRated) {
       // Two parts, not one sentence: a STATUS and an instruction, which want
-      // different weights. The status is a chip — a shape no review or title
-      // ever takes — so the line cannot be mistaken for prose even before its
+      // different weights. The status is a chip – a shape no review or title
+      // ever takes – so the line cannot be mistaken for prose even before its
       // colour registers; the instruction stays quiet beside it. The em dash
       // that used to join them is gone; the chip's edge is the separator now.
       const u = document.createElement('p');
@@ -895,7 +895,7 @@ function renderRanked() {
       // `else if`, and it is EXHAUSTIVE rather than merely convenient: the
       // `review_requires_rating` constraint (migration 004, D-041) makes a
       // review on an unrated film unwritable, so this branch cannot be hiding
-      // one. Backlog #15 was that it could — the fix was to forbid the state in
+      // one. Backlog #15 was that it could – the fix was to forbid the state in
       // the database, not to render it here, because the rating is the required
       // part and the review the optional one. Do NOT "fix" this into two
       // independent `if`s: that would add a branch for a state the schema
@@ -908,7 +908,7 @@ function renderRanked() {
       // Set BEFORE the first setReviewExpanded() below, which reads it back out
       // to record the state. `movies.id` is a uuid, so it is already a string
       // and dataset's stringification cannot make the Set's keys disagree with
-      // the `m.id` looked up here — a numeric id would need String() at both
+      // the `m.id` looked up here – a numeric id would need String() at both
       // ends to avoid has(5) missing "5".
       r.dataset.movieId = m.id;
       r.textContent = softHyphenate(m.review); // D-060's approach; plain content, no aria role to leak into
@@ -918,7 +918,7 @@ function renderRanked() {
       toggle.hidden = true; // shown after layout only if the text actually clips
       toggle.setAttribute('aria-controls', r.id);
       // Seeded from the Set, not hardcoded to false: this card may be a rebuild
-      // of one the user had already expanded. The toggle is still hidden here —
+      // of one the user had already expanded. The toggle is still hidden here –
       // the rAF'd syncReviewToggles() below reveals it if the text actually
       // clips, and collapses this again if it no longer does. That pass reads
       // the class we just set as its `wasExpanded`, so restoring here is exactly
@@ -932,7 +932,7 @@ function renderRanked() {
       // Backlog #20, the inverse of #15: a RATED film with no review used to
       // show nothing at all where a review would be, and since the body is
       // top-aligned on desktop that left a visible void under the title.
-      // Correctly scoped by the `else` alone — this branch is reachable only
+      // Correctly scoped by the `else` alone – this branch is reachable only
       // when `isRated` is true and there is no review, because the two
       // conditions above have already taken the other cases. An unrated card
       // must NOT get this: it already says "Not rated yet", and stacking a
@@ -942,7 +942,7 @@ function renderRanked() {
       // enter that pass.
       const none = document.createElement('p');
       none.className = 'no-review';
-      none.textContent = 'No review yet — edit to add one.';
+      none.textContent = 'No review yet – edit to add one.';
       body.append(none);
     }
 
@@ -950,7 +950,7 @@ function renderRanked() {
     score.className = 'movie-card__score';
     // The rating and TMDB's score go in ONE wrapper, not straight into the score
     // column. The column's two children are the block and the buttons, and the
-    // buttons hang off `margin-top: auto` to reach the bottom — adding a third
+    // buttons hang off `margin-top: auto` to reach the bottom – adding a third
     // sibling would put the column's 0.5rem gap between the rating and its own
     // sub-line, which is far too much for a caption. Inside the block the
     // spacing is set on its own terms, and the column keeps exactly the two
@@ -966,7 +966,7 @@ function renderRanked() {
       badge.append(s);
       scoreBlock.append(badge);
     }
-    // Always rendered — with the score when TMDB has one, and as an explicit
+    // Always rendered – with the score when TMDB has one, and as an explicit
     // "No TMDB rating" when it does not. Saying so beats an empty slot: an
     // absent line is indistinguishable from a line that failed to load, and the
     // slot would otherwise be silently empty on exactly the obscure titles where
@@ -974,8 +974,8 @@ function renderRanked() {
     // Shown on unrated cards too: it is explicitly labelled "TMDB", so it cannot
     // be read as the user's own score, and it is the one number a film has
     // before you have rated it.
-    // `!= null` and not truthiness. A 0 can no longer reach here — shapeMovie()
-    // maps TMDB's no-votes zero to null at the source (D-037) — but truthiness
+    // `!= null` and not truthiness. A 0 can no longer reach here – shapeMovie()
+    // maps TMDB's no-votes zero to null at the source (D-037) – but truthiness
     // would be the wrong test to leave behind for the next value that comes
     // through, and it is the same trap `isRated` above documents.
     const t = document.createElement('div');
@@ -1022,25 +1022,25 @@ function renderRanked() {
  * Show each review's "show more" toggle only when the text is actually clipped.
  *
  * (The two "view more…" mentions further down are PAST-TENSE and stay: the label
- * really was that when those bugs happened. #18 renamed it — see
+ * really was that when those bugs happened. #18 renamed it – see
  * setReviewExpanded().)
  *
  * `-webkit-line-clamp` hides the overflow silently and CSS has no "did this
  * overflow?" selector, so it has to be measured. The important part is that it
  * must be measured AGAIN whenever the layout changes: this used to run once per
  * render and never on resize, so narrowing the window clipped a review that had
- * fitted while its toggle stayed hidden — the text became unreachable, with no
+ * fitted while its toggle stayed hidden – the text became unreachable, with no
  * cue that anything was missing. Widening produced the mirror image: a
  * "view more…" that expanded nothing.
  *
  * Hence `hidden` is ASSIGNED both ways here. An earlier version only ever set it
  * to false, which is why a wrong state could never recover.
  *
- * An expanded review is `overflow: visible`, so it always measures as "fits" —
+ * An expanded review is `overflow: visible`, so it always measures as "fits" –
  * the first attempt at this therefore SKIPPED expanded reviews, which just moved
  * the staleness: expand at a narrow width, widen until the text fits in two
  * lines, and a "show less" lingered over an unclipped review. The fix is to
- * measure the CLAMPED state always, by collapsing, reading, and restoring within
+ * measure the CLAMPED state always, by collapsing, reading and restoring within
  * one frame. Only the clamped state answers the question "is a toggle needed at
  * all", so it is the only state worth measuring.
  */
@@ -1053,7 +1053,7 @@ function syncReviewToggles() {
   // Three passes, not one loop: reading geometry straight after a class change
   // forces a synchronous layout, so interleaving write/read per item would cost
   // one layout PER REVIEW. Batching costs one for the whole pass. Nothing is
-  // painted in between — the browser cannot render until this returns.
+  // painted in between – the browser cannot render until this returns.
   for (const it of items) {
     it.wasExpanded = it.p.classList.contains('expanded');
     // Deliberately a bare classList.remove() and NOT setReviewExpanded(): this
@@ -1069,7 +1069,7 @@ function syncReviewToggles() {
     it.toggle.hidden = !it.clips;
     // `it.clips && it.wasExpanded`, so a review that no longer clips is left
     // COLLAPSED rather than restored. Both states render identically when the
-    // text fits within the clamp, so nothing moves — but leaving `expanded` set
+    // text fits within the clamp, so nothing moves – but leaving `expanded` set
     // would mean the next narrowing showed the full text with no toggle at all,
     // which is the original unreachable-text bug wearing a different hat.
     setReviewExpanded(it.p, it.toggle, it.clips && it.wasExpanded);
@@ -1079,7 +1079,7 @@ function syncReviewToggles() {
 /**
  * The single writer for a review's expanded state. The class, the button label,
  * `aria-expanded` and the entry in `state.expandedReviews` describe one fact and
- * must never disagree — the first three drifted once already, when the toggle's
+ * must never disagree – the first three drifted once already, when the toggle's
  * label was updated on click but never by the resize pass.
  *
  * The Set is written HERE and not in the click handler precisely because this is
@@ -1095,7 +1095,7 @@ function setReviewExpanded(p, toggle, expanded) {
   p.classList.toggle('expanded', expanded);
   // One verb, both directions (backlog #18). It was "view more…" / "show less":
   // two verbs for one control, and an ellipsis on only one half. The ellipsis is
-  // gone rather than balanced, because the clamp draws its OWN — `.review` is a
+  // gone rather than balanced, because the clamp draws its OWN – `.review` is a
   // -webkit-box with -webkit-line-clamp, so the browser already ends the clipped
   // line in "…" and the label repeated it one line below. "show", not "view",
   // because within-control consistency beats matching the log's "view verdict"
@@ -1119,7 +1119,7 @@ async function loadMovies() {
   const { movies } = await api('/api/movies');
   state.movies = movies;
   state.ownedTmdbIds = new Set(movies.map((m) => m.tmdb_id));
-  // Forget expansion state for anything that no longer has a review to expand —
+  // Forget expansion state for anything that no longer has a review to expand –
   // the film was removed, or its review was cleared by an edit. Without this,
   // clearing a review and later writing a new one would render the new text
   // pre-expanded, having inherited a decision the user made about different
@@ -1134,8 +1134,8 @@ async function loadMovies() {
   // rec-card badges, the recs trigger and hint, the verdict button and
   // placeholder) would cross-fade too.
   // Settling them first leaves the ranked list as the only difference between
-  // the two snapshots. None of them reads DOM that renderRanked() builds — they
-  // read `state`, which is already updated above — so the order is free.
+  // the two snapshots. None of them reads DOM that renderRanked() builds – they
+  // read `state`, which is already updated above – so the order is free.
   syncAddButtons();
   syncRecCardBadges();
   syncRecommendationsAvailability();
@@ -1144,7 +1144,7 @@ async function loadMovies() {
 }
 
 /* ---------- search + add ---------------------------------------------- */
-/** Hide and empty the results panel — it should not outlive its query. */
+/** Hide and empty the results panel – it should not outlive its query. */
 function closeSearchResults() {
   el.searchResults.hidden = true;
   el.searchList.replaceChildren();
@@ -1154,12 +1154,12 @@ function closeSearchResults() {
  * Drop focus from the search input so a phone's soft keyboard closes.
  *
  * The form calls `preventDefault()`, so it never navigates and the input keeps
- * focus — and with it the keyboard, which then covers the results the search
+ * focus – and with it the keyboard, which then covers the results the search
  * just produced. Nothing else in the app blurs anything, so this was the whole
  * mechanism. Pressing the keyboard's own Go/Search key is the case that needs
  * it: tapping the Search BUTTON moves focus off the input by itself.
  *
- * Gated on `(hover: none)` — a capability query, exactly as the hover rules in
+ * Gated on `(hover: none)` – a capability query, exactly as the hover rules in
  * styles.css are, never a width. On a pointer device there is no soft keyboard
  * to close, so a blur would only cost the user their caret and reset the tab
  * order to the top of the document; desktop is provably unchanged. A device
@@ -1198,12 +1198,12 @@ el.searchForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Escape puts the panel away — but only when no <dialog> is open, where the
+// Escape puts the panel away – but only when no <dialog> is open, where the
 // key belongs to the dialog.
 //
 // Deliberately NOT dismissed by an outside click, unlike the AI-log reveal
 // panels. Those are position:absolute and sit ON TOP of table rows, so they
-// have to get out of the way. This panel is in normal flow — it pushes the
+// have to get out of the way. This panel is in normal flow – it pushes the
 // page down and obscures nothing, so there is nothing to get out of the way
 // of. Dismissing it on a stray click would just cost the user a re-typed
 // query and another TMDB round-trip to add the second film they had found.
@@ -1214,11 +1214,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 /**
- * A line inside the search-results panel: loading, "no matches", an error, or
+ * A line inside the search-results panel: loading, "no matches", an error or
  * the nudge for an empty query. Class-driven: this is where the last
  * PRESENTATIONAL inline element.style writes in this file went. The writes
  * that remain each carry a measured or computed value CSS cannot express, or
- * clear one -- for example a locked button width, a stagger delay in ms, a grid
+ * clear one – for example a locked button width, a stagger delay in ms, a grid
  * offset or a custom property.
  *
  * @param {string} [text]  Written with textContent; omit it to fill the line yourself.
@@ -1252,7 +1252,7 @@ const makeError = (msg) => searchNote(msg, 'err');
 
 /**
  * The two states an Add button can rest in: not owned, offering the add, or
- * owned — shown as "✓ Added" when this session added it, else "In your list".
+ * owned – shown as "✓ Added" when this session added it, else "In your list".
  * Sets the label, the aria-label and `disabled` together.
  *
  * @param {HTMLButtonElement} btn  Carries `data-title`, and optionally
@@ -1265,7 +1265,7 @@ function setAddButtonState(btn, owned) {
   // survives every later sync, so it still reads "✓ Added" after the rate
   // dialog closes by EITHER route. Without the flag, saving a rating ran
   // loadMovies() again and quietly reset it to "In your list", while skipping
-  // did not — the same state wearing two labels depending on an unrelated
+  // did not – the same state wearing two labels depending on an unrelated
   // round-trip. It marks what YOU just added versus what was already there.
   // Removing the film clears the flag, so the row can offer "+ Add" again.
   if (!owned) delete btn.dataset.justAdded;
@@ -1273,7 +1273,7 @@ function setAddButtonState(btn, owned) {
   // goes amber on hover and dims with the :disabled opacity, and it matches
   // the text-glyph ✓ in "✓ Added". An emoji would do none of those.
   // The glyph is glued to its word with a non-breaking space. The search row's
-  // `.result-row .add-btn` is `white-space: nowrap`, so it never wraps anyway —
+  // `.result-row .add-btn` is `white-space: nowrap`, so it never wraps anyway –
   // but the SAME strings are rendered on the recommendation card, whose button
   // has no such rule, so the guard has to live in the string rather than in one
   // stylesheet.
@@ -1301,7 +1301,7 @@ function setAddButtonState(btn, owned) {
  * the badge behind it. The card then contradicted the ranked list, where the
  * same film now showed a score.
  *
- * Rated-ness is read from `state.movies`, not from `state.ownedTmdbIds` — owned
+ * Rated-ness is read from `state.movies`, not from `state.ownedTmdbIds` – owned
  * and rated are different questions, and conflating them is exactly the bug R2
  * fixed on the server. A film can be added and left unrated indefinitely
  * ("Skip for now"), and the badge is correct for that whole time.
@@ -1326,13 +1326,13 @@ function syncRecCardBadges() {
  * **It queries the whole document, not one panel.** It used to be
  * `syncSearchResultButtons()` and looked only inside `.search-results`, so the
  * sync ran in exactly ONE direction: adding from a REC CARD refreshed the search
- * rows, because they sat in the panel it swept — while adding the same film from
+ * rows, because they sat in the panel it swept – while adding the same film from
  * a SEARCH ROW left the rec card still offering it, and removing a film left the
  * rec card stuck on a disabled "Added" for something no longer in the list. Never
  * a data bug: the duplicate add was refused correctly by the 409. The button
  * simply lied about what it would do. Reported by the user, 2026-09-09 (R3).
  *
- * Both surfaces are found by ONE selector — `.add-btn[data-tmdb-id]` — rather
+ * Both surfaces are found by ONE selector – `.add-btn[data-tmdb-id]` – rather
  * than by sweeping two named containers, so a third surface that renders an Add
  * button is covered the day it is written instead of the day somebody remembers
  * this function exists.
@@ -1348,8 +1348,8 @@ function syncAddButtons() {
 }
 
 /**
- * Fill the search panel with one row per result — poster, title, year and TMDB
- * score, and an Add button already in the right state — or with a muted "no
+ * Fill the search panel with one row per result – poster, title, year and TMDB
+ * score, and an Add button already in the right state – or with a muted "no
  * matches" note that echoes the query.
  *
  * @param {object[]} results  From GET /api/movies/search, in TMDB's shape
@@ -1359,11 +1359,11 @@ function syncAddButtons() {
 function renderSearchResults(results, query) {
   el.searchList.replaceChildren();
   if (!results.length) {
-    // searchNote, not makeError: a search that matched nothing is an empty
+    // searchNote, not makeError: A search that matched nothing is an empty
     // state, not a failure, and crimson said otherwise.
     //
     // Echo the query back. The app cannot detect a typo and deliberately does
-    // not try (D-028) — but quoting what was actually typed makes one
+    // not try (D-028) – but quoting what was actually typed makes one
     // self-evident, and "check the spelling" is honest about the two possible
     // causes where the old "try a different title" implied only one.
     // Capped so a pasted essay can't blow the message out. Safe to echo raw
@@ -1390,12 +1390,12 @@ function renderSearchResults(results, query) {
     // `!= null`, not truthiness, and `toFixed(1)` so this row and the ranked
     // card state the same number the same way. Truthiness happened to hide
     // TMDB's "no votes" zero here while the ranked card showed it as "TMDB 0.0"
-    // — the two surfaces disagreed about the same film. That zero is now null
+    // – the two surfaces disagreed about the same film. That zero is now null
     // at the source (shapeMovie), so both are absent for the same reason.
     // NON-BREAKING space between the label and the number, written as an escape
     // rather than a literal so it cannot be mistaken for an ordinary space and
     // "tidied" away. The whole line is ONE text node, so the browser may break
-    // it at any space in it — including the one inside "TMDB 7.0", which is the
+    // it at any space in it – including the one inside "TMDB 7.0", which is the
     // one place it must not. At ~340px and below that produced "2013 · TMDB"
     // with a stranded "7.0" on the next line, reading as a rendering fault.
     // Gluing only this pair leaves the break around " · " available, so a narrow
@@ -1403,7 +1403,7 @@ function renderSearchResults(results, query) {
     // Invisible on any width where the line already fits: U+00A0 renders
     // identically to U+0020 and only removes a break OPPORTUNITY, so no layout
     // that is not currently breaking here can change.
-    // The ranked card needs no equivalent — `.score-tmdb` is `white-space:
+    // The ranked card needs no equivalent – `.score-tmdb` is `white-space:
     // nowrap`, which already forbids the break outright.
     const tmdb = r.tmdb_rating != null ? `TMDB\u00A0${r.tmdb_rating.toFixed(1)}` : null;
     span.textContent = [r.year, tmdb].filter(Boolean).join(' · ');
@@ -1421,7 +1421,7 @@ function renderSearchResults(results, query) {
 }
 
 /**
- * Add a film, reload the list, and open the rate dialog on it. A failure is
+ * Add a film, reload the list and open the rate dialog on it. A failure is
  * reported as a toast naming the film and never thrown.
  *
  * @param {number} tmdbId
@@ -1445,14 +1445,14 @@ async function addMovie(tmdbId, btn) {
     if (btn) btn.dataset.justAdded = '1';
     settle?.('✓\u00A0Added');
     // The panel deliberately STAYS open. Closing it here made "✓ Added"
-    // impossible to ever see, and made syncAddButtons() pointless —
+    // impossible to ever see, and made syncAddButtons() pointless –
     // there would be no other rows left on screen to re-sync. Keeping it lets
     // you add a second film from the same results instead of re-searching.
     // Prompt to rate the film right away; "Skip for now" leaves it unrated.
     const fresh = state.movies.find((m) => m.id === movie.id);
     if (fresh) openRate(fresh, { isNew: true });
   } catch (err) {
-    // The film's title comes off the BUTTON, not from `movie` — the add failed,
+    // The film's title comes off the BUTTON, not from `movie` – the add failed,
     // so there is no saved row to read it from, and `movie` is not even in scope
     // here. renderSearchResults() and renderRecommendations() both stamp
     // `dataset.title` on every Add button they build (R4), and it is the only
@@ -1460,7 +1460,7 @@ async function addMovie(tmdbId, btn) {
     // signature, hence the fallback.
     const title = btn?.dataset.title;
     // "Already in your list" surfaces here (SPEC § 3.4), and reads correctly
-    // after a context: 'Couldn’t add “Dune” — Already in your list.'
+    // after a context: 'Couldn’t add “Dune” – Already in your list.'
     toast(failureText(title ? `Couldn’t add “${title}”` : 'Couldn’t add that film', err), true);
     // Already owned is not retryable, so settle there; anything else is, so
     // restore the button as it was (enabled, reading "Add"). Reads err.message
@@ -1494,7 +1494,7 @@ function openRate(movie, { isNew = false } = {}) {
   state.editing = movie;
   state.editingIsNew = isNew;
   el.rateTitle.textContent = isNew ? `Rate “${movie.title}”` : movie.title;
-  // On a fresh add, closing without saving just leaves the film unrated —
+  // On a fresh add, closing without saving just leaves the film unrated –
   // make that an explicit "later" choice, not a dead-end "Cancel".
   el.rateCancel.textContent = isNew ? 'Skip for now' : 'Cancel';
   el.rateRange.value = movie.rating ?? 7;
@@ -1521,18 +1521,18 @@ el.rateForm.addEventListener('submit', async (e) => {
   const action = e.submitter?.value;
   const movie = state.editing;
   if (action !== 'save') {
-    // "Skip for now" saves nothing, so there is no "Saved" to report — but the
+    // "Skip for now" saves nothing, so there is no "Saved" to report – but the
     // add itself had no confirmation of its own, which left this path silent.
     // Say what actually happened instead of nothing (or, worse, "Saved").
-    // No preventDefault: nothing is being written, so `method="dialog"` closing
+    // No preventDefault: Nothing is being written, so `method="dialog"` closing
     // it immediately is exactly right here.
-    if (state.editingIsNew) toast(`“${movie.title}” added — rate it any time.`);
+    if (state.editingIsNew) toast(`“${movie.title}” added – rate it any time.`);
     return;
   }
 
   // Stop `method="dialog"` from closing the form. The dialog must OUTLIVE the
   // request: it used to close on submit and the PATCH then ran invisibly, so a
-  // failure produced an error toast about a dialog that was already gone — with
+  // failure produced an error toast about a dialog that was already gone – with
   // the user's typed review destroyed and no way to retry it. Now it closes
   // only after the write is known to have succeeded.
   e.preventDefault();
@@ -1555,35 +1555,35 @@ el.rateForm.addEventListener('submit', async (e) => {
       }),
     });
     // Closed BEFORE the reload, not after, so the ranked list's re-sort
-    // animation happens on a visible page rather than behind the backdrop —
+    // animation happens on a visible page rather than behind the backdrop –
     // a rating change is the main thing that reorders the list, so it is the
     // one place that animation earns its keep.
     el.rateDialog.close();
     await loadMovies();
     // "ranking updated" is CHECKED, not assumed. Every save does recompute the
     // ranking (loadMovies re-fetches the whole list, server-sorted), so the old
-    // unconditional wording was never false — but it reads as a claim about the
+    // unconditional wording was never false – but it reads as a claim about the
     // OUTCOME, and editing only a review, or re-rating without crossing a
     // neighbour, leaves the ranking looking identical. Then the user goes
     // hunting for a change that is not there. Saying it only when it is
     // observably true costs one comparison.
     const reordered = rankSignature() !== rankingBefore;
-    toast(`“${movie.title}” saved${reordered ? ' — ranking updated.' : '.'}`);
+    toast(`“${movie.title}” saved${reordered ? ' – ranking updated.' : '.'}`);
   } catch (err) {
     // Deliberately leaves the dialog open with the rating and review exactly as
     // typed, so Save can simply be pressed again. Reported INLINE rather than as
-    // a toast: this dialog is modal, so it is in the top layer and its
-    // ::backdrop dims the page — a toast fired here is behind it and greyed
+    // a toast: This dialog is modal, so it is in the top layer and its
+    // ::backdrop dims the page – a toast fired here is behind it and greyed
     // out, which is exactly how it looked before this changed.
     setRateError(err.message);
   } finally {
     settleSave();
-    // FALSE POSITIVE, checked: the rule fires on any property write to an
+    // FALSE POSITIVE, checked: The rule fires on any property write to an
     // outer-scope object after an await, in case that object was swapped
     // meanwhile. `el` is a const object literal declared once at the top of this
     // file and never reassigned, so there is no state for this write to be based
     // on an outdated version of. The directive must sit immediately above the
-    // statement — ESLint applies it to the next LINE, comments included.
+    // statement – ESLint applies it to the next LINE, comments included.
     // eslint-disable-next-line require-atomic-updates
     el.rateCancel.disabled = false;
   }
@@ -1595,7 +1595,7 @@ el.rateForm.addEventListener('submit', async (e) => {
  * every ambiguous exit is the safe one.
  *
  * Those are the only two ways out, and that is deliberate. A native <dialog>
- * does NOT close on a backdrop click — that behaviour has to be added, and
+ * does NOT close on a backdrop click – that behaviour has to be added, and
  * neither of the other two dialogs has it either. Do not add it here alone:
  * the newest dialog would become the one that behaves differently.
  *
@@ -1604,7 +1604,7 @@ el.rateForm.addEventListener('submit', async (e) => {
  * clears it. Resetting makes "true" reachable ONLY through a real click on the
  * confirming button, whatever the browser does with Escape.
  *
- * The `close` event is the single resolution point — it fires for the buttons
+ * The `close` event is the single resolution point – it fires for the buttons
  * (via `method="dialog"`, which sets returnValue from the submitter) and for
  * Escape alike, so there is no dismissal path that leaves the promise pending.
  *
@@ -1642,17 +1642,17 @@ function confirmAction({ title, body, confirmLabel = 'Remove' }) {
 async function removeMovie(movie, btn) {
   // Name what actually goes with it. Incident 1 is the reason this is spelled
   // out rather than left to "are you sure?": a rating and a review are typed
-  // once and gone for good — the free tier has no point-in-time recovery, so
+  // once and gone for good – the free tier has no point-in-time recovery, so
   // "this can’t be undone" is literal, not boilerplate.
   // Built from what this film really has, never assumed: a film can be rated
   // with no review, or not rated at all. (A review with no rating cannot exist:
-  // migration 004 forbids it — backlog #15, D-041.) Promising to delete a review
+  // migration 004 forbids it – backlog #15, D-041.) Promising to delete a review
   // that was never written would be its own small lie.
   const lost = [];
   if (movie.rating != null) lost.push(`your ${movie.rating.toFixed(1)} rating`);
   if (movie.review) lost.push('your review');
   const body = lost.length
-    ? `${lost.join(' and ')} will go with it — this can’t be undone.`
+    ? `${lost.join(' and ')} will go with it – this can’t be undone.`
     : 'This can’t be undone.';
   const confirmed = await confirmAction({
     title: `Remove “${movie.title}”?`,
@@ -1669,7 +1669,7 @@ async function removeMovie(movie, btn) {
     await api(`/api/movies/${movie.id}`, { method: 'DELETE' });
     await loadMovies();
     toast(`“${movie.title}” removed.`);
-    // No settle() on success — loadMovies() has already destroyed this button
+    // No settle() on success – loadMovies() has already destroyed this button
     // along with its card.
   } catch (err) {
     toast(failureText(`Couldn’t remove “${movie.title}”`, err), true);
@@ -1682,9 +1682,9 @@ async function removeMovie(movie, btn) {
  * Single writer for #recs-hint's content AND its weight.
  *
  * `caption: true` means this line INTRODUCES content that is on screen or about
- * to be — the busy line, and "Based on: …" above the cards. Those are fine print
+ * to be – the busy line, and "Based on: …" above the cards. Those are fine print
  * over the real thing, so they stay --ink-faint. Everything else is the only
- * thing the section is showing: the two availability sentences, a failure, and
+ * thing the section is showing: the two availability sentences, a failure and
  * the zero-result line. Those read at full --ink-dim weight.
  *
  * **This supersedes R26's `.from-run` class**, which tied the weight to WHO wrote
@@ -1693,7 +1693,7 @@ async function removeMovie(movie, btn) {
  * only thing in the section, so it belongs with the availability sentences and
  * not with the two captions. Who wrote it was a good proxy for the real question
  * and not the same question. `state.recsHintFromRun` still exists and still means
- * exactly what R1 made it mean — may the sync overwrite this? — it just no longer
+ * exactly what R1 made it mean – may the sync overwrite this? – it just no longer
  * pretends to answer this one too.
  *
  * @param {string | Node[]} content  Text, or nodes when the line carries a link.
@@ -1711,14 +1711,14 @@ function setRecsHint(content, { caption = false } = {}) {
  *
  * #recs-hint has TWO owners: this function writes the availability text, and a
  * run writes its own progress, result or failure into the same element. This
- * used to reassign it unconditionally — and since the run's `finally` calls this
+ * used to reassign it unconditionally – and since the run's `finally` calls this
  * function, every message a run wrote was wiped in the same tick. Not just the
  * error: `Based on: …` and the no-suggestions line were dead too, so a failed
  * run, a successful run and a page that had never run looked identical apart
  * from the cards (R1).
  *
- * The guard: below the threshold the availability text always wins — the
- * section is unavailable, so whatever a past run said about it is moot — and
+ * The guard: Below the threshold the availability text always wins – the
+ * section is unavailable, so whatever a past run said about it is moot – and
  * above it, the idle hint is only written when no run owns the element.
  * `syncVerdictAvailability()` guards the verdict banner the same way.
  */
@@ -1727,8 +1727,8 @@ function syncRecommendationsAvailability() {
   const have = ratedCount();
   const ok = have >= need;
   // Never re-enable a button mid-request. `loadMovies()` calls this function, and
-  // it can run DURING a recs call — add a film from the search panel while one is
-  // generating — which used to hand the busy trigger back to the user. Same
+  // it can run DURING a recs call – add a film from the search panel while one is
+  // generating – which used to hand the busy trigger back to the user. Same
   // guard, and the same reason, as the `aria-busy` skip in
   // syncAddButtons(). The run's own `finally` restores the button
   // before calling this, so the correct state is never missed.
@@ -1738,7 +1738,7 @@ function syncRecommendationsAvailability() {
     el.recsHint.classList.remove('err');
     setRecsHint(`Rate at least ${need} films to unlock recommendations (you have ${have}).`);
     // R16. Remove rated films until the count falls under the threshold and the
-    // section locks — but the previous run's cards used to stay on screen, so
+    // section locks – but the previous run's cards used to stay on screen, so
     // "Rate at least 3 films to unlock recommendations" sat directly above six
     // recommendations. The section has exactly ONE message channel (this hint),
     // and the availability text has just taken it, so there is no room to
@@ -1746,7 +1746,7 @@ function syncRecommendationsAvailability() {
     // writer or inventing a second element. Clearing them is what makes the
     // locked section look locked, which is the state a first-time user sees.
     //
-    // NOT because they went stale — that would be a different rule and a wrong
+    // NOT because they went stale – that would be a different rule and a wrong
     // one. Recs go stale on ANY rating change, and we deliberately leave them
     // alone then; what is being fixed here is a section contradicting itself.
     // The metadata footer goes too: it describes a run whose inputs no longer
@@ -1764,7 +1764,7 @@ el.recsTrigger.addEventListener('click', async () => {
   // From here until the next availability change, the hint belongs to this run.
   state.recsHintFromRun = true;
   el.recsHint.classList.remove('err');
-  // caption: the cards this describes are coming, and it is replaced either way.
+  // caption: The cards this describes are coming, and it is replaced either way.
   setRecsHint('Pulling your top films → sending a versioned prompt → cross-checking each pick against TMDB…', { caption: true });
   // Phase one of R27's two-phase render. This used to be a bare
   // `el.recsGrid.replaceChildren()`, which dropped the previous run's cards in a
@@ -1775,14 +1775,14 @@ el.recsTrigger.addEventListener('click', async () => {
     renderRecommendations(data);
   } catch (err) {
     el.recsHint.classList.add('err');
-    // Inline, never the toast — the same call the rate dialog makes (D-032): this
+    // Inline, never the toast – the same call the rate dialog makes (D-032): this
     // message belongs beside the control that produced it.
     //
     // The log pointer is conditional, and that is the whole point: offered
     // unconditionally, it would send the user to a log that cannot load either
     // whenever CineRank itself is unreachable. This only offers it when the
-    // server said a row was actually written — a failed DB read, an unmet
-    // threshold, a failed log write, and CineRank being down entirely all leave
+    // server said a row was actually written – a failed DB read, an unmet
+    // threshold, a failed log write and CineRank being down entirely all leave
     // nothing to read.
     // The verdict's handler applies the same rule (R23).
     if (err.logged) {
@@ -1802,13 +1802,13 @@ el.recsTrigger.addEventListener('click', async () => {
 
 /**
  * Why a run came back with nothing, in the user's words. The server decides
- * WHICH — only it knows — and this maps it to copy.
+ * WHICH – only it knows – and this maps it to copy.
  *
  * There used to be one hardcoded sentence here claiming the model had named only
  * films already in the list. That is one possible cause among several, and
  * asserting it for all of them was wrong for every other one. The bad case is
  * `tmdb-unreachable`: the AI call really did succeed and really was charged, so
- * the run logs 'success' and nothing else in the app mentions TMDB — the false
+ * the run logs 'success' and nothing else in the app mentions TMDB – the false
  * sentence was the only thing the user would ever see (user-raised, 2026-09-09).
  *
  * `mixed` is deliberately vague: several causes at once, and naming one would be
@@ -1816,27 +1816,27 @@ el.recsTrigger.addEventListener('click', async () => {
  * that learns a new reason before this map does degrades to something true.
  */
 const EMPTY_REASON_TEXT = {
-  'all-owned': 'No new suggestions this time — the model only named films already in your list.',
-  'none-named': 'No suggestions this time — the model didn’t name any films. Try again.',
+  'all-owned': 'No new suggestions this time – the model only named films already in your list.',
+  'none-named': 'No suggestions this time – the model didn’t name any films. Try again.',
   'tmdb-unreachable':
-    'Couldn’t check any of the suggestions — the film database is unreachable. Try again in a moment.',
-  unverifiable: 'No new suggestions this time — none of the films it named could be verified.',
+    'Couldn’t check any of the suggestions – the film database is unreachable. Try again in a moment.',
+  unverifiable: 'No new suggestions this time – none of the films it named could be verified.',
   mixed: 'No new suggestions this time.',
 };
 
 /* ---------- rec-card enter / exit (R27) ----------------------------------
  * The user's sequence, given after watching a run and stated as
- * non-negotiable: cards arrive → SCROLL → wait a beat → entrance animation.
+ * non-negotiable: Cards arrive → SCROLL → wait a beat → entrance animation.
  * The beat was specified as ~200ms and doubled to 400ms after the user watched
  * it, which also means a browser's smooth scroll has typically finished before
- * the first card moves — closer to the literal reading of the sequence.
+ * the first card moves – closer to the literal reading of the sequence.
  * All of it AFTER the response has landed, and none of it on a run that
  * produced no cards.
  *
  * Firing the scroll on the click instead was considered and rejected by the
  * user: at click time the app knows none of the three things that make the
- * scroll worth doing — how long the call will take, how many cards will come
- * back, or whether it will succeed at all. The scroll is a reward for a result,
+ * scroll worth doing – how long the call will take, how many cards will come
+ * back or whether it will succeed at all. The scroll is a reward for a result,
  * so it waits for one.
  */
 const RECS_LEAD_IN_MS = 400; // the beat between the scroll and the first card
@@ -1844,7 +1844,7 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 // Raised 55ms -> 120ms after the user reported the cards were "exiting at the
 // same time". The stagger was real; it was just too small to see against a
 // 340ms animation, and the easing was hiding the rest of it (see the
-// `.rec-card.is-leaving` comment — `--ease` front-loads 67% of the move into
+// `.rec-card.is-leaving` comment – `--ease` front-loads 67% of the move into
 // the first fifth). Now the same value as the entrance's stagger, which is not
 // a coincidence worth collapsing into one constant: the two should stay
 // independently tunable, because the entrance is the half the user asked to be
@@ -1853,7 +1853,7 @@ const RECS_STAGGER_MS = 120; // was 60, which the user found "way too fast"
 // typically takes.
 const RECS_EXIT_STAGGER_MS = 120;
 // Must match the `animation` duration on `.rec-card.is-leaving`. Read only by
-// the removal backstop below, which needs to know when the last card is done —
+// the removal backstop below, which needs to know when the last card is done –
 // the animation itself is driven entirely by CSS.
 const RECS_EXIT_MS = 340;
 
@@ -1868,20 +1868,20 @@ const RECS_EXIT_MS = 340;
  * The fix is the standard balanced-rows formula: how many rows does the widest
  * layout need, then spread the cards evenly over exactly that many. It can never
  * make the grid TALLER, since the row count comes from the widest layout. Where
- * nothing better exists it changes nothing — 5 cards in a 2-column viewport
+ * nothing better exists it changes nothing – 5 cards in a 2-column viewport
  * stays 2 + 2 + 1, 3 cards in a 2-column one stays 2 + 1.
  *
  * A CARD'S SIZE NEVER DEPENDS ON HOW MANY CAME BACK (R29). That is why this
  * returns a width as well as a count: the width comes from `fit`, the widest
  * packing the viewport allows, and the count comes from the balancing. One
  * recommendation on a four-wide viewport is one card of the SAME size as any
- * other, centred, with the slack split evenly either side — not one card
+ * other, centred, with the slack split evenly either side – not one card
  * stretched across the whole column with a poster taller than the window, which
  * is what filling the tracks produced (user-raised, with a screenshot).
  *
  * That decoupling is also what let the balancing lose an earlier restraint.
  * It used to run only when the widest layout would strand a SINGLE card, so
- * six cards where four fit stayed 4 + 2 rather than 3 + 3 — because balancing
+ * six cards where four fit stayed 4 + 2 rather than 3 + 3 – because balancing
  * it then made every card ~36% wider. It no longer can, so 3 + 3 is free and
  * the restraint is gone. See D-051.
  *
@@ -1905,7 +1905,7 @@ function balancedLayout(count, grid) {
   // n*min + (n-1)*gap <= W  ⇔  n <= (W + gap) / (min + gap).
   const fit = Math.max(1, Math.floor((avail + gap) / (min + gap)));
   // The card size, fixed by the viewport alone. Measured off the PARENT, never
-  // off the grid itself: the grid's own width is what this function sets, so
+  // off the grid itself: The grid's own width is what this function sets, so
   // reading it back would feed the last answer into the next one and ratchet the
   // cards smaller on every resize frame.
   //
@@ -1939,7 +1939,7 @@ function layoutRecsGrid() {
   el.recsGrid.style.setProperty('--rec-width', `${cols * width + (cols - 1) * gap}px`);
 
   // Tracks are doubled (see the CSS), so a card starting one track late is
-  // offset by HALF a card — which is exactly what centring a short row needs.
+  // offset by HALF a card – which is exactly what centring a short row needs.
   // A last row of m cards in a k-column grid has k - m columns spare, so it
   // starts (k - m) half-columns in and ends with the same slack on the right.
   // Placing only the FIRST card is enough: the rest auto-place after it.
@@ -1969,13 +1969,13 @@ function layoutRecsGrid() {
  * ends, or immediately under reduced motion.
  */
 function exitRecCards() {
-  // The metadata footer leaves with the cards — it describes the run being
-  // replaced — but it no longer lives in the grid (R29), so it is swept from its
+  // The metadata footer leaves with the cards – it describes the run being
+  // replaced – but it no longer lives in the grid (R29), so it is swept from its
   // own slot rather than falling out of `el.recsGrid.children` for free.
   const leaving = [...el.recsGrid.children, ...el.recsMeta.children];
   if (!leaving.length) return;
   // The reduced-motion block sets `animation: none !important`, so no animation
-  // runs and `animationend` NEVER fires — a listener-driven removal would leave
+  // runs and `animationend` NEVER fires – a listener-driven removal would leave
   // the old cards on screen for good. These users get the instant clear that
   // everyone got before this function existed, which is the honest answer
   // anyway: no motion asked for, no motion given.
@@ -1984,7 +1984,7 @@ function exitRecCards() {
     el.recsMeta.replaceChildren();
     return;
   }
-  // EVERY NODE IS REMOVED TOGETHER, WHEN THE LAST ANIMATION ENDS — never one at
+  // EVERY NODE IS REMOVED TOGETHER, WHEN THE LAST ANIMATION ENDS – never one at
   // a time as each finishes, which is what this did first and what made the
   // whole thing read as flashing.
   //
@@ -1995,7 +1995,7 @@ function exitRecCards() {
   // up by a whole card height. With a stagger that happens five times in under a
   // second, so the cards still closing are being yanked between positions while
   // they close. A screenshot mid-exit showed card 3 alone in the top row while 4,
-  // 5 and 6 sat a full row lower, all at different scales — six cards animating
+  // 5 and 6 sat a full row lower, all at different scales – six cards animating
   // in place, on a layout that would not hold still underneath them.
   // Batching the removal makes the exit layout-static from first frame to last.
   let pending = leaving.length;
@@ -2014,15 +2014,15 @@ function exitRecCards() {
   // The cards close one after another, in the order they arrived (R30).
   //
   // WRITING THIS DELAY IS NOT OPTIONAL, even for a zero stagger. Every card is
-  // still carrying the INLINE `animationDelay` its entrance was given — up to
-  // 400 + 5x120 = 1000ms — and `animation-delay` is one property shared by
+  // still carrying the INLINE `animationDelay` its entrance was given – up to
+  // 400 + 5x120 = 1000ms – and `animation-delay` is one property shared by
   // whichever animation is running. Leave it alone and the last card sits
   // untouched for a second before it starts to close, which looks like a hang
   // rather than a bug and would be miserable to track down.
   //
   // Only the cards are staggered. The footer fades from the same instant, so
   // the section's metadata is already going while the first card is still
-  // closing — it describes the run being replaced, not any one card.
+  // closing – it describes the run being replaced, not any one card.
   el.recsGrid.querySelectorAll('.rec-card').forEach((card, i) => {
     card.style.animationDelay = `${i * RECS_EXIT_STAGGER_MS}ms`;
   });
@@ -2030,7 +2030,7 @@ function exitRecCards() {
   // ONE backstop, and batching is what earns it. While each node removed itself,
   // an animation that never ended stranded that node alone; now it would strand
   // the whole set, because the count would never reach zero. This is a safety
-  // net rather than the mechanism — it is not cancelled and does not need to be,
+  // net rather than the mechanism – it is not cancelled and does not need to be,
   // since `remove()` on an already-detached node is a no-op, which is also what
   // happens when the response lands first and renderRecommendations'
   // `replaceChildren()` gets there before the animations do.
@@ -2055,7 +2055,7 @@ function exitRecCards() {
 function renderRecommendations({ suggestions, emptyReason, meta }) {
   el.recsGrid.replaceChildren();
   if (!suggestions.length) {
-    // NOT a caption: nothing follows it, so it is the whole of what this section
+    // NOT a caption: Nothing follows it, so it is the whole of what this section
     // is saying and reads at full weight (user-raised, 2026-09-09).
     setRecsHint(EMPTY_REASON_TEXT[emptyReason] ?? EMPTY_REASON_TEXT.mixed);
     // R10. The call was really made, really cost money and really is in the audit
@@ -2063,11 +2063,11 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     // produced cards. Returning before this was the one AI outcome in the app
     // that showed no cost, tokens or duration anywhere.
     // It also carries logLink() already, which is why the message above does NOT
-    // get a log link of its own — that would put two on one line.
+    // get a log link of its own – that would put two on one line.
     el.recsMeta.replaceChildren(aiMetaFooter(meta));
     return;
   }
-  // caption: the cards are right underneath it.
+  // caption: The cards are right underneath it.
   //
   // R22. `#recs-hint` is this section's only live region, so it is the whole of
   // what a screen reader hears about a run. Re-checked once R1 stopped the
@@ -2089,7 +2089,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     { caption: true },
   );
   suggestions.forEach((s, i) => {
-    // `li`, not `div` (R21) — the grid is a `ul` now. Nothing else about the
+    // `li`, not `div` (R21) – the grid is a `ul` now. Nothing else about the
     // card changes: a list item is still a grid item, and every rule targets
     // `.rec-card` rather than the tag.
     const card = document.createElement('li');
@@ -2098,7 +2098,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     // whether this film is rated without depending on the button still being
     // there or still carrying the id (R17).
     card.dataset.tmdbId = s.tmdb_id;
-    // The lead-in lives in `animationDelay`, NOT in a setTimeout — there is no
+    // The lead-in lives in `animationDelay`, NOT in a setTimeout – there is no
     // timer to leak or cancel if a second run starts. This works only because
     // the CSS fill is `backwards`: each card holds the from-state (invisible,
     // offset) through its whole delay instead of sitting at full opacity and
@@ -2121,7 +2121,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     btn.type = 'button';
     // The same three dataset stamps a search row carries, so this button is
     // findable by syncAddButtons() (R3) and so a failed add can name its film in
-    // the toast (R4) — addMovie()'s catch reads dataset.title, and without it a
+    // the toast (R4) – addMovie()'s catch reads dataset.title, and without it a
     // rec-card failure fell back to "Couldn’t add that film" while the identical
     // failure from a search row named it. `.add-btn` carries no styling here:
     // every rule for that class is scoped to `.result-row`.
@@ -2130,16 +2130,16 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
     btn.dataset.title = s.title;
     // R7, settled by the user: keep the longer wording and prepend the glyph, so
     // the rec card reads "+ Add to my list" against the search row's "+ Add".
-    // The two surfaces now share a vocabulary instead of speaking three — rest
+    // The two surfaces now share a vocabulary instead of speaking three – rest
     // "+ Add…", busy "⟳ Adding…", settled "✓ Added" / "In your list".
     // THE NBSP IS THE RULE, NOT A DETAIL (CLAUDE.md § Button labels): the plus is
     // glued to "Add" with \u00A0 as an ESCAPE, never a literal character, so it
     // cannot be mistaken for an ordinary space and tidied away. Written in the
     // STRING because the same label renders on two surfaces and only one of them
-    // is `white-space: nowrap`. "to my list" may wrap on its spaces — that is
+    // is `white-space: nowrap`. "to my list" may wrap on its spaces – that is
     // explicitly allowed; "+" leaving "Add" is not.
     btn.dataset.addLabel = '+\u00A0Add to my list';
-    // Not a hardcoded label: an owned film gets the owned state immediately, and
+    // Not a hardcoded label: An owned film gets the owned state immediately, and
     // the aria-label now comes from the one place that writes it.
     setAddButtonState(btn, state.ownedTmdbIds.has(s.tmdb_id));
     btn.addEventListener('click', () => addMovie(s.tmdb_id, btn));
@@ -2149,7 +2149,7 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
   });
   el.recsMeta.replaceChildren(aiMetaFooter(meta));
   // Cards are built in the not-yet-rated state, which is correct in practice
-  // today — R2's owned filter keeps a film already in the list, rated or not,
+  // today – R2's owned filter keeps a film already in the list, rated or not,
   // out of the recommendations. Called anyway so the badge's accuracy rests
   // on `state.movies` alone rather than on a server-side filter staying correct.
   syncRecCardBadges();
@@ -2159,20 +2159,20 @@ function renderRecommendations({ suggestions, emptyReason, meta }) {
   // Gated on there being cards, structurally: the empty branch returns above
   // this line, so a zero-result run can never yank the page to a section with
   // nothing new in it. Every placeholder and every failure gets no scroll and no
-  // entrance animation — the user's words, they "shall have no business with any
+  // entrance animation – the user's words, they "shall have no business with any
   // entrance animation".
   //
   // `.recs__head` and not `.recs` or the grid: it is the first thing in the
   // section, so `block: 'start'` lands the heading AND the trigger at the top of
   // the viewport with the hint and the animating cards flowing in below. The
   // grid as a target would push both off-screen. `.recs` resolves to nearly the
-  // same place, but only via margin-collapse reasoning — the head says it
+  // same place, but only via margin-collapse reasoning – the head says it
   // outright and cannot drift if the section ever gains padding or a border.
   // `start` is also the robust alignment: the content below the target GROWS as
   // the cards render, and a top alignment is unaffected by growth below it,
   // where `center` or `nearest` would drift mid-animation.
   //
-  // No `behavior: 'smooth'` — `html { scroll-behavior: smooth }` already says so
+  // No `behavior: 'smooth'` – `html { scroll-behavior: smooth }` already says so
   // in CSS, which is precisely what lets the reduced-motion block turn it off.
   el.recsHead.scrollIntoView({ block: 'start' });
 }
@@ -2183,15 +2183,15 @@ function clearVerdictMeta() {
   el.verdict.querySelector('.ai-meta')?.remove();
 }
 
-const VERDICT_TYPE_MS = 18; // per character -- the "early ChatGPT" pace, tuned by eye
+const VERDICT_TYPE_MS = 18; // per character – the "early ChatGPT" pace, tuned by eye
 let verdictTypeGen = 0; // bumped on every call; a stale loop checks this and stops
 let verdictTypeTimer = null;
 let verdictBarObserver = null; // feeds the paragraph's height to the bar while typing
 
 /**
  * The SINGLE writer for `#verdict-text`'s content (step 4b's typing effect).
- * `.verdict__text` has always had two writers -- `syncVerdictAvailability()`
- * and a run -- and D-040/R1 is the lesson that a second writer taking the
+ * `.verdict__text` has always had two writers – `syncVerdictAvailability()`
+ * and a run – and D-040/R1 is the lesson that a second writer taking the
  * element back mid-animation is exactly the bug shape to avoid. Routing every
  * write through here, rather than a direct `textContent =`, means a sync that
  * fires mid-type doesn't need to know a typewriter exists: it just calls this,
@@ -2205,24 +2205,24 @@ let verdictBarObserver = null; // feeds the paragraph's height to the bar while 
  * frame, so the live region always has one complete, correct announcement to
  * make, never a half-typed fragment.
  *
- * `{ typed: true }` is for the success path ALONE -- the only case that is
+ * `{ typed: true }` is for the success path ALONE – the only case that is
  * actually "the verdict appearing". Every placeholder, the busy line and the
  * error messages without a link pass no option and render instantly, exactly
  * as before this item existed; the logged failure, which carries a link, is
  * written without this function (see the verdict handler).
  *
  * The VISIBLE span is soft-hyphenated (D-060's approach, step 5), but ONLY
- * when `typed` is true -- i.e. only the real, AI-generated verdict, never a
+ * when `typed` is true – i.e. only the real, AI-generated verdict, never a
  * placeholder or an error message (user-caught: it was reaching those too).
  * `!typed` is checked FIRST and returns before hyphenation is even
- * considered, on purpose -- folding it into the same branch as the
+ * considered, on purpose – folding it into the same branch as the
  * reduced-motion skip (both used to render instantly, so it read as one
  * case) silently hyphenated every non-typed call along with them. A REAL
  * verdict that skips the typing animation (reduced motion, or empty text)
  * must still be hyphenated; a placeholder must never be, regardless of
- * motion preference -- two different reasons to "render instantly", and only
+ * motion preference – two different reasons to "render instantly", and only
  * one of them means "this is verdict content".
- * `.sr-only` is never hyphenated either way -- same split this function
+ * `.sr-only` is never hyphenated either way – same split this function
  * already had for typing: `.verdict__typed` is `aria-hidden`, so embedding
  * U+00AD there never reaches a screen reader, while the announced text must
  * stay exactly what was written.
@@ -2253,7 +2253,7 @@ function setVerdictText(text, { typed = false } = {}) {
   el.verdictText.replaceChildren(visible, heard);
 
   if (!typed) {
-    visible.textContent = text; // placeholder or error -- plain, never hyphenated
+    visible.textContent = text; // placeholder or error – plain, never hyphenated
     return;
   }
 
@@ -2264,7 +2264,7 @@ function setVerdictText(text, { typed = false } = {}) {
   }
 
   visible.classList.add('is-typing');
-  // The paragraph, not `visible`: a ResizeObserver reports an inline box as
+  // The paragraph, not `visible`: A ResizeObserver reports an inline box as
   // zero-sized. Its border box is the box the bar's 100% resolves against (the
   // paragraph has no border), and unlike clientHeight it is not rounded.
   verdictBarObserver = new ResizeObserver(([entry]) => {
@@ -2276,7 +2276,7 @@ function setVerdictText(text, { typed = false } = {}) {
   let i = 0;
   /** Show one more character, then schedule the next; stops once superseded. */
   const step = () => {
-    if (gen !== verdictTypeGen) return; // superseded by a later write -- stop silently
+    if (gen !== verdictTypeGen) return; // superseded by a later write – stop silently
     visible.textContent = hyphenated.slice(0, ends[i]);
     i += 1;
     if (i <= text.length) {
@@ -2323,13 +2323,13 @@ function syncVerdictAvailability() {
   // DISABLED, NOT HIDDEN (step 4b, the user's call). Below the threshold the
   // button used to be removed from the page entirely, so a new user saw a banner
   // with a sentence and no sign that anything would ever appear there. Every
-  // other locked control in this app is disabled rather than absent --
-  // `.recs__trigger` sits greyed with its explanatory hint beside it -- and the
+  // other locked control in this app is disabled rather than absent –
+  // `.recs__trigger` sits greyed with its explanatory hint beside it – and the
   // disabled vocabulary was already settled (R13, D-035), so this is consistency
   // rather than new design. It needed NO new CSS: `.verdict__refresh:disabled`
   // already existed, its hover is already `:not(:disabled)` guarded, and R15
   // wrote the sparkle-stop rule as `button:disabled .ai-sparkle`, which covers
-  // this for free -- a locked control must not twinkle, since that invites a
+  // this for free – a locked control must not twinkle, since that invites a
   // click that does nothing.
   //
   // THE GUARD IS NOT OPTIONAL, and it is the bug R1 fixed one section over.
@@ -2343,7 +2343,7 @@ function syncVerdictAvailability() {
   // here the way it is for the recs trigger: removing films mid-request can drop
   // the count below the threshold, and `busyButton()`'s settle unconditionally
   // re-enables. The verdict handler's `finally` therefore re-asserts
-  // `verdictLocked()` itself -- see the note there.
+  // `verdictLocked()` itself – see the note there.
   if (el.verdictRefresh.getAttribute('aria-busy') !== 'true') {
     el.verdictRefresh.disabled = locked;
   }
@@ -2378,14 +2378,14 @@ el.verdictRefresh.addEventListener('click', async () => {
   } catch (err) {
     el.verdictText.classList.add('is-muted');
     // Quiet fallback (SPEC § 2.3). The log is offered only when the server says a
-    // row was actually written — this used to be unconditional, and it also
+    // row was actually written – this used to be unconditional, and it also
     // discarded `err.message`, so CineRank being unreachable produced "See the AI
     // call log for details" pointing at a log that could not load either, with
     // the real cause thrown away (R23, D-047).
     // Built from nodes, never innerHTML (CLAUDE.md § Security & Secrets, item 4).
     // Bypasses setVerdictText() on purpose: this content is a link plus two
     // text nodes, not a single string, so there is nothing plausible to type.
-    // Safe to write directly -- the busy branch above already cancelled any
+    // Safe to write directly – the busy branch above already cancelled any
     // in-flight typer for this run, and this `catch` cannot run alongside the
     // `try`'s own setVerdictText(verdict, { typed: true }) call.
     if (err.logged) {
@@ -2403,10 +2403,10 @@ el.verdictRefresh.addEventListener('click', async () => {
     // The sync SKIPS this button while a run owns it, so the run has to hand
     // back the correct state rather than just an enabled button. Removing films
     // mid-request can drop the count below the threshold, and `restoreRefresh()`
-    // unconditionally re-enables -- which would leave a clickable button on a
+    // unconditionally re-enables – which would leave a clickable button on a
     // locked feature. (The old code survived this by accident: it wrote
     // `hidden` unconditionally, so the button simply stayed gone.)
-    // NOT `syncVerdictAvailability()`, deliberately: that also writes
+    // NOT `syncVerdictAvailability()`, deliberately: That also writes
     // `.verdict__text`, so if the count fell below the threshold mid-request it
     // would replace the verdict or error message just shown with the lock text.
     // Re-assert the one thing the guard skipped, nothing else.
@@ -2485,7 +2485,7 @@ function aiMetaFooter(meta) {
   sep.className = 'ai-meta__sep';
   sep.textContent = ' · ';
 
-  // .log-link is inline-block, so it can never break mid-phrase — it moves to
+  // .log-link is inline-block, so it can never break mid-phrase – it moves to
   // the next line as one whole unit.
   const link = logLink('View more details in the AI call log »');
 
@@ -2497,14 +2497,14 @@ function aiMetaFooter(meta) {
 
 /**
  * The log link sits inline after the metadata, joined by a "·". When there is
- * no room it drops to its own line (as a whole unit — it is inline-block), and
+ * no room it drops to its own line (as a whole unit – it is inline-block), and
  * that "·" would be left dangling at the end of the line above. Compare the two
  * boxes' tops to spot it: on one line they share a top, a wrap puts the link a
  * full line lower. CSS has no "did this wrap" selector, hence the measurement.
  *
  * Hidden with visibility, never display: visibility keeps the box, so hiding
  * the separator cannot itself change where the link wraps. With display:none it
- * would oscillate — hide, link now fits, show, link wraps again, hide...
+ * would oscillate – hide, link now fits, show, link wraps again, hide...
  *
  * @param {HTMLElement} foot  A `.ai-meta` footer in the document.
  */
@@ -2521,7 +2521,7 @@ function syncMetaSeparator(foot) {
 // One listener for every layout-dependent measurement on the page, rather than
 // an observer per element. All of them read geometry (getBoundingClientRect /
 // scrollHeight / clientWidth), which forces layout, and `resize` fires
-// continuously while a window is dragged — so the work is throttled to at most
+// continuously while a window is dragged – so the work is throttled to at most
 // once per frame. rAF
 // rather than a debounce on purpose: a debounce would leave every measurement
 // below visibly stale for the whole drag, where this keeps them live and still does
@@ -2538,7 +2538,7 @@ window.addEventListener('resize', () => {
     document.querySelectorAll('.ai-meta').forEach(syncMetaSeparator);
     syncReviewToggles();
     // How many cards fit is a function of the grid's width, so the balanced
-    // split has to be recomputed as the window changes — otherwise a layout
+    // split has to be recomputed as the window changes – otherwise a layout
     // chosen at 900px stays put at 400px. Returns immediately when the grid is
     // empty, which is most of the time.
     layoutRecsGrid();
@@ -2549,7 +2549,7 @@ window.addEventListener('resize', () => {
     //     written as a nonsense offset.
     //   - only for panels that are themselves OPEN. A closed one must keep its
     //     side so it fades out in place (see the toggle handler).
-    // At most one can be open — they share a `name` — so this is one element.
+    // At most one can be open – they share a `name` – so this is one element.
     // Inert at 850px and below, where the panel is `position: static` and the carets
     // are `display: none`.
     if (el.logDialog.open) {
@@ -2583,7 +2583,7 @@ function cell(text, className, label) {
 /**
  * A cell whose short form is an <abbr> carrying the full text in its title
  * (dotted underline + hover). In the narrow card layout CSS swaps in the full
- * text — there's width for it there.
+ * text – there's width for it there.
  *
  * @param {string} short  What the table shows.
  * @param {string | null} full  The full text; with none, or none different from
@@ -2624,7 +2624,7 @@ function shortPromptVersion(pv) {
 }
 
 /**
- * Model slugs are long ("anthropic/claude-haiku-4.5") — drop the vendor prefix.
+ * Model slugs are long ("anthropic/claude-haiku-4.5") – drop the vendor prefix.
  *
  * @param {string | null} model  The logged model slug.
  * @returns {HTMLTableCellElement} The short name, with the full slug on hover.
@@ -2637,7 +2637,7 @@ function modelCell(model) {
 }
 
 /**
- * Timestamp cell: forced European format (dd/mm/yyyy, 24h) regardless of the
+ * Timestamp cell: Forced European format (dd/mm/yyyy, 24h) regardless of the
  * browser locale, with the date and clock on separate lines to keep the column
  * narrow. The time itself is still the viewer's local time.
  *
@@ -2665,7 +2665,7 @@ function timeCell(iso) {
 }
 
 /**
- * Result cell — three shapes (see routes/aiLog.js):
+ * Result cell – three shapes (see routes/aiLog.js):
  *   failed call      -> the error message, shown inline (short, and you want it
  *                       visible when scanning for problems)
  *   recommendation   -> "N suggestions", click to reveal the verified title list
@@ -2693,7 +2693,7 @@ function revealDetails(summaryText, bodyNode) {
    * The panel normally drops below its trigger; near the bottom of the visible
    * area there isn't room, so flip it above instead. Measured rather than done
    * in CSS because the panel's height depends on its content. Run on open, by
-   * the resize pass, and by the pane's scroll listener, so an open panel keeps
+   * the resize pass and by the pane's scroll listener, so an open panel keeps
    * to whichever side still has room as the geometry around it changes.
    *
    * The room is what the pinned rows leave: the header row covers the pane's
@@ -2739,7 +2739,7 @@ function revealDetails(summaryText, bodyNode) {
   details.repositionPanel = positionPanel;
 
   details.addEventListener('toggle', () => {
-    // On close, keep whichever side it is on so it fades out in place —
+    // On close, keep whichever side it is on so it fades out in place –
     // clearing the class here would snap it back down mid-fade.
     if (!details.open) return;
     positionPanel();
@@ -2826,7 +2826,7 @@ async function renderAiLog() {
   el.logBody.replaceChildren();
   if (!data.rows.length) {
     const tr = document.createElement('tr');
-    const td = cell('No AI calls logged yet — run a recommendation or a taste verdict.', 'log-empty');
+    const td = cell('No AI calls logged yet – run a recommendation or a taste verdict.', 'log-empty');
     td.colSpan = 9;
     tr.append(td);
     el.logBody.append(tr);
@@ -2848,11 +2848,11 @@ async function renderAiLog() {
       const sub = document.createElement('span');
       sub.className = 'sub';
       // Digit-grouped, like the total above it and like the footer's summed
-      // split: a bare `1466` sitting under a `1,577` reads as two different
+      // split: A bare `1466` sitting under a `1,577` reads as two different
       // kinds of number. `toLocaleString()` with no argument, so both lines
       // follow the reader's locale together. The `?` rather than fmtTokens'
       // em dash is deliberate and still means "this half is missing while the
-      // other is present" — the span only exists when one of them is non-null.
+      // other is present" – the span only exists when one of them is non-null.
       sub.textContent =
         `${r.prompt_tokens?.toLocaleString() ?? '?'} in / ` +
         `${r.completion_tokens?.toLocaleString() ?? '?'} out`;
@@ -2892,7 +2892,7 @@ async function renderAiLog() {
 
   // Totals mirror a data row: tokens with the in/out split beneath, then cost
   // and total duration. `totals.detailed` / `.timed` are still returned by the
-  // API but deliberately not surfaced — see docs/DECISIONS.md D-019.
+  // API but deliberately not surfaced – see docs/DECISIONS.md D-019.
   const tokTotal = document.createElement('td');
   tokTotal.className = 'num';
   tokTotal.dataset.label = 'Total tokens';
@@ -2946,7 +2946,7 @@ el.logPane.addEventListener('scroll', () => {
   });
 }, { passive: true });
 
-// A reveal panel stays open until you click outside it — clicking its own text
+// A reveal panel stays open until you click outside it – clicking its own text
 // keeps it up (so it can be selected/copied); a click anywhere else collapses it.
 document.addEventListener('click', (e) => {
   el.logDialog
@@ -2965,7 +2965,7 @@ const SHEEN_BUSY_RATE = 5;
  * Speed the glint up (or back down) WITHOUT moving it.
  *
  * This is deliberately not CSS. The obvious version is a `:has([aria-busy])`
- * rule setting a shorter duration, and it was built that way first -- but a CSS
+ * rule setting a shorter duration, and it was built that way first – but a CSS
  * animation's progress is `(currentTime / duration)`, so changing the duration
  * re-evaluates the position at the current instant and THE DASH JUMPS. The user
  * reported it as noticeable even with the eye on the button, which it is.
@@ -2973,13 +2973,13 @@ const SHEEN_BUSY_RATE = 5;
  * `playbackRate` is the fix, and it fixes it by construction rather than by
  * hiding it: the Web Animations API preserves `currentTime` when the rate
  * changes, so the band carries on from exactly where it was and only its
- * velocity changes. Verified before building: at the moment of the switch the
+ * velocity changes. Verified before building: At the moment of the switch the
  * duration swap moved a layer from 0.4867 to 0.4333 of its cycle, while the rate
  * change left it at 0.4867 exactly.
  *
  * It also keeps the twenty layers in register for free, which the CSS route had
  * to work for. Each layer's phase lives in its own `currentTime`, so preserving
- * every currentTime preserves every offset between them -- no rescaling of the
+ * every currentTime preserves every offset between them – no rescaling of the
  * delays, and the taper cannot smear.
  *
  * `getAnimations()` is feature-detected, and under `prefers-reduced-motion` it
@@ -2999,14 +2999,14 @@ function setSheenRate(rate) {
  * Pause the sheen while the banner is off-screen.
  *
  * The glint animates `stroke-dashoffset` across twenty layered dashes, and that
- * is a PAINT property -- it cannot be handed to the compositor the way a
+ * is a PAINT property – it cannot be handed to the compositor the way a
  * transform can, so every frame re-rasterises those strokes and the halo filter
  * on top of them. Measured cost is nil on ordinary hardware and small even on
  * heavily throttled software rendering (the figures are recorded in D-055, in
  * docs/DECISIONS.md), so this is not fixing a reported
  * problem. It is that the banner sits at the very top of a page whose actual
  * content is the ranked list below it, so anyone scrolled down is paying for an
- * animation they cannot see -- battery and thermals on a phone, mostly.
+ * animation they cannot see – battery and thermals on a phone, mostly.
  *
  * `animation-play-state: paused` FREEZES the dash where it is and resumes from
  * there, so scrolling back finds the band where it left off. That matters more
@@ -3015,7 +3015,7 @@ function setSheenRate(rate) {
  * would pull the taper apart. Pausing cannot, because it stops and starts them
  * all together.
  *
- * threshold 0, so it pauses only once the banner is COMPLETELY out of view --
+ * threshold 0, so it pauses only once the banner is COMPLETELY out of view –
  * never while a sliver of it is still on screen.
  *
  * Feature-detected. An engine without IntersectionObserver keeps the animation
@@ -3042,7 +3042,7 @@ function pauseSheenOffscreen() {
 // review breaks at a sensible point instead of mid-word. They are invisible on
 // screen. They are NOT invisible when copied: paste a review anywhere and the
 // letters of those words arrive separated by a codepoint you cannot see, which
-// breaks search, breaks pasting into a document, and shows as visible junk in
+// breaks search, breaks pasting into a document and shows as visible junk in
 // editors that render it.
 //
 // HOW IT WAS FOUND, because the failure was two steps removed from the cause:
@@ -3059,7 +3059,7 @@ function pauseSheenOffscreen() {
 //
 // Selections inside a form control are left alone: an input's own selection is
 // not part of window.getSelection() in every engine, and nothing typed into one
-// is hyphenated anyway -- so there is nothing to clean and a needless
+// is hyphenated anyway – so there is nothing to clean and a needless
 // preventDefault on a native copy is a risk with no upside.
 document.addEventListener('copy', (e) => {
   const tag = document.activeElement && document.activeElement.tagName;
@@ -3097,7 +3097,7 @@ document.addEventListener('copy', (e) => {
     toast(failureText('Couldn’t load your films', err), true);
     // THE PLACEHOLDER HAS TO BE RETIRED HERE, because nothing else will.
     // 'Reading the room...' ships in the markup and is replaced by
-    // syncVerdictAvailability() -- which loadMovies() calls AFTER its await, so
+    // syncVerdictAvailability() – which loadMovies() calls AFTER its await, so
     // a failed load throws first and the placeholder sits there for the life of
     // the page, still promising a verdict that is never coming. Same root cause
     // as the recs trigger shipping enabled; both found 2026-09-13, shooting RS-7.
@@ -3108,10 +3108,10 @@ document.addEventListener('copy', (e) => {
     // element (D-057), and its generation counter means any later write
     // supersedes this one silently and cleanly.
     //
-    // It deliberately states NO rated-film count. The app does not know one --
-    // the list never loaded -- and 'you have 0' would be a guess presented as a
+    // It deliberately states NO rated-film count. The app does not know one –
+    // the list never loaded – and 'you have 0' would be a guess presented as a
     // fact, which is exactly the error the recs hint used to make on this path.
     el.verdictText.classList.add('is-muted');
-    setVerdictText('Couldn’t read the room — your films didn’t load.');
+    setVerdictText('Couldn’t read the room – your films didn’t load.');
   }
 })();

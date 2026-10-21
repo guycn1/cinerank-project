@@ -1,16 +1,16 @@
-# BRIEFS.md — the two directing documents (Module 8)
+# BRIEFS.md – the two directing documents (Module 8)
 
 [Module 8](../DOSSIER.md#module-8-interface-design-and-app-documentation) asks
 for two documents written to **direct an agent**, not to flatter a reader: an
 interface brief for one screen, and a documentation brief for one component. Its
-governing distinction is that agents produce *descriptive* documentation well —
-what the code does, drawn from the code — and *explanatory* documentation badly,
+governing distinction is that agents produce *descriptive* documentation well –
+what the code does, drawn from the code – and *explanatory* documentation badly,
 because why a thing was built that way is not in the source to be read off.
 
 Both briefs are below. The first already existed and is pointed at rather than
 copied.
 
-## 1. Interface brief — the Home screen
+## 1. Interface brief – the Home screen
 
 **It lives in [`SPEC.md` § 3](../SPEC.md#3-interface-design-module-8) and stays
 there.** It is not reproduced here, for the same reason the definition of done
@@ -23,22 +23,22 @@ four parts
 names so each could be decided on purpose rather than absorbed from whatever the
 training data treats as ordinary:
 
-* **[§ 3.1 Flow](../SPEC.md#31-flow)** — Home to add to rate and back;
+* **[§ 3.1 Flow](../SPEC.md#31-flow)** – Home to add to rate and back;
   recommendations as a secondary panel off Home, not a separate journey to hunt
   for.
-* **[§ 3.2 Hierarchy](../SPEC.md#32-hierarchy)** — the ranked list is primary,
+* **[§ 3.2 Hierarchy](../SPEC.md#32-hierarchy)** – the ranked list is primary,
   the verdict banner is visible early but must not compete with it, the
   recommendations trigger stays deliberately secondary.
-* **[§ 3.3 Interaction](../SPEC.md#33-interaction)** — what each control must
+* **[§ 3.3 Interaction](../SPEC.md#33-interaction)** – what each control must
   make unambiguous.
-* **[§ 3.4 Feedback](../SPEC.md#34-feedback-including-bad-states)** — loading,
+* **[§ 3.4 Feedback](../SPEC.md#34-feedback-including-bad-states)** – loading,
   empty, not-enough-data, failure and duplicate states, each specified with the
   state it must not be confused with.
 
 **What it deliberately did not fix, and what that cost.**
 [§ 3.2](../SPEC.md#32-hierarchy) declines to prescribe layout, motion or
 typography and says so in the text, so the openness could not be mistaken for an
-omission. That was the right call for an instruction about *taste* — but it is
+omission. That was the right call for an instruction about *taste* – but it is
 also why the real interface requirements emerged from using the built app rather
 than from the brief, which is the whole of
 [Turn 2 in `SPEC.md` § Specification status](../SPEC.md#turn-2--the-interface-requirement-emerged-from-use-2026-09-05-to-2026-09-12).
@@ -47,21 +47,21 @@ anticipate that a hovered card drifts towards its upper neighbour, or that a fle
 item's automatic minimum size will break a button label in two. Those needed a
 running app and a human looking at it.
 
-## 2. Documentation brief — the AI call log
+## 2. Documentation brief – the AI call log
 
-**Status: commissioned here, and WRITTEN — [`AI-CALL-LOG.md`](AI-CALL-LOG.md),
+**Status: Commissioned here, and WRITTEN – [`AI-CALL-LOG.md`](AI-CALL-LOG.md),
 [2026-09-14](https://github.com/guycn1/cinerank-project/commit/be405c52b354fce8188f69aa5c4131e3c6ec253b).** This file is the brief; that file is the result, and the two are
 worth reading in that order, because the brief is a specification for a document
 and the document can be judged against it.
 
 *([Written](https://github.com/guycn1/cinerank-project/commit/be405c52b354fce8188f69aa5c4131e3c6ec253b) after the user, reading this brief during a pre-merge sweep, called
-the missing document a real gap — which it was: the brief argues that this
+the missing document a real gap – which it was: the brief argues that this
 component carries an unusual density of non-obvious decisions for its size, and
 those decisions were still undocumented.)*
 
 ### Audience
 
-A developer — human or a future agent session — who did **not** build this
+A developer – human or a future agent session – who did **not** build this
 component and now has to change it without breaking it. They can read the code.
 What they cannot read is which of its apparently arbitrary choices are load-bearing.
 
@@ -70,7 +70,7 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 To stop the next change from silently undoing a fix. This component packs a lot
 of non-obvious decision into little code: one short route file, five cell
 builders in [`public/app.js`](../public/app.js) (`cell`, `abbrCell`,
-`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet, and **twelve decision-log entries** behind them —
+`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet and **twelve decision-log entries** behind them –
 [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
 [`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history), [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it), [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is). *(The twelve are named rather than counted so the figure can be checked, and
 so [`check-claims`](../scripts/check-claims.js) resolves each one.)*
@@ -90,19 +90,19 @@ could be a border. The reveal panel's fade looks like it could live on
 ### Required sections
 
 1. **[What it is and why it exists](AI-CALL-LOG.md#1-what-it-is-and-why-it-exists)**
-   — one paragraph. It is the
+   – one paragraph. It is the
    [`SPEC.md` § 7.2](../SPEC.md#72-manual-demo-script) "not a wrapper" proof
    made visible in-app, and the audit surface
    [Module 17's ASI09 answer](SECURITY.md#asi09--human-agent-trust-exploitation)
    rests on.
-2. **[Where the data comes from](AI-CALL-LOG.md#2-where-the-data-comes-from)** —
+2. **[Where the data comes from](AI-CALL-LOG.md#2-where-the-data-comes-from)** –
    `GET /api/ai-log` merging two tables, and what the route sends *structured*
    rather than flattened, and why that mattered.
 3. **[The scrolling and pinning model](AI-CALL-LOG.md#3-the-scrolling-and-pinning-model)**
-   — stated as one mechanism, because the pieces only make sense together.
-4. **[The two view modes](AI-CALL-LOG.md#4-the-two-view-modes)** — table above
-   ~850px, one card per call below, and what the boundary costs.
-5. **[Traps](AI-CALL-LOG.md#5-traps)** — the
+   – stated as one mechanism, because the pieces only make sense together.
+4. **[The two view modes](AI-CALL-LOG.md#4-the-two-view-modes)** – table above
+   ~850px, one card per call below and what the boundary costs.
+5. **[Traps](AI-CALL-LOG.md#5-traps)** – the
    [explicit list below](#the-decisions-the-text-must-explain), each with what
    breaks if it is undone.
 6. **[What is safe to change](AI-CALL-LOG.md#6-what-is-safe-to-change)**, so the
@@ -117,19 +117,19 @@ failed:
   [An earlier version](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303) scrolled a flex-sized inner box, which collapsed to nothing on a short
   viewport.
 * **[`.log-curtain` exists](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) because a sticky `<tfoot>` alone cannot reach the
-  dialog's bottom edge** — it is clamped by its own containing block, so rows
+  dialog's bottom edge** – it is clamped by its own containing block, so rows
   peeked under it mid-scroll.
 * **The totals divider is [painted as background gradients](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)**, not a border (the
   collapsed-border layer leaves it behind on pin) and not a shadow (webkit does
   not paint outer shadows on cells; inset ones stop at the collapsed border).
 * **The reveal panel's opacity [animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467), never on
-  `::details-content`** — animating the pseudo made it a stacking context only
+  `::details-content`** – animating the pseudo made it a stacking context only
   while mid-fade, trapping the panel behind later rows.
 * **[`--reveal-fade` is one custom property](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70) read by two different elements**, and
   they must match or the panel is yanked mid-fade.
 * **[The Result column is a fixed width with an absolutely positioned panel](https://github.com/guycn1/cinerank-project/commit/9b6fd4072b3587f7b93e62c2b31f299665311f7f)**, so
   opening a row can never reflow the table or steal width from its neighbours.
-* **`.log-scroll` must stay `overflow: visible`** — it is not the scroller, and
+* **`.log-scroll` must stay `overflow: visible`** – it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
 * **Card view's two specificity fixes** (850px and below):
   [a leftover desktop separator](https://github.com/guycn1/cinerank-project/commit/25035ab2d194139be59100c42b068475a2e66b1d) stacking into a vertical line, and
@@ -142,7 +142,7 @@ failed:
 
 ### Out of scope for the document
 
-The AI services themselves, the prompt chain, and cost estimation. Those have
+The AI services themselves, the prompt chain and cost estimation. Those have
 their own homes in [`docs/PROCESS.md`](PROCESS.md) and
 [`docs/DECISIONS.md`](DECISIONS.md), and pulling them in would make this
 document the thing nobody finishes reading.

@@ -22,7 +22,7 @@ export const recommendationsRouter = Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 /**
- * POST /api/recommendations — trigger a run (SPEC § 2.2). Snapshot, not live:
+ * POST /api/recommendations – trigger a run (SPEC § 2.2). Snapshot, not live:
  * only ever runs on this explicit request.
  *
  * Responds 200 with the run as generateRecommendations() returns it:
@@ -38,7 +38,7 @@ recommendationsRouter.post(
     } catch (err) {
       if (err instanceof RecommendationError) {
         // This used to be `Couldn’t generate recommendations: ${err.message}`
-        // under a comment claiming "never a raw dump" — which is exactly what it
+        // under a comment claiming "never a raw dump" – which is exactly what it
         // was. The causes are internal, among them "OpenRouter unreachable (TimeoutError)",
         // "OpenRouter responded 401", "Model did not return valid JSON",
         // "DB read failed: <postgres text>". That names our vendor and a JS error
@@ -53,7 +53,7 @@ recommendationsRouter.post(
 
         // Everything else: a calm sentence, and the technical cause goes only to
         // the log row's error_text. `logged` is ADDITIVE metadata in the D-042
-        // sense — it says whether a recommendation_logs row exists for this
+        // sense – it says whether a recommendation_logs row exists for this
         // failure, so the client can offer the AI call log WITHOUT ever promising
         // a row that was never written (R9). A failed DB read, an unmet threshold
         // and a failed log write all produce no row.
@@ -72,7 +72,7 @@ recommendationsRouter.post(
 );
 
 /**
- * GET /api/recommendations/history — the NARROWER per-feature log view
+ * GET /api/recommendations/history – the NARROWER per-feature log view
  * (SPEC § 4.5). Not the primary audit surface: GET /api/ai-log is, and it is the
  * only one the UI calls. This returns recommendation runs only, 25 of them,
  * with seven of ai-log's twelve columns. Kept deliberately rather than deleted

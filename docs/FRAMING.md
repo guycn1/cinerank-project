@@ -1,8 +1,8 @@
-# FRAMING.md — CineRank
+# FRAMING.md – CineRank
 
 The
 [Module 6](../DOSSIER.md#module-6-intent-and-the-discipline-of-problem-framing)
-framing document: the problem, who it is for, when it is finished, and what will
+framing document: The problem, who it is for, when it is finished and what will
 deliberately not be built. It is the brief the agent works from.
 [`SPEC.md`](../SPEC.md) says how the thing behaves; this says why it exists and
 where its edges are.
@@ -16,7 +16,7 @@ definition of done as
 [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission). [What this file
 adds](https://github.com/guycn1/cinerank-project/commit/d74e655a78f805670486bd2ac41ca6f29454e79b) is the **stakeholder list**, which was genuinely missing, and one place
 where the four sit together and can be read as a brief rather than found
-scattered. The out-of-scope list is also reconciled here — `SPEC.md` § 1 carried
+scattered. The out-of-scope list is also reconciled here – `SPEC.md` § 1 carried
 three exclusions and `CLAUDE.md` carried four, which is one list too many.
 
 ## Problem statement
@@ -42,7 +42,7 @@ something the owner could not have got by re-reading their own list.
 There is a second problem underneath, and since this is coursework it is named
 rather than hidden. A project of this shape usually ends up with a database that
 is a spreadsheet with extra steps and an AI feature that is a chat box wearing the
-app's colours — both present because the marking scheme expects them. The
+app's colours – both present because the marking scheme expects them. The
 engineering problem is to build one where **the database and the model each earn
 their place**: where the stored ratings are genuinely the input to something, and
 where the model is given narrow work it is actually suited to.
@@ -57,8 +57,8 @@ other.
 
 | Stakeholder | Affected how | The trade-off it settles |
 |---|---|---|
-| **The list owner** (single user; the app has no accounts by design) | Their ratings and reviews are the entire value of the app, and they are not recoverable — the Supabase free tier has no point-in-time recovery | Durability and honesty about AI output beat feature count. This is the stakeholder who makes ["never run destructive operations against live data"](../CLAUDE.md#working-agreements-binding--added-after-incident-1) a binding rule rather than a preference |
-| **The reader of the repository** | Reads the repository, never the running app. Cannot ask a question | Legibility is a deliverable. A markdown file that renders wrong is a defect, not a cosmetic issue — which is why [`npm run check-markdown`](../scripts/check-markdown.js) exists and is a commit gate |
+| **The list owner** (single user; the app has no accounts by design) | Their ratings and reviews are the entire value of the app, and they are not recoverable – the Supabase free tier has no point-in-time recovery | Durability and honesty about AI output beat feature count. This is the stakeholder who makes ["never run destructive operations against live data"](../CLAUDE.md#working-agreements-binding--added-after-incident-1) a binding rule rather than a preference |
+| **The reader of the repository** | Reads the repository, never the running app. Cannot ask a question | Legibility is a deliverable. A markdown file that renders wrong is a defect, not a cosmetic issue – which is why [`npm run check-markdown`](../scripts/check-markdown.js) exists and is a commit gate |
 | **The two authors, as future maintainers** | Return to the project across many sessions with no memory of why a choice was made | A decision that is not recoverable later will be silently undone. Hence [`docs/DECISIONS.md`](DECISIONS.md), written at the moment of the choice rather than afterwards |
 | **The agent (Claude Code), as executor** | Acts on this brief and on [`CLAUDE.md`](../CLAUDE.md); ambiguity becomes a confident wrong guess | Precision in the brief is worth more than precision in any individual instruction. Where the spec is deliberately open, it says so explicitly ([§ 3.2](../SPEC.md#32-hierarchy)) so the openness is not mistaken for an omission |
 | **TMDB and OpenRouter** | Bear the request volume, and OpenRouter's calls are paid for out of the owner's own quota | Prefer one call to many. TMDB's rating is captured once at add time and never refreshed ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)); two console debug harnesses exist so that UI work on the [recommendations grid](../scripts/debug-recs.js) and the [verdict banner](../scripts/debug-verdict.js) costs no OpenRouter calls at all |
@@ -71,7 +71,7 @@ decisions in this repo exist because of it.
 *Specific enough to be tested against.*
 
 **The enumerated, testable form is
-[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) — eight criteria,
+[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) – eight criteria,
 each a checkbox.** They are not restated here, because a definition of done that
 exists in two places drifts and then neither is trustworthy. § 7.1 is the
 authority.
@@ -94,10 +94,10 @@ belongs in the framing:
 * **Done means [merge-ready](MERGE-READINESS.md)**, which
   [the DOSSIER](../DOSSIER.md) names as a criterion in its own right. For this
   project that means `draft` merged to `main` with explicit human confirmation.
-  `main` is the default branch, so it is where a reader lands — work left
+  `main` is the default branch, so it is where a reader lands – work left
   unmerged is work they will not see.
 
-**Deliberately not part of done:** visual perfection below ~350px viewport
+**Deliberately not part of done:** Visual perfection below ~350px viewport
 width, and anything at all below ~290px. That is a scope boundary set with a
 deadline in view, and it is written into
 [`CLAUDE.md`'s step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
@@ -105,7 +105,7 @@ as a rule the agent enforces rather than one the authors have to remember.
 
 ## Out of scope
 
-*What will not be built, said plainly.* This is the reconciled list — it
+*What will not be built, said plainly.* This is the reconciled list – it
 supersedes the three-item version in
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement) and matches
 [`CLAUDE.md`](../CLAUDE.md#out-of-scope-v1).
@@ -116,8 +116,8 @@ supersedes the three-item version in
    one would be theatre. See
    [`CLAUDE.md` § Security & Scope](../CLAUDE.md#security--scope-why-no-accounts--no-security-story)
    and [`docs/SECURITY.md` ASI03](SECURITY.md#asi03--identity--privilege-abuse).
-2. **Social features** — sharing rankings, following other people, public lists.
-3. **Editing an AI suggestion before accepting it** — neither its reason text
+2. **Social features** – sharing rankings, following other people, public lists.
+3. **Editing an AI suggestion before accepting it** – neither its reason text
    nor its position. A suggestion is accepted or dismissed.
 4. **Automatic or background regeneration** of recommendations or taste
    verdicts. Both are always explicitly user-triggered and never regenerated
@@ -144,13 +144,13 @@ out. Four places where it does:
   unavailable. Staleness alone never clears them.
 * **The stakeholder list accounts for a data question.** TMDB's own score is a
   snapshot written once at add time. Refreshing it would cost a TMDB call per
-  film per page load and make the ranked list depend on TMDB being reachable — a
+  film per page load and make the ranked list depend on TMDB being reachable – a
   trade the list owner loses
   ([D-036](DECISIONS.md#d-036--tmdbs-rating-is-a-snapshot-taken-at-add-time-not-a-live-figure)).
 * **The definition of done stopped work at a line agreed in advance.**
   [Step 5](../CLAUDE.md#step-5--the-portrait-overhaul)
   [closed against the ~350px target](https://github.com/guycn1/cinerank-project/commit/d5e531a9c738d1e046c4c25dff04b4820512dc02), with the band below ~310px outside that
-  target by prior agreement rather than left unfinished — the boundary was set
+  target by prior agreement rather than left unfinished – the boundary was set
   in advance so it did not have to be argued each time.
 * **The reader of the repository, as a stakeholder, makes a whole class of work
   blocking rather than cosmetic.** Both long markdown files were found rendering

@@ -2,18 +2,18 @@
 Prompt version: taste_verdict_v6
 Feature: Taste Verdict Banner (SPEC § 2.3)
 Change from v5: v5 asked for plain spoken English and half-landed. It fixed the
-SENTENCE SHAPE — "You're chasing the magic", "you hit a wall fast", "Basically" —
+SENTENCE SHAPE – "You're chasing the magic", "you hit a wall fast", "Basically" –
 and left the critic vocabulary inside those sentences intact: the same verdict
 said "gratuitously grim" and "suffering played for shock value", and used a
 semicolon v5 had explicitly asked it to split. So v6 (a) says the out-loud test
 applies to every PHRASE, not just the sentence, (b) bans semicolons outright
 rather than advising against them, and (c) adds rejected examples taken from
 v5's real output, since a concrete sentence to steer away from did more work in
-v5 than any adjective did. Everything else — what to say, length, plain text,
-injection guard — is unchanged from v4. Loaded by services/tasteVerdict.js.
+v5 than any adjective did. Everything else – what to say, length, plain text,
+injection guard – is unchanged from v4. Loaded by services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} – ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

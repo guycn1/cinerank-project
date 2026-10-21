@@ -23,17 +23,17 @@ const app = express();
 
 app.use(express.json());
 
-// Static frontend (vanilla HTML/CSS/JS — SPEC § 4.1)
+// Static frontend (vanilla HTML/CSS/JS – SPEC § 4.1)
 app.use(express.static(join(__dirname, '..', 'public')));
 
-// TEMPORARY: serves the verdict debug harness for the <script> tag at the
+// TEMPORARY: Serves the verdict debug harness for the <script> tag at the
 // bottom of public/index.html, while the verdict's layout is worked on. It stays
 // on draft; REMOVE BOTH IN THE LAST COMMIT BEFORE THE NEXT draft -> main MERGE.
 // The harness itself refuses to install on the deployed host either way.
 app.get('/debug-verdict.js', (_req, res) => res.sendFile(join(__dirname, '..', 'scripts', 'debug-verdict.js')));
 
 /**
- * GET /api/health — liveness probe. Most hosts (Render/Railway/Fly) want a
+ * GET /api/health – liveness probe. Most hosts (Render/Railway/Fly) want a
  * cheap endpoint to poll; Render's health check is pointed at this one.
  *
  * Responds 200 with `{ status: 'ok', uptime }`, uptime in seconds.
@@ -43,7 +43,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 /**
- * GET /api/config — config exposed to the frontend. Public values only, never
+ * GET /api/config – config exposed to the frontend. Public values only, never
  * a secret.
  *
  * Responds 200 with `{ minRatedForRecommendations, minRatedForVerdict, topN }`.
@@ -64,14 +64,14 @@ app.use('/api/taste-verdict', tasteVerdictRouter);
 app.use('/api/ai-log', aiLogRouter);
 
 /**
- * Central error handler — nothing leaks a stack trace to the client.
+ * Central error handler – nothing leaks a stack trace to the client.
  *
  * The message does NOT say "on our side", and must not be changed back. This
  * handler is the catch-all for everything unhandled anywhere in the app, and it
  * cannot know whose fault the failure was: Supabase unreachable or refusing the
  * credentials looks identical here to a genuine bug in this code. Naming a
  * culprit it has not identified is a guess presented to the user as a fact, and
- * it was wrong the first time anyone checked — bad Supabase credentials in .env
+ * it was wrong the first time anyone checked – bad Supabase credentials in .env
  * produced "something went wrong on our side" for a problem that was neither a
  * bug nor on the server's side. A vaguer message that is true beats a specific
  * one that is not. The real cause goes to the server log through the

@@ -1,19 +1,19 @@
 /**
- * @file ESLint flat config — the static-analysis half of the Merge-Readiness Pack's
+ * @file ESLint flat config – the static-analysis half of the Merge-Readiness Pack's
  * "SE hygiene" criterion (docs/MERGE-READINESS.md, course Module 16).
  *
  * Deliberately NOT a style linter. Prettier-style formatting rules are left out
  * entirely: this codebase was mostly written by one agent under one set of
  * conventions, so reformatting it would produce a large diff that proves
  * nothing and buries the real history. What is enabled is the set of rules that can catch a DEFECT
- * — an unused binding, a shadowed variable, a stale write across an `await`, a
- * `case` that falls through — plus a complexity ceiling, because Module 16 names
+ * – an unused binding, a shadowed variable, a stale write across an `await`, a
+ * `case` that falls through – plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.
  *
  * Four environments, because this repo ships code to two runtimes and keeps three
  * browser files in scripts/ that the browser parses as CLASSIC scripts and that
  * the deployed app never runs:
- *   - Node ES modules: server/, test/, this file, and every Node tool in scripts/ (the
+ *   - Node ES modules: server/, test/, this file and every Node tool in scripts/ (the
  *     glob is `scripts/*.js` minus the three browser files below, so a new tool
  *     is covered without this list naming it; check-claims.js keeps the same
  *     three files in CLASSIC_SCRIPTS and parses them the same way)
@@ -43,7 +43,7 @@ const defectRules = {
   'no-self-compare': 'error',
   'no-unmodified-loop-condition': 'error',
   'require-atomic-updates': 'error',
-  // Off deliberately: every loop that awaits here is sequential on purpose —
+  // Off deliberately: Every loop that awaits here is sequential on purpose –
   // TMDB lookups one at a time (recommendation verification, the backfill),
   // ordered writes in the seed script, polling and retries, and the layout
   // tools driving one browser and one width at a time.
@@ -53,7 +53,7 @@ const defectRules = {
   'prefer-const': 'error',
 
   // Module 16 names complexity checks alongside linting. These are ceilings, not
-  // targets — they exist to flag a function that has quietly grown past the point
+  // targets – they exist to flag a function that has quietly grown past the point
   // where a reviewer can hold it in their head.
   complexity: ['warn', 20],
   'max-depth': ['warn', 5],
@@ -69,7 +69,7 @@ export default [
     ignores: ['node_modules/**', 'package-lock.json'],
   },
 
-  // Node ES modules — the server, the tests, and the real tooling scripts.
+  // Node ES modules – the server, the tests and the real tooling scripts.
   {
     files: ['server/**/*.js', 'test/**/*.js', 'eslint.config.js', 'scripts/*.js'],
     ignores: ['scripts/debug-recs.js', 'scripts/debug-verdict.js', 'scripts/layout-probe.js'],
@@ -92,7 +92,7 @@ export default [
     rules: defectRules,
   },
 
-  // The layout probe: a classic script injected by `npm run layout-check`, and
+  // The layout probe: A classic script injected by `npm run layout-check`, and
   // wrapped in one function so it adds nothing to the page it measures, which
   // is why no-implicit-globals stays on.
   {
@@ -109,7 +109,7 @@ export default [
   // bare <script> tag are both classic scripts, so they must be parsed as
   // scripts; parsing them as modules hides nothing but reports nonsense. Each
   // deliberately defines one global, which is the whole point of a console
-  // harness — hence no-implicit-globals is off here only.
+  // harness – hence no-implicit-globals is off here only.
   {
     files: ['scripts/debug-recs.js', 'scripts/debug-verdict.js'],
     languageOptions: {

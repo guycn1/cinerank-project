@@ -1,6 +1,6 @@
-# Render blueprint — https://render.com/docs/blueprint-spec
+# Render blueprint – https://render.com/docs/blueprint-spec
 #
-# Optional: a web service created by hand in the Render dashboard ignores this
+# Optional: A web service created by hand in the Render dashboard ignores this
 # file and works the same, except for the Node version pinned below (see
 # NODE_VERSION). It is checked in so the deploy is reproducible
 # and reviewable rather than living only in someone's browser session.
@@ -13,14 +13,14 @@ services:
     name: cinerank
     runtime: node
     plan: free
-    # Closest Render region to the authors. Change freely — it affects latency
+    # Closest Render region to the authors. Change freely – it affects latency
     # only, and Supabase/TMDB/OpenRouter are all reached over the public net.
     region: frankfurt
 
     # Deploys from `main`, not `draft`. CLAUDE.md treats `main` as the settled
-    # branch and merges to it on three grounds only (D-073) — a settled
-    # milestone, a fix for a defect already published there, or one close-out
-    # sync at the end — so the public URL only ever moves for one of those. The
+    # branch and merges to it on three grounds only (D-073) – a settled
+    # milestone, a fix for a defect already published there or one close-out
+    # sync at the end – so the public URL only ever moves for one of those. The
     # live site can never be a half-finished afternoon's work.
     branch: main
 
@@ -38,7 +38,7 @@ services:
       # control. The four below are entered once in Render's Environment tab.
       - key: SUPABASE_URL
         sync: false
-      # The anon key ONLY — never service_role (CLAUDE.md § Security & Secrets #3).
+      # The anon key ONLY – never service_role (CLAUDE.md § Security & Secrets #3).
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: TMDB_API_KEY
@@ -50,7 +50,7 @@ services:
       # recommendations run on the cheaper tier, the taste verdict alone on a
       # stronger one, after four prompt versions failed to move its register and
       # the model turned out to be the constraint rather than the wording.
-      # Both are optional — server/config.js carries these exact defaults — and
+      # Both are optional – server/config.js carries these exact defaults – and
       # are declared here so the split is visible to anyone reading the deploy.
       - key: OPENROUTER_MODEL
         value: anthropic/claude-haiku-4.5

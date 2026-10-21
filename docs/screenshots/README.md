@@ -1,11 +1,11 @@
-# Screenshots — index
+# Screenshots – index
 
 Thirty-seven captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
 **Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
 into the pixels. Where a particular row or line matters, the surrounding prose
-says which — an unedited capture is stronger evidence than one a reader has to
+says which – an unedited capture is stronger evidence than one a reader has to
 take on trust.
 
 | Family | Count | What it is | Discussed in |
@@ -15,11 +15,11 @@ take on trust.
 | [`readme-*`](#readme---product-showcase) | 3 | Product showcase | [`../../README.md`](../../README.md) |
 | [`ac-*`](#ac---acceptance-criteria) | 5 | Evidence for a [`SPEC.md` § 7.1](../../SPEC.md#71-must-pass-before-submission) acceptance criterion | [`../ACCEPTANCE.md`](../ACCEPTANCE.md) |
 
-## `rs-*` — resilience and state
+## `rs-*` – resilience and state
 
 Recipes for reproducing each of these are in [`CLAUDE.md` § Resilience screenshots](../../CLAUDE.md#resilience-screenshots-rs-1-to-rs-16) as
 [`RS-1`](../RESILIENCE.md#rs-1--searching) … [`RS-16`](../RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist). Eight states need two frames, on four different axes. For
-five of them — [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) — the claim is
+five of them – [`RS-3`](../RESILIENCE.md#rs-3--verifying-recommendations), [`RS-4`](../RESILIENCE.md#rs-4--recommendations), [`RS-5`](../RESILIENCE.md#rs-5--the-taste-verdict), [`RS-9`](../RESILIENCE.md#rs-9--a-recommendation-run-with-nothing-to-suggest) and [`RS-15`](../RESILIENCE.md#rs-15--malformed-output-and-empty-output-are-not-the-same-failure) – the claim is
 split between what the user sees and what the audit trail records; for
 [`RS-10`](../RESILIENCE.md#rs-10--a-row-deleted-while-it-was-being-edited) it is
 split across time, because the state is a race and a single still cannot show
@@ -38,11 +38,11 @@ works, because recovery is the claim a single error frame cannot make.
 | [`rs-5-openrouter-down-verdict.png`](rs-5-openrouter-down-verdict.png) | OpenRouter down, verdict | The second feature failing in the same shape as the first |
 | [`rs-5-openrouter-down-verdict-log.png`](rs-5-openrouter-down-verdict-log.png) | …its log row | Two failures adjacent, two features, two models |
 | [`rs-6-cinerank-unreachable.png`](rs-6-cinerank-unreachable.png) | The app's own server stopped | `fetch` itself rejects; engine wording never surfaces; list survives |
-| [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The only FAILING state where an empty list is correct — and the only empty list with no empty-state line under it (compare [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png)); both AI triggers locked |
-| [`rs-8-search-no-matches.png`](rs-8-search-no-matches.png) | No matches (**not** a failure) | Muted, not crimson — compare directly with [`rs-1`](rs-1-tmdb-down-on-search.png) |
+| [`rs-7-database-unreachable.png`](rs-7-database-unreachable.png) | Supabase down | The only FAILING state where an empty list is correct – and the only empty list with no empty-state line under it (compare [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png)); both AI triggers locked |
+| [`rs-8-search-no-matches.png`](rs-8-search-no-matches.png) | No matches (**not** a failure) | Muted, not crimson – compare directly with [`rs-1`](rs-1-tmdb-down-on-search.png) |
 | [`rs-9-zero-recommendations.png`](rs-9-zero-recommendations.png) | Nothing to suggest (**not** a failure) | Cost still declared for a run that returned nothing |
 | [`rs-9-zero-recommendations-log.png`](rs-9-zero-recommendations-log.png) | …its log row | Near-identical to [`rs-3`'s row](rs-3-tmdb-down-during-recs-log.png), opposite meaning |
-| [`rs-10-row-deleted-mid-edit-before.png`](rs-10-row-deleted-mid-edit-before.png) | A row deleted mid-edit — before | Two independent views agree: eight films, the film being edited at #1 |
+| [`rs-10-row-deleted-mid-edit-before.png`](rs-10-row-deleted-mid-edit-before.png) | A row deleted mid-edit – before | Two independent views agree: eight films, the film being edited at #1 |
 | [`rs-10-row-deleted-mid-edit-after.png`](rs-10-row-deleted-mid-edit-after.png) | …after | One view deleted it; the other has not noticed, and its save returns 404 with the typed review intact |
 | [`rs-11-no-log-offered-verdict.png`](rs-11-no-log-offered-verdict.png) | Database down, the verdict | No audit row was written, so no log is offered |
 | [`rs-11-no-log-offered-recs.png`](rs-11-no-log-offered-recs.png) | …and the recommendations | The same rule on the sibling feature, so it reads as a rule |
@@ -59,20 +59,20 @@ works, because recovery is the claim a single error frame cannot make.
 are the same panel in the same position, one crimson because something failed
 and one muted because nothing did.
 [`rs-3`'s log row](rs-3-tmdb-down-during-recs-log.png) and
-[`rs-9`'s](rs-9-zero-recommendations-log.png) are nearly indistinguishable —
-both `success`, both charged, both empty — and mean opposite things, which the
+[`rs-9`'s](rs-9-zero-recommendations-log.png) are nearly indistinguishable –
+both `success`, both charged, both empty – and mean opposite things, which the
 application tells apart correctly on the page.
 
-## `pi-*` — prompt injection
+## `pi-*` – prompt injection
 
 Evidence for
 **[Module 17](../../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)**,
 *Security and risk in agentic systems*, which names
 prompt injection as "the foundational one" of the risks belonging specifically
 to agentic systems. The analysis is in
-[`../SECURITY.md`](../SECURITY.md#asi01--agent-goal-hijack) under `ASI01 — Agent
+[`../SECURITY.md`](../SECURITY.md#asi01--agent-goal-hijack) under `ASI01 – Agent
 Goal Hijack`, which maps this project against the OWASP Top 10 for Agentic
-Applications — the checklist that module closes on.
+Applications – the checklist that module closes on.
 
 A seeded film (*The Room*) whose review is itself an attack: instruction override,
 system-prompt exfiltration and output hijack in one string. Added with
@@ -81,9 +81,9 @@ then removed.
 
 | File | What it establishes |
 |---|---|
-| [`pi-1-injection-review-stored.png`](pi-1-injection-review-stored.png) | The attack stored and rendered as inert plain text — `textContent`, never `innerHTML` |
+| [`pi-1-injection-review-stored.png`](pi-1-injection-review-stored.png) | The attack stored and rendered as inert plain text – `textContent`, never `innerHTML` |
 | [`pi-2-verdict-resists.png`](pi-2-verdict-resists.png) | The taste verdict entirely on topic, real cost declared |
-| [`pi-3-recommendations-resist.png`](pi-3-recommendations-resist.png) | Four real TMDB-verified films — and the "Based on:" line proving the attack reached the prompt |
+| [`pi-3-recommendations-resist.png`](pi-3-recommendations-resist.png) | Four real TMDB-verified films – and the "Based on:" line proving the attack reached the prompt |
 | [`pi-4-verdict-with-input.png`](pi-4-verdict-with-input.png) | Attack and verdict in one frame (full page) |
 | [`pi-5-recommendations-with-input.png`](pi-5-recommendations-with-input.png) | Attack and recommendations in one frame (full page) |
 
@@ -92,7 +92,7 @@ line names *The Room* among the five films whose reviews fed that prompt.
 Without it a reader would have to take on trust that the injection was ever
 delivered, and a system resisting something it was never sent proves nothing.
 
-## `ac-*` — acceptance criteria
+## `ac-*` – acceptance criteria
 
 Evidence for the numbered criteria in
 [`SPEC.md` § 7.1](../../SPEC.md#71-must-pass-before-submission). The number in the
@@ -102,22 +102,22 @@ criterion's entry in [`../ACCEPTANCE.md`](../ACCEPTANCE.md).
 | File | Criterion | What it establishes |
 |---|---|---|
 | [`ac-1-search-real-results.png`](ac-1-search-real-results.png) | 1 | A live search for a real title returning real TMDB results, each with a poster, year and score |
-| [`ac-2-duplicate-add-blocked.png`](ac-2-duplicate-add-blocked.png) | 2 | A film already in the list showing a disabled "In your list" button beside live "+ Add" rows — with that film visible in the ranking below |
-| [`ac-3-ranking-one-film.png`](ac-3-ranking-one-film.png) | 3, 4, 6 | A single rated film: rank 1, a `1 film` subtitle, and both AI features locked with their thresholds explained |
+| [`ac-2-duplicate-add-blocked.png`](ac-2-duplicate-add-blocked.png) | 2 | A film already in the list showing a disabled "In your list" button beside live "+ Add" rows – with that film visible in the ranking below |
+| [`ac-3-ranking-one-film.png`](ac-3-ranking-one-film.png) | 3, 4, 6 | A single rated film: rank 1, a `1 film` subtitle and both AI features locked with their thresholds explained |
 | [`ac-3-ranking-empty.png`](ac-3-ranking-empty.png) | 3 | An empty list: the empty-state line, and deliberately no subtitle |
-| [`ac-8-first-commit.png`](ac-8-first-commit.png) | 8 | [The repository root commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) on GitHub: 0 parents, one file, one line of README — nothing a secret could hide in |
+| [`ac-8-first-commit.png`](ac-8-first-commit.png) | 8 | [The repository root commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) on GitHub: 0 parents, one file, one line of README – nothing a secret could hide in |
 
-## `readme-*` — product showcase
+## `readme-*` – product showcase
 
 | File | What it shows |
 |---|---|
 | [`readme-1-hero-ranked-list.png`](readme-1-hero-ranked-list.png) | The page as it lands: a live verdict above the ranking, and the top three of seven films |
 | [`readme-2-recommendations.png`](readme-2-recommendations.png) | Four recommendations, grounded in a named taste profile, cost declared |
-| [`readme-3-ai-call-log.png`](readme-3-ai-call-log.png) | The audit trail: prompt version, model, token split, duration, status, cost |
+| [`readme-3-ai-call-log.png`](readme-3-ai-call-log.png) | The audit trail: Prompt version, model, token split, duration, status, cost |
 
 **No one frame here holds the whole product.** `readme-1` is the landing view,
 so the recommendations section and the AI call log sit below its fold, and it
-shows three of the seven ranked films — those two features are what
+shows three of the seven ranked films – those two features are what
 [`readme-2`](readme-2-recommendations.png) and
 [`readme-3`](readme-3-ai-call-log.png) are for.
 
@@ -145,7 +145,7 @@ differs from the current interface in any way that matters for what it
 demonstrates. Cosmetic examples, not a complete list: the type was
 [scaled to 92%](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954) ([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
 the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/cinerank-project/commit/39387c4b2428d89718e8ae719ea3c374de6cbf88), and the AI call
-log's single-line state — the sentence in [`rs-12`](rs-12-log-cannot-load.png) —
+log's single-line state – the sentence in [`rs-12`](rs-12-log-cannot-load.png) –
 [moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
 
 The interface's copy has also been brought into one consistent dialect of

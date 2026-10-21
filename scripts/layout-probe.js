@@ -4,7 +4,7 @@
  * nothing serves it outside that tool.
  *
  * It resizes its own iframe through the widths it is given, measures the real
- * layout, and POSTs the result back. Classic script, not a module, wrapped in
+ * layout and POSTs the result back. Classic script, not a module, wrapped in
  * one function so it adds no globals to the page it measures.
  *
  * ADAPTING IT to a UI change: the selector lists directly below define what
@@ -66,7 +66,7 @@
     window.frameElement.width = w;
     window.frameElement.style.width = `${w}px`;
     await frames(); await sleep(120); await frames();
-    // A heartbeat: the tool abandons a run that goes quiet (see --stall).
+    // A heartbeat: The tool abandons a run that goes quiet (see --stall).
     fetch(`/__probe/progress?run=${run}&w=${w}`).catch(() => {});
   }
 
@@ -188,7 +188,7 @@
 
   /* ---------- clipboard ----------------------------------------------------- */
 
-  const INVISIBLE = new RegExp(`[${SHY}${String.fromCharCode(0x200b, 0x200c, 0x200e, 0x200f, 0x2060, 0xfeff)}]`); // not U+200D: it joins emoji
+  const INVISIBLE = new RegExp(`[${SHY}${String.fromCharCode(0x200b, 0x200c, 0x200e, 0x200f, 0x2060, 0xfeff)}]`); // not U+200D: It joins emoji
 
   /**
    * What the app's copy handler puts on the clipboard for a selection.
@@ -369,7 +369,7 @@
   }
 
   /**
-   * Every line of text inside the viewport, its container, and every box that
+   * Every line of text inside the viewport, its container and every box that
    * clips it.
    *
    * @param {Element} scope
@@ -448,7 +448,7 @@
   }
 
   /**
-   * Health mode: every check at every width, then the log dialog.
+   * Health mode: Every check at every width, then the log dialog.
    *
    * @param {object} cfg
    * @returns {Promise<{allExact: boolean}>} Whether every width came out exact.
@@ -519,7 +519,7 @@
   }
 
   /**
-   * Diff mode: the baseline and candidate stylesheets, swapped in the same
+   * Diff mode: The baseline and candidate stylesheets, swapped in the same
    * page so data, fonts and DOM are identical.
    *
    * @param {object} cfg
@@ -540,7 +540,7 @@
       same.push({ w, ...compare(a, b) });
     }
     if (!cfg.referenceWidth) return { same, reference: null };
-    // The page regions only: a dialog sized in `vw` reaches a given width at a
+    // The page regions only: A dialog sized in `vw` reaches a given width at a
     // different window width, so the page's reference width is not its own.
     const page = REGIONS.filter((r) => r !== '.log-dialog');
     await setWidth(cfg.referenceWidth); await use(cfg.baselineCss);
@@ -554,7 +554,7 @@
   }
 
   /**
-   * Load the configuration, run the mode, and report back to the tool.
+   * Load the configuration, run the mode and report back to the tool.
    *
    * @returns {Promise<void>}
    */

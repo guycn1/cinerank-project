@@ -1,5 +1,5 @@
 /**
- * All TMDB API calls live here — never inline fetch() in a route handler
+ * All TMDB API calls live here – never inline fetch() in a route handler
  * (CLAUDE.md § Coding Conventions). The browser loads poster images from TMDB's
  * image server directly, by the URLs this module builds. This module is the trusted source of film
  * facts: posters, years, overviews. The AI never supplies those.
@@ -86,8 +86,8 @@ function shapeMovie(raw) {
   // TMDB reports `vote_average: 0` for a title NOBODY HAS VOTED ON. That is the
   // absence of a rating, not a rating of zero: its user vote scale starts at
   // 0.5, so an average of exactly 0 cannot be a real score. Passing it straight
-  // through stored a 0, and the ranked card then read "TMDB 0.0" — worst film
-  // imaginable — for an obscure title with no votes at all.
+  // through stored a 0, and the ranked card then read "TMDB 0.0" – worst film
+  // imaginable – for an obscure title with no votes at all.
   // `vote_count` is the direct signal and is used whenever TMDB sends it. The
   // `avg > 0` test is the fallback, so a payload that happens to omit
   // vote_count can never null out a rating that is genuinely there.
@@ -165,6 +165,6 @@ export async function verifyTitle(title) {
   const wanted = title.trim().toLowerCase();
   const exact = results.find((r) => r.title.trim().toLowerCase() === wanted);
   // Prefer a title-for-title match, else TMDB's top hit. The fallback is a
-  // documented trade (D-054), not an oversight -- see the note above.
+  // documented trade (D-054), not an oversight – see the note above.
   return shapeMovie(exact || results[0]);
 }

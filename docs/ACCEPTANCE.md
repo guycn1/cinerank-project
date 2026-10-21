@@ -1,4 +1,4 @@
-# Acceptance — `SPEC.md` § 7.1, criterion by criterion
+# Acceptance – `SPEC.md` § 7.1, criterion by criterion
 
 [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) lists eight things
 that must pass before submission. This document walks them one at a time and
@@ -6,14 +6,14 @@ attaches the evidence for each, so that ticking a box is a review of something
 written down rather than a recollection.
 
 **Ticking an acceptance criterion is a claim that it was verified.** That claim
-belongs to the authors, not to the agent that helped build the thing — so this
+belongs to the authors, not to the agent that helped build the thing – so this
 file assembles the evidence and stops there. The boxes in
 [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) are ticked by hand.
 
 **That is
 [Module 2](../DOSSIER.md#module-2-the-human-role-what-erodes-and-what-compounds)'s
 accountability rule, applied rather than quoted.** It holds that acceptance
-criteria, the definition of done, and the bar the work must clear are human
+criteria, the definition of done and the bar the work must clear are human
 responsibilities that cannot be passed to the agent, and that a team which
 forgets it "ships whatever the agent happened to produce and calls it a
 decision". An agent marking its own homework as accepted is the cleanest
@@ -41,7 +41,7 @@ on is more useful than a uniform tick:
 automated, this document says so** rather than leaving a reader to find it. A
 mapping that claimed uniform coverage would be worth less than the criteria
 themselves. What varies across the eight is the STRENGTH of the evidence, never
-whether the criterion is met — all eight read satisfied.
+whether the criterion is met – all eight read satisfied.
 
 ## Status
 
@@ -70,9 +70,9 @@ in [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) was marked.)*
 ![The search panel showing four real TMDB results for the query "avatar", each
 with a poster, year and TMDB score](screenshots/ac-1-search-real-results.png)
 
-A live search for `avatar` returning four real TMDB titles — *Avatar* (2009),
+A live search for `avatar` returning four real TMDB titles – *Avatar* (2009),
 *Avatar: Fire and Ash* (2025), *Avatar Aang: The Last Airbender* (2026) and
-*Avatar: The Way of Water* (2022) — each with its real poster, its year and TMDB's
+*Avatar: The Way of Water* (2022) – each with its real poster, its year and TMDB's
 own score. The Add buttons sit in their resting state because none is in the list.
 
 The fourth row clipping at the panel edge is the results panel's height cap doing
@@ -80,7 +80,7 @@ its job, not a cropping artefact; the scrollbar shows more results below.
 
 ### Automated
 
-[`test/routes.test.js`](../test/routes.test.js) — *"GET /api/movies/search
+[`test/routes.test.js`](../test/routes.test.js) – *"GET /api/movies/search
 returns shaped TMDB results, posters included"*. It asserts the whole shaped
 contract rather than a truthy response, because every field is depended on
 downstream:
@@ -97,12 +97,12 @@ downstream:
 A second fixture result deliberately carries **no** `poster_path`, because TMDB
 genuinely omits it for some titles and the client draws its own placeholder
 ([`D-027`](DECISIONS.md#d-027--icons-are-inline-svg-or-plain-characters--never-emoji)).
-The shaped value must be `null` — not an empty string, and not a URL ending in
+The shaped value must be `null` – not an empty string, and not a URL ending in
 the word "null".
 
 **Verified load-bearing rather than merely green.** Removing the null guard in
 `toPosterUrl()` fails this test. Returning `year` as a string instead of a number
-fails it too, and incidentally fails an existing recommendations test — a useful
+fails it too, and incidentally fails an existing recommendations test – a useful
 signal that the field travels further than this route.
 
 **This test was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/32557a7bfd3f3af14f391f754b96046b1d5b9d11), while assembling this document.** Until
@@ -110,7 +110,7 @@ then the suite had exactly two search tests, both failure paths: the 400 for a
 missing query and the 502 for TMDB being unreachable. Every fixture carrying a
 poster (`MATRIX_TMDB`, `UNVOTED_TMDB` and `HEAT_TMDB`) reached the suite only
 through the *add* and *recommendation* tests, never through search. So the single
-behaviour this criterion asserts was the one search behaviour nothing checked —
+behaviour this criterion asserts was the one search behaviour nothing checked –
 which is the sort of thing a mapping exercise is for.
 
 ### Repeatable command
@@ -120,7 +120,7 @@ npm run seed-demo
 ```
 
 A dry run resolves every seed film through `/api/movies/search` and prints what
-came back — the seven seed films, seven exact title-and-year matches, each with
+came back – the seven seed films, seven exact title-and-year matches, each with
 its TMDB id. (`--with-injection` adds an eighth, the
 [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems) demo
 film.) It writes nothing. Anyone can re-run it and read the output.
@@ -133,8 +133,8 @@ application against live TMDB, and a command anyone can re-run.
 ## 2 · Adding a film already in the list is blocked with a clear message, not a duplicate row
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/2fdcdb69e25fc227901ce7e7cc83ceb6f1a24fc8). Satisfied at three independent layers**, which is worth
-stating separately because the criterion makes two claims — that the attempt is
-*blocked with a clear message*, and that no *duplicate row* results — and they are
+stating separately because the criterion makes two claims – that the attempt is
+*blocked with a clear message*, and that no *duplicate row* results – and they are
 guaranteed by different things.
 
 ### Captured
@@ -145,9 +145,9 @@ rank 1 below](screenshots/ac-2-duplicate-add-blocked.png)
 
 One query, four results, and the contrast is the evidence:
 
-* **Mad Max: Fury Road** — already in the list. The button reads **"In your
+* **Mad Max: Fury Road** – already in the list. The button reads **"In your
   list"** and is **disabled**. The action is not offered.
-* **Mad Max** (1979), **Furiosa**, **Beyond Thunderdome** — not in the list. Live
+* **Mad Max** (1979), **Furiosa**, **Beyond Thunderdome** – not in the list. Live
   **"+ Add"** buttons.
 
 **And the same frame proves the premise.** Fury Road is visible at rank 1 in the
@@ -157,7 +157,7 @@ already there, which is the other half of what the criterion asserts.
 
 ### Automated
 
-[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/movies for a film
+[`test/routes.test.js`](../test/routes.test.js) – *"POST /api/movies for a film
 already in the list → 409"*. Asserts the status **and** that the body carries
 `Already in your list`, so a regression to a bare 409, or to a generic 500,
 fails it.
@@ -166,20 +166,20 @@ fails it.
 
 | Layer | Mechanism | Which half of the criterion it guarantees |
 |---|---|---|
-| Database | `tmdb_id integer not null unique` ([`db/schema.sql`](../db/schema.sql)) | **No duplicate row** — not discouraged, impossible |
+| Database | `tmdb_id integer not null unique` ([`db/schema.sql`](../db/schema.sql)) | **No duplicate row** – not discouraged, impossible |
 | Route | Postgres `23505` mapped to **409** with `Already in your list` ([`server/routes/movies.js`](../server/routes/movies.js)) | A clear message rather than a generic failure |
-| Client | `setAddButtonState()` disables the button, labels it `In your list`, and sets an accessible name of *"{title} is already in your list"* | **Blocked** — the action is never offered |
+| Client | `setAddButtonState()` disables the button, labels it `In your list` and sets an accessible name of *"{title} is already in your list"* | **Blocked** – the action is never offered |
 
 **The layers are not redundant.** The client prevents, the route explains, and the
-schema makes the bad outcome unreachable even if both were bypassed — by a direct
+schema makes the bad outcome unreachable even if both were bypassed – by a direct
 API call, say, or by two tabs racing each other.
 
 ### A note on what could not be captured
 
 The **409 toast** itself is not photographed here, and reaching it from the
 interface is genuinely awkward: the button is disabled, so it cannot normally be
-clicked. It was reachable through a stale-button race — adding a film from the
-search panel while a recommendation card still offered it — and
+clicked. It was reachable through a stale-button race – adding a film from the
+search panel while a recommendation card still offered it – and
 [`R3`](../CLAUDE.md#group-a--functional-bugs)
 [closed that](https://github.com/guycn1/cinerank-project/commit/0ddc6b0c05790b66c3586f06ce44ac4bd6418fc3) by making the Add-button sync document-wide rather than
 panel-scoped.
@@ -195,7 +195,7 @@ make unreachable.
 halves of the claim in one frame, and a schema constraint that makes the forbidden
 outcome impossible rather than merely handled.
 
-## 3 · Deleting and re-ranking works correctly with 0, 1, and many films
+## 3 · Deleting and re-ranking works correctly with 0, 1 and many films
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478).** This is the criterion that explicitly asks for *edge
 cases, not just the happy path*, so the two edge sizes were produced
@@ -203,12 +203,12 @@ deliberately rather than waited for: the demo list was emptied one film at a
 time, captured at one and at zero, and rebuilt from
 [`scripts/seed-demo.js`](../scripts/seed-demo.js) afterwards.
 
-### Captured — one film
+### Captured – one film
 
-![The application with a single rated film, showing rank 1, a "1 film" subtitle,
+![The application with a single rated film, showing rank 1, a "1 film" subtitle
 and both AI features locked](screenshots/ac-3-ranking-one-film.png)
 
-The subtitle reads **"1 film"** — singular, and with no "not rated yet" clause,
+The subtitle reads **"1 film"** – singular, and with no "not rated yet" clause,
 because every film present is rated. That is `rankedCountLabel()`’s all-rated
 branch, and getting the pluralisation right at exactly one is the kind of thing
 that is only ever seen in this state.
@@ -224,7 +224,7 @@ and is referenced again there: with one rated film both AI features are below
 threshold, so each shows a disabled trigger beside an explanation naming the
 number required and the number held.
 
-### Captured — zero films
+### Captured – zero films
 
 ![The application with an empty list, showing the empty-state line and no
 subtitle](screenshots/ac-3-ranking-empty.png)
@@ -234,12 +234,12 @@ all** beside the heading.
 
 **That absence is deliberate, and it was checked rather than assumed.**
 `renderRanked()` guards the subtitle behind the count, because
-`rankedCountLabel(0, 0)` would return `"0 films"` — which, sitting directly above
+`rankedCountLabel(0, 0)` would return `"0 films"` – which, sitting directly above
 *"No films yet"*, says nothing twice. The guard had no comment explaining itself
 until this capture prompted the question, and [now does](https://github.com/guycn1/cinerank-project/commit/10d72b89f84adab02a3c8d979b9aa43da9fd3478), so a later tidy-up cannot
 simplify it into an unconditional call and quietly restore the redundancy.
 
-### Captured — many
+### Captured – many
 
 Already evidenced by several existing frames rather than re-shot;
 [`screenshots/readme-1-hero-ranked-list.png`](screenshots/readme-1-hero-ranked-list.png)
@@ -249,15 +249,15 @@ subtitle.
 ### Automated
 
 [`test/routes.test.js`](../test/routes.test.js), two tests, **both [written on
-2026-09-13](https://github.com/guycn1/cinerank-project/commit/a6af5f596e43911bcf637345755ee38e594c074f) while assembling this entry** — the endpoint had no coverage at all
+2026-09-13](https://github.com/guycn1/cinerank-project/commit/a6af5f596e43911bcf637345755ee38e594c074f) while assembling this entry** – the endpoint had no coverage at all
 before:
 
-* *"DELETE /api/movies/:id → 204 with no body"* — the status, an empty body, and
+* *"DELETE /api/movies/:id → 204 with no body"* – the status, an empty body and
   that a delete reaches the movies table.
-* *"DELETE /api/movies/:id when the database rejects it → 500, not a false 204"* —
+* *"DELETE /api/movies/:id when the database rejects it → 500, not a false 204"* –
   the failure shape that matters. Without the route’s error guard a failed delete
   would answer 204, telling the user a film is gone while it is still there.
-  Verified load-bearing: removing that guard fails this test and nothing else.
+  Verified load-bearing: Removing that guard fails this test and nothing else.
 
 **The gap was conspicuous once looked at.**
 [`test/helpers.js`](../test/helpers.js) has defined a `del()` client method
@@ -271,7 +271,7 @@ Two limits, stated rather than papered over:
   no-op, so an assertion about the id would pass whatever the route filtered on.
   That is the trap
   [`D-046`](DECISIONS.md#d-046--the-recommendations-read-stopped-filtering-in-sql-because-the-test-could-not-see-the-bug-otherwise-r2)
-  records — a test that passed against buggy code because the fake ignored the
+  records – a test that passed against buggy code because the fake ignored the
   filter causing the bug. Writing it would manufacture false confidence.
 * **`displayedRanking()` has no unit test.** It lives in
   [`public/app.js`](../public/app.js), a browser script the Node runner cannot
@@ -291,8 +291,8 @@ instead of being left for a reader to discover.
 
 ## 4 · The recommendation action is disabled with an explanation below 3 rated films
 
-**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/c2b550c58ac294cea7acb4137150c535276102cf).** The criterion has two halves — *disabled*, and *with an
-explanation* — and both are visible in one frame.
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/c2b550c58ac294cea7acb4137150c535276102cf).** The criterion has two halves – *disabled*, and *with an
+explanation* – and both are visible in one frame.
 
 ### Captured
 
@@ -307,13 +307,13 @@ see its own evidence is doing half a job.)*
 
 Look at the **"What to watch next"** section:
 
-* **"Get recommendations" is greyed out** — and its sparkle icon is dimmed with
+* **"Get recommendations" is greyed out** – and its sparkle icon is dimmed with
   it, since the icon takes the button's own colour and opacity. It also stops
   twinkling: the disabled rule `button:disabled .ai-sparkle` switches its
   animation off, because a locked control that still twinkles invites a click
   that does nothing.
 * **The explanation names both numbers**: *"Rate at least 3 movies to unlock
-  recommendations (you have 1)."* Not just the requirement — the distance from
+  recommendations (you have 1)."* Not just the requirement – the distance from
   it.
 * **The grid beneath is empty.** No stale cards from a previous run sit under a
   message saying the feature is locked. That is
@@ -322,13 +322,13 @@ Look at the **"What to watch next"** section:
 
 ### Automated
 
-[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+[`test/routes.test.js`](../test/routes.test.js) – *"POST /api/recommendations
 below the rated-film threshold → 422, nothing logged"*. Three assertions, and
 the third is the interesting one:
 
 | Asserted | Why it matters |
 |---|---|
-| Status is **422** | Not a 500 — this is a state the user can act on, not a fault |
+| Status is **422** | Not a 500 – this is a state the user can act on, not a fault |
 | The body matches `/at least 3/` | The explanation reaches the client, rather than a bare status |
 | **No [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row was written** | The guard fires *before* any AI call, so a row here would mean the application recorded a call it never made |
 
@@ -344,13 +344,13 @@ The same shape as
 [criterion 2](#2--adding-a-film-already-in-the-list-is-blocked-with-a-clear-message-not-a-duplicate-row):
 the **client prevents** (a disabled button cannot be clicked) and the **server
 refuses** (422 with a usable message). The server half is therefore not normally
-reachable through the interface — it exists for a direct API call, or a client
+reachable through the interface – it exists for a direct API call, or a client
 that got its state wrong.
 
 That message is one of exactly two in the application flagged `userFacing` and
 passed to the user verbatim rather than replaced with a calm sentence.
 [`R8`](../CLAUDE.md#group-c--copy-and-consistency)
-established the general rule — technical causes go to the log, not the screen —
+established the general rule – technical causes go to the log, not the screen –
 and this is a deliberate exception, because *"Need at least 3 rated films"* is
 the answer to the question the user just asked, not a fault report.
 
@@ -362,15 +362,15 @@ one place rather than duplicated.
 
 ## 5 · A full recommendation run logs a row with real token/cost data, and every shown suggestion is TMDB-verified
 
-**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two claims: the run is **logged with real figures**, and
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two claims: The run is **logged with real figures**, and
 the films shown are **real** rather than invented by the model.
 
-### Captured — what the user sees
+### Captured – what the user sees
 
 ![Four recommended films as cards with real posters, above a footer declaring the
 call's prompt version, model, tokens, cost and duration](screenshots/readme-2-recommendations.png)
 
-Four films, each with a **real TMDB poster** — which is the point. The poster,
+Four films, each with a **real TMDB poster** – which is the point. The poster,
 year and id come from TMDB’s own record, not from the model, because each title
 the model names is looked up before a card is drawn and dropped if TMDB has never
 heard of it.
@@ -378,36 +378,36 @@ heard of it.
 The **"Based on:"** line names the five films that fed the prompt, and the footer
 declares [`recommend_v3`](../prompts/recommend_v3.md), the model, the token count, the cost and the duration.
 
-### Captured — what the audit trail holds
+### Captured – what the audit trail holds
 
 ![The AI call log showing recommendation rows with token splits, per-call cost and
 status](screenshots/readme-3-ai-call-log.png)
 
-The same run, recorded: prompt version, model, tokens split in and out, cost,
-duration and status — beside rows for the other feature and rows that failed.
+The same run, recorded: Prompt version, model, tokens split in and out, cost,
+duration and status – beside rows for the other feature and rows that failed.
 
 ### Automated
 
 Two tests carry this, and both were probed by deletion rather than trusted:
 
-[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+[`test/routes.test.js`](../test/routes.test.js) – *"POST /api/recommendations
 logs a success row holding exactly the shown titles"*. It asserts
 `status: success`, a null `error_text`, the real `estimated_cost_usd`
 taken from **OpenRouter’s own `usage.cost`** rather than the estimate table, the
-token count, and `prompt_version`. Its sharpest assertion is that
-`suggested_titles` holds **exactly what was shown** — three titles the model named
+token count and `prompt_version`. Its sharpest assertion is that
+`suggested_titles` holds **exactly what was shown** – three titles the model named
 and that were then dropped must not appear in the row. An audit trail recording
 what was asked for rather than what was delivered would be worse than none.
 
-[`test/routes.test.js`](../test/routes.test.js) — *"POST /api/recommendations
+[`test/routes.test.js`](../test/routes.test.js) – *"POST /api/recommendations
 drops unverifiable, already-owned and duplicate picks"*. This is the
 verification claim. One run exercises all three drops: a title
 TMDB cannot confirm, a film the user already owns, and two picks resolving to the
-same film. Only the verified, unowned, non-duplicate one survives — and its year
+same film. Only the verified, unowned, non-duplicate one survives – and its year
 and `tmdb_id` come from TMDB, not from the model.
 
 **Both were verified load-bearing by deleting each of the three drop guards in
-turn — the ones for those three cases; every deletion fails both of them, along
+turn – the ones for those three cases; every deletion fails both of them, along
 with the other tests that reach the same guard.** (The service's fourth `continue`
 guard counts a pick whose lookup could not reach TMDB, and is covered by its own
 test.)
@@ -420,14 +420,14 @@ is load-bearing.
 
 ## 6 · The verdict is disabled with an explanation below 2 rated films, and a triggered verdict logs a row with real token/cost data
 
-**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two halves again — the locked state, and the logged run.
+**[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** Two halves again – the locked state, and the logged run.
 
-### Captured — locked below the threshold
+### Captured – locked below the threshold
 
 ![The verdict banner reading "Rate at least 2 movies to get a verdict (you have
 1)" with its button greyed out](screenshots/ac-3-ranking-one-film.png)
 
-*(Third appearance of this capture — it is embedded rather than cross-referenced
+*(Third appearance of this capture – it is embedded rather than cross-referenced
 for the same reason as under
 [criterion 4](#4--the-recommendation-action-is-disabled-with-an-explanation-below-3-rated-films).)*
 
@@ -438,10 +438,10 @@ The banner reads **"Rate at least 2 movies to get a verdict (you have 1)."** and
 threshold it used to be removed from the page entirely, so a new user saw a banner
 with a sentence and no sign anything would ever appear there. Every other locked
 control in the application is disabled rather than absent, so this is consistency
-rather than new design — and the greyed control shows *what* is locked while the
+rather than new design – and the greyed control shows *what* is locked while the
 sentence beside it explains *why*.
 
-### Captured — a real verdict, with its cost
+### Captured – a real verdict, with its cost
 
 ![The verdict banner holding generated text, with a footer declaring prompt
 version, model, tokens, cost and duration](screenshots/readme-1-hero-ranked-list.png)
@@ -454,9 +454,9 @@ are the same figures in the audit trail.
 
 ### Automated
 
-* *"POST /api/taste-verdict below the rated-film threshold → 422"* — the locked
+* *"POST /api/taste-verdict below the rated-film threshold → 422"* – the locked
   half, asserting the status and that the message names the requirement.
-* *"POST /api/taste-verdict logs a success row with real token and cost data"* —
+* *"POST /api/taste-verdict logs a success row with real token and cost data"* –
   the logged half. `status: success`, no error, the stored verdict text, the cost
   from OpenRouter’s `usage.cost`, the token count and [`taste_verdict_v7`](../prompts/taste_verdict_v7.md). It
   also [checks the model on both sides of the call](https://github.com/guycn1/cinerank-project/commit/9dfd99af1e07b7b1bb04d1ddbe784d945e1713ee): the request asks for the
@@ -470,7 +470,7 @@ are the same figures in the audit trail.
 **That second test was [written on 2026-09-13](https://github.com/guycn1/cinerank-project/commit/e71ad7e8ee3c484d2edea2c356d95b9545095f4a) while assembling this entry, because
 it did not exist.** Every [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) assertion in the suite was a failure
 path. The one verdict behaviour this criterion names was the one nothing checked.
-Verified load-bearing: making the service ignore OpenRouter’s reported cost and
+Verified load-bearing: Making the service ignore OpenRouter’s reported cost and
 fall back to the estimate table fails it.
 
 Its `model_used` assertion also covers the other half of
@@ -485,7 +485,7 @@ called. Both halves of that column are now pinned.
 ## 7 · Killing network access to TMDB and to OpenRouter (independently) each produce a graceful inline error
 
 **[Assessed 2026-09-13](https://github.com/guycn1/cinerank-project/commit/0947ef1e6733ca8c7b25dafc28a6d86ea809f7bd).** This criterion has its own document:
-**[`RESILIENCE.md`](RESILIENCE.md)** — sixteen states, twenty-four captures, each
+**[`RESILIENCE.md`](RESILIENCE.md)** – sixteen states, twenty-four captures, each
 measured against a stated definition of "graceful". Three are embedded here; the
 rest are there.
 
@@ -498,12 +498,12 @@ bury the criterion in its own evidence.)*
 normally](screenshots/rs-1-tmdb-down-on-search.png)
 
 A plain-language message inside the results panel, and **the ranked list carries
-on** — including each film’s stored TMDB score, which survives the outage
+on** – including each film’s stored TMDB score, which survives the outage
 because it is a snapshot written at add time rather than a live call.
 [`RESILIENCE.md`](RESILIENCE.md#when-tmdb-is-unreachable) covers two further TMDB surfaces: adding a
 film, and verification failing mid-recommendation.
 
-### OpenRouter unreachable — recommendations
+### OpenRouter unreachable – recommendations
 
 ![The recommendations section reporting it could not generate anything, with a link
 to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
@@ -511,16 +511,16 @@ to the AI call log](screenshots/rs-4-openrouter-down-recs.png)
 A calm sentence with no technical detail, and **no cost footer**, because nothing
 succeeded. The technical cause goes to the log row instead.
 
-### OpenRouter unreachable — the verdict banner
+### OpenRouter unreachable – the verdict banner
 
 ![The verdict banner reporting it could not produce a verdict, with a link to the
 AI call log](screenshots/rs-5-openrouter-down-verdict.png)
 
-This is the criterion’s explicit sub-clause — *"this includes the banner falling
+This is the criterion’s explicit sub-clause – *"this includes the banner falling
 back gracefully, not breaking the whole Home page"*. The banner reports the failure
-in the **same shape** the recommendations section uses — *“Couldn’t come up with a
+in the **same shape** the recommendations section uses – *“Couldn’t come up with a
 verdict right now. See the AI call log for details.”* beside *“Couldn’t generate
-recommendations right now. See the AI call log for details.”* — and the page around
+recommendations right now. See the AI call log for details.”* – and the page around
 it is untouched.
 
 ### Automated
@@ -535,8 +535,8 @@ it is untouched.
 ### Verdict
 
 **Satisfied, and exceeded.** The criterion asks for two dependencies; the captures
-cover four — TMDB, OpenRouter, Supabase, and the application’s own server
-unreachable from an already-open page — plus two states that resemble failures and
+cover four – TMDB, OpenRouter, Supabase and the application’s own server
+unreachable from an already-open page – plus two states that resemble failures and
 are not.
 
 ## 8 · `.gitignore` excludes `.env` from the first commit; `git log` confirms no key ever appears in history
@@ -554,7 +554,7 @@ git log --all --diff-filter=A --name-only --format="" | grep -x "\.env"
 ```
 
 **No output.** `.env` appears in no commit’s file list, on any branch, at any point
-in history — **including [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3)**. It has never been tracked.
+in history – **including [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3)**. It has never been tracked.
 
 ### Does any key-shaped string appear in any blob?
 
@@ -586,7 +586,7 @@ cover every credential the project holds.
 ![GitHub showing commit a93326c: zero parents, one file changed, README.md with a
 single added line](screenshots/ac-8-first-commit.png)
 
-[`a93326c`](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) — **`0 parents`**, so it is demonstrably the root commit — **one file
+[`a93326c`](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3) – **`0 parents`**, so it is demonstrably the root commit – **one file
 changed**, [`README.md`](../README.md), **one line added**: `# cinerank-project`.
 
 That is GitHub’s [repository-creation commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3). It contains no code, no configuration
@@ -595,20 +595,20 @@ there for a secret to be in.** The user checked it by hand and confirmed it hold
 no secret.
 
 [`.gitignore`](../.gitignore) arrives in the very next commit, [`103c4be`](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), with
-`.env` on its second line and [`.env.example`](../.env.example) alongside it —
+`.env` on its second line and [`.env.example`](../.env.example) alongside it –
 the first commit that contains any project content at all:
 
 ```
-# Secrets — never commit (CLAUDE.md § Security & Secrets #1)
+# Secrets – never commit (CLAUDE.md § Security & Secrets #1)
 .env
 .env.local
 *.local
 ```
 
 **So the criterion is met in full**: from the first commit onwards, `.env` is
-excluded and no key is present — absent from [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), which the user
+excluded and no key is present – absent from [the first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), which the user
 checked by hand, and ignored from [the second](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with any project content,
-onwards. The root commit needs no exemption from the scans above — it passes
+onwards. The root commit needs no exemption from the scans above – it passes
 them, because it holds a single line of README.
 
 ### Ongoing enforcement

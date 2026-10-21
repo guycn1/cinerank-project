@@ -5,9 +5,9 @@
  *   npm run check-markdown
  *
  * WHY THIS EXISTS. On 2026-09-12 CLAUDE.md and SPEC.md were found to be rendering
- * wrong on GitHub -- 17 section separators showing as a literal "---" paragraph,
+ * wrong on GitHub – 17 section separators showing as a literal "---" paragraph,
  * and technical identifiers in both files showing a backslash inside their
- * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id, and so on,
+ * code chip (SUPABASE\_URL, recommendation\_logs, tmdb\_id and so on,
  * including all four env var names in the Module 17 security section). The docs are a
  * graded deliverable here, so "it only looks wrong" is not a small problem, and a
  * rendering fault in a file this long is close to unfindable by eye.
@@ -34,7 +34,7 @@ const NL = String.fromCharCode(10);
  * A fenced block opens with THREE OR MORE backticks or tildes. The tilde form was
  * a latent hole until the 2026-09-13 enumeration: the checker knew only backticks,
  * so a ~~~ block would have had its contents scanned as prose and flagged. No file
- * uses one today -- this is insurance, not a fix. Inline strikethrough (~~x~~) is
+ * uses one today – this is insurance, not a fix. Inline strikethrough (~~x~~) is
  * unaffected, because that is two tildes and this needs three.
  *
  * The same test opens and closes a fence; the callers track which by toggling.
@@ -52,17 +52,17 @@ const ALLOWED_SPANS = new Set([
   'D:' + BS + 'tmp',                                  // a real Windows path
   BS + 'S',                                           // a regex token (D-061)
   'text.replace(/(' + BS + 'S)(?=' + BS + 'S)/g, ' + "'$1\u00ad')", // regex (D-061)
-  // NOTE: an entry here was REMOVED on 2026-09-13. It allowlisted the span
-  // `* _ \` in D-011 as "the literal chars tidyVerdict() strips" -- but that
+  // NOTE: An entry here was REMOVED on 2026-09-13. It allowlisted the span
+  // `* _ \` in D-011 as "the literal chars tidyVerdict() strips" – but that
   // backslash was not content, it was a FAILED ESCAPE, and the allowlist was
   // therefore hiding a real defect from rule 1. The source now uses double
   // delimiters, which needs no exemption. Before adding an entry here, confirm
   // the backslash is genuinely part of what is being shown.
-  // The rest are this project's own DOCUMENTATION of the escaping problem --
+  // The rest are this project's own DOCUMENTATION of the escaping problem –
   // they have to show the sequence to describe it. Whole-span matches only.
   BS + '_', BS + '&', BS + '[', BS + '---', '1' + BS + '.', BS + '[ ]',
   '## 1' + BS + '. Test',                             // D-065's escaped-heading example
-  // The other two thematic-break spellings, added 2026-09-13 when rules 3-5
+  // The other two thematic-break spellings, added 2026-09-13 when rules 3–5
   // learned about them and the docs had to quote them to explain them.
   BS + '***', BS + '___',
 ]);
@@ -103,7 +103,7 @@ for (const file of markdownFiles(root)) {
     const n = i + 1;
     if (isFence(line)) { inFence = !inFence; return; }
 
-    // --- RULE 1: an escape inside a code span always renders literally --------
+    // --- RULE 1: An escape inside a code span always renders literally --------
     // This is the one that is genuinely invisible when writing and obvious when
     // rendered, and it is how the \[{title, reason}, ...] defect survived a first
     // pass that had already checked the same character in two other contexts.
@@ -121,7 +121,7 @@ for (const file of markdownFiles(root)) {
       });
     }
 
-    // --- RULE 3: no escaped thematic break ------------------------------------
+    // --- RULE 3: No escaped thematic break ------------------------------------
     // All THREE spellings. CommonMark's thematic break is 3+ of -, * or _, so an
     // escaped one is debris whichever character was used. The 2026-09-13 audit
     // found the checker only knew the hyphen spelling: \*** rendered as a literal
@@ -131,7 +131,7 @@ for (const file of markdownFiles(root)) {
                   ' renders as a literal paragraph, not a rule');
     }
 
-    // --- RULE 4: a bare rule under a text line is a SETEXT HEADING -------------
+    // --- RULE 4: A bare rule under a text line is a SETEXT HEADING -------------
     // Silently promotes the line above to a heading. The reason the 2026-09-12
     // fix DELETED the separators instead of unescaping them.
     //
@@ -147,10 +147,10 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 5: no separator immediately before a heading --------------------
+    // --- RULE 5: No separator immediately before a heading --------------------
     // GitHub rules every h1/h2 itself, so one here draws two lines around the
     // heading. This was briefly dropped from the checker because it fired 38
-    // times on docs/DECISIONS.md -- and then the user looked at how those
+    // times on docs/DECISIONS.md – and then the user looked at how those
     // actually rendered and had them removed, which is what makes the rule
     // enforceable: there is not one left in the repo, so it can never cry wolf
     // and any hit is a real regression. A separator that is NOT before a heading
@@ -166,10 +166,10 @@ for (const file of markdownFiles(root)) {
       }
     }
 
-    // --- RULE 6: a table needs its separator row -------------------------------
+    // --- RULE 6: A table needs its separator row -------------------------------
     // Two or more consecutive pipe lines whose SECOND line is not |---|---| is not
     // a table at all: GitHub renders the whole block as one paragraph full of pipe
-    // characters. Found by the 2026-09-13 audit, which rendered it to be sure --
+    // characters. Found by the 2026-09-13 audit, which rendered it to be sure –
     // many of the repo's markdown files carry tables, so the blast radius is real.
     if (!inFence && /^[ \t]*\|/.test(line)) {
       if (!pipeRun.length) pipeStart = n;
@@ -181,20 +181,20 @@ for (const file of markdownFiles(root)) {
       pipeRun = [];
     }
 
-    // --- RULE 11: no line starts with a plus and a space ----------------------
+    // --- RULE 11: No line starts with a plus and a space ----------------------
     // That is a bullet-list marker, and a bullet list may interrupt a paragraph,
     // so a sentence re-wrapped to put an arithmetic "+" at the start of a line
     // turns its tail into a list item. SPEC.md's turn-count footnote shipped that
     // way: "23 + 401" ended one line and "+ 93 = 517" began the next, which split
     // the footnote's italic across two blocks so both asterisks printed too.
-    // Only the plus: no file here uses + as a bullet, so any hit is a wrapped
+    // Only the plus: No file here uses + as a bullet, so any hit is a wrapped
     // operator, while a - or * after a line of text is usually a real list.
     if (!inFence && /^[ \t]*\+([ \t]|$)/.test(line)) {
       errors.push(`${rel}:${n}  a line starting with "+ " renders as a bullet item; ` +
                   're-wrap so the + is not first on the line');
     }
 
-    // --- COSMETIC: an escape in plain text is noise, not a defect -------------
+    // --- COSMETIC: An escape in plain text is noise, not a defect -------------
     if (!inFence) {
       const plain = line.split(TICK).filter((_, k) => k % 2 === 0).join('');
       for (let c = 0; c < plain.length - 1; c += 1) {
@@ -210,14 +210,14 @@ for (const file of markdownFiles(root)) {
     errors.push(`${rel}:${pipeStart}  table has no |---| separator row, so it renders as a paragraph of pipes`);
   }
 
-  // --- RULE 2: a code span that is opened and never closed ------------------
+  // --- RULE 2: A code span that is opened and never closed ------------------
   // Per-LINE checks cannot see this: a code span may legally wrap across lines,
   // so an odd backtick count on one line is normal and proves nothing. The unit
-  // is the PARAGRAPH, and the test is CommonMark's own rule -- an opening run of
+  // is the PARAGRAPH, and the test is CommonMark's own rule – an opening run of
   // N backticks is closed by the next run of EXACTLY N.
   //
   // Found by the 2026-09-13 audit, which is the only reason this rule exists.
-  // docs/DECISIONS.md D-011 carried `* _ `` -- an attempt to show the three
+  // docs/DECISIONS.md D-011 carried `* _ `` – an attempt to show the three
   // characters tidyVerdict() strips, using a backslash to escape the backtick.
   // Escapes do not work in a code span (rule 1), so the run never closed, and the
   // renderer swallowed the rest of the sentence into the code element. It had
@@ -237,7 +237,7 @@ for (const file of markdownFiles(root)) {
       const text = para.join(NL);
       const runs = text.match(new RegExp(TICK + "+", "g")) || [];
       // CommonMark matching, and the naive version is wrong: an opener is closed
-      // by the NEXT run of EXACTLY its own length, scanning forward -- not by a
+      // by the NEXT run of EXACTLY its own length, scanning forward – not by a
       // stack pop. Runs of a different length in between are CONTENT, which is
       // what makes ``  * _ `  `` a legal way to show a literal backtick.
       const lens = runs.map((r) => r.length);
@@ -264,7 +264,7 @@ for (const file of markdownFiles(root)) {
     check();
   }
 
-  // --- RULE 12: no raw HTML tag in prose -------------------------------------
+  // --- RULE 12: No raw HTML tag in prose -------------------------------------
   // GitHub's renderer treats anything shaped like an HTML tag as HTML. One it
   // does not allow is either escaped or DROPPED, and nothing in the source says
   // which: the RS-8 recipe's “<query>” displayed as an empty pair of quotes,
@@ -281,7 +281,7 @@ for (const file of markdownFiles(root)) {
   // run-length rule. A backslash-escaped `<` is text, and an autolink such as
   // <https://…> is not tag-shaped, so neither is flagged.
   //
-  // One deliberate false positive: a 4-space INDENTED code block is read as
+  // One deliberate false positive: A 4-space INDENTED code block is read as
   // prose, so a tag inside one is flagged. Telling it apart from a list item's
   // indented continuation needs list context, and a wrong guess there would
   // miss a real tag. No file here uses one; fence code instead.

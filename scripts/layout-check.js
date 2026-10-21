@@ -17,7 +17,7 @@
  * MODES
  *   (default)          health: at every width, text stays inside its box and
  *                      the viewport, no two parts of a card overlap, nothing
- *                      scrolls sideways, and every line break inside a word
+ *                      scrolls sideways and every line break inside a word
  *                      obeys softHyphenate()'s rules; plus the verdict typing
  *                      and the clipboard. Exit 1 on any failure.
  *   --baseline=REF     diff: the layout under a baseline stylesheet (a git ref
@@ -120,10 +120,10 @@
  *   browser ran", which fails. "write request(s) held" is informational.
  *
  *   Exit code 0: passed. 1: a check failed, a browser gave no result, no
- *   browser ran, a self-test fault went uncaught, or (diff with
+ *   browser ran, a self-test fault went uncaught or (diff with
  *   --expect-same) something moved. 2: the tool itself failed.
  *
- * Adapting it: the fixtures are below, and the selectors that define "a card"
+ * Adapting it: The fixtures are below, and the selectors that define "a card"
  * and "a component" for the containment and overlap checks are at the top of
  * scripts/layout-probe.js. The hyphenation rules are read out of app.js and
  * styles.css, so they follow the code instead of being restated here. One is
@@ -504,7 +504,7 @@ function removeProfile(profile) {
 }
 
 /**
- * The last sweep: retry every profile still on disk for up to half a minute,
+ * The last sweep: Retry every profile still on disk for up to half a minute,
  * and name any that could not be removed rather than leave them silently.
  *
  * @returns {Promise<void>}

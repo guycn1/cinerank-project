@@ -1,5 +1,5 @@
 /**
- * Runtime configuration: the port, the four secrets and the three service URLs,
+ * Runtime configuration: The port, the four secrets and the three service URLs,
  * the model each AI feature runs on, the two feature thresholds and the top-N
  * window, and the fallback table for estimating cost.
  *
@@ -65,9 +65,9 @@ export const config = {
     // the whole list, infers a taste from the top five rated
     // films and the reviews attached to them (topN below), excludes every title
     // already in the list whether rated or not, and justifies each pick in one
-    // second-person sentence of 8-16 words tied to a specific rating or a pattern
+    // second-person sentence of 8–16 words tied to a specific rating or a pattern
     // across them (prompts/recommend_v3.md).
-    // What makes the cheaper tier right is that the output is CHECKABLE --
+    // What makes the cheaper tier right is that the output is CHECKABLE –
     // structured JSON, every title cross-checked against TMDB, so a bad pick is
     // dropped rather than shown. The verdict has nothing to check it against,
     // which is the actual reason it alone moved up a tier (D-053).
@@ -85,12 +85,12 @@ export const config = {
     // versions failed to get Haiku to write in a plain spoken register; the
     // model turned out to be the constraint, not the wording. When this was
     // chosen (2026-09-11), Sonnet-5 was the cheapest real-time Sonnet on
-    // OpenRouter, at $2/$10 per Mtok against Haiku's $1/$5 — 2x — so this buys
+    // OpenRouter, at $2/$10 per Mtok against Haiku's $1/$5 – 2x – so this buys
     // the register for a rounding error: 0.37–0.40c a verdict on the seven-film
     // demo list as logged on 2026-09-13, a figure that grows with the list, since
     // the verdict reads every rated film. Recommendations stay on Haiku because
     // their output is checkable (see `openrouter.model` above).
-    // NOT a `:batch` slug, however cheap it looks in OpenRouter's list — those
+    // NOT a `:batch` slug, however cheap it looks in OpenRouter's list – those
     // are asynchronous and would break a live request.
     model: process.env.OPENROUTER_VERDICT_MODEL || 'anthropic/claude-sonnet-5',
   },
@@ -99,7 +99,7 @@ export const config = {
 // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions). We ask
 // OpenRouter for the exact cost in its response (openrouter.js sends
 // usage.include=true); this table is only the fallback when that field is
-// absent — a blended USD-per-1M-tokens figure. Unknown model → null, not a guess.
+// absent – a blended USD-per-1M-tokens figure. Unknown model → null, not a guess.
 const PRICE_PER_MTOK = {
   'anthropic/claude-haiku-4.5': 3.0,
   'anthropic/claude-3-haiku': 0.9,
@@ -118,7 +118,7 @@ const PRICE_PER_MTOK = {
  * @param {string} model  The OpenRouter model slug the call ran on.
  * @param {number | null | undefined} tokensUsed  Total tokens, prompt plus completion.
  * @returns {number | null} USD to six decimal places, or null when there are no
- *   tokens to price or the model is not in the table — never a guess.
+ *   tokens to price or the model is not in the table – never a guess.
  */
 export function estimateCostUsd(model, tokensUsed) {
   if (!tokensUsed) return null;

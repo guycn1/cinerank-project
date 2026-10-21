@@ -1,5 +1,5 @@
 /**
- * @file CineRank — taste-verdict UI debug harness. DEV ONLY.
+ * @file CineRank – taste-verdict UI debug harness. DEV ONLY.
  *
  * LOADED BY THE PAGE ON draft, for now: a <script> tag at the bottom of
  * public/index.html and a route in server/index.js that serves this file
@@ -22,7 +22,7 @@
  * the typing effect, the meta footer's wrap) needs many runs at many widths and
  * lengths, and every real run is a paid call to the verdict model.
  *
- * WHAT IT COSTS: nothing. No OpenRouter call and no row in taste_verdict_logs,
+ * WHAT IT COSTS: Nothing. No OpenRouter call and no row in taste_verdict_logs,
  * so nothing appears in the AI call log: the request never leaves the browser.
  *
  * HOW IT WORKS. It replaces `window.fetch` and answers `POST /api/taste-verdict`
@@ -41,7 +41,7 @@
  * - It ends wherever the Nth word ends, mid-sentence and without a full stop,
  *   exactly as lorem ipsum falls.
  *
- * PREREQUISITE: the button's own gate still applies. "New verdict" is enabled
+ * PREREQUISITE: The button's own gate still applies. "New verdict" is enabled
  * only with at least two rated films in the real database, because
  * `GET /api/movies` is not intercepted.
  *

@@ -1,4 +1,4 @@
-# Secrets — never commit (CLAUDE.md § Security & Secrets #1)
+# Secrets – never commit (CLAUDE.md § Security & Secrets #1)
 .env
 .env.local
 *.local

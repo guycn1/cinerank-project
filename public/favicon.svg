@@ -4,7 +4,7 @@
     CineRank's film-reel mark, re-drawn for a browser tab.
 
     ⚠ NEVER WRITE TWO CONSECUTIVE HYPHENS ANYWHERE IN A COMMENT IN THIS FILE.
-    SVG is XML, and XML forbids that sequence inside a comment — the whole file
+    SVG is XML, and XML forbids that sequence inside a comment – the whole file
     then fails to parse and the browser silently shows no icon at all, with no
     console error, because the request itself succeeded. That is exactly what
     happened on the first version of this file: it used the two-hyphen sequence
@@ -14,19 +14,19 @@
     the file (PowerShell: cast the text to [xml]) after any edit to the comments.
 
     NOT AN EXPORT OF THE HEADER LOGO, AND IT CANNOT BE ONE. The mark__reel rule
-    in public/styles.css is pure CSS — a 34px box with a 3px amber border, a
-    radial-gradient inner ring, and a conic-gradient mask cutting a notch — so
+    in public/styles.css is pure CSS – a 34px box with a 3px amber border, a
+    radial-gradient inner ring, and a conic-gradient mask cutting a notch – so
     there was never a file to export. This is a translation of that construction
     into SVG, and a DELIBERATELY COARSER one.
 
-    Why coarser: transcribed 1:1, the inner ring measures 1.12 units of this
+    Why coarser: Transcribed 1:1, the inner ring measures 1.12 units of this
     32-unit viewBox, which is 0.56px at 16px. It aliases into a smudge or
     disappears outright. Four candidates were drawn and compared at 16/24/32/64px
-    on both light and dark tab strips; the user picked this one — the furthest
+    on both light and dark tab strips; the user picked this one – the furthest
     towards faithful that still survives 16px. See step 4 in CLAUDE.md and D-064.
 
     THE TWO RINGS AND THE NOTCH ARE THE MARK. If any of the three values below is
-    ever retuned, re-check it AT 16px and nowhere else — every one of these was
+    ever retuned, re-check it AT 16px and nowhere else – every one of these was
     chosen for that size, and all three look fine at 64px whatever you do to them.
 
       outer ring  r 14,   width 4      (logo: r 14.588, width 2.824)
@@ -36,9 +36,9 @@
 
     Colour is the amber token (#f5c15b) from public/styles.css, hardcoded because
     a standalone favicon cannot read the app's custom properties. If that token
-    ever moves, this file does not follow it automatically — change both.
+    ever moves, this file does not follow it automatically – change both.
 
-    No background disc: the mark sits straight on the tab strip, transparent, so
+    No background disc: The mark sits straight on the tab strip, transparent, so
     it keeps the header's own amber-on-nothing treatment. Considered with a
     #0b0b0f disc behind it and rejected by the user after comparing both on a
     light strip.
@@ -54,7 +54,7 @@
   <!--
     maskUnits is userSpaceOnUse and the region is stated outright. Left to
     default it would be objectBoundingBox, whose region is derived from the
-    masked group's GEOMETRY box (stroke excluded) and padded 10% — workable here,
+    masked group's GEOMETRY box (stroke excluded) and padded 10% – workable here,
     but it puts the outer ring's edge within a rounding error of the mask
     boundary. Stating the region removes the arithmetic entirely.
   -->

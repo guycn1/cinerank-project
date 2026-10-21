@@ -3,12 +3,12 @@ Prompt version: taste_verdict_v4
 Feature: Taste Verdict Banner (SPEC § 2.3)
 Change from v3: v3 over-corrected to a single terse line that just paraphrased the
 numbers ("X scores higher than Y"). v4 gives room back (2–3 sentences, ~35–60
-words) AND redirects the content: characterise the person as a viewer — what they
-want from a film, what bores them, what it says about them — instead of reciting
+words) AND redirects the content: characterise the person as a viewer – what they
+want from a film, what bores them, what it says about them – instead of reciting
 ratings. Tone + injection guard unchanged. Loaded by services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} – ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

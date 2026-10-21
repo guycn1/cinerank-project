@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * @file check-claims.js — the fifth commit gate (CLAUDE.md § Version Control Workflow).
+ * @file check-claims.js – the fifth commit gate (CLAUDE.md § Version Control Workflow).
  *
  * WHY THIS EXISTS. On 2026-09-15 the user found README.md claiming
  * docs/MERGE-READINESS.md read "four met, one open" sixteen hours after that file
- * had flipped to MERGE-READY — and found it by accident. A sweep the day before
+ * had flipped to MERGE-READY – and found it by accident. A sweep the day before
  * had edited BOTH files in one commit and still missed it, because a staleness
  * sweep reads each document forwards ("is what this file says about itself still
  * true") and cannot see a claim ABOUT ANOTHER FILE that the other file has since
@@ -14,7 +14,7 @@
  * path or a link's target, a script, a decision entry, a commit or a span of
  * commits, a line number, an identifier, a capture, an RS key, a section (a
  * link's `#anchor` or a prose `§ 4.5` / `§ Title`), a phrase the project has
- * retired (a passage narrating its own earlier wording among them), or an
+ * retired (a passage narrating its own earlier wording among them) or an
  * invisible character that no reviewer can see. Every one of those can be resolved against the
  * thing it names, so drift in them is a fact, not a matter of taste.
  *
@@ -107,12 +107,12 @@ const SELF = 'scripts/check-claims.js';
 /**
  * The decision log is a PRESERVED record, never a maintained one (CLAUDE.md §
  * Decision Logging). Its entries quote superseded wording and retired function
- * names on purpose — that quotation is the evidence. Checking it for staleness
+ * names on purpose – that quotation is the evidence. Checking it for staleness
  * would demand the destruction of exactly the history it exists to protect, so
  * the two checks that hunt outdated language skip it by name rather than by
  * accident. Everything else about it is still checked: its paths, links and
  * section references, the scripts, D-0NN entries, SHAs, line numbers, captures
- * and RS keys it cites, any invisible character, and any passage narrating its
+ * and RS keys it cites, any invisible character and any passage narrating its
  * own earlier wording.
  */
 const PRESERVED = 'docs/DECISIONS.md';
@@ -249,9 +249,9 @@ function checkCommitLinks() {
 
 /** 5. A file:line reference must be inside that file. */
 function checkLineRefs() {
-  // Uppercase initial REQUIRED too: the first version of this regex matched only
-  // [a-z], so an uppercase filename with a line number sailed past it — caught
-  // by the negative test, not by reading. Six digits: these files are long.
+  // Uppercase initial REQUIRED too: The first version of this regex matched only
+  // [a-z], so an uppercase filename with a line number sailed past it – caught
+  // by the negative test, not by reading. Six digits: These files are long.
   const re = /\b([A-Za-z][A-Za-z0-9_/.-]*\.(?:js|css|html|md)):(\d{1,6})\b/g;
   const lineCount = new Map();
   for (const [f, s] of corpus) lineCount.set(f, s.split('\n').length);
@@ -338,7 +338,7 @@ function indexJavaScript() {
 
 let jsIndex;
 /**
- * indexJavaScript(), run once: checks 6b and 10b both read it.
+ * indexJavaScript(), run once: Checks 6b and 10b both read it.
  *
  * @returns {ReturnType<typeof indexJavaScript>}
  */
@@ -348,7 +348,7 @@ const javaScriptIndex = () => (jsIndex ??= indexJavaScript());
  * 6b. A function a CODE COMMENT names must exist in the code.
  *
  * Check 6 reads markdown only, so for most of this project's life a name in a
- * comment was checked by nothing — and two comments named functions that had
+ * comment was checked by nothing – and two comments named functions that had
  * never existed at all. This resolves against the code TOKENS rather than the
  * raw text, because in the raw text a name that appears only in a comment
  * would vouch for itself.
@@ -399,13 +399,13 @@ function checkCaptures() {
 /**
  * 8. Every RS-n cited in prose must have at least one capture on disk.
  *
- * Narrow on purpose. The tempting neighbour — "does every 'N states' claim match
- * the real count" — was considered and REJECTED, because "two states that look
+ * Narrow on purpose. The tempting neighbour – "does every 'N states' claim match
+ * the real count" – was considered and REJECTED, because "two states that look
  * like failures and are not" is a perfectly good sentence that such a rule would
  * flag. A check that cries wolf buries the ones that matter (CLAUDE.md §
  * Markdown Authoring Rules makes the same argument for what the markdown checker
- * deliberately skips). Scope drift inside a prose claim — "all nine" surviving
- * until the set reached sixteen — stays a reading job, and is named here so
+ * deliberately skips). Scope drift inside a prose claim – "all nine" surviving
+ * until the set reached sixteen – stays a reading job, and is named here so
  * nobody assumes a green run covered it.
  */
 function checkResilienceKeys() {
@@ -426,14 +426,14 @@ function checkResilienceKeys() {
  *
  * A standing rule (CLAUDE.md § Button labels) says the non-breaking space that
  * glues a glyph to its word is written as an ESCAPE in the string, never as a
- * literal character — and the tooling trap under § Environment & tooling traps
+ * literal character – and the tooling trap under § Environment & tooling traps
  * records
  * that escape being collapsed into a literal twice while people tried to write
  * it down. On 2026-09-15 the user found a third: the sentence STATING the rule
  * contained a literal U+00A0 inside its own code span, so the document forbidding
  * the character demonstrated it with one, and rendered as an empty chip.
  *
- * `public/app.js` was clean throughout — the code always obeyed the rule; only
+ * `public/app.js` was clean throughout – the code always obeyed the rule; only
  * the prose describing it did not. Checked here rather than trusted, because an
  * invisible character cannot be reviewed by eye and the repo-wide count is zero,
  * so this can never cry wolf. Zero-width and BOM characters ride along: they are
@@ -536,7 +536,7 @@ function reportSelfNarration(f, text, firstLine = 1) {
  * Authoring Rules, rule 10). What a document or a comment USED TO SAY belongs
  * in the commit message, not in the file.
  *
- * Only the unambiguous forms are matched — "This said", "This read" or "that
+ * Only the unambiguous forms are matched – "This said", "This read" or "that
  * sentence read" before a quotation, "this entry used to…", "this pointed at", "an earlier version of
  * this note", "rather than preserved". The rule's real line is semantic: history of the
  * APP or the CODE stays, history of the WORDING goes, and no pattern can tell

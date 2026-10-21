@@ -2,22 +2,22 @@
 Prompt version: taste_verdict_v7
 Feature: Taste Verdict Banner (SPEC § 2.3)
 Change from v6: the ratio, and nothing else. v5 and v6 both tried to reach a
-casual register by BANNING things, and it did not work — measured across the
+casual register by BANNING things, and it did not work – measured across the
 chain, negative instructions went 16 → 30 → 37 while the number of worked
 examples of the target voice stayed at exactly one, and the prompt doubled in
 size for no gain the user could see.
 
 The split v6 accidentally proved: a STRUCTURAL ban lands immediately (v6 said
 "no semicolons, ever" and the semicolon disappeared from the very next verdict),
-while a VOCABULARY ban does almost nothing. That makes sense — a ban removes one
+while a VOCABULARY ban does almost nothing. That makes sense – a ban removes one
 option and supplies no replacement, so the model satisfies it and then falls
 straight back to its own default voice for the words it does choose. Register is
 not a rule, it is a sample.
 
 So v7 deletes the rewrite table, both "too fancy" examples and the long banned-
-word list, keeps only the structural rules, and carries FOUR worked verdicts in
+word list, keeps only the structural rules and carries FOUR worked verdicts in
 the target voice instead of one. It is shorter than v6 and about the length of v5.
-Deliberately a single-variable change: if the register still does not move, the
+Deliberately a single-variable change: If the register still does not move, the
 prompt is not the lever and the next thing to try is the model or the 0.85
 temperature. Everything about WHAT to say is unchanged since v4. Loaded by
 services/tasteVerdict.js.
@@ -26,7 +26,7 @@ OUTCOME, ADDED AFTER THE FACT SO THE PARAGRAPH ABOVE IS NOT READ AS LIVE ADVICE.
 The register did not move, and the prediction held: the prompt was not the lever,
 the MODEL was. On claude-haiku-4.5 this file produced the worst verdict of the
 chain, and it also broke a rule every version since v4 has kept, writing 4
-sentences against a stated 2-3; the app was rolled back to v6 at that point. The
+sentences against a stated 2–3; the app was rolled back to v6 at that point. The
 same file then landed first try on claude-sonnet-5, register and sentence count
 both, and that is the live configuration: taste_verdict_v7 on claude-sonnet-5,
 the one feature not on the cheaper tier. Changing the 0.85 temperature and real
@@ -35,12 +35,12 @@ docs/DECISIONS.md.
 
 TRAP, AND IT IS THE REASON THIS NOTE IS HERE: v7 is the version that FAILED on
 the cheaper tier. If the verdict is ever moved back down a tier, move the prompt
-back to v6 with it -- the four worked examples below dilute the rules underneath
+back to v6 with it – the four worked examples below dilute the rules underneath
 them on a small model. Do not write a v8 on register grounds; look at the model
 first.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated films, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} – ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 
