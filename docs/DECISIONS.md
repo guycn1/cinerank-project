@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-088 · TMDB's attribution is the footer's credit: the notice in TMDB's own words, with TMDB's approved logo above it
 
-*2026-10-21. Raised by Claude during the dialect pass; every choice below was
+*[2026-10-21](https://github.com/guycn1/cinerank-project/commit/475c56779e1a75df199f826c043bcacb4aa454ca). Raised by Claude during the dialect pass; every choice below was
 the user's.*
 
 **What TMDB's terms ask.** Read from the current

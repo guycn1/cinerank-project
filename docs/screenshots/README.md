@@ -157,7 +157,7 @@ quotations of the captures in [`ACCEPTANCE.md`](../ACCEPTANCE.md) and
 [`RESILIENCE.md`](../RESILIENCE.md) keep the wording each frame shows, so each
 still matches its image.
 
-The footer's credit has changed as well. On 2026-10-21 it became TMDB's
+The footer's credit has changed as well. [On 2026-10-21](https://github.com/guycn1/cinerank-project/commit/475c56779e1a75df199f826c043bcacb4aa454ca) it became TMDB's
 attribution, which is part of TMDB's terms: TMDB's logo on a line of its own,
 above the notice "This website uses TMDB and the TMDB APIs but is not
 endorsed, certified, or otherwise approved by TMDB." Three frames reach the
