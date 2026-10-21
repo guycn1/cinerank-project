@@ -11,6 +11,57 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-088 · TMDB's attribution is the footer's credit: the notice in TMDB's own words, with TMDB's approved logo above it
+
+*2026-10-21. Raised by Claude during the dialect pass; every choice below was
+the user's.*
+
+**What TMDB's terms ask.** Read from the current
+[API Terms of Use](https://www.themoviedb.org/api-terms-of-use) (last updated
+20 October 2023) and the
+[developer FAQ](https://developer.themoviedb.org/docs/faq), not recalled.
+Attribution is part of those terms, and the licence is conditioned on it
+(paragraph 1.B). It has two parts. A notice, placed prominently in or on the
+application, in set words: "This [website, program, service, application,
+product] uses TMDB and the TMDB APIs but is not endorsed, certified, or
+otherwise approved by TMDB." And TMDB's logo, identifying the use, less
+prominent than the application's own marks and implying no endorsement; the
+FAQ adds that it must be one of TMDB's approved logos, unaltered in colour,
+aspect ratio or orientation. The footer carried only "Film data from TMDB."
+
+**The notice.** The Terms' sentence, word for word with "website" taken from
+its list, now stands in the footer in place of the old credit, on the page
+itself and on every view of it. The FAQ words the notice more briefly; the
+Terms' wording was used because the Terms are the agreement.
+* **Built and withdrawn: a "?" icon after the old credit**, opening a panel
+  that held the notice, styled like the AI call log's reveal panels. Claude
+  pointed out that a notice shown only on hover does not read as placed
+  prominently, and the user dropped the idea for the notice in the page
+  itself.
+* **Not built: an About or Credits page.** The FAQ places attribution in such
+  a section. CineRank is one page with none, and its footer is that page's
+  credits area.
+
+**The logo.** TMDB's approved "Alt short" wordmark, TMDB's own file,
+unaltered, served from `public/` ([`tmdb-logo.svg`](../public/tmdb-logo.svg)),
+linked to themoviedb.org, on a line of its own above the notice and sized to
+the notice's text.
+* **Set aside: TMDB's favicon.** It is not among the five approved logos on
+  TMDB's [logos page](https://www.themoviedb.org/about/logos-attribution), and
+  it is a pill with no lettering, so it does not name TMDB.
+* **Built and replaced: the approved "Primary short" square.** The user
+  preferred the Alt short wordmark.
+* **Moved: the logo first sat inline after the notice's full stop**, and the
+  user gave it a line of its own.
+* **Not built: the logo in place of the word "TMDB" inside the notice**, which
+  would change the notice's set wording.
+
+**Traps.**
+* **Do not edit, recolour, dim or reshape `tmdb-logo.svg`**, whether in the
+  file or with `opacity`, a `filter` or a fixed width. TMDB's terms allow its
+  approved logos only, unaltered; the stylesheet sets its height alone.
+* **The notice's wording is TMDB's.** Reword it and it is no longer the notice.
+
 ## D-087 · An open AI-log reveal panel re-flips on scroll, within the room the pinned rows leave
 
 *[2026-10-15](https://github.com/guycn1/cinerank-project/commit/cdd0a3267eab55d458dc4d17fe3c9f7c49ba93e4). The user's request; the measurement's scope was their call, after

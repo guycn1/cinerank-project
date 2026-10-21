@@ -157,6 +157,16 @@ quotations of the captures in [`ACCEPTANCE.md`](../ACCEPTANCE.md) and
 [`RESILIENCE.md`](../RESILIENCE.md) keep the wording each frame shows, so each
 still matches its image.
 
+The footer's credit has changed as well. On 2026-10-21 it became TMDB's
+attribution, which is part of TMDB's terms: TMDB's logo on a line of its own,
+above the notice "This website uses TMDB and the TMDB APIs but is not
+endorsed, certified, or otherwise approved by TMDB." Three frames reach the
+footer, [`ac-3-ranking-empty`](ac-3-ranking-empty.png),
+[`ac-3-ranking-one-film`](ac-3-ranking-one-film.png) and
+[`rs-12`](rs-12-log-cannot-load.png), and they show the one-line credit it
+replaced, "Movie data from TMDB." None of them exists to show the footer, so
+the change takes nothing from what any of them demonstrates.
+
 ## A note on file sizes
 
 These are full-resolution captures, deliberately. Several exceed 3 MB. They are

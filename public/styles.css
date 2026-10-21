@@ -375,13 +375,17 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   .site-head .gh-link { font-size: calc(clamp(48px, 6vw, 63px) * 0.75); }
 }
 
-/* FOOTER instance — the same mark, small, parked at the right edge of the credit
-   line. It needs TWO declarations and no more — the size, and the halo dial
-   below it. Everything else arrives from .gh-link, and the hover halo is in
-   `em` so it scales itself. `rem` and not `em`, because .site-foot sets `font-size: 0.85rem` and an em here would make
-   the icon depend on a value chosen for body copy. */
+/* FOOTER instance — the same mark, small, parked at the right edge of the
+   credit. Everything else arrives from .gh-link, and the hover halo is in `em`
+   so it scales itself. The size is a fixed length rather than `em`, because
+   .site-foot sets `font-size: 0.85rem` and an em here would make the icon
+   depend on a value chosen for body copy. It sits at the top of the credit,
+   level with the TMDB logo, and the negative margin cancels the link's own
+   padding so that the glyph, not its hit area, meets that edge — the same
+   correction the header mark makes. */
 .site-foot__credit .gh-link {
-  font-size: 1.5rem;
+  font-size: 20px;
+  margin-top: calc(-1 * var(--gh-pad));
   /* Bigger glow than the header's, on the user's eye. Not a contradiction of
      the shared `em` sizing: proportional was the right DEFAULT, and a small mark
      on a quiet footer needs a little more spill to register as lit at all. This
@@ -2660,7 +2664,7 @@ button:disabled .sparkle-major { animation: none; }
   justify-content: space-between;
   gap: 1.25rem;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -2701,19 +2705,28 @@ button:disabled .sparkle-major { animation: none; }
 }
 .log-cta__icon { width: 1.15em; height: 1.15em; }
 
-/* The credit sits left, the repo mark at the right edge of the same line.
+/* The credit sits left, the repo mark at the right edge beside it.
    `space-between` rather than an auto margin, because there are exactly two
    children and nothing here needs to survive a third being added quietly.
-   The text is wrapped in its own <span> so the <a> is a sibling of the whole
-   sentence — without it the icon would be just another inline word after the
-   full stop and would sit wherever the line happened to end. */
+   The credit, the TMDB logo and the notice, is wrapped in its own <span> so
+   the <a> is a sibling of all of it — without it the icon would be just
+   another inline word after the full stop and would sit wherever the line
+   happened to end. */
 .site-foot__credit {
   color: var(--ink-faint);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  border-top: 1px dotted rgba(255, 255, 255, 0.08);
+  padding-top: 0.65rem;
 }
+.site-foot__credit > span { font-size: 0.84em; line-height: 1.35; padding-top: 0.1rem; }
+@media (max-width: 850px) {
+  .site-foot__credit > span { font-size: 0.75em; }
+}
+.tmdb-logo { display: block; width: fit-content; margin-bottom: 0.3em; }
+.tmdb-logo img { display: block; height: 0.6em; width: auto; }
 
 @media (max-width: 620px) {
   .log-cta { flex-direction: column; align-items: stretch; }

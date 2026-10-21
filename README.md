@@ -336,7 +336,8 @@ path rather than its endpoints.
 │   ├── index.html               markup, the three dialogs, the inline-SVG templates
 │   ├── app.js                   all client logic: search, ranking, both AI features, the call log
 │   ├── styles.css               every style and animation
-│   └── favicon.svg              a re-draw of the logo reel that still reads at 16px
+│   ├── favicon.svg              a re-draw of the logo reel that still reads at 16px
+│   └── tmdb-logo.svg            TMDB's approved logo for the footer credit, unaltered
 ├── server/                      the Express app behind every /api/* call
 │   ├── index.js                 mounts the routes, serves public/, the central error handler
 │   ├── config.js                the only place the server reads env vars and secrets

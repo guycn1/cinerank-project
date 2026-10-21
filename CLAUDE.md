@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-15
+**Last updated:** 2026-10-21
 
 ### Current state
 
@@ -87,6 +87,19 @@ the verdict harness and its two safeguards (disarmed on every load, never
 installed on the live host).
 
 ### What landed, newest first
+
+#### 2026-10-21
+
+**WHAT LANDED ON 2026-10-21: TMDB's attribution is the footer's credit
+(D-088).** "Film data from TMDB." gave way to the notice in TMDB's terms, word
+for word, with TMDB's approved Alt short logo on a line of its own above it
+(`public/tmdb-logo.svg`, TMDB's own file, unaltered). Both are part of TMDB's
+terms, read from the current Terms of Use and FAQ rather than recalled. D-088
+has the alternatives: the notice in a hover panel, TMDB's favicon and the
+square logo. **Do not edit, recolour, dim or reshape the logo;** the
+stylesheet sets its height alone. Riding along in the footer: the GitHub mark
+is a fixed 20px aligned to the top of the credit, and a dotted rule now
+separates the credit from the AI call log panel above it.
 
 #### 2026-10-15
 
