@@ -7,7 +7,7 @@ governing distinction is that agents produce *descriptive* documentation well �
 what the code does, drawn from the code – and *explanatory* documentation badly,
 because why a thing was built that way is not in the source to be read off.
 
-Both briefs are below. The first already existed and is pointed at rather than
+Both briefs are below. The first already exists and is pointed at rather than
 copied.
 
 ## 1. Interface brief – the Home screen

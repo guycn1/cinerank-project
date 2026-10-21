@@ -2306,7 +2306,7 @@ status is further down this section. What landed:
   into the positioned paint layer, so the poster would paint UNDER an
   overflowing numeral instead of over it, reversing what the `.is-wide` note
   describes. Instead `.movie-card__rank` gets `height: 1em` – which
-  `line-height: 1` already made true, so it is a **no-op on every card without
+  `line-height: 1` already makes true, so it is a **no-op on every card without
   a caption** – and the caption overflows it. `em`, so it tracks the clamp and
   both `.is-unranked` and `.is-wide`.
 
@@ -2820,7 +2820,7 @@ shared inline-SVG `.noposter` (D-027) and `.reason` clamps at 5 lines.
   `Recommendation log write failed: …` and DISCARDED the `errorText` already
   captured from an AI failure. The part that made it more than untidy: that
   cause then survived **nowhere at all**. The row that would have carried it
-  is the write that just failed, and the route answers a
+  was the write that had just failed, and the route answers a
   `RecommendationError` with a calm sentence (R8) rather than letting it
   reach the central handler's `console.error` – so an OpenRouter outage that
   coincided with a DB blip was unexplainable after the fact.
@@ -2877,7 +2877,7 @@ shared inline-SVG `.noposter` (D-027) and `.reason` clamps at 5 lines.
   Against those four it produced two bad substitutions in the same sample –
   `Arrival 2` → a 1906 newsreel, and `Blade Runner 3` → `Blade Runner 2049`.
 
-  **And the commonest way a hallucination gets PAST the check is immune to ANY
+  **And the most common way a hallucination gets PAST the check is immune to ANY
   matching rule** (four of the sample, against two bad substitutions): an
   invented-sounding title like `The Silent Echo`, `Last Light` or
   `Shadow of the Wolf` turns out to be a real obscure film and EXACT-matches,
@@ -4915,12 +4915,12 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   argument for this list existing, and it is worth remembering before the next
   evidence pass is treated as box-ticking.
 
-  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED FOR ITS RS KEY:**
-  `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the first
-  capture. The subdirectory rather than `docs/` itself so nine-plus PNGs do not
-  bury six prose files; the RS key in the filename so a reader's `grep "RS-"`
-  ties every image back to the recipe that produced it, and so the README and
-  SPEC can link them by a path that says what it is. A default
+  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED AFTER ITS RS
+  KEY:** `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the
+  first capture. The subdirectory rather than `docs/` itself so nine-plus PNGs
+  do not bury six prose files; the RS key in the filename so a reader's
+  `grep "RS-"` ties every image back to the recipe that produced it, and so the
+  README and SPEC can link them by a path that says what it is. A default
   `Screenshot 2026-09-13 171841.png` says nothing and would have to be renamed
   before submission anyway.
 

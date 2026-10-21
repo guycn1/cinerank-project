@@ -1423,8 +1423,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        step as this transformed one – and among equals, DOM order decides. The
        card BELOW would then paint over the part of this card's glow that
        spills across the gap beneath it, reintroducing exactly the top/bottom
-       asymmetry the zero Y-offsets just removed. `z-index` needs no `position` here: `.ranked__list`
-       is `display: grid`, and grid items take z-index directly. */
+       asymmetry the zero Y-offsets below remove. `z-index` needs no `position`
+       here: `.ranked__list` is `display: grid`, and grid items take z-index
+       directly. */
     z-index: 1;
     /* ALL LIGHT, NO BLACK – see D-044. The first version led with
        `0 28px 55px -20px rgba(0,0,0,0.95)`, which is invisible here: the page is

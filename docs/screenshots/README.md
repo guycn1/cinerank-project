@@ -3,7 +3,7 @@
 Thirty-seven captures, in four families. Every one is the real application in the
 state described; none is a mock-up or an annotated composite.
 
-**Nothing here is marked up.** No arrows, no highlight boxes, no captions burnt
+**Nothing here is marked up.** No arrows, no highlight boxes, no captions burned
 into the pixels. Where a particular row or line matters, the surrounding prose
 says which – an unedited capture is stronger evidence than one a reader has to
 take on trust.

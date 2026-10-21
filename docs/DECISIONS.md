@@ -80,7 +80,7 @@ sight. The user asked for scrolling to re-flip it the way resizing does.
 stores on each panel. But the measurement treated the whole pane as room, and
 mid-scroll the pinned header row covers the pane's top and the pinned Total
 its bottom. The panel's `z-index: 5` beats their 3 and nothing between them
-forms a stacking context, so a panel that "fit" by the pane's edges was
+forms a stacking context, so a panel that "fitted" by the pane's edges was
 painted across one of those rows. Claude offered both:
 * **The scroll trigger only**, leaving the measurement byte-identical, as
   [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) had deliberately kept it. Smallest, and leaves the overlap.
@@ -2864,7 +2864,7 @@ the bad substitutions 0.36–0.38 – so the obvious fix was: exact → normalis
 similarity floor ~0.75 → drop. It works on paper. Three things argued against
 shipping it:
 
-1. **It cannot touch the commonest failure.** `The Silent Echo`, `Last Light`,
+1. **It cannot touch the most common failure.** `The Silent Echo`, `Last Light`,
    `Shadow of the Wolf` and `The Long Road Home` all sound invented and are all
    real films that exact-match. The strictest possible matcher admits every one.
 2. **Dice alone gets Dr. Strangelove wrong.** The correct long title scores 0.41
@@ -2887,9 +2887,9 @@ and [§6](../SPEC.md#6-ai-features--prompt-discipline), the
 [README](../README.md), [`docs/PROCESS.md`](PROCESS.md) and
 [`CLAUDE.md` § Prompt Versioning](../CLAUDE.md#prompt-versioning--ai-call-discipline).
 SPEC is ANNOTATED rather than rewritten, following the precedent
-[§2.3](../SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) already
-set for the verdict length – the requirement as written stays visible beside
-what was actually built.
+[§2.3](../SPEC.md#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) has
+already set for the verdict length – the requirement as written stays visible
+beside what was actually built.
 
 **The line that matters, and the one to keep saying:** The check confirms a card
 shows **a real film**, not that it shows **the** film the model named. Every fact
@@ -3147,9 +3147,9 @@ four-column card is 237px and already under it.
 **Capping only ever shrinks, which is why it does not disturb the arithmetic
 above.** `fit` is still "how many `--rec-min` cards fit", and a capped card is
 narrower than an uncapped one, so no cap can ever let more cards fit. The
-centring machinery
+centring machinery implemented in
 [R29](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
-had just built absorbs the leftover space for free.
+absorbs the leftover space for free.
 
 **The consequence of the footer move which was easiest to miss:** The spotlight ([D-049](#d-049--the-recs-spotlight-is-ported-at-070--supersedes-d-048s-last-section))
 dimmed the footer only because it was a grid child – that is the whole of its
@@ -3174,10 +3174,10 @@ need, then spread the cards evenly over exactly that many. It can never add a
 row, so it can never make the section taller.
 
 **The interesting decision is not to apply it everywhere.** Ran unrestricted, it
-also rewrites the commonest case: six cards where four fit becomes 3 + 3 instead
-of 4 + 2. That is tidier, and it was rejected – 4 + 2 strands nothing, and
-balancing it makes every card ~36% wider and the whole section markedly taller.
-The user's rule was "avoid rows with only 1 card unless it really has no
+also rewrites the most common case: six cards where four fit becomes 3 + 3
+instead of 4 + 2. That is tidier, and it was rejected – 4 + 2 strands nothing,
+and balancing it makes every card ~36% wider and the whole section markedly
+taller. The user's rule was "avoid rows with only 1 card unless it really has no
 choice", which is narrower than "always even the rows out", and the narrower
 rule is the one implemented: the formula runs only when the natural layout would
 strand a single card. One `> 1` in `balancedColumns()` is the whole of the
@@ -3397,9 +3397,10 @@ where the decision is made.
 where the backlog's own instruction was wrong.** The seed item said the verdict
 "already does this properly (points at the AI call log); copy that shape".
 Reading it, the verdict's fallback offers the log **unconditionally** – so when
-CineRank itself is unreachable, it tells the user to go read a log that cannot
-load either, and swallows the real cause ("Couldn’t reach CineRank…") entirely.
-Copying that shape would have propagated the bug into a second feature.
+CineRank itself is unreachable, it tells the user to go and read a log that
+cannot load either, and swallows the real cause ("Couldn’t reach CineRank…")
+entirely. Copying that shape would have propagated the bug into a second
+feature.
 
 So the offer became conditional, and the condition is a fact the server knows and
 the client cannot: *was a [`recommendation_logs`](../SPEC.md#52-recommendation_logs) row committed for this failure?*
@@ -4156,8 +4157,8 @@ blank forever otherwise.
 [`scripts/backfill-tmdb-rating.js`](../scripts/backfill-tmdb-rating.js) is
 dry-run by default and needs `--write`, updates one row at a time BY ID, writes
 exactly the one column [migration 002](../db/migrations/002_tmdb_rating.sql)
-just created – so no pre-existing value can be overwritten by it – and skips
-rows that already have a value, making a re-run a no-op. It is not run by
+has just created – so no pre-existing value can be overwritten by it – and
+skips rows that already have a value, making a re-run a no-op. It is not run by
 Claude: after [Incident 1](../CLAUDE.md#incident-log) the standing rule is that the user drives anything that
 touches live data.
 
@@ -4556,9 +4557,9 @@ Four options were weighed:
 * **Group unrated films into a labelled sub-section**, or **move them out of the
   ranked list entirely** – both rejected for the same reason: they fight the add
   flow. Adding a film opens the rate dialog with **"Skip for now"**, which is a
-  deferral, not a rejection. The film should stay in the list you just added it
-  to, quietly nagging. Relocating it makes "Skip for now" feel like the film went
-  *somewhere else*.
+  deferral, not a rejection. The film should stay in the list you have just
+  added it to, quietly nagging. Relocating it makes "Skip for now" feel like the
+  film went *somewhere else*.
 * **[Chosen: One list, but only rated films consume a number.](https://github.com/guycn1/cinerank-project/commit/8179cc383e1f94c9201e626201fdeb6a342a016a)** A counter
   (`rankNo`) that increments only when `m.rating != null`; unrated cards show a
   glyph in the rank slot instead.
@@ -4707,9 +4708,9 @@ state, two labels, decided by an unrelated round-trip.
 
 Decision: [Make the "Added" confirmation **sticky**](https://github.com/guycn1/cinerank-project/commit/c6d01d3b055487f32b611d8a2ff5b144c3bcf21f) (a `dataset.justAdded` flag
 honoured by `setAddButtonState`) rather than make skipping reset it. It is the
-more informative of the two labels – it marks what *you* just added versus what
-was already in the list, which matters when adding several films from one result
-set – and it is the state
+more informative of the two labels – it marks what *you* have just added versus
+what was already in the list, which matters when adding several films from one
+result set – and it is the state
 [D-024](#d-024--the-search-results-panel-is-a-persistent-surface-not-a-dropdown)
 went out of its way to keep visible. Removing the film clears the flag, so the
 row offers "+ Add" again.

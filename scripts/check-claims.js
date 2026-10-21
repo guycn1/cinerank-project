@@ -704,8 +704,8 @@ function checkLinkFragments() {
  *
  * Check 1 finds a path only when it starts with a known top-level directory,
  * and 11a moves past a fragment link whose target file is missing, so a
- * relative link inside docs/ to a misspelt file passed both. This resolves each
- * link's target the way GitHub does, relative to the file it sits in, and
+ * relative link inside docs/ to a misspelled file passed both. This resolves
+ * each link's target the way GitHub does, relative to the file it sits in, and
  * accepts any existing file or directory. Fenced blocks and code spans are
  * blanked first, since link syntax quoted there is not a link.
  */

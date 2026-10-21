@@ -921,8 +921,9 @@ function renderRanked() {
       // of one the user had already expanded. The toggle is still hidden here –
       // the rAF'd syncReviewToggles() below reveals it if the text actually
       // clips, and collapses this again if it no longer does. That pass reads
-      // the class we just set as its `wasExpanded`, so restoring here is exactly
-      // what makes it treat a rebuilt card like one that never went away.
+      // the class we have just set as its `wasExpanded`, so restoring here is
+      // exactly what makes it treat a rebuilt card like one that never went
+      // away.
       setReviewExpanded(r, toggle, state.expandedReviews.has(m.id));
       toggle.addEventListener('click', () => {
         setReviewExpanded(r, toggle, !r.classList.contains('expanded'));
@@ -1155,9 +1156,9 @@ function closeSearchResults() {
  *
  * The form calls `preventDefault()`, so it never navigates and the input keeps
  * focus – and with it the keyboard, which then covers the results the search
- * just produced. Nothing else in the app blurs anything, so this was the whole
- * mechanism. Pressing the keyboard's own Go/Search key is the case that needs
- * it: tapping the Search BUTTON moves focus off the input by itself.
+ * has just produced. Nothing else in the app blurs anything, so this was the
+ * whole mechanism. Pressing the keyboard's own Go/Search key is the case that
+ * needs it: tapping the Search BUTTON moves focus off the input by itself.
  *
  * Gated on `(hover: none)` – a capability query, exactly as the hover rules in
  * styles.css are, never a width. On a pointer device there is no soft keyboard
@@ -1261,13 +1262,14 @@ const makeError = (msg) => searchNote(msg, 'err');
  */
 function setAddButtonState(btn, owned) {
   const title = btn.dataset.title;
-  // Three labels, not two. "✓ Added" is stickier than it looks: once set it
+  // Three labels, not two. "✓ Added" is stickier than it looks: once set, it
   // survives every later sync, so it still reads "✓ Added" after the rate
   // dialog closes by EITHER route. Without the flag, saving a rating ran
   // loadMovies() again and quietly reset it to "In your list", while skipping
   // did not – the same state wearing two labels depending on an unrelated
-  // round-trip. It marks what YOU just added versus what was already there.
-  // Removing the film clears the flag, so the row can offer "+ Add" again.
+  // round-trip. It marks what YOU have just added versus what was already
+  // there. Removing the film clears the flag, so the row can offer "+ Add"
+  // again.
   if (!owned) delete btn.dataset.justAdded;
   // A plain "+" (U+002B), not the ➕ emoji: it inherits currentColor, so it
   // goes amber on hover and dims with the :disabled opacity, and it matches
@@ -2223,7 +2225,7 @@ let verdictBarObserver = null; // feeds the paragraph's height to the bar while 
  * motion preference – two different reasons to "render instantly", and only
  * one of them means "this is verdict content".
  * `.sr-only` is never hyphenated either way – same split this function
- * already had for typing: `.verdict__typed` is `aria-hidden`, so embedding
+ * already has for typing: `.verdict__typed` is `aria-hidden`, so embedding
  * U+00AD there never reaches a screen reader, while the announced text must
  * stay exactly what was written.
  * During typing the WHOLE verdict is hyphenated once, up front, and each tick
@@ -2385,7 +2387,7 @@ el.verdictRefresh.addEventListener('click', async () => {
     // Built from nodes, never innerHTML (CLAUDE.md § Security & Secrets, item 4).
     // Bypasses setVerdictText() on purpose: this content is a link plus two
     // text nodes, not a single string, so there is nothing plausible to type.
-    // Safe to write directly – the busy branch above already cancelled any
+    // Safe to write directly – the busy branch above has already cancelled any
     // in-flight typer for this run, and this `catch` cannot run alongside the
     // `try`'s own setVerdictText(verdict, { typed: true }) call.
     if (err.logged) {

@@ -84,8 +84,8 @@ class RecommendationError extends Error {
    * @param {boolean} [flags.logged=false]  A recommendation_logs row was written for this failure, so a
    *   UI may point at the AI call log. Only true once an AI call has actually
    *   been made and its row committed: a failed DB read, an unmet threshold and
-   *   a failed log write all produce NO row, and telling the user to go read one
-   *   would send them to an empty page.
+   *   a failed log write all produce NO row, and telling the user to go and
+   *   read one would send them to an empty page.
    */
   constructor(message, { userFacing = false, logged = false } = {}) {
     super(message);
@@ -331,8 +331,8 @@ export async function generateRecommendations() {
     //
     // What WAS a bug (R5): when the AI call had ALREADY failed, this threw the
     // insert's message and destroyed `errorText`. That cause then survived
-    // nowhere at all – the row that would have carried it is the write that
-    // just failed, and the route answers a RecommendationError with a calm
+    // nowhere at all – the row that would have carried it was the write that
+    // had just failed, and the route answers a RecommendationError with a calm
     // sentence instead of letting it reach the central handler. Two failures,
     // zero records.
     const cause = errorText

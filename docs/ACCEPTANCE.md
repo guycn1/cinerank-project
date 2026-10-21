@@ -352,7 +352,7 @@ passed to the user verbatim rather than replaced with a calm sentence.
 [`R8`](../CLAUDE.md#group-c--copy-and-consistency)
 established the general rule – technical causes go to the log, not the screen –
 and this is a deliberate exception, because *"Need at least 3 rated films"* is
-the answer to the question the user just asked, not a fault report.
+the answer to the question the user has just asked, not a fault report.
 
 ### Verdict
 
