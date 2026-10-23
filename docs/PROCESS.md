@@ -15,7 +15,7 @@ The app was built in a pair-with-an-agent loop: a human sets the goal and the
 acceptance bar, the agent drafts code and prompts, the human reviews the changes
 and runs the app, and each checkpoint is committed with a message that explains
 the reasoning. Rules that keep this honest live in
-[`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable):
+[`CLAUDE.md`'s version control workflow](../CLAUDE.md#version-control-workflow-non-negotiable):
 
 - **Everything on `draft`; `main` only at a settled milestone, to fix a defect
   already published there or as one close-out sync when the work is declared
@@ -120,8 +120,8 @@ the reasoning. Rules that keep this honest live in
   the claims checker against planted probes, and the secret scan against a
   planted OpenRouter key and TMDB key.
 - **Agent work normally starts from a committed checkpoint**, which is what
-  makes reverting a cheap first move rather than a last resort. The rule in
-  [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round – *every* modification is committed
+  makes reverting a cheap first move rather than a last resort. [The rule in
+  `CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) is written the other way round – *every* modification is committed
   and pushed straight away, at natural checkpoints rather than once a session –
   and committing after each change is what leaves the tree clean before the next
   one begins. Measured over the whole history on 2026-10-01: **[over 700 commits on `main`](https://github.com/guycn1/cinerank-project/commits/main)
@@ -215,9 +215,9 @@ stage below is a file a reader can open.
 | Stage | Where it lives | Studied by |
 |---|---|---|
 | **Intent** | [`FRAMING.md`](FRAMING.md) – problem, stakeholders, testable definition of done, out-of-scope list | [Module 6](../DOSSIER.md#module-6-intent-and-the-discipline-of-problem-framing) |
-| **Specification** | [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) – unfrozen, annotated where the build diverged, three spiral turns recorded against commit ranges | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
+| **Specification** | [`SPEC.md`](../SPEC.md) – unfrozen, annotated where the build diverged, [three spiral turns recorded against commit ranges](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) | [Module 10](../DOSSIER.md#module-10-specifications-and-co-evolution-spiral) |
 | **Context** | [`CLAUDE.md`](../CLAUDE.md) – human-written, re-read every session, corrected in place when it was wrong | [Module 11](../DOSSIER.md#module-11-context-engineering-the-agents-briefing) |
-| **Plan** | the backlogs inside [`CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
+| **Plan** | [the backlogs inside `CLAUDE.md`](../CLAUDE.md#agreed-order-of-work-from-here-set-by-the-user-2026-09-09), numbered and worked in order, with withdrawn items kept rather than deleted | — |
 | **Execution** | [over 700 commits on `main`](https://github.com/guycn1/cinerank-project/commits/main) across 23 of the project's first 28 days, median 2 files each, merges excluded (all measured 2026-10-01) | — |
 | **Verification** | five commit gates, plus [`ACCEPTANCE.md`](ACCEPTANCE.md) and [`RESILIENCE.md`](RESILIENCE.md) | [Module 13](../DOSSIER.md#module-13-verification-before-trust) |
 | **Audit trail** | git history, [`DECISIONS.md`](DECISIONS.md) and the application's own [AI call log](AI-CALL-LOG.md) | [Module 4](../DOSSIER.md#module-4-the-anatomy-of-an-agentic-workflow-from-coding-to-engineering) |
@@ -365,7 +365,7 @@ and makes a claim about why the catalogue is worth learning: **"a student who
 can name the mode can reach for the fix."**
 
 This project meets one of them squarely, and in the product rather than in the
-build. **Hallucination invents plausible-sounding falsehoods**, and a recommender
+build. **[Hallucination](../DOSSIER.md#module-3-mental-models-of-agents) invents plausible-sounding falsehoods**, and a recommender
 whose entire job is naming films will, sooner or later, name films that do not
 exist. It is not an edge case here; it is the expected behaviour of the component.
 
@@ -379,9 +379,9 @@ supplies every fact that reaches a card.
 **Measured rather than assumed.** [Thirty probe titles were run against live TMDB](https://github.com/guycn1/cinerank-project/commit/2a1800c5790bfe96cdbd105578b4a4b7a1516c11)
 ([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)):
 **seven of twelve realistic invented titles returned zero results** and were
-dropped exactly as the documentation claimed. The drop path is the common
-outcome, not the rare one – which is the opposite of what this project's own
-backlog had assumed in writing before anyone measured it.
+dropped exactly as the documentation claimed. For an invented title, the drop
+path is the common outcome, not the rare one – which is the opposite of what
+this project's own backlog had assumed in writing before anyone measured it.
 
 **And demonstrated, not only described.**
 [`RS-16` in `RESILIENCE.md`](RESILIENCE.md#rs-16--the-model-named-films-that-do-not-exist)
@@ -496,7 +496,7 @@ log's totals divider from 2px to 1.5px. The declaration changed; **three prose
 descriptions of it did not** – two comments in
 [`public/styles.css`](../public/styles.css), one of them just above the
 declaration it contradicted, and a sentence in
-[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md#the-totals-divider-is-painted-as-backgrounds-not-drawn-as-a-border) that disagreed with the code block
+[`docs/AI-CALL-LOG.md`'s section on the totals divider](AI-CALL-LOG.md#the-totals-divider-is-painted-as-backgrounds-not-drawn-as-a-border) that disagreed with the code block
 quoted just beneath it. Every sweep between then and 2026-09-19 read those
 files and passed over all three.
 
@@ -516,7 +516,7 @@ nothing was skipped for looking boring:
 | **Vocabulary derived from the corpus** | 4,448 number-plus-noun pairs and 1,264 distinct noun heads, read off a frequency table. An allowlist decided in advance is a filter on what can be found – [a 2026-09-16 pass](https://github.com/guycn1/cinerank-project/commit/c0dc73e083a270e1e81ab1e542287d6fb7884722) proved that by filtering 3,681 figures through sixty nouns and therefore being unable to see three of them |
 | **Cross-file comparison as its own pass** | The upgrade that matters most, and the one with a completeness argument behind it rather than a diligence one – see [below](#a-per-file-sweep-is-structurally-incomplete-not-merely-less-thorough) |
 | **Enumerate the referent set** | *"These eight are all X"* is never falsified by any of the eight. It took listing the directory |
-| **Open the artefacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md`](ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history) criterion 8 were re-run rather than quoted |
+| **Open the artefacts, run the commands** | Reading the embedded log capture is what [disproved a cost figure](https://github.com/guycn1/cinerank-project/commit/750056a8eaf986e474497d925fcb31b108165b9e) in [`README.md`](../README.md); the two git commands in [`ACCEPTANCE.md` criterion 8](ACCEPTANCE.md#8--gitignore-excludes-env-from-the-first-commit-git-log-confirms-no-key-ever-appears-in-history) were re-run rather than quoted |
 
 ### A per-file sweep is structurally incomplete, not merely less thorough
 
@@ -578,9 +578,9 @@ documents cross-reference each other as heavily as these do.
 **The finding, which is the part worth reusing.** Every defect sat in a claim
 with **no resolvable referent** – a described value, a figure contradicted by an
 embedded image, a set characterised in the abstract, an enumeration that was
-complete when written. The counts everyone re-checks were correct in every file:
-merges, tests, gates, captures, prompt versions, models, dependencies, reverts.
-**Attention had been going where verification was already cheap.**
+complete when written. The counts that get re-checked were correct in every
+file: merges, tests, gates, captures, prompt versions, models, dependencies,
+reverts. **Attention had been going where verification was already cheap.**
 
 So: **a count is safest when it names its members.** Several now do – the gate
 list, the twelve decision entries behind the AI call log, the five RS states whose
@@ -609,8 +609,8 @@ run also deleted real films the user had added (ratings + reviews, unrecoverable
 `Get-Process node | Stop-Process` also killed the user's running dev server.
 
 Both were process failures, not code bugs. The response is [recorded](https://github.com/guycn1/cinerank-project/commit/9843e9c6e7f0036b94832fe3b207c410cca9c89d) in
-[`CLAUDE.md`](../CLAUDE.md#working-agreements-binding--added-after-incident-1)
-as **binding working agreements**: never run destructive operations against live
+`CLAUDE.md`
+as [**binding working agreements**](../CLAUDE.md#working-agreements-binding--added-after-incident-1): never run destructive operations against live
 data, never bulk-kill processes, tag any unavoidable test rows and delete only
 those. Documenting the failure and the resulting rule is itself part of the
 practice.

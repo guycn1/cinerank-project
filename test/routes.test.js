@@ -866,10 +866,14 @@ async function captureStderr(fn) {
   try {
     await fn();
   } finally {
-    // FALSE POSITIVE, and it is the point of the helper: save, replace, restore
-    // around an await is exactly what a stderr capture IS. The rule cannot tell a
-    // deliberate restore from an accidental stale write, and these tests run
-    // sequentially in one thread.
+    // Restoring console.error trips ESLint's require-atomic-updates rule, and
+    // the directive below switches it off for this one statement, because here
+    // the warning is a false positive. The rule flags a write after an `await`
+    // that may rest on something read before it, and this one does on purpose:
+    // save, replace, restore around an await is exactly what a stderr capture
+    // IS. The rule cannot tell a deliberate restore from an accidental stale
+    // write, and these tests run sequentially in one thread, so nothing else
+    // can touch console.error while fn() is awaited.
     // eslint-disable-next-line require-atomic-updates
     console.error = original;
   }

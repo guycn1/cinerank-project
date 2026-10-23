@@ -24,11 +24,11 @@ three exclusions and `CLAUDE.md` carried four, which is one list too many.
 *The situation, not the fix.*
 
 Someone who watches films steadily accumulates opinions faster than they
-accumulate any way of holding on to them. The opinions end up in three places and
-none of them is much use later: memory, which reorders itself; scattered notes,
-which are never read again; and a streaming service's history, which was built to
-predict what will keep a subscription rather than to reflect a taste back at the
-person who has it.
+accumulate any way of holding on to them. The opinions end up in three places
+and none of them is much use later: memory, which reorders itself; scattered
+notes, which are rarely read again; and a streaming service's history, which was
+built to predict what will keep a subscription rather than to reflect a taste
+back at the person who has it.
 
 A personal ranking is the obvious answer and it fails for a specific reason: **a
 list that only stores is a chore.** Every entry costs effort and returns nothing
@@ -108,7 +108,7 @@ as a rule the agent enforces rather than one the authors have to remember.
 *What will not be built, said plainly.* This is the reconciled list – it
 supersedes the three-item version in
 [`SPEC.md` § 1](../SPEC.md#1-overview--problem-statement) and matches
-[`CLAUDE.md`](../CLAUDE.md#out-of-scope-v1).
+[`CLAUDE.md`'s Out of Scope section](../CLAUDE.md#out-of-scope-v1).
 
 1. **User accounts, authentication, multi-user support.** Single personal list.
    This is not a security gap; the anon-key-versus-service-role split is the

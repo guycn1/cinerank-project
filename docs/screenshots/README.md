@@ -52,7 +52,7 @@ works, because recovery is the claim a single error frame cannot make.
 | [`rs-14-failed-save-retry-succeeds.png`](rs-14-failed-save-retry-succeeds.png) | …and the retry | Server back, Save pressed again, the same text now on the card |
 | [`rs-15-nothing-usable-page.png`](rs-15-nothing-usable-page.png) | Model returned an empty list | A charged call that produced nothing still declares its cost |
 | [`rs-15-nothing-usable-log.png`](rs-15-nothing-usable-log.png) | …and the trail | Empty and malformed logged differently, and a third failure with genuinely null figures |
-| [`rs-16-unverifiable-picks.png`](rs-16-unverifiable-picks.png) | Model named films TMDB cannot find | The hallucination guard firing on every pick, with the cost still declared |
+| [`rs-16-unverifiable-picks.png`](rs-16-unverifiable-picks.png) | Model named films TMDB cannot find | The [hallucination](../../DOSSIER.md#module-3-mental-models-of-agents) guard firing on every pick, with the cost still declared |
 
 **Two pairs are meant to be read against each other.**
 [`rs-1`](rs-1-tmdb-down-on-search.png) and [`rs-8`](rs-8-search-no-matches.png)
@@ -70,8 +70,8 @@ Evidence for
 *Security and risk in agentic systems*, which names
 prompt injection as "the foundational one" of the risks belonging specifically
 to agentic systems. The analysis is in
-[`../SECURITY.md`](../SECURITY.md#asi01--agent-goal-hijack) under `ASI01 – Agent
-Goal Hijack`, which maps this project against the OWASP Top 10 for Agentic
+[`../SECURITY.md` under `ASI01 – Agent
+Goal Hijack`](../SECURITY.md#asi01--agent-goal-hijack), which maps this project against the OWASP Top 10 for Agentic
 Applications – the checklist that module closes on.
 
 A seeded film (*The Room*) whose review is itself an attack: instruction override,

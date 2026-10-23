@@ -392,7 +392,7 @@ nothing on screen. Diffed against the previous stylesheet with
 [`npm run layout-check -- --baseline=HEAD --expect-same`](../scripts/layout-check.js), search results on
 screen, in Chrome and Firefox at fifteen widths from 280px to 800px: not one of
 about 1,790 elements moved at any width. The separators stay. The stylesheet comments and
-[`CLAUDE.md`](../CLAUDE.md#search-section) now describe the flex stacking as the search row's
+[`CLAUDE.md`'s Search section](../CLAUDE.md#search-section) now describe the flex stacking as the search row's
 layout at every width.
 
 **Trap.** Do not "restore" the grid as though it were a regression: it never
@@ -405,7 +405,7 @@ documents; a query above its base rule is the shape of this bug.
 *[2026-09-30](https://github.com/guycn1/cinerank-project/commit/f55e9cbb09eef59364ff79b522be151d59dcb79b). Found by measurement during the causal-claims sweep, and settled
 by the user.*
 
-**What was found.** [`CLAUDE.md`](../CLAUDE.md#early-polish-and-the-ai-call-log) said card mode "pins the whole
+**What was found.** [`CLAUDE.md`'s section on the AI call log](../CLAUDE.md#early-polish-and-the-ai-call-log) said card mode "pins the whole
 `tr.log-total`", and the stylesheet carried `position: sticky` on it. It never
 pinned. In card view the table is `display: block`, so the row's containing
 block is its `<tfoot>`, which is exactly as tall as the row: a sticky element
@@ -425,8 +425,8 @@ as a defect, and do not want the Total card pinned in card view.
 
 **What changed:** The claim, not the behaviour. The three `sticky`
 declarations that never took effect are removed, the stylesheet comment and
-[`CLAUDE.md`](../CLAUDE.md#early-polish-and-the-ai-call-log) now describe the Total card as the last card, and
-[`docs/AI-CALL-LOG.md`](AI-CALL-LOG.md#3-the-scrolling-and-pinning-model) says the pinning model is the table
+[`CLAUDE.md`'s section on the AI call log](../CLAUDE.md#early-polish-and-the-ai-call-log) now describe the Total card as the last card, and
+[`docs/AI-CALL-LOG.md` § 3](AI-CALL-LOG.md#3-the-scrolling-and-pinning-model) says the pinning model is the table
 view's. Removing the declarations was diffed against the previous stylesheet
 in Chrome and Firefox at 400, 800 and 1000px, log dialog open: no element
 moved.
@@ -719,7 +719,7 @@ summarised as one line each. Claude recommended expanding `public/` and
 `test/`, and giving each route file a purpose line rather than its endpoints:
 endpoints in the tree would be a second copy of
 [`SPEC.md` § 4.5](../SPEC.md#45-api-endpoints-draft), which [`b486c10`](https://github.com/guycn1/cinerank-project/commit/b486c107f5034806127a3aee43ac920f5d2d963c) had just
-made the [README](../README.md#architecture)'s single pointer for the API, and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
+made the single pointer for the API in [the README's Architecture section](../README.md#architecture), and [D-074](#d-074--what-the-readmes-project-layout-section-is-for-descriptions-live-in-the-table-containment-is-a-node-identifiers-resolve) records two of nine
 duplicated descriptions drifting within one session. **The user chose to expand
 all three and to annotate the route files with their endpoints, on one
 condition: short, and never the full list of eleven.** So each route file
@@ -766,7 +766,7 @@ made it a candidate.
 **Deleting was the option that looked tidy and measured worst.** Five places
 described the endpoint when this was weighed (there are more now, this entry
 among them): the [SPEC §4.5](../SPEC.md#45-api-endpoints-draft) table row, the paragraph under it saying
-it was kept rather than dropped, a sentence in [`docs/PROCESS.md`](PROCESS.md#4-making-failure-visible-module-13), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it) and a
+it was kept rather than dropped, a sentence in [`docs/PROCESS.md` § 4](PROCESS.md#4-making-failure-visible-module-13), [D-017](#d-017--keep-apirecommendationshistory-rather-than-delete-it) and a
 checkbox in [`CLAUDE.md` § Open issues](../CLAUDE.md#open-issues--todo--all-closed-as-of-2026-09-14). Two of those are awkward rather than trivial:
 `SPEC.md` is **annotated in place, never rewritten**, so the table row would have
 to stay and gain a note; and a decision entry is preserved, so D-017 would need a
@@ -895,7 +895,7 @@ made.*
 
 **The rule.** If prose names another document, that name is a link; if it names
 a SECTION of one, the link goes to the section rather than the file. It exists
-for the stakeholder [`docs/FRAMING.md`](FRAMING.md#stakeholders) already names
+for the stakeholder already named in [`docs/FRAMING.md` § Stakeholders](FRAMING.md#stakeholders)
 – the reader of the repository, who never runs the app and cannot ask a
 question. For that reader an unlinked "see D-046" is a number and a scroll bar.
 
@@ -1089,7 +1089,7 @@ history.
   dash carries the argument correctly – and on cost: a merge needs the count
   updated in three files plus a "twenty-fifth" note explaining why a wording fix
   warranted one, which would be longer than the fix and the most self-undermining
-  paragraph in [`CLAUDE.md`](../CLAUDE.md#build-status).
+  paragraph in [`CLAUDE.md` § Build status](../CLAUDE.md#build-status).
 * **Leave the rule at ground 1 and keep arguing each merge in its own note.**
   That is precisely what produced the *appearance* of erosion: with no written
   bar to hold a candidate against, every merge after the twenty-first had to
@@ -1099,7 +1099,7 @@ history.
   oversight. Failing a written test is a different thing from being forgotten.
 * **Rewrite the merge message on `main`,** which still carries the loose
   phrasing. Rejected: Force-pushing over pushed history. The same call was made
-  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here)
+  for [`619ed64`](https://github.com/guycn1/cinerank-project/commit/619ed649486780e2a6b27e543a6b2d9ebea81202) and it was left as written; the correction lives in [`CLAUDE.md`'s tooling traps](../CLAUDE.md#environment--tooling-traps-all-of-these-have-actually-bitten-here)
   and points at the message instead.
 
 **Where Claude was wrong, twice, inside the one exchange.** First, the phrase
@@ -1158,8 +1158,8 @@ by petering out, and there the fallback is a question, not a merge.
 > the day the course's final assessment deadline passed. The user named that
 > event, so the quiescence prompt was never needed. The same merge also cleared
 > ground 2 on the defects it carried. A close-out sync fires once, so any later
-> merge needs ground 1 or ground 2; the rule in
-> [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) records
+> merge needs ground 1 or ground 2; [the rule in
+> `CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable) records
 > this under ground 3. The entry above stands as the reasoning at the time.
 
 **Traps that follow.**
@@ -1234,7 +1234,7 @@ to protect – and it did, on the first run, naming seven such lines.
 
 The retired-phrase check found an occurrence of "cheap tier" that a hand grep
 had just missed: it sat at the end of a 2,900-character table row in
-[`PROCESS.md`](PROCESS.md#2-prompt-engineering-as-version-control), outside the fixed context window the grep printed.
+[`PROCESS.md` § 2](PROCESS.md#2-prompt-engineering-as-version-control), outside the fixed context window the grep printed.
 The tool reads whole lines and does not care how long they are.
 
 ## D-071 · SECURITY.md's links were made absolute rather than moving the file to the repo root
@@ -1264,8 +1264,8 @@ No relative path can satisfy both bases at once, so there were two real options.
 and plain relative paths work everywhere – no absolute URLs, no branch pinning,
 no hardcoded owner and repo name. **Rejected**, and not for effort: it would
 have rewritten roughly fourteen inbound references across eight files, and it
-would have broken the [`docs/`](./) grouping that [`README.md`](../README.md#documentation)'s own
-documentation map describes to a reader. A large diff across the whole
+would have broken the [`docs/`](./) grouping that [`README.md`'s own
+documentation map](../README.md#documentation) describes to a reader. A large diff across the whole
 repository, days after the planned final merge, to fix six URLs.
 
 **Make the six targets absolute** – `raw.githubusercontent.com` for the captures,
@@ -2199,7 +2199,7 @@ any of those changes, and nothing would catch it.
   a layout rule work is the wrong way round.
 * *Measure the tallest message in JS and set the height.* Reading layout during
   a render is precisely what `syncReviewToggles()`'s three batched passes exist
-  to avoid, for a shift nobody can see.
+  to avoid, for a shift that is barely visible.
 
 **One observation made and deliberately NOT acted on.** `min-height: 1.2em` at
 this element's `0.9rem` computes to 17.28px, where a line box here is
@@ -2851,11 +2851,11 @@ so this cost nothing but time) shows the search is close to token matching:
 | genuine fallback substitutions | 2 | `Arrival 2` → a 1906 newsreel; `Blade Runner 3` → `Blade Runner 2049` |
 | legitimate picks the fallback RESCUED | 4 | Shawshank, LOTR Fellowship, Spider-Verse, Dr. Strangelove |
 
-So the drop path is the common outcome, not an unreachable one, and the audit
-had inverted the cost/benefit. Worth stating plainly: this was Claude's own
-earlier item, written from reading the code without running it against the real
-API. **Reading the code told us what the fallback COULD do; only measuring told
-us how often it does.**
+So for an invented title the drop path is the common outcome, not an unreachable
+one, and the audit had inverted the cost/benefit. Worth stating plainly: this
+was Claude's own earlier item, written from reading the code without running it
+against the real API. **Reading the code told us what the fallback COULD do;
+only measuring told us how often it does.**
 
 **The tiered matcher that was designed and then not built.** The two populations
 separate cleanly on Dice bigram similarity – legitimate rescues score 0.83–1.00,
@@ -3851,7 +3851,7 @@ any film that has a review. No UI path sends it.
   message must never be shown for a violation of either. Both halves have a test,
   and both were verified to fail without their fix rather than assumed to work.
 * One-directional on purpose. A rating with **no** review stays valid – that is
-  the common case, and [backlog #20](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order) is about labelling it in the UI, not
+  a common case, and [backlog #20](../CLAUDE.md#ranked-list-backlog--the-canonical-list-worked-in-numeric-order) is about labelling it in the UI, not
   forbidding it.
 
 ## D-040 · Expanded reviews survive a re-render by lifting the state, not by reusing the elements
@@ -4371,7 +4371,7 @@ readable for the other ~3s, so they are deliberately left alone.
 rebuilds every card – and each card carried `animation: fade-slide` with a
 staggered delay. Rating one film therefore replayed the *entire* list's entrance:
 ~850ms of the whole page shimmering because one number changed. Removing a film
-was worse – the list vanished and re-entered. Meanwhile the [README](../README.md#demo-script)'s demo script
+was worse – the list vanished and re-entered. Meanwhile [the README's demo script](../README.md#demo-script)
 promises "the ranked list **re-sorting live** as ratings change", and there was
 no re-sorting to watch: the list blinked out and a new one faded in.
 
@@ -4533,10 +4533,11 @@ not, and the user disproved it with a sharper test than the one suggested –
 forcing ranks to 20+ instead of 10+, so the narrow `1` could not flatter the
 result.
 
-**Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It is
-the obvious move and it is wrong: cards with wider ranks get a wider first
+**Do NOT "fix" this by auto-sizing the rank track** (`minmax(64px, auto)`). It
+is the obvious move and it is wrong: cards with wider ranks get a wider first
 column, so poster left edges stop aligning down the list – trading a problem
-nobody reaches for one everybody sees. Ranks of 1000+ remain unhandled.
+almost no list ever reaches for one anyone would see at a glance. Ranks of 1000+
+remain unhandled.
 
 
 ## D-029 · Only a rated film earns a rank number – and the crown is not `:first-child`
@@ -4619,7 +4620,7 @@ That left one real fix – ask the model, then re-query TMDB – and it was
 perfectly
 ([D-002](#d-002--the-ai-is-a-component-not-the-product)/[D-005](#d-005--prompt-injection-posture):
 the model produces only a search string, TMDB still supplies every fact, blast
-radius is a weird result). But it is a *third* AI feature where [SPEC](../SPEC.md#6-ai-features--prompt-discipline) scopes two,
+radius is a weird result). But it is a *third* AI feature where [SPEC § 6](../SPEC.md#6-ai-features--prompt-discipline) scopes two,
 and [CLAUDE.md § Coding Conventions](../CLAUDE.md#coding-conventions) requires every OpenRouter call to be logged with
 tokens and cost – neither existing log table fits, so it needs a new
 migration for a third log table, a new service, a versioned prompt file and
@@ -5088,7 +5089,7 @@ Two narrow LLM features (recommendations, taste verdict), each in its own servic
 module, each with its own versioned prompt file. Either can be mocked or removed
 without touching film CRUD. The model never supplies a fact shown to the user:
 recommendations return *titles only*, and TMDB supplies poster/year/overview after
-a cross-check. This is the concrete guard against hallucinated films.
+a cross-check. This is the concrete guard against [hallucinated films](../DOSSIER.md#module-3-mental-models-of-agents).
 
 ## D-001 · Scope: Single-user, no auth – and why that isn't a security hole
 The app is one person's film list. [Module 17](../DOSSIER.md#module-17-security-and-risk-in-agentic-systems)'s real topics – injection, secrets,

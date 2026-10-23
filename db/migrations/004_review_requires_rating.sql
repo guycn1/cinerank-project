@@ -25,7 +25,7 @@
 -- is null` returned no rows, so no existing data is invalidated by this.
 --
 -- Note this is one-directional, deliberately. A rating with no review stays
--- perfectly valid – that is the common case, and backlog #20 is about labelling
+-- perfectly valid – that is a common case, and backlog #20 is about labelling
 -- it in the UI, not forbidding it.
 alter table movies
   drop constraint if exists review_requires_rating;

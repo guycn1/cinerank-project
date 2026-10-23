@@ -882,7 +882,7 @@ counted subjects; and the counts, as they stood that day, for merges (27), tests
 models, dependencies and reverts.
 
 WHAT IT FOUND, as a pattern worth keeping: the defects were never in the figures
-anyone re-reads. They were a value changed in source with three prose
+that get re-read. They were a value changed in source with three prose
 descriptions left behind (the 2px/1.5px divider), a README claim its own
 embedded screenshot disproved (the verdict cost), four documents describing ONE
 enumerable set four different and mutually contradictory ways (the eight
@@ -983,7 +983,7 @@ was ticked by the reconciliation.
 (D-063):** the hint swings one line, 22.4px, once per run, in the same synchronous
 block as R27's `scrollIntoView` and a six-card staggered entrance, so it is
 masked; reserving the tallest message would park 67px of permanent blank space
-on a phone to fix something nobody can see. The same investigation found that
+on a phone to fix something barely visible. The same investigation found that
 `scripts/debug-recs.js` no longer survives a run below the rating threshold –
 its button workaround was complete in 96158b1 and R16 (885a6a5) later added
 grid-clearing to the same branch – kept that way by decision (D-063) and
@@ -1195,7 +1195,7 @@ carries the current state.
     largest accuracy sweep the project had run at that point.
 
     **What that sweep says about the previous twelve is the part worth
-    keeping.** Fourteen defects, and the counts everyone re-checks – merges,
+    keeping.** Fourteen defects, and the counts that get re-checked – merges,
     tests, gates, captures, models – were right in every file. Every defect sat
     in a claim with no resolvable referent: a value changed in source with three
     prose descriptions left behind (a 2px/1.5px divider that had survived twelve
@@ -1871,8 +1871,8 @@ further is scheduled for this section.
     Real, but transient (200–500ms), needs a title whose wrap point falls in
     that window, and the user could not reproduce it. **Do not "fix" it by
     reserving the widest label's width** – that costs every row width all the
-    time to remove a flicker nobody can see, and it makes the crushed-title
-    problem worse.
+    time to remove a flicker nobody has managed to see, and it makes the
+    crushed-title problem worse.
   * **`.search button .busy-label { display: none }` is scoped to the search
     form only**, so the Add button keeps its full "Adding…" label at every
     width. Cosmetic asymmetry, not a defect: its only consequence was the item
@@ -2865,10 +2865,10 @@ shared inline-SVG `.noposter` (D-027) and `.reason` clamps at 5 lines.
   real film" and that "that drop path is nearly unreachable". Measured
   against live TMDB across 30 probe titles: the search is close to TOKEN
   matching rather than fuzzy, and **7 of 12 realistic invented titles
-  returned ZERO results** and were dropped exactly as the docs said. The drop
-  path is the common case, not an unreachable one. The JSDoc carried a
-  matching falsehood – "or null if no confident match", where no confidence
-  test has ever existed.
+  returned ZERO results** and were dropped exactly as the docs said. For an
+  invented title, the drop path is the common case, not an unreachable one.
+  The JSDoc carried a matching falsehood – "or null if no confident match",
+  where no confidence test has ever existed.
 
   **What tightening would have bought, and cost.** The fallback is actively
   rescuing real films the model named imprecisely: `Shawshank Redemption` (no
@@ -4988,8 +4988,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **That log frame is where the cost logging is visible end to end** –
     per-call tokens split in/out, exact cost, duration, a 60-call total, both
-    log tables named and D-053’s two-model split visible in one column (haiku
-    for recommendations, sonnet-5 for the verdict alone). The captured frame
+    log tables named and D-053’s two-model split visible in one column (Haiku
+    for recommendations, Sonnet 5 for the verdict alone). The captured frame
     also proves R26’s colour rule in passing: the hint is `--ink-dim`, not the
     fainter `.is-caption`, because it is the only thing on screen rather than a
     caption introducing content.
@@ -5351,9 +5351,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **This is the state SPEC § 2.2 step 4 and § 6 both build their argument
     on:** the app never trusts the model's output as fact, and a title TMDB
-    returns nothing for is dropped rather than rendered as a broken card. It is
-    also NOT a rare path – D-054 measured seven of twelve realistic invented
-    titles returning zero results.
+    returns nothing for is dropped rather than rendered as a broken card. For
+    an invented title it is also NOT a rare path – D-054 measured seven of
+    twelve realistic invented titles returning zero results.
 
     **Recipe.** Everything working, 3+ rated films, page loaded. In the
     verification loop of `generateRecommendations()`, change
@@ -5741,8 +5741,8 @@ would otherwise be silently undone.
 
 **A commit message or a code comment is not a substitute.** A commit explains a
 diff, a comment explains a line; only the decision log explains a *choice between
-alternatives*, and it is the only one of the three anybody reads before
-undoing something.
+alternatives*, and only it records the options already rejected, which is what
+someone about to undo the choice needs to read.
 
 **Timing and placement:** At the moment the decision is made, ideally in the same
 commit as the change it explains. Newest first – a new entry goes at the TOP of

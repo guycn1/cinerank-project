@@ -282,7 +282,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 .site-head .mark { grid-column: 1; grid-row: 1; }
 .site-head .tagline { grid-column: 1; grid-row: 2; }
 
-/* The link out to the public repo (step 3). There are TWO of these – one in the
+/* The link out to the public repo. There are TWO of these – one in the
    header, one at the right edge of the footer's credit line – so THIS rule is
    the shared look and nothing else. Placement lives with each instance below,
    along with the TWO things that genuinely differ: the size, and the halo
@@ -360,7 +360,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
                                          rather than only where the clamp
                                          happened to be resting. */
 }
-/* Step 5, user-raised, alongside the reel fix (.mark__reel, below). ONE declaration is enough
+/* User-raised, alongside the reel fix (.mark__reel, below). ONE declaration is enough
    here because everything about this icon is already expressed in `em` off
    its own font-size – the SVG (1em), the hit-area padding (`--gh-pad: 0.115em`)
    and the hover halo's blur/spread (both `em`, in the :hover rule below) all
@@ -436,7 +436,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   }
 }
 .mark { display: flex; align-items: center; gap: 0.75rem; }
-/* Step 4b: The logo really did spin, and nobody could tell – everything visible
+/* The logo really did spin, and nobody could tell – everything visible
    on it was rotationally symmetric, so eight seconds of rotation looked like a
    still image.
    The reel carried ONE asymmetric feature, a conic wedge painted in `var(--bg)`.
@@ -455,7 +455,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    animation) the notch sits at 12 o'clock, which still reads as a reel. */
 .mark__reel {
   --reel-notch: 8%;
-  /* Step 5, user-raised (a ~292px screenshot showed it squashed into an oval).
+  /* User-raised (a ~292px screenshot showed it squashed into an oval).
      `.mark` is a flex row and `CineRank` is one unbreakable word with a hard
      min-content width, so once the row ran out of room the browser had to
      shrink SOMETHING – and with no flex-shrink here, the default of 1 let it
@@ -508,7 +508,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   padding: 2.5px;
   /* The warm ring itself. Static – the travelling glint is .verdict__sheen. */
   background: linear-gradient(110deg, var(--amber-deep), var(--crimson), var(--amber));
-  /* Step 4b's mechanism took five passes on 2026-09-11: four failed, and the
+  /* The glint's mechanism took five passes on 2026-09-11: four failed, and the
      fifth is .verdict__sheen below. Keeping the dead ends because every one of
      them was a plausible fix that measurably improved something and still
      failed – and because two of the shapes tried are impossible by
@@ -722,7 +722,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    !important` has already removed the animation outright. */
 .verdict.is-offscreen .verdict__sheen rect { animation-play-state: paused; }
 
-/* ===== THE BUSY CUE (step 4b) =====================================
+/* ===== THE BUSY CUE (D-056) =======================================
    While "New verdict" is generating, the band BRIGHTENS here and SPEEDS UP in
    app.js. The split is not arbitrary – each half is done wherever it can be done
    without a visible seam.
@@ -761,7 +761,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   gap: 1rem;
   flex-wrap: wrap;
 }
-/* Step 5, user-raised: LEFT to natural flex-wrap maths, "New verdict" only
+/* User-raised: LEFT to natural flex-wrap maths, "New verdict" only
    dropped to its own line at ~537px – the point where the label + `.verdict__text`'s
    12rem min-width + the button's own width stopped fitting one row. The user
    wants that forced earlier, at ~680px, with the button's own width UNCHANGED
@@ -858,7 +858,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    those two sit beside real content on a card and should stay quieter than it,
    while this one has nothing to be quieter than. */
 .verdict__text.is-muted { color: var(--ink-dim); font-style: italic; }
-/* The typing effect (step 4b) animates THIS span, never `.verdict__text`
+/* The typing effect (D-057) animates THIS span, never `.verdict__text`
    itself – that element is `aria-live="polite"` and typing its accessible
    text one character at a time would announce it one character at a time.
    `.verdict__typed` is `aria-hidden`; a plain `.sr-only` sibling (built in
@@ -1345,7 +1345,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    flash at full opacity before its turn. Nothing needs the forwards half – the
    final keyframe is `opacity: 1; transform: none`, which is identical to the
    card's natural resting state. Do NOT put `both` back. */
-/* Step 4b: This entrance ran, and was close to invisible. Three causes, all
+/* This entrance ran, and was close to invisible. Three causes, all
    measured before anything was changed, because the mechanism was never the
    problem.
    1. THE CURVE, which was most of it. `var(--ease)` is
@@ -1464,7 +1464,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 
      This only works because D-043 changed the entrance animation's fill from
      `both` to `backwards`. That entrance (`fade-slide` then, `card-enter` since
-     step 4b) animates opacity to 1, and a
+     2026-09-11) animates opacity to 1, and a
      forwards-filling animation keeps applying that final keyframe – which
      outranks normal declarations. With `both`, every first-paint card would have
      been pinned at `opacity: 1` and would simply have refused to dim, silently,
@@ -1653,7 +1653,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    any future non-text content in this column (something with `white-space:
    nowrap`, a wide image) could size the track the same way. This makes the track
    incapable of being pushed open regardless of what lands in it. */
-/* SOFT-HYPHEN BREAKS, AT 400px AND BELOW ONLY (step 5, user-raised, D-059 → D-060).
+/* SOFT-HYPHEN BREAKS, AT 400px AND BELOW ONLY (user-raised, D-059 → D-060).
    `hyphens: auto` was tried first and REMOVED: it only hyphenates at points a
    real dictionary/pattern algorithm trusts, so a real word ("childhood")
    hyphenated correctly while an invented compound ("SquarePants") found no
@@ -1996,7 +1996,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   .score-block > .score-tmdb:not(:first-child) { margin-top: 0; }
 }
 
-/* Step 5, user-raised with a screenshot (innerWidth 316): below ~400px the
+/* User-raised with a screenshot (innerWidth 316): below ~400px the
    score row (`grid-column: 2 / -1` from the 620px block above) only has the
    poster + title columns to work with, and that is not enough room for BOTH
    the rating badge and the buttons. Two visible failures, same root cause:
@@ -2303,7 +2303,7 @@ button:disabled .sparkle-major { animation: none; }
      Its own keyframe rather than the ranked card's: a rec card is roughly three
      times the height of a ranked one, and the 10px of travel it would have
      inherited read as a flicker rather than an arrival (R27). Separate names
-     mean tuning one can never move the other – which paid off at step 4b, when
+     mean tuning one can never move the other – which paid off on 2026-09-11, when
      the ranked card was retuned and split onto `card-enter` without this moving
      at all. */
   animation: rec-enter 0.75s var(--ease) backwards;
@@ -3440,7 +3440,7 @@ body:has(dialog[open]) { overflow: hidden; }
   .log-table tbody tr:last-child td:not(:last-child) {
     border-bottom: 1px solid var(--line-faint);
   }
-  /* Step 5, user-raised with a screenshot: "TOTAL TOKENS" wrapped to two lines
+  /* User-raised with a screenshot: "TOTAL TOKENS" wrapped to two lines
      and read right-aligned instead of left. Root cause: This pseudo-element
      sets no `text-align` of its own, so it INHERITS `text-align: right` from
      `.log-table td` above – the rule that correctly right-aligns the VALUE
@@ -3570,7 +3570,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .toast {
   position: fixed;
   bottom: 1.5rem;
-  /* Step 5, user-caught: `left: 50%` + `width: auto` was quietly starving the
+  /* User-caught: `left: 50%` + `width: auto` was quietly starving the
      shrink-to-fit calculation of half the viewport. Transforms are a
      post-layout visual effect – they never feed back into sizing – so the
      browser computes the box's width BEFORE `translateX(-50%)` ever runs,
@@ -3633,7 +3633,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.err { border-left-color: var(--crimson); }
 
-/* Step 5, user-raised: The toast is otherwise shrink-to-fit (no `width`, just
+/* User-raised: The toast is otherwise shrink-to-fit (no `width`, just
    the `max-width: 90vw` ceiling above), so a short message like "Saved." sits
    narrow while a long error stretches wider – fine on a wide screen, cramped
    on a phone, where every extra millimetre of tap-target and line width
@@ -3720,7 +3720,7 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @keyframes fade-slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-/* The ranked card's entrance (step 4b). Split off `fade-slide` so its travel can
+/* The ranked card's entrance. Split off `fade-slide` so its travel can
    be tuned without moving `.search-results`, which still uses that one. Ends at
    `transform: none` so it composes with the hover scale – see the `backwards`
    note on .movie-card.is-entering, which this must keep satisfying. */
@@ -3728,7 +3728,7 @@ body:has(dialog[open]) { overflow: hidden; }
 
 /* R27. A rec card's own entrance and exit, deliberately not shared with the
    ranked list's (which was `fade-slide` at the time and is `card-enter` since
-   step 4b).
+   2026-09-11).
    The travel is 18px. The ranked card then travelled 10px, and 10px under a
    ~300px-tall poster card is a twitch, not an arrival. The ranked card has
    since moved to 14px on its own, which is exactly the independence the split

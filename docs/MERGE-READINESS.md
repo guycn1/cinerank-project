@@ -84,7 +84,7 @@ agent marking its own homework as accepted would make the whole exercise
 circular.
 
 **Two submission items sat outside this criterion** and were tracked in
-[`CLAUDE.md`](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
+[`CLAUDE.md`'s pre-submission blocker list](../CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14)
 rather than here: putting the live URL on the project sheet, and the
 joint-project registration email. **Both were [completed on 2026-09-14](https://github.com/guycn1/cinerank-project/commit/4ef7534dc688f9e05d23adfe300a9c9c562fde2d).** They
 are recorded separately because they are administration rather than functional
@@ -127,7 +127,7 @@ verification fails while looking rigorous, and each is answered concretely:
   must pass. The must-pass half is the half that matters; a checker that fires
   on valid input gets switched off within a week.
 * **Gate bypass under deadline pressure** – the gates are wired into the commit
-  rules in [`CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
+  [rules in `CLAUDE.md`](../CLAUDE.md#version-control-workflow-non-negotiable)
   rather than left to memory, and one of them ([`check-markdown`](../scripts/check-markdown.js)) exists
   precisely because a class of defect had been slipping past human review for
   over a week.
@@ -252,7 +252,7 @@ fires is the thing this document exists to rule out.
 * **[`docs/DECISIONS.md`](DECISIONS.md)** – usually written at the moment a
   choice was made and in the same commit as the change it explains. The
   standard it is held to is written into
-  [`CLAUDE.md`](../CLAUDE.md#decision-logging-non-negotiable): an entry must
+  [`CLAUDE.md`'s decision-logging rules](../CLAUDE.md#decision-logging-non-negotiable): an entry must
   name the alternatives and why each was rejected, record where the author
   overruled the agent *and* where the agent talked the author out of something,
   and state plainly where the agent was wrong. A log that only records wins is
@@ -275,8 +275,8 @@ fires is the thing this document exists to rule out.
 *A frozen record tying intent, context, tools, and trajectory to the output.*
 
 * **Intent** –
-  [`SPEC.md`](../SPEC.md#specification-status--the-co-evolution-spiral-module-10),
-  annotated in place across the spiral's recorded turns rather than rewritten to
+  [`SPEC.md`](../SPEC.md),
+  annotated in place across [the spiral's recorded turns](../SPEC.md#specification-status--the-co-evolution-spiral-module-10) rather than rewritten to
   agree with the code, so where the two diverged is still readable.
 * **Context** – [`CLAUDE.md`](../CLAUDE.md), human-directed and
   version-controlled, with every change to it a reviewable diff.

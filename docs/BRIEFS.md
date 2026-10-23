@@ -14,7 +14,7 @@ copied.
 
 **It lives in [`SPEC.md` § 3](../SPEC.md#3-interface-design-module-8) and stays
 there.** It is not reproduced here, for the same reason the definition of done
-is not reproduced in [`docs/FRAMING.md`](FRAMING.md#definition-of-done): a brief
+is not reproduced in [`docs/FRAMING.md` § Definition of done](FRAMING.md#definition-of-done): a brief
 held in two places drifts, and then neither is the brief.
 
 It was written as a **governing document**, and it breaks the screen into the

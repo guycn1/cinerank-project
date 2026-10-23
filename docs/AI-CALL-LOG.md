@@ -29,7 +29,7 @@ It is two claims made visible:
   rendered, in the product, for the person being asked to trust the output – not
   for someone with database access.
 * **The answer to OWASP `ASI09`, Human-Agent Trust Exploitation**, in
-  [`SECURITY.md`](SECURITY.md#asi09--human-agent-trust-exploitation). A user
+  [its entry in `SECURITY.md`](SECURITY.md#asi09--human-agent-trust-exploitation). A user
   cannot calibrate trust in a system that will not say what it did. This is what
   saying looks like.
 

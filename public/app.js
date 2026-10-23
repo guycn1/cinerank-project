@@ -221,8 +221,8 @@ const TOAST_SINGLE_LINE_MAX = 630;
 
 /**
  * Would `text` already need more than one line at a normal, >700px toast
- * width – i.e. is it "long" under the user's own definition (step 5,
- * user-raised with a worked example: "Dune saved." must look identical at
+ * width – i.e. is it "long" under the user's own definition
+ * (user-raised with a worked example: "Dune saved." must look identical at
  * 1000/600/450px; only a message that already wraps at normal width should
  * ever widen). A media query alone cannot answer this: it only knows the
  * CURRENT viewport, never whether a piece of text would fit at a DIFFERENT
@@ -610,7 +610,7 @@ const WORD_SEPARATOR = /[\s\p{Pd}]/u;
 
 /**
  * Insert soft hyphens (U+00AD) between adjacent GRAPHEME CLUSTERS inside long
- * words (step 5, D-060/D-061, supersedes D-059's `hyphens: auto`). A soft
+ * words (D-060/D-061, supersedes D-059's `hyphens: auto`). A soft
  * hyphen is a break OPPORTUNITY, not a break – it renders as nothing at all
  * unless it is the exact point a line actually breaks, so this is invisible
  * and inert wherever nothing needs to break. Unlike `hyphens: auto`, it needs
@@ -752,7 +752,7 @@ let rankedPainted = false;
  * Re-render the ranked list, animating the difference when there is one.
  * The first call paints with the staggered entrance instead of a transition.
  *
- * @returns {void}
+ * @returns {void} Nothing; the early `return renderRanked()` is a shortcut.
  */
 function refreshRanked() {
   if (!rankedPainted) return renderRanked();
@@ -789,7 +789,7 @@ function renderRanked() {
     li.className = 'movie-card';
     if (entering) {
       li.classList.add('is-entering');
-      // Step 4b, tuned four times. 45ms -> 70ms was still "almost all at once",
+      // Tuned four times. 45ms -> 70ms was still "almost all at once",
       // and the reason is a RATIO rather than a number: what decides whether a
       // stagger reads as a cascade is how many cards are mid-animation at the
       // same instant, which is duration / stagger. At 70ms against a 600ms card
@@ -1580,12 +1580,16 @@ el.rateForm.addEventListener('submit', async (e) => {
     setRateError(err.message);
   } finally {
     settleSave();
-    // FALSE POSITIVE, checked: The rule fires on any property write to an
-    // outer-scope object after an await, in case that object was swapped
-    // meanwhile. `el` is a const object literal declared once at the top of this
-    // file and never reassigned, so there is no state for this write to be based
-    // on an outdated version of. The directive must sit immediately above the
-    // statement – ESLint applies it to the next LINE, comments included.
+    // Re-enabling Cancel trips ESLint's require-atomic-updates rule, and the
+    // directive below switches it off for this one statement, because here the
+    // warning is a false positive (checked). The rule guards against a race: a
+    // write after an `await` may rest on something read before it, which other
+    // code could have changed while this function was paused. It flags ANY
+    // property write to an outer object after an await. Neither risk applies:
+    // `el` is set once at the top of this file and never replaced, and this
+    // line writes a fixed `false` that depends on nothing read earlier. The
+    // directive must sit directly above the statement: it covers the next line
+    // only, so a comment line in between would take it.
     // eslint-disable-next-line require-atomic-updates
     el.rateCancel.disabled = false;
   }
@@ -2191,7 +2195,7 @@ let verdictTypeTimer = null;
 let verdictBarObserver = null; // feeds the paragraph's height to the bar while typing
 
 /**
- * The SINGLE writer for `#verdict-text`'s content (step 4b's typing effect).
+ * The SINGLE writer for `#verdict-text`'s content (the typing effect, D-057).
  * `.verdict__text` has always had two writers – `syncVerdictAvailability()`
  * and a run – and D-040/R1 is the lesson that a second writer taking the
  * element back mid-animation is exactly the bug shape to avoid. Routing every
@@ -2213,7 +2217,7 @@ let verdictBarObserver = null; // feeds the paragraph's height to the bar while 
  * as before this item existed; the logged failure, which carries a link, is
  * written without this function (see the verdict handler).
  *
- * The VISIBLE span is soft-hyphenated (D-060's approach, step 5), but ONLY
+ * The VISIBLE span is soft-hyphenated (D-060's approach), but ONLY
  * when `typed` is true – i.e. only the real, AI-generated verdict, never a
  * placeholder or an error message (user-caught: it was reaching those too).
  * `!typed` is checked FIRST and returns before hyphenation is even
@@ -2322,7 +2326,7 @@ function syncVerdictAvailability() {
   const have = ratedCount();
   const locked = verdictLocked();
 
-  // DISABLED, NOT HIDDEN (step 4b, the user's call). Below the threshold the
+  // DISABLED, NOT HIDDEN (the user's call). Below the threshold the
   // button used to be removed from the page entirely, so a new user saw a banner
   // with a sentence and no sign that anything would ever appear there. Every
   // other locked control in this app is disabled rather than absent –

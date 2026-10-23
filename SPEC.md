@@ -41,15 +41,15 @@ commit points between turns. **In this repository the commit points are the merg
 to `main`** – the first twenty-one each follow a milestone that was framed, built,
 settled and then locked, after a working session of its own and dozens of commits on
 `draft`. (Merges 22 to 31, which follow [`0cdc4ec`](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e), the final planned one, are not
-milestones. Merges 22 to 29 and the [31st](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905) were defect fixes, the second of the three grounds
-[`CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
+milestones. Merges 22 to 29 and the [31st](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905) were defect fixes, the second of
+[the three grounds `CLAUDE.md`](CLAUDE.md#version-control-workflow-non-negotiable) states, and the
 [30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final assessment deadline on
 2026-10-01, the third ground, and carried defect fixes too. Nothing here counts a merge as
 a turn, so none of them touches the argument either way.)
 Counted that way the project has been through as many turns as it has merges, and
 `git log --merges main` is the authority on that number. It is deliberately not
 repeated here: the same count already lives in
-[`CLAUDE.md`](CLAUDE.md#build-status),
+[`CLAUDE.md` § Build status](CLAUDE.md#build-status),
 [`docs/PROCESS.md` § 1](docs/PROCESS.md#1-working-method) and
 [`docs/MERGE-READINESS.md` § 5](docs/MERGE-READINESS.md#5-full-auditability--met),
 and has drifted once before.
@@ -135,11 +135,11 @@ gate, [`npm run check-markdown`](scripts/check-markdown.js) ([`d1dd505`](https:/
 across 57 cases, together with the authoring rules it enforces in
 [`CLAUDE.md` § Markdown Authoring Rules](CLAUDE.md#markdown-authoring-rules-binding--every-md-file-in-this-repo).
 
-**[This turn is closed.](https://github.com/guycn1/cinerank-project/commit/b1a08b604e1fc8d3f3d32962ab9ff9920fb96e5a)** Its stated closing conditions were the pre-submission
+**[This turn is closed.](https://github.com/guycn1/cinerank-project/commit/b1a08b604e1fc8d3f3d32962ab9ff9920fb96e5a)** Its stated closing conditions were the [pre-submission
 blocker list in
-[`CLAUDE.md`](CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14) and
+`CLAUDE.md`](CLAUDE.md#pre-submission-blockers--all-ticked-as-of-2026-09-14) and
 [§ 7.1](#71-must-pass-before-submission)'s acceptance checkboxes below; both were
-met on 2026-09-14, and [`docs/MERGE-READINESS.md`](docs/MERGE-READINESS.md) reads
+met on 2026-09-14, and [`docs/MERGE-READINESS.md`'s verdict](docs/MERGE-READINESS.md#verdict-reached-on-2026-09-14) reads
 MET on all five of [Module 16](DOSSIER.md#module-16-review-and-quality-legacy-onboarding)'s criteria as a result.
 
 What closed it is what the turn was about. The problem had stopped being "does the
@@ -317,7 +317,15 @@ User requests recommendations → Express route →
 |GET|`/api/recommendations/history`|(optional) view past recommendation runs|
 |POST|`/api/taste-verdict`|Generate a new taste verdict banner message|
 
-*Three more endpoints exist as built, listed here rather than in the table above, which brings this section to all eleven: `GET /api/ai-log` (both log tables merged, newest 60 – the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads), `GET /api/config` (the two rated-film thresholds and the top-N count, so the server stays the single source of those numbers; the client's own copies are only a fallback for this request failing) and `GET /api/health` (liveness probe, used by Render). `/api/recommendations/history` [was kept alongside `/api/ai-log`](https://github.com/guycn1/cinerank-project/commit/bdfee8a27639cf4d4a2b64834d2e9b80adec1fb3) rather than dropped – see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it) – and is kept for good, [with two tests of its own](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7), since [D-077](docs/DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).*
+*Three more endpoints exist as built, so this section lists all eleven:*
+
+|Method|Route|Purpose|
+|-|-|-|
+|GET|`/api/ai-log`|Both log tables merged, newest 60 – the primary audit surface, and what the [in-app viewer](docs/AI-CALL-LOG.md) reads|
+|GET|`/api/config`|The two rated-film thresholds and the top-N count, so the server stays the single source of those numbers; the client's own copies are only a fallback for this request failing|
+|GET|`/api/health`|Liveness probe, used by Render|
+
+*`/api/recommendations/history` [was kept alongside `/api/ai-log`](https://github.com/guycn1/cinerank-project/commit/bdfee8a27639cf4d4a2b64834d2e9b80adec1fb3) rather than dropped – see [`docs/DECISIONS.md` D-017](docs/DECISIONS.md#d-017--keep-apirecommendationshistory-rather-than-delete-it) – and is kept for good, [with two tests of its own](https://github.com/guycn1/cinerank-project/commit/596febecfb252a272075260d9fadb2a71b5043a7), since [D-077](docs/DECISIONS.md#d-077--apirecommendationshistory-is-kept-for-good-and-its-coverage-gap-is-closed-with-a-test-rather-than-a-deletion).*
 
 
 ## 5\. Data Model (Supabase / Postgres)
@@ -355,7 +363,17 @@ Unique constraint on `tmdb_id` – prevents adding the same film twice, gives a 
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|logged per call, per course requirement on cost tracking|
 
-*Five more columns were [added](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) by [migration 001](db/migrations/001_ai_log_details.sql) and are live: `prompt_tokens` and `completion_tokens` (the in/out split behind `tokens_used`), `duration_ms`, `status` (`'success'` | `'failed'`, default `'success'`) and `error_text` (populated only on a failure). They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
+*Five more columns were [added](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) by [migration 001](db/migrations/001_ai_log_details.sql) and are live:*
+
+|Column|Type|Notes|
+|-|-|-|
+|prompt_tokens|integer|the "in" half of `tokens_used`|
+|completion_tokens|integer|the "out" half of `tokens_used`|
+|duration_ms|integer|how long the call took|
+|status|text|`'success'` or `'failed'`, default `'success'`|
+|error_text|text|populated only on a failure|
+
+*They are what makes the "a row is written whether the call succeeds or fails" rule in [§ 4 of `docs/PROCESS.md`](docs/PROCESS.md#4-making-failure-visible-module-13) expressible; a run whose log write fails is discarded rather than shown, with its cause sent to the server's stderr. [`db/schema.sql`](db/schema.sql) is canonical.*
 
 This table is the real DB payoff of the AI feature – it's not just "call the API and show the answer", it's "call the API and keep a real, queryable record of every call", which is a meaningfully different thing.
 
@@ -372,7 +390,15 @@ This table is the real DB payoff of the AI feature – it's not just "call the A
 |tokens\_used|integer|from the OpenRouter response|
 |estimated\_cost\_usd|numeric(10,6)|same cost-logging discipline as recommendations|
 
-*Carries the same five [migration-001](db/migrations/001_ai_log_details.sql) columns as [§ 5.2](#52-recommendation_logs) – `prompt_tokens`, `completion_tokens`, `duration_ms`, `status`, `error_text` – deliberately identical, so the two features cannot drift into two different audit shapes. [`db/schema.sql`](db/schema.sql) is canonical.*
+*Carries the same five [migration-001](db/migrations/001_ai_log_details.sql) columns as [§ 5.2](#52-recommendation_logs), deliberately identical, so the two features cannot drift into two different audit shapes:*
+
+- `prompt_tokens`
+- `completion_tokens`
+- `duration_ms`
+- `status`
+- `error_text`
+
+*[`db/schema.sql`](db/schema.sql) is canonical.*
 
 Smaller/lighter than [§ 5.2](#52-recommendation_logs) by design – this is a low-stakes feature, but it still gets the same auditability treatment, not a shortcut.
 
@@ -381,10 +407,10 @@ Smaller/lighter than [§ 5.2](#52-recommendation_logs) by design – this is a l
 
 Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-wrapper-part) Recommendations, [§2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) Taste Verdict Banner) equally:
 
-* Each feature has its **own versioned prompt file** – [`prompts/recommend_v1.md`](prompts/recommend_v1.md) and [`prompts/taste_verdict_v1.md`](prompts/taste_verdict_v1.md) – never inlined as strings in application code, never sharing one file. *(Those two names are the pattern, and both files still exist, each still sending the model exactly what it always did; `recommend_v1` was edited once, to write its output contract's angle brackets as entities GitHub can display, which the loader decodes back ([D-084](docs/DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)). The chains have since run to [`recommend_v3`](prompts/recommend_v3.md) and [`taste_verdict_v7`](prompts/taste_verdict_v7.md), which are the live versions; every superseded file is kept, and [`docs/PROCESS.md` § 2](docs/PROCESS.md#2-prompt-engineering-as-version-control) tabulates what each bump fixed.)*
+* Each feature has its **own versioned prompt file** – [`prompts/recommend_v1.md`](prompts/recommend_v1.md) and [`prompts/taste_verdict_v1.md`](prompts/taste_verdict_v1.md) – never inlined as strings in application code, never sharing one file. *(Those two names are the pattern, and both files still exist. Neither has ever changed what it sends the model: later edits touched only their developer notes, which the loader strips before sending, and, in `recommend_v1`, the way its output contract writes angle brackets – as entities GitHub can display, which the loader decodes back to the very same characters ([D-084](docs/DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)). The chains have since run to [`recommend_v3`](prompts/recommend_v3.md) and [`taste_verdict_v7`](prompts/taste_verdict_v7.md), which are the live versions; every superseded file is kept, and [`docs/PROCESS.md` § 2](docs/PROCESS.md#2-prompt-engineering-as-version-control) tabulates what each bump fixed.)*
 * The recommendation prompt requires **structured JSON output** (array of `{title, reason}` objects) – the app must not depend on regex-parsing free-form prose.
 * The taste verdict prompt requires a **short plain-text output** (one or two sentences as specified; 2–3 as shipped, see [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)) – no JSON needed here since there's nothing structured to extract, but a max-length instruction is included in the prompt so the banner can't get a five-paragraph response.
-* The recommendation prompt explicitly instructs the model to suggest only real, existing films – but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model hallucinating a title that doesn't exist *(and it does catch that case – an invented title returns nothing from TMDB and is dropped, which measurement confirmed is the common outcome rather than the rare one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on § 2.2 step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
+* The recommendation prompt explicitly instructs the model to suggest only real, existing films – but the app **never trusts this claim**; every suggestion is verified against TMDB before being shown ([§ 2.2](#22-ai-powered-recommendations-the-non-wrapper-part), step 4). This is the concrete guard against the model [hallucinating](DOSSIER.md#module-3-mental-models-of-agents) a title that doesn't exist *(and it does catch that case: a title TMDB returns nothing for is dropped, and when made-up titles were tried against live TMDB, most of them returned nothing. Those were invented test titles, not the model's own picks, so the test shows what happens to a hallucinated title, not how often the model produces one. What it does not promise is that the film shown is the one the model had in mind; see the annotation on § 2.2 step 4 and [`docs/DECISIONS.md` D-054](docs/DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened))*. The taste verdict feature has no equivalent fact-check need since it's pure opinion/commentary, not a factual claim.
 * See [CLAUDE.md § Security \& Secrets](CLAUDE.md#security--secrets-module-17), item 5 ("Prompt injection awareness"), for how user-supplied review text – which feeds into *both* prompts – is handled safely. **The guard is also demonstrated rather than only described: [`docs/screenshots/pi-1` … `pi-5`](docs/screenshots/README.md#pi---prompt-injection) capture a seeded film whose review is a real injection attempt, with both features unaffected and the app's own "Based on:" line confirming the attack text reached the prompt. Mapped against [OWASP ASI01 in `docs/SECURITY.md`](docs/SECURITY.md#asi01--agent-goal-hijack).**
 
 
@@ -405,11 +431,11 @@ Applies to **both** AI features ([§2.2](#22-ai-powered-recommendations-the-non-
 
 ### 7.2 Manual Demo Script
 
-*Four steps below have been overtaken by what got built, and the script in [`README.md`](README.md#demo-script) is the one to actually follow. Step 1's empty list is no longer where the app opens: it ships with a seven-film demo list ([`docs/DECISIONS.md` D-068](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)), so the README's script starts from that, and an empty list is shown in [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md#3--deleting-and-re-ranking-works-correctly-with-0-1-and-many-films) instead. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost – which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real. Step 5's two states are refused before any request is sent: an Add button for a film already in the list is disabled and reads `In your list`, and below the threshold the recommendation trigger is disabled with the reason beside it, which are the graceful states to show.*
+*Four steps below have been overtaken by what got built, and [the script in `README.md`](README.md#demo-script) is the one to actually follow. Step 1's empty list is no longer where the app opens: it ships with [a seven-film demo list](scripts/seed-demo.js) ([`docs/DECISIONS.md` D-068](docs/DECISIONS.md#d-068--the-demo-seed-list-needs-a-two-axis-persona-because-a-one-axis-one-starves-both-ai-features-at-once)), so the README's script starts from that, and an empty list is shown [under criterion 3 in `docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md#captured--zero-films) instead. Step 2's "one-liner" is 2–3 sentences as shipped (see the annotation on [§ 2.3](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch)). Step 4 no longer needs Supabase at all: the app has an in-app [**AI call log**](docs/AI-CALL-LOG.md) viewer behind the footer button, showing both tables merged with prompt version, model, token split, duration, status and per-call cost – which is a stronger demonstration of the same point, and works in front of an audience without opening the database console. Opening the Supabase tables still works and remains a fair way to show the rows are real. Step 5's two states are refused before any request is sent: an Add button for a film already in the list is disabled and reads `In your list`, and below the threshold the recommendation trigger is disabled with the reason beside it, which are the graceful states to show.*
 
 1. Show an empty list → add 3–4 real films via TMDB search, rate them.
-2. Show the ranked list re-sorting live as ratings change, and the Taste Verdict Banner generating a fresh one-liner about the taste profile so far.
-3. Trigger a recommendation run, narrate what's happening (top-N pulled → prompt sent → TMDB cross-check → logged).
+2. Show the ranked list re-sorting live as ratings change, and the [Taste Verdict Banner](#23-taste-verdict-banner-the-fun-low-stakes-ai-touch) generating a fresh one-liner about the taste profile so far.
+3. Trigger a recommendation run, narrate what's happening ([top-N pulled → prompt sent → TMDB cross-check → logged](#44-high-level-data-flow)).
 4. Open both the [`recommendation_logs`](#52-recommendation_logs) and [`taste_verdict_logs`](#53-taste_verdict_logs) tables in Supabase directly, show the token/cost/prompt-version columns – this is the moment that proves it's not "just a ChatGPT wrapper".
-5. Try adding a duplicate film, try triggering recommendations with only 1 rated film – show both graceful failure states.
+5. Try adding a duplicate film, try triggering recommendations with only 1 rated film – show both [graceful failure states](#34-feedback-including-bad-states).
 

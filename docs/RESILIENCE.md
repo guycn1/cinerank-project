@@ -315,7 +315,8 @@ before a user sees it. A title TMDB returns nothing for is dropped rather than
 rendered as a broken card. This frame is that guard firing on every pick at
 once.
 
-**It is not a rare path.** Measured against live TMDB across thirty probe titles
+**For an invented title, it is not a rare path.** Measured against live TMDB
+across thirty probe titles
 ([`D-054`](DECISIONS.md#d-054--the-tmdb-verification-claim-was-softened-instead-of-the-matcher-being-tightened)),
 **seven of twelve realistic invented titles returned zero results** and were
 dropped exactly this way. The drop is the common outcome, not the exotic one.
@@ -332,7 +333,7 @@ for every title, which is what a genuinely invented title looks like.
 [`R28`](../CLAUDE.md#group-f--found-while-fixing-the-above-added-2026-09-09)
 the app's message read "the model only named films already in your list" for
 *every* empty run – it would have been a flat lie here. The causes are now tallied per
-title and resolved to one of five reasons, so a hallucinated set, an owned set, an
+title and resolved to one of five reasons, so a [hallucinated](../DOSSIER.md#module-3-mental-models-of-agents) set, an owned set, an
 empty reply and a TMDB outage each get their own sentence.
 [`RS-3`](#rs-3--verifying-recommendations),
 [`RS-9`](#rs-9--a-recommendation-run-with-nothing-to-suggest),

@@ -8,7 +8,7 @@ written down rather than a recollection.
 **Ticking an acceptance criterion is a claim that it was verified.** That claim
 belongs to the authors, not to the agent that helped build the thing – so this
 file assembles the evidence and stops there. The boxes in
-[`SPEC.md`](../SPEC.md#71-must-pass-before-submission) are ticked by hand.
+[`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) are ticked by hand.
 
 **That is
 [Module 2](../DOSSIER.md#module-2-the-human-role-what-erodes-and-what-compounds)'s
@@ -59,7 +59,7 @@ whether the criterion is met – all eight read satisfied.
 *(While this document was being assembled, a criterion could read “not yet”,
 meaning nobody had gathered its evidence rather than that it failed. None does
 now: all eight were walked and all eight read a clean `yes` before any box
-in [`SPEC.md`](../SPEC.md#71-must-pass-before-submission) was marked.)*
+in [`SPEC.md` § 7.1](../SPEC.md#71-must-pass-before-submission) was marked.)*
 
 ## 1 · Searching a real film title returns real TMDB results with posters
 
@@ -500,7 +500,7 @@ normally](screenshots/rs-1-tmdb-down-on-search.png)
 A plain-language message inside the results panel, and **the ranked list carries
 on** – including each film’s stored TMDB score, which survives the outage
 because it is a snapshot written at add time rather than a live call.
-[`RESILIENCE.md`](RESILIENCE.md#when-tmdb-is-unreachable) covers two further TMDB surfaces: adding a
+[The TMDB section of `RESILIENCE.md`](RESILIENCE.md#when-tmdb-is-unreachable) covers two further TMDB surfaces: adding a
 film, and verification failing mid-recommendation.
 
 ### OpenRouter unreachable – recommendations
