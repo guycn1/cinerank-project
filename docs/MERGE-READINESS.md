@@ -300,7 +300,7 @@ fires is the thing this document exists to rule out.
   figures, and [the thirtieth](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final
   assessment deadline, carrying defect fixes too, and [the thirty-first](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later
   the same day, carried the defects found on `main` after it, two of them in
-  the text the model receives, and the thirty-second, on 2026-10-25, carried
+  the text the model receives, and [the thirty-second](https://github.com/guycn1/cinerank-project/commit/cc09a81c231d99aec192f8e6fd0fcb1b6b2347c6), on 2026-10-25, carried
   defects on the deployed site itself, from a hyphen two letters from a word's
   end to a phone browser leaving a tapped card lit – and, as of 2026-10-25,
   **four** revert commits plus [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476), which is the safety layer
