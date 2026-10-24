@@ -386,8 +386,8 @@ was [built with both safeguards from the start](https://github.com/guycn1/cinera
 (2026-10-08).** It starts every page load disarmed and intercepts nothing until
 `debugVerdict()` is called, and it refuses to install when the hostname ends in
 `onrender.com`. `draft` loaded it on every page while the verdict's layout was
-worked on, through the same two kinds of line, and both were removed on
-2026-10-24 and verified the same way: `/debug-verdict.js` answers 404 and the
+worked on, through the same two kinds of line, and both were [removed on
+2026-10-24](https://github.com/guycn1/cinerank-project/commit/d7b0164cd80faa708ea78caddf9cfcff8974e1b0) and verified the same way: `/debug-verdict.js` answers 404 and the
 served HTML contains no reference to it. Like `debug-recs.js`, the file stays
 in `scripts/` and is used only by pasting it into a console.
 
