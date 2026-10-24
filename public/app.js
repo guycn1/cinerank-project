@@ -587,8 +587,8 @@ const graphemeSegmenter =
 /** U+00AD, the soft hyphen. NAMED because it is INVISIBLE IN SOURCE: a literal
  *  one sat in the string literal below, where it could not be read, searched
  *  for or told apart from an empty string. It also has to be stripped from the
- *  clipboard by the copy handler further down, and the inserter and the stripper
- *  must agree – so they share this one definition. Built with fromCharCode
+ *  clipboard and from a dragged selection by the handlers further down, and the
+ *  inserter and the strippers must agree – so they share this one definition. Built with fromCharCode
  *  rather than a backslash escape: escapes in this file have been collapsed by
  *  tooling twice (see CLAUDE.md Environment traps, and R7). */
 const SOFT_HYPHEN = String.fromCharCode(0xad);
@@ -3060,8 +3060,8 @@ function pauseSheenOffscreen() {
 // reported that.
 //
 // The DOM keeps its hyphens, so D-060/D-061 is untouched and the wrapping still
-// works; only the clipboard payload is cleaned. setData needs the default
-// prevented to take effect.
+// works; only the clipboard payload is cleaned (and a drag's, below). setData
+// needs the default prevented to take effect.
 //
 // Selections inside a form control are left alone: an input's own selection is
 // not part of window.getSelection() in every engine, and nothing typed into one
@@ -3075,6 +3075,46 @@ document.addEventListener('copy', (e) => {
   if (!selected.includes(SOFT_HYPHEN)) return; // nothing of ours in the selection
   e.clipboardData.setData('text/plain', selected.split(SOFT_HYPHEN).join(''));
   e.preventDefault();
+});
+
+/** The soft hyphen in an HTML flavour: the character itself or any of its
+ *  entity spellings. Plain text is cleaned of the character alone, so a user's
+ *  own literal "&shy;" in a review survives a drag as typed. */
+const SOFT_HYPHEN_HTML = new RegExp(`${SOFT_HYPHEN}|&shy;|&#0*173;|&#x0*ad;`, 'gi');
+
+// STRIP SOFT HYPHENS FROM A DRAGGED SELECTION TOO. Dragging selected text into
+// another app or a text box fires no copy event, so the handler above never sees
+// it, and the browser fills the drag with the selection exactly as the DOM holds
+// it, soft hyphens and all, as plain text and as HTML. Measured on 2026-10-24 in
+// Chrome and Firefox: a dragged review, rec reason or verdict carried every one
+// of them in both flavours. During dragstart the data is still writable, so each
+// flavour that carries one is rewritten in place; a drag of anything else (a
+// poster, a link) carries none and is left exactly as the browser made it.
+//
+// WebKit (Safari) exposes NONE of a drag's data during dragstart and fills it in
+// afterwards, so rewriting in place alone left every soft hyphen in a WebKit
+// drop. What a page writes during dragstart replaces WebKit's own data,
+// though, so for a drag of the selection itself the selection is written out
+// clean, as plain text alone, which is what the copy handler leaves on the
+// clipboard too. A link or an image keeps WebKit's own data.
+document.addEventListener('dragstart', (e) => {
+  const dt = e.dataTransfer;
+  if (!dt) return;
+  if (dt.types.length === 0) {
+    const source = e.target.nodeType === Node.TEXT_NODE ? e.target.parentElement : e.target;
+    const sel = window.getSelection();
+    const selected = sel ? sel.toString() : '';
+    if (!selected.includes(SOFT_HYPHEN) || !(source instanceof Element) || source.closest('a[href], img')) return;
+    if (!sel.containsNode(source, true)) return; // a drag of something else while text happens to be selected
+    dt.setData('text/plain', selected.split(SOFT_HYPHEN).join(''));
+    return;
+  }
+  for (const type of [...dt.types]) {
+    if (type === 'Files') continue;
+    const data = dt.getData(type);
+    const clean = type.includes('html') ? data.replace(SOFT_HYPHEN_HTML, '') : data.split(SOFT_HYPHEN).join('');
+    if (clean !== data) dt.setData(type, clean);
+  }
 });
 
 /* ---------- boot ------------------------------------------------- */

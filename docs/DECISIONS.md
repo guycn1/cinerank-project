@@ -11,6 +11,70 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-089 · A dragged selection leaves soft hyphens behind too, cleaned in place where the browser fills the drag and written out where WebKit leaves it empty
+
+*2026-10-24. The user asked whether any hyphenated text could still carry soft
+hyphens out of the app; Claude found the drag, and the user ruled it a bug.*
+
+**The defect.** [D-067](#d-067--the-hyphenation-fix-made-the-apps-own-output-un-pasteable-and-the-failure-surfaced-two-steps-away-from-the-cause)
+strips soft hyphens from the clipboard in a `copy` handler, and copying was
+clean everywhere it was tested: real Ctrl+C in headless Chrome, Edge and
+Firefox, read back off the clipboard, over all six hyphenated surfaces, partial
+and whole-card selections, a selection spanning sections, Ctrl+A and the
+verdict mid-type. Dragging a selection into another app or a text box fires no
+`copy` event, and the browser fills the drag with the selection exactly as the
+DOM holds it. A dragged review, rec reason or verdict carried every soft
+hyphen, as plain text and as HTML.
+
+**The first fix, and where it failed.** During `dragstart` the drag's data is
+still writable, so the handler rewrote each flavour that carried a soft hyphen
+in place. That cleaned every drop in Chrome and Edge and every `dragstart` in
+Firefox. **In WebKit it did nothing:** Safari's engine exposes none of a drag's
+data during `dragstart` and fills it in afterwards, so there was nothing to
+rewrite, and every drop still carried every soft hyphen. Claude had assumed the
+engines behave alike here and built for Chromium's and Firefox's shape first;
+only the run in WebKit, which the user asked for, showed the gap.
+
+**The fix as built: two branches.** Where the browser fills the drag, each
+flavour is cleaned in place, and nothing else changes. Where it is empty, which
+is WebKit, the handler writes the cleaned selection as plain text itself, since
+what a page writes during `dragstart` replaces WebKit's own data (probed first:
+a written marker string was what reached the drop).
+* **Rejected: Writing the selection out in every engine.** It would replace the
+  browser's own HTML flavour with one the app builds, for no gain where the
+  browser's can simply be cleaned.
+* **Rejected: Writing an HTML flavour in the WebKit branch.** A clone of the
+  selection includes the verdict's screen-reader copy, which `user-select:
+  none` keeps out of the browser's own serialisation but not out of a range
+  clone, so the verdict would arrive twice. Plain text alone is also exactly
+  what the copy handler leaves on the clipboard.
+* **The WebKit branch acts only on a drag of the selection itself:** the drag's
+  source must lie in the selection and not be a link or an image, and the
+  selection must carry a soft hyphen. A link dragged while a review is
+  selected keeps its own data.
+
+**Verified,** against fixture data on the real page. Real mouse drags into a
+textarea and a contenteditable in headless Chrome, Edge and Firefox and in
+Playwright's WebKit: the six surfaces, a selection inside one long word, each
+whole card, the whole verdict banner and a selection from the verdict to the
+last rec card, 24 drags per engine. Every `dragstart` payload, every drop's
+data and every dropped text carried no soft hyphen; with the handler blocked,
+the same drags carried every one (22 of 22, 62 of 62). A link, an image and a
+link dragged while a review was selected carried the same data with the
+handler and without it. In headless Firefox the `dragstart` payload was what
+the run read, since WebDriver BiDi does not complete a drop there. Copying was
+re-run in all four engines on the final code and was unchanged. The user then
+confirmed the fix in real Chrome and Firefox.
+`npm run layout-check` now checks both shapes of drag on every hyphenated
+element, the filled one and the empty one, and breaking either branch alone
+fails it.
+
+**Traps.**
+* **Do not drop the empty-drag branch as dead code.** Chromium and Firefox never
+  reach it; WebKit always does.
+* **Do not add an HTML flavour to that branch** without removing `.sr-only`
+  from the clone first, or the verdict drags twice.
+
 ## D-088 · TMDB's attribution is the footer's credit: the notice in TMDB's own words, with TMDB's approved logo above it
 
 *[2026-10-21](https://github.com/guycn1/cinerank-project/commit/475c56779e1a75df199f826c043bcacb4aa454ca). Raised by Claude during the dialect pass; every choice below was
@@ -1637,6 +1701,13 @@ control are skipped: an input's own selection is not part of
 `window.getSelection()` in every engine, and nothing typed into one is
 hyphenated, so there is nothing to clean and a needless `preventDefault` over a
 native copy is risk with no upside.
+
+> **2026-10-24:** copying was not the only way out of the page. Dragging a
+> selection into another app or a text box fires no `copy` event, and the drag
+> carried every soft hyphen until a `dragstart` handler beside this one began
+> cleaning it, in two shapes because WebKit leaves the drag empty during
+> `dragstart`; see
+> [D-089](#d-089--a-dragged-selection-leaves-soft-hyphens-behind-too-cleaned-in-place-where-the-browser-fills-the-drag-and-written-out-where-webkit-leaves-it-empty).
 
 **`.sr-only` is now `user-select: none`**, which kills the duplication. Nothing
 is lost – a screen reader reads the accessibility tree and never needs that text

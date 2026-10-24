@@ -91,6 +91,19 @@ use; its header and the entry under Implemented now say so, and
 live on a throwaway port: `/debug-verdict.js` answers 404, the page answers
 200, and the served HTML no longer mentions it.
 
+**Same day: A dragged selection no longer carries soft hyphens (D-089)**
+(Claude-found, while checking every hyphenated surface for D-067's copy
+defect at the user's request). Copying was clean everywhere; dragging selected
+text into another app or a text box fires no copy event, so the drag carried
+every soft hyphen, as plain text and as HTML. A `dragstart` handler beside the
+copy handler now cleans the drag in place where the browser fills it (Chromium,
+Firefox) and writes the selection out as clean plain text where it is empty
+(WebKit, whose run showed the first version doing nothing). Checked with real
+drags into a textarea and a contenteditable in Chrome, Edge, Firefox and
+WebKit, against a blocked-handler control; links and images drag unchanged.
+`npm run layout-check` now checks both shapes of drag, and breaking either
+branch alone fails it. The user confirmed it in real Chrome and Firefox.
+
 #### 2026-10-21
 
 **WHAT LANDED ON 2026-10-21: TMDB's attribution is the footer's credit
@@ -1484,7 +1497,8 @@ carries the current state.
   in an iframe that `scripts/layout-probe.js` resizes to exact widths.
   - **Three modes:** The default HEALTH run (text inside its box and the
     viewport, no overlapping parts, no sideways scroll, every break inside a
-    word against softHyphenate()'s rules, the verdict typing and the clipboard;
+    word against softHyphenate()'s rules, the verdict typing, the clipboard and
+    dragged text;
     exit 1 on any failure); `--baseline=<git ref or file>`, which DIFFS the
     layout element by element against another stylesheet (`--expect-same` for a
     refactor, `--reference-width=PX` for a max-width change); and `--self-test`,
@@ -2753,7 +2767,7 @@ shared inline-SVG `.noposter` (D-027) and `.reason` clamps at 5 lines.
 
   **Not covered by an automated test.** The client had no test harness at the
   time, and `npm run layout-check` (2026-09-28), which runs it in real
-  browsers, checks layout, the verdict typing and the clipboard rather than
+  browsers, checks layout, the verdict typing, the clipboard and drags rather than
   this logic. So this one was verified by reading and by tracing all eleven
   paths (boot above/below threshold, success, failure, zero-suggestions, an
   unrelated add/rate/remove after each, and both mid-flight races). Worth a

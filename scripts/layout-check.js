@@ -18,8 +18,8 @@
  *   (default)          health: at every width, text stays inside its box and
  *                      the viewport, no two parts of a card overlap, nothing
  *                      scrolls sideways and every line break inside a word
- *                      obeys softHyphenate()'s rules; plus the verdict typing
- *                      and the clipboard. Exit 1 on any failure.
+ *                      obeys softHyphenate()'s rules; plus the verdict typing,
+ *                      the clipboard and dragged text. Exit 1 on any failure.
  *   --baseline=REF     diff: the layout under a baseline stylesheet (a git ref
  *                      or a file) against the candidate, element by element,
  *                      at every width. Informational unless --expect-same.
@@ -88,8 +88,9 @@
  *                      beside a dash or beside anything but a letter; or a
  *                      word broken at a soft hyphen above the width where
  *                      soft hyphens are off
- *            clip:     an invisible character reached the clipboard, or the
- *                      verdict did not copy exactly once
+ *            clip:     an invisible character reached the clipboard or a
+ *                      dragged selection, or the verdict did not copy
+ *                      exactly once
  *            typing:   a letter moved back up a line while the verdict typed
  *            page errors: a script error or unhandled rejection in the page
  *     ok:    correct behaviour, counted for reassurance (a long word

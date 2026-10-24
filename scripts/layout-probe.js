@@ -206,7 +206,29 @@
   }
 
   /**
-   * Copied text carries no invisible character, and the verdict copies once.
+   * What the app's dragstart handler leaves in a drag of a selection. Seeded,
+   * the drag starts out holding the selection as plain text and HTML, as
+   * Chromium's and Firefox's do; unseeded, it starts out empty, as WebKit's does.
+   *
+   * @param {Range} range
+   * @param {boolean} seeded
+   * @returns {{selected: string, payload: string}}
+   */
+  function dragOf(range, seeded) {
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    const dt = new DataTransfer();
+    if (seeded) {
+      const box = document.createElement('div'); box.append(range.cloneContents());
+      dt.setData('text/plain', sel.toString()); dt.setData('text/html', box.innerHTML);
+    }
+    const from = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentElement : range.startContainer;
+    from.dispatchEvent(new DragEvent('dragstart', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    return { selected: sel.toString(), payload: [...dt.types].map((t) => dt.getData(t)).join('\n') };
+  }
+
+  /**
+   * Copied or dragged text carries no invisible character, and the verdict
+   * copies once.
    *
    * @returns {void}
    */
@@ -215,6 +237,11 @@
       const r = document.createRange(); r.selectNodeContents(el);
       const c = copyOf(r);
       if (INVISIBLE.test(c.payload)) bump('clip: an invisible character reached the clipboard', c.payload.slice(0, 40));
+      for (const seeded of [true, false]) {
+        const d = dragOf(r, seeded);
+        if (INVISIBLE.test(d.payload)) bump('clip: an invisible character reached a dragged selection', `${seeded ? 'seeded' : 'empty'} drag: ${d.payload.slice(0, 40)}`);
+        if (!seeded && d.selected.includes(SHY) && !d.payload) bump('clip: an invisible character reached a dragged selection', `empty drag left empty: ${d.selected.slice(0, 40)}`);
+      }
     }
     const vt = document.getElementById('verdict-text');
     const heard = vt.querySelector('.sr-only');

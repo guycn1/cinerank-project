@@ -137,7 +137,7 @@ verification fails while looking rigorous, and each is answered concretely:
 `public/` against fixture data and checks, at every width it is given, that text
 stays inside its box, no two parts of a card overlap, nothing scrolls sideways,
 words break only where the hyphenation rules allow, the verdict types without
-letters jumping lines, and copied text is clean – with a self-test that plants
+letters jumping lines, and copied or dragged text is clean – with a self-test that plants
 one stylesheet fault for each check but the typing one, which app.js drives,
 and fails unless each is caught. Its behaviour is verified
 by reading, by hand testing and by two console debug harnesses that fake a
