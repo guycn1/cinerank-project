@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-090 · Hover effects and the keypad fix ask for a fine pointer as well as hover, because Samsung Internet reports hover on a touchscreen
 
-*2026-10-24. User-found in Samsung Internet on an Android phone; the fix was
+*[2026-10-24](https://github.com/guycn1/cinerank-project/commit/30961477fdbfe3f9110b848bba062f89e8988804). User-found in Samsung Internet on an Android phone; the fix was
 settled on readings the user took there with a probe page Claude wrote.*
 
 **The defect.** Two symptoms, in Samsung Internet only. Tapping a ranked or
@@ -3831,7 +3831,7 @@ the app's amber. **The user chose C.**
   grown state after pressing Edit. Gating on input capability keeps the effect on
   a narrow desktop window, which a `min-width` query would wrongly remove.
 
-  > **2026-10-24:** the gate is `(hover: hover) and (pointer: fine)` since
+  > **[2026-10-24](https://github.com/guycn1/cinerank-project/commit/30961477fdbfe3f9110b848bba062f89e8988804):** the gate is `(hover: hover) and (pointer: fine)` since
   > [D-090](#d-090--hover-effects-and-the-keypad-fix-ask-for-a-fine-pointer-as-well-as-hover-because-samsung-internet-reports-hover-on-a-touchscreen).
   > Samsung Internet reports `hover: hover` on a touchscreen, so a tap there
   > parked the card grown with the spotlight on, the state this trap exists to
