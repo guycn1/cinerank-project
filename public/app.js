@@ -2524,8 +2524,11 @@ function syncMetaSeparator(foot) {
   sep.style.visibility = wrapped ? 'hidden' : 'visible';
 }
 
-// One listener for every layout-dependent measurement on the page, rather than
-// an observer per element. All of them read geometry (getBoundingClientRect /
+// One listener for every measurement a window resize can invalidate, rather than
+// an observer per element. (Two measurements have a trigger of their own: an
+// open reveal panel also re-flips as the log scrolls, D-087, and while a
+// verdict types, its rule follows the paragraph's height through the
+// ResizeObserver in setVerdictText().) All of them read geometry (getBoundingClientRect /
 // scrollHeight / clientWidth), which forces layout, and `resize` fires
 // continuously while a window is dragged – so the work is throttled to at most
 // once per frame. rAF

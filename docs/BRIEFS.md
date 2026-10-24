@@ -133,6 +133,11 @@ failed:
   they must match or the panel is yanked mid-fade.
 * **[The Result column is a fixed width with an absolutely positioned panel](https://github.com/guycn1/cinerank-project/commit/9b6fd4072b3587f7b93e62c2b31f299665311f7f)**, so
   opening a row can never reflow the table or steal width from its neighbours.
+* **An open reveal panel's flip measures the pinned header and Total cells**,
+  never the `<thead>` or `<tfoot>` box
+  ([D-087](DECISIONS.md#d-087--an-open-ai-log-reveal-panel-re-flips-on-scroll-within-the-room-the-pinned-rows-leave)):
+  the first version measured the row-group boxes, which scroll away, so it
+  barely changed where a panel went while its own tests passed.
 * **`.log-scroll` must stay `overflow: visible`** – it is not the scroller, and
   clipping would round the sticky cell fills against square backgrounds.
 * **Card view's two specificity fixes** (850px and below):

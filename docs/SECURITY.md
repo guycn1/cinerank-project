@@ -63,7 +63,7 @@ the build. Most of the substance sits in the second column.
 | ASI07 | [Insecure Inter-Agent Communication](#structurally-not-applicable) | n/a – single agent, no protocol | n/a – single agent, no protocol |
 | ASI08 | [Cascading Failures](#asi08--cascading-failures) | Controlled – resilience requirements, tests and captured evidence in [`RESILIENCE.md`](https://github.com/guycn1/cinerank-project/blob/main/docs/RESILIENCE.md) | Controlled – verification gates + git rollback |
 | ASI09 | [Human-Agent Trust Exploitation](#asi09--human-agent-trust-exploitation) | **Real** – this is what the AI call log is for ([how it works](https://github.com/guycn1/cinerank-project/blob/main/docs/AI-CALL-LOG.md)) | **Real** – answered as a standing practice |
-| ASI10 | [Rogue Agents](#asi10--rogue-agents) | **Realised** – the debug harness, for one day | Controlled – nothing reaches `main` unreviewed |
+| ASI10 | [Rogue Agents](#asi10--rogue-agents) | **Realised** – the recommendations debug harness, for one day | Controlled – nothing reaches `main` unreviewed |
 
 ## The risks that carry weight here
 
@@ -355,8 +355,8 @@ dropped as a result.
 
 *Compromised agents act harmfully while appearing legitimate.*
 
-**This project's instance is the debug harness, and it is written
-up rather than buried.** [For one day the page loaded](https://github.com/guycn1/cinerank-project/commit/c68526b5a75fc541ca7b04771c01a4c7fc1303d5)
+**This project's instance is the recommendations debug harness, and it is
+written up rather than buried.** [For one day the page loaded](https://github.com/guycn1/cinerank-project/commit/c68526b5a75fc541ca7b04771c01a4c7fc1303d5)
 [`scripts/debug-recs.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/debug-recs.js)
 on every request, and the app answered its own recommendation calls with six
 dummy cards – surviving hard refreshes and a cleared cache, because nothing was
@@ -407,7 +407,7 @@ repository; this one is the independent application.
 **Both items owed on the morning of 2026-09-13 are delivered**, and nothing has
 replaced them.
 
-**Delivered:** [The debug harness is unloaded](https://github.com/guycn1/cinerank-project/commit/8ca70fb1ee6c2615505ad444840f51c501698c6f) – the `<script>` tag and the route
+**Delivered:** [The recommendations debug harness is unloaded](https://github.com/guycn1/cinerank-project/commit/8ca70fb1ee6c2615505ad444840f51c501698c6f) – the `<script>` tag and the route
 that served it are both gone, verified live (`/debug-recs.js` → 404), with the
 file itself kept in [`scripts/`](https://github.com/guycn1/cinerank-project/tree/main/scripts/) where nothing serves it. And [the prompt-injection
 evidence](https://github.com/guycn1/cinerank-project/commit/a27e921699e39a074e0024e005d6f2b2dfe0a067), which was the live proof of [ASI01](#asi01--agent-goal-hijack)'s

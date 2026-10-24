@@ -1476,8 +1476,9 @@ carries the current state.
   yield the first N words of lorem ipsum, cycling the 69-word passage for a
   longer N; calling it again changes N with no reload. It answers
   `POST /api/taste-verdict` in the browser after 2–3 seconds, so the busy
-  state, the ring's busy glint, the typing effect and a meta footer with dummy
-  but realistic figures all run for real, while no OpenRouter call is made and
+  state, the ring's busy glint, the typing effect, the rule growing beside the
+  verdict as it types and a meta footer with dummy but realistic figures all
+  run for real, while no OpenRouter call is made and
   no `taste_verdict_logs` row is written. Like `debugRecs`, it starts every load
   disarmed and refuses to install on `onrender.com`, and the button's own gate
   (two rated films) still applies.
@@ -1707,7 +1708,7 @@ and stay as written.
   inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
   thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` –
   `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
-  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
+  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-pane`, track
   `--bg-raised` page / transparent in every scroller inside a rounded box (the
   dialogs' forms, `.log-pane`, `.search-results__list`, the review box's
   textarea), held off each end so the thumb stops 8px short (D-086).
@@ -1759,7 +1760,10 @@ glint (2026-09-12), that glint speeds up and brightens while a verdict
 generates, "New verdict" is now shown DISABLED when the feature is locked
 rather than hidden, and a new verdict types itself out (D-057). In step 2: a
 failure offers the AI call log only when a log row was written (R23), and the
-muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
+muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24). Since
+then: The banner keeps a run's message when the list changes mid-request
+(2026-09-30, the R1 note), a rule beside the real verdict grows as it types
+and "New verdict"'s hover fill is 0.3 (both 2026-10-14, that day's entry).
 - "New verdict" gets the same busy state as "Get recommendations": disabled,
   spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
   `:hover:not(:disabled)`. Both buttons lock their width for the duration –

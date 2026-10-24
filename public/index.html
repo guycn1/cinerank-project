@@ -353,7 +353,8 @@
   <!-- Poster placeholder icon, cloned by posterNode() for any film TMDB has no
        poster for. Lives here as markup rather than being built in JS so it reads
        as a drawing, and so it matches the other icons in this file, all inline
-       SVG – the alternative is createElementNS() boilerplate, since
+       SVG apart from TMDB's logo in the footer, which is TMDB's own file in an
+       <img> (D-088). The alternative is createElementNS() boilerplate, since
        document.createElement does NOT produce a real SVG element.
        A film strip, not the 🎬 emoji it replaced: an emoji ignores `color`, so it
        could never match the dim placeholder tone, carries its own baseline

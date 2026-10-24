@@ -32,7 +32,8 @@
  * itself, after a 2–3 second pause, with a body shaped exactly like the real
  * route's `{ verdict, meta }`. Everything downstream runs for real and
  * unmodified: the busy button and "Consulting the critics…", the ring's busy
- * glint, setVerdictText()'s typing effect and hyphenation, and the meta footer.
+ * glint, setVerdictText()'s typing effect and hyphenation, the rule beside the
+ * verdict growing as it types, and the meta footer.
  * Every other request goes to the real fetch untouched, the same approach as
  * scripts/debug-recs.js.
  *

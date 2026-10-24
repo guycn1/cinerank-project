@@ -112,8 +112,9 @@ const SELF = 'scripts/check-claims.js';
  * the two checks that hunt outdated language skip it by name rather than by
  * accident. Everything else about it is still checked: its paths, links and
  * section references, the scripts, D-0NN entries, SHAs, line numbers, captures
- * and RS keys it cites, any invisible character and any passage narrating its
- * own earlier wording.
+ * and RS keys it cites, its commit and range links and any hash it quotes
+ * without one (4b), any invisible character and any passage narrating its own
+ * earlier wording.
  */
 const PRESERVED = 'docs/DECISIONS.md';
 

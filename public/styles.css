@@ -69,7 +69,7 @@
   /* THE type scale (D-079): The root font size as a fraction of the reader's
      browser default. Everything in `rem` and `em` follows it – all text and
      most spacing – while the px frame does not: posters, the rank track,
-     rec-card widths, the page column, the logo mark, the header GitHub mark,
+     rec-card widths, the page column, the logo mark, both GitHub marks,
      borders and radii, and every breakpoint. A percentage, never a px value, so a reader who has
      raised their browser's default font size still gets the larger text.
      Two idioms exist so that ONE dial stays one dial:

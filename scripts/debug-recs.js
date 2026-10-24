@@ -50,8 +50,8 @@
  * and the harness starts every page load DISARMED – loading the file only defines
  * `debugRecs`; nothing is intercepted until you call it.
  *
- * Not a Node script despite living beside one – it only ever runs in a browser,
- * so package.json's "type": "module" never applies to it.
+ * Not a Node script despite living beside the Node tools in scripts/ – it only
+ * ever runs in a browser, so package.json's "type": "module" never applies to it.
  */
 (() => {
   // The one host this must never run on is the public Render deployment. Every
