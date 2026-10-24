@@ -13,7 +13,7 @@ entry that cites it may have moved the figure or the rule.
 
 ## D-089 · A dragged selection leaves soft hyphens behind too, cleaned in place where the browser fills the drag and written out where WebKit leaves it empty
 
-*2026-10-24. The user asked whether any hyphenated text could still carry soft
+*[2026-10-24](https://github.com/guycn1/cinerank-project/commit/7dceb5f2e8ee4023752907950f81b3e80d16a5e9). The user asked whether any hyphenated text could still carry soft
 hyphens out of the app; Claude found the drag, and the user ruled it a bug.*
 
 **The defect.** [D-067](#d-067--the-hyphenation-fix-made-the-apps-own-output-un-pasteable-and-the-failure-surfaced-two-steps-away-from-the-cause)
@@ -1702,7 +1702,7 @@ control are skipped: an input's own selection is not part of
 hyphenated, so there is nothing to clean and a needless `preventDefault` over a
 native copy is risk with no upside.
 
-> **2026-10-24:** copying was not the only way out of the page. Dragging a
+> **[2026-10-24](https://github.com/guycn1/cinerank-project/commit/7dceb5f2e8ee4023752907950f81b3e80d16a5e9):** copying was not the only way out of the page. Dragging a
 > selection into another app or a text box fires no `copy` event, and the drag
 > carried every soft hyphen until a `dragstart` handler beside this one began
 > cleaning it, in two shapes because WebKit leaves the drag empty during
