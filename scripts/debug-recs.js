@@ -1,5 +1,5 @@
 /**
- * @file CineRank — recommendation UI debug harness. DEV ONLY.
+ * @file CineRank – recommendation UI debug harness. DEV ONLY.
  *
  * NOT LOADED BY THE PAGE. Paste this whole file into the browser console to use
  * it, which is how it was built and how it worked for its first days.
@@ -8,8 +8,8 @@
  * 2026-09-13 before the final merge: a `<script>` tag at the bottom of
  * public/index.html and a route in server/index.js serving this file (scripts/
  * is not inside the static root, so it needed an explicit one). Verified after
- * removal: that path answers 404 and the served HTML no longer mentions it.
- * The file itself was always meant to stay — it is a real development tool.
+ * removal: That path answers 404 and the served HTML no longer mentions it.
+ * The file itself was always meant to stay – it is a real development tool.
  *
  * Either way, use it like this:
  *
@@ -25,7 +25,7 @@
  * database before any of this is reachable. The harness fakes the recommendation
  * CALL; it does not fake the gate in front of it. `GET /api/movies` is not
  * intercepted, and the trigger's disabled state and the hint's text are both
- * computed from that real response — so at zero rated films the button is dead
+ * computed from that real response – so at zero rated films the button is dead
  * and nothing here ever runs. Forcing the button on from the console does not
  * help either; see the long note beside the /api/recommendations branch below
  * for what R16 changed and why a sub-threshold run now clears its own cards.
@@ -34,28 +34,28 @@
  * scroll and the hover glow needs many runs at many window widths, and every one
  * of those spent real OpenRouter credit on an answer nobody read.
  *
- * WHAT IT COSTS: nothing. No OpenRouter call, no TMDB verification, and no row
- * in recommendation_logs — the request never leaves the browser.
+ * WHAT IT COSTS: Nothing. No OpenRouter call, no TMDB verification and no row
+ * in recommendation_logs – the request never leaves the browser.
  *
  * HOW IT WORKS, and why it is done this way. It replaces `window.fetch` and
  * answers `POST /api/recommendations` itself, with a body shaped exactly like
  * the real route's. Everything downstream then runs for real and unmodified:
  * the busy button, the exit animation, renderRecommendations(), the balanced
  * column count, the centred last row, the per-card stagger, the scroll, the
- * metadata footer, the hint. That is the whole point — a harness that reached
+ * metadata footer, the hint. That is the whole point – a harness that reached
  * into the render would be testing itself rather than the app. Nothing else is
  * intercepted, so the ranked list, search and the AI call log stay live.
  *
- * TO STOP: reload the page. Nothing is written to localStorage or anywhere else,
- * and the harness starts every page load DISARMED — loading the file only defines
+ * TO STOP: Reload the page. Nothing is written to localStorage or anywhere else,
+ * and the harness starts every page load DISARMED – loading the file only defines
  * `debugRecs`; nothing is intercepted until you call it.
  *
- * Not a Node script despite living beside one — it only ever runs in a browser,
- * so package.json's "type": "module" never applies to it.
+ * Not a Node script despite living beside the Node tools in scripts/ – it only
+ * ever runs in a browser, so package.json's "type": "module" never applies to it.
  */
 (() => {
   // The one host this must never run on is the public Render deployment. Every
-  // other origin installs normally — localhost, 127.0.0.1, and a LAN IP opened
+  // other origin installs normally – localhost, 127.0.0.1 and a LAN IP opened
   // from a phone, which matters because testing on a real Android phone is what
   // found two of this project's layout bugs.
   // A belt to the braces of removing the <script> tag, not a replacement for it:
@@ -72,8 +72,8 @@
   const realFetch = window.__debugRecsRealFetch;
 
   const TITLES = [
-    // Deliberately uneven: a very short title, a very long one, and four
-    // ordinary ones — title wrapping is part of what the grid work is about.
+    // Deliberately uneven: A very short title, a very long one and four
+    // ordinary ones – title wrapping is part of what the grid work is about.
     { title: 'Solaris Drift', year: 1997 },
     { title: 'The Unremembered Winter of Halloway House', year: 2016 },
     { title: 'Nine', year: 1971 },
@@ -82,7 +82,7 @@
     { title: 'Vantage', year: 1984 },
   ];
 
-  // 8–16 words each, second person — the shape recommend_v3 actually asks for,
+  // 8–16 words each, second person – the shape recommend_v3 actually asks for,
   // so the 5-line clamp on .reason is exercised the way it will be in real use.
   const REASONS = [
     'You reward films that trust silence, and this one barely raises its voice.',
@@ -94,8 +94,8 @@
   ];
 
   /**
-   * A data URI, not a TMDB image: it needs no network at all, cannot 404 mid-test,
-   * and carries the card's index — which makes the entrance stagger readable at a
+   * A data URI, not a TMDB image: it needs no network at all, cannot 404 mid-test
+   * and carries the card's index – which makes the entrance stagger readable at a
    * glance. Same 2/3 aspect ratio as a real poster, so the layout is identical.
    *
    * @param {number} n  The card's 1-based position, drawn large on the poster.
@@ -116,12 +116,12 @@
 
   // `on` is the whole difference between a tool and a trap. The fetch patch below
   // is installed as soon as this file runs, which was harmless while the only way
-  // to run it was to paste it into a console — you paste it when you want it. It
+  // to run it was to paste it into a console – you paste it when you want it. It
   // became a trap the moment the page started loading it with a <script> tag:
   // every reload re-installed the patch, and with nothing gating it the app was
   // permanently answering its own recommendation requests with six dummy cards.
   // Hard refreshes and a cleared cache do not help, because nothing is cached
-  // wrongly — the tag is doing exactly what it says on every load.
+  // wrongly – the tag is doing exactly what it says on every load.
   // ARMED ONLY BY debugRecs(), so a reload really does restore normal behaviour,
   // which is what the docs have always promised.
   const state = { on: false, count: 6, posters: true, delayMs: 900 };
@@ -129,7 +129,7 @@
   /**
    * The fake POST /api/recommendations response, shaped exactly like the real
    * route's: `state.count` dummy suggestions with negative ids, no empty
-   * reason, and a plausible metadata block.
+   * reason and a plausible metadata block.
    *
    * @returns {{ suggestions: object[], emptyReason: null, meta: object }}
    */
@@ -137,7 +137,7 @@
     return {
       suggestions: Array.from({ length: state.count }, (_, i) => ({
         // NEGATIVE ids, deliberately: TMDB ids are positive, so a dummy can never
-        // collide with a real film, can never look "already owned", and is
+        // collide with a real film, can never look "already owned" and is
         // trivially recognisable in the Add interception below.
         tmdb_id: -(i + 1),
         title: TITLES[i].title,
@@ -145,7 +145,7 @@
         poster_url: state.posters ? poster(i + 1) : null,
         reason: REASONS[i],
       })),
-      // Null whenever there are cards — the client only reads it in the empty
+      // Null whenever there are cards – the client only reads it in the empty
       // branch, and this harness never produces one.
       emptyReason: null,
       meta: {
@@ -154,7 +154,7 @@
         tokensUsed: 1284,
         estimatedCostUsd: 0.00042,
         durationMs: 3140,
-        // Five, because topN is 5 — the "Based on: …" line's real length matters
+        // Five, because topN is 5 – the "Based on: …" line's real length matters
         // to the layout being judged.
         basedOn: ['Saw 3D', 'Saw II', 'Cat People', 'Suspiria', 'The Thing'],
       },
@@ -189,7 +189,7 @@
 
     if (state.on && method === 'POST' && url.includes('/api/recommendations')) {
       // A real run takes seconds. Answering instantly would hide the busy button,
-      // the spinner, the progress hint and the exit animation — all of which
+      // the spinner, the progress hint and the exit animation – all of which
       // happen while the request is in flight.
       await new Promise((r) => setTimeout(r, state.delayMs));
       // The availability check in the run's `finally` re-disables the trigger
@@ -206,11 +206,11 @@
       // did exactly two things: it wrote the "Rate at least 3 movies to unlock
       // recommendations" hint, and it disabled this button. Neither touched the
       // grid. So a dummy run below the threshold rendered its six cards and they
-      // STAYED — the only casualty was the button, and the `setTimeout` below
+      // STAYED – the only casualty was the button, and the `setTimeout` below
       // puts that back. You could sit at zero rated films and still exercise the whole
       // render path, which is most of why the harness exists.
       //
-      // R16 (885a6a5, 2026-09-11 — two days later) added a third statement to
+      // R16 (885a6a5, 2026-09-11 – two days later) added a third statement to
       // that same branch, for a good reason that has nothing to do with this
       // file: a section that says it is locked must not sit above six live
       // recommendations, so the branch now also runs
@@ -230,7 +230,7 @@
       // NOT FIXED, deliberately (D-063 in docs/DECISIONS.md). Re-adding the cards
       // after the sync has cleared them would mean this file fighting a rule the
       // app states on purpose, and the "locked section shows no output" state is
-      // itself worth being able to look at. THE ANSWER IS TO RATE THREE FILMS —
+      // itself worth being able to look at. THE ANSWER IS TO RATE THREE FILMS –
       // the harness's job is to avoid OpenRouter calls, not to stand in for the
       // database. Adding real films costs nothing but TMDB and Supabase, and the
       // fetch patch below deliberately lets a positive tmdb_id through to the
@@ -244,7 +244,7 @@
 
     // Adding a dummy card would POST a negative tmdb_id to the real server, which
     // would go looking for it on TMDB. Refused here instead, with a message that
-    // says why — the button's busy → error path still runs, and the database is
+    // says why – the button's busy → error path still runs, and the database is
     // never touched.
     if (state.on && method === 'POST' && url.includes('/api/movies')) {
       let payload = {};
@@ -290,5 +290,5 @@
     );
   };
 
-  console.log('debugRecs available (idle — nothing is intercepted yet). Try debugRecs(4).');
+  console.log('debugRecs available (idle – nothing is intercepted yet). Try debugRecs(4).');
 })();

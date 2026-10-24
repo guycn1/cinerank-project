@@ -2,15 +2,15 @@
 Prompt version: taste_verdict_v5
 Feature: Taste Verdict Banner (SPEC § 2.3)
 Change from v4: register only. v4 asked for "light and teasing" and got prose that
-was teasing in a rather literary voice — "the bolder and stranger the vision, the
+was teasing in a rather literary voice – "the bolder and stranger the vision, the
 more you forgive" is a good sentence and not how anyone talks. v5 asks for plain
 spoken English: short everyday words, contractions, sentences you could say out
-loud without sounding like a review. WHAT it says is unchanged from v4 —
-characterise the viewer, do not recite ratings — as are the length cap, the
+loud without sounding like a review. WHAT it says is unchanged from v4 –
+characterise the viewer, do not recite ratings – as are the length cap, the
 plain-text rule and the injection guard. Loaded by services/tasteVerdict.js.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} – ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

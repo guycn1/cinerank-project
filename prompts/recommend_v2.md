@@ -9,7 +9,7 @@ Versioning rule (CLAUDE.md § Prompt Versioning): never overwrite a version file
 Loaded at call time by server/services/recommendations.js.
 
 Placeholders filled by the service:
-  {{TASTE_PROFILE}}  — the user's top-N rated movies, one per line, with rating and
+  {{TASTE_PROFILE}}  – the user's top-N rated films, one per line, with rating and
                        (delimited) review text. Review text is UNTRUSTED user input.
 -->
 

@@ -1,10 +1,10 @@
--- CineRank schema — paste into Supabase SQL editor (Database → SQL Editor → New query).
+-- CineRank schema – paste into Supabase SQL editor (Database → SQL Editor → New query).
 -- This file is schema definition only. All application reads/writes go through the
 -- Supabase JS query builder (.select/.insert/.update/.eq…), never hand-built SQL
 -- strings (CLAUDE.md § Coding Conventions / § Security & Secrets #2).
 
 -- ---------------------------------------------------------------------------
--- 5.1  movies — the growing taste profile
+-- 5.1  movies – the growing taste profile
 -- ---------------------------------------------------------------------------
 create table if not exists movies (
   id           uuid primary key default gen_random_uuid(),
@@ -20,7 +20,7 @@ create table if not exists movies (
   constraint rating_range check (rating is null or (rating >= 0 and rating <= 10)),
   constraint tmdb_rating_range check (tmdb_rating is null or (tmdb_rating >= 0 and tmdb_rating <= 10)),
   -- The rating is the required part, the review the optional one. One-directional:
-  -- a rating with no review is the common case and stays valid. Without this the
+  -- a rating with no review is a common case and stays valid. Without this the
   -- API could write a review onto an unrated film, which no screen ever displays
   -- (backlog #15, D-041, migration 004).
   constraint review_requires_rating check (review is null or rating is not null)
@@ -29,13 +29,13 @@ create table if not exists movies (
 create index if not exists movies_rating_idx on movies (rating desc nulls last);
 
 -- ---------------------------------------------------------------------------
--- 5.2  recommendation_logs — the audit trail of AI recommendation runs
+-- 5.2  recommendation_logs – the audit trail of AI recommendation runs
 -- ---------------------------------------------------------------------------
 create table if not exists recommendation_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "recommend_v2"
-  input_movie_ids    uuid[]  not null,           -- top-N movies used as taste signal
+  input_movie_ids    uuid[]  not null,           -- top-N films used as taste signal
   raw_model_output   jsonb,                      -- reply text, parsed picks, verification tally; null if no reply
   suggested_titles   text[],                     -- parsed titles, post TMDB validation
   model_used         text,
@@ -49,13 +49,13 @@ create table if not exists recommendation_logs (
 );
 
 -- ---------------------------------------------------------------------------
--- 5.3  taste_verdict_logs — same discipline, lighter feature
+-- 5.3  taste_verdict_logs – same discipline, lower-stakes feature
 -- ---------------------------------------------------------------------------
 create table if not exists taste_verdict_logs (
   id                 uuid primary key default gen_random_uuid(),
   created_at         timestamptz not null default now(),
   prompt_version     text    not null,           -- e.g. "taste_verdict_v1"
-  input_movie_ids    uuid[]  not null,           -- ALL rated movies (overall taste, not favorites)
+  input_movie_ids    uuid[]  not null,           -- ALL rated films (overall taste, not favourites)
   verdict_text       text,
   model_used         text,
   tokens_used        integer,
@@ -70,7 +70,7 @@ create table if not exists taste_verdict_logs (
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- Single-user app by design (SPEC § 1). The app's key is the anon key, which
--- respects RLS — this is the concrete least-privilege demo (CLAUDE.md § Security
+-- respects RLS – this is the concrete least-privilege demo (CLAUDE.md § Security
 -- & Scope). The server holds it and never needs service_role; the browser talks
 -- only to the app's own API and never to Supabase.
 -- These policies allow the anon role full access to the single user's data.

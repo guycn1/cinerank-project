@@ -80,7 +80,7 @@ test('tidyReason: never cuts mid-word when over the ceiling', () => {
   assertCutAtWordBoundary(tidyReason(long), long, 130);
 });
 
-test('tidyVerdict: leaves a compliant 2-3 sentence verdict intact', () => {
+test('tidyVerdict: leaves a compliant 2–3 sentence verdict intact', () => {
   const v =
     'You chase the swing-for-the-fences stuff and forgive a lot when the vision is bold. ' +
     'Tidy blockbusters lose you fast. You would rather a film overreach than play it safe.';

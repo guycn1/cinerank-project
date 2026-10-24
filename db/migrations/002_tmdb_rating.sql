@@ -1,15 +1,15 @@
--- Migration 002 — store TMDB's own rating alongside the user's.
+-- Migration 002 – store TMDB's own rating alongside the user's.
 -- Run once in Supabase SQL editor. Safe to re-run (IF NOT EXISTS / DROP IF EXISTS).
 -- New schema installs get this from db/schema.sql directly.
 --
 -- Why: shapeMovie() in server/services/tmdb.js has always returned tmdb_rating,
 -- and the search results have always displayed it ("2023 · TMDB 7.2"), but the
 -- POST /api/movies insert dropped it on the floor because no column existed.
--- The number was fetched, shown once, and then thrown away the moment the film
+-- The number was fetched, shown once and then thrown away the moment the film
 -- was added. This is the column it should have been landing in, so the ranked
 -- list can show "your 8.5 vs TMDB 7.2".
 --
--- Nullable, and deliberately so: rows added before this migration have no value
+-- Nullable, and deliberately so: Rows added before this migration have no value
 -- and must stay valid. TMDB also has obscure titles that nobody has voted on,
 -- which carry no real score, and shapeMovie() stores null for those: for an
 -- absent average from the start, and for TMDB's no-votes 0 from migration 003

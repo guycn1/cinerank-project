@@ -1,7 +1,7 @@
 /**
- * All TMDB API calls live here — never inline fetch() in a route handler
+ * All TMDB API calls live here – never inline fetch() in a route handler
  * (CLAUDE.md § Coding Conventions). The browser loads poster images from TMDB's
- * image server directly, by the URLs this module builds. This module is the trusted source of movie
+ * image server directly, by the URLs this module builds. This module is the trusted source of film
  * facts: posters, years, overviews. The AI never supplies those.
  *
  * @module server/services/tmdb
@@ -28,7 +28,7 @@ class TmdbError extends Error {
 export { TmdbError };
 
 /**
- * A TMDB movie reduced to the fields this app stores and shows. These are the
+ * A TMDB film reduced to the fields this app stores and shows. These are the
  * column names of the movies table, so a value can be inserted as it stands.
  *
  * @typedef {object} ShapedMovie
@@ -76,18 +76,18 @@ function toPosterUrl(posterPath) {
 }
 
 /**
- * Reduce a raw TMDB movie (a search result or a details payload) to a
+ * Reduce a raw TMDB film (a search result or a details payload) to a
  * {@link ShapedMovie}.
  *
- * @param {object} raw  One TMDB movie object.
+ * @param {object} raw  One TMDB film object.
  * @returns {ShapedMovie}
  */
 function shapeMovie(raw) {
   // TMDB reports `vote_average: 0` for a title NOBODY HAS VOTED ON. That is the
   // absence of a rating, not a rating of zero: its user vote scale starts at
   // 0.5, so an average of exactly 0 cannot be a real score. Passing it straight
-  // through stored a 0, and the ranked card then read "TMDB 0.0" — worst film
-  // imaginable — for an obscure title with no votes at all.
+  // through stored a 0, and the ranked card then read "TMDB 0.0" – worst film
+  // imaginable – for an obscure title with no votes at all.
   // `vote_count` is the direct signal and is used whenever TMDB sends it. The
   // `avg > 0` test is the fallback, so a payload that happens to omit
   // vote_count can never null out a rating that is genuinely there.
@@ -118,7 +118,7 @@ export async function searchMovies(query) {
 }
 
 /**
- * Full details for one movie, used when the user picks a search result.
+ * Full details for one film, used when the user picks a search result.
  *
  * @param {number} tmdbId  TMDB's id for the film.
  * @returns {Promise<ShapedMovie>}
@@ -132,7 +132,7 @@ export async function getMovieDetails(tmdbId) {
 
 /**
  * Cross-check an AI-suggested title against TMDB (SPEC § 2.2 step 4).
- * Returns a real TMDB movie, or null when TMDB has never heard of the title.
+ * Returns a real TMDB film, or null when TMDB has never heard of the title.
  * The AI only picked the string; TMDB supplies every fact shown to the user.
  *
  * EVERY CARD IS A REAL FILM, by design (D-054). A title TMDB returns nothing
@@ -145,7 +145,7 @@ export async function getMovieDetails(tmdbId) {
  * TMDB search is close to TOKEN matching rather than fuzzy, so invented titles
  * mostly return zero results and are already dropped, while the fallback earns
  * its keep rescuing real films the model named imprecisely ("Shawshank
- * Redemption", "Spider-Man: Into the Spiderverse"). And the commonest way
+ * Redemption", "Spider-Man: Into the Spiderverse"). And the most common way
  * a hallucination gets PAST the check is immune to any matching rule anyway: an
  * invented-sounding title like "The Silent Echo" turns out to be a real obscure
  * film and EXACT-matches. Read D-054 before changing this; the numbers are in it.
@@ -165,6 +165,6 @@ export async function verifyTitle(title) {
   const wanted = title.trim().toLowerCase();
   const exact = results.find((r) => r.title.trim().toLowerCase() === wanted);
   // Prefer a title-for-title match, else TMDB's top hit. The fallback is a
-  // documented trade (D-054), not an oversight -- see the note above.
+  // documented trade (D-054), not an oversight – see the note above.
   return shapeMovie(exact || results[0]);
 }

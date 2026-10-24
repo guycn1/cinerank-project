@@ -1,12 +1,12 @@
 /**
- * @file CineRank — demo seed helper.
+ * @file CineRank – demo seed helper.
  *
  * Loads the pre-rated list the submission ships with, so the ranked list, both
  * AI features and the call log all work on first open. Blueprint, and the reason
  * each part of the set is there: CLAUDE.md § Open issues, "Demo seed list".
  *
  * Usage (the server must be running):
- *   npm run seed-demo                       dry run — resolves and prints, writes nothing
+ *   npm run seed-demo                       dry run – resolves and prints, writes nothing
  *   npm run seed-demo -- --write            REPLACE: wipe the list, then seed
  *   npm run seed-demo -- --write --keep     add the seed films alongside what is there
  *   npm run seed-demo -- --reset            dry run of the removal
@@ -16,11 +16,11 @@
  * REPLACE IS THE DEFAULT, AND IT IS A DELIBERATE, USER-REQUESTED EXCEPTION TO A
  * BINDING RULE. CLAUDE.md Working agreements says: never run destructive
  * operations against the live Supabase data, no delete all. That rule binds the
- * AGENT, and it still does — Claude must never run this script with --write.
+ * AGENT, and it still does – Claude must never run this script with --write.
  * It does not bind the owner of the data running a tool deliberately, and the
  * whole point of a demo seed is that the list ends up as EXACTLY the seed set:
  * seeding alongside whatever was already there is not a demo list, it is a
- * mixture. The safety is that the wipe is never silent — a dry run prints every
+ * mixture. The safety is that the wipe is never silent – a dry run prints every
  * film it would destroy, with its rating, and --write is required to act.
  *
  * Dry run is the default on purpose, following scripts/backfill-tmdb-rating.js:
@@ -44,8 +44,8 @@
  * THE RATING AND THE REVIEW GO IN ONE PATCH. Migration 004's
  * review_requires_rating constraint forbids a review on an unrated film (D-041),
  * so a review-only patch comes back as a 400, "A review needs a rating". That is
- * deliberate — it fails loudly rather than storing a review no screen would ever
- * show — but it looks like a mystery if it is met without knowing why.
+ * deliberate – it fails loudly rather than storing a review no screen would ever
+ * show – but it looks like a mystery if it is met without knowing why.
  */
 
 const BASE = (process.env.CINERANK_URL || 'http://localhost:3000').replace(/\/+$/, '');
@@ -56,7 +56,7 @@ const WITH_INJECTION = args.has('--with-injection');
 const KEEP = args.has('--keep');
 
 /* ------------------------------------------------------------------------- *
- * THE SEED SET — edit this block, not the code below it.
+ * THE SEED SET – edit this block, not the code below it.
  *
  * Shape, and why every slot is here. Two things decide it: the blueprint in
  * CLAUDE.md, and one measured fact about how the two AI features read the list
@@ -68,21 +68,21 @@ const KEEP = args.has('--keep');
  *   recommender. That is deliberate here, not an oversight: the low outlier
  *   sits at the bottom to give the VERDICT something to push against, while the
  *   five above it are the ones steering the picks.
- *   Reviews are also truncated before they reach a prompt — 300 characters for
- *   recommendations, 200 for the verdict — so a long review has to carry its
+ *   Reviews are also truncated before they reach a prompt – 300 characters for
+ *   recommendations, 200 for the verdict – so a long review has to carry its
  *   signal in its opening sentence.
  *
  *   - ONE PERSONA WITH TWO AXES, NOT ONE. This is the part that was got wrong
  *     first. A single-axis taste ("likes bright, dislikes grim") gives the model
  *     nothing to abstract from, so the verdict falls back to reciting film names
- *     against their ratings — the exact failure taste_verdict_v4 was written to
- *     end (D-014) — and the recommender can only return more of the same shelf.
+ *     against their ratings – the exact failure taste_verdict_v4 was written to
+ *     end (D-014) – and the recommender can only return more of the same shelf.
  *     The top four here span action, musical, whodunnit and cartoon and are
  *     united by an ATTITUDE rather than a genre. That is what forces a verdict
  *     to characterise instead of list.
  *   - A rating spread from 9.1 to 1.5. A flat set produces a flat verdict.
  *   - REVIEWS REJECT ON CRAFT, NEVER ON SUBJECT MATTER. Two reasons. It is the
- *     sharper taste signal — "no second idea underneath the first" says more
+ *     sharper taste signal – "no second idea underneath the first" says more
  *     about the viewer than "too nasty" does. And these strings are sent to a
  *     model whenever someone presses one of the AI buttons, so a review
  *     dwelling on what a film depicts is a needless chance of the model hedging
@@ -90,16 +90,16 @@ const KEEP = args.has('--keep');
  *   - EVERY SLOT ALSO EARNS A PIECE OF UI EVIDENCE, named on the film below.
  *     Between them the seven films draw the show-more toggle, the "No review
  *     yet" placeholder, the "No TMDB rating" caption, the "Not rated yet" chip
- *     and the faint "?" rank — five states that otherwise need hand-setup to
+ *     and the faint "?" rank – five states that otherwise need hand-setup to
  *     photograph.
- *   - Recommendation headroom: the obvious neighbours of these films are
+ *   - Recommendation headroom: The obvious neighbours of these films are
  *     deliberately NOT seeded, so a run has real, TMDB-verifiable picks left to
  *     find and no card is silently dropped for being owned already.
  * ------------------------------------------------------------------------- */
 
 const PERSONA =
-  'Wants a film to commit to its swing — practical craft, real spectacle, a ' +
-  'point of view — and forgives silly far sooner than limp. Bored by committee ' +
+  'Wants a film to commit to its swing – practical craft, real spectacle, a ' +
+  'point of view – and forgives silly far sooner than limp. Bored by committee ' +
   'filmmaking, and unmoved by grimness offered in place of an idea.';
 
 /** @type {SeedEntry[]} */
@@ -108,8 +108,8 @@ const SEED = [
     // Rank 1, and the LONG review: long enough to clip and draw the "show more"
     // toggle (ranked-list item #5) at every width. At 900px and below, where
     // reviews clamp to two lines, the shorter reviews below clip and draw it
-    // too. Also the craft axis — practical
-    // effects, clarity, commitment — which is what stops the set reading as
+    // too. Also the craft axis – practical
+    // effects, clarity, commitment – which is what stops the set reading as
     // "likes bright colourful things" and nothing else.
     title: 'Mad Max: Fury Road',
     year: 2015,
@@ -123,11 +123,9 @@ const SEED = [
       'whole thing for me.',
   },
   {
-    // The spectacle axis, and the emoji slot. The emoji stands alone between
-    // spaces, so it is a one-grapheme word that D-080's minimum never
-    // hyphenates, and this review no longer exercises D-061's grapheme-safe
-    // splitting: that only matters for an emoji inside a word of seven or more
-    // graphemes, which nothing in the seed list contains.
+    // The spectacle axis, and the emoji slot. It no longer exercises D-061's
+    // grapheme-safe splitting, and no emoji can: a soft hyphen goes only
+    // between two letters (D-085), and no emoji holds two letters in a row.
     title: 'Wicked',
     year: 2024,
     rating: 8.6,
@@ -136,7 +134,7 @@ const SEED = [
       'absolutely carried the whole thing. genuinely magical on a big screen.',
   },
   {
-    // RATED, NO REVIEW — this is what draws #20's "No review yet — edit to add
+    // RATED, NO REVIEW – this is what draws #20's "No review yet – edit to add
     // one." placeholder, the last item of the ranked-list backlog.
     // It is also the third genre: sharp, verbal and constructed rather than big
     // and loud, which is what gives the recommender a direction to go in that
@@ -175,7 +173,7 @@ const SEED = [
       'about what people liked in 2004. will wait for streaming.',
   },
   {
-    // THE LOW OUTLIER, and deliberately SIXTH — below topN, so it reaches the
+    // THE LOW OUTLIER, and deliberately SIXTH – below topN, so it reaches the
     // verdict and not the recommender (see the note at the top of this block).
     // Rejected for having one idea rather than for what it shows: that is the
     // same axis as the Shrek 5 line, which is what lets a verdict generalise
@@ -189,9 +187,9 @@ const SEED = [
       'underneath the first one.',
   },
   {
-    // LEFT UNRATED on purpose: it draws the "Not rated yet" chip and the faint
+    // LEFT UNRATED on purpose: It draws the "Not rated yet" chip and the faint
     // "?" rank (D-029, D-033) and costs no AI feature, because the six above
-    // clear both thresholds on their own — recommendations need three rated
+    // clear both thresholds on their own – recommendations need three rated
     // films, the verdict needs two.
     title: 'Shrek',
     year: 2001,
@@ -215,7 +213,7 @@ const INJECTION = {
   // read only the top FIVE rated films (config.recommendations.topN), while the
   // verdict reads every one. At its original rating of 2 this film sorted sixth
   // behind the seed set, so its review reached the VERDICT prompt and never
-  // reached the RECOMMENDATIONS prompt at all -- and a screenshot of
+  // reached the RECOMMENDATIONS prompt at all – and a screenshot of
   // recommendations 'staying on topic' would have proved nothing, because the
   // injection text was never in that prompt to be resisted.
   // 8 puts it fourth, comfortably inside topN, so the attempt reaches BOTH
@@ -293,7 +291,7 @@ function rerunCommand() {
  * @throws {Error} Always.
  */
 function fail(label, res, body) {
-  throw new Error(label + ' failed: HTTP ' + res.status + ' — ' + ((body && body.error) || 'no message'));
+  throw new Error(label + ' failed: HTTP ' + res.status + ' – ' + ((body && body.error) || 'no message'));
 }
 
 /**
@@ -333,7 +331,7 @@ async function resolve(entry) {
   const results = (body && body.results) || [];
   // Exact title AND year first. TMDB search is close to token matching, so a
   // common title can return several real films and the top result is not
-  // reliably the one meant — D-054 measured exactly that failure.
+  // reliably the one meant – D-054 measured exactly that failure.
   const exact = results.find(
     (r) => r.year === entry.year && (r.title || '').toLowerCase() === entry.title.toLowerCase()
   );
@@ -366,7 +364,7 @@ function describe(entry) {
 /**
  * ALWAYS prints the current list, even when it is empty. An earlier version
  * printed only the seed films, so "to add" meant "this seed film is not in the
- * list" and said nothing about what else was in there — and that got read as
+ * list" and said nothing about what else was in there – and that got read as
  * "the list is empty", which it was not. Showing the real list is the fix.
  *
  * @param {ListedMovie[]} existing  The list as GET /api/movies returned it.
@@ -411,7 +409,7 @@ function announcePlan(existing, purge) {
   if (purge) {
     console.log('\n  REPLACE MODE (the default): all ' + existing.length + ' film(s) above are');
     console.log('  DELETED FIRST, so the list ends up as exactly the seed set.');
-    console.log('  Their ratings and reviews go with them and are NOT recoverable —');
+    console.log('  Their ratings and reviews go with them and are NOT recoverable –');
     console.log('  the Supabase free tier has no point-in-time recovery.');
     console.log('  Pass --keep to add the seed films alongside what is already there.\n');
   } else if (KEEP && existing.length > 0) {
@@ -482,7 +480,7 @@ async function applySeed(resolved, stillThere) {
     }
     if (r.rating == null) continue; // an unrated film is finished at the add
 
-    // ONE patch carrying both fields — see the header note on migration 004.
+    // ONE patch carrying both fields – see the header note on migration 004.
     const patch = { rating: r.rating };
     if (r.review) patch.review = r.review;
     const upd = await api('/api/movies/' + id, {
@@ -496,7 +494,7 @@ async function applySeed(resolved, stillThere) {
 }
 
 /**
- * The default run: print the current list, resolve the seed films, and either
+ * The default run: Print the current list, resolve the seed films and either
  * stop there (dry run) or replace the list with them (--write). With --keep
  * nothing is deleted and the seed films are added alongside.
  *
@@ -516,7 +514,7 @@ async function seed(entries) {
   announcePlan(existing, purge);
 
   if (!WRITE) {
-    console.log('DRY RUN — nothing written and nothing deleted.');
+    console.log('DRY RUN – nothing written and nothing deleted.');
     console.log('Re-run with: ' + rerunCommand() + '\n');
     return;
   }
@@ -527,7 +525,7 @@ async function seed(entries) {
 }
 
 /**
- * The --reset run: remove only the rows matching a declared film by title and
+ * The --reset run: Remove only the rows matching a declared film by title and
  * year. Prints every row it would remove, and deletes only under --write.
  *
  * @param {SeedEntry[]} entries  The declared set, plus the injection film when asked.
@@ -539,7 +537,7 @@ async function reset(entries) {
   if (!res.ok) fail('Reading the current list', res, body);
   const existing = (body && body.movies) || [];
 
-  // Matched on title and year against the DECLARED set above — never "all rows",
+  // Matched on title and year against the DECLARED set above – never "all rows",
   // which is the rule Incident 1 produced. No TMDB call either, so this still
   // works with the key deliberately broken, which matters because the resilience
   // captures break it on purpose.
@@ -547,7 +545,7 @@ async function reset(entries) {
   const doomed = existing.filter((m) => wanted.has((m.title || '').toLowerCase() + '|' + m.year));
 
   if (doomed.length === 0) {
-    console.log('\nNothing to remove — no film in the list matches the seed set.\n');
+    console.log('\nNothing to remove – no film in the list matches the seed set.\n');
     return;
   }
 
@@ -562,11 +560,11 @@ async function reset(entries) {
   }
   console.log(
     '\n  Nothing else in the list is touched. A rating and a review go with the row\n' +
-      '  and are NOT recoverable — the free tier has no point-in-time recovery.\n'
+      '  and are NOT recoverable – the free tier has no point-in-time recovery.\n'
   );
 
   if (!WRITE) {
-    console.log('DRY RUN — nothing deleted. Re-run with: ' + rerunCommand() + '\n');
+    console.log('DRY RUN – nothing deleted. Re-run with: ' + rerunCommand() + '\n');
     return;
   }
 

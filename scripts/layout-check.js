@@ -17,9 +17,9 @@
  * MODES
  *   (default)          health: at every width, text stays inside its box and
  *                      the viewport, no two parts of a card overlap, nothing
- *                      scrolls sideways, and every line break inside a word
- *                      obeys softHyphenate()'s rules; plus the verdict typing
- *                      and the clipboard. Exit 1 on any failure.
+ *                      scrolls sideways and every line break inside a word
+ *                      obeys softHyphenate()'s rules; plus the verdict typing,
+ *                      the clipboard and dragged text. Exit 1 on any failure.
  *   --baseline=REF     diff: the layout under a baseline stylesheet (a git ref
  *                      or a file) against the candidate, element by element,
  *                      at every width. Informational unless --expect-same.
@@ -84,10 +84,13 @@
  *            scroll:   the page is wider than the viewport, or a box scrolls
  *                      sideways
  *            hyph:     a soft-hyphen break in a short word, too near a word's
- *                      edge, or beside a dash; or a word broken at a soft
- *                      hyphen above the width where soft hyphens are off
- *            clip:     an invisible character reached the clipboard, or the
- *                      verdict did not copy exactly once
+ *                      edge (both counted in letters, a dash ending a word),
+ *                      beside a dash or beside anything but a letter; or a
+ *                      word broken at a soft hyphen above the width where
+ *                      soft hyphens are off
+ *            clip:     an invisible character reached the clipboard or a
+ *                      dragged selection, or the verdict did not copy
+ *                      exactly once
  *            typing:   a letter moved back up a line while the verdict typed
  *            page errors: a script error or unhandled rejection in the page
  *     ok:    correct behaviour, counted for reassurance (a long word
@@ -118,13 +121,15 @@
  *   browser ran", which fails. "write request(s) held" is informational.
  *
  *   Exit code 0: passed. 1: a check failed, a browser gave no result, no
- *   browser ran, a self-test fault went uncaught, or (diff with
+ *   browser ran, a self-test fault went uncaught or (diff with
  *   --expect-same) something moved. 2: the tool itself failed.
  *
- * Adapting it: the fixtures are below, and the selectors that define "a card"
+ * Adapting it: The fixtures are below, and the selectors that define "a card"
  * and "a component" for the containment and overlap checks are at the top of
  * scripts/layout-probe.js. The hyphenation rules are read out of app.js and
- * styles.css, so they follow the code instead of being restated here.
+ * styles.css, so they follow the code instead of being restated here. One is
+ * held by the probe on its own: a dash always ends a word (D-081), so a
+ * regression of that rule in app.js cannot pass by being read back.
  */
 
 import http from 'node:http';
@@ -185,12 +190,12 @@ function readStylesheet(ref) {
 
 /**
  * The hyphenation rules the probe checks line breaks against, read out of the
- * code so they cannot drift: softHyphenate()'s word minimum, edge minimum and
- * word separator from app.js, and the width at or below which the stylesheet
- * switches soft hyphens on.
+ * code so they cannot drift: softHyphenate()'s word minimum, edge minimum,
+ * word separator and the class of grapheme that counts as a letter from app.js,
+ * and the width at or below which the stylesheet switches soft hyphens on.
  *
  * @param {string} css  The stylesheet under test.
- * @returns {{minWord: number, minEdge: number, separator: string, threshold: number}}
+ * @returns {{minWord: number, minEdge: number, separator: string, letter: string, threshold: number}}
  * @throws {Error} When app.js or the stylesheet no longer has the expected shape.
  */
 function hyphenationRules(css) {
@@ -198,11 +203,12 @@ function hyphenationRules(css) {
   const minWord = js.match(/const HYPHENATE_MIN_WORD = (\d+);/);
   const minEdge = js.match(/const HYPHENATE_MIN_EDGE = (\d+);/);
   const sep = js.match(/const WORD_SEPARATOR = \/(.+)\/u;/);
+  const letter = js.match(/const HYPHENATE_LETTER = \/(.+)\/u;/);
   const threshold = css.match(/@media \(max-width: (\d+)px\) \{[^}]*hyphens: manual/);
-  if (!minWord || !minEdge || !sep || !threshold) {
+  if (!minWord || !minEdge || !sep || !letter || !threshold) {
     throw new Error('could not read the hyphenation rules out of app.js / the stylesheet; update hyphenationRules()');
   }
-  return { minWord: Number(minWord[1]), minEdge: Number(minEdge[1]), separator: sep[1], threshold: Number(threshold[1]) };
+  return { minWord: Number(minWord[1]), minEdge: Number(minEdge[1]), separator: sep[1], letter: letter[1], threshold: Number(threshold[1]) };
 }
 
 /**
@@ -278,7 +284,7 @@ const RECOMMENDATIONS = {
 };
 
 const VERDICT = {
-  verdict: 'You gravitate toward uncompromising, extraordinarily physical filmmaking, SquarePants-level absurdity included, and you quietly punish anything that plays it safe. Knives Out lands because it is clever; Saw lands nowhere because it mistakes cruelty for craft.',
+  verdict: 'You gravitate towards uncompromising, extraordinarily physical filmmaking, SquarePants-level absurdity included, and you quietly punish anything that plays it safe. Knives Out lands because it is clever; Saw lands nowhere because it mistakes cruelty for craft.',
   meta: { promptVersion: 'taste_verdict_v7', model: 'fixture/none', tokensUsed: 0, estimatedCostUsd: 0, durationMs: 0 },
 };
 
@@ -319,7 +325,7 @@ function fixtureAiLog() {
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 
 /**
- * Answer one fixture API request. Writes to the movie list are held open.
+ * Answer one fixture API request. Writes to the film list are held open.
  *
  * @param {http.IncomingMessage} req
  * @param {http.ServerResponse} res
@@ -499,7 +505,7 @@ function removeProfile(profile) {
 }
 
 /**
- * The last sweep: retry every profile still on disk for up to half a minute,
+ * The last sweep: Retry every profile still on disk for up to half a minute,
  * and name any that could not be removed rather than leave them silently.
  *
  * @returns {Promise<void>}

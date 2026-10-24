@@ -1,7 +1,7 @@
 /**
  * The recommendations feature (SPEC § 2.2): build a taste profile from the top
  * rated films, ask the model for picks, verify every pick against TMDB, drop
- * what the user already has, and log the call whether it succeeds or fails. A
+ * what the user already has and log the call whether it succeeds or fails. A
  * run whose log write fails is discarded, with its cause sent to stderr.
  *
  * @module server/services/recommendations
@@ -72,7 +72,7 @@ const REASON_MAX = 130; // safety ceiling; the prompt asks for 8–16 words
 class RecommendationError extends Error {
   /**
    * Two flags, both additive and both about what the ROUTE may do with the
-   * message — the service keeps writing the same technical text either way, and
+   * message – the service keeps writing the same technical text either way, and
    * that text keeps going to the log row's error_text where it belongs.
    *
    * @param {string} message  The technical cause.
@@ -84,8 +84,8 @@ class RecommendationError extends Error {
    * @param {boolean} [flags.logged=false]  A recommendation_logs row was written for this failure, so a
    *   UI may point at the AI call log. Only true once an AI call has actually
    *   been made and its row committed: a failed DB read, an unmet threshold and
-   *   a failed log write all produce NO row, and telling the user to go read one
-   *   would send them to an empty page.
+   *   a failed log write all produce NO row, and telling the user to go and
+   *   read one would send them to an empty page.
    */
   constructor(message, { userFacing = false, logged = false } = {}) {
     super(message);
@@ -102,7 +102,7 @@ export { RecommendationError };
  * Review text is untrusted user input flowing into the prompt (CLAUDE.md
  * § Security & Secrets, item 5). We cap length and keep it clearly inside the
  * data block; the prompt itself instructs the model to treat the block as data only. Even if
- * injection partly succeeds, the blast radius is "a weird title" — every title is
+ * injection partly succeeds, the blast radius is "a weird title" – every title is
  * then verified against TMDB before the user ever sees it.
  *
  * @param {{ title: string, year: number | null, rating: number, review: string | null }} movie
@@ -125,7 +125,7 @@ function line(movie) {
  *   array. Neither flag is set.
  */
 export function parseModelJson(text) {
-  // Structured output only — no regex-parsing of prose (SPEC § 6). We tolerate a
+  // Structured output only – no regex-parsing of prose (SPEC § 6). We tolerate a
   // markdown code fence but nothing looser than that.
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
   let arr;
@@ -142,7 +142,7 @@ export function parseModelJson(text) {
 }
 
 /**
- * Belt-and-suspenders: strip markdown, and if the model overshoots the word
+ * Belt-and-braces: Strip markdown, and if the model overshoots the word
  * budget cut at the last sentence end (else last word), never mid-word.
  *
  * @param {string} raw  One reason as the model wrote it.
@@ -160,14 +160,14 @@ export function tidyReason(raw) {
 }
 
 /**
- * WHY a run produced nothing. The UI used to assert one cause — "the model only
- * named films already in your list" — for all of them, which is wrong for every
+ * WHY a run produced nothing. The UI used to assert one cause – "the model only
+ * named films already in your list" – for all of them, which is wrong for every
  * other cause and, in the tmdb-unreachable case, actively hides an outage behind
  * a confident false statement (user-raised, 2026-09-09).
  *
  * The service is the only place that knows, so it says so instead of leaving the
  * client to guess. Order matters: an unreachable TMDB outranks everything else,
- * because it is the only cause the user can neither see nor act on otherwise —
+ * because it is the only cause the user can neither see nor act on otherwise –
  * the run still logs status 'success' (the AI call really did succeed) and
  * nothing else in the app would mention it.
  *
@@ -188,7 +188,7 @@ function emptyReasonFor(tally) {
 
 /**
  * Run one recommendation pass. Always writes a row to recommendation_logs
- * (SPEC § 2.2) — the audit record is the point, not a nice-to-have. "Always"
+ * (SPEC § 2.2) – the audit record is the point, not a nice-to-have. "Always"
  * means for every AI call made: a failed DB read and an unmet threshold both
  * throw before any call, and so before any row. If the insert itself fails, the
  * run is discarded and the cause goes to stderr.
@@ -202,7 +202,7 @@ function emptyReasonFor(tally) {
 export async function generateRecommendations() {
   // ONE unfiltered read, then split in JS. This used to be a single query
   // filtered `.not('rating', 'is', null)`, and the owned-titles set was built
-  // from its result — so the set contained only RATED films and a film the user
+  // from its result – so the set contained only RATED films and a film the user
   // had added but not yet rated was invisible to it. The model could then name
   // it, TMDB would happily verify it, and it came back as a recommendation for
   // something already in the list; the card's own "not yet rated" badge would
@@ -228,7 +228,7 @@ export async function generateRecommendations() {
   const rated = library.filter((m) => m.rating != null);
   if (rated.length < config.recommendations.minRatedMovies) {
     throw new RecommendationError(
-      `Need at least ${config.recommendations.minRatedMovies} rated movies`,
+      `Need at least ${config.recommendations.minRatedMovies} rated films`,
       // The one cause a user can act on, so it reaches them word for word.
       { userFacing: true }
     );
@@ -241,8 +241,8 @@ export async function generateRecommendations() {
     TASTE_PROFILE: topN.map(line).join('\n'),
   });
 
-  // From here on an AI call happens, so a row is ALWAYS written — success or a
-  // handled model/parse failure — unless the insert itself fails, which discards
+  // From here on an AI call happens, so a row is ALWAYS written – success or a
+  // handled model/parse failure – unless the insert itself fails, which discards
   // the run and sends the cause to stderr (below). Failures matter in the audit
   // trail as much as successes (Module 13: make a failure visible, never a
   // silent result).
@@ -263,7 +263,7 @@ export async function generateRecommendations() {
 
     // Cross-check every title against TMDB; TMDB supplies all facts (SPEC § 2.2
     // #4). Already-owned titles are silently dropped (§ 2.2 #5), and so are
-    // titles TMDB returns NO result for at all -- which is what "unverifiable"
+    // titles TMDB returns NO result for at all – which is what "unverifiable"
     // means here, and is narrower than the word sounds: a near-miss resolves to
     // TMDB's top result rather than being dropped. See verifyTitle() and D-054.
     tally.named = picks.length;
@@ -273,7 +273,7 @@ export async function generateRecommendations() {
       try {
         movie = await verifyTitle(pick.title);
       } catch {
-        // A TMDB hiccup on one lookup still must not kill the whole run — but it
+        // A TMDB hiccup on one lookup still must not kill the whole run – but it
         // is now COUNTED separately from "TMDB answered and had no such film".
         // Collapsing the two is what let a TMDB outage be reported to the user as
         // "the model only named films already in your list".
@@ -290,7 +290,7 @@ export async function generateRecommendations() {
       status = 'failed';
       errorText = err.message;
     } else {
-      throw err; // unexpected — don't swallow
+      throw err; // unexpected – don't swallow
     }
   }
 
@@ -324,15 +324,15 @@ export async function generateRecommendations() {
   const { error: logError } = await supabase.from('recommendation_logs').insert(logRow);
   if (logError) {
     // Logging is a hard requirement (SPEC § 5.2), so a run that cannot be
-    // audited is discarded rather than quietly shown -- INCLUDING a successful
+    // audited is discarded rather than quietly shown – INCLUDING a successful
     // run that has already been paid for. That is deliberate and must stay:
     // cards on screen with no row behind them are precisely the state the audit
     // trail exists to make impossible. Do not "rescue" `verified` here.
     //
     // What WAS a bug (R5): when the AI call had ALREADY failed, this threw the
     // insert's message and destroyed `errorText`. That cause then survived
-    // nowhere at all -- the row that would have carried it is the write that
-    // just failed, and the route answers a RecommendationError with a calm
+    // nowhere at all – the row that would have carried it was the write that
+    // had just failed, and the route answers a RecommendationError with a calm
     // sentence instead of letting it reach the central handler. Two failures,
     // zero records.
     const cause = errorText
@@ -340,7 +340,7 @@ export async function generateRecommendations() {
       : logError.message;
     // stderr is the ONLY sink left once the log table is unreachable, so the
     // operator gets the one record that can still be written. Deliberately not
-    // shown to the user: the route's calm sentence is the right answer (R8) and
+    // shown to the user: The route's calm sentence is the right answer (R8) and
     // neither cause is anything they can act on.
     console.error('[cinerank] recommendation log write failed:', cause);
     throw new RecommendationError(`Recommendation log write failed: ${cause}`);
@@ -348,13 +348,13 @@ export async function generateRecommendations() {
 
   // The log row is committed by this point, so this is the only failure the UI
   // may point at the AI call log for. `errorText` is the technical cause and is
-  // NOT what the user sees — the route replaces it (R8) — but it stays the
+  // NOT what the user sees – the route replaces it (R8) – but it stays the
   // message so a server-side caller and the log agree on what happened.
   if (status === 'failed') throw new RecommendationError(errorText, { logged: true });
 
   return {
     suggestions: verified,
-    // Null whenever there are cards to show — the client only consults it in the
+    // Null whenever there are cards to show – the client only consults it in the
     // empty branch, and a value there would invite it to be read as a warning.
     emptyReason: verified.length ? null : emptyReasonFor(tally),
     meta: {

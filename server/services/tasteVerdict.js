@@ -29,9 +29,9 @@ const MAX_LEN = 450; // safety ceiling; the prompt asks for 2–3 sentences (~35
  */
 
 /**
- * Belt-and-suspenders cleanup of the model's plain-text output:
+ * Belt-and-braces cleanup of the model's plain-text output:
  *  - strip markdown emphasis (v1 leaked "*Saw*" into the banner)
- *  - if still over the ceiling, cut at the last sentence end, else last word —
+ *  - if still over the ceiling, cut at the last sentence end, else last word –
  *    never mid-word (SPEC § 2.3: length cap, but no ugly truncation)
  *
  * @param {string} raw  The model's reply.
@@ -54,7 +54,7 @@ export function tidyVerdict(raw) {
  */
 class TasteVerdictError extends Error {
   /**
-   * Same two flags, same meanings, as RecommendationError — the two features
+   * Same two flags, same meanings, as RecommendationError – the two features
    * must answer a failure identically or the app has two error dialects (R23,
    * D-047).
    *
@@ -63,7 +63,7 @@ class TasteVerdictError extends Error {
    * @param {boolean} [flags.userFacing=false]  This message IS the answer, so show it verbatim. True for
    *   exactly one case: not enough rated films.
    * @param {boolean} [flags.logged=false]  A taste_verdict_logs row was written for this failure, so a
-   *   UI may point at the AI call log. **The invariant: every 'failed' row that
+   *   UI may point at the AI call log. **The invariant: Every 'failed' row that
    *   reaches the table must arrive with this true.** Below, that holds because
    *   status only ever becomes 'failed' in one place and the throw that follows
    *   the successful insert is the only exit from it.
@@ -114,7 +114,7 @@ export async function generateTasteVerdict() {
   if (error) throw new TasteVerdictError(`DB read failed: ${error.message}`);
   if (!rated || rated.length < config.tasteVerdict.minRatedMovies) {
     throw new TasteVerdictError(
-      `Need at least ${config.tasteVerdict.minRatedMovies} rated movies`,
+      `Need at least ${config.tasteVerdict.minRatedMovies} rated films`,
       // The one cause a user can act on. No AI call was made, so nothing is
       // logged and nothing may be advertised.
       { userFacing: true }
@@ -125,7 +125,7 @@ export async function generateTasteVerdict() {
     RATED_MOVIES: rated.map(line).join('\n'),
   });
 
-  // An AI call happens now, so a row is ALWAYS written — success or failure —
+  // An AI call happens now, so a row is ALWAYS written – success or failure –
   // unless the insert itself fails, which discards the run and sends the cause
   // to stderr (below).
   const startedAt = Date.now();
@@ -143,7 +143,7 @@ export async function generateTasteVerdict() {
       // The only call in the app that does not use the app-wide model (D-053).
       model: config.tasteVerdict.model,
     });
-    // Plain text only — the frontend renders this via textContent, never innerHTML.
+    // Plain text only – the frontend renders this via textContent, never innerHTML.
     verdict = tidyVerdict(result.text);
   } catch (err) {
     if (err instanceof OpenRouterError) {
@@ -165,7 +165,7 @@ export async function generateTasteVerdict() {
     // THE FALLBACK MUST BE THIS FEATURE’S MODEL, NOT THE APP-WIDE ONE. On
     // success `result.model` is whatever OpenRouter echoed back, else the model
     // requested (`chat()` falls back to it); on FAILURE there is no response to
-    // read, so the row falls back to a constant — and the verdict is the one
+    // read, so the row falls back to a constant – and the verdict is the one
     // call in the app that does not use the app-wide model (D-053, and the
     // `chat()` call above says so).
     // The fallback was `config.openrouter.model` until 2026-09-13, so the app
@@ -182,12 +182,12 @@ export async function generateTasteVerdict() {
     estimated_cost_usd: estCost,
   };
   const { error: logError } = await supabase.from('taste_verdict_logs').insert(logRow);
-  // The row did NOT land, so there is nothing to advertise — `logged` stays
+  // The row did NOT land, so there is nothing to advertise – `logged` stays
   // false. Leave the order alone: moved below the `logged: true` throw beneath
   // it, this branch would let a failed AI call advertise a row that was never
-  // written — a false positive.
+  // written – a false positive.
   if (logError) {
-    // Identical treatment to recommendations.js, and it must stay identical —
+    // Identical treatment to recommendations.js, and it must stay identical –
     // R23/D-047 exist because these two drifted into separate error dialects
     // once already. Composing the causes rather than replacing one with the
     // other is R5: an AI failure here had its `errorText` destroyed by the
@@ -196,13 +196,13 @@ export async function generateTasteVerdict() {
       ? `${logError.message} (the AI call had already failed with: ${errorText})`
       : logError.message;
     // The only sink left once the log table is unreachable. Not shown to the
-    // user — the route's calm sentence stands (R8/R23).
+    // user – the route's calm sentence stands (R8/R23).
     console.error('[cinerank] taste verdict log write failed:', cause);
     throw new TasteVerdictError(`Taste verdict log write failed: ${cause}`);
   }
 
   // The row is committed and its status is 'failed', so this is the ONLY exit
-  // that may advertise the AI call log — and, just as importantly, the only exit
+  // that may advertise the AI call log – and, just as importantly, the only exit
   // reachable once a failed row exists. That is what makes "a failed row is
   // always advertised" true rather than merely usually true.
   if (status === 'failed') throw new TasteVerdictError(errorText, { logged: true });

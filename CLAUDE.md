@@ -1,54 +1,54 @@
-# CLAUDE.md — CineRank
+# CLAUDE.md – CineRank
 
-This file governs how Claude (or Claude Code) should work in this repository. Refer to `SPEC.md` for the full functional/technical spec — this file is about *how to build it*, not *what to build*.
+This file governs how Claude (or Claude Code) should work in this repository. Refer to `SPEC.md` for the full functional/technical spec – this file is about *how to build it*, not *what to build*.
 
-For *why it exists* — the problem, the stakeholders, the definition of done and
-what is deliberately not being built — see `docs/FRAMING.md`, the Module 6 framing
+For *why it exists* – the problem, the stakeholders, the definition of done and
+what is deliberately not being built – see `docs/FRAMING.md`, the Module 6 framing
 document. It is the authority on scope boundaries; `SPEC.md` § 1 predates it.
 
 
 ## Project Context
 
-CineRank is a personal movie-ranking app.
+CineRank is a personal film-ranking app.
 
 This project consists of:
 
 * A real database layer (Supabase/Postgres).
-* A genuinely polished, distinctive UI — not a generic default-component look.
-* Genuine, narrow-scope AI features (OpenRouter-based recommendations and a short taste verdict) that read real stored data and write a real audit log — not a general chatbot bolted onto the app.
+* A genuinely polished, distinctive UI – not a generic default-component look.
+* Genuine, narrow-scope AI features (OpenRouter-based recommendations and a short taste verdict) that read real stored data and write a real audit log – not a general chatbot bolted onto the app.
 
-Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate, and rank movies via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
+Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can search, add, rate and rank films via real TMDB data, and can trigger AI recommendations grounded in their own ratings, with every AI call logged (a run whose log write fails is discarded, R5).
 
 
-## Project Status — Living Log
+## Project Status – Living Log
 
 **Keep this section current every working session.** It is the fast answer to
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-01
+**Last updated:** 2026-10-25
 
 ### Current state
 
 **THE PROJECT IS MERGE-READY.** `docs/MERGE-READINESS.md` reads MET on all five
-of Module 16's criteria for the first time — criterion 1 closed on 2026-09-14
+of Module 16's criteria for the first time – criterion 1 closed on 2026-09-14
 when the user ticked `SPEC.md` § 7.1's eight acceptance boxes against
-`docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE — turn 3 closed
+`docs/ACCEPTANCE.md`. ALL THREE SPIRAL TURNS ARE COMPLETE – turn 3 closed
 2026-09-14, see `SPEC.md` § Specification status, which satisfies the course's
 "at least three full turns" under the conservative reading that counts no merge
 as a turn.
 
 THE FINAL PLANNED `draft` → `main` MERGE WAS AUTHORISED BY THE USER ON
-2026-09-14 and was performed immediately after that commit — see the note under
+2026-09-14 and was performed immediately after that commit – see the note under
 Build status for why the count and the checkbox are written just before it
 rather than just after. **A TWENTY-SECOND MERGE THEN FOLLOWED THE SAME DAY**,
-carrying one defect fix — `docs/SECURITY.md` rendered with broken images and 404
-links on GitHub's Security tab — which is "final planned" being tested rather
+carrying one defect fix – `docs/SECURITY.md` rendered with broken images and 404
+links on GitHub's Security tab – which is "final planned" being tested rather
 than contradicted; the Build status note on the twenty-second merge has it. The
 live URL is on the project sheet and the joint-project registration is emailed,
-both 2026-09-14. Everything else is done — evidence captured and written up, the
-debug harness unloaded, all five gates green, and every other checkbox on this
-list ticked.
+both 2026-09-14. Everything else is done – evidence captured and written up, the
+recommendations debug harness unloaded, all five gates green and every other
+checkbox on this list ticked.
 
 The thirtieth `draft` → `main` merge, on 2026-10-01, is the close-out sync
 at the course's final assessment deadline (ground 3), and it clears ground 2
@@ -67,16 +67,248 @@ promised to leave alone, a review containing `$&` reaching the model as a
 placeholder's name, a review cut through an emoji sending half of it,
 placeholders GitHub swallowed in the recommendation prompts and the RS-8
 recipe, D-065's escape examples printed without their backslashes, and claims
-the sweeps found false. Riding along: rules 11 and 12 in `check-markdown` and
+the sweeps found false. Riding along: Rules 11 and 12 in `check-markdown` and
 the linking rule's commit and range links. As with the merges before it, the
 figures and notes describing it were written to `draft` first, in one commit,
 and all five gates ran on it before the user confirmed the merge.
 
+The thirty-second merge, on 2026-10-25, is a defect merge (ground 2); the
+Build status note on the thirty-second merge has it. Since the thirty-first,
+`draft` has carried fixes for defects on the deployed site: a six-letter word
+before punctuation hyphenating two letters from its end (D-085), the rate
+dialog opening where the previous film's had been left, a rounded box that
+scrolls losing its corners to its scrollbar (D-086), an AI-log reveal panel
+scrolling out of view or across the pinned rows (D-087), a footer credit
+short of what TMDB's terms require (D-088), a dragged selection carrying its
+soft hyphens (D-089) and, in Samsung Internet, a tapped card left lit and the
+keypad left over the results (D-090); and for claims false on `main` about
+the verdict's job and its prompt, and in D-057. Riding along: the rule beside
+the real verdict, the verdict console harness, the layout-check additions,
+the three passes that brought the copy and the docs into one consistent
+dialect of English, and the sweeps of 2026-10-08, 2026-10-24 and 2026-10-25.
+As with the merges before it, the figures and notes describing it were
+written to `draft` first, in one commit, and all five gates ran on it before
+the user confirmed the merge.
+
+Neither debug harness is loaded by the page: both are pasted into the console
+when wanted (2026-10-24 entry below).
+
 ### What landed, newest first
+
+#### 2026-10-25
+
+**WHAT LANDED ON 2026-10-25: A staleness and consistency sweep of every
+markdown file and every code comment against what landed after the
+thirty-first merge.** Every count, figure, section and line reference checked
+against the tree, the tools' output and `git log`, and every change since the
+merge followed to everything that describes it. Corrected:
+- **Left short by D-086:** The focus-ring note in the stylesheet now says the
+  review box draws the same ring on its wrapper and restates its values; the
+  1040px log block's padding is the pane's, not the dialog's, there and under
+  Responsive below.
+- **Left short by the verdict's rule (2026-10-14):** the comment on
+  `.verdict__text:not(.is-muted)` now names the room it leaves for the rule.
+- **Inexact:** the magnifier "only exists below" 500px, where the query
+  includes 500px.
+
+#### 2026-10-24
+
+**WHAT LANDED ON 2026-10-24: The verdict debug harness is unloaded** (the
+user's call, brought forward from the 2026-10-08 ruling that it would stay
+loaded on `draft` until just before the next merge). The two lines that loaded
+`scripts/debug-verdict.js` on every page are gone: the `<script>` tag at the
+bottom of `public/index.html` and the route serving the file in
+`server/index.js`, whose module header again counts two inline routes. The
+file stays, as `scripts/debug-recs.js` did, and is pasted into the console to
+use; its header and the entry under Implemented now say so, and
+`docs/SECURITY.md`'s ASI10 section covers it beside `debug-recs.js`. Verified
+live on a throwaway port: `/debug-verdict.js` answers 404, the page answers
+200, and the served HTML no longer mentions it.
+
+**Same day: A dragged selection no longer carries soft hyphens (D-089)**
+(Claude-found, while checking every hyphenated surface for D-067's copy
+defect at the user's request). Copying was clean everywhere; dragging selected
+text into another app or a text box fires no copy event, so the drag carried
+every soft hyphen, as plain text and as HTML. A `dragstart` handler beside the
+copy handler now cleans the drag in place where the browser fills it (Chromium,
+Firefox) and writes the selection out as clean plain text where it is empty
+(WebKit, whose run showed the first version doing nothing). Checked with real
+drags into a textarea and a contenteditable in Chrome, Edge, Firefox and
+WebKit, against a blocked-handler control; links and images drag unchanged.
+`npm run layout-check` now checks both shapes of drag, and breaking either
+branch alone fails it. The user confirmed it in real Chrome and Firefox.
+
+**Same day: The hover effects and the keypad fix ask for a fine pointer too
+(D-090)** (user-found, in Samsung Internet on an Android phone). Tapping a
+card left its spotlight on, and the keyboard's own Search key left the keypad
+over the results; Chrome and Brave on the same phone did neither. One cause:
+Samsung Internet reports `hover: hover` on a touchscreen, and both features
+asked only that. A probe page the user ran there read `pointer: coarse`
+correctly, so the four hover gates in the stylesheet are now
+`(hover: hover) and (pointer: fine)` and `dismissSoftKeyboard()` blurs unless
+that matches. The same probe showed the keypad closing on a blur there. Chrome,
+Edge and Firefox on the desktop match both, so they are unchanged; the user
+confirmed it in real Chrome and Firefox.
+
+#### 2026-10-21
+
+**WHAT LANDED ON 2026-10-21: TMDB's attribution is the footer's credit
+(D-088).** "Film data from TMDB." gave way to the notice in TMDB's terms, word
+for word, with TMDB's approved Alt short logo on a line of its own above it
+(`public/tmdb-logo.svg`, TMDB's own file, unaltered). Both are part of TMDB's
+terms, read from the current Terms of Use and FAQ rather than recalled. D-088
+has the alternatives: the notice in a hover panel, TMDB's favicon and the
+square logo. **Do not edit, recolour, dim or reshape the logo;** the
+stylesheet sets its height alone. Riding along in the footer: the GitHub mark
+is a fixed 20px aligned to the top of the credit, and a dotted rule now
+separates the credit from the AI call log panel above it.
+
+#### 2026-10-15
+
+**WHAT LANDED ON 2026-10-15: The rate dialog opens at its top for every film**
+(user-found, the rest of what `f5737f9` started on 2026-09-29). That commit
+reset the review box's height and scroll position, but the dialog scrolls too,
+whenever its content is taller than the viewport, and it kept its own offset
+across a close: in a short window, a film's dialog opened wherever the previous
+film's had been left. `openRate()` now also resets that scroll position after
+`showModal()`, on the dialog's form since D-086 made the form the scroller. Reproduced in headless Chrome against the real page at
+400×280: film B opened 89px down, at the bottom, before the fix, and at the top
+after it. The dragged-box case `f5737f9` fixed reads 0 both before and after.
+
+**Same day: A rounded box that scrolls keeps its rounded corners (D-086)**
+(user-found, from two screenshots: the rate dialog and the AI call log).
+Chromium draws a scrollbar as a square strip that ignores `border-radius`,
+and Firefox with always-shown scrollbars draws a scrolling box's corners
+square, border and all; its default overlay scrollbars were fine. **The first
+fix failed the user's Firefox check, and it was committed (`4f72b73`) before
+any real-browser check:** `clip-path` cut Firefox's square border away along
+the curve. Since then nothing is committed until the user has confirmed it in
+real browsers.
+
+**The fix is structural: a rounded element only clips, and a square element
+inside it scrolls.** The rate and confirm dialogs' forms scroll; the review
+textarea sits in a `.review-box` that carries its border, and the focus ring
+moved to the wrapper; the search panel's rows go into `.search-results__list`;
+and everything in the AI call log sits in `.log-pane`, which now carries the
+pinning, so the header row, the Total row and the curtain pin against it.
+Chromium's track is transparent and held off each end so the thumb stops 8px
+short, the gap Firefox's thumb leaves by itself, measured. Checked in Chrome,
+Firefox (always-shown scrollbars forced) and WebKit, Safari's engine, on the
+real app at 4x: all five round at both ends with unbroken borders, and the
+log's pinning exact in table view and absent in card view. The user confirmed
+it in real Chrome and Firefox.
+
+**Then an open AI-log reveal panel re-flips on scroll (D-087)** (user-asked).
+`619ed64` re-ran the panel's flip on resize; scrolling the log now re-runs it
+too, once per frame, so a panel near the bottom goes above its trigger instead
+of out of view, and comes back below when there is room. The room is now what
+the pinned header and Total rows leave, on open, on resize and on scroll, so
+the panel no longer paints across either one. **Measure the pinned cells, not
+the `<thead>`/`<tfoot>` boxes:** the first version did, and those boxes
+scroll away, so it barely changed anything while its own tests passed, since
+they measured the same boxes. Checked in Chrome, Firefox and WebKit: 1,750
+scroll positions across six panels and three window sizes, every side matching
+an independent recomputation and every fitting panel clear of both pinned
+rows, where the old behaviour crossed one at 369; card view inert; resize
+still flips. The user confirmed it working in real browsers.
+
+#### 2026-10-14
+
+**WHAT LANDED ON 2026-10-14: A rule beside the real verdict again, the
+user's own, and it grows smoothly as the verdict types.** As a `border-left`
+it jumped a whole line each time the typing wrapped, so it is now
+`.verdict__text`'s `::before`. While a verdict types, `setVerdictText()`
+feeds it the paragraph's height through `--verdict-bar-h`, and a 0.3s
+transition eases each new line in. When the typing ends the property goes
+and the bar is 100% of the paragraph again, so a resize after that moves it
+with the text at once. Measured in headless Chrome against the real page,
+driven with `debugVerdict()`: each wrap eased over about 0.3s and the bar
+ended exactly the paragraph's height. `npm run layout-check` passes in Chrome
+and Firefox.
+
+**Same day: "New verdict"'s hover fill went from 0.25 to 0.3 alpha** (the
+user's change). R25 and the stylesheet comment now give the new value and the
+colour it darkens the button to, about #0e0e13.
+
+**Then the verdict's job was described more accurately** (user-raised, the
+same sweep the recommendations got in `fd7f4b8`). The README called it
+"teasing", which is now "playful", the prompt's own word: teasing pokes fun at
+the person, and the live verdicts mostly take the viewer's side. It also
+reduced the verdict's job to writing two or three sentences, set beside a full
+account of the recommendations' job, so the model split read as a size
+comparison after all, which the same paragraph rules out. That sold short a
+feature that took seven prompt versions and a stronger model to get right
+(D-053). Checked rather than recalled: The verdict reads every rated film and
+its review, where recommendations read the top five; it has to characterise the
+viewer rather than recite the ratings, in a set spoken register;
+`taste_verdict_v7`'s instructions run to 496 words against 321 for
+`recommend_v3`; and it is the heavier call, 1,484 tokens a run against 1,022 in
+the 60-call measurement behind `cce9a7f`. One phrasing in § Prompt Versioning
+was false as well as short: it called the verdict's prompt the lighter of the
+two, and v7 is the longer one.
+
+Both README passages, this file's Tech Stack and Prompt Versioning entries,
+`db/schema.sql`'s section comment and the route's JSDoc now say what the job
+is. `SPEC.md` § 2.3's "just banter" is annotated rather than rewritten, D-004
+gained a dated note, and `check-claims` retires three of the replaced
+phrasings, each probed against the line it replaced. "Low-stakes" stays
+everywhere: that is SPEC's design, and it describes the stakes, not the work.
+
+#### 2026-10-08
+
+**WHAT LANDED ON 2026-10-08: A word's length and its edges count letters only,
+for hyphenation (D-085).** Spotted on 2026-10-06 in a screenshot taken while
+trying out the silver rule (that day's entry, below): "second." broke as
+"seco-nd." at 320px. `softHyphenate()` counted punctuation
+as part of a word, so any six-letter word followed by punctuation was long
+enough to break, two letters from its end ("brea-th,", "clev-er;"), and
+"couldn’t", runs of digits and runs of emoji broke too. Only a grapheme
+holding a letter now counts towards D-080's minimums, and a soft hyphen goes
+only between two letters. `npm run layout-check`'s probe counts the same way,
+reading the letter class out of `app.js`, and fails a soft hyphen beside
+anything but a letter.
+
+**The probe also holds D-081 on its own again.** It took its word boundaries
+from `app.js`'s separator, and with the letter rule its check for a soft hyphen
+beside a dash could no longer fire, so a copy of the app whose dashes no longer
+ended a word passed in Chrome and Firefox, where the code before D-085 had
+failed it in both. A dash now ends a word in the probe whatever `app.js` says,
+and the same copy fails. D-085 was also checked against `server/text.js`'s
+cuts: over 24,168 texts they produce, it only ever removed soft hyphens.
+
+**Same day: `scripts/debug-verdict.js`, a console harness for the verdict**
+(user-asked), so the banner's layout can be tested without paid calls; the
+entry under Implemented describes it. The page loads it on `draft` until the
+last commit before the next merge. *(Unloaded earlier than that, on
+2026-10-24, on the user's call; see that day's entry.)*
+
+**And the silver rule was retracted by the user**, pending their own further
+testing. The stylesheet no longer carries it.
+
+**Then a staleness sweep of every markdown file and every code comment against
+all of the above.** D-080 gained two dated notes pointing at D-085, on its
+grapheme minimums and on what D-061's grapheme safety still covers. Corrected:
+- **Overtaken by D-085:** The seed comment on the Wicked emoji (no emoji can
+  exercise D-061 now, since none holds two letters in a row);
+  `softHyphenate()`'s JSDoc, which now says why graphemes stay the unit (a
+  decomposed Hangul syllable holds several letters) and why D-081's separator
+  is still needed; the 2026-09-28 entry's grapheme minimums; and the
+  stylesheet's soft-hyphen note, which cited D-080 alone.
+- **Gone short:** `docs/PROCESS.md`'s list of decisions measured in an iframe
+  lacked D-083 and D-085; `docs/FRAMING.md`'s OpenRouter row named only the
+  recommendations harness; `server/index.js`'s module header counted two inline
+  routes beside the harness's third; and Current state's "the debug harness
+  unloaded" now names the recommendations one, since the verdict's is loaded on
+  `draft`.
+
+#### 2026-10-06
+
+**WHAT LANDED ON 2026-10-06: A thin silver rule beside the real verdict**
+(user-raised, `c83bbde`), retracted by the user on 2026-10-08 (above).
 
 #### 2026-10-01
 
-**WHAT LANDED ON 2026-10-01: the search row's 500px grid layout is removed,
+**WHAT LANDED ON 2026-10-01: The search row's 500px grid layout is removed,
 because it never applied (D-083).** Found by the enumeration sweep: its
 `@media (max-width: 500px)` block sits above the base `.result-row` rule, so
 the base `display: flex` has won at every width since the layout was written
@@ -126,11 +358,11 @@ comment**, ahead of the thirtieth merge. Corrected:
 - **Measured before the type scale** (D-079): R18's line heights are now
   dated, the recs grid's gap is given in `rem`, and the ranked hover's gap
   figure and R29's four-column card width are dropped.
-- **Gone short or stale:** the Project Context line now names both AI
+- **Gone short or stale:** The Project Context line now names both AI
   features, `aria-busy` covers all six busy buttons, the taste verdict
   section lists every later change to it, the grain bullet points at the
   current `0.7s steps(1)`, the verdict fallback's log link is conditional
-  (R23), and `.env.example` no longer calls the anon key frontend-safe.
+  (R23) and `.env.example` no longer calls the anon key frontend-safe.
 
 **After the thirtieth merge, the user found SPEC.md's turn-count footnote
 rendering wrong on GitHub**, a defect the claims sweep earlier the same day had
@@ -214,7 +446,7 @@ suite to 64, and each of the six cut sites was reverted alone and caught.
 § Markdown Authoring Rules)**, in every markdown file with no exemption, the
 prompts and `DOSSIER.md` included. It reads paragraph by paragraph so a code
 span may wrap, and skips comments, code spans, fences, autolinks and an
-escaped `<`. Probed both ways: it catches all eight planted shapes and the
+escaped `<`. Probed both ways: It catches all eight planted shapes and the
 exact pre-fix lines of `CLAUDE.md` and the three recommendation prompts, and
 GitHub's renderer confirmed each must-pass case displays as literal text. Its
 one known false positive, a tag inside a 4-space indented code block, is
@@ -225,7 +457,7 @@ validly but not as meant** (user-found from a screenshot of D-065). Four code
 spans in D-065 had lost their backslashes when the entry was written, so its
 list of harmless escape classes read `[ ]`, `1.`, `&` and `_`, and its heading
 example proved nothing. They are restored, and `## 1\. Test` joins
-`check-markdown`'s whole-span allowlist. Checked across every file: every code
+`check-markdown`'s whole-span allowlist. Checked across every file: Every code
 span holding a backslash, a regex, a path or only symbols; entities in code and
 in prose; accidental emphasis, strikethrough and emoji; backslash escapes and
 hard breaks in prose; dropped words and stray spacing; repeated runs that a
@@ -259,12 +491,12 @@ were already current. Corrected:
   review verbatim, when each is cut at 200 characters, and a test comment said
   every fixed-length cut in the server goes through `cutText()`, which TMDB's
   four-character year slice does not.
-- **Misplaced:** the emoji test sat under `test/routes.test.js`'s
+- **Misplaced:** The emoji test sat under `test/routes.test.js`'s
   `/api/recommendations/history` section marker; it has a marker of its own.
 
 #### 2026-09-30
 
-**WHAT LANDED ON 2026-09-30: a sweep of every tracked file for wording that
+**WHAT LANDED ON 2026-09-30: A sweep of every tracked file for wording that
 reads as open when it is not.** Sentences about work since done are in the
 tense that matches it, and passages under closed items that still read as
 instructions (R1, R27, step 4b, the seed blueprint) carry a note saying they
@@ -272,7 +504,7 @@ were carried out. The living-log entries for 2026-09-26 to 2026-09-29, below,
 no longer state a merge status, which the next merge would have falsified.
 
 Resolved or settled on the user's rulings: **the step 3 icon-clipping question
-closes on a standing rule** — a headless browser is never the only measure of
+closes on a standing rule** – a headless browser is never the only measure of
 layout, and a human verifies in a real browser whenever its findings are in
 doubt; the `Get recommendations` exemption from the glyph rule was confirmed
 moot and lifted; and the glint's weaker contrast over `--amber` is recorded as
@@ -280,9 +512,9 @@ a consequence of the ring's colours, a design decision. `docs/DECISIONS.md`
 gained dated notes where an entry still read as open and no later entry named
 it (D-015, D-034, D-036, D-042, D-047), and a wrong date in D-042 is corrected.
 
-Figures corrected against source: the ranked stagger cap (1200ms), the recs
+Figures corrected against source: The ranked stagger cap (1200ms), the recs
 spotlight (0.65), the glint's contrast (recomputed for the
-twenty-layer band), and `docs/AI-CALL-LOG.md`'s opening, which described the
+twenty-layer band) and `docs/AI-CALL-LOG.md`'s opening, which described the
 dialog as listing every call rather than the newest 60.
 
 **D-076's score-badge alignment is now measured at every width**, 400px and
@@ -332,7 +564,7 @@ more inside a code span and a fenced block, which it rightly ignored. The
 reduced-motion block now covers `::after` too, which only the verdict caret
 uses. The rest was wording, including the error
 paths `docs/RESILIENCE.md` lists (nine, where it said seven), the first commit
-(`.env` is ignored from the second; the first was checked by hand), and "every
+(`.env` is ignored from the second; the first was checked by hand) and "every
 call is logged" at the sites the conditional sweep had not reached. The AI
 call log's single-line state (loading, empty or failed to load) moved from
 `--ink-faint` to `--ink-dim`, since it is the only thing in the table body.
@@ -346,7 +578,7 @@ ranked list shows first. The rest was wording, among it the glint's speed knob s
 driving the busy state (D-056 moved that to `playbackRate`), the verdict ring
 width now enumerating its five coupled values where the pointer to them said
 it would, the hover glow described as a downward shadow, the `qs` override's
-cause (a `~6.15.1` range, not an exact pin), and the AI call log document's
+cause (a `~6.15.1` range, not an exact pin) and the AI call log document's
 own success test, which named a coupling that does not exist: a taller totals
 row still sits flush on the curtain, measured in headless Chrome, and the real
 trap is shortening the curtain without `--log-curtain-h`.
@@ -378,7 +610,7 @@ Checked against the running system: the gates take a few seconds together,
 not under a second; the live list is the seed list; Shrek 5 is still unvoted
 on TMDB. Scoped to the day they were measured: the AI log's binding token
 string, the Node version the live build picked, the SVG-favicon support
-claim, and Chromium's scrollbar rule (Chrome 121). Also corrected: the
+claim and Chromium's scrollbar rule (Chrome 121). Also corrected: The
 decisions behind the AI call log now include D-082, the footer GitHub
 mark's padding is 2.54px at its 22px, and the revert-as-first-move paragraph
 in `docs/PROCESS.md` now counts the RS-15 and RS-16 edits and the four revert
@@ -400,17 +632,17 @@ without example figures that drift, the 57-case proof of `check-markdown` is
 dated, and `docs/PROCESS.md` says the 37 captures were all taken by hand and
 that headless browsers returned as `npm run layout-check`.
 
-**Next, a sweep of every reference** — to a file, a section, a decision entry,
-an item, a commit, or a place "above" or "below" — each followed to its target
+**Next, a sweep of every reference** – to a file, a section, a decision entry,
+an item, a commit, or a place "above" or "below" – each followed to its target
 and checked that the target says what the pointer claims. `check-claims`
 already resolves whether a target exists; this checked what is there. The
-largest find: four places pointed at a tooling trap under § Environment &
+largest find: Four places pointed at a tooling trap under § Environment &
 tooling traps about the `u00A0` escape that had never been written there, and
 it now is. Decision entries cited for what another decided: D-051 for the
 `--ink-dim` move (R26's rule), D-040 for the verdict's generation counter
 (D-057), D-018 in D-069 for the totals row (D-019), D-010 in D-070 for the
-preserve rule (§ Decision Logging), and `SPEC.md` § 3.2 for the AI-pick
-marker (§ 3.3). Positions that had moved: comments sitting above the wrong
+preserve rule (§ Decision Logging) and `SPEC.md` § 3.2 for the AI-pick
+marker (§ 3.3). Positions that had moved: Comments sitting above the wrong
 rule or template, "further down" for a media query above, "the first item"
 for the second, and the note "at the end of the Build status bullet" that
 seven later merges now follow *(seven as of this entry's date; the number
@@ -428,21 +660,21 @@ the AI call log are twelve, not ten: D-023 (the reveal panel's fade) and D-079
 (the table's type-scale exemption) were missing from `docs/BRIEFS.md`, and
 `docs/AI-CALL-LOG.md`'s own list named four. The test lists in
 `docs/PROCESS.md` § 6 and under Implemented now cover the whole suite, the
-2026-09-13 happy paths and the D-070 loop included. Also completed: the
+2026-09-13 happy paths and the D-070 loop included. Also completed: The
 defect rules in `eslint.config.js` (which named "a promise nobody awaited",
 a thing no enabled rule catches) and `docs/MERGE-READINESS.md`, what
 `check-claims` still checks in `docs/DECISIONS.md`, `layout-check`'s
 self-test (five planted faults; the typing check has none), migration 001's
 header (it adds `error_text` too), the steps for adding a log column (the
 `select()`, the `<th>` and the `colSpan`s), the outline buttons that dim by
-opacity, the stylesheet's section media queries, and `scan-secrets`'s sibling
+opacity, the stylesheet's section media queries and `scan-secrets`'s sibling
 gates, which left out `npm test`. The outline-button hover vocabulary named
 `.verdict__refresh`, whose label deliberately stays `--ink` on hover (R25), and
 a test comment called the below-threshold case the third no-row case.
 
 #### 2026-09-29
 
-**WHAT LANDED ON 2026-09-29: a staleness sweep of every markdown file and code
+**WHAT LANDED ON 2026-09-29: A staleness sweep of every markdown file and code
 comment.** Figures the project had outgrown:
 the lint coverage in `docs/MERGE-READINESS.md` (26 files in four environments,
 not 24 in three), its "seven tests" on `generateRecommendations` (sixteen reach
@@ -453,20 +685,20 @@ counts, rule 9's inbound-link counts and the Open issues test count.
 `docs/BRIEFS.md` altogether: it now reads "one short route file" and "one
 section of the stylesheet".)*
 
-Wrong from the start: three comments citing D-018 for what D-019 decided,
+Wrong from the start: Three comments citing D-018 for what D-019 decided,
 `check-markdown` numbering two rules 5 (its labels now follow § Markdown
-Authoring Rules), and a CSS comment saying the recs footer spans the grid (R29
+Authoring Rules) and a CSS comment saying the recs footer spans the grid (R29
 moved it out). Contradicted within a few lines: the header GitHub icon's first
 size given as its current one, "the fifth" pointing at the second row of a
 table, and "every deletion fails exactly these two tests", which the suite has
 outgrown (re-probed: three to five tests fail per guard).
 
-Rule 10: seven self-narrations removed, and check 10b now also catches "this
+Rule 10: Seven self-narrations removed, and check 10b now also catches "this
 pointed at" and "that sentence read", each probed against the tree before the
 fix. `docs/DECISIONS.md` now says in its header that entries are not brought up
 to date, and how to find what superseded one.
 
-**Same day: the rate dialog's review box no longer carries one film's size and
+**Same day: The rate dialog's review box no longer carries one film's size and
 scroll position into the next** (user-found). The dialog and its textarea are
 one element reused for every film, so a box dragged taller or scrolled down
 stayed that way for the next film until a reload. `openRate()` now clears the
@@ -475,16 +707,16 @@ inline height the resize grip leaves behind, and resets the scroll after
 Reproduced in headless Chrome against a fixture API before the fix, and shown
 reset after it.
 
-**Same day: the JSDoc was audited by parsing rather than by reading.** Across
+**Same day: The JSDoc was audited by parsing rather than by reading.** Across
 26 files, 233 named functions and 4 classes, every `@param` and `@returns` was
 present, typed and correctly named, but 16 blocks had tags and no description
 line, and one file-level function, `SECTION_EXEMPT` in
 `scripts/check-claims.js`, had no block at all. All 17 are fixed, comments only:
-each changed file tokenizes identically to the version before.
+each changed file tokenises identically to the version before.
 
 #### 2026-09-28
 
-**WHAT LANDED ON 2026-09-28: the type scale (D-079).** All text is 92% of its old size, set by ONE dial, `--type-scale` on
+**WHAT LANDED ON 2026-09-28: The type scale (D-079).** All text is 92% of its old size, set by ONE dial, `--type-scale` on
 `:root`, which `html` turns into its font size. Every text size was already
 `rem` or `em`, so the root is the whole mechanism. Two idioms keep it one dial:
 `calc(Nvw * var(--type-scale))` for the `vw` middle of a fluid clamp, which
@@ -501,15 +733,16 @@ scale. Measured before and after at
 eight exact widths: every text size 0.920, the log table unchanged, no
 horizontal scroll anywhere.
 
-**Found on the way:** an overflowing rank numeral is start-aligned, so it spills
+**Found on the way:** An overflowing rank numeral is start-aligned, so it spills
 RIGHT only, and D-030's recorded clearances did not hold for the CSS as it
 stood; the stylesheet comment and the entry under Open issues now carry the
 measured figures.
 
-**Same day: soft hyphens only inside long words (D-080).** `softHyphenate()` put
+**Same day: Soft hyphens only inside long words (D-080).** `softHyphenate()` put
 one between EVERY pair of graphemes, so a short word at a line's end broke a
 letter or two in ("Fury Ro|ad" at 360px). It now hyphenates only words of 7+ graphemes,
-never within 3 of an end. **`hyphenate-limit-chars` was tested first, at the
+never within 3 of an end. *(Both minimums have counted letters only since
+2026-10-08, D-085.)* **`hyphenate-limit-chars` was tested first, at the
 user's request, and does not apply to soft hyphens** in Chrome, Edge or Firefox.
 Firefox honours it for `hyphens: auto` only, so do not reach for it. **The
 verdict typing now hyphenates the whole verdict once and reveals prefixes:**
@@ -527,13 +760,13 @@ Figures measured at the 16px root were re-measured rather than scaled: the Add
 button's widths and wrap thresholds, the 250px title column, the search input at
 311px. The method was first checked on the pre-scale stylesheet, where it
 reproduced the documented figures once scrollbars were hidden, as a phone's are.
-Hidden, not left in: a frame's own scrollbar took 13px of width and made the
-original figures look wrong when they were not. Also corrected: the toast's px
+Hidden, not left in: A frame's own scrollbar took 13px of width and made the
+original figures look wrong when they were not. Also corrected: The toast's px
 arithmetic, the log table's exemption in `docs/AI-CALL-LOG.md`, "below 400px"
 wording where the query is inclusive, and the seed comment that still called the
 Wicked emoji live proof of D-061, which D-080's minimum ended.
 
-**Same day: the page's maximum width is 1040px, one token (`--page-max`),** read
+**Same day: The page's maximum width is 1040px, one token (`--page-max`),** read
 by `main`, the header, the footer and the AI log dialog's cap; it was 1080px,
 written out four times. Probed before it was made: above a 1040px window the new
 page is the old one at exactly 1040px (0 of 410 elements differ in `main` and
@@ -546,7 +779,7 @@ or renumbered heading broke every link and `§` reference to it silently, and th
 anchors are generated by GitHub's rule, matched against GitHub's own rendering
 of all 458 headings; prose references accept a bare `§` from any plausible file
 (the one last named, the one it sits in, SPEC, CLAUDE), which a renamed heading
-has in none. Proved by mutation: renumbering SPEC 4.5 fails 12 references,
+has in none. Proved by mutation: Renumbering SPEC 4.5 fails 12 references,
 renaming "Security & Secrets" fails 18, across docs, code comments,
 `.env.example`, `.gitignore`, `render.yaml` and `db/schema.sql`. The same day it
 also started reading `favicon.svg` and the two git dotfiles.
@@ -556,14 +789,14 @@ entry under Implemented): fixture data, no `.env`, three modes.
 
 #### 2026-09-27
 
-**WHAT LANDED ON 2026-09-27: every one of the 62 tests is now proved
+**WHAT LANDED ON 2026-09-27: Every one of the 62 tests is now proved
 load-bearing, tests only.** The user asked whether
 each test actually fails when its condition is broken. Answered by mutation
 rather than by reading: 94 probes, each breaking ONE condition a test claims to
 guard, the whole suite run after each, in a throwaway worktree with dummy keys
 and every outbound request blocked.
 
-**Before: nine probes survived, and one test could not fail at all** —
+**Before: Nine probes survived, and one test could not fail at all** –
 `tidyVerdict`'s over-the-ceiling test accepted any output ending in `…`, which
 every cutting path appends. Six more carried one assertion that could not fail,
 and in every case the FIXTURE, not the assertion, was the cause: a 130-character
@@ -575,10 +808,10 @@ needed a fixture prompt, served by mocking `node:fs/promises` inside
 `test/prompt-loader.test.js` only. **After: 94 of 94 caught, and every test
 fails under a probe aimed at it.** The verdict test also asserts the model the
 app REQUESTS now, which is what D-053 is about; nothing checked it before. **The
-lesson: an assertion is only as strong as the fixture's ability to tell the bug
+lesson: An assertion is only as strong as the fixture's ability to tell the bug
 from the fix.**
 
-**Same day: the README's Project layout became a connector tree** (D-078): one
+**Same day: The README's Project layout became a connector tree** (D-078): one
 line per entry, one description column, the root files inside it rather than
 listed in a paragraph above, and `server/routes/`, `public/` and `test/`
 expanded. A route file carries its mount path and a few verbs, never its method
@@ -588,24 +821,24 @@ list, which stays in `SPEC.md` § 4.5 alone.
 
 **WHAT LANDED ON 2026-09-26: JSDoc on every tracked `.js` file, comments
 only** (`a732e26`, `e07b67a`). Every file opens with a
-JSDoc header — `@module` where it exports, `@file` where it does not — and every
+JSDoc header – `@module` where it exports, `@file` where it does not – and every
 named function, method and class carries a description with typed `@param`,
 `@returns` and, where failure is part of the contract, `@throws`; recurring
-shapes are typedefs. Each file was proved unchanged as code by tokenizing it
+shapes are typedefs. Each file was proved unchanged as code by tokenising it
 against its previous version. *(Sixteen blocks still had no description
 line and one function no block at all; they were found by a parse-based audit
 on 2026-09-29 and each given its description.)*
 
 Three kinds of function are left undocumented on purpose: one-line helpers
 declared inside another function, one-line methods in object literals (the test
-client's verbs, the fake Supabase client's chain methods), and the test stubs
+client's verbs, the fake Supabase client's chain methods) and the test stubs
 that stand in for `globalThis.fetch` or `console.error`. Each is a line or two
 whose name and body already say everything a block would, so a block there
 would repeat the code rather than explain it; skipping them is also the usual
 convention.
 
 **The finding worth keeping is WHERE a block sits, not what it says.** Nine
-existing blocks were not attached to what they describe — in `public/app.js` the
+existing blocks were not attached to what they describe – in `public/app.js` the
 ones for `posterNode()`, `softHyphenate()`, `syncRecommendationsAvailability()`,
 `aiMetaFooter()` and `pauseSheenOffscreen()` each sat above a neighbouring
 definition; in `scripts/check-claims.js` checks 6, 7 and 10 sat above a
@@ -615,9 +848,9 @@ subject, so a reading that checks prose against code passes all nine. Only
 asking which definition the block ATTACHES to finds them.
 
 Found on the way and corrected: seven ordinary `//` comments that were false.
-Five were true when written and went false when something ELSEWHERE changed — R7
+Five were true when written and went false when something ELSEWHERE changed – R7
 and R23 closed, migration 004 forbade a state, D-037 removed a value, a fourth
-sync call joined `loadMovies()` — which is the 2026-09-21 pattern again, in code
+sync call joined `loadMovies()` – which is the 2026-09-21 pattern again, in code
 comments instead of documents. The other two named functions that never existed,
 renderResults and renderLogTotals (`git log -S` finds neither). **`check-claims`
 now resolves every function a JS comment names** (check 6b), against the code's
@@ -627,23 +860,23 @@ the commit before these fixes, it flags exactly those two.
 **Rule 10 now covers code comments explicitly** (the user's ruling): fifteen
 comments that narrated their own earlier wording, seven in JS and eight in CSS,
 now state only what is true. Two of the CSS ones were also false underneath the
-narration — a scrollbar sum from before R29 capped the card width, and an exit
-animation described as it was before R30 — so those were corrected, not just
+narration – a scrollbar sum from before R29 capped the card width, and an exit
+animation described as it was before R30 – so those were corrected, not just
 trimmed. **The same sweep then ran over every markdown file**, and about forty
 passages across nine documents now state what is true rather than what they once
-said; what stayed is history of the app, of the process, or of a decision.
-**`check-claims` now enforces rule 10's unambiguous forms (check 10b)** — run
-against the tree before this sweep it flags every one of them — and the
+said; what stayed is history of the app, of the process or of a decision.
+**`check-claims` now enforces rule 10's unambiguous forms (check 10b)** – run
+against the tree before this sweep it flags every one of them – and the
 whole-file exemption its capture-count check had carried for such narrations is
 gone.
 
-#### 2026-09-21 — the 29th merge
+#### 2026-09-21 – the 29th merge
 
 **WHAT LANDED ON 2026-09-21, all of it accuracy work on documents already
 published. It is the twenty-ninth merge's payload.** NINETEEN claims that were
 false on `main`: fourteen describing finished work as still open, and five
 figures that had drifted. **SIX OF THE FOURTEEN WERE CONTRADICTED BY `main`
-ITSELF, in the same file**, two of them within a few lines — "R3 is the still-open client half" just above
+ITSELF, in the same file**, two of them within a few lines – "R3 is the still-open client half" just above
 "R3. DONE", "the verdict's own version of this is still wrong: see R23" against
 R23's own DONE, "this is not a closed section" a short way above "Nothing further
 is scheduled for this section", "Step 6, the only step left" against "THIS STEP
@@ -653,14 +886,14 @@ since the deploy.
 
 **THE PATTERN, and it is a new one:** every one is a claim about a DIFFERENT
 item's status. A sweep that reads entry by entry verifies the entry it is on,
-and each of these is correct about itself and wrong about its neighbour — the
+and each of these is correct about itself and wrong about its neighbour – the
 cross-file lesson of 2026-09-19 one level down, inside a single file. The five
 figures: "three files are exempt" when the exemption covers twelve, `SPEC.md`'s
 index of its own annotations reading seven when eleven are in place, a line
 count contradicted by its own entry's correction note, `docs/SECURITY.md`'s
 "roughly 450KB" against an actual 589KB, and a 3,300-line file that had grown to
-4,598. **Two of the five were self-indexes** — a document counting its own
-contents — which nothing mechanical can check, because the referent is the file
+4,598. **Two of the five were self-indexes** – a document counting its own
+contents – which nothing mechanical can check, because the referent is the file
 itself.
 
 Riding along, and NOT the ground this was merged on:
@@ -671,28 +904,28 @@ the linking rule applied to `SPEC.md`, which had never linked `DOSSIER.md` or
 after which every module named in a heading is also linked from the body of its
 own document.
 
-#### 2026-09-19 — the 28th merge
+#### 2026-09-19 – the 28th merge
 
-**WHAT LANDED ON 2026-09-19, all of it documentation and UI polish — no
+**WHAT LANDED ON 2026-09-19, all of it documentation and UI polish – no
 behaviour changed. It is the twenty-eighth merge's payload.** A navigation rule
 the user set and named: **every document reference is a link, and where a
-section is named the link goes to the SECTION** — applied to twelve files, with
+section is named the link goes to the SECTION** – applied to twelve files, with
 `prompts/`, `DOSSIER.md` and THIS FILE deliberately exempt (D-075; the rule and
 its three exemptions are under § Markdown Authoring Rules, and the deciding line
 is that this file is injected into context every session while
 `docs/DECISIONS.md` is opened on demand). Then a project-wide audit of every
-href and embedded image — 880 references, resolved case-exactly, with fragments
+href and embedded image – 880 references, resolved case-exactly, with fragments
 checked against real rendered heading ids and `docs/SECURITY.md`'s absolute URLs
 checked against `main` rather than the working tree; it found one broken link.
 
-Three UI/accuracy fixes: the AI call log's `x in / y out` token split is
+Three UI/accuracy fixes: The AI call log's `x in / y out` token split is
 digit-grouped, paid for with a solved 0.84em on `tbody .sub` alone; the ranked
 score badge now aligns to the edge its block is anchored to, which is a
 DIFFERENT edge in card mode, so it is two rules and not one (D-076); and the
 `readme-1` capture is no longer captioned "the whole product", since the
 recommendations section and the AI call log both sit below its fold.
 
-Closed with a full staleness sweep of every markdown file and code comment — the
+Closed with a full staleness sweep of every markdown file and code comment – the
 findings are corrected in place, and the ones worth knowing are that
 `docs/PROCESS.md` had the commit cadence as "11 consecutive days, every day"
 when it was 15 of 16 with a gap at 2026-09-18, and `docs/MERGE-READINESS.md`
@@ -701,7 +934,7 @@ were 24.
 
 **That sweep was the twenty-eighth merge's pre-merge sweep.** It covered every
 markdown file and every code comment, and its corrections are in six commits.
-CHECKED MECHANICALLY AND CLEAN: all 255 `§` references; the single `file:line`
+CHECKED MECHANICALLY AND CLEAN: All 255 `§` references; the single `file:line`
 citation in the repo; 880 hrefs and embedded images; 37 documented CSS/JS
 constants against source; every user-facing sentence quoted in the docs against
 the real strings; `SPEC.md` § 4.5 against the 11 routes and § 5 against
@@ -712,11 +945,11 @@ counted subjects; and the counts, as they stood that day, for merges (27), tests
 models, dependencies and reverts.
 
 WHAT IT FOUND, as a pattern worth keeping: the defects were never in the figures
-anyone re-reads. They were a value changed in source with three prose
+that get re-read. They were a value changed in source with three prose
 descriptions left behind (the 2px/1.5px divider), a README claim its own
 embedded screenshot disproved (the verdict cost), four documents describing ONE
 enumerable set four different and mutually contradictory ways (the eight
-two-frame RS states), and three enumerations that were complete when written and
+two-frame RS states) and three enumerations that were complete when written and
 went short when the project grew under them (the gate list, the sweep dates, the
 markdown-files omission). **A count is safest when it names its members**, which
 is why several of them now do.
@@ -727,71 +960,71 @@ repository refers to that one.
 
 #### 2026-09-13/14
 
-What landed on 2026-09-13/14: thirty-seven captures across four families with an
-index; three new documents — `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
+What landed on 2026-09-13/14: Thirty-seven captures across four families with an
+index; three new documents – `docs/ACCEPTANCE.md`, `docs/RESILIENCE.md` and
 `docs/screenshots/README.md`; the demo seed list settled and loaded (D-068);
 four real defects fixed, three of them found by LOOKING at the running app
-rather than by any tool (D-069, D-070, and the two in the database-down state);
+rather than by any tool (D-069, D-070 and the two in the database-down state);
 and six new tests taking the suite from 54 to 60, every one probed by breaking
 the source.
 
-**THE `DOSSIER.md` RECONCILIATION IS DONE** — see the second item under
+**THE `DOSSIER.md` RECONCILIATION IS DONE** – see the second item under
 Pre-submission blockers, which records what it found and what it produced:
 `docs/FRAMING.md`, `docs/SECURITY.md`, `docs/MERGE-READINESS.md`, a linter that
 became the fourth commit gate, and an unfrozen `SPEC.md` with its spiral turns
 recorded. The merge-readiness verdict WAS NOT YET MERGE-READY AT THAT POINT,
-failing only criterion 1, which is the blockers list itself — it has since
+failing only criterion 1, which is the blockers list itself – it has since
 closed, and the Current state section above carries the current verdict. Nothing in that list
 was ticked by the reconciliation.
 
-#### Up to 2026-09-12 — the front-end overhaul
+#### Up to 2026-09-12 – the front-end overhaul
 
-* Ranked-list backlog **COMPLETE — all 20 done**;
-* the mobile-keypad fix — step 1 of the agreed order — is also done;
+* Ranked-list backlog **COMPLETE – all 20 done**;
+* the mobile-keypad fix – step 1 of the agreed order – is also done;
 * the recommendations section was then AUDITED into a sub-backlog under step 2
-  — now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE
-  OPEN — STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as
+  – now R1–R30, with TWENTY-NINE done, R20 withdrawn as incorrect and **NONE
+  OPEN – STEP 2 IS COMPLETE**: R18, the last one, was closed 2026-09-12 as
   won't-fix once it was measured (D-063) rather than guessed at; R6 was closed
   2026-09-11 by correcting the docs rather than the matcher, after measuring
   that its own premise was wrong (D-054), and R5 the same day by composing the
   two causes and giving them a stderr sink;
 * the taste verdict moved to its own stronger model on 2026-09-11 (D-053) after
-  four prompt versions failed to change its register — recommendations stay on
+  four prompt versions failed to change its register – recommendations stay on
   the cheaper tier;
-* a new step **4b** sits between 4 and 5 (deliberately not renumbered — "step
+* a new step **4b** sits between 4 and 5 (deliberately not renumbered – "step
   5" is referenced outside this file) and held SEVEN items, **ALL SEVEN NOW
-  DONE — the verdict typing effect (D-057) landed the same day as this update,
+  DONE – the verdict typing effect (D-057) landed the same day as this update,
   closing out 4b entirely. Step 5, the portrait overhaul, came next and closed
   the same day (further down this entry); its two enforcement rules still stand
   and are Claude's to apply, not the user's to remember**;
 * the verdict glint, its busy-state cue, the film grain and the disabled "New
   verdict" landed earlier the same day after four failed polish passes, a
-  revert to the last commit, and a rebuild as TWENTY composited stroke-dashes
+  revert to the last commit and a rebuild as TWENTY composited stroke-dashes
   (D-055); its performance was measured at 1x/6x/20x CPU throttle with and
   without GPU acceleration and the cost accepted, so do not re-open that on a
   hunch; the per-item statuses there are the source of truth, do not summarise
   them from memory;
 * seventeenth merge to main was 2c9c2ef, an EIGHTEENTH followed the same day
-  (3650f52, the verdict typing effect plus that day's step 5 work), and a
+  (3650f52, the verdict typing effect plus that day's step 5 work) and a
   NINETEENTH closed the whole front-end overhaul (d47c960, R18 closed on
-  measurement, step 5 closed by the user, and the favicon) — see the
+  measurement, step 5 closed by the user, and the favicon) – see the
   build-status bullet below for the current count and SHA, this clause is left
   as the record of when each happened;
-* migrations 001-004 all applied, 004 confirmed by the user 2026-09-09;
-* the next-session backlog was reset the same day — **SEVEN entries once 4b is
+* migrations 001–004 all applied, 004 confirmed by the user 2026-09-09;
+* the next-session backlog was reset the same day – **SEVEN entries once 4b is
   counted, not six**, see "Agreed order of work from here" *(all seven closed
   since, the last on 2026-09-14)*;
 * step 3 landed 2026-09-11;
-* **step 5, the portrait overhaul, is DONE — CLOSED BY THE USER on 2026-09-12,
+* **step 5, the portrait overhaul, is DONE – CLOSED BY THE USER on 2026-09-12,
   the same day it started and finished. Do not reopen it or hunt for more
   narrow-width work.** They closed it against the agreed ~350px target: no
   viable remaining issues there, cosmetic degradation only starting below
-  ~310px and the UI still mostly usable even then — which is inside the "good enough only"
+  ~310px and the UI still mostly usable even then – which is inside the "good enough only"
   band and above the ~290px ignore floor, so it is the two enforcement rules
   working, not a defect list. **Those rules still stand for any future
   narrow-width question; this step closing does not retire them.**
 
-  Landed: the ranked card's score row no longer wraps its rating mid-number or
+  Landed: The ranked card's score row no longer wraps its rating mid-number or
   pushes Edit/Remove outside the card at 400px and below (D-058's flex-wrap
   lesson); the header logo reel no longer squashes into an ellipse
   (`flex-shrink: 0`) and the GitHub icon scales to 75% at 400px and below; the
@@ -799,40 +1032,40 @@ was ticked by the reconciliation.
   (`max(240px, min(340px, 50vh))`), not a second ceiling, after the first attempt
   at this over-corrected (user-caught with a screenshot); mid-word title breaks
   now hyphenate via `Intl.Segmenter`-based soft hyphens rather than breaking raw
-  (D-060/D-061 — two real bugs found and fixed along the way: a scope leak into
+  (D-060/D-061 – two real bugs found and fixed along the way: a scope leak into
   placeholder text, and grapheme-unsafe iteration that corrupted emoji); the AI
   call log's card-view labels no longer misalign when they wrap; and the toast got
   a real box-shadow (D-044's black-shadow-on-black-bg trap, again), content-aware
   widening at 700/500px and below that leaves short messages untouched (D-060-era
-  `is-long` logic), and a real centering bug fix (D-062 — `left: 50%` was silently
+  `is-long` logic) and a real centring bug fix (D-062 – `left: 50%` was silently
   halving its available width for shrink-to-fit sizing, found by the user, not by
-  this session's own — repeatedly unreliable — headless-Chrome verification
+  this session's own – repeatedly unreliable – headless-Chrome verification
   attempts).
 
-**R18 (`.recs__hint` min-height) is CLOSED — measured at 360px and dropped
+**R18 (`.recs__hint` min-height) is CLOSED – measured at 360px and dropped
 (D-063):** the hint swings one line, 22.4px, once per run, in the same synchronous
 block as R27's `scrollIntoView` and a six-card staggered entrance, so it is
 masked; reserving the tallest message would park 67px of permanent blank space
-on a phone to fix something nobody can see. The same investigation found that
-`scripts/debug-recs.js` no longer survives a run below the rating threshold —
+on a phone to fix something barely visible. The same investigation found that
+`scripts/debug-recs.js` no longer survives a run below the rating threshold –
 its button workaround was complete in 96158b1 and R16 (885a6a5) later added
-grid-clearing to the same branch — kept that way by decision (D-063) and
+grid-clearing to the same branch – kept that way by decision (D-063) and
 documented in the file itself.
 
-**STEP 4, THE FAVICON, IS ALSO DONE — 2026-09-12 (D-064), which closes the LAST
+**STEP 4, THE FAVICON, IS ALSO DONE – 2026-09-12 (D-064), which closes the LAST
 UI step and with it the whole front-end overhaul.** `public/favicon.svg` plus
 one `<link rel="icon">`; no .ico and no PNG set, because Safari 26.0 added SVG
-favicon support and only 18.7-and-older still probe `/favicon.ico` — the same
+favicon support and only 18.7-and-older still probe `/favicon.ico` – the same
 404 as before, not a new one. **It is a RE-DRAW and is deliberately coarser than
 `.mark__reel`** (the logo's inner ring is 0.56px at 16px and aliases away); four
 candidates were compared on real tab strips and the user chose the most faithful
-one that survives 16px — do not "correct" its proportions back to the logo's.
+one that survives 16px – do not "correct" its proportions back to the logo's.
 Claude's Safari advice was wrong first time and the user caught it; so was its
-claim that the request "lands on the 404 handler" — there is no 404 handler, and
+claim that the request "lands on the 404 handler" – there is no 404 handler, and
 Express's finalhandler answers it (step 4).
 
-**SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE.** Step 6 — pre-submission evidence,
-registration and cleanup, not UI — was the only step left WHEN THIS CLAUSE WAS
+**SO: STEPS 1, 2, 3, 4, 4b AND 5 ARE ALL DONE.** Step 6 – pre-submission evidence,
+registration and cleanup, not UI – was the only step left WHEN THIS CLAUSE WAS
 WRITTEN, and it is now done as well: every checkbox under Pre-submission
 blockers is ticked, the final merge included. The Current state section above
 carries the current state.
@@ -841,15 +1074,16 @@ carries the current state.
 * **Live at https://cinerank-g6lx.onrender.com** (Render free tier, deploys from
   `main` on every commit). Locally: `npm start` → http://localhost:3000. See the
   deploy entry under Pre-submission blockers for the service's exact settings.
-* Supabase project is live; `db/schema.sql` + migrations `001` through `004`
+* Supabase project is live; `db/schema.sql` + migrations `001` to `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* As of 2026-10-01, `main` is at the thirty-first merge, a defect fix
-  (ground 2 of the merge rule under Version Control Workflow) made later on
-  the day of the close-out sync (ground 3), which itself came after the latest
-  settled milestone and the defect merges made since it. A close-out sync
-  happens only once, so any later merge is a milestone or a defect fix — no
-  count of those here on purpose, since that set is still open.
+* As of 2026-10-25, `main` is at the thirty-second merge, a defect fix
+  (ground 2 of the merge rule under Version Control Workflow), the second
+  since the close-out sync of 2026-10-01 (ground 3), which itself came after
+  the latest settled milestone and the defect merges made since it. A
+  close-out sync happens only once, so any later merge is a milestone or a
+  defect fix – no count of those here on purpose, since that set is still
+  open.
   - The final PLANNED merge closed the evidence and documentation work
     (2026-09-14); a **twenty-second followed the same day** with one defect fix,
     a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
@@ -861,18 +1095,20 @@ carries the current state.
     the largest accuracy sweep the project had run at that point, a
     **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
     `main`, a **thirtieth on 2026-10-01**, the close-out sync at the
-    course's final assessment deadline, carrying defect fixes too, and a
+    course's final assessment deadline, carrying defect fixes too, a
     **thirty-first later the same day** carrying the defects found on `main`
-    after it — all ten described at the end of this bullet. Before those, the
+    after it, and a **thirty-second on 2026-10-25** carrying defects on the
+    deployed site itself – all eleven described at the end of this bullet.
+    Before those, the
     milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
     that the front-end overhaul completing (2026-09-12, `d47c960`), which is
     where the UI steps closed.
 
-  - **Thirty-one** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
+  - **Thirty-two** merges as of 2026-10-25; `git log --merges --oneline main` is the source of
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
-    — update all three. The merges are also described by range, with no count,
+    – update all three. The merges are also described by range, with no count,
     in `SPEC.md`'s spiral status, `README.md`'s Workflow section and ground 2
     under Version Control Workflow, so a merge extends those too. `draft`
     continues day to day.
@@ -882,8 +1118,8 @@ carries the current state.
     was: merge, then a later commit corrects the figures, then a subsequent
     merge carries the correction to `main`. That works only while more merges
     are coming. For a merge intended as the last, it does not: the correcting
-    commit would land on `draft` after `main` already had the merge, so `main` —
-    the branch a reader lands on — would permanently show a count one short and
+    commit would land on `draft` after `main` already had the merge, so `main` –
+    the branch a reader lands on – would permanently show a count one short and
     an unticked checkbox, and fixing that would need yet another merge, which is
     the outcome this ordering exists to avoid. So the count and the checkbox
     were written and pushed to `draft` first, deliberately, on the user's
@@ -894,7 +1130,7 @@ carries the current state.
 
   - **AND A TWENTY-SECOND MERGE FOLLOWED ANYWAY (2026-09-14), which is the exact
     outcome the paragraph above says this ordering exists to avoid.** It was not
-    a drifted figure or a missed checkbox — those were both correct. The user
+    a drifted figure or a missed checkbox – those were both correct. The user
     found `docs/SECURITY.md` rendering with three broken images and six 404
     links on GitHub's **Security tab**, which resolves that file's relative
     paths against the repository ROOT while the blob view resolves them against
@@ -906,17 +1142,17 @@ carries the current state.
     **"Final" always meant the last PLANNED merge and never a promise that none
     would follow.** That distinction was written into the merge message, into
     the checkbox and into `docs/PROCESS.md` BEFORE this happened, which is why
-    nothing here had to be retracted — only extended.
+    nothing here had to be retracted – only extended.
 
   - **AND A TWENTY-THIRD FOLLOWED ON 2026-09-15**, for the same reason one layer
     up. The user found `README.md` describing another document's verdict sixteen
-    hours after that verdict changed, and found it by accident — so the question
+    hours after that verdict changed, and found it by accident – so the question
     stopped being "is this claim stale" and became "how many others are". What
     that merge carries is the answer: a fifth commit gate,
     `npm run check-claims`, which re-resolves every claim that points at
     something and is proved to fire against a probe; ten defects it and the
     sweeps around it found, including two self-contradictions inside single
-    paragraphs, a rule that broke itself three times over, and a list this
+    paragraphs, a rule that broke itself three times over and a list this
     file's own author had shortened while raising its count; and an audit of
     every enumeration in the project against its source of truth. The count was
     again written to `draft` first, on the user's instruction.
@@ -925,11 +1161,11 @@ carries the current state.
     turned on the classes it had not covered. The gate resolves a claim by
     looking up the thing the claim NAMES. A uniqueness claim names one thing and
     asserts something about everything else, so its falsifier is never the item
-    in the sentence — "the only capture in the set showing X" is disproved by
-    some OTHER capture, which the sentence does not mention — and a resolver
+    in the sentence – "the only capture in the set showing X" is disproved by
+    some OTHER capture, which the sentence does not mention – and a resolver
     that follows the addresses in the text walks straight past it however well
     it resolves them. **Such a claim does point at something, and it is
-    checkable** — it WAS checked, by opening the other frames. Checking it just
+    checkable** – it WAS checked, by opening the other frames. Checking it just
     costs an enumeration of the set plus a predicate the gate cannot evaluate,
     where a resolvable claim costs one lookup. (The merge message on `main` says
     it "points at nothing"; that is wrong, and the message is left as written,
@@ -938,7 +1174,7 @@ carries the current state.
     The sweep that this merge carries went at those by hand: ten
     self-referential "the comment says so" pointers resolved against the
     comments they name (all ten held), every `§` reference and all 86 internal
-    markdown links re-resolved (all clean), and three real defects fixed — a
+    markdown links re-resolved (all clean) and three real defects fixed – a
     capture called the only one showing the site header when a second one does
     too, a count of recipes given as four in one file and three in another, and
     a coverage claim that credited five recipes with a warning only three carry.
@@ -953,11 +1189,11 @@ carries the current state.
   - **AND A TWENTY-FIFTH, still 2026-09-15**, whose subject is the merge rule
     that governs all of them. The user asked whether the run of non-milestone
     merges since `0cdc4ec` meant the "settled milestone only" rule had quietly
-    died. Measured rather than accepted: merges 1–21 are all completed work, and
-    22–24 each cleared a SECOND criterion — a defect already published on `main`
-    — stated at `94f5325` before it was used. The practice had been consistent;
+    died. Measured rather than accepted: Merges 1–21 are all completed work, and
+    22–24 each cleared a SECOND criterion – a defect already published on `main`
+    – stated at `94f5325` before it was used. The practice had been consistent;
     the RULE TEXT was what was out of date. So the rule now names its grounds
-    (D-073): a settled milestone, a published defect, and one close-out sync
+    (D-073): a settled milestone, a published defect and one close-out sync
     when the work is declared finished.
 
     **What triggered the merge is not the rule edit but `50d5670`:** `SPEC.md`
@@ -965,12 +1201,12 @@ carries the current state.
     `render.yaml` said milestones only, and the same repository's
     `git log --merges` showed three that were not. **Claude classified the whole
     `draft` stack by its first commit and never re-ran the test as the stack
-    grew to contain a real defect fix — the user caught that too.**
+    grew to contain a real defect fix – the user caught that too.**
 
   - **AND A TWENTY-SIXTH ON 2026-09-16.** The user drove it by asking, one
     question at a time, whether things this repository asserts are actually
     true: whether `docs/ACCEPTANCE.md` really carries the caveats `README.md`
-    advertised (it does not — all eight criteria read satisfied), which of the
+    advertised (it does not – all eight criteria read satisfied), which of the
     twenty-four markdown enumerations are short, what every numeric figure
     resolves to, and whether the Project layout tree accounts for all 100
     tracked files. **The useful half of the answer is what it found in the
@@ -987,10 +1223,10 @@ carries the current state.
     one frame in this document where the app genuinely cannot say what broke"
     while THREE frames show that same generic `500` message, and called RS-14
     "the only frame where a failure could have cost the user something" when
-    `RS-10` is the other one. **Each was contradicted inside its own section** —
+    `RS-10` is the other one. **Each was contradicted inside its own section** –
     further down it, by sentences that had been sitting there the whole time.
 
-    Riding along: thirty navigation links in `README.md`, where exactly one
+    Riding along: Thirty navigation links in `README.md`, where exactly one
     in-page link had existed; Supabase added to the "called server-side"
     enumeration, which named two of the three dependencies whose recipes the
     same sentence then explained; four honesty framings that called correct
@@ -999,15 +1235,15 @@ carries the current state.
     glyphs the prose only showed instead of naming.
 
   - **The pattern across every one of them is one sentence:** a check can be
-    sound and its BOUNDARY wrong — the wrong render context (22), the wrong file
+    sound and its BOUNDARY wrong – the wrong render context (22), the wrong file
     types and the wrong direction of reading (23), a claim whose falsifier it
     never names (24), a test applied once and not re-applied as its subject
-    changed (25), and a filter whose vocabulary decides what it can find (26) —
+    changed (25) and a filter whose vocabulary decides what it can find (26) –
     and no amount of care inside the boundary finds that.
 
     **The twenty-seventh is the first that does NOT fit that sentence, and the
     difference is worth keeping.** Its sweep had the right boundary: `8271443`
-    found every site, quoted two of them verbatim, and cleared them anyway — on
+    found every site, quoted two of them verbatim and cleared them anyway – on
     a criterion ("anchored by a preceding verb or preposition") read off the
     SOURCE, where the backticks are visible, rather than the render, where they
     are gone. A boundary can be right and the test inside it still wrong.
@@ -1018,15 +1254,15 @@ carries the current state.
     site wherever a film had no TMDB rating, because `.score-block`
     shrink-wrapped to its widest child and left-aligned inside it (D-076). The
     one-line fix the user tried in devtools was built and REJECTED on
-    measurement — it mirrors the defect into card mode, where the block is
-    anchored to the opposite edge — so it shipped as two rules. Riding along:
+    measurement – it mirrors the defect into card mode, where the block is
+    anchored to the opposite edge – so it shipped as two rules. Riding along:
     the linking rule applied to twelve files (D-075), an audit of all 880 hrefs
     and embedded images, the AI call log's token split digit-grouped, and the
     largest accuracy sweep the project had run at that point.
 
     **What that sweep says about the previous twelve is the part worth
-    keeping.** Fourteen defects, and the counts everyone re-checks — merges,
-    tests, gates, captures, models — were right in every file. Every defect sat
+    keeping.** Fourteen defects, and the counts that get re-checked – merges,
+    tests, gates, captures, models – were right in every file. Every defect sat
     in a claim with no resolvable referent: a value changed in source with three
     prose descriptions left behind (a 2px/1.5px divider that had survived twelve
     days of sweeps), a `README.md` cost figure its own embedded screenshot
@@ -1044,7 +1280,7 @@ carries the current state.
     is that a per-ENTRY reading is as incomplete as a per-FILE one was.** Every
     one of the six is correct about itself and wrong about its neighbour, which
     is the 2026-09-19 cross-file finding one level down. The other five are
-    drifted figures, and two of those are self-indexes — a document counting its
+    drifted figures, and two of those are self-indexes – a document counting its
     own contents, which no gate can resolve because the referent is the file
     itself. `check-claims` was green throughout, correctly: none of the nineteen
     points at anything it can look up.
@@ -1055,14 +1291,14 @@ carries the current state.
     2026-09-14. It is the first merge made on ground 3, and since a close-out
     sync fires once, the last that ground can carry. It also clears ground 2
     on its own: the `draft` it brings across carries real defects that were
-    live on `main` — the verdict banner's run guard, the verdict's model
+    live on `main` – the verdict banner's run guard, the verdict's model
     fallback in `chat()`, the rate dialog's carried-over review box,
     `scan-secrets` matching neither a real OpenRouter key nor a TMDB key,
     `check-claims` passing dead relative links, and the recommendations'
-    tie-break order — plus the claims that the sweeps from 2026-09-26 to
-    2026-10-01 found false on `main`. Riding along: the type scale (D-079), hyphenation inside long
+    tie-break order – plus the claims that the sweeps from 2026-09-26 to
+    2026-10-01 found false on `main`. Riding along: The type scale (D-079), hyphenation inside long
     words only (D-080, D-081), the 1040px page width, JSDoc on every `.js`
-    file, `npm run layout-check`, and every test proved load-bearing by 94
+    file, `npm run layout-check` and every test proved load-bearing by 94
     mutation probes. **It is not "final"**: whatever follows is merged on
     ground 1 or ground 2. The count was again written to `draft` first, on
     the user's instruction.
@@ -1078,26 +1314,58 @@ carries the current state.
     of it; the placeholders GitHub swallowed in the three recommendation
     prompts and the RS-8 recipe; D-065's escape examples printed without
     their backslashes; and the claims the day's sweeps found false. Riding
-    along: rules 11 and 12 in `check-markdown`, each probed against the line
+    along: Rules 11 and 12 in `check-markdown`, each probed against the line
     that shipped; `loadPrompt()` decoding the prompts' entities (D-084) and
     filling placeholders through a function; `cutText()` at every server cut;
     the linking rule's commit and range links, with `check-claims` check 4b
     behind them; and two tests, taking the suite to 64.
 
     **The sentence for this one:** the defects that mattered sat in what a
-    reader actually receives rather than in any source file — the model's
+    reader actually receives rather than in any source file – the model's
     exact request bodies for the half-emoji cut, GitHub's own file view for
-    the swallowed placeholders — and each was found by looking at that
+    the swallowed placeholders – and each was found by looking at that
     rather than at the text that produced it. The count was again written
     to `draft` first, on the user's instruction.
 
+  - **AND A THIRTY-SECOND ON 2026-10-25 (ground 2).** Its ground is the set
+    of defects live on `main` after the thirty-first, most of them on the
+    deployed site rather than in its documents: "second." hyphenating as
+    "seco-nd." at 320px, and with it any six-letter word before punctuation
+    (D-085), where `main`'s own docs promised no break within three letters
+    of a word's end; the rate dialog opening where the previous film's had
+    been left; a rounded box that scrolls drawing its corners square, in
+    Chromium and in Firefox with always-shown scrollbars (D-086); an open
+    AI-log reveal panel scrolling out of view, or across the pinned rows
+    (D-087); the footer credit short of the notice and logo TMDB's terms
+    require (D-088); a dragged selection carrying every soft hyphen into
+    another app (D-089); and, in Samsung Internet, a tapped card left lit and
+    the keypad left over the results, because that browser reports
+    `hover: hover` on a touchscreen (D-090). Plus the claims false on `main`:
+    the README calling the verdict "teasing" and selling its job short,
+    § Prompt Versioning calling its prompt the lighter of the two, and D-057
+    crediting `SPEC.md` with accessibility work it does not hold. Riding
+    along: the rule beside the real verdict, growing as it types;
+    `scripts/debug-verdict.js`, a console harness for the verdict, never
+    loaded on `main`; `npm run layout-check` checking both shapes of drag and
+    counting letters as `softHyphenate()` does; the wording, punctuation and
+    grammar brought into one consistent dialect of English across the copy
+    and the docs; and the staleness sweeps of 2026-10-08, 2026-10-24 and
+    2026-10-25.
+
+    **The sentence for this one:** the defects that mattered were found by
+    looking at the running app in a real browser on a real device – a
+    screenshot, a phone, a Firefox with its scrollbars always shown – where
+    no gate and no headless run could have seen them, and each fix was
+    settled the same way, by the user's own check in real browsers. The count
+    was again written to `draft` first, on the user's instruction.
+
 ### Implemented
-* Movie CRUD: search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
+* Film CRUD: Search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
   guard via `unique(tmdb_id)`. Each card also shows TMDB's own score beneath the
   user's, captured at ADD time and never refreshed (D-036). Add auto-opens the rate dialog ("Skip for now").
   Long reviews clamp to 3 lines above 900px and 2 at 900px and below, with a
   "show more/show less" toggle (shown only when the text actually clips). The
-  line count lives ONLY in CSS — the toggle is decided by measuring whether the
+  line count lives ONLY in CSS – the toggle is decided by measuring whether the
   text overflowed, never by counting lines.
 * Recommendations: `POST /api/recommendations`, prompt `recommend_v3`
   (second-person reason voice, 8–16 words), server-side reason tidy, per-title
@@ -1114,50 +1382,50 @@ carries the current state.
     user-raised 2026-09-09; D-050 and D-051).
   - **A card's size never depends on how many came back** (R29, D-051): the
     width comes from the widest packing the viewport allows, the count from the
-    balancing, and the grid is capped to what that many cards need and centred —
+    balancing, and the grid is capped to what that many cards need and centred –
     so one recommendation is one normal-sized card with the slack split evenly
     either side. The AI metadata footer sits in its own slot BELOW the grid, not
     inside it, so it stays full width whatever the cards do.
 * Taste verdict: `POST /api/taste-verdict`, prompt `taste_verdict_v7` **on
-  `anthropic/claude-sonnet-5` — the one feature not on the cheaper tier
-  (D-053)** (2–3 sentences, ~35–60 words, characterise the viewer — not recite
-  ratings — in plain spoken English rather than review prose), `max_tokens`
+  `anthropic/claude-sonnet-5` – the one feature not on the cheaper tier
+  (D-053)** (2–3 sentences, ~35–60 words, characterise the viewer – not recite
+  ratings – in plain spoken English rather than review prose), `max_tokens`
   180, server-side sentence-aware truncation (450-char ceiling) + markdown
   strip, explicit-trigger. v5–v7 changed the REGISTER only.
   - **v7 is the one that matters as a lesson: v5 and v6 tried to get there by
-    BANNING phrases and the register did not move — negative instructions went
+    BANNING phrases and the register did not move – negative instructions went
     16 → 30 → 37 across the chain while worked examples of the target voice
     stayed at exactly ONE. v7 deletes the bans and carries four examples
     instead.** The split v6 proved by accident: a STRUCTURAL ban lands at once
     (it said "no semicolons, ever" and the semicolon vanished from the next
-    verdict), a VOCABULARY ban does nearly nothing — it removes an option and
+    verdict), a VOCABULARY ban does nearly nothing – it removes an option and
     supplies no replacement, so the model obeys it and falls back to its own
     default voice for the words it does pick. Register is a sample, not a rule.
   - **And then v7 failed too, which is the actual finding.** Four worked
     examples in place of the bans produced the worst verdict of the chain: still
-    "gratuitous", plus 4 sentences where every version since v4 has said 2–3 — a
+    "gratuitous", plus 4 sentences where every version since v4 has said 2–3 – a
     measurable rule break, not a matter of taste, and probably caused by four
     blockquotes pushing the Rules section down and the model matching the
     examples' clipped rhythm by adding a sentence. Rolled back to v6, which at
     least keeps its own rules.
-  - **THREE STRUCTURALLY DIFFERENT PROMPTS — bans, more bans, examples —
+  - **THREE STRUCTURALLY DIFFERENT PROMPTS – bans, more bans, examples –
     PRODUCED THE SAME REGISTER, so the prompt was never the lever. THE MODEL
     WAS**, and it worked first try on the same v7 prompt: the register landed
     AND the sentence count came back into bounds, the second symptom resolving
     with the first. Do not write v8; if the verdict ever reads wrong again, look
     at the model before the wording.
-  - **Trap: v7 is the version that FAILED on Haiku** — if the verdict is ever
+  - **Trap: v7 is the version that FAILED on Haiku** – if the verdict is ever
     moved back down a tier, move the prompt back to v6 with it, because v7's
     four examples dilute the rules underneath them on a small model.
     Changing the `temperature` (0.85 on every verdict since v3) and real
     few-shot (example TURNS rather than prose) were never needed and stay
     untried.
-* AI call log: every call logged success **or** failure (a run whose log write
-  fails is discarded, with the cause sent to stderr — R5); `GET /api/ai-log`
+* AI call log: Every call logged success **or** failure (a run whose log write
+  fails is discarded, with the cause sent to stderr – R5); `GET /api/ai-log`
   merges both tables; in-app viewer via the footer `.log-cta` button.
 * Security: `.env` gitignored from the first commit carrying any project
   content (`103c4be`; the root commit is a one-line README with no `.env` in it,
-  checked by hand by the user — `docs/ACCEPTANCE.md` criterion 8 walks it, and
+  checked by hand by the user – `docs/ACCEPTANCE.md` criterion 8 walks it, and
   the criterion is met), and it has
   never been tracked in any commit on any branch. `npm run scan-secrets` pre-commit,
   anon key only, query-builder only, `textContent` only.
@@ -1165,22 +1433,22 @@ carries the current state.
   (`parseModelJson`, `tidy*`, `cutText`, `estimateCostUsd`, `loadPrompt`) + route-level
   (`test/routes.test.js`): validation (400s), duplicate (409), TMDB-down (502),
   below-threshold (422), OpenRouter-down (422 **with** a `status='failed'` log
-  row written), a row deleted mid-edit (404, not a 500), and the two
-  `tmdb_rating` guards — that the value reaches the insert at all, and that
-  TMDB's no-votes `0` is stored as `null` (D-037) — plus the two
+  row written), a row deleted mid-edit (404, not a 500) and the two
+  `tmdb_rating` guards – that the value reaches the insert at all, and that
+  TMDB's no-votes `0` is stored as `null` (D-037) – plus the two
   `review_requires_rating` guards (D-041): a check violation comes back as a 400
   with a usable message rather than a generic 500, and a violation of one of the
   table's OTHER check constraints is not dressed up as the review message.
   - Supabase is swapped for an in-memory fake (`test/helpers.js`) so tests never
     touch the live DB; TMDB/OpenRouter stubbed via `globalThis.fetch`.
     `server/index.js` exports `app` and only `listen()`s when run directly.
-  - **Plus, as of 2026-09-09, the recommendation SUCCESS path (R19)** — which
+  - **Plus, as of 2026-09-09, the recommendation SUCCESS path (R19)** – which
     had no coverage at all, so every rule deciding what a user actually sees was
     unproven. One run exercises all three: a pick TMDB cannot confirm is
-    dropped, a pick the user already owns is dropped, and two picks resolving to
+    dropped, a pick the user already owns is dropped and two picks resolving to
     the same film collapse to one. A second test asserts the success log row
-    carries `status='success'`, OpenRouter's own `usage.cost`, and exactly the
-    titles that were SHOWN — not the three the model named and lost. Both were
+    carries `status='success'`, OpenRouter's own `usage.cost` and exactly the
+    titles that were SHOWN – not the three the model named and lost. Both were
     verified load-bearing by deleting each of the three service rules in turn:
     every deletion failed exactly these two tests, the only ones reaching those
     rules that day (R2's and R28's tests, below, now catch them too).
@@ -1189,16 +1457,16 @@ carries the current state.
     **R23**'s invariant, written as a loop over BOTH AI features so they cannot
     drift, that a `status='failed'` row is always advertised to the UI and a
     failure with no row never is; and **R28**'s five, one per reason a run can
-    come back empty — including the one that matters, that an unreachable TMDB
+    come back empty – including the one that matters, that an unreachable TMDB
     is reported as such rather than as "the model only named films already in
     your list".
   - **And R5's, added 2026-09-11**, also a loop over both features: when the AI
-    call fails AND the log write then fails, both causes must reach stderr —
+    call fails AND the log write then fails, both causes must reach stderr –
     because no row exists to hold either, so that is the only record left. It
     captures `console.error` rather than letting it print, which keeps the suite
     quiet and turns the sink into an assertion. Probed both ways: dropping the
     composition loses the AI cause, dropping the `console.error` loses both.
-  - **And `/api/recommendations/history`'s two, added 2026-09-21 (D-077)** — the
+  - **And `/api/recommendations/history`'s two, added 2026-09-21 (D-077)** – the
     shape and recommendation-only scope of the narrower log view, and its DB
     failure surfacing as a 500 without leaking the postgres text. It was the one
     route of the eleven that no test touched, which is why it kept resurfacing
@@ -1207,39 +1475,39 @@ carries the current state.
     error guard fails only the second.
   - **And the rest, so the list above is complete:** `GET /api/health`,
     `GET /api/config` and an unknown route's 404; the TMDB 502's `short` form
-    (D-042); the three happy paths added 2026-09-13 while walking SPEC § 7.1 —
+    (D-042); the three happy paths added 2026-09-13 while walking SPEC § 7.1 –
     search returning shaped results with posters, `DELETE` answering 204 (and a
-    refused delete answering 500, not a false 204), and the verdict's success
+    refused delete answering 500, not a false 204) and the verdict's success
     row; a failed row naming the model its own feature calls (D-070), a loop
     over both features; the `/api/ai-log` response shape, totals included; and,
     added 2026-10-01, a review cut never ending in half an emoji, in both
     prompts and in the stored review, plus `cutText()` itself.
-* **`scripts/debug-recs.js` — a console harness for the recommendations UI**
+* **`scripts/debug-recs.js` – a console harness for the recommendations UI**
   (2026-09-09, user-asked). The client had no test harness at the time, so
   every judgement about the recs grid, the entrance stagger, the scroll or the
   hover glow cost a real OpenRouter call, and the user ran their paid quota
   down doing exactly that. *(Since 2026-09-28 `npm run layout-check` also answers
   `/api/recommendations` from fixtures, for layout work; this harness remains
   the way to drive the real page by hand.)* **IT IS NO LONGER LOADED BY THE
-  PAGE — unloaded 2026-09-13, see the ticked checkbox under Pre-submission
+  PAGE – unloaded 2026-09-13, see the ticked checkbox under Pre-submission
   blockers.** Paste the file into the
   browser console to use it; `debugRecs(4)` then makes "Get recommendations"
   render four dummy cards, which is how it was written to be used. The count
   runs 1–6 (`parseModelJson` slices at 6); `{ posters: false }` exercises the
   `.noposter` placeholder, `{ delayMs }` the latency.
   - **It patches `window.fetch` and answers `POST /api/recommendations` in the
-    browser** — so no OpenRouter call, no TMDB verification and NO
+    browser** – so no OpenRouter call, no TMDB verification and NO
     `recommendation_logs` row, while everything downstream (busy button, exit
     animation, `renderRecommendations`, column balancing, stagger, scroll, meta
     footer) runs unmodified. Intercepting the transport rather than reaching
     into the render is the point: a harness that called the renderer directly
     would be testing itself. Dummy `tmdb_id`s are NEGATIVE, so they can never
     collide with a real film, and `POST /api/movies` for one is refused in the
-    browser — pressing Add on a dummy card cannot reach the database. Reload to
+    browser – pressing Add on a dummy card cannot reach the database. Reload to
     stop; nothing is persisted. Never run by Node.
 
   - **IT NEEDS THREE RATED FILMS IN THE REAL DATABASE, and that surprises people
-    — including Claude, which wrote a set of repro steps on 2026-09-12 without
+    – including Claude, which wrote a set of repro steps on 2026-09-12 without
     checking and sent the user to a dead button.** The harness fakes the
     recommendation CALL, never the gate in front of it: `GET /api/movies` is not
     intercepted, so the trigger's disabled state and the hint's text both come
@@ -1248,19 +1516,19 @@ carries the current state.
 
   - **And forcing the button on no longer rescues it.** The harness carries a
     `setTimeout(…, 0)` that re-enables the trigger after the run's `finally`
-    re-disables it — complete when written (96158b1, 2026-09-09), because the
+    re-disables it – complete when written (96158b1, 2026-09-09), because the
     below-threshold branch of `syncRecommendationsAvailability()` then did only
     two things and neither touched the grid. **R16 (885a6a5, 2026-09-11) added
     `el.recsGrid.replaceChildren()` and `el.recsMeta.replaceChildren()` to that
     same branch**, so a sub-threshold dummy run now renders six cards and wipes
     them in the same tick: a flash, not a run. Deliberately NOT patched (D-063)
-    — the fix is to rate three films, since the harness exists to avoid
+    – the fix is to rate three films, since the harness exists to avoid
     OpenRouter calls, not to stand in for the database. Both the file header and
     the branch itself say so, including that the paragraph above that
     `setTimeout` is no longer a promise it works.
 
-    **The generalisable bit:** a test double that patches around ONE observable
-    consequence of an app branch cannot notice when that branch grows another —
+    **The generalisable bit:** A test double that patches around ONE observable
+    consequence of an app branch cannot notice when that branch grows another –
     nothing fails and nothing warns, the double just quietly covers less than
     its comment claims.
 
@@ -1268,14 +1536,14 @@ carries the current state.
     `debugRecs()`.** That flag is not decoration: the fetch patch installs the
     moment the file runs, which was harmless while pasting into a console WAS
     the arming, and became a trap the day the page started loading the file on
-    every request — the app spent a day answering its own recommendation calls
+    every request – the app spent a day answering its own recommendation calls
     with six dummy cards, through hard refreshes and a cleared cache, because
     nothing was cached wrongly and the tag was doing exactly what it said.
 
   - **TWO LINES USED TO MAKE IT LOAD AND BOTH ARE GONE (2026-09-13):** the
     `<script src="/debug-recs.js">` at the bottom of `public/index.html` and the
     route serving it in `server/index.js`. The FILE stays, in `scripts/`, which
-    is deliberately outside the static root — so nothing serves it and nothing
+    is deliberately outside the static root – so nothing serves it and nothing
     can load it by accident. Verified after removal on a throwaway port:
     `/debug-recs.js` answers 404, the page answers 200, and the served HTML
     contains no reference to it.
@@ -1283,15 +1551,36 @@ carries the current state.
   - The harness also refuses to install itself when the hostname ends in
     `onrender.com`. That guard is now redundant and stays anyway: it costs
     nothing, and it is the belt to a brace that has just been removed.
-* **`npm run layout-check` — the real UI in real headless browsers, for any
+* **`scripts/debug-verdict.js` – the same idea for the taste verdict**
+  (2026-10-08, user-asked, so the banner's layout can be judged without paid
+  calls). `debugVerdict(N)` in the console makes the next "New verdict" click
+  yield the first N words of lorem ipsum, cycling the 69-word passage for a
+  longer N; calling it again changes N with no reload. It answers
+  `POST /api/taste-verdict` in the browser after 2–3 seconds, so the busy
+  state, the ring's busy glint, the typing effect, the rule growing beside the
+  verdict as it types and a meta footer with dummy but realistic figures all
+  run for real, while no OpenRouter call is made and
+  no `taste_verdict_logs` row is written. Like `debugRecs`, it starts every load
+  disarmed and refuses to install on `onrender.com`, and the button's own gate
+  (two rated films) still applies.
+  - **Two differences from a real verdict, on purpose:** The text skips
+    `tidyVerdict()`'s 450-character ceiling, so N can go past anything the model
+    produces, and it ends at the Nth word with no full stop.
+  - **It is not loaded by the page:** Paste the file into the console, like
+    `debug-recs.js`. From 2026-10-08 to 2026-10-24 `draft` loaded it on every
+    page through a `<script>` tag at the bottom of `public/index.html` and a
+    route in `server/index.js`; both are gone, verified live (`/debug-verdict.js`
+    answers 404 and the served HTML no longer mentions it).
+* **`npm run layout-check` – the real UI in real headless browsers, for any
   layout change** (2026-09-28, generalised from the harness that verified D-079
   to D-081 and the 1040px width). It serves `public/` itself and answers every
   `/api/*` call from fixtures, so it needs no `.env`, touches no database, calls
-  no paid API, and holds every write open unanswered. Each browser loads the app
+  no paid API and holds every write open unanswered. Each browser loads the app
   in an iframe that `scripts/layout-probe.js` resizes to exact widths.
-  - **Three modes:** the default HEALTH run (text inside its box and the
+  - **Three modes:** The default HEALTH run (text inside its box and the
     viewport, no overlapping parts, no sideways scroll, every break inside a
-    word against softHyphenate()'s rules, the verdict typing and the clipboard;
+    word against softHyphenate()'s rules, the verdict typing, the clipboard and
+    dragged text;
     exit 1 on any failure); `--baseline=<git ref or file>`, which DIFFS the
     layout element by element against another stylesheet (`--expect-same` for a
     refactor, `--reference-width=PX` for a max-width change); and `--self-test`,
@@ -1299,8 +1588,9 @@ carries the current state.
     (driven by app.js, so the stylesheet cannot break it) and fails unless every
     one is caught. The
     hyphenation rules are read out of app.js and the stylesheet rather than
-    restated.
-  - **Not a commit gate:** it takes minutes and needs installed browsers. Run it
+    restated, except that a dash always ends a word (D-081), which the probe
+    holds on its own so that a regression of it in app.js cannot pass.
+  - **Not a commit gate:** It takes minutes and needs installed browsers. Run it
     before and after a layout change. Chrome and Firefox by default;
     `--browsers=…,edge` adds Edge, whose headless runs can stall part-way, so
     the probe sends a heartbeat at every width and the tool abandons a run that
@@ -1314,34 +1604,34 @@ carries the current state.
 * `GET /api/health` liveness probe. Render's health check has pointed at it
   since the deploy (2026-09-07); the entry under Pre-submission blockers has the
   service settings.
-* `docs/PROCESS.md` — the LLM-augmented workflow narrative (prompt v-chain,
+* `docs/PROCESS.md` – the LLM-augmented workflow narrative (prompt v-chain,
   guardrails, Incident 1) for the course's process grade.
-* Accessibility: per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
+* Accessibility: Per-item `aria-label`s (Rate/Edit/Remove/Add-to-list name the
   film, not just the verb), live regions on search results / recs hint / verdict
   text, `aria-busy` on every button while its request is in flight (the two AI
   triggers, Search, Add, Save and Remove), `aria-expanded`/
   `aria-controls` on the review "show more" toggle, dialogs `aria-labelledby`,
-  poster `alt` text (`"{title} — poster"` / labelled placeholder), rec-card
+  poster `alt` text (`"{title} – poster"` / labelled placeholder), rec-card
   heading fixed h4→h3 (correct nesting under the section's h2), the recs grid a
   `<ul>` of `<li>`s with an explicit `role="list"` on it and on the ranked `<ol>`
-  (R21 — `list-style: none` makes Safari/VoiceOver drop list semantics), a
+  (R21 – `list-style: none` makes Safari/VoiceOver drop list semantics), a
   `.sr-only` span in the recs hint naming how many recommendations arrived, since
   that live region is all a screen reader hears about a run (R22), decorative
   spinners `aria-hidden`, **one app-wide `:focus-visible` ring** (2026-09-08,
-  backlog #10 — a bare selector, so anything focusable added later is covered
+  backlog #10 – a bare selector, so anything focusable added later is covered
   without being remembered; `.search input` is the one deliberate exception, see
-  the ranked-list bullets), and the destructive-action confirm's
+  the ranked-list bullets) and the destructive-action confirm's
   `role="alertdialog"` + `aria-describedby` (the consequence is announced, not
   just the title) with `autofocus` on Cancel so a stray Enter is the safe choice.
 
-### Front-end overhaul (started 2026-09-05 — COMPLETE as of 2026-09-12)
+### Front-end overhaul (started 2026-09-05 – COMPLETE as of 2026-09-12)
 
 **Status, so this heading is not misread as open-ended work: EVERY UI STEP OF THE
 AGREED ORDER IS CLOSED.** 1 (mobile keypad), 2 (the R1–R30 recommendations
-sub-backlog, ended by R18 closing on measurement — D-063), 3 (GitHub links),
-4 (the favicon — D-064), 4b (seven polish items) and 5 (the portrait overhaul
-at 500px and below, closed by the user against the ~350px target). **Step 6 —
-pre-submission evidence and cleanup, not UI — was the only step left when this
+sub-backlog, ended by R18 closing on measurement – D-063), 3 (GitHub links),
+4 (the favicon – D-064), 4b (seven polish items) and 5 (the portrait overhaul
+at 500px and below, closed by the user against the ~350px target). **Step 6 –
+pre-submission evidence and cleanup, not UI – was the only step left when this
 paragraph was written, and it closed on 2026-09-14. NOTHING in the agreed order
 is open.** The bullets below are the running record of how each piece got there
 and stay as written.
@@ -1352,64 +1642,65 @@ and stay as written.
   re-centred: the global `* { margin: 0 }` reset had killed the UA stylesheet's
   `dialog { margin: auto }`, so they rendered at top-left. Fixed with an explicit
   `margin: auto` on `.rate-dialog` / `.log-dialog`. There are **three** dialogs
-  now — `.confirm-dialog` gets the same `margin: auto` by sharing that rule.
+  now – `.confirm-dialog` gets the same `margin: auto` by sharing that rule.
 * AI call log entry point promoted from a `.linkish` link buried in a footer
   sentence to a `.log-cta` panel with a solid amber button (`#open-log` id
-  unchanged) + one-line description — it's the SPEC §7.2 "not a wrapper" proof,
+  unchanged) + one-line description – it's the SPEC §7.2 "not a wrapper" proof,
   so it should read as a real action. `.linkish` removed (was its only use).
-* Fixed a pre-existing glitch: the `.grain` film-grain overlay (`inset: 0`) is
+* Fixed a pre-existing glitch: The `.grain` film-grain overlay (`inset: 0`) is
   translated up to 3% by its animation, which briefly exposed a flickering dark
   strip at the right/top edge. Now `inset: -8%` so it overhangs the viewport.
 * Grain dialled up a touch (barely visible before): `opacity` 0.035 → 0.06,
   animation 0.6s → 0.5s. It stayed too subtle, and step 4b later made it
   resample instead, at `0.1` and `0.7s steps(1)`, which is what it runs today.
-* AI call log dialog scrolling: **the dialog itself is the single scroller**
-  (`.log-dialog { overflow: auto; max-height: 88vh }`, `.log-scroll` is
-  `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
-  inside a flex-sized `.log-scroll` — but on a short viewport that box collapsed
+* AI call log dialog scrolling: **one box is the single scroller, `.log-pane`,
+  the dialog's only child** (`.log-pane { overflow: auto }`; the dialog carries
+  `max-height: 88vh` and only clips it to its rounded corners, D-086;
+  `.log-scroll` is `overflow: visible; flex: 0 0 auto`). An earlier version had the table scroll
+  inside a flex-sized `.log-scroll` – but on a short viewport that box collapsed
   to nothing. Header + blurb + whole table scroll together; **only `thead th`
-  pins** (`position: sticky; top: 0; z-index: 3`) — the "AI call log" heading
-  and Close scroll away (scroll back up / Esc). `.log-dialog` has **no
+  pins** (`position: sticky; top: 0; z-index: 3`) – the "AI call log" heading
+  and Close scroll away (scroll back up / Esc). `.log-pane` has **no
   top/bottom padding** (`padding: 0 1.5rem`; `header` carries `padding-top`) so
   the thead pins flush at the top.
-  - **Total row (took several tries — don't "simplify" this):** a sticky
+  - **Total row (took several tries – don't "simplify" this):** A sticky
     `<tfoot>` alone never works, because it's clamped by its own containing
-    block (the table) and can't reach the dialog's bottom edge — table rows
+    block (the table) and can't reach the pane's bottom edge – table rows
     always peeked underneath it mid-scroll. The fix is `.log-curtain`: an opaque
-    `--bg-raised` band that is a **direct child of the dialog** (containing
-    block = the dialog, so it's never clamped), `position: sticky; bottom: 0`,
+    `--bg-raised` band that is a **direct child of the pane** (containing
+    block = the pane, the scroller, so it's never clamped), `position: sticky; bottom: 0`,
     `z-index: 2`. The Total row pins at `bottom: var(--log-curtain-h)` with
-    `z-index: 3` — exactly on top of it. The two form one solid block down to
-    the dialog edge, so nothing shows underneath. Scrolled to the end both
-    un-pin and the curtain is just the gap below the table (hence `.log-dialog`
+    `z-index: 3` – exactly on top of it. The two form one solid block down to
+    the pane's edge, so nothing shows underneath. Scrolled to the end both
+    un-pin and the curtain is just the gap below the table (hence `.log-pane`
     has no bottom padding). The table's closing rule is the curtain's
-    `border-top` — the only element adjacent to the Total row in BOTH states, so
+    `border-top` – the only element adjacent to the Total row in BOTH states, so
     it can't go missing mid-scroll or double up at rest.
 
     `.log-scroll` is therefore open at the bottom, and **fully square**: it must
-    stay `overflow: visible` (the dialog is the scroller) so it can't clip the
-    sticky thead/tfoot cell fills to a radius — a rounded border with square
-    cell backgrounds looked broken. **Card mode does NOT pin the Total** — it is
+    stay `overflow: visible` (the pane is the scroller) so it can't clip the
+    sticky thead/tfoot cell fills to a radius – a rounded border with square
+    cell backgrounds looked broken. **Card mode does NOT pin the Total** – it is
     the last card, reached by scrolling to the end, and the user wants it that
     way (D-082). Only the table view pins its Total row.
 
   - `.log-dialog[open]` carries `display: flex`; a bare rule overrides the UA
     `dialog:not([open])` hide → never closes.
     `body:has(dialog[open]) { overflow: hidden }` freezes the page.
-* AI call log table — narrowing it column by column to kill the horizontal
+* AI call log table – narrowing it column by column to kill the horizontal
   scroll. DONE; the Responsive bullet below records where it landed. What it
   took, in order:
   - all `th`/`td` content centred (h + v); `.num` right-align dropped.
   - table font trimmed ~10% (`.log-table` 0.86→0.77rem; header/sub/badge → `em`).
   - faint full-height column separators (`border-right: 1px solid var(--line-faint)`,
     `--line-faint` = white 0.035). A short "floating tick" variant was tried to
-    make the row/column hierarchy clearer and reverted — user preferred the plain
+    make the row/column hierarchy clearer and reverted – user preferred the plain
     hairline, and the hierarchy question was settled with it. The plain
     hairline is what shipped.
   - **Model** column shows only the part after the vendor `/`
     (`claude-haiku-4.5`), wrapped in `<abbr title="…">` (dotted underline + help
     cursor) so the full slug is one hover away. `modelCell()` in app.js.
-  - **Time** column: forced `en-GB` format (`04/09/2026, 15:39:46`) regardless
+  - **Time** column: Forced `en-GB` format (`04/09/2026, 15:39:46`) regardless
     of browser locale, split onto two lines (date / clock) via `timeCell()`.
     Still rendered in the viewer's local timezone. `.log-time` 0.9em to match.
   - **Result** column collapsed. `/api/ai-log` now sends structured data
@@ -1421,11 +1712,11 @@ and stay as written.
     originally, 8rem of the unscaled root now, exempt from the type scale like
     the rest of the table, D-079) and the
     revealed content is `position: absolute` (a small floating panel, 0.8em
-    font) — opening a row can never widen/reflow the table or steal width from
+    font) – opening a row can never widen/reflow the table or steal width from
     other columns. (An early caveat about the last row's panel being clipped is
     obsolete twice over: `.log-scroll` is `overflow: visible` so it clips nothing,
     and the panel now flips above its trigger when there is no room below.)
-    Table text also toned down (`.log-table` color `#e0dcd3`, was `--ink`).
+    Table text also toned down (`.log-table` colour `#e0dcd3`, was `--ink`).
   - **Feature / Prompt / Model** cells abbreviated via `<abbr title>`:
     Recommendation→`R`, Taste verdict→`TV`, `recommend_v3`→`R_v3`,
     `taste_verdict_v1`→`TV_v1`, model→slug after the `/`. `abbrCell()` +
@@ -1433,9 +1724,10 @@ and stay as written.
     Feature has exactly two values (verified in `routes/aiLog.js`).
   - cell padding trimmed `0.6rem 0.8rem` → `0.45rem 0.45rem`; Result column
     `9.5rem` → `8rem`.
-  - **Responsive**: full table down to **~850px** (card `@media` breakpoint),
+  - **Responsive**: Full table down to **~850px** (card `@media` breakpoint),
     helped by a mid-range `@media (max-width: 1040px)` that tightens cell padding
-    `0.45→0.28rem`, dialog padding `1.5→0.85rem`, and the Result column
+    `0.45→0.28rem`, the side padding `1.5→0.85rem` (the dialog's until D-086,
+    `.log-pane`'s since) and the Result column
     `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. ≤ 850px → one card
     per call (label/value rows via `td::before { content: attr(data-label) }`;
     `thead` hidden; abbreviations swapped back to full text via
@@ -1443,10 +1735,10 @@ and stay as written.
     reveal panel on any click outside it (clicks on its own text keep it open so
     it stays selectable). Reveal panels fade (`::details-content` +
     `@starting-style`).
-  - **Sticky rows.** The whole dialog is the single scroller; only `thead`
+  - **Sticky rows.** `.log-pane` is the single scroller; only `thead`
     (top) and the `<tfoot>` Total row (bottom) pin. A sticky `<tfoot>` alone
-    can't reach the dialog edge (clamped by the table), so `.log-curtain` — an
-    opaque `--bg-raised` band, a *direct child of the dialog* — pins under it;
+    can't reach the pane's edge (clamped by the table), so `.log-curtain` – an
+    opaque `--bg-raised` band, a *direct child of the pane* – pins under it;
     the two form one solid block so no row shows through. Curtain's `border-top`
     is the table's closing rule (only element adjacent to Total in both
     states); `.log-scroll` is square (can't clip its sticky children to a
@@ -1454,7 +1746,7 @@ and stay as written.
   - **Total-row divider.** Can't be a real border (collapsed-border layer
     leaves it behind on pin) or a shadow (webkit outer shadows aren't painted
     on cells; inset ones stop at the collapsed column border → gaps). Painted
-    as two `background` gradients (1.5px top rule in `--line-total` — warm, so
+    as two `background` gradients (1.5px top rule in `--line-total` – warm, so
     it's not mistaken for the cool-grey scrollbar; 1px right separators),
     collapsed borders removed from the row so the rule is continuous. Footer
     is `0.8em` (keeps its summed figures from widening the columns) with
@@ -1473,7 +1765,7 @@ and stay as written.
     drops 0.87em to 0.84em, measured on 2026-09-19 in Inter at the real
     computed sizes, on the log as it stood that day, so that the binding
     string `1,466 in / 111 out` came to 88.86px against the un-grouped
-    89.17px — the Tokens column did not move. Body rows ONLY: the
+    89.17px – the Tokens column did not move. Body rows ONLY: The
     footer's `.sub` is 0.87em of a 0.8em cell and is already the smaller of
     the two, which is why the selector names `tbody`. The declaration carries
     the arithmetic; read it before changing either number.
@@ -1481,75 +1773,82 @@ and stay as written.
     as 0. `(summed model latency, not elapsed time)` note fills the trailing
     gap. Six pre-migration-001 rows (no split/duration) were deleted by hand
     (D-019) so the footer needs no partial-coverage markers.
-  - **Reveal panel** polish: caret pointing at its trigger (direction +
+  - **Reveal panel** polish: Caret pointing at its trigger (direction +
     `--arrow-x` follow the flip); flips *above* the trigger when there's no
-    room below (measured in JS on `toggle`, kept on close so it doesn't jump
-    mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
+    room below (measured in JS on `toggle`, on resize and on scroll, against
+    the room between the pinned header and Total cells, D-087; kept on close
+    so it doesn't jump mid-fade); open trigger lights `--amber-bright`; white-glow shadow,
     eased on hover; outside-click dismiss. (NOT Esc: `<details>` has no Esc
     behaviour and no handler was ever written for one. Esc closes the whole
-    log dialog, which takes the panel with it — not the same thing.)
+    log dialog, which takes the panel with it – not the same thing.)
 * All three modal `<dialog>`s + backdrops fade in/out 250ms (`--dialog-fade`; `opacity` +
   `display`/`overlay` `allow-discrete` + `@starting-style`). Engines without
   `@starting-style`/`::details-content` just snap; `prefers-reduced-motion` off.
 * Themed scrollbars **globally**, split by `@supports selector(::-webkit-scrollbar)`
-  so each engine sees only its own props — since Chrome 121, Chromium ignores
+  so each engine sees only its own props – since Chrome 121, Chromium ignores
   `::-webkit-scrollbar` once `scrollbar-width`/`scrollbar-color` is set (and those
   inherit, so a `* {}` rule poisons every scroller). Firefox branch: `scrollbar-width:
-  thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` —
+  thin` + `scrollbar-color`. Chromium/Safari branch: `::-webkit-scrollbar-*` –
   `--line-strong` pill thumb (`background-clip: padding-box` + transparent border),
-  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-dialog`, track
-  `--bg-raised` page / transparent in the dialog. Chrome Fluent still widens the
-  thumb on hover — not CSS-controllable.
-* Reveal panel fade: the opacity animation + `@starting-style` live on the panel
-  (`.log-reveal ul/p`) — it's already `position:absolute`+`z-index` so a stable
+  `~#565462` hover / `--amber-deep` active, 12px page / 9px `.log-pane`, track
+  `--bg-raised` page / transparent in every scroller inside a rounded box (the
+  dialogs' forms, `.log-pane`, `.search-results__list`, the review box's
+  textarea), held off each end so the thumb stops 8px short (D-086).
+  Chrome Fluent still widens the thumb on hover – not CSS-controllable.
+* Reveal panel fade: The opacity animation + `@starting-style` live on the panel
+  (`.log-reveal ul/p`) – it's already `position:absolute`+`z-index` so a stable
   stacking context at any opacity. Animating opacity on `::details-content`
   instead made *that pseudo* a stacking context only while 0<opacity<1, trapping
-  the panel behind later rows mid-fade (and a `z-index` on `.log-reveal` — a
-  table-cell SC — didn't lift past later `<tr>`s at all). `::details-content` now
+  the panel behind later rows mid-fade (and a `z-index` on `.log-reveal` – a
+  table-cell SC – didn't lift past later `<tr>`s at all). `::details-content` now
   only transitions `content-visibility` (`allow-discrete`) to stay rendered
   through the close. The panel-opacity duration and the `::details-content`
   content-visibility duration are on different elements but MUST match (else the
-  panel is yanked mid-fade-out) — both read one custom prop, `--reveal-fade`
+  panel is yanked mid-fade-out) – both read one custom prop, `--reveal-fade`
   (250ms) on `.log-reveal`. That's the single knob for the fade speed.
-* **AI call log dialog — COMPLETE** (desktop table + mobile card view). One
+* **AI call log dialog – COMPLETE** (desktop table + mobile card view). One
   later fix (2026-09-07, during the ranked-list pass): an open reveal panel's
   flip side and caret were measured only on open, so resizing the window while
   one was open left both stale. The measurement is now re-run from the shared
   page resize pass, guarded on the dialog being open AND the panel being open.
-  Done as conservatively as possible — the measurement body was lifted into a
-  closure over its existing variables and is **byte-identical**, so the
-  open path is provably unchanged; nothing about the table's layout is touched.
+  Done as conservatively as possible – the measurement body was lifted into a
+  closure over its existing variables and was **byte-identical**, so the
+  open path was provably unchanged (the measurement has since narrowed its
+  room to the pinned rows, D-087); nothing about the table's layout is touched.
   The
   card-view pass touched only `styles.css`, three hunks, all strictly inside
-  `@media (max-width: 850px)` — the desktop table view is provably unchanged
+  `@media (max-width: 850px)` – the desktop table view is provably unchanged
   from the `main` merge before it (49738c2). Card fixes:
   - Leftover desktop column separator (`td:not(:last-child)` border-right,
-    specificity 0,2,1) was stacking into a faint vertical line down each card —
+    specificity 0,2,1) was stacking into a faint vertical line down each card –
     cleared at matching specificity, card-scoped.
   - Last card had no row separators: the desktop `tbody tr:last-child td` rule
-    (0,3,1 — kills the border so it doesn't double the table's closing rule)
+    (0,3,1 – kills the border so it doesn't double the table's closing rule)
     outranked the card rule. Restored at (0,4,1), card-scoped.
-  - Tokens label sat high (a float pins to the top of a two-line value) —
+  - Tokens label sat high (a float pins to the top of a two-line value) –
     `td:has(.sub)` switches to a 2-col grid, label spans both rows +
     `align-items: center`.
   - Reveal trigger wrapped below the label when the panel opened
     (`inline-block` shrink-wrapped wide). `.log-reveal` is now `display: block`
     in card view; summary stays on the label line, panel is a full-width block
-    with `clear: left`. Side effect: rec `<ul>` and verdict `<p>` are now the
+    with `clear: left`. Side effect: Rec `<ul>` and verdict `<p>` are now the
     same width in card view (desktop `12rem`/`16rem` untouched, outside the query).
 
 #### Taste verdict section
 
-**Taste verdict section — DONE** (2026-09-07). **Later changes are NOT
+**Taste verdict section – DONE** (2026-09-07). **Later changes are NOT
 described in this bullet.** In step 4b: the banner's ring gained a travelling
 glint (2026-09-12), that glint speeds up and brightens while a verdict
 generates, "New verdict" is now shown DISABLED when the feature is locked
 rather than hidden, and a new verdict types itself out (D-057). In step 2: a
 failure offers the AI call log only when a log row was written (R23), and the
-muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
+muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24). Since
+then: The banner keeps a run's message when the list changes mid-request
+(2026-09-30, the R1 note), a rule beside the real verdict grows as it types
+and "New verdict"'s hover fill is 0.3 (both 2026-10-14, that day's entry).
 - "New verdict" gets the same busy state as "Get recommendations": disabled,
   spinner + "Thinking…", `cursor: not-allowed`, hover suppressed via
-  `:hover:not(:disabled)`. Both buttons lock their width for the duration —
+  `:hover:not(:disabled)`. Both buttons lock their width for the duration –
   measured with `getBoundingClientRect()`, not a hardcoded `min-width`, so it
   follows the label and font. The whole dance lives in ONE `busyButton()`
   helper both handlers call, because the two buttons had already drifted
@@ -1558,16 +1857,16 @@ muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
   gets `--ink-soft` (#e8e5de, a half-step below `--ink`) + `0.1px` tracking
   via `.verdict__text:not(.is-muted)`. `is-muted` marks every placeholder and
   the error fallback; the initial "Reading the room…" now ships with it too.
-- Copy: "(probably unflattering)" → "a candid read" — the old parenthetical
+- Copy: "(probably unflattering)" → "a candid read" – the old parenthetical
   contradicted `taste_verdict_v4.md`, which says "never mean-spirited".
   **Then "a candid read" → "an AI-generated read" (2026-09-11, user-raised.)**
   Recorded as a chain rather than an overwrite, because the user asked the
   right question before requesting it: does this undo the earlier decision?
-  Checked — no. There is no `docs/DECISIONS.md` entry for it, only the line
+  Checked – no. There is no `docs/DECISIONS.md` entry for it, only the line
   above, and its reasoning is entirely about REMOVING the parenthetical for
   contradicting the prompt. Nothing weighed "candid" against alternatives, and
   "AI-generated" was never one of them. It also does not reintroduce the
-  contradiction it was chosen to end — it is neutral, so the original motive
+  contradiction it was chosen to end – it is neutral, so the original motive
   still holds. A different outcome, not a reversal.
   It is also the better label on its own terms: this line sits directly above
   machine-written text, and saying so is the same transparency the AI call log
@@ -1583,7 +1882,7 @@ muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
   own line as a whole unit when tight (it is `inline-block`, which cannot
   break internally). CSS has no "did this wrap" selector, so
   `syncMetaSeparator()` compares the separator's and link's box tops and
-  hides the "·" with **`visibility`, never `display`** — `display: none`
+  hides the "·" with **`visibility`, never `display`** – `display: none`
   changes layout, so the link would then fit, so the "·" would come back, so
   it would wrap again… an infinite oscillation. Re-run on window resize via
   one page-level listener (a ResizeObserver per footer would leak, since
@@ -1596,18 +1895,18 @@ muted placeholder text moved from `--ink-faint` to `--ink-dim` (R24).
 
 #### Search section
 
-**Search section — overhauled 2026-09-07, then REOPENED and worked again on
+**Search section – overhauled 2026-09-07, then REOPENED and worked again on
 2026-09-08/09**, so it was not a closed section for that stretch. The
 2026-09-07 pass below is
 behaviour first, then chrome. The 2026-09-08/09 round was narrow-viewport work
 and is recorded in this section's bullets below, from the Add button's
-`flex-shrink: 0` onward; it came out of the same whole-app sweep as the
+`flex-shrink: 0` onwards; it came out of the same whole-app sweep as the
 ranked-list work: the Add button breaking in two, the input refusing to
 yield, the `TMDB 7.0` line splitting, the panel's fixed height, titles breaking
-mid-word, and a grid layout at 500px and below that never took effect and was
+mid-word and a grid layout at 500px and below that never took effect and was
 removed (D-083). **Step 5, the portrait
 overhaul at 500px and below, landed here again on 2026-09-12 and is now
-CLOSED** — it gave the results panel a height FLOOR
+CLOSED** – it gave the results panel a height FLOOR
 (`max(240px, min(340px, 50vh))`) in place of what had become a second ceiling,
 and soft-hyphenated row titles at 400px and below (D-060/D-061). Nothing
 further is scheduled for this section.
@@ -1615,7 +1914,7 @@ further is scheduled for this section.
   guarded early return; `.result-row`'s `cursor: pointer`, which promised a
   click the row never had; open results going stale after an add (one
   `setAddButtonState()` now renders the states and a sync pass re-applies it
-  from `loadMovies()`, so removals re-open the offer too — that pass was
+  from `loadMovies()`, so removals re-open the offer too – that pass was
   `syncSearchResultButtons()` when this was written and is now the document-wide
   `syncAddButtons()`, see R3); Search + Add gaining the shared `busyButton()` treatment; the
   last PRESENTATIONAL inline `element.style` writes in app.js replaced by `searchNote()` +
@@ -1625,19 +1924,19 @@ further is scheduled for this section.
   and close-on-add were both built and then removed: `.search-results` is in
   normal flow and obscures nothing, so there is nothing to get out of the way
   of, and every auto-dismissal cost a TMDB round-trip to undo. Close-on-add
-  was also self-defeating — it ran in the same tick as the "✓ Added" settle,
+  was also self-defeating – it ran in the same tick as the "✓ Added" settle,
   so that state could never be painted, and it left no rows for the sync to
   update. Escape closes it; a new search replaces it.
 - Add button states: `+ Add` → `⟳ Adding…` → `✓ Added`, or `In your list` for
   something already owned. **"✓ Added" is sticky (D-026)** via
-  `dataset.justAdded` — saving a rating used to run `loadMovies()` again and
+  `dataset.justAdded` – saving a rating used to run `loadMovies()` again and
   quietly reset it, while skipping did not. All three states are `disabled`,
   so one `:disabled` rule covers them.
-- **Icons: inline SVG or plain characters, never emoji (D-027).** The `+` is
+- **Icons: Inline SVG or plain characters, never emoji (D-027).** The `+` is
   U+002B (inherits `currentColor`, so it follows hover and the disabled dim);
   the magnifier at 500px and below is an inline SVG, because `⌕` (U+2315) sits
   outside the Inter subset the page downloads and would render as tofu. Its
-  orientation is deliberate and is NOT the emoji's — see D-027, do not flip.
+  orientation is deliberate and is NOT the emoji's – see D-027, do not flip.
   `.search button` is `flex-shrink: 0`; a flex item's automatic minimum size
   is unreliable on a `<button>`, and shrinking is what clipped the label.
 
@@ -1646,7 +1945,7 @@ further is scheduled for this section.
   reproducible on a narrowed desktop window). `.result-row .add-btn` could
   shrink below its content, so a row with a LONG TITLE squeezed the button
   instead and "+ Add" broke at its space into two lines. It looks like a width
-  bug and is not — it depends on the neighbouring title's length, which is why
+  bug and is not – it depends on the neighbouring title's length, which is why
   narrowing the window spoils more rows one at a time rather than all at once,
   and why almost every button breaks on a phone, where almost every title
   wraps. Now `flex-shrink: 0` (the button keeps its content width; `.meta`
@@ -1660,24 +1959,24 @@ further is scheduled for this section.
   phone): the Search button was clipped clean off the right edge at 311px.
   `flex: 1` is not enough on an `<input>`, because a flex item's automatic
   minimum size resolves to min-content and an input's min-content is its
-  INTRINSIC size — roughly the 20 characters of its default `size` attribute,
-  not its text. So the input refused to shrink, the row overflowed, and the
+  INTRINSIC size – roughly the 20 characters of its default `size` attribute,
+  not its text. So the input refused to shrink, the row overflowed and the
   button (correctly `flex-shrink: 0`) was pushed out of view. **One
-  root cause behind several bugs:** this, the add button and the ranked
+  root cause behind several bugs:** This, the add button and the ranked
   card's blown-out `1fr` track (D-045), for example, are all the automatic minimum size of a
   flex or grid item. When something will not shrink, look there first.
 
   **Two sweep findings were examined and DELIBERATELY NOT FIXED.** They were
   settled in conversation, so they are written here or a later session will
-  rediscover them, "fix" them, and undo a decision:
+  rediscover them, "fix" them and undo a decision:
   * **The Add button changes width across its four states** (63 / 96 / 79 /
     88px, measured under D-079's type scale). Since it is `flex-shrink: 0`, the growth during
     `⟳ Adding…` comes out of `.meta`, which can re-wrap the title mid-request.
     Real, but transient (200–500ms), needs a title whose wrap point falls in
     that window, and the user could not reproduce it. **Do not "fix" it by
-    reserving the widest label's width** — that costs every row width all the
-    time to remove a flicker nobody can see, and it makes the crushed-title
-    problem worse.
+    reserving the widest label's width** – that costs every row width all the
+    time to remove a flicker nobody has managed to see, and it makes the
+    crushed-title problem worse.
   * **`.search button .busy-label { display: none }` is scoped to the search
     form only**, so the Add button keeps its full "Adding…" label at every
     width. Cosmetic asymmetry, not a defect: its only consequence was the item
@@ -1686,7 +1985,7 @@ further is scheduled for this section.
     since the ranked list's Remove button also goes spinner-only. Left alone.
 
   **The row's `year · TMDB score` line no longer breaks mid-value.** It is one
-  text node, so the browser could break at ANY space in it — including the one
+  text node, so the browser could break at ANY space in it – including the one
   inside "TMDB 7.0", stranding "7.0" on its own line below "2013 · TMDB" at
   ~340px and under. A NON-BREAKING space now glues the label to its number,
   written as a `u00A0` ESCAPE (backslash-u) rather than a literal character,
@@ -1694,17 +1993,17 @@ further is scheduled for this section.
   around " · " is deliberately left, so a narrow row wraps as "2013 ·" / "TMDB
   7.0". **Provably invisible at any width that is not already breaking
   there:** U+00A0 renders identically to U+0020 and only removes a break
-  OPPORTUNITY. The ranked card needs no equivalent — `.score-tmdb` is
+  OPPORTUNITY. The ranked card needs no equivalent – `.score-tmdb` is
   `white-space: nowrap`, which forbids the break outright.
 
   **And the row now STACKS rather than crushing its title column.** At 283px
   the middle column was down to ~29px and a title fragmented into "Pap / a /
-  Oba / ma" — `overflow-wrap: anywhere` doing its last-resort job in a column
+  Oba / ma" – `overflow-wrap: anywhere` doing its last-resort job in a column
   that should never have been that narrow. `.result-row` is `flex-wrap: wrap`
   and `.meta` is `flex: 1 1 5rem`, so below a threshold the button drops to
   its own line and the title gets the full row.
 
-  **No media query and no number encodes the threshold** — flex line breaking
+  **No media query and no number encodes the threshold** – flex line breaking
   compares hypothetical sizes, so the browser derives it from the button's
   REAL width, and it self-adjusts per row. **Thresholds MEASURED, not
   estimated** (the user first ran the button widths in the console;
@@ -1712,7 +2011,7 @@ further is scheduled for this section.
   overlay scrollbars: 63 / 96 / 79 / 88px). The button drops to its own line
   at "+ Add" 271px, "✓ Added" 287px, "In your list" 296px and mid-add 304px,
   each and narrower. Without the wrap the title column would fall under its
-  5rem basis, about 74px — the crushed state this prevents. Do not estimate
+  5rem basis, about 74px – the crushed state this prevents. Do not estimate
   these widths: an estimate once put "In your list" at 111px when it measured
   95px, before D-079's type scale (it is 88px now). Common widths
   (360/390/412px) are untouched.
@@ -1745,13 +2044,13 @@ further is scheduled for this section.
   drops `.result-row .meta strong` to 0.9rem, where that word measures 119px
   and fits whole and the column holds about 17 average characters, which
   covers every typical word length in real film titles. **A hard cutoff,
-  not a `clamp()`** — a fluid size would have to start shrinking hundreds of
+  not a `clamp()`** – a fluid size would have to start shrinking hundreds of
   pixels earlier to reach 0.9rem by 300px and would visibly touch the wide
   views; 301px and up is provably unchanged.
 
   `.result-row`'s `gap` was also split into `column-gap` / `row-gap`. The row
   gap applies ONLY once the row has wrapped, and at 0.9rem it left the stacked
-  button floating clear of its film — the "sloppy" the user reported. Now
+  button floating clear of its film – the "sloppy" the user reported. Now
   0.4rem; an unwrapped row has no second line, so nothing there can move.
 
   **The `5rem` basis is load-bearing, not decoration.** Without it `.meta`
@@ -1763,19 +2062,19 @@ further is scheduled for this section.
   ends at the right edge.
 
   **The results panel's height cap is viewport-aware** (sweep finding E). It
-  was a bare `max-height: 340px` — the app's only fixed-pixel height cap,
+  was a bare `max-height: 340px` – the app's only fixed-pixel height cap,
   while the AI log dialog already used `88vh`. On a short viewport (a phone in
   landscape, a small desktop window) 340px is most of the screen, so the panel
   buried the page.
 
-  **SUPERSEDED ON 2026-09-12 — the figures in the rest of this paragraph are
+  **SUPERSEDED ON 2026-09-12 – the figures in the rest of this paragraph are
   the 2026-09-09 state and are NOT the live rule.** That first fix was
   `min(340px, 60svh)` over a `60vh` fallback line, and it OVER-CORRECTED: a
   flat percentage of a genuinely short viewport (a phone in landscape can
-  report ~240px of height) crushed the panel to about one row — the same
+  report ~240px of height) crushed the panel to about one row – the same
   "radically short" look it was meant to fix. Step 5 replaced the second
   ceiling with a FLOOR. **Live rule: `max(240px, min(340px, 50vh))`, with the
-  `50svh` line below it as the override** — so below ~480px of viewport height
+  `50svh` line below it as the override** – so below ~480px of viewport height
   the panel holds at 240px and is allowed to exceed the viewport, between
   ~480px and ~680px it eases from 340 down to 240, and above ~680px it is the
   original 340px ceiling untouched. The `styles.css` rule carries the full
@@ -1789,12 +2088,12 @@ further is scheduled for this section.
 
   **Two more one-line guards from the same sweep** (findings 7 and 8). The
   rate dialog's heading shows a film title exactly as the confirm dialog's
-  does, but only the confirm dialog carried `overflow-wrap: anywhere` — the
+  does, but only the confirm dialog carried `overflow-wrap: anywhere` – the
   reasoning had been written down once and applied to one of the two. The
   declaration is now on the SHARED `.rate-dialog h3, .confirm-dialog h3` rule
   and removed from the confirm-only block, rather than duplicated: the same
   property in two rules is the shape that later gets changed in one of them.
-  Identical for the confirm dialog — both rules are (0,1,1) and nothing
+  Identical for the confirm dialog – both rules are (0,1,1) and nothing
   competes, so the value just arrives from the shared rule instead. The toast
   got the same guard: `max-width: 90vw` caps the BOX, so an unbreakable word
   did not wrap, it spilled out of the rounded panel.
@@ -1805,19 +2104,19 @@ further is scheduled for this section.
   near that. The only cases either can affect are ones already rendering
   broken.
 - Browser's native `type="search"` clear × hidden (D-025): styling it would
-  still leave Firefox (which draws none) different, and it only half-worked —
+  still leave Firefox (which draws none) different, and it only half-worked –
   it cleared the input but left the results panel populated.
 - **Graceful degradation, all four paths hand-tested:** TMDB down on search,
-  TMDB down on add, CineRank itself unreachable, and the *non*-error empty
+  TMDB down on add, CineRank itself unreachable and the *non*-error empty
   state. `api()` now catches the network-level fetch rejection so the
   browser's own engine-specific wording ("Failed to fetch") never reaches the
   UI, while an HTTP error response still surfaces the server's user-facing
-  message. "No matches" moved from `makeError` to the muted `searchNote` — an
+  message. "No matches" moved from `makeError` to the muted `searchNote` – an
   empty result set is not a failure and should not be crimson.
 - `.search button:disabled` no longer relies on opacity. It was believed at the
-  time to be the only FILLED button — **that was never true, and R13 is where it
+  time to be the only FILLED button – **that was never true, and R13 is where it
   was corrected**: THREE amber-filled buttons can be disabled (this one,
-  `.rate-dialog button.primary`, and the rec card's), audited against every
+  `.rate-dialog button.primary` and the rec card's), audited against every
   `disabled =` assignment in `app.js`. The mechanism:
   amber at 55% still composites to an unmistakably amber ~#8c6f39, so
   it read as active for the whole second it said "Searching…". The fill now
@@ -1825,7 +2124,7 @@ further is scheduled for this section.
   opacity, where it works.
 - **Submitting a search closes a phone's soft keyboard** (2026-09-09, step 1
   of the agreed order). It stayed up over the results because the handler
-  `preventDefault()`s — the form never navigates — and nothing in the app ever
+  `preventDefault()`s – the form never navigates – and nothing in the app ever
   called `.blur()`. `dismissSoftKeyboard()` now does, from the submit handler,
   **after the empty-query early return** so that path's deliberate
   `el.searchInput.focus()` still runs. Gated on `matchMedia('(hover: none)')`:
@@ -1833,24 +2132,27 @@ further is scheduled for this section.
   pointer device would close no keyboard and would cost the caret plus the tab
   order (focus lands on `<body>`, so the next Tab restarts from the top of the
   document), so desktop is provably unchanged. The case it fixes is the
-  keyboard's own Go/Search key, which submits without moving focus — tapping
-  the Search button already blurred the input by itself.
+  keyboard's own Go/Search key, which submits without moving focus – tapping
+  the Search button already blurred the input by itself. *(Since 2026-10-24
+  (D-090) it blurs unless `(hover: hover) and (pointer: fine)` matches:
+  Samsung Internet reports `hover: hover` on a touchscreen, so the old gate
+  never blurred there and the keypad stayed up.)*
 
 #### Ranked list
 
-**Ranked list — all 20 backlog items DONE** (2026-09-08), and the section
+**Ranked list – all 20 backlog items DONE** (2026-09-08), and the section
 stayed open past that date: the user went on raising off-backlog refinements
 and bugs found by using it ("a few more things to settle before calling the
 whole ranked-list overhaul a wrap"), which is why the bullets below run well
 past the twenty. **It closed with the rest of the front-end overhaul on
-2026-09-12** — the status paragraph under that heading is the current state,
+2026-09-12** – the status paragraph under that heading is the current state,
 and the empty backlog is no longer the only thing saying so.
 Claude's audit produced items 1–17 and the user
 added 18–20; **all 20 are done** and the canonical table with every
 status is further down this section. What landed:
 - Only a rated film earns a rank number; unrated cards show a faint question
   mark (`?`), and the #1 crown moved off `:first-child` onto a class (D-029).
-- Poster no longer overflows its column at 620px and below — the width was declared
+- Poster no longer overflows its column at 620px and below – the width was declared
   twice, now one `--poster-w` the grid track and the image both read.
 - Card buttons stay bottom-right on unrated cards in card mode
   (`space-between` puts a *lone* child at the start; an auto margin does not).
@@ -1861,12 +2163,12 @@ status is further down this section. What landed:
   `view-transition-name`s so they slide rather than ghost when the list
   shortens; the `sync*()` calls run BEFORE the transition so nothing outside
   the list differs between snapshots.
-- Off-list, found while testing: custom scrollbars ballooned under browser
-  zoom (now `clamp()` with a `vw` guard — no CSS unit is zoom-immune, but zoom
+- Off-list, found while testing: Custom scrollbars ballooned under browser
+  zoom (now `clamp()` with a `vw` guard – no CSS unit is zoom-immune, but zoom
   shrinks the viewport proportionally so `vw` holds a constant physical size).
 - Review "show more" toggles are re-measured on resize (and on zoom, and
   after a late webfont swap), not once per render. They used to go stale in
-  both directions — narrowing clipped a review whose toggle stayed hidden, so
+  both directions – narrowing clipped a review whose toggle stayed hidden, so
   the text became unreachable. `hidden` is now assigned both ways. The pass
   measures the CLAMPED state always, collapsing/reading/restoring in one
   frame: a first attempt skipped expanded reviews (they are
@@ -1878,12 +2180,12 @@ status is further down this section. What landed:
   `method="dialog"`, so submitting used to close it *before* the PATCH ran:
   the write went out invisibly and a failure produced an error toast about a
   dialog that was already gone, with the typed review destroyed and no way to
-  retry. Save now `preventDefault()`s, shows the shared `busyButton()` state,
+  retry. Save now `preventDefault()`s, shows the shared `busyButton()` state
   and closes only once the write has succeeded; on failure the dialog stays
   open with the rating and review exactly as typed. Cancel is disabled for the
   duration (Esc still works).
 
-  Remove gained a busy state too — spinner only, no label, since
+  Remove gained a busy state too – spinner only, no label, since
   `busyButton()` locks the width as a min-width and "Removing…" would grow the
   button and shove its neighbour. Both also gained the `:disabled` styling
   they never had: opacity for the outline buttons, a fill swap out of the
@@ -1892,37 +2194,37 @@ status is further down this section. What landed:
 
   The failure is reported **inline in the dialog**, not by the toast (D-032):
   a modal `<dialog>` is in the top layer, so no `z-index` can lift a toast
-  above it and the `::backdrop` dims it anyway — and inline is what search,
+  above it and the `::backdrop` dims it anyway – and inline is what search,
   the verdict and recs already do.
 - **Poster placeholder is an inline SVG film strip**, not the 🎬 emoji it
   replaced (D-027: an emoji ignores `color`, carries its own baseline metrics
   and looks different on every platform). Cloned from a `<template>` in
-  `index.html` so it reads as markup and avoids `createElementNS` — note
+  `index.html` so it reads as markup and avoids `createElementNS` – note
   `document.createElement('svg')` does NOT make a real SVG element. Centred
   with `inset: 0; margin: auto`, deliberately not `top/left: 50%`: a
   percentage `top` resolves against the parent's HEIGHT, and
   `.rec-card .noposter` gets its height from `aspect-ratio`, where that is not
   reliable. Also `display: grid` on `.noposter` would have lost to
-  `.rec-card .noposter { display: block }` at higher specificity — positioning
+  `.rec-card .noposter { display: block }` at higher specificity – positioning
   sidesteps both problems. Size is now proportional (`40%`, capped) instead of
   a flat `1.4rem` that was identical in a 46px search row and a ~190px rec
-  card. **No emoji remain in rendered output anywhere** — the only ones left in
+  card. **No emoji remain in rendered output anywhere** – the only ones left in
   the source are inside comments explaining why they were rejected. *(Meaning
   the app's own interface and `public/`: user text can still carry emoji, and
   two seed reviews and the layout-check fixtures do.)*
 
 - **The unrated line is a chip, not crimson prose** (D-033). `Not rated yet`
-  is now an amber pill borrowing `.rec-card::before`'s exact vocabulary — that
+  is now an amber pill borrowing `.rec-card::before`'s exact vocabulary – that
   marker already reads 'AI pick · not yet rated', so the two sides of the list
-  describe the same state the same way — with the instruction beside it in
+  describe the same state the same way – with the instruction beside it in
   `--ink-dim`, wrapping below on a narrow card. Crimson is the error colour and
   nothing has failed; but the obvious correction, muting it the way 'No matches'
   was muted in Search, would have left it identical to a review in colour,
   weight AND position. Shape carries the distinction so colour needn't shout.
-  The rank slot's `?` stays faint on purpose (D-029) — one marker, in the body,
+  The rank slot's `?` stays faint on purpose (D-029) – one marker, in the body,
   beside the button that resolves it.
 
-- **Remove is confirmed by the app's own dialog, not `window.confirm()`** —
+- **Remove is confirmed by the app's own dialog, not `window.confirm()`** –
   the last piece of native browser chrome in the UI, and the one modal that
   ignored the whole design language. The new `.confirm-dialog` shares the rate
   dialog's shell, backdrop, fade, Fraunces heading and button row by being
@@ -1932,17 +2234,17 @@ status is further down this section. What landed:
   two cannot drift. Only the crimson `.danger` fill, the tighter heading and
   the consequence line are its own.
 
-  Copy names what is actually lost — built from the film's real state, so it
-  never promises to delete a review that was never written — and says the
+  Copy names what is actually lost – built from the film's real state, so it
+  never promises to delete a review that was never written – and says the
   deletion cannot be undone, which after Incident 1 is literal: the free tier
   has no point-in-time recovery. `role="alertdialog"` + `aria-describedby` so
   the consequence is announced, `autofocus` on Cancel so a stray Enter is the
   safe choice, and `returnValue` is reset before every open so "confirmed" is
-  reachable ONLY by clicking the button — engines disagree about what Escape
+  reachable ONLY by clicking the button – engines disagree about what Escape
   leaves behind.
 
   **None of the three dialogs light-dismisses, and that is on purpose.** A
-  native `<dialog>` does NOT close on a backdrop click — the behaviour has to
+  native `<dialog>` does NOT close on a backdrop click – the behaviour has to
   be added (a click handler comparing `event.target === dialog`, or the newer
   `closedby="any"`), and none of them has it. Cancel/Close and Esc are the
   only exits. Do not add it to one alone: for the rate dialog in particular, a
@@ -1950,19 +2252,19 @@ status is further down this section. What landed:
   existed to fix.
 
 - **Every confirmation toast names its film, in one shape** (2026-09-08,
-  user-raised, part of #16). `“Dune” added — rate it any time.` /
+  user-raised, part of #16). `“Dune” added – rate it any time.` /
   `“Dune” saved.` / `“Dune” removed.` Two of the three named no film at all,
-  and the three had three different shapes. `— ranking updated` is now CHECKED
+  and the three had three different shapes. `– ranking updated` is now CHECKED
   rather than assumed (D-034): a signature of the ranking as displayed is
   compared before and after the reload, and the clause appears only when it
   really differs. It was briefly deleted outright; the user pushed back
-  correctly — every save DOES recompute the ranking, so the claim was never
-  false — and the surviving objection was only that it reads as a claim about
+  correctly – every save DOES recompute the ranking, so the claim was never
+  false – and the surviving objection was only that it reads as a claim about
   the outcome.
 
   **The signature is now id + displayed RANK + tie state, computed by the one
   `displayedRanking()` the renderer itself uses (D-039).** It was id + rated,
-  which missed four cases — including the reported one: break a tie for first
+  which missed four cases – including the reported one: break a tie for first
   place by lowering the film already drawn second and nothing moves, yet it
   goes from `1 tied` to `2`. The fix was deleting the second copy of the
   ranking rule, not writing a cleverer fingerprint: an approximation of a rule
@@ -1972,13 +2274,13 @@ status is further down this section. What landed:
   and prefixing it client-side would produce doublings like `Couldn’t remove
   “Dune” — Couldn’t reach CineRank…`. Still listed under #16.
   *(Both were fixed later the same day as #16(c), by giving each cause a
-  `short` form so the context prefix cannot double it — D-042, and the
+  `short` form so the context prefix cannot double it – D-042, and the
   "failure message is a context plus a cause" bullet below.)*
 
 - **One focus ring for the whole app, and the dialog buttons finally react**
   (#10). A bare `:focus-visible { outline: 2px solid var(--amber);
   outline-offset: 3px }` replaces the two identical per-control rules that
-  were the only designed focus styling in the file — everything else fell back
+  were the only designed focus styling in the file – everything else fell back
   to the browser's own ring, which IS drawn but is engine-coloured, so the app
   showed two different focus indicators depending on what you tabbed to. Bare,
   not a selector list, so anything focusable added later is covered without
@@ -1987,7 +2289,7 @@ status is further down this section. What landed:
   `.search input:focus` sets `outline: none` at higher specificity and keeps
   its amber border instead.
 
-  Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states —
+  Rate/Confirm buttons (Cancel, Save, Remove) gained hover + press states –
   they were the only controls in the app that did not react at all. Existing
   vocabulary, not new: outline buttons go amber (as `.log-dialog .ghost`
   already did), filled buttons darken their fill.
@@ -1995,11 +2297,11 @@ status is further down this section. What landed:
   **Remove's colours were then re-derived by measurement, not eye (D-035).**
   Its label failed WCAG AA on hover (3.59:1) and its rest→hover step read as
   too subtle. A DARK label imposes a floor on how dark a fill may go, and
-  `--crimson` sat barely above it — so "darker on hover" and "readable label"
+  `--crimson` sat barely above it – so "darker on hover" and "readable label"
   were in direct conflict, and five candidate labels were measured with none
   passing both states. The fills had to move: `--danger-fill` /
   `--danger-fill-hover` (role-named, because `--crimson` is the error TEXT
-  colour and is too light to carry a label as a fill) with `--ink` on top —
+  colour and is too light to carry a label as a fill) with `--ink` on top –
   4.54:1 at rest, 6.71:1 on hover, step 0.683 → 0.572. Save keeps its dark
   `#1a1205` because amber is ~2.5x brighter and measures 11.18/7.66. The two
   buttons differ on purpose. `--crimson-deep` is retired.
@@ -2008,10 +2310,10 @@ status is further down this section. What landed:
   that can actually be disabled found a REAL pre-existing bug:
   `.rec-card__body button:hover` had no guard while carrying a `:disabled`
   rule, and the two set different properties (`background` vs `opacity`) at
-  equal specificity, so both applied — a dead `✓ Added` card still darkened
+  equal specificity, so both applied – a dead `✓ Added` card still darkened
   under the cursor. Now guarded. The only two unguarded hover rules left
   (`.log-cta__btn`, `.log-dialog .ghost`) are on buttons nothing ever disables
-  — verified against every `disabled =` assignment in app.js. *(Among the
+  – verified against every `disabled =` assignment in app.js. *(Among the
   buttons that carry a filled or outlined style; `.review-toggle` and
   `.log-link` are text buttons whose hover is unguarded too, and nothing
   disables either of them.)*
@@ -2019,7 +2321,7 @@ status is further down this section. What landed:
 - **Desktop card alignment** (2026-09-08, user-raised, off-backlog). The grid
   is `align-items: center`, so on >620px a short title floated in the middle
   of the 138px poster and the score column sat centred as one block. Now the
-  body is `align-self: start` (plus a `0.3rem` margin-top — flush to the very
+  body is `align-self: start` (plus a `0.3rem` margin-top – flush to the very
   top read as too tight; it is on the BODY ALONE so the rating stays pinned to
   the true top) and the score column is `align-self: stretch` with the rating
   at the top and the buttons pushed down by `margin-top: auto`. The rating
@@ -2034,21 +2336,21 @@ status is further down this section. What landed:
   **All four desktop-only properties are reset inside the existing 620px
   query**, so card mode is untouched; `align-self: stretch` needs no reset
   because the score moves to its own grid row there, sized by itself, where
-  stretch and center are the same box.
+  `stretch` and `center` are the same box.
 
   Top vs centred was settled by a side-by-side screenshot: centring made each
   title's distance from the card's top edge depend on its review length, so
-  the titles stopped forming a straight column to scan — which matters because
+  the titles stopped forming a straight column to scan – which matters because
   this is a ranked LIST. Top-aligning also pairs the title and the score on
   one header line. Its one weakness, a void under a review-less card, is what
   backlog **#20** fills, so #20 is now worth more, not less.
 
-  **An auto margin, NOT `justify-content: space-between`** — the same trap the
+  **An auto margin, NOT `justify-content: space-between`** – the same trap the
   620px block already documents in the other axis: an unrated card has no
   score badge, and space-between parks a LONE child at the START, which would
   put the buttons at the TOP. The rank numeral stays centred on purpose (a
   large display figure, balanced against the poster; not part of the request).
-  Card mode is untouched — both properties are reset inside the existing 620px
+  Card mode is untouched – both properties are reset inside the existing 620px
   query rather than fenced off behind a new `min-width`, which would leave a
   gap at fractional viewport widths.
 
@@ -2059,19 +2361,19 @@ status is further down this section. What landed:
   `rating_range`; the insert stores it; the ranked card shows it faintly under
   the amber figure as `TMDB 7.2`.
 
-  **A snapshot, not a live value** — written once at add time, never
+  **A snapshot, not a live value** – written once at add time, never
   refreshed. Refreshing would cost one TMDB call per film per page load, make
   the ranked list depend on TMDB being up (it renders fine when TMDB is down,
-  which RS-1 captures), and make the
+  which RS-1 captures) and make the
   comparison meaningless by drifting. Do not add a refresh; read D-036 first.
-  Shown on unrated cards too — it is labelled `TMDB`, so it cannot be misread
+  Shown on unrated cards too – it is labelled `TMDB`, so it cannot be misread
   as the user's own score. Rendered from `!= null`, never truthiness.
 
   **Follow-up the same day (D-037): TMDB's `vote_average: 0` means NO VOTES,
-  not a score of zero** — its vote scale starts at 0.5. `shapeMovie()` passed
+  not a score of zero** – its vote scale starts at 0.5. `shapeMovie()` passed
   it through, so an unvoted title stored a literal 0 and the card read "TMDB
   0.0". The search row hid it only because it used truthiness, so the two
-  surfaces disagreed about the same film — one right by accident, one wrong on
+  surfaces disagreed about the same film – one right by accident, one wrong on
   purpose. Fixed at the SOURCE (`vote_count` when present, `avg > 0` as a
   fallback) rather than by making a renderer test `> 0`, so "no rating" has
   one representation everywhere. Migration 003 nulls the rows already written.
@@ -2083,80 +2385,80 @@ status is further down this section. What landed:
   slot is indistinguishable from one that failed to load, and it would have
   been emptiest on exactly the obscure titles where a reader wonders most. The
   rating and this caption sit in one `.score-block` wrapper so the score
-  column still has exactly TWO children — the block and the buttons — which is
+  column still has exactly TWO children – the block and the buttons – which is
   what its `margin-top: auto` bottom-pinning depends on. *(#20 landed the same
-  day and does use it: `No review yet — edit to add one.`, muted italic, in
+  day and does use it: `No review yet – edit to add one.`, muted italic, in
   `.no-review`.)*
 
   On an UNRATED card the caption leads the block, and `:first-child` is the
-  test for that — the badge is appended before it whenever a rating exists. It
+  test for that – the badge is appended before it whenever a rating exists. It
   gets `0.45rem` there, far more than the badge's `0.06rem`, because the
   badge's tall 1.5rem line box already insets its own glyphs while a 0.72rem
   caption at line-height 1.3 starts flush against the card's top edge. Reset
   in card mode.
 
 - **Tied films share a rank number, and say so** (#13, D-038). Two films the
-  user scored 8.0 showed as #3 and #4, ordered by `created_at` descending —
+  user scored 8.0 showed as #3 and #4, ordered by `created_at` descending –
   i.e. by which was added more recently, **the direction that has since been
-  flipped to ascending, see the tie-break bullet below** — so the numbers
+  flipped to ascending, see the tie-break bullet below** – so the numbers
   asserted a ranking the data does not contain. Now **competition ranking**
   (1, 2, 2, 4; the skipped number is the point) plus a muted `tied` caption
   under the numeral, because two adjacent identical numbers otherwise read as
   a rendering fault.
 
   **Zero layout change, and that took the non-obvious route.** The caption
-  must not move the numeral — the cell is grid-centred, so a taller cell
+  must not move the numeral – the cell is grid-centred, so a taller cell
   shifts its numeral up while untied neighbours stay put.
   `position: relative` + an absolute caption was rejected: it moves the cell
   into the positioned paint layer, so the poster would paint UNDER an
   overflowing numeral instead of over it, reversing what the `.is-wide` note
-  describes. Instead `.movie-card__rank` gets `height: 1em` — which
-  `line-height: 1` already made true, so it is a **no-op on every card without
-  a caption** — and the caption overflows it. `em`, so it tracks the clamp and
+  describes. Instead `.movie-card__rank` gets `height: 1em` – which
+  `line-height: 1` already makes true, so it is a **no-op on every card without
+  a caption** – and the caption overflows it. `em`, so it tracks the clamp and
   both `.is-unranked` and `.is-wide`.
 
   Not `=2` in the numeral (the chart convention): that widens the glyph into
   the figure-width budget D-030 solved by measurement. A tie at the top crowns
-  BOTH films, which is correct — D-029 defines the crown as *your top-rated
+  BOTH films, which is correct – D-029 defines the crown as *your top-rated
   film*, and if two are scored the same then both are.
 
 - **An expanded review stays expanded across a re-render** (#14, D-040).
   `renderRanked()` rebuilds every card, so the `expanded` class died with the
   node it was on: expanding one review and then rating a DIFFERENT film
-  collapsed it. The expansion is now a `Set` of movie ids on `state`, seeded
+  collapsed it. The expansion is now a `Set` of film ids on `state`, seeded
   back into each rebuilt card.
 
   **The backlog row for #14 claimed only D-031's element-reuse rewrite could
-  fix this. That was wrong** — it filed a state-persistence problem beside the
+  fix this. That was wrong** – it filed a state-persistence problem beside the
   element-identity ones (animation churn, poster churn) that the rewrite was
   designed for. The rewrite stays rejected, and its original argument is now
   STRONGER: a missed field on a reused card yields a stale card that still
   looks right, and `renderRanked()` has since taken on the tie logic (D-038)
   and the TMDB score column (D-036/D-037), so there is more to get wrong.
 
-  **It adds no rule to item #5's machinery** — the trickiest code in this
+  **It adds no rule to item #5's machinery** – the trickiest code in this
   section, settled over four commits. `syncReviewToggles()` already collapses,
   measures and restores on a rAF after every render, so seeding the class at
   build time makes it treat a rebuilt card exactly as it treats a resize; its
   `it.clips && it.wasExpanded` rule then does the right thing unaided. The
-  three-pass measurement, the both-ways `hidden`, and the deliberate absence
+  three-pass measurement, the both-ways `hidden` and the deliberate absence
   of any line count in JS are byte-identical.
 
   **The `Set` is written by `setReviewExpanded()`, never by the click
-  handler** — that function is already the single writer for the class, the
+  handler** – that function is already the single writer for the class, the
   label and `aria-expanded`, and the `Set` is a fourth facet of the same fact.
   The click handler is NOT the only thing that changes the state: the resize
   pass collapses a review that no longer clips, and an unrecorded collapse
   would desync the DOM and the `Set` on the next render. Its first pass still
-  collapses with a bare `classList.remove()` on purpose — that one is a
+  collapses with a bare `classList.remove()` on purpose – that one is a
   measuring fixture, not a state change; do not route it through the writer.
 
 - **A rating-less review is now impossible, rather than invisible** (#15,
   D-041, migration 004). `renderRanked()` branches
   `if (!isRated) … else if (m.review)`, so an unrated film's review was never
-  drawn — the text sat in the table and no screen showed it. **Claude proposed
+  drawn – the text sat in the table and no screen showed it. **Claude proposed
   splitting the branch so both render; the user replaced that with the better
-  question** — the UI already refuses to create this state, so should the
+  question** – the UI already refuses to create this state, so should the
   state exist at all? The rating is the required part and the review the
   optional one, and that rule was written down nowhere except in the shape of
   the rate dialog. It now lives in the schema:
@@ -2166,14 +2468,14 @@ status is further down this section. What landed:
   RESULTING ROW, not the patch:** `PATCH {review}` alone is valid when the
   film is already rated, so the route would need an extra read to judge it,
   while Postgres already knows. The route's job is only to turn the resulting
-  `23514` into a 400 with a usable message instead of a generic 500 — matched
+  `23514` into a 400 with a usable message instead of a generic 500 – matched
   on the constraint NAME, since the table carries two range constraints as
   well.
 
-  Verified before shipping: the state was **unreachable from the UI** (POST
+  Verified before shipping: The state was **unreachable from the UI** (POST
   writes neither column; Save always sends a number from a range input), and a
   pre-check found zero existing rows to migrate. So #15 was latent, not live.
-  **The `else if` is now provably exhaustive — do not split it into two
+  **The `else if` is now provably exhaustive – do not split it into two
   independent `if`s**, which would add a branch for a state the schema
   forbids. One-directional on purpose: a rating with NO review stays valid,
   which is what #20 labels.
@@ -2183,20 +2485,20 @@ status is further down this section. What landed:
   when it had least to say, and made the reader subtract to reach the only
   actionable number. The `·` also joined a set to its own SUBSET, where every
   other use of that separator in the app joins peer facts. Now `5 films` when
-  everything is rated (silence IS the all-rated signal — the clause exists to
+  everything is rated (silence IS the all-rated signal – the clause exists to
   flag outstanding work, and unrated cards still carry their own chip),
   `5 films · 2 not rated yet` when some are, and `5 films · none rated yet`
   when none are. That last branch is not cosmetic: `5 not rated yet` would put
   both equal numbers back. It is also what settled the wording against the
-  shorter `2 unrated` — which reads better after a numeral, and the user asked
-  why not — because "unrated" would need a SECOND vocabulary for the
+  shorter `2 unrated` – which reads better after a numeral, and the user asked
+  why not – because "unrated" would need a SECOND vocabulary for the
   nothing-rated branch, and "yet" keeps the pending sense D-033 built the chip
   around. Built as `rankedCountLabel()` so the three branches are readable.
 
 - **A failure message is a context plus a cause** (#16(c), D-042). The add and
   remove toasts showed the cause ALONE, so a failed add or remove named no
-  film. Prefixing the context was known to double — "Couldn’t remove “Dune” —
-  Couldn’t reach CineRank. Check your connection…" — and **the user's hand
+  film. Prefixing the context was known to double – "Couldn’t remove “Dune” —
+  Couldn’t reach CineRank. Check your connection…" – and **the user's hand
   testing of ten failure scenarios showed the doubling was already live** at
   two sinks that do prefix (the boot toast and the AI log cell), not merely a
   risk of the proposed fix as Claude had claimed.
@@ -2204,7 +2506,7 @@ status is further down this section. What landed:
   Not unpredictable, though: there are exactly TWO kinds of message here and
   the client always knows which it has, because it either fabricated the cause
   (`api()`'s transport failure) or the server sent it. So a **`short` form is
-  attached at the source** and one `failureText(context, err)` prefers it —
+  attached at the source** and one `failureText(context, err)` prefers it –
   used by all four context-adding sinks so the rule cannot be applied four
   ways. Sinks that already sit inside their own context (search note, verdict
   banner, rate dialog) deliberately do NOT compose; the user tested all three
@@ -2214,51 +2516,51 @@ status is further down this section. What landed:
   ("as long as it does not make this change noticeably riskier"): a new
   `short` key beside `error`, and not one existing message edited. Nothing
   that reads `body.error` can observe a new sibling key. That rule also parked
-  a real finding — the server carries the same straight-apostrophe
+  a real finding – the server carries the same straight-apostrophe
   inconsistency, but a test asserts one of those messages verbatim, so the
   sweep would have broken a test for a cosmetic gain. It was parked at the
   time and then **closed the same day in its own commit** (`a124934`),
-  together with the one test assertion that quotes a message verbatim — which
+  together with the one test assertion that quotes a message verbatim – which
   is exactly why it needed a separate commit rather than being folded in here.
 
   `failureText()` also normalises the terminal full stop, since the causes
   disagree ("Already in your list" has none, "Something went wrong." does) and
   most are not ours to edit. Two incidental fixes came out of the same
   testing: the verdict fallback had **no full stop**, and "couldn’t" was
-  spelled three ways in app.js (curly, straight, and "Could not").
+  spelled three ways in app.js (curly, straight and "Could not").
 
 - **The first three ranked posters load eagerly** (#17). Every poster was
   `loading="lazy"`, which is right for #20 and wrong for the cards already on
   screen: the browser cannot decide "is this near the viewport" before layout,
   so an in-view poster is deferred for nothing. `posterNode()` now takes an
   opt-IN `{ eager }`, so the two callers that render only after a click
-  (search rows, rec cards) keep `lazy` untouched — neither is ever part of the
+  (search rows, rec cards) keep `lazy` untouched – neither is ever part of the
   first paint, which is the only place the distinction matters.
 
-  **Note about the size:** these images are built in JS after `/api/movies`
+  **Note about the size:** These images are built in JS after `/api/movies`
   returns, so the preload scanner was never going to see them either way. The
   win is a layout pass on the first few cards, not a dramatic one; it is worth
   having because the poster is the design's primary visual anchor and the top
   of the list is what a reader looks at first. **`EAGER_POSTERS = 3` is a
-  judgement call, not a measurement** — three is a reasonable guess at a
+  judgement call, not a measurement** – three is a reasonable guess at a
   desktop fold, and where fewer are in view the cost is a request or two made
   early. Do not "improve" it by
   measuring the real fold: that reads layout during the render, which is
   exactly what `syncReviewToggles()`'s three batched passes exist to avoid.
 
 - **The review toggle uses one verb in both directions** (#18, user-raised).
-  It read `view more…` / `show less` — two verbs for one control, and an
-  ellipsis on only one half. **Not a considered pairing:** both strings landed
+  It read `view more…` / `show less` – two verbs for one control, and an
+  ellipsis on only one half. **Not a considered pairing:** Both strings landed
   together in `93bd6d3`, whose message only narrates them, and no decision
   entry ever discussed the wording. Now `show more` / `show less`.
 
   **The ellipsis is dropped rather than balanced, for a checkable reason:**
   `.review` is a `-webkit-box` with `-webkit-line-clamp`, so the browser
-  already ends the clipped line in "…" — the label repeated it one line below.
+  already ends the clipped line in "…" – the label repeated it one line below.
   `show` and not `view`, even though the AI log's reveal summary says
   `view verdict`: consistency WITHIN one control beats matching a different
   surface, and "view less" is the weaker half of that pair. No accessibility
-  consequence — the toggle carries `aria-expanded`, so the state is announced
+  consequence – the toggle carries `aria-expanded`, so the state is announced
   independently of the label.
 
   Past-tense mentions of `view more…` in `syncReviewToggles()`'s JSDoc and in
@@ -2266,76 +2568,76 @@ status is further down this section. What landed:
   bugs happened, and rewriting them would be maintaining history rather than
   preserving it.
 
-- **Grow-on-hover — and the bug it uncovered** (#19, user-raised, D-043). The
+- **Grow-on-hover – and the bug it uncovered** (#19, user-raised, D-043). The
   user asked for something more pronounced, saying the old effect was "too
   subtle - I can only notice it on the poster". That was literally true twice
-  over. The card never scaled at all (only `translateY(-3px)`) — **and even
+  over. The card never scaled at all (only `translateY(-3px)`) – **and even
   that lift did nothing on a freshly loaded page.** `.movie-card.is-entering`
   used `animation: … both`, the class is added on first paint and NEVER
-  removed, and a forwards-filling animation keeps applying its last keyframe —
+  removed, and a forwards-filling animation keeps applying its last keyframe –
   which **outranks normal author declarations in the cascade.** `fade-slide`
   ends at `transform: none`, so every first-paint card was pinned there for
   the life of the page, silently beating `:hover`. It worked again after any
-  add/rate/remove, because those rebuild cards without the class — which is
+  add/rate/remove, because those rebuild cards without the class – which is
   what made it read as *subtle* rather than *broken*.
 
   Fixed with `both` → `backwards`, not by removing the class in JS:
   `backwards` keeps the half that is needed (holding the from-state through
   the stagger delay) and drops the half that caused it, with no listener to
   leak and no failure mode when the animation never runs. Provably no visual
-  change at rest — the final keyframe already equals the card's resting state.
+  change at rest – the final keyframe already equals the card's resting state.
   `.rec-card` carried the same `both` and was fixed with it; nothing was
   visibly broken there, but adding a hover transform later would have silently
   done nothing.
 
   The second half was that **`box-shadow` was neither transitioned nor changed
-  on hover**, so the card rose against a static shadow — a lift with no
+  on hover**, so the card rose against a static shadow – a lift with no
   elevation cue. Now it deepens, and the user chose the option that adds a
   faint amber rim.
 
   **The lift itself was then removed, same day, on the user's report.** A
   `translateY(-5px)` is directional: it shrank the gap ABOVE the card by 5px
-  and opened the one below, so a hovered card drifted toward its upper
-  neighbour — measured at 10px above vs 20px below, a 2:1 split the user
+  and opened the one below, so a hovered card drifted towards its upper
+  neighbour – measured at 10px above vs 20px below, a 2:1 split the user
   spotted straight away. In a vertical list of identical siblings that
   asymmetry is the most visible thing about the effect. The card now scales
   only (`scale(1.02)`, raised from 1.012 to keep it pronounced), which grows
   from the centre and narrows both gaps by the same amount. Elevation is
-  still expressed, by the shadow alone — rebuilt below as a glow of light with
-  a zero Y-offset. **A lift cannot be made symmetric** — that is what
-  `translateY` means — so do not restore one without re-reading this.
+  still expressed, by the shadow alone – rebuilt below as a glow of light with
+  a zero Y-offset. **A lift cannot be made symmetric** – that is what
+  `translateY` means – so do not restore one without re-reading this.
 
   **Then the shadow was rebuilt out of light, not black** (D-044, user-raised:
   "barely visible against the dark background"). It led with a black drop
-  shadow, and the page is `--bg: #0b0b0f` — a black shadow darkens what is
+  shadow, and the page is `--bg: #0b0b0f` – a black shadow darkens what is
   behind it, and there was nothing left to darken, so that layer did almost no
   work at any opacity. It is REMOVED rather than reduced, and the amber
   carries the effect: a lit edge, an inner glow and a wide halo.
 
   **All three layers have a zero Y-offset, and that is a rule.** The middle
-  one shipped as `0 16px …` — a downward "pool", the drop-shadow idiom — and
+  one shipped as `0 16px …` – a downward "pool", the drop-shadow idiom – and
   the user spotted within minutes that the glow was far bigger below the card
   than above it. A shadow is CAST and pools away from the light; a glow is
   EMITTED and radiates evenly, so any offset only makes it lopsided. That was
   the **second** time in this one item that a drop-shadow habit produced an
-  asymmetry a glow should not have — the `translateY` lift was the first. Do
+  asymmetry a glow should not have – the `translateY` lift was the first. Do
   not give these layers a Y-offset.
 
-  **Spotlight (user-raised, same item): hovering one card dims every other**
+  **Spotlight (user-raised, same item): Hovering one card dims every other**
   (`opacity: 0.55`), so the list recedes and only the card under the pointer
   is at full strength. Two things make it work and neither is obvious.
-  **`:has()`, not `.ranked__list:hover .movie-card:not(:hover)`** — the list
+  **`:has()`, not `.ranked__list:hover .movie-card:not(:hover)`** – the list
   has a 1rem `gap` that belongs to the list but to no card, so the shorter
   form dims EVERYTHING while the pointer crosses a gap, and sliding down the
   list would strobe. **And `z-index: 1` on the hovered card is required, not
   decoration:** `opacity < 1` creates a stacking context, promoting every
   dimmed sibling into the same paint step as the transformed hovered card,
-  where DOM order decides — so the card below would paint over the hovered
+  where DOM order decides – so the card below would paint over the hovered
   card's glow and clip it. Grid items take `z-index` with no `position`.
 
   It also **only works because D-043 changed the entrance fill to
   `backwards`**: `fade-slide` ends at `opacity: 1`, and a forwards fill would
-  have pinned every first-paint card there and silently refused to dim — the
+  have pinned every first-paint card there and silently refused to dim – the
   same bug as the hover transform, one property over.
 
   **This supersedes D-043's own trap**, which said to hold the amber at
@@ -2343,20 +2645,23 @@ status is further down this section. What landed:
   literally, that is what made the effect invisible. What actually separates
   them is SHAPE: `:focus-visible` is a crisp, fully opaque 2px solid outline
   held 3px off the element, while the hover glow is translucent, diffuse and
-  attached to the edge. Those differ at any brightness. The revised rule: the
+  attached to the edge. Those differ at any brightness. The revised rule: The
   glow may be as bright as it likes, but must never become a hard-edged opaque
-  amber line at an offset — that, not brightness, is where the two converge.
+  amber line at an offset – that, not brightness, is where the two converge.
 
   Older note, still true of the OTHER amber uses: it must not be confusable
   with the `:focus-visible` ring, which is the same colour but a crisp 2px
   solid. Hover rules are gated on `@media (hover: hover)` (NOT a width query)
   so a tap on a phone cannot park a card in the grown state, and
   `prefers-reduced-motion` now drops the transform while keeping the colour
-  response.
+  response. *(Since 2026-10-24 (D-090) every hover gate is
+  `(hover: hover) and (pointer: fine)`: Samsung Internet reports
+  `hover: hover` on a touchscreen, so a tap there parked the card grown and
+  the spotlight on.)*
 
 - **A rated film with no review says so** (#20, the last item, user-added).
-  `No review yet — edit to add one.`, italic and a step fainter than a real
-  review (`--ink-faint` against its `--ink-dim`) — the same vocabulary
+  `No review yet – edit to add one.`, italic and a step fainter than a real
+  review (`--ink-faint` against its `--ink-dim`) – the same vocabulary
   `No TMDB rating` already uses, so an absence reads as an absence rather than
   as content. It fills the void that top-aligning the body (2026-09-08) left
   under a review-less card, which is why that entry says #20 became worth
@@ -2365,7 +2670,7 @@ status is further down this section. What landed:
   **Scoped by the branch's structure, not by a new test.** It is the final
   `else` after `if (!isRated)` and `else if (m.review)`, so it is reachable
   only when the film IS rated and has no review. An unrated card must never
-  get it — that card already says "Not rated yet", and a second placeholder
+  get it – that card already says "Not rated yet", and a second placeholder
   beneath the first reads as nagging. This is the scoping #15 flagged in
   advance.
 
@@ -2378,13 +2683,13 @@ status is further down this section. What landed:
   of ~400 unbroken `f`s widened the card, the section and then the whole page,
   with no scrollbar to reveal what had been pushed off. The card's `1fr` track
   is `minmax(auto, 1fr)`, and that `auto` minimum is the **min-content width**
-  — for one unbreakable word, the entire word. `.review`'s `overflow: hidden`
+  – for one unbreakable word, the entire word. `.review`'s `overflow: hidden`
   from the line clamp did nothing, because clipping governs PAINTING, not the
   intrinsic size a track is measured from.
 
   **`overflow-wrap: anywhere`, and `break-word` would NOT have fixed it.** The
-  two render identically — spaces first, mid-word only when a word cannot fit
-  a line alone — but `break-word`'s break opportunities are ignored when
+  two render identically – spaces first, mid-word only when a word cannot fit
+  a line alone – but `break-word`'s break opportunities are ignored when
   min-content is calculated, so the track would still have been sized to the
   unbroken word. `anywhere` counts them, so min-content collapses to about one
   character. Same appearance, different arithmetic; do not simplify it.
@@ -2400,11 +2705,11 @@ status is further down this section. What landed:
   **`.rec-card__body`'s is no longer defensive** (corrected 2026-09-09): its
   justification was that the recs grid had a FIXED `minmax(190px, …)` minimum
   and so could not be pushed open, and D-050 replaced those tracks with plain
-  `1fr` — `minmax(auto, 1fr)` — which puts the automatic minimum back in play.
+  `1fr` – `minmax(auto, 1fr)` – which puts the automatic minimum back in play.
   The same sweep found the gap that left: **`.rec-card` itself is the grid
   item and never carried `min-width: 0`**, so a poster's intrinsic width (TMDB
   serves w500) could push the track open and give a phone a horizontal
-  scrollbar. Fixed. **The same root cause again** — as with the search input,
+  scrollbar. Fixed. **The same root cause again** – as with the search input,
   the add button and the ranked card's `1fr` track, among others. When something will not shrink, look at the automatic minimum size
   first.
 
@@ -2414,7 +2719,7 @@ status is further down this section. What landed:
   ABOVE everything it tied with: add two films and the second one appeared
   above the first, rate two films 4.0 and the second sat above the first.
   Every unrated film is tied with every other by definition, so the whole
-  unrated block was newest-first too. Now ascending — adding to a list appends
+  unrated block was newest-first too. Now ascending – adding to a list appends
   to it.
 
   **The tie-break carries no meaning either way, and that is exactly why it
@@ -2427,7 +2732,7 @@ status is further down this section. What landed:
   RATINGS, so no rank number changes; the #1 crown still lands on the
   top-rated (both films, when the top is tied); and `rankSignature()` compares
   id + rank + tie state, none of which this touches. The client never re-sorts
-  — verified, `app.js` has no `.sort()` at all — so the API's order is the
+  – verified, `app.js` has no `.sort()` at all – so the API's order is the
   displayed order and this is a one-line change in one place.
 
   **Not covered by a test, and cannot be:** the fake Supabase builder's
@@ -2435,50 +2740,50 @@ status is further down this section. What landed:
   `test/helpers.js`), so a test asserting this order would pass no matter
   which direction the route asked for.
 
-##### Ranked-list backlog — THE canonical list, worked in numeric order
+##### Ranked-list backlog – THE canonical list, worked in numeric order
 
 Claude audited the section on 2026-09-07 and produced items 1–17; the user added
-18–20. **This list is the source of truth** — it previously existed only in chat
+18–20. **This list is the source of truth** – it previously existed only in chat
 and would have been lost to a compact. Keep the statuses current if anything
 reopens, and do not renumber: the numbers are how the user refers to them.
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Unrated films got a rank number, contradicting their own "rate it to place it" caption; the gold #1 was `:first-child`, so it could crown an unrated film | **done** — D-029 |
+| 1 | Unrated films got a rank number, contradicting their own "rate it to place it" caption; the gold #1 was `:first-child`, so it could crown an unrated film | **done** – D-029 |
 | 2 | Poster overflowed its column at 620px and below (width declared twice) | **done** |
-| 3 | Multi-digit rank numerals: 2-digit fine everywhere, 3-digit ran under the poster | **done** — D-030 |
-| 4 | The whole list replayed its staggered entrance on every add/rate/remove | **done** — D-031 |
+| 3 | Multi-digit rank numerals: 2-digit fine everywhere, 3-digit ran under the poster | **done** – D-030 |
+| 4 | The whole list replayed its staggered entrance on every add/rate/remove | **done** – D-031 |
 | 5 | "view more…" toggle measured once per render, never on resize/zoom/font-swap | **done** (+ the expanded-review follow-up) |
-| 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** — D-032 |
+| 6 | Remove/Save had no busy state or double-click guard; Save closed the dialog *before* its PATCH ran | **done** – D-032 |
 | 7 | `.noposter` used the 🎬 emoji, against D-027 | **done** |
-| 8 | "Not rated yet" is `--crimson` — an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** — D-033 |
+| 8 | "Not rated yet" is `--crimson` – an error colour on a non-error state. Same mistake corrected in Search when "No matches" left `makeError` for the muted `searchNote` | **done** – D-033 |
 | 9 | `confirm()` for Remove is the last native modal in the app; it also does not warn that the rating and review go with it (cf. Incident 1) | **done** |
-| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** — one global rule, app-wide |
-| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert — no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** — D-036/D-037; migrations 002 + 003 applied |
-| 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** — delivered by #4 / D-031 |
-| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** — D-038 |
-| 14 | Expanded reviews collapse on any unrelated re-render | **done** — D-040. A state-persistence problem, not an element-identity one: lifting the state into `state.expandedReviews` fixes it in 8 lines, and D-031's element-reuse rewrite stays rejected |
-| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** — D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive — do not split it |
-| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first — two named no film at all, and `— ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-08): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-08): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: the verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** — D-042 |
-| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** — the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
-| 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** — now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
-| 19 | Add a grow-on-hover effect to each ranked-list item | **done** — D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
-| 20 | A rated film with no review shows nothing at all where a review would be. Say so — an italic, muted `No review yet — edit to add one` (wording TBD) — so the slot is never silently empty. Inverse of #15 | **done** — a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
+| 10 | No `:focus-visible` on any ranked-list control (Rate/Edit, Remove, review toggle). The stylesheet has only three focus rules, all added recently | **done** – one global rule, app-wide |
+| 11 | `tmdb_rating` is fetched by `shapeMovie()` and shown in search rows, then dropped on insert – no column exists. "Your 8.5 vs TMDB 7.2" is one migration (002) away | **done** – D-036/D-037; migrations 002 + 003 applied |
+| 12 | No re-sort animation, though the README demo script promises "re-sorting live" | **done** – delivered by #4 / D-031 |
+| 13 | Ties are invisible: two films at 8.0 show as #3 and #4 with no sign the order between them is arbitrary (it falls back to `created_at`) | **done** – D-038 |
+| 14 | Expanded reviews collapse on any unrelated re-render | **done** – D-040. A state-persistence problem, not an element-identity one: lifting the state into `state.expandedReviews` fixes it in 8 lines, and D-031's element-reuse rewrite stays rejected |
+| 15 | A review with no rating is silently hidden: `if (!isRated) … else if (m.review)`. The PATCH endpoint permits that state | **done** – D-041, migration 004. Fixed by FORBIDDING the state, not rendering it: the rating is required, the review optional. The `else if` is now provably exhaustive – do not split it |
+| 16 | Copy inconsistencies. Worked in three parts, **all done**. **(a) Confirmation toasts** (2026-09-08, user-raised): all three now read `“Title” added/saved/removed`, one shape, film first – two named no film at all, and `– ranking updated` is now conditional on the ranking actually differing (D-034). **(b) The `5 films · 5 rated` subtitle** (2026-09-08): now `5 films` when all are rated, `5 films · 2 not rated yet` when not, `5 films · none rated yet` when none are. **(c) The two ERROR toasts** (2026-09-08): a failed add/remove now names its film via one `failureText()` composer, and the causes carry a `short` form so a context prefix cannot double them (D-042). Also fixed en route: The verdict fallback had no full stop, and "couldn’t" was spelled three ways | **done** – D-042 |
+| 17 | `loading="lazy"` on above-the-fold posters delays the first few cards | **done** – the first `EAGER_POSTERS` (3) ranked posters load eagerly; `lazy` stays the default, so search rows and rec cards are untouched |
+| 18 | Discuss the "view more…" vs "show less" wording discrepancy | **done** – now `show more` / `show less`: one verb both ways, and the ellipsis dropped because the clamp already draws its own |
+| 19 | Add a grow-on-hover effect to each ranked-list item | **done** – D-043. Uncovered that the OLD lift was being cancelled outright by the entrance animation fill |
+| 20 | A rated film with no review shows nothing at all where a review would be. Say so – an italic, muted `No review yet – edit to add one` (wording TBD) – so the slot is never silently empty. Inverse of #15 | **done** – a `.no-review` line in the final `else` of the body branch, reachable only when rated AND review-less. Wording kept as proposed; `.no-review`, never a `.review` modifier |
 
 #### Agreed order of work from here (set by the user, 2026-09-09)
 
-**Every step below is closed** — the last UI step on 2026-09-12, step 6 on
-2026-09-14 — so what follows is the record of the order the work was done in,
+**Every step below is closed** – the last UI step on 2026-09-12, step 6 on
+2026-09-14 – so what follows is the record of the order the work was done in,
 not a queue. The sequencing rules governed the list while it was open and would apply again
 if anything reopened.
 
-Work this top to bottom. It is the user's own sequencing, not Claude's — do not
+Work this top to bottom. It is the user's own sequencing, not Claude's – do not
 re-prioritise it, and do not start further down because something looks quicker.
 This list REPLACES the 2026-09-08 one, whose steps are all done or folded in.
 
-##### Step 1 — the mobile keypad
+##### Step 1 – the mobile keypad
 
-**Mobile keypad does not close when a search is submitted — DONE
+**Mobile keypad does not close when a search is submitted – DONE
 2026-09-09.** The mechanism was as traced: the submit handler calls
 `e.preventDefault()` so the form never navigates, and nothing in `app.js`
 ever called `.blur()`, so the input kept focus and the keyboard with it. A
@@ -2490,7 +2795,7 @@ handler **after** its empty-query early return, so the deliberate
 capability query, the same shape as the `@media (hover: hover)` gate on the
 card hover rules and never a width. A pointer device has no soft keyboard to
 close, so a blur there buys nothing and costs two things: the caret, and the
-tab order — `blur()` moves focus to `<body>`, so the next Tab restarts from
+tab order – `blur()` moves focus to `<body>`, so the next Tab restarts from
 the top of the document instead of continuing past the input. Desktop is
 provably unchanged. A touch laptop reports `hover: hover` and keeps focus,
 which is right for the pointer it calls primary.
@@ -2499,18 +2804,26 @@ The case that actually needed it is the keyboard's own **Go/Search** key,
 which submits without moving focus; tapping the Search BUTTON already blurred
 the input by itself.
 
-##### Step 2 — the recommendations sub-backlog (R1–R30)
+*(A gap found and fixed on 2026-10-24 (D-090): Samsung Internet reports
+`hover: hover` on a touchscreen, so `(hover: none)` never matched there, the
+blur never ran and the keypad stayed over the results, while Chrome and Brave
+on the same phone closed it. The blur itself works there, so the gate changed
+rather than the mechanism: `dismissSoftKeyboard()` now blurs unless
+`(hover: hover) and (pointer: fine)` matches, the same query the hover rules
+now use. Desktop is unchanged, since a mouse or trackpad matches both.)*
 
-**Recommendations overhaul — THE canonical sub-backlog.** Claude audited the
+##### Step 2 – the recommendations sub-backlog (R1–R30)
+
+**Recommendations overhaul – THE canonical sub-backlog.** Claude audited the
 whole path on 2026-09-09 (markup, client, CSS, route, service, prompt, tests)
 and produced R1–R22 below; R23–R25 were added later, from findings made while
 fixing R9 and from the user working the verdict banner alongside it. R29–R30 were raised by the user on 2026-09-09 after
 seeing R27 and D-050 run. **R1–R19 and R21–R30 are ALL DONE, R20 was WITHDRAWN
-as incorrect, and R18 — the last one open — was CLOSED 2026-09-12 as won't-fix
+as incorrect and R18 – the last one open – was CLOSED 2026-09-12 as won't-fix
 on measurement (D-063). STEP 2 IS THEREFORE COMPLETE; nothing in this
 sub-backlog is outstanding.** Every
 status is on the item itself. The user's original seed items are folded in and
-marked **(user)**. The groups are ordered by severity. **Do not renumber** —
+marked **(user)**. The groups are ordered by severity. **Do not renumber** –
 these are how the items get referred to. Keep the statuses current if
 anything reopens.
 
@@ -2520,15 +2833,15 @@ was corrected `both` → `backwards` (D-043) and must STAY that way now that a
 hover transform (R14) and a delayed entrance (R27) both depend on it,
 `.rec-card__body button:hover`
 gained its missing `:not(:disabled)` guard (#10), the poster placeholder is the
-shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
+shared inline-SVG `.noposter` (D-027) and `.reason` clamps at 5 lines.
 
-###### Group A — functional bugs
+###### Group A – functional bugs
 
-* **R1. DONE 2026-09-09 — recs messages survive the run that wrote them.**
+* **R1. DONE 2026-09-09 – recs messages survive the run that wrote them.**
   `#recs-hint` has TWO owners: `syncRecommendationsAvailability()` writes the
   availability text, and a run writes its progress, result or failure into
   the same element. The sync reassigned it unconditionally, and the run's own
-  `finally` calls the sync — so every message a run wrote was wiped in the
+  `finally` calls the sync – so every message a run wrote was wiped in the
   same tick. **Not just the error, which is all the old Open-issues entry
   claimed:** `Based on: …` (which the README demo script tells the presenter
   to narrate) and `No new suggestions this time…` were dead too, so a failed
@@ -2538,7 +2851,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   Fixed with the guard `syncVerdictAvailability()` already uses, ported not
   reinvented: `state.recsHintFromRun` is set when a run starts and the sync
   writes the idle hint only when it is false. Below the threshold the
-  availability text still always wins and clears the flag — the section is
+  availability text still always wins and clears the flag – the section is
   unavailable, so what a past run said about it is moot. *(The verdict's own
   guard was narrower than this port: it was set only on success and never
   cleared, so a failed verdict's message and the busy line could be replaced
@@ -2554,7 +2867,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   **Not covered by an automated test.** The client had no test harness at the
   time, and `npm run layout-check` (2026-09-28), which runs it in real
-  browsers, checks layout, the verdict typing and the clipboard rather than
+  browsers, checks layout, the verdict typing, the clipboard and drags rather than
   this logic. So this one was verified by reading and by tracing all eleven
   paths (boot above/below threshold, success, failure, zero-suggestions, an
   unrelated add/rate/remove after each, and both mid-flight races). Worth a
@@ -2562,7 +2875,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   possible. *(Done by those screenshots, 2026-09-13/14: RS-3, RS-4, RS-9,
   RS-15 and RS-16 each show a run's message surviving in the hint.)*
 
-* **R2. DONE 2026-09-09 (D-046) — the server half of the owned filter.** The
+* **R2. DONE 2026-09-09 (D-046) – the server half of the owned filter.** The
   answer to the user's "verify the owned filter holds end to end" was **no**:
   `generateRecommendations()` built `ownedTmdbIds` from the SAME query
   feeding the taste profile, which was filtered `.not('rating', 'is', null)`,
@@ -2571,27 +2884,27 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   Fixed by dropping the SQL filter entirely: ONE unfiltered read, then
   `rated` and the owned set both derived from that one result. **Not** the
-  second query the audit first proposed — see D-046 for why, and for the trap
+  second query the audit first proposed – see D-046 for why, and for the trap
   that settled it: the first version of the test PASSED against the buggy
   code, because every filter method on the fake Supabase builder is a no-op,
   so the fake ignored the very `.not()` that caused the bug. That no-op is
   now commented at itself in `test/helpers.js`.
 
   **Do not push the filter back into the query** and **do not rebuild the
-  owned set from `rated`** — either one restores the bug, and the second
+  owned set from `rated`** – either one restores the bug, and the second
   fails exactly one test (verified by doing it). **R3 was the client half,
   open when this was written and DONE the same day** (the next item): rec
   cards did not re-sync their Add button, so the UI could still offer a film
   the list already had.
 
-* **R3. DONE 2026-09-09 — the Add-button sync now runs in every direction.**
+* **R3. DONE 2026-09-09 – the Add-button sync now runs in every direction.**
   Reported live by the user, who found BOTH directions of it. The sync swept
   only `.search-results`, so: adding from a REC CARD refreshed the search
   rows (they were in the panel it swept), but adding the same film from a
   SEARCH ROW left the rec card still offering it, **and** removing a film
   from the ranked list left the rec card stuck on a disabled "✓ Added" for
-  something no longer in the list. Never a data bug — the duplicate add was
-  refused correctly by the 409, as the user confirmed — the button just lied
+  something no longer in the list. Never a data bug – the duplicate add was
+  refused correctly by the 409, as the user confirmed – the button just lied
   about what it would do.
 
   `syncSearchResultButtons()` is now `syncAddButtons()` and queries the whole
@@ -2603,11 +2916,11 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **The shared `setAddButtonState()` did not get to decide R7 on the way
   through.** Its unowned label is now read from `btn.dataset.addLabel`
   (default `+ Add`), so the rec card kept `Add to my list` until the wording
-  was settled — R7 has since done that, as `+ Add to my list`. The OWNED
+  was settled – R7 has since done that, as `+ Add to my list`. The OWNED
   labels are shared, which is right: both surfaces should settle identically.
   Note the rec card's `aria-label` moved from "to my list" to the shared "to
   your list". R7 looked at that and LEFT it: each voice is right where it
-  appears — "my list" on a button the user presses, "your list" when the app
+  appears – "my list" on a button the user presses, "your list" when the app
   addresses them.
 
   This was the UI half of the user's duplicate-safeguard item **(user)**; the
@@ -2620,34 +2933,34 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   `Couldn’t add “Dune” — …`. The rec card now carries the same three stamps a
   search row does, which is what R3 needed anyway.
 
-* **R5. DONE 2026-09-11 — two failures used to leave zero records.** If the
+* **R5. DONE 2026-09-11 – two failures used to leave zero records.** If the
   `recommendation_logs` insert failed, the function threw
   `Recommendation log write failed: …` and DISCARDED the `errorText` already
   captured from an AI failure. The part that made it more than untidy: that
   cause then survived **nowhere at all**. The row that would have carried it
-  is the write that just failed, and the route answers a
+  was the write that had just failed, and the route answers a
   `RecommendationError` with a calm sentence (R8) rather than letting it
-  reach the central handler's `console.error` — so an OpenRouter outage that
+  reach the central handler's `console.error` – so an OpenRouter outage that
   coincided with a DB blip was unexplainable after the fact.
 
   Fixed by COMPOSING the two causes rather than letting one replace the
-  other, and by writing the result to **stderr at the throw site** — the only
+  other, and by writing the result to **stderr at the throw site** – the only
   sink left once the log table is unreachable. Deliberately not surfaced to
   the user: neither cause is actionable by them, and R8's calm sentence is
   already the right answer.
 
   **Applied to `tasteVerdict.js` in the same commit and must stay symmetric**
-  — R23/D-047 exist precisely because these two drifted into separate error
+  – R23/D-047 exist precisely because these two drifted into separate error
   dialects once before.
 
   **The second half of this item was NOT a defect and is unchanged:** a
   SUCCESSFUL, already-paid-for run is still discarded if its log write fails.
-  That is the right call for a course that grades the audit trail — cards on
+  That is the right call for a course that grades the audit trail – cards on
   screen with no row behind them are the exact state the log exists to make
-  impossible — and the code now says so at the branch. Do not "rescue"
+  impossible – and the code now says so at the branch. Do not "rescue"
   `verified` there.
 
-  **One stale complaint in this item, retired rather than acted on:** it
+  **One stale complaint in this item, retired rather than acted on:** It
   asked for the user to "see something better than a bare 422". That was
   written during the 2026-09-09 audit, BEFORE R8 landed the same day; the
   user already gets "Couldn’t generate recommendations right now. Try again
@@ -2658,9 +2971,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   assertion for each feature, and deleting the `console.error` fails the
   "log-write cause was lost" assertion for each.
 
-###### Group B — the strength of the "verified against TMDB" claim
+###### Group B – the strength of the "verified against TMDB" claim
 
-* **R6. DONE 2026-09-11 (D-054) — closed by correcting the CLAIM, not the
+* **R6. DONE 2026-09-11 (D-054) – closed by correcting the CLAIM, not the
   code.** `verifyTitle()` still falls back to `results[0]`. What changed is
   that SPEC §2.2 #4 and §6, the README, `docs/PROCESS.md`, this file and the
   function's own JSDoc stopped promising more than it delivers.
@@ -2670,19 +2983,19 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   real film" and that "that drop path is nearly unreachable". Measured
   against live TMDB across 30 probe titles: the search is close to TOKEN
   matching rather than fuzzy, and **7 of 12 realistic invented titles
-  returned ZERO results** and were dropped exactly as the docs said. The drop
-  path is the common case, not an unreachable one. The JSDoc carried a
-  matching falsehood — "or null if no confident match", where no confidence
-  test has ever existed.
+  returned ZERO results** and were dropped exactly as the docs said. For an
+  invented title, the drop path is the common case, not an unreachable one.
+  The JSDoc carried a matching falsehood – "or null if no confident match",
+  where no confidence test has ever existed.
 
   **What tightening would have bought, and cost.** The fallback is actively
   rescuing real films the model named imprecisely: `Shawshank Redemption` (no
   "The"), `The Lord of the Rings: Fellowship of the Ring` (a missing "The"),
   `Spider-Man: Into the Spiderverse` (hyphen), `Dr. Strangelove` (shortened).
-  Against those four it produced two bad substitutions in the same sample —
+  Against those four it produced two bad substitutions in the same sample –
   `Arrival 2` → a 1906 newsreel, and `Blade Runner 3` → `Blade Runner 2049`.
 
-  **And the commonest way a hallucination gets PAST the check is immune to ANY
+  **And the most common way a hallucination gets PAST the check is immune to ANY
   matching rule** (four of the sample, against two bad substitutions): an
   invented-sounding title like `The Silent Echo`, `Last Light` or
   `Shadow of the Wolf` turns out to be a real obscure film and EXACT-matches,
@@ -2698,16 +3011,16 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   **The user's call, made on the measurements: leave the code, fix the
   claim.** The blast-radius claim in CLAUDE.md § Security & Secrets, item 5,
-  was never affected and is untouched — the output still only ever drives a
+  was never affected and is untouched – the output still only ever drives a
   title lookup. Full numbers, and the tiered matcher that was designed and
   rejected, are in D-054; do not re-derive them by eye.
 
-###### Group C — copy and consistency
+###### Group C – copy and consistency
 
-* **R7. DONE 2026-09-11 — the rec card now reads `+ Add to my list`.** It
+* **R7. DONE 2026-09-11 – the rec card now reads `+ Add to my list`.** It
   rested at `Add to my list` against the search row's `+ Add`, and the two
-  CONVERGED after action — both settle to the glyph-glued labels via the
-  shared `addMovie()` — so the card's one button spoke three vocabularies.
+  CONVERGED after action – both settle to the glyph-glued labels via the
+  shared `addMovie()` – so the card's one button spoke three vocabularies.
 
   **The user settled it by keeping the longer wording and prepending the
   glyph**, rather than shortening the card to match the row. Both surfaces
@@ -2718,15 +3031,15 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   plus is glued to "Add" with a `u00A0` ESCAPE (backslash-u), never a literal
   character, and in the STRING rather than in CSS because the label renders
   on two surfaces and only one is `white-space: nowrap`. "to my list" may
-  wrap on its spaces — explicitly allowed; "+" leaving "Add" is not.
+  wrap on its spaces – explicitly allowed; "+" leaving "Add" is not.
 
   **That escape was collapsed into a literal NBSP on the first attempt and
-  had to be rebuilt without typing a backslash at all** — the tooling trap
-  under § Environment & tooling traps. **Hit THREE times now:** twice here,
+  had to be rebuilt without typing a backslash at all** – the tooling trap
+  under § Environment & tooling traps. **Hit THREE times now:** Twice here,
   and again on 2026-09-15, when the statement of the rule in § Button labels
   was found to contain a literal U+00A0 inside its own code span.
   `npm run check-claims` now fails on any invisible character, because that
-  is the one defect class reading cannot catch. Verified after: zero literal
+  is the one defect class reading cannot catch. Verified after: Zero literal
   U+00A0 codepoints in `app.js`, and the label's second codepoint reads `A0`
   at runtime.
 
@@ -2738,15 +3051,15 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
 * **R8. DONE 2026-09-09 (D-047).** The route wrapped every cause as `Couldn’t
   generate recommendations: ${err.message}` under a comment claiming "never a
-  raw dump" — and the causes are `OpenRouter unreachable (TimeoutError)`,
+  raw dump" – and the causes are `OpenRouter unreachable (TimeoutError)`,
   `OpenRouter responded 401`, `DB read failed: <postgres text>`. Now a calm
   sentence, with the technical cause going only to the log row's `error_text`
   (asserted by a test). **One cause survives verbatim:** "Need at least 3
-  rated movies" is the answer to the user's question, not a fault report —
+  rated films" is the answer to the user's question, not a fault report –
   flagged `userFacing` at its throw site rather than pattern-matched in the
   route, so the two cannot drift.
 
-* **R9. DONE 2026-09-09 (D-047) — but NOT by copying the verdict, and that is
+* **R9. DONE 2026-09-09 (D-047) – but NOT by copying the verdict, and that is
   the point.** This item told the next session to copy the verdict's shape.
   Reading it first showed the verdict offers the log **unconditionally**, so
   when CineRank itself is unreachable it sends the user to a log that cannot
@@ -2754,24 +3067,24 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   The offer is now conditional on a fact only the server knows: was a
   `recommendation_logs` row actually committed? Of six throw sites only one
-  qualifies. It travels as `logged: true` beside `error` — exactly D-042's
+  qualifies. It travels as `logged: true` beside `error` – exactly D-042's
   `short` mechanism, additive and invisible to anything reading only
-  `body.error` — and `api()` carries it onto the thrown error the same way.
+  `body.error` – and `api()` carries it onto the thrown error the same way.
   **The verdict's own version of this was still wrong when this was written;
   R23 fixed it the same day.**
 
 * **R10. DONE 2026-09-09.** The empty branch returned before `aiMetaFooter`,
   so a call that really was made, really cost money and really was logged
-  showed no cost, tokens or duration anywhere on the page — the only AI
+  showed no cost, tokens or duration anywhere on the page – the only AI
   outcome in the app that did not. It now appends the footer before
   returning. That footer already ends in `logLink()`, which is why the
   message beside it does NOT get a log link of its own; two on one line.
 
   Found and fixed live, with a deliberate temporary "return zero
   recommendations" line in the service so the state could actually be looked
-  at — reverted before commit.
+  at – reverted before commit.
 
-###### Group D — visual, and narrow viewports
+###### Group D – visual, and narrow viewports
 
 * **R11. DONE 2026-09-09.** `.recs__trigger` had neither `flex-shrink: 0` nor
   `white-space: nowrap`, so a flex item's automatic minimum size let it
@@ -2789,14 +3102,14 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   fix that happened to make the exemption moot, and the user lifted the
   exemption on 2026-09-30.
 
-* **R12. DONE 2026-09-09, with R11 — the two section heads are reunited.**
+* **R12. DONE 2026-09-09, with R11 – the two section heads are reunited.**
   `flex-wrap: wrap` moved onto the shared `.ranked__head, .recs__head` rule
   and the `.ranked__head`-only rule is gone, along with the comment
   explaining the split. The split existed so that wrapping the head could not
   mask R11; R11 is fixed, so it has served its purpose. **One LAYOUT rule, to
   be exact:** `.recs__head` picked up a selector of its own again with R27,
   for the `scroll-margin-top` its scroll target needs. Different concern, not
-  this split creeping back — both places say so.
+  this split creeping back – both places say so.
 
   The trigger now drops below "What to watch next" rather than both items
   squeezing. **No threshold is encoded, and the comment says not to add
@@ -2804,55 +3117,55 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   derives the break point from the heading's real max-content width plus the
   button's real width, and re-derives it if either string or the type
   changes. The old comment's "~385px" came from an estimate and was removed
-  rather than recomputed — estimated widths in this file have been wrong
+  rather than recomputed – estimated widths in this file have been wrong
   before.
 
-* **R13. DONE 2026-09-09 — the disabled rec-card button stopped looking
+* **R13. DONE 2026-09-09 – the disabled rec-card button stopped looking
   clickable.** It dimmed a FILLED amber button with `opacity: 0.5`, which is
   the exact bug `.search button:disabled` exists to fix, and WORSE here: on
   the search button the wrong state lasted the second it said "Searching…",
   while on a rec card `✓ Added` / `In your list` is a PERMANENT resting
-  state. Measured: amber at 0.5 over the card composites to **#876d3e** and
-  still contrasts **3.57** against it — an unmistakably amber button that
+  state. Measured: Amber at 0.5 over the card composites to **#876d3e** and
+  still contrasts **3.57** against it – an unmistakably amber button that
   does nothing.
 
   **The search button's fix could not be copied verbatim**, which is the part
   worth remembering: its disabled fill is `--bg-card`, and `--bg-card` IS the
   rec card's own background, so the button would have vanished into the card
-  completely. `--line` instead — a hair lighter than the card (1.16) so the
+  completely. `--line` instead – a hair lighter than the card (1.16) so the
   button keeps its own edges, with `--ink-dim` at 5.56, clear of AA (4.5) for
   its normal-size label. Those two figures follow the search button's own
-  (1.12 shape, 6.48 label) — a near-identical shape contrast and a label clear
-  of AA in both — so this MATCHES the established
+  (1.12 shape, 6.48 label) – a near-identical shape contrast and a label clear
+  of AA in both – so this MATCHES the established
   answer rather than inventing a second one: a disabled fill nearly dissolves
   and the label carries the readability. `cursor` also went `default` →
   `not-allowed`, which is what both `.result-row .add-btn:disabled` and
   `.search button:disabled` use for the identical labels.
 
   **The false comment that caused it is corrected.**
-  `.search button:disabled` claimed "This is the only FILLED button" — never
+  `.search button:disabled` claimed "This is the only FILLED button" – never
   true, and it is why this one was left on opacity when that rule was
   written. Audited against every `disabled =` assignment in `app.js`: THREE
-  amber-filled buttons can be disabled — the search button,
-  `.rate-dialog button.primary` and this one — and all three now swap the
+  amber-filled buttons can be disabled – the search button,
+  `.rate-dialog button.primary` and this one – and all three now swap the
   fill. `.log-cta__btn` is amber-filled too but nothing ever disables it.
 
-* **R14. DONE 2026-09-09, with R27 (D-048) — grow-on-hover on `.rec-card`.**
+* **R14. DONE 2026-09-09, with R27 (D-048) – grow-on-hover on `.rec-card`.**
   Done in the same pass as R27 on purpose: both land on this element, and
   both depend on the entrance fill staying `backwards`. A forwards fill pins
   `transform: none` from the final keyframe and outranks normal author
   declarations, which is exactly how the ranked card's hover was silently
-  cancelled (D-043) — so a hover added here without R27 alongside it would
+  cancelled (D-043) – so a hover added here without R27 alongside it would
   have been one edit away from the same invisible bug.
 
   The ranked card's vocabulary ported verbatim: `scale(1.02)` and NO
-  `translateY` (a lift is directional and drifts the card toward one
-  neighbour — worse in a grid, where it has row-mates too), an amber border,
+  `translateY` (a lift is directional and drifts the card towards one
+  neighbour – worse in a grid, where it has row-mates too), an amber border
   and three glow layers at a **zero Y-offset** with no black layer, because
   on `--bg: #0b0b0f` a black shadow has nothing left to darken (D-044).
 
   Two deliberate differences. The glow is **wider** than the ranked card's
-  (40/100px against 40/60px, plus a 1.5px lit edge and `scale(1.018)`) —
+  (40/100px against 40/60px, plus a 1.5px lit edge and `scale(1.018)`) –
   those magnitudes were tuned by the user by eye, reversing Claude's first
   pass, which had gone one notch TIGHTER on the theory that a halo crossing
   the grid's 1.1rem gap would read as two cards sharing one glow. The
@@ -2860,41 +3173,41 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   other card at 0.65, a halo spilling across the gap falls on something
   already receding. A box-shadow is ink overflow, so no size here can produce
   a scrollbar. Second difference: `z-index: 3` rather than the ranked card's
-  `1`, which is arithmetic — every `.rec-card::before` badge carries
+  `1`, which is arithmetic – every `.rec-card::before` badge carries
   `z-index: 2` and resolves in the same stacking context, so at `1` a
   NEIGHBOUR's badge would paint over this card's glow.
 
   **The spotlight dimming IS ported, at `0.65` rather than the ranked list's
   `0.55`** (D-049). Claude argued against porting it at all and the user
-  overruled that the same day — correctly: the objection was to the ranked
+  overruled that the same day – correctly: the objection was to the ranked
   list's STRENGTH, not to the idea, and 0.65 leaves every unhovered card
   perfectly readable while the section still recedes. The metadata footer
   dims with the cards instead of being left as the single brightest thing on
-  screen — since R29 moved it out of the grid, through a second selector
+  screen – since R29 moved it out of the grid, through a second selector
   anchored on `.recs` (`.recs:has(.rec-card:hover) .recs__meta .ai-meta`);
   hovering the footer dims nothing, because the `:has()` tests for a hovered
   card.
 
   **The live value is 0.65 and `styles.css` is the source of truth for it.
-  D-049 says `0.70` and is NOT stale** — it records what was settled on
+  D-049 says `0.70` and is NOT stale** – it records what was settled on
   2026-09-09, and the user nudged the dial to 0.65 by eye on 2026-09-11. The
   decision (port the spotlight, lighter than the ranked list) stands
   exactly as that entry describes; only the figure moved, which is why no new
   entry was written and why D-049 must not be edited to match. Do not
   "restore" 0.70 from it.
 
-* **R15. DONE 2026-09-11 — a sparkle on the trigger, and the emoji exemption
+* **R15. DONE 2026-09-11 – a sparkle on the trigger, and the emoji exemption
   went unused.** Two four-point stars as an inline SVG with
   `fill="currentColor"`, so the icon follows all three of the button's states
   for free: amber at rest, inverting to `#1a1205` on the amber hover fill,
   and dimming with the label at `opacity: 0.45` when disabled. The emoji
-  would have done none of that — it is a fixed full-colour image (D-027), so
+  would have done none of that – it is a fixed full-colour image (D-027), so
   it would have stayed bright while the label dimmed. The exemption the user
   granted in advance was not needed, and **"no emoji remain in rendered
   output anywhere" still holds** for the app's own interface.
 
   **Tuned once on the user's "slightly bigger and more pronounced":**
-  `1.05em` → `1.3em`, and separately the star ARMS were thickened — the waist
+  `1.05em` → `1.3em`, and separately the star ARMS were thickened – the waist
   control points moved from 1.9 out to 2.6 from centre, which is what decides
   whether it reads as a sparkle or as a thin cross at button size. Size and
   weight are two dials and the request needed both. The paths are GENERATED
@@ -2906,7 +3219,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   "a tiny bit more shiny / glittering", then "still isn't visible enough…
   like with a white-glowing edge"). A 3s `scale(0.94)`→`scale(1.07)` and
   `opacity 0.8`→`1` loop on that path, plus a pulsing white `drop-shadow` on
-  the icon. **Motion alone was not enough** — the first pass was scale and
+  the icon. **Motion alone was not enough** – the first pass was scale and
   opacity only, and at the icon's size then, about 21px, the user could
   barely see it. Shine
   needs light, not just movement.
@@ -2915,18 +3228,18 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   load-bearing.** A CSS `filter` on an SVG CHILD resolves its lengths in the
   local user coordinate system, where `3px` means 3/24ths of the icon and
   changes with the rendered size; on the root it is plain CSS pixels. The
-  root also lets the halo paint OUTSIDE the box — an outer `<svg>` clips its
+  root also lets the halo paint OUTSIDE the box – an outer `<svg>` clips its
   own viewport, so a glow drawn inside would be cut off at the edge. White
-  rather than `currentColor`: a glow the same colour as the thing glowing is
+  rather than `currentColor`: A glow the same colour as the thing glowing is
   just a blur. Checked at peak scale, the star spans 0.9–18.1 of the 0–24
   viewBox, so nothing clips.
 
   **The one state to look at is HOVER**, where the icon inverts to `#1a1205`
-  on an amber fill and the glow stays white — a light halo around a dark
+  on an amber fill and the glow stays white – a light halo around a dark
   glyph. The disabled state is safe by construction:
   `.recs__trigger:disabled` sets `opacity` on the BUTTON, so everything
   inside dims together whatever colour it is, and both animations are
-  switched off there anyway. The SMALL one deliberately holds still — both
+  switched off there anyway. The SMALL one deliberately holds still – both
   moving reads as a throbbing icon, one moving reads as a catch of light,
   which is the difference between shiny and distracting on an element that is
   on screen all session. **A gradient fill was the obvious way and was
@@ -2936,11 +3249,11 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   Two traps: `transform-box: fill-box` is REQUIRED, since an SVG element's
   `transform-origin` otherwise resolves against the SVG viewport corner and
-  `scale()` swings the star toward the top-left instead of breathing in
+  `scale()` swings the star towards the top-left instead of breathing in
   place; and the animation is switched OFF on a disabled trigger, because a
   locked section twinkling at the user invites a click that does nothing.
 
-  `ease-in-out` rather than `--ease` — a symmetric loop, where `--ease` would
+  `ease-in-out` rather than `--ease` – a symmetric loop, where `--ease` would
   snap bright and drift back. It says why at its own declaration, as does
   every animation that could have used `--ease` and deliberately does not;
   the stylesheet's `animation:` declarations are the list, and no count of
@@ -2952,7 +3265,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   synonym for the thing it exists to differ from. Each off-`--ease` curve is
   a one-off with its own reason (such as a departure, a symmetric loop, a
   watchable arrival or a constant drift). Revisit if two of them ever want
-  the SAME curve — that is the point at which a token stops being a rename
+  the SAME curve – that is the point at which a token stops being a rename
   and starts preventing drift.
 
   **The pattern worth more than the tokens question:** `--ease` exists to
@@ -2963,7 +3276,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **Inline, NOT a flex container, and that is the non-obvious part.** The
   obvious build is `display: inline-flex; gap`, copying `.log-cta__btn`. It
   is wrong here because `busyButton()` swaps the contents for a spinner plus
-  a label that ALREADY begins with a non-breaking space — a flex `gap` would
+  a label that ALREADY begins with a non-breaking space – a flex `gap` would
   sit on top of that and make the busy state wider than the resting one. The
   search button solved this before and this follows it: an inline icon sized
   in `em` with a `vertical-align` nudge.
@@ -2971,62 +3284,62 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **`white-space: nowrap` on `.recs__trigger` is now load-bearing for a
   second reason.** R11 added it so the label could not break; the glyph rule
   now also depends on it, because everywhere else the glue is a non-breaking
-  space inside the string, and an icon is an ELEMENT — no string can hold it
+  space inside the string, and an icon is an ELEMENT – no string can hold it
   to the words beside it. Both places say so. `aria-hidden="true"` +
-  `focusable="false"`: the button already says "Get recommendations" in text,
+  `focusable="false"`: The button already says "Get recommendations" in text,
   so a decorative mark would only add noise.
 
   **It rides on BOTH AI triggers** (user-raised follow-up): "New verdict"
   gets the same sparkle at `1.15em` against the trigger's `1.3em`, **and in
-  amber rather than the button's `--ink`** — the user noticed the white one
+  amber rather than the button's `--ink`** – the user noticed the white one
   "doesn't scream AI enough" and was right for a reason worth keeping: amber
   is this app's AI marker, so the same glyph was reading as a signal on one
   button and as decoration on the other. Set via `color`, not `fill`, so the
   paths keep resolving `currentColor`. See R25 for why this does not undo its
-  "do not make this button amber" rule — that is about chrome, not about a
+  "do not make this button amber" rule – that is about chrome, not about a
   semantic mark. That button's `font-size: 0.88rem` already shrinks an
   em-sized icon by 12%; the smaller value takes it to ~22% in absolute terms,
   so it reads as the smaller button's icon rather than the same icon crammed
-  in — which also matches R25, where the verdict's border was kept
+  in – which also matches R25, where the verdict's border was kept
   deliberately quieter because it is the lowest-stakes control (SPEC § 2.3).
 
   **The second surface is why the SVG moved into a `<template>` and is cloned
   by `sparkleNode()`.** Two copies of a GENERATED path is the shape that gets
-  regenerated in one place and not the other — the same reasoning that made
+  regenerated in one place and not the other – the same reasoning that made
   `.noposter` a template. **`<use href>`, the usual sprite answer, was
   rejected:** it puts its content in a shadow tree that document CSS cannot
   select into, and only the LARGE star twinkles, so `.sparkle-major` would
   stop matching. A clone is real DOM.
 
   Injected in `init()` **before anything can go busy**, since `busyButton()`
-  snapshots `childNodes` and restores them on settle — the icon has to be
+  snapshots `childNodes` and restores them on settle – the icon has to be
   there when that snapshot is taken or it would not come back.
   `.verdict__refresh` needed `white-space: nowrap` for the same reason
   `.recs__trigger` did: an icon is an element, so no in-string non-breaking
   space can hold it to its label.
 
-* **R16. DONE 2026-09-11 — a locked section no longer shows its own output.**
+* **R16. DONE 2026-09-11 – a locked section no longer shows its own output.**
   Remove rated films until the count falls under the threshold: the trigger
-  correctly disabled and the hint correctly said "Rate at least 3 movies to
+  correctly disabled and the hint correctly said "Rate at least 3 films to
   unlock recommendations", directly above six recommendations. The grid and
   the metadata footer are now cleared in the same branch that writes that
   text.
 
   **Cleared rather than captioned as a past run, and the reason is
-  structural:** the section has exactly ONE message channel — `#recs-hint` —
+  structural:** the section has exactly ONE message channel – `#recs-hint` –
   and the availability text has just taken it (R1), so captioning would mean
   either overloading the single writer or inventing a second element, which
   is disproportionate for a state reached only by removing films below the
   bar.
 
-  **NOT because the cards went stale — that would be a different rule and a
+  **NOT because the cards went stale – that would be a different rule and a
   wrong one.** Recs go stale on ANY rating change and we deliberately leave
   them alone then. What is fixed here is a section contradicting itself.
 
-* **R17. DONE 2026-09-11 — the badge stops asserting something it can no
+* **R17. DONE 2026-09-11 – the badge stops asserting something it can no
   longer know.** `.rec-card::before` claims two things and only one survives
   being acted on: "AI pick" is true forever, "not yet rated" stops being true
-  the moment the film is added and rated — and adding from a rec card OPENS
+  the moment the film is added and rated – and adding from a rec card OPENS
   the rate dialog, so the flow the button invites is the one that falsifies
   the badge behind it.
 
@@ -3035,17 +3348,17 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   the element exists (SPEC § 3.3 asks for one) and it is still accurate.
 
   **Rated-ness is read from `state.movies`, never from `state.ownedTmdbIds`**
-  — owned and rated are different questions, and conflating them is precisely
+  – owned and rated are different questions, and conflating them is precisely
   the bug R2 fixed on the server. A film can sit added-but-unrated
   indefinitely via "Skip for now", and the badge is correct for all of it.
 
   `syncRecCardBadges()` runs from `loadMovies()` and again at the end of
-  `renderRecommendations()` — the second call is redundant today, since R2's
+  `renderRecommendations()` – the second call is redundant today, since R2's
   owned filter keeps a rated film out of the recommendations, and it is
   there so the badge rests on `state.movies` alone rather than on a
   server-side filter staying correct.
 
-* **R18. CLOSED 2026-09-12 as WON'T-FIX, on measurement (D-063) — the last
+* **R18. CLOSED 2026-09-12 as WON'T-FIX, on measurement (D-063) – the last
   item in this sub-backlog, so step 2 is now fully closed.** It read:
   "`.recs__hint { min-height: 1.2em }` reserves one line for messages that
   run to three or four on a phone, so the grid jumps as the hint changes",
@@ -3055,29 +3368,29 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **Measured on 2026-09-12, before D-079's type scale, at `innerWidth: 360`
   (line-height 22.32px), twice, identically:
   the busy message is 3 lines / 67.0px and the "Based on: …" message is 2
-  lines / 44.6px.** So the whole effect is ONE line, 22.4px, once per run —
+  lines / 44.6px.** So the whole effect is ONE line, 22.4px, once per run –
   not the three-or-four-line swing the item assumed. The resting → busy
   transition does not move at all: 81 chars and 92 chars both land on three
   lines at this width.
 
   **And the one transition that does move is the one that cannot be seen.**
   The hint shrinks inside `renderRecommendations()`, and further down that
-  function — same synchronous block — it fires R27's
+  function – same synchronous block – it fires R27's
   `el.recsHead.scrollIntoView({ block: 'start' })`. The page is
   smooth-scrolling the section to the top of the viewport and starting a
   1.75s staggered entrance on six cards at the instant the hint loses its
   line. **The user looked for it twice, on the run set up specifically to
-  expose it, and reported seeing "barely anything worth fixing" — the numbers
+  expose it, and reported seeing "barely anything worth fixing" – the numbers
   explain that rather than contradict it.**
 
   **The fix is worse than the defect.** Holding the grid still means
   reserving the tallest message (`min-height: ~3.1em`), which permanently
-  parks 67px of blank space above the grid on narrow viewports — in the exact
-  viewport class step 5 exists to make LESS cramped — and hardcodes a line
+  parks 67px of blank space above the grid on narrow viewports – in the exact
+  viewport class step 5 exists to make LESS cramped – and hardcodes a line
   count that is a function of four message strings, the font and the width.
   Do not re-propose it, and do not re-propose the three alternatives weighed
   and rejected in D-063 (per-breakpoint media queries, shortening the busy
-  copy, or measuring the tallest message in JS).
+  copy or measuring the tallest message in JS).
 
   **One thing observed and deliberately NOT changed:** `min-height: 1.2em`
   sits against a 1.55em line box, so it under-reserves by about a fifth of a
@@ -3085,23 +3398,23 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   first paint to `/api/movies` returning, where the content arriving
   dominates it. Noted so it is not rediscovered as a bug.
 
-###### Group E — structure and tests
+###### Group E – structure and tests
 
-* **R19. DONE 2026-09-09 — the success path is now covered.** It had none:
+* **R19. DONE 2026-09-09 – the success path is now covered.** It had none:
   the only recommendation tests were the below-threshold 422 and the
   OpenRouter-down 422, so the owned-titles filter, the intra-run dedup and
-  the TMDB verification drop — everything R2 and R6 are about — were
+  the TMDB verification drop – everything R2 and R6 are about – were
   unproven. Two tests now sit in `test/routes.test.js`: one asserts that of
   four model picks only the verified, unowned, non-duplicate one reaches the
   user (and that its year and tmdb_id come from TMDB, not the model), the
   other that the log row carries `status='success'` and exactly the SHOWN
   titles.
 
-  **Verified load-bearing, not just green:** each of the three `continue`
+  **Verified load-bearing, not just green:** Each of the three `continue`
   guards in `generateRecommendations()` was deleted in turn, and every
   deletion failed exactly these two tests. Deliberately written against the
   behaviour AS IT STOOD THAT DAY, so R2's unrated-owner case was not asserted
-  here — that assertion was what should fail before the R2 fix and pass after
+  here – that assertion was what should fail before the R2 fix and pass after
   it.
 
   **It landed with R2 and the suite has carried it since:**
@@ -3109,25 +3422,25 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   UNRATED", commented at itself as R2, and D-046 records that rebuilding the
   owned set from `rated` fails exactly that one test.
 
-* **R20. WITHDRAWN — the audit was wrong here, and the number is kept only so
+* **R20. WITHDRAWN – the audit was wrong here, and the number is kept only so
   the others do not shift.** It claimed the client hardcodes the thresholds
   the server owns. It does not: `init()` in `app.js` does
   `state.cfg = await api('/api/config')` at boot, `server/index.js` serves
   those three numbers straight out of `server/config.js`, and a route test
   already asserts the endpoint's shape. The literals in `state.cfg` are a
   documented FALLBACK for that one request failing
-  (`catch { /* keep defaults */ }`), not a second source of truth — and when
+  (`catch { /* keep defaults */ }`), not a second source of truth – and when
   it fails, `loadMovies()` has failed too and the user is already looking at
   an error toast. The server is the single source of truth. **Found by
-  grepping for `api/config` after writing the item** — the original claim
+  grepping for `api/config` after writing the item** – the original claim
   came from grepping only `state.cfg`, which showed the reads and the
   literals but not the assignment that overwrites them.
 
-* **R21. DONE 2026-09-11 — the recs grid is a `<ul>` of `<li>`s.** It was a
+* **R21. DONE 2026-09-11 – the recs grid is a `<ul>` of `<li>`s.** It was a
   div of divs, so six cards announced as unstructured content while the
   ranked list beside it had always been a proper `<ol>`. Nothing else
   changed: a list item is still a grid item, and every rule targets
-  `.rec-card` rather than the tag (checked — no selector in the stylesheet
+  `.rec-card` rather than the tag (checked – no selector in the stylesheet
   names a tag here).
 
   **`role="list"` is not redundant belt-and-braces.** `list-style: none`
@@ -3140,10 +3453,10 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   the identical hole in the one next door would have been worse than not
   looking.
 
-* **R22. DONE 2026-09-11 — the one outcome that produced content was the one
+* **R22. DONE 2026-09-11 – the one outcome that produced content was the one
   that described only its input.** Re-checked all three now that R1 has
   stopped the availability sync wiping the hint in the same tick. A FAILURE
-  announces its message and an EMPTY run announces why it was empty — both
+  announces its message and an EMPTY run announces why it was empty – both
   fine. A SUCCESS announced `Based on: Dune, Heat, Arrival.` and never
   mentioned that six recommendations had arrived.
 
@@ -3152,17 +3465,17 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   what the user settled and it reads correctly for anyone who can see the
   cards.
 
-  **Announcing the CARDS instead was rejected** — six live-region updates per
+  **Announcing the CARDS instead was rejected** – six live-region updates per
   run is noise, and the hint is the channel this section already has. A new
   `.sr-only` utility came with it (the app had none), using
   `clip-path: inset(50%)` and `white-space: nowrap` so no engine reads it a
   letter per line.
 
-###### Group F — found while fixing the above (added 2026-09-09)
+###### Group F – found while fixing the above (added 2026-09-09)
 
 * **R23. DONE 2026-09-09, on the user's instruction, the same day it was
-  found.** The verdict's catch offered the AI call log for EVERY failure —
-  including CineRank being unreachable, where the log cannot load either —
+  found.** The verdict's catch offered the AI call log for EVERY failure –
+  including CineRank being unreachable, where the log cannot load either –
   and discarded `err.message`, so the real cause was thrown away. It now
   carries the same `userFacing`/`logged` treatment as the recommendations
   route, so the two features answer a failure identically instead of in two
@@ -3170,7 +3483,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
 
   **The user's requirement was zero FALSE NEGATIVES: a `failed` row must
   never be written without the message advertising the log.** That holds by
-  construction, not just by test — in both services `status = 'failed'` is
+  construction, not just by test – in both services `status = 'failed'` is
   assigned in exactly ONE place, and between the successful log insert and
   the `{ logged: true }` throw there is no other exit. The three no-row cases
   (DB read failed, threshold unmet, log write failed) correctly advertise
@@ -3184,15 +3497,15 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   response never reaches the browser, the row exists and the client cannot
   know. It shows the transport message instead.
 
-* **R24. DONE 2026-09-09 — the recs error line is `--ink-dim`, not
+* **R24. DONE 2026-09-09 – the recs error line is `--ink-dim`, not
   `--crimson`** (user-raised, after seeing R9's link land inside it). Not
-  taste — measured: the amber link was **2.48x brighter** than the crimson
+  taste – measured: the amber link was **2.48x brighter** than the crimson
   around it (relative luminance 0.583 vs 0.235), so the pointer to details
   shouted louder than the statement of what broke; and the two hues sit **36
   degrees** apart, close enough to read as almost-the-same rather than as a
   deliberate pair, while contrasting only 2.22 against each other. Claude
   proposed instead making the link inherit the crimson with an underline;
-  **the user chose recolouring the line, which is better** — it reuses the
+  **the user chose recolouring the line, which is better** – it reuses the
   verdict banner's proven amber-on-grey rather than inventing a second link
   treatment. `.verdict__text.is-muted` moved `--ink-faint` → `--ink-dim` in
   the same pass. Note the verdict's muted state is now one step brighter than
@@ -3200,27 +3513,28 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   which stay `--ink-faint`: the shared vocabulary is muted + italic, not one
   exact token.
 
-* **R25. DONE 2026-09-09 — the "New verdict" button was effectively
+* **R25. DONE 2026-09-09 – the "New verdict" button was effectively
   borderless** (user-raised, and correctly diagnosed by them). Settled over
-  three rounds of the user looking at it; the hover fill landed at 0.25.
+  three rounds of the user looking at it; the hover fill landed at 0.25, and
+  the user raised it to 0.3 on 2026-10-14.
   `border: 1px solid var(--line)` measures **1.22** contrast on the banner's
-  `--bg-raised` ground — a border that is not, in practice, drawn. R24 had
+  `--bg-raised` ground – a border that is not, in practice, drawn. R24 had
   just made the prose beside it brighter, so the button receded further.
 
-  Three changes: the border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
-  WARM, so it foreshadows the amber hover — chosen over `--line-strong` at
+  Three changes: The border is now `rgba(245, 193, 91, 0.3)` (**2.08**, and
+  WARM, so it foreshadows the amber hover – chosen over `--line-strong` at
   1.85 for near-identical weight with more meaning); the label went
   `--ink-dim` → `--ink` (**6.80 → 16.26**), which is where most of the
   visibility comes from, because a control must not be quieter than the
   sentence beside it; and `font-size` 0.85 → 0.88rem, as the user suggested.
 
   **Deliberately still far short of `.recs__trigger`'s full amber border
-  (11.05)** — the verdict is the lowest-stakes feature (SPEC §2.3), and the
+  (11.05)** – the verdict is the lowest-stakes feature (SPEC §2.3), and the
   hierarchy between the two triggers is carried by COLOUR (neutral vs amber),
   not by intensity alone. Do not "finish the job" by making this one amber
   too.
 
-  **That means the button's CHROME — its border and its label — and it still
+  **That means the button's CHROME – its border and its label – and it still
   stands** (2026-09-11). The sparkle icon R15 later put on this button IS
   amber, and that is not this rule being eroded: amber is the app's AI marker
   (the "AI pick" badge, the recs trigger, the call-log link), so a white
@@ -3229,50 +3543,50 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   border and an amber label. The border stays at 0.3 alpha and the label
   stays `--ink`.
 
-  **Hover, revised by the user after seeing it:** the border lights to amber,
-  the interior takes `background: rgba(0, 0, 0, 0.25)`, and a glow appears —
+  **Hover, revised by the user after seeing it:** The border lights to amber,
+  the interior takes `background: rgba(0, 0, 0, 0.3)`, and a glow appears –
   `0 0 16px -4px rgba(245, 193, 91, 0.4)`. The LABEL deliberately does NOT
   change; it is already `--ink` at rest, so there is nowhere brighter to go,
   and amber text inside an amber border flattened the button into one colour.
-  The glow is made of light, not black, and takes a ZERO Y-offset (D-044) —
+  The glow is made of light, not black, and takes a ZERO Y-offset (D-044) –
   the user flagged the dark-theme trap in the request itself.
 
   **The translucent BLACK fill is not a contradiction of D-044, and the CSS
   says so at the declaration.** D-044 is about SHADOWS, which darken what
-  lies BEHIND an element — and on a `#0b0b0f` page there is nothing left to
+  lies BEHIND an element – and on a `#0b0b0f` page there is nothing left to
   darken. A background darkens the button's OWN interior, a real surface at
-  `--bg-raised` (#14141b → about #0f0f14). There is something to darken, so
+  `--bg-raised` (#14141b → about #0e0e13). There is something to darken, so
   black works here and light would not. Do not "correct" it to a light fill
   by analogy with the shadow rule.
 
   **`.search button:hover` DOES use an offset amber pool and that is not an
   inconsistency either:** it is a FILLED button reading as a lit object
-  casting light downward, which is a different thing from an outline lighting
+  casting light downwards, which is a different thing from an outline lighting
   up. Do not unify them.
 
-* **R26. DONE 2026-09-09 — `#recs-hint` is coloured by ROLE**, and the rule
+* **R26. DONE 2026-09-09 – `#recs-hint` is coloured by ROLE**, and the rule
   was revised the same day. The two sentences
-  `syncRecommendationsAvailability()` writes — "Uses your top 5 rated films
-  as taste signal…" and "Rate at least 3 movies to unlock…" — are
+  `syncRecommendationsAvailability()` writes – "Uses your top 5 rated films
+  as taste signal…" and "Rate at least 3 films to unlock…" – are
   `--ink-dim`.
 
   **As first built, the rule was "who wrote the line": a `.from-run` class
   paired with `state.recsHintFromRun`, so a run's messages were all
-  `--ink-faint`. R28 disproved that** — the user looked at a zero-result run
+  `--ink-faint`. R28 disproved that** – the user looked at a zero-result run
   and pointed out that "No new suggestions this time…" is written by a run
   yet is persistent and is the ONLY thing the section shows, so it belongs
   with the availability sentences. Who wrote a line was a good proxy for the
   real question and not the same question.
 
-  **The rule now in force:** does the line INTRODUCE content that is present
+  **The rule now in force:** Does the line INTRODUCE content that is present
   or imminent, or is it the only thing on screen? `.recs__hint.is-caption`
   (`--ink-faint`) is set on exactly two messages, the busy line and "Based
-  on: …"; everything else takes the base `--ink-dim` — both availability
-  sentences, a failure, and all five zero-result variants.
+  on: …"; everything else takes the base `--ink-dim` – both availability
+  sentences, a failure and all five zero-result variants.
 
   `setRecsHint(content, { caption })` is the single writer for the element's
   content and its weight; `.from-run` and `setRecsHintOwner()` are GONE.
-  `state.recsHintFromRun` survives, meaning only what R1 made it mean — may
+  `state.recsHintFromRun` survives, meaning only what R1 made it mean – may
   the sync overwrite this?
 
   `.recs__hint.err` restates the base value on purpose: it is a pin, so an
@@ -3281,19 +3595,19 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   made the error brighter than the resting hint, true when written and not
   once the base moved.
 
-* **R27. DONE 2026-09-09 (D-048) — the rec-card entrance and exit.**
+* **R27. DONE 2026-09-09 (D-048) – the rec-card entrance and exit.**
   (user-raised, 2026-09-09.) The entrance half already existed and was tuned
   rather than rebuilt: `.rec-card` now carries its own
   `animation: rec-enter 0.75s var(--ease) backwards`, and the stagger went
-  from `i * 60ms` to `400ms + i * 120ms` — a lead-in plus the slower per-card
+  from `i * 60ms` to `400ms + i * 120ms` – a lead-in plus the slower per-card
   step the user asked for. Its own keyframe rather than the ranked card's,
   because 10px of travel under a ~300px poster card is a twitch and tuning it
   must not move the ranked list. (That independence paid off at step 4b: the
   ranked card was retuned and split onto `card-enter` with `rec-enter`
   untouched.)
 
-  The exit did not exist at all — `replaceChildren()` dropped six cards in
-  one frame — and is now `exitRecCards()`: `.is-leaving` on the cards and on
+  The exit did not exist at all – `replaceChildren()` dropped six cards in
+  one frame – and is now `exitRecCards()`: `.is-leaving` on the cards and on
   the metadata footer, since that describes the run being replaced.
 
   **Two details here have moved since and are described where they changed,
@@ -3310,9 +3624,9 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   it can express neither the stagger, the lead-in, nor the scroll between
   them. Full reasoning in D-048.
 
-  **The reduced-motion trap that reasoning turned up:** that block sets
+  **The reduced-motion trap that reasoning turned up:** That block sets
   `animation: none !important`, so no animation runs and `animationend` never
-  fires — a listener-driven removal would have left the old cards on screen
+  fires – a listener-driven removal would have left the old cards on screen
   permanently for exactly the users least able to tolerate it.
   `exitRecCards()` checks the media query first and clears instantly.
   `html { scroll-behavior: auto }` was added to the same block, as this entry
@@ -3323,12 +3637,12 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     is the hard maximum (`parseModelJson` does `.slice(0, 6)`), so the total is
     bounded: at 120ms it is lead-in + 5x120ms + the per-card duration, which
     came to about 1.3s as first estimated against a 200ms lead-in and a 0.5s
-    card, and is **1.75s as shipped** — the lead-in was doubled to 400ms and
+    card, and is **1.75s as shipped** – the lead-in was doubled to 400ms and
     the card duration raised to 0.75s.
     **Three separate dials, and the user has tuned each one by watching it:**
     `RECS_LEAD_IN_MS` (the beat before the first card), `RECS_STAGGER_MS`
     (the gap between cards) and the DURATION on `.rec-card`'s `animation`
-    (how fast one card drops). The third is the one that gets misattributed —
+    (how fast one card drops). The third is the one that gets misattributed –
     "the cards appear too fast" is almost never the stagger, which the user
     explicitly confirmed was fine while asking for this.
   * **Scroll the section into view**, because the cards land below the fold and
@@ -3339,12 +3653,12 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     that order, all of it after the response has landed.
     The ORDER is the non-negotiable part, not the figure: the user doubled the
     beat to **400ms** after watching it, which is the value in
-    `RECS_LEAD_IN_MS`. A side effect worth knowing before it is tuned again —
+    `RECS_LEAD_IN_MS`. A side effect worth knowing before it is tuned again –
     at 400ms a browser's smooth scroll has typically finished before the first
     card moves, so the sequence now reads literally rather than overlapping.
   * **Gated on `suggestions.length`. Nothing else animates or scrolls.** The
     "No new suggestions this time…" line, the error line and every placeholder
-    get no entrance animation and no scroll at all — the user's words: they
+    get no entrance animation and no scroll at all – the user's words: they
     "shall have no business with any entrance animation". Today that falls out
     for free (those paths append no cards), but the SCROLL must be gated
     explicitly, or a zero-result run would yank the page to a section with
@@ -3355,22 +3669,22 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   them:**
   * `html { scroll-behavior: smooth }` **already exists** (styles.css, near the
     top). So `scrollIntoView({ block: 'start' })` is smooth WITHOUT passing
-    `behavior: 'smooth'` — and passing the CSS property is what makes the
+    `behavior: 'smooth'` – and passing the CSS property is what makes the
     reduced-motion fix below expressible in CSS rather than in JS.
   * **Was REQUIRED and missing; ADDED with this item.** The
     `prefers-reduced-motion` block kills `animation` and `transition` only, so
     a motion-sensitive user would still have got a smoothly animated page
     scroll. `html { scroll-behavior: auto; }` is now in that block. It had
-    been latent — nothing in the app scrolled programmatically and there are
-    no in-page anchors — and went live the moment this feature landed.
-  * **The scroll target is `.recs__head`** — the user's call, and it is the
+    been latent – nothing in the app scrolled programmatically and there are
+    no in-page anchors – and went live the moment this feature landed.
+  * **The scroll target is `.recs__head`** – the user's call, and it is the
     right one. It is the first child of `.recs`, so `block: 'start'` lands
     the heading AND the trigger at the top of the viewport, with the hint and
     then the animating grid flowing in below. `el.recsGrid` would have pushed
     both the heading and the "Based on: …" line off-screen. `.recs` itself
     resolves to nearly the same place, but only via margin-collapse reasoning
     (`.recs__head` carries `margin: 3rem 0 1.25rem` that collapses through
-    the section) — `.recs__head` says it outright and cannot drift if the
+    the section) – `.recs__head` says it outright and cannot drift if the
     section ever gains padding or a border.
 
     `start` is also the robust ALIGNMENT here, independently: the content
@@ -3378,31 +3692,31 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     by growth below it, where `center` or `nearest` would drift
     mid-animation. `block: 'start'` pins the element's top flush to the
     viewport top with no breathing room, so `.recs__head` carries
-    `scroll-margin-top: 1rem` — that property is exactly what
+    `scroll-margin-top: 1rem` – that property is exactly what
     `scrollIntoView` honours, unlike `margin`. It is the one dial if the
     landing ever reads too tight or too loose. Not a reopening of the R12
     head split: the layout rules stay on the shared
     `.ranked__head, .recs__head` rule.
-  * **Put the lead-in in `animationDelay`, not a `setTimeout`** — no timer to
+  * **Put the lead-in in `animationDelay`, not a `setTimeout`** – no timer to
     leak or cancel if a second run starts. This works only because the fill is
     `backwards`: during the delay each card holds the from-state (opacity 0,
     `translateY(10px)`). With any other fill it would sit fully visible through
-    the lead-in and then jump. That is D-043's mechanism doing real work here —
+    the lead-in and then jump. That is D-043's mechanism doing real work here –
     one more reason it must never go back to `both`.
 
   *(All four shipped with R27 as described: the lead-in and stagger are set as
   each card's `animationDelay` in `renderRecommendations()`.)*
 
-  **Firing the scroll on CLICK was considered and REJECTED by the user** — do
+  **Firing the scroll on CLICK was considered and REJECTED by the user** – do
   not revisit it. At click time the app knows none of the three things that
   make the scroll worth doing: how long the call will take, how many
-  recommendations will come back, or whether it will succeed at all. Scrolling
+  recommendations will come back or whether it will succeed at all. Scrolling
   then would move the page for a run that is about to fail, or that returns
   nothing, or that leaves the user staring at a spinner for ten seconds in a
   newly-scrolled position. The scroll is a reward for a result, so it waits for
   one.
 
-* **R28. DONE 2026-09-09 — the zero-result message told the user a specific
+* **R28. DONE 2026-09-09 – the zero-result message told the user a specific
   lie.** It read "No new suggestions this time — the model only named films
   already in your list" for EVERY empty run, and the user asked the right
   question: is that necessarily what happened? No. There are four causes, and
@@ -3410,19 +3724,19 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   returned `[]`); TMDB answered and had no such film; **TMDB was
   unreachable** (the per-pick `catch` set `movie = null`, indistinguishable
   from the previous case); or everything it named was already owned. The
-  intra-run duplicate guard cannot empty the list on its own — the first
+  intra-run duplicate guard cannot empty the list on its own – the first
   occurrence always survives.
 
   **The third one is why this mattered.** A TMDB outage during verification
   leaves the run logging `status: 'success'` (the AI call did succeed and was
-  charged), so nothing else in the app mentions TMDB — that false sentence
+  charged), so nothing else in the app mentions TMDB – that false sentence
   was the only thing the user would ever see, and it hid an outage. It is
   also a state on the resilience-screenshot list.
 
-  Fixed at the source: the service keeps a per-title tally (`named /
+  Fixed at the source: The service keeps a per-title tally (`named /
   tmdbErrors / unmatched / owned / duplicate`), `emptyReasonFor()` resolves
   it to one of `none-named | tmdb-unreachable | all-owned | unverifiable |
-  mixed`, and it travels as a top-level `emptyReason` — null whenever there
+  mixed`, and it travels as a top-level `emptyReason` – null whenever there
   are cards, so it can never be read as a warning. The client maps it to
   copy, with `mixed` backstopping an unknown value so a server that learns a
   new reason first degrades to something true.
@@ -3430,14 +3744,14 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **Order is load-bearing in `emptyReasonFor()`:** `tmdb-unreachable`
   outranks everything because it is the only cause the user can neither see
   nor act on otherwise. The tally is also written into the log row's
-  `raw_model_output` (jsonb, and nothing reads that column — checked against
+  `raw_model_output` (jsonb, and nothing reads that column – checked against
   `routes/aiLog.js`), so an empty `suggested_titles` now records whose fault
   it was.
 
-  Five tests, probed twice: collapsing `tmdbErrors` back into `unmatched`
+  Five tests, probed twice: Collapsing `tmdbErrors` back into `unmatched`
   fails one, and hardcoding `all-owned` fails three.
 
-* **R29. DONE 2026-09-10 (D-051) — a card's size no longer depends on how
+* **R29. DONE 2026-09-10 (D-051) – a card's size no longer depends on how
   many came back** (user-raised 2026-09-09, with a screenshot). One
   recommendation on a viewport wide enough for four rendered as a single
   full-width card with a poster taller than the window; two was the same
@@ -3461,7 +3775,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   `margin-inline: auto` doing the centring.
 
   **Capping the CONTAINER rather than sizing each track is what kept this
-  small** — the `1fr` tracks divide a width that is already correct, so
+  small** – the `1fr` tracks divide a width that is already correct, so
   D-050's doubled-track/half-column machinery is untouched, and when the
   balanced count equals what fits, `--rec-width` IS the container width and
   the two new declarations do nothing at all.
@@ -3474,7 +3788,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   **This also settled the 4 + 2 versus 3 + 3 question, as free.** The only
   cost of 3 + 3 was that filling tracks made every card ~36% wider; with the
   width fixed by `fit` it is the same card and the same two rows as 4 + 2. So
-  `balancedColumns()`'s deliberate `> 1` restraint (D-050) is GONE — it
+  `balancedColumns()`'s deliberate `> 1` restraint (D-050) is GONE – it
   existed only to avoid growth that can no longer happen. Six cards where
   four fit now render 3 + 3.
 
@@ -3486,7 +3800,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   250px; user-raised the same day with screenshots either side of all three
   column boundaries). Decoupling width from the count was not enough on its
   own: the width still comes from `fit`, so every time one fewer column fits,
-  the survivors inherit the space — and the poster is `aspect-ratio: 2/3`, so
+  the survivors inherit the space – and the poster is `aspect-ratio: 2/3`, so
   a pixel of width costs 1.5 of height. At one card per row that was a 390px
   card with a **585px poster on an 869px window**. Capped, the poster never
   exceeds 375px. Measured at the three boundaries the user photographed: 4→3
@@ -3498,7 +3812,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   both in the stylesheet, both read by `balancedLayout()`. Capping only ever
   shrinks, so it can never let more cards fit and `fit` stays correct.
 
-  **The `.ai-meta` footer MOVED OUT OF THE GRID — settled 2026-09-09 before
+  **The `.ai-meta` footer MOVED OUT OF THE GRID – settled 2026-09-09 before
   building, done 2026-09-10.** It was a grid child spanning `1 / -1`, so a
   centred, narrower track list would shrink the footer and its dashed rule to
   match, and a single-card run would leave it one card wide. The user ruled
@@ -3509,7 +3823,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   It is, and the deciding fact is not obvious: **`grid-column: 1 / -1` spans
   the TRACK LIST, not the container.** With `justify-content: center` the
   free space sits OUTSIDE the tracks, so "span it to the container" is not a
-  one-liner at all — it needs a flexible gutter track at each end
+  one-liner at all – it needs a flexible gutter track at each end
   (`1fr repeat(2k, …) 1fr`), which shifts every column index by one, adds two
   more gaps to the width arithmetic, breaks the half-column offset that
   centres a short last row, and puts an auto-placed card into a gutter unless
@@ -3520,43 +3834,43 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   Out of the grid it is a plain block under it, full width, always, coupled
   to nothing. Give it a stable slot in `index.html` (the way `#recs-hint` and
   `#recs-grid` are stable) rather than appending it to `.recs` and querying
-  it back — an empty slot has no border, padding or content, so it costs no
+  it back – an empty slot has no border, padding or content, so it costs no
   layout.
 
   **All four follow-on edits landed, and they were the whole of the work:**
-  (1) `renderRecommendations()` appended the footer in TWO places — the empty
-  branch and the success branch — and both now write to `#recs-meta`. (2)
+  (1) `renderRecommendations()` appended the footer in TWO places – the empty
+  branch and the success branch – and both now write to `#recs-meta`. (2)
   `exitRecCards()` swept the grid's children, which used to include the
   footer for free; it now sweeps both the grid and the slot, and the
   `.is-leaving` rule is anchored on `.recs` rather than on the grid. (3)
   **The sneaky one, and it was real.** The spotlight dimmed the footer ONLY
-  because it was a grid child — that is the whole of D-049's `> *` rather
+  because it was a grid child – that is the whole of D-049's `> *` rather
   than `> .rec-card`. The `:has()` anchor moved up to `.recs` and the rule is
   now two selectors, scoped so the VERDICT banner's own `.ai-meta` is
   untouched. Without that the footer would have been left the single
   brightest thing on screen at the moment attention is meant to be on a card.
   (4) The grid's `gap` no longer separates the footer from the cards, so
-  `.recs__meta .ai-meta` carries `margin-top: 1.1rem` — on the FOOTER, not on
+  `.recs__meta .ai-meta` carries `margin-top: 1.1rem` – on the FOOTER, not on
   the slot, so an empty slot still contributes nothing.
 
-* **R30. DONE 2026-09-10 — the cards now close like a book, one by one**
+* **R30. DONE 2026-09-10 – the cards now close like a book, one by one**
   (user-raised 2026-09-09). `rec-leave` ended at
   `translateY(6px) scale(0.97)`, and the uniform `scale()` read as the card
-  sliding SIDEWAYS rather than leaving — the user's word was "stuttering".
+  sliding SIDEWAYS rather than leaving – the user's word was "stuttering".
   Both halves of the ask landed: the exit is staggered in arrival order, and
   the shrink is gone.
 
   `rec-close` runs `scale(1, 1)` → `scale(0, 0.1)` from
   `transform-origin: left center`, so the card swings shut on a spine instead
-  of collapsing inward from both edges, and collapses toward a horizontal
-  line on the way — the user's call, tried at 0.5 first and taken further.
+  of collapsing inwards from both edges, and collapses towards a horizontal
+  line on the way – the user's call, tried at 0.5 first and taken further.
   Not to 0 on that axis: something still has to be visibly closing rather
   than already gone. The opacity runs straight from 1 to 0 across the whole
   duration, so the fade and the close happen together.
 
   **Both of those were revised the same day, and the reason is one finding.**
-  The first version staggered by 55ms, eased on `--ease`, and held the
-  opacity back to 72% until the 60% mark — and the user reported the cards
+  The first version staggered by 55ms, eased on `--ease` and held the
+  opacity back to 72% until the 60% mark – and the user reported the cards
   were "exiting at the same time". The stagger was real. `--ease` is
   `cubic-bezier(0.22, 1, 0.36, 1)`, a strong ease-OUT built for arrivals: 40%
   of the way by t=0.1 and **67% by t=0.2**, so each card did its entire
@@ -3564,21 +3878,21 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   apart flashed through inside a few hundred milliseconds. The stagger had
   nothing left to separate, and the opacity hold had nothing to overlap.
 
-  Fixed on both axes: stagger 55ms → 120ms, and `--ease` → **`ease-in`** (2%
-  at t=0.1, 32% at t=0.5), which is the right shape for a departure anyway —
+  Fixed on both axes: Stagger 55ms → 120ms, and `--ease` → **`ease-in`** (2%
+  at t=0.1, 32% at t=0.5), which is the right shape for a departure anyway –
   things accelerate away and decelerate in. **Leaving `--ease` here is
   deliberate.**
 
   **`transform-origin` is scoped to `.is-leaving`, and that is
   load-bearing.** On `.rec-card` it would silently move the hover
-  `scale(1.018)` off centre — and that effect exists in its current form
+  `scale(1.018)` off centre – and that effect exists in its current form
   precisely because growing from the middle narrows the gaps on both sides
   equally, which is the whole finding of D-043's lift removal. One property,
   two effects, only one wanting an offset origin.
 
-  **The trap that would have cost real time, found while building it:** every
-  card is still carrying the INLINE `animationDelay` its ENTRANCE was given —
-  up to 400 + 5x120 = 1000ms — and `animation-delay` is one property shared
+  **The trap that would have cost real time, found while building it:** Every
+  card is still carrying the INLINE `animationDelay` its ENTRANCE was given –
+  up to 400 + 5x120 = 1000ms – and `animation-delay` is one property shared
   by whichever animation is running. Writing the exit's own delay is
   therefore not optional even at a zero stagger; without it the last card
   sits untouched for a second before starting to close, which looks like a
@@ -3588,13 +3902,13 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   0.94s. That is the ceiling of the budget and it is fine: the exit only ever
   runs while a request is in flight, and an AI call is seconds. The stagger
   now matches the entrance's, which is NOT a reason to collapse the two into
-  one constant — they should stay independently tunable, since the entrance
+  one constant – they should stay independently tunable, since the entrance
   is the half the user asked to be able to watch and the exit only has to be
   legible. The footer is a line of TEXT, not a card, so it gets a plain
   `rec-fade` with no delay rather than a book-close that would just squash
   the words.
 
-  **THE EXIT REMOVES EVERY NODE TOGETHER, WHEN THE LAST ANIMATION ENDS —
+  **THE EXIT REMOVES EVERY NODE TOGETHER, WHEN THE LAST ANIMATION ENDS –
   never one at a time as each finishes.** That was the first shape, and it is
   what the user then reported as "blinking/flashing". A `transform` does not
   affect layout, so a card mid-close still occupies its grid cell and nothing
@@ -3603,19 +3917,19 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   loses a row and everything below jumps a whole card height. With a stagger
   that happens five times in under a second. A screenshot taken mid-exit is
   what showed it: card 3 alone in the top row while 4, 5 and 6 sat a full row
-  lower, every one of them at a different scale — the animation was fine, the
+  lower, every one of them at a different scale – the animation was fine, the
   layout underneath it would not hold still. Batching makes the exit
   layout-static from first frame to last.
 
   One `setTimeout` backstop came with the batching and is worth keeping:
   while each node removed itself, an animation that never ended stranded that
   node alone; now it would strand the whole set, since the count would never
-  reach zero. It is not cancelled and does not need to be — `remove()` on a
+  reach zero. It is not cancelled and does not need to be – `remove()` on a
   detached node is a no-op. `RECS_EXIT_MS` exists only so that backstop knows
   the duration, and **must stay in step with the `animation` on
   `.rec-card.is-leaving`**; both places say so.
 
-  **What happens when a response beats the exit — analysed 2026-09-10, and
+  **What happens when a response beats the exit – analysed 2026-09-10, and
   deliberately NOT changed.** The exit starts on the click and takes 0.94s
   for six cards; the request runs concurrently. If it comes back sooner,
   `renderRecommendations()` opens with `el.recsGrid.replaceChildren()`, so
@@ -3623,13 +3937,13 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   guessed:
 
   * **Nothing is corrupted.** `leaving` is a snapshot array, so the batched
-    removal and its backstop can only ever touch the OLD nodes — a stale
+    removal and its backstop can only ever touch the OLD nodes – a stale
     backstop firing after the new cards exist calls `remove()` on detached
     nodes, which is a no-op. A detached element's animation stops, so
     `pending` never reaches zero and the backstop is what cleans up. No leak.
   * **Only a fast SUCCESS cuts anything.** The catch branch never touches the
-    grid (verified), so a failure — including a fast one like the
-    below-threshold 422 — leaves the cards to finish closing properly.
+    grid (verified), so a failure – including a fast one like the
+    below-threshold 422 – leaves the cards to finish closing properly.
   * **The effect is purely cosmetic and lasts a single frame.** At a 400ms
     response the first two cards are 100% and 73% closed, and cards 4–6, which
     have barely started, are replaced by the new cards in the same frame. It
@@ -3637,7 +3951,7 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
     is a very rare edge case.
 
   **Left alone on purpose.** The alternative is making the render wait for
-  the exit, and that inverts R27's own priority — the scroll and the entrance
+  the exit, and that inverts R27's own priority – the scroll and the entrance
   are the reward for a RESULT, so delaying a result to finish an animation
   about the previous one is the wrong trade. It also puts an await in front
   of the `finally` that restores the busy button. In production this is close
@@ -3646,17 +3960,17 @@ shared inline-SVG `.noposter` (D-027), and `.reason` clamps at 5 lines.
   `debugRecs(6, { delayMs: 300 })`, so if it is ever seen it will be seen
   there first, and this paragraph is why it is not a bug report.
 
-  Also fixed in passing: the reduced-motion branch of `exitRecCards()`
+  Also fixed in passing: The reduced-motion branch of `exitRecCards()`
   cleared the grid but not `#recs-meta`, so a motion-sensitive user kept the
   previous run's metadata footer on screen. That gap arrived with R29 an hour
   earlier.
 
-##### Step 3 — GitHub links
+##### Step 3 – GitHub links
 
-**Add GitHub link(s)** to the page — out to the public repo. **The header
+**Add GitHub link(s)** to the page – out to the public repo. **The header
 link is DONE 2026-09-11**, which is the placement the user specified: a
 GitHub mark top-right in `.site-head`, right-aligned with the content column.
-That alignment is free rather than tuned — `main` and `.site-head` both read
+That alignment is free rather than tuned – `main` and `.site-head` both read
 `max-width: var(--page-max)` (1040px) with identical horizontal padding, so
 the icon lands exactly above the verdict banner's right edge.
 
@@ -3664,16 +3978,16 @@ the icon lands exactly above the verdict banner's right edge.
 should be.** Claude called this step "small and self-contained" meaning the
 TASK; the user read that as the icon and corrected it, then asked for the
 backlog to be checked in case the claim was written down anywhere. It was not
-— checked. The icon was built at `clamp(32px, 4vw, 42px)`, a peer of the 34px
+– checked. The icon was built at `clamp(32px, 4vw, 42px)`, a peer of the 34px
 logo mark, and then grew 1.5x (below).
 
 **The header is now a two-column grid** (`minmax(0, 1fr) auto`) with the mark
-at 1/1, the tagline at 1/2, and the link spanning BOTH rows in column 2 so it
+at 1/1, the tagline at 1/2 and the link spanning BOTH rows in column 2 so it
 centres against the block rather than against either line. Every placement is
 explicit: auto-placement gives the same result today and would move the day a
 third element joins the header. `minmax(0, 1fr)` and not `1fr` for a reason
 this project has hit before (the search input, the add button and the ranked
-card's track, for example) — `1fr` is `minmax(auto, 1fr)`, and that
+card's track, for example) – `1fr` is `minmax(auto, 1fr)`, and that
 automatic minimum would let a long tagline word push the icon off the edge
 instead of wrapping.
 
@@ -3681,34 +3995,34 @@ instead of wrapping.
 screenshots.** The icon was centred across the two rows, which left it
 sitting well below the h1; it is now `align-self: start` with a negative
 `margin-top` cancelling its own padding, so what meets the top of the header
-block is the GLYPH rather than the invisible hit area — without that it reads
+block is the GLYPH rather than the invisible hit area – without that it reads
 about 7px low and the padding takes the blame. It also grew 1.5x, applied to
 every term of the clamp (`32/4vw/42` → `48/6vw/63`) so it grows by half at
 every width rather than only where the clamp happened to be resting.
 
 **The icon-clipping question, RESOLVED 2026-09-30: the real browser is the
 authority, and the headless finding is discarded.** On 2026-09-12 a
-headless-Chrome screenshot pass (292 through 600px) appeared to show the header
+headless-Chrome screenshot pass (292 to 600px) appeared to show the header
 GitHub icon fully clipped off-canvas from ~510px down. The user's own real
-browser directly contradicted it — a live screenshot at
+browser directly contradicted it – a live screenshot at
 `window.innerWidth === 406` showed the icon completely visible, dead centre of
 the range the automated pass called broken. Chasing the discrepancy (font-load
 timing, a stray `--window-size` that turned out to be silently ignored because
 the headless instance reused an already-running session) fixed one real bug in
 the TEST TOOLING but never reconciled the two results, and the user stopped the
-session spending more time on it — correctly: this was supposed to be two
+session spending more time on it – correctly: this was supposed to be two
 small, mechanical CSS fixes.
 
 **The conclusion, and it is a standing rule:** a headless browser is not
 reliable enough to be the only measure of layout. Its findings are a lead, and
 whenever there is any doubt about their accuracy a human verifies in a real
 browser, whose result wins. Applied here, the real browser's observation stands
-and the ~510px figure is retracted, not corrected — do not cite it. The
+and the ~510px figure is retracted, not corrected – do not cite it. The
 h1-overflow mechanism this note describes (a single unbreakable word in a
 `minmax(0, 1fr)` column) is real: that column cannot be pushed wider, so such a
 word overflows it rather than moving the icon's column.
 
-**The evidence for the rule ran deeper than this note first knew — see
+**The evidence for the rule ran deeper than this note first knew – see
 D-062.** A later, unrelated bug hunt found a case with a completely FRESH
 profile (no session reuse) where the requested `--window-size` still didn't
 match what the page's own JS reported, and a separate run where the output PNG
@@ -3717,17 +4031,17 @@ else entirely. `npm run layout-check` (2026-09-28) removes that particular
 fault by measuring inside an iframe it sizes itself; it is a headless browser
 all the same, so the rule above applies to its findings too.
 
-**What IS certain, independent of any of the above:** the two fixes that
+**What IS certain, independent of any of the above:** The two fixes that
 shipped alongside this note (`.mark__reel`'s `flex-shrink: 0`; the GitHub
 icon scaled to 75% under `max-width: 400px`) cannot affect anything above
-400px by construction — the icon rule is strictly gated by its media query,
+400px by construction – the icon rule is strictly gated by its media query,
 and the reel's fix only ever prevents a shrink that would otherwise occur
 under pressure, never something that changes its rest state.
 
 **States, as the user specified them:** `opacity: 0.68` at rest (walked up by
 eye, 0.62 → 0.65 → 0.68, once the halo settled), easing to `1` on hover, with
 a box-shadow appearing over the same 0.25s. The glow is **built out of light,
-not black** — the user flagged the dark-theme trap in the request itself, and
+not black** – the user flagged the dark-theme trap in the request itself, and
 D-044 is the entry that records it costing real time on the ranked card. Both
 layers take a **zero Y-offset** (a glow is emitted and radiates evenly; an
 offset only makes it lopsided) and the magnitudes echo
@@ -3738,16 +4052,17 @@ thing glowing is just a blur (R15).
 It carries a `title="View source on GitHub"` tooltip (user-asked) ALONGSIDE
 its `aria-label`, and the two deliberately differ: the title is the pointer
 tooltip, the aria-label is the accessible name and the only one that can say
-the tab is new. They cannot double up — an `aria-label` wins the accessible
+the tab is new. They cannot double up – an `aria-label` wins the accessible
 name outright, so the title is never announced. Do not merge them.
 `border-radius: 50%` on the link so the halo is round like the mark itself; a
 rectangular glow around a circular glyph reads as a stray box. Hover is gated
 on `@media (hover: hover)`, the capability query the card hovers settled, so
-a tap cannot park the icon lit.
+a tap cannot park the icon lit. *(`(hover: hover) and (pointer: fine)` since
+2026-10-24, D-090.)*
 
-**One dial considered and left unset:** the user raised
+**One dial considered and left unset:** The user raised
 `filter: brightness(1.x)` as a possible "more than fully opaque" step, then
-judged it unnecessary once the resting opacity and the halo had been tuned —
+judged it unnecessary once the resting opacity and the halo had been tuned –
 the two cheaper dials turned out to be enough. The CSS still says where it
 goes and that it must join the transition list, so it is a documented hook
 rather than a forgotten idea. **When the halo was widened, only the BLUR
@@ -3755,7 +4070,7 @@ moved** (18/38 → 22/46) and the alphas were deliberately held: raising both
 makes a halo read as brighter rather than bigger, and then neither dial can
 be judged on its own.
 
-**The plural in "link(s)" is now satisfied too — a SECOND mark sits at the
+**The plural in "link(s)" is now satisfied too – a SECOND mark sits at the
 right edge of the footer's credit line** (user-asked, same day). It is the
 same icon at `1.5rem` against the header's `clamp(48px, 6vw, 63px)`.
 
@@ -3765,6 +4080,10 @@ resting opacity, the transition and the hover glow, while
 `.site-head .gh-link` holds the grid placement and `--gh-drop`, and
 `.site-foot__credit .gh-link` holds a `font-size` and the `--gh-halo` dial
 described below. Those two are the only differences between the two marks.
+*(Since 2026-10-21 (D-088) the footer mark is a fixed 20px rather than
+`1.5rem`, and `.site-foot__credit .gh-link` holds a placement of its own as
+well: a `margin-top` that sets its glyph level with the top of the credit, the
+same correction the header's `--gh-drop` margin makes against its title.)*
 
 **The hover halo moved from px to `em` as part of that**, and the conversion
 is arithmetic rather than a retune: `22px`/`46px` divided by the header's
@@ -3775,8 +4094,8 @@ proportional glow. A fixed
 
 **Two more by-eye fixes once the footer mark was on screen, both from one
 screenshot.** The dark ring the user saw "wrapping" the small mark was the
-link's own `padding` — unlit page background between the glyph and where the
-glow starts — and it was fixed in `rem`, so it did not scale down: a thin rim
+link's own `padding` – unlit page background between the glyph and where the
+glow starts – and it was fixed in `rem`, so it did not scale down: a thin rim
 at 63px, more than a third of the link's radius at 24px. `--gh-pad` is now
 `0.115em`, which IS the hand-tuned 7.2px expressed against the header's 63px,
 so the header rim moved by 0.05px and the footer's dropped from 7.20px to
@@ -3787,7 +4106,7 @@ so the glyph lands in the same place whatever the padding is.
 
 The halo then got its own per-instance dial, `--gh-halo`, multiplying blur
 AND spread so the glow is scaled rather than distorted. The header keeps `1`
-— **its glow is byte-for-byte what the user settled, 22/46px** — and the
+– **its glow is byte-for-byte what the user settled, 22/46px** – and the
 footer takes `1.35`. Proportional was the right default, but a small mark on
 a quiet footer needs a little more spill to register as lit. The alphas stay
 out of the multiplier, for the reason the earlier widening established:
@@ -3795,13 +4114,13 @@ brightness and size are separate dials and mixing them makes neither
 judgeable.
 
 `.site-foot__credit` became a flex row with the sentence wrapped in its own
-`<span>` — without that wrapper the icon would be one more inline word after
+`<span>` – without that wrapper the icon would be one more inline word after
 the full stop and would sit wherever the line happened to end, not at the
 right edge.
 
 **The SVG path is DUPLICATED between the two, deliberately.** `<symbol>` +
-`<use>` would genuinely work here — unlike R15's sparkle, nothing selects
-into this icon's internals and `fill` inherits from the host's `color` — but
+`<use>` would genuinely work here – unlike R15's sparkle, nothing selects
+into this icon's internals and `fill` inherits from the host's `color` – but
 it costs a hidden sprite element plus a rewrite of the header link the user
 had just finished tuning by eye, to de-duplicate one static third-party logo
 path that will never be regenerated. A `<template>` + JS clone is worse
@@ -3809,80 +4128,80 @@ again: this link's only content is the icon, so a failed script leaves an
 empty clickable box. Both copies carry a comment pointing at the other; edit
 one, edit both.
 
-##### Step 4 — the favicon
+##### Step 4 – the favicon
 
-**The favicon gap — DONE 2026-09-12 (D-064).** Discussed first, as the user
+**The favicon gap – DONE 2026-09-12 (D-064).** Discussed first, as the user
 asked, then built from what the discussion settled.
 
 **Shipped:** `public/favicon.svg` plus one
 `<link rel="icon" type="image/svg+xml">` in `index.html`. No `.ico`, no PNG
-set, no server route — `express.static` already serves `public/`.
+set, no server route – `express.static` already serves `public/`.
 
 **It is a RE-DRAW, not an export, and it cannot be anything else.**
 `.mark__reel` is pure CSS, so no asset ever existed to export. And a faithful
 transcription fails at the only size that matters: normalised to a 32-unit
-viewBox the logo's inner ring is **1.12 units — 0.56px at 16px**, which
+viewBox the logo's inner ring is **1.12 units – 0.56px at 16px**, which
 aliases into a smudge. Four candidates were drawn and compared at
 16/24/32/64px on light and dark tab strips; the user chose the one that goes
-furthest toward faithful while still holding at 16px (rings 4.0 and 2.2,
+furthest towards faithful while still holding at 16px (rings 4.0 and 2.2,
 notch 34° against the logo's 28.8°).
 
 **DO NOT "CORRECT" ITS PROPORTIONS BACK TO MATCH `.mark__reel`.** They differ
 on purpose, the exact-match version was built and rejected, and the file says
-so at the top. Retune only at 16px — every candidate looks fine at 64px.
+so at the top. Retune only at 16px – every candidate looks fine at 64px.
 
-**Three sub-decisions, all deliberate and all in D-064:** no background disc
+**Three sub-decisions, all deliberate and all in D-064:** No background disc
 (offered with a live toggle, compared on a light strip, rejected); no spin
 (Chrome rasterises only the first frame); SVG only.
 
-**On SVG-only — Claude's first advice here was wrong and the user caught
+**On SVG-only – Claude's first advice here was wrong and the user caught
 it.** It claimed Safari would still probe `/favicon.ico` and that an airtight
 fix needed a real `.ico`. **Safari 26.0 added SVG favicon support** (caniuse:
-unsupported through 18.7, supported 26.0+; WebKit's own 26.0 notes say it
-covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7
-and older still probe — the same 404 as before, not a new one.
+unsupported in 18.7 and earlier, supported 26.0+; WebKit's own 26.0 notes say it
+covers favicons, not just the old pinned-tab `mask-icon`). Only Safari 18.7 and
+older still probe – the same 404 as before, not a new one.
 
 **There is no 404 handler** for the probe to land on: `server/index.js` has
 only a central error handler, which fires on `next(err)`. The request falls
 through `express.static` and every API mount to Express's built-in
-finalhandler — a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
+finalhandler – a 404 with `Cannot GET /favicon.ico` as `text/html`. Verified
 by booting the app on port 3999, not reasoned about. Declaring any icon link
 is what stops the auto-probe, so the icon and the console error were one fix,
 not two.
 
-##### Step 4b — seven polish items
+##### Step 4b – seven polish items
 
 **SEVEN visual-polish items on the verdict banner, the ranked list, the logo
 and the film grain** (user-raised 2026-09-10 and 2026-09-11). **ALL SEVEN
-DONE — step 4b is CLOSED.** The logo spin and the ranked list's first-paint
+DONE – step 4b is CLOSED.** The logo spin and the ranked list's first-paint
 entrance landed 2026-09-11; the verdict border's glint, its busy-state cue,
 the film grain and the disabled "New verdict" landed 2026-09-12; the verdict
-typing effect — the only item here that was ever a genuinely new build —
+typing effect – the only item here that was ever a genuinely new build –
 closed the same day (D-057), tuned to **18**ms/char by the user's eye (15ms
 was tried and REVERTED, the user preferring the slower read).
 **Steps 5 AND 4 are both done (2026-09-12), so every UI step of the agreed
-order is closed, and step 6 — pre-submission evidence and cleanup — closed
+order is closed, and step 6 – pre-submission evidence and cleanup – closed
 2026-09-14. Step 5's two narrow-viewport enforcement rules still stand and
 are not retired by it closing.**
 
 The five still open after 2026-09-11, crossed off as each closed on 2026-09-12:
 
-1. ~~the verdict border's glint~~ — **DONE 2026-09-12**, over four failed
+1. ~~the verdict border's glint~~ – **DONE 2026-09-12**, over four failed
    polish passes and then a revert-and-isolate. Left here rather than deleted
    because its three traps govern item (5): the ring width is FIVE coupled
    values, the twenty layer rules are GENERATED with delays derived from the
    duration, and the alphas are SOLVED and cannot be scaled. See D-055;
-2. ~~the verdict typing effect~~ — **DONE 2026-09-12** (D-057), the only item
+2. ~~the verdict typing effect~~ – **DONE 2026-09-12** (D-057), the only item
    here that was ever a new build;
-3. ~~the film grain~~ — **DONE 2026-09-12**: it was a RESAMPLE-RATE problem,
+3. ~~the film grain~~ – **DONE 2026-09-12**: it was a RESAMPLE-RATE problem,
    not a brightness one. `mix-blend-mode`, this item's leading suggestion,
-   was measured and rejected — it moves grain onto the posters and off the
+   was measured and rejected – it moves grain onto the posters and off the
    dark background;
-4. ~~"New verdict" shown disabled rather than hidden when locked~~ — **DONE
+4. ~~"New verdict" shown disabled rather than hidden when locked~~ – **DONE
    2026-09-12**, and it needed no new CSS: the disabled vocabulary from
    R13/D-035/R15 already covered it. Two traps, both traced rather than
    tested, and the second was created by the fix for the first;
-5. ~~the glint speeding up while "New verdict" is busy~~ — **DONE
+5. ~~the glint speeding up while "New verdict" is busy~~ – **DONE
    2026-09-12**. Brightness in CSS, speed via `playbackRate` in JS rather
    than the duration swap D-055 prescribed, because changing a CSS
    animation's duration makes the dash JUMP (D-056).
@@ -3890,14 +4209,14 @@ The five still open after 2026-09-11, crossed off as each closed on 2026-09-12:
 **A pattern came out of the finished ones:** all were "the mechanism exists,
 the effect is invisible", and in TWO of them the cause was `var(--ease)`
 front-loading the motion into the first fifth of the duration. Check the
-timing function first — but the glint proved that is not always the whole
+timing function first – but the glint proved that is not always the whole
 story, so also ask whether there is anything in the frame whose movement can
 be SEEN at all. The user pulled this step in front of step 4 deliberately:
 the favicon will most likely derive from the logo, so the logo had to be
 settled before that discussion could start.
 
-**FOUR OF THE ORIGINAL FIVE are the same shape — the mechanism already exists
-and the effect is simply too subtle to see — so read each item before
+**FOUR OF THE ORIGINAL FIVE are the same shape – the mechanism already exists
+and the effect is simply too subtle to see – so read each item before
 building anything.** Only the typing effect is a genuinely new build; the two
 items added on 2026-09-11 (the disabled button and the busy-speed glint) are
 their own shapes again. The logo item was one of the four, and it is worth
@@ -3913,17 +4232,17 @@ renumbering would silently break every reference to "step 5", including the
 enforcement rules in the memory file `recs-overhaul-known-issues.md`. Step 5
 stays the portrait overhaul.
 
-* **A typing effect on the verdict as it appears, like early ChatGPT — DONE
+* **A typing effect on the verdict as it appears, like early ChatGPT – DONE
   2026-09-12 (D-057).** The only item in this sub-backlog that was ever a
   genuinely new build rather than an existing effect too subtle to see.
 
   **Both hazards flagged in advance were real and both are handled:**
-  `.verdict__text` had (and still has) two writers —
-  `syncVerdictAvailability()` and a run — so D-040's single-writer lesson
+  `.verdict__text` had (and still has) two writers –
+  `syncVerdictAvailability()` and a run – so D-040's single-writer lesson
   applied directly. Every write now goes through ONE function,
   `setVerdictText(text, { typed })` (`app.js`), which cancels any typer
   already running (through a generation counter) before
-  writing its own content — a sync landing mid-type just wins, cleanly, with
+  writing its own content – a sync landing mid-type just wins, cleanly, with
   no coordination the caller has to think about.
 
   The `aria-live="polite"` hazard is solved by giving the element TWO
@@ -3934,24 +4253,24 @@ stays the portrait overhaul.
   both error messages render instantly, unchanged.
 
   **`prefers-reduced-motion` is checked inside the helper itself**, before
-  the typing branch runs at all — so the caret's CSS animation is
+  the typing branch runs at all – so the caret's CSS animation is
   structurally unreachable under reduced motion, not merely suppressed by the
   app's global kill-switch.
 
   **One call site deliberately bypasses the helper**, and says so at the
   point it does: the verdict's `err.logged` failure builds a link (text +
   a `logLink()` button + text), not a single string, so there is nothing plausible to type.
-  Pace: 18ms/char, tuned by the user's eye — 15ms was tried and reverted, the
+  Pace: 18ms/char, tuned by the user's eye – 15ms was tried and reverted, the
   user preferring the slower read. Full reasoning, including the pure-CSS
   reveal that was considered and rejected, is D-057.
-* **The verdict banner's border — the travelling glint. DONE 2026-09-12.**
+* **The verdict banner's border – the travelling glint. DONE 2026-09-12.**
   Four polish passes went wrong, the user called the loop, and the item was
   then finished by reverting and isolating one dial at a time. **Full story,
-  including traps 2 and 3 below and the performance measurements, is D-055 —
+  including traps 2 and 3 below and the performance measurements, is D-055 –
   read it before changing anything here.**
 
-  **As shipped:** a static warm `linear-gradient` ring at `padding: 2.5px`,
-  with all the movement in `.verdict__sheen` — **TWENTY** SVG `<rect>`s, each
+  **As shipped:** A static warm `linear-gradient` ring at `padding: 2.5px`,
+  with all the movement in `.verdict__sheen` – **TWENTY** SVG `<rect>`s, each
   `pathLength="100"`, stroke-dashed at a different length and centred on each
   other so their alphas COMPOSITE into a band that fades in and out along its
   direction of travel. One lap per 15s, `linear`. One halo for the whole
@@ -3960,7 +4279,7 @@ stays the portrait overhaul.
 
   **THREE THINGS THAT LOOK LIKE FREE VALUES AND ARE NOT.** Every one of them
   is documented at its own declaration; this is the index, not the detail.
-  1. **The ring width is FIVE coupled values** — `.verdict`'s padding,
+  1. **The ring width is FIVE coupled values** – `.verdict`'s padding,
      `.verdict__inner`'s `border-radius` (= --radius - W), `.verdict__sheen`'s
      top/left (= W/2) and width/height (= 100% - W), and the rect's `rx`
      (= --radius - W/2) and `stroke-width`. Move one alone and the glint
@@ -3969,9 +4288,9 @@ stays the portrait overhaul.
      was caught by printing the arithmetic, not by looking at the screen.)
   2. **The twenty layer rules are GENERATED, and the delays are derived from
      the DURATION.** A delay is an absolute time, so changing the duration
-     alone multiplies every layer's phase shift and the twenty stop nesting —
+     alone multiplies every layer's phase shift and the twenty stop nesting –
      the taper smears instead of forming a band. Never hand-edit those lines.
-  3. **The alphas are SOLVED, not chosen, and they are not monotonic** — they
+  3. **The alphas are SOLVED, not chosen, and they are not monotonic** – they
      rise to a peak at layer 16 of the 20 and fall away after it (0.1305 at
      16, against 0.0012 at the first and 0.0465 at the last). Layers
      composite multiplicatively, so scaling them all flattens the taper back
@@ -3983,7 +4302,7 @@ stays the portrait overhaul.
   composite opacity), twenty is 0.043. If these are ever thinned for
   performance, that is what is being traded away.
 
-  **Performance was measured and the cost accepted — do not re-open it on a
+  **Performance was measured and the cost accepted – do not re-open it on a
   hunch.** `stroke-dashoffset` is a paint property and cannot be composited,
   so this is the most expensive animation on the page. Measured at 1x, 6x and
   20x CPU throttle, each with and without GPU acceleration: **no measurable
@@ -3992,32 +4311,32 @@ stays the portrait overhaul.
   the MAIN THREAD ONLY, which is why the software-rendering runs were needed.
 
   **The busy-state item further down this list** (the glint speeding up while
-  "New verdict" runs) **is DONE — 2026-09-12, D-056**, and its two dials are
+  "New verdict" runs) **is DONE – 2026-09-12, D-056**, and its two dials are
   exactly traps 2 and 3 above. Note that only ONE of D-055's two one-line
-  fixes was used — the speed half went to `playbackRate` in JS instead of the
+  fixes was used – the speed half went to `playbackRate` in JS instead of the
   duration swap D-055 prescribed, because changing a CSS animation's duration
   makes the dash JUMP. See D-056 before touching it.
 
   **ORIGINAL ITEM, AS IT READ BEFORE ANY OF THE WORK.** Every mechanism it
-  names has since been REPLACED — none of the following describes the code
+  names has since been REPLACED – none of the following describes the code
   today. It is kept only because its instruction to measure first is what
   unlocked the item.
 
-  *It read: the border should drift slowly, and IT ALREADY DOES — check
+  *It read: the border should drift slowly, and IT ALREADY DOES – check
   before building (found 2026-09-11 while working R15). `.verdict` carried
   `animation: sheen 9s var(--ease) infinite`, moving a 220%-sized
   `linear-gradient(110deg, --amber-deep, --crimson, --amber)` from
   `background-position: 0%` to `100%` and back, with `.verdict__inner`
   covering the middle so that the then-2px ring WAS that gradient. Same shape
   as the logo-spin item: the mechanism was there and the effect too subtle to
-  notice, so the work was making it VISIBLE — a shorter cycle, a wider colour
-  spread, or more gradient travel — not writing an animation.*
+  notice, so the work was making it VISIBLE – a shorter cycle, a wider colour
+  spread or more gradient travel – not writing an animation.*
 
   **What the code became ON 2026-09-11, when the mechanism landed** (NOT what
-  it is today — the 2026-09-12 rebuild is described at the TOP of this item,
+  it is today – the 2026-09-12 rebuild is described at the TOP of this item,
   and every figure in this paragraph has since moved): a static warm
   `linear-gradient` ring at `padding: 3px`, with all the movement in
-  `.verdict__sheen` — ONE SVG `<rect>` stroke-dashed with `pathLength="100"`,
+  `.verdict__sheen` – ONE SVG `<rect>` stroke-dashed with `pathLength="100"`,
   travelling the perimeter once per 9s. No `background-position` animation,
   no `--ease`, no conic gradient, no 220%. (It is now a 2.5px ring, TWENTY
   rects and 15s.) The gradient-scrolling approach is still gone.
@@ -4028,31 +4347,31 @@ stays the portrait overhaul.
 
   **>>> EVERYTHING FROM HERE TO THE END OF THIS ITEM IS A HISTORICAL RECORD
   OF THE 2026-09-11 SESSION.** It describes mechanisms that were built and then
-  REPLACED on 2026-09-12 — in particular a CONIC GRADIENT, which is not in
+  REPLACED on 2026-09-12 – in particular a CONIC GRADIENT, which is not in
   the code. The shipped design is described at the TOP of this item. Kept
   because the dead ends are expensive to rediscover. <<<
 
-  **MECHANISM DONE 2026-09-11 (polish was still open at the time), and — as
-  this item demanded — by measuring first.** The cause was the CURVE, not the
+  **MECHANISM DONE 2026-09-11 (polish was still open at the time), and – as
+  this item demanded – by measuring first.** The cause was the CURVE, not the
   speed, the colours or the travel. A timing function applies to EACH
   keyframe interval, so `var(--ease)` front-loaded both 4.5s halves: **67% of
   the travel happened in the first 0.9s and the final 2.7s covered 2%**,
   leaving the ring frozen for roughly 60% of every cycle. Two brief swooshes
   with long dead stretches between them, so a glance almost always caught it
-  still. That was fixed with `linear` — not a preference but the definition
+  still. That was fixed with `linear` – not a preference but the definition
   of the thing asked for, since a drift is constant velocity.
 
   **And it was still "practically invisible", which is the part worth
   keeping.** The curve was a real fault but never the whole problem. **Three
   stops spread over 220% meant the entire ring was nearly ONE COLOUR at any
-  instant, recolouring almost uniformly — and motion perception needs a
+  instant, recolouring almost uniformly – and motion perception needs a
   FEATURE TO TRACK.** A uniform slow recolour has no landmark in it, so no
   speed and no curve could ever have made it read as movement. Claude's first
   pass measured the timing carefully and fixed the wrong layer of the
   problem.
 
   **The base gradient is now STATIC and a second layer does the moving.**
-  **It took FIVE passes, and only the last two were structural** — the first
+  **It took FIVE passes, and only the last two were structural** – the first
   three were each a plausible fix that measurably improved something and left
   the effect still unusable. The order matters as a lesson: curve → no landmark
   → wash-not-glint → **wrong GEOMETRY** (the conic below, which failed too) →
@@ -4060,7 +4379,7 @@ stays the portrait overhaul.
 
   **The finding, from the user's screenshot: there were TWO white bands, one
   on the top edge and one on the bottom.** That is not a bad choice of colour
-  stops — **it is what a linear gradient DOES to a frame.** A linear gradient
+  stops – **it is what a linear gradient DOES to a frame.** A linear gradient
   paints a straight stripe across the whole box, and a straight stripe
   crosses a rectangular ring in two places at once. No tuning of a linear
   gradient can ever produce one band travelling a perimeter, so all three
@@ -4068,22 +4387,22 @@ stays the portrait overhaul.
 
   **A CONIC gradient varies by ANGLE about a centre**, so its bright sector
   sits at one angular position and rotating it walks that sector around the
-  ring — literally 360° of travel, once per 9s iteration, seamless because
+  ring – literally 360° of travel, once per 9s iteration, seamless because
   360deg IS 0deg (no reversal, no jump at the loop point).
 
   **Rotation requires `@property`** (registered for the conic layer and
-  REMOVED with it on 2026-09-12 — do not go looking for it), and that was
+  REMOVED with it on 2026-09-12 – do not go looking for it), and that was
   mechanism rather than taste: an unregistered custom property is an untyped
-  token, so animating it SNAPS between keyframe values — the glint would
+  token, so animating it SNAPS between keyframe values – the glint would
   teleport. `syntax: '<angle>'` makes it interpolate. A background cannot be
   `transform`ed, so there is no other route.
 
   **Perimeter speed is NOT near-even, though Claude first measured it so.**
   AVERAGING px-per-degree over a whole edge gave 5.81px/° along the top
-  against 8.74 at the ends — a glint only ~1.5× faster round the corners. The
+  against 8.74 at the ends – a glint only ~1.5× faster round the corners. The
   local derivative is what counts. Done properly, along the top edge
   `dx/dtheta = h + x²/h`, which on this banner is **0.61px/° at the middle of
-  the edge and 125px/° at the corner — a 200× swing**, not 1.5×. That is
+  the edge and 125px/° at the corner – a 200× swing**, not 1.5×. That is
   exactly what the user reported seeing: a band that crawled and stayed
   narrow mid-edge, then ballooned and rocketed through each corner. A conic
   gradient cannot hold width OR speed on a wide rectangle, and no tuning
@@ -4091,39 +4410,39 @@ stays the portrait overhaul.
 
   **The ring went 2px → 3px** on the user's call that day; it is 2.5px now.
   It is the entire visible area of the effect. Its coupling to the inner corners still holds, but today it is
-  one of FIVE coupled values, listed at the top of this item — change the
+  one of FIVE coupled values, listed at the top of this item – change the
   ring width from that list, not from this paragraph.
 
   **One measured limit, AS MEASURED ON 2026-09-11 and superseded by the
-  rebuild:** the glint then reached 3.40× contrast over `--crimson`, 2.27×
+  rebuild:** The glint then reached 3.40× contrast over `--crimson`, 2.27×
   over `--amber-deep` and only **1.58× over `--amber`**, so it faded slightly
   crossing the bright end of the base. The shape of that finding still holds
-  — the band is always weakest over `--amber` — but the NUMBERS are long
+  – the band is always weakest over `--amber` – but the NUMBERS are long
   obsolete, and the current profile is a composite of twenty layers rather
   than one stroke. The cure for the floor was and is a darker base stop,
-  which would change the banner's colour identity — a design decision. The
+  which would change the banner's colour identity – a design decision. The
   current figures are in the comment on `.verdict` in `public/styles.css`.
 
   Dials, AS THEY WERE ON 2026-09-11: the glint's alpha, its 16° core / ±26°
   falloff, the 9s and the 3px. The 16°/±26° were CONIC parameters and died
   with that pass; the shipped dials are listed at the top of this item.
 
-  **THIRD TIME `--ease` HAS BEEN THE CULPRIT** — the rec-card exit (R30), the
-  ranked list's entrance, and now this. It is built to make an arrival feel
+  **THIRD TIME `--ease` HAS BEEN THE CULPRIT** – the rec-card exit (R30), the
+  ranked list's entrance and now this. It is built to make an arrival feel
   instant, which is the exact opposite of anything a user is meant to WATCH.
 
   **So: if an animation is reported as invisible, look at the timing function
-  first — but do not stop there.** This item is the counter-example to its
+  first – but do not stop there.** This item is the counter-example to its
   own rule. The curve was genuinely broken AND fixing it changed almost
   nothing, because a second, deeper cause was doing the real damage. Two
-  questions, not one: *is the motion spread across the duration* (the timing
+  questions, not one: *Is the motion spread across the duration* (the timing
   function), and *is there anything in the frame whose movement can be seen*
   (a trackable feature). The ranked entrance happened to need only the first.
 * **The ranked list's first-paint entrance is barely visible** (user-raised
-  2026-09-11). FIRST PAINT ONLY — every later change is a View Transition
+  2026-09-11). FIRST PAINT ONLY – every later change is a View Transition
   (D-031) and is not in scope. Same family as the glint and logo-spin items, and
   measured rather than guessed, so this started from evidence. **The next
-  three paragraphs are the DIAGNOSIS — they describe the broken state, not
+  three paragraphs are the DIAGNOSIS – they describe the broken state, not
   the current one; the shipped values are in the DONE block below.**
 
   `.movie-card.is-entering` WAS `fade-slide 0.45s var(--ease) backwards`, a
@@ -4135,18 +4454,18 @@ stays the portrait overhaul.
   second, and the remaining ~280ms was the card sitting still.
 
   **The stagger also collapsed.** `min(i * 45, 400)` capped at card 9, so on
-  a list of twenty the last dozen all started within the same frame — no
+  a list of twenty the last dozen all started within the same frame – no
   cascade to see at exactly the length where one would read best. **R27 is
   the worked precedent for this on the rec cards**, and its numbers are a
   starting point rather than a template: `rec-enter` at 0.75s over 18px,
   120ms apart, after a 400ms lead-in. **What does NOT transfer is the
   stagger**, because a ranked list is unbounded where the recs grid is capped
-  at six — 120ms across twenty cards is 2.4 seconds of the page assembling
+  at six – 120ms across twenty cards is 2.4 seconds of the page assembling
   itself on every load. Keep a cap, but raise where it sits.
 
   Cheap and self-contained: a duration, a travel distance, an easing and a
   cap, all in two places (`.movie-card.is-entering` and one line of
-  `renderRanked()`). D-043's `backwards` fill must stay — the hover and the
+  `renderRanked()`). D-043's `backwards` fill must stay – the hover and the
   spotlight both depend on it.
 
   **DONE 2026-09-11, and the curve was indeed most of it.** All four dials
@@ -4154,11 +4473,11 @@ stays the portrait overhaul.
   `var(--ease)` → `cubic-bezier(0.25, 0.46, 0.45, 0.94)`, travel 10 → 14px,
   duration 0.45 → 0.6s, stagger 45 → **125**ms with the cap 400 → **1200**ms.
 
-  **The stagger took four passes — 45 → 70 → 180 → 135 → 125** — and the
+  **The stagger took four passes – 45 → 70 → 180 → 135 → 125** – and the
   lesson is that **a stagger is a RATIO, not a number**: what decides whether
   it reads as a cascade is how many cards are mid-animation at the same
   instant, which is `duration / stagger`. At 45ms that was 13.3 cards and at
-  70ms still 8.6, both of which overlap into a single blob — the user's
+  70ms still 8.6, both of which overlap into a single blob – the user's
   report after the 70ms pass was that they still arrived "almost all at
   once", and they were right. No amount of "raising" helps until the stagger
   is a real fraction of the duration. 180ms gave 3.3 and overshot ("almost
@@ -4166,63 +4485,63 @@ stays the portrait overhaul.
   settled.**
 
   Worth keeping: the useful band turned out to be narrow AND nowhere near
-  where it started — the first two attempts were both outside it in the same
+  where it started – the first two attempts were both outside it in the same
   direction, so do not retune this in small steps from 125. **So this number
   and the duration must be tuned together.** Raising the duration without
   raising this walks straight back into the blur.
 
-  **Measured before and after rather than judged by eye:** the card used to
-  be within 1px of home after ~169ms of ~450ms — **~38% of the animation, ~62% of
-  it sitting still** — and now reaches that at ~440ms of 600ms, **~73%**. That
+  **Measured before and after rather than judged by eye:** The card used to
+  be within 1px of home after ~169ms of ~450ms – **~38% of the animation, ~62% of
+  it sitting still** – and now reaches that at ~440ms of 600ms, **~73%**. That
   ratio, not the travel distance, is what "barely visible" actually meant.
 
   The cap stays and had to, since the list is unbounded: it bites at card 10
   now, so twenty films still settle in 1.8s rather than growing without
   limit. A clump at the tail is the accepted cost, and it is invisible at the
-  list lengths this app actually holds — seven films settle in 1.35s with
+  list lengths this app actually holds – seven films settle in 1.35s with
   every card distinct.
 
   **It got its OWN keyframe, `card-enter`.** `fade-slide` has a second
-  consumer — `.search-results`, where 10px and a snappy curve are correct —
+  consumer – `.search-results`, where 10px and a snappy curve are correct –
   so tuning the shared one would have moved the search panel too. Same split
   R27 made for `rec-enter`, and for the same reason. `backwards` is
   untouched, and the D-043 comment above the rule was corrected where it
   named `fade-slide` as the animation that pinned `transform: none`: it was
   `fade-slide` at the time and is `card-enter` now, and the trap applies to
   both.
-* **Does the logo circle actually spin? — DONE 2026-09-11.** Yes, it always
+* **Does the logo circle actually spin? – DONE 2026-09-11.** Yes, it always
   did: the `animation: spin … linear infinite` on `.mark__reel` runs and
   always ran. It was invisible because **every part of it you could see was
-  rotationally symmetric** — the 3px amber border ring and a
-  `radial-gradient` drawing a concentric amber ring — so eight seconds of
+  rotationally symmetric** – the 3px amber border ring and a
+  `radial-gradient` drawing a concentric amber ring – so eight seconds of
   rotation looked like a still image.
 
   **The diagnosis first written here was half right, and the other half is
   the interesting bit.** It said the one asymmetric feature, a
   `conic-gradient` wedge over the first 20% of the circle, was invisible
   because it is painted in `var(--bg)`. True, but it was also the SECOND
-  background layer — and first-listed paints on top — so it sat UNDERNEATH
+  background layer – and first-listed paints on top – so it sat UNDERNEATH
   the amber ring and could not have cut anything in any colour. Worth stating
   the consequence: had it been on top, `var(--bg)` would have been exactly
   the right choice. The intent was plainly to notch the ring, not to draw a
   coloured slice, so the original advice here ("give that wedge a colour that
-  differs from the page") would have produced a rotating pie wedge — a
+  differs from the page") would have produced a rotating pie wedge – a
   different thing, and a worse one. Even on the correct layer it could only
   ever have notched the INNER ring: a `border` paints above the background,
   so the outer ring would have stayed closed.
 
   **Built as a conic `mask` instead**, which cuts the border and the
-  background together — one declaration rather than rebuilding both rings as
+  background together – one declaration rather than rebuilding both rings as
   gradients so a wedge could reach them. The dead wedge is deleted.
   `--reel-notch` (8%, a 28.8° gap) is the one dial, and the speed is the
-  duration in `.mark__reel`'s own `animation` shorthand — **10s, and never
+  duration in `.mark__reel`'s own `animation` shorthand – **10s, and never
   the `spin` keyframe itself, which is SHARED with the busy-button spinner at
   0.7s**. Both were tuned by eye off the first build (9% and 8s). Under
   `prefers-reduced-motion` the animation is killed and the notch rests at 12
   o'clock, which still reads as a reel rather than as a broken circle.
   `-webkit-mask` is declared alongside `mask` for Safari.
 
-* **The film-grain overlay was barely visible — DONE 2026-09-12.** **It was
+* **The film-grain overlay was barely visible – DONE 2026-09-12.** **It was
   never a brightness problem, and the item's own two suggestions were one
   right and one wrong.** Fixed by making the grain RESAMPLE.
 
@@ -4231,11 +4550,11 @@ stays the portrait overhaul.
   second, sliding along a single diagonal. That is a static texture with an
   occasional twitch. Real film resolves fresh grain ~24 times a second, and
   the eye reads that shimmer as texture even when each frame is faint. Now
-  ten pseudo-random offsets at `0.7s steps(1)` — ~14 changes a second, each
+  ten pseudo-random offsets at `0.7s steps(1)` – ~14 changes a second, each
   position HELD rather than slid between.
 
   **`mix-blend-mode` was this item's leading suggestion and it is WRONG for
-  this page — measured, not assumed.** `overlay` maps a full-white speck to
+  this page – measured, not assumed.** `overlay` maps a full-white speck to
   **+0.043** over the page's `#0b0b0f` background but **+0.450** over a
   poster midtone, so it would move the grain ONTO the posters and OFF the
   dark background, which is the opposite of what was asked for. It is the
@@ -4247,7 +4566,7 @@ stays the portrait overhaul.
   point rather than a contradiction of the above: with the texture actually
   refreshing there is speckle for the extra opacity to strengthen, where
   before there was only a veil to thicken. Pushed much further, the veil
-  returns — `fractalNoise` has a non-zero mean, so over a near-black page
+  returns – `fractalNoise` has a non-zero mean, so over a near-black page
   opacity adds grey before it adds specks. The fix at that point is a
   zero-mean noise source (an `feComponentTransfer` on the alpha), not more
   opacity.
@@ -4258,9 +4577,9 @@ stays the portrait overhaul.
   viewport against 8% of overhang per side. Stay under ~6.9% or the layer
   stops covering its own movement and a dark bar flickers at the edges.
   `prefers-reduced-motion` still kills the animation outright, leaving a
-  static grain — correct, and it stays true of this version.
+  static grain – correct, and it stays true of this version.
 
-* **"New verdict" is shown DISABLED when the feature is locked, not hidden —
+* **"New verdict" is shown DISABLED when the feature is locked, not hidden –
   DONE 2026-09-12.** Raised by the user as "consider", argued both ways, and
   the user took the consistency argument: every other locked control in this
   app is disabled rather than absent, so a banner with a sentence and no
@@ -4270,7 +4589,7 @@ stays the portrait overhaul.
 
   **It needed no new CSS at all**, which is the payoff from R13/D-035/R15
   having settled the disabled vocabulary generically:
-  `.verdict__refresh:disabled` already existed (opacity, `not-allowed` — the
+  `.verdict__refresh:disabled` already existed (opacity, `not-allowed` – the
   outline-button treatment), its hover was already `:not(:disabled)` guarded,
   and R15's sparkle rule was written as `button:disabled .ai-sparkle`, so a
   locked control already stops twinkling. Nothing was special-cased.
@@ -4290,12 +4609,12 @@ stays the portrait overhaul.
   2. **But skipping is not free here, and the old code survived this by
      accident.** Remove films mid-request and the count can drop below the
      threshold; the sync skips, then `busyButton()`'s settle unconditionally
-     re-enables — leaving a clickable button on a locked feature. The old
+     re-enables – leaving a clickable button on a locked feature. The old
      code wrote `hidden` unconditionally, so the button simply stayed gone.
      The run's `finally` now re-asserts `verdictLocked()`. **Deliberately NOT
      by calling `syncVerdictAvailability()`**, which also writes
      `.verdict__text` and would overwrite the error message on the failure
-     path — the exact shape of bug R1. *(Since 2026-09-30 the sync leaves a
+     path – the exact shape of bug R1. *(Since 2026-09-30 the sync leaves a
      banner a run owns alone, so that overwrite would now happen only when the
      feature locked mid-request.)*
 
@@ -4303,7 +4622,7 @@ stays the portrait overhaul.
   callers; an approximation of a rule goes stale the moment the rule changes
   (D-039).
 
-* **The ring's glint speeds up while "New verdict" is BUSY — DONE
+* **The ring's glint speeds up while "New verdict" is BUSY – DONE
   2026-09-12.** A progress cue that costs no new UI: the band already travels
   the ring, so running it ~5x faster and brighter for the duration of the
   call turns existing decoration into a status indication. Settles once a
@@ -4311,21 +4630,21 @@ stays the portrait overhaul.
 
   **As shipped, and the split is the point: each half is done wherever it can
   be done without a visible seam.**
-  * **Brightness — CSS.** `.verdict:has(#verdict-refresh[aria-busy='true'])
+  * **Brightness – CSS.** `.verdict:has(#verdict-refresh[aria-busy='true'])
     .verdict__sheen { opacity: 1 }`, lifting the group from its resting
     `0.6875` to the authored peak. The twenty layers are authored at the BUSY
     peak (0.80) and scaled down at rest by that ratio (0.55/0.80), because
     group opacity scales a composite LINEARLY where the per-layer alphas
     cannot be scaled at all. `0.80 * bell(x) * 0.6875` is exactly
     `0.55 * bell(x)`, so the resting band is identical rather than
-    approximated — verified at 0.5491 against the approved 0.5490.
-  * **Speed — JS** (`setSheenRate()` in `app.js`), and NOT the
+    approximated – verified at 0.5491 against the approved 0.5490.
+  * **Speed – JS** (`setSheenRate()` in `app.js`), and NOT the
     `--sheen-dur: 3s` that D-055 prescribed. That was built first and the
     user rejected it: changing a CSS animation's duration re-evaluates
     `(currentTime / duration)` at that instant, so **the dash JUMPS**
     (measured: a layer moved from 0.4867 of its cycle to 0.4333). Setting
-    `playbackRate` preserves `currentTime` and changes only velocity — same
-    layer stayed at 0.4867 exactly — and it keeps the twenty layers in
+    `playbackRate` preserves `currentTime` and changes only velocity – same
+    layer stayed at 0.4867 exactly – and it keeps the twenty layers in
     register for free, since each layer's phase lives in its own currentTime.
     **See D-056; do not reintroduce a duration override for the busy state.**
 
@@ -4335,24 +4654,24 @@ stays the portrait overhaul.
   **No class and no state of our own.** `busyButton()` already sets
   `aria-busy` on the trigger for exactly the right window and clears it in
   the `finally` that restores the label, so the cue cannot get stuck on and
-  it ends on an ERROR just as it does on success — verified in the handler
+  it ends on an ERROR just as it does on success – verified in the handler
   rather than assumed.
 
-  **Reduced motion:** the global `animation: none !important` removes the
+  **Reduced motion:** The global `animation: none !important` removes the
   travel, so `getAnimations()` returns nothing and `setSheenRate()` is a
   no-op exactly where it should be. The brightness half still lands, since
   opacity is not an animation. Either way the button's own spinner and label
-  remain the primary signal — this was never allowed to be the only
+  remain the primary signal – this was never allowed to be the only
   indication that a call is in flight.
 
-  **One note:** velocity changes instantaneously
+  **One note:** Velocity changes instantaneously
   rather than ramping. Different artefact from a position jump, reads as "it
   sped up", and the user approved it after looking. A rAF ramp of
   `playbackRate` would smooth it, should a ramp ever be wanted.
 
-##### Step 5 — the portrait overhaul
+##### Step 5 – the portrait overhaul
 
-**Complete overhaul of the portrait view at 500px and below — DONE, CLOSED BY THE
+**Complete overhaul of the portrait view at 500px and below – DONE, CLOSED BY THE
 USER 2026-09-12. Do not reopen it, and do not go hunting for more
 narrow-width work: the user has declared the target met.**
 
@@ -4374,61 +4693,61 @@ below; the search-results panel's height cap became a FLOOR rather than a
 second ceiling; mid-word title breaks hyphenate via `Intl.Segmenter` soft
 hyphens instead of breaking raw (D-060/D-061); the AI call log's card-view
 labels stopped misaligning when they wrap; and the toast got a real
-box-shadow, content-aware widening at 700/500px and below, and a genuine centering
+box-shadow, content-aware widening at 700/500px and below, and a genuine centring
 fix (D-062). **R18 was closed inside this step as won't-fix on measurement
 (D-063)**, which also closed step 2.
 
 **The two enforcement rules below still stand for any future narrow-width
-question**, in this step or outside it — they are about the deadline, not
+question**, in this step or outside it – they are about the deadline, not
 about this step's backlog, and this step closing does not retire them. **Plan
 and test against ~350px.** That is the target, not the floor. **THE TWO RULES
 BELOW ARE CLAUDE'S TO ENFORCE, NOT THE USER'S TO REMEMBER.** The user asked
 to be stopped, in advance:
 * **Below ~350px: "good enough" only.** Actively talk the user out of tuning
-  these widths. The exceptions are narrow and specific — a fix that is safe,
+  these widths. The exceptions are narrow and specific – a fix that is safe,
   straightforward and quick, or a case where the ~350px layout is itself
   borderline and the narrow view is evidence of that. Anything else: say so
   and move on.
 * **Below ~290px: IGNORE COMPLETELY.** Do not investigate, do not measure, do
   not fix, and **stop the user if they start**. This is not a judgement call
-  to re-litigate each time — it is a standing instruction, given deliberately
+  to re-litigate each time – it is a standing instruction, given deliberately
   with the submission deadline in view.
 
-##### Step 6 — pre-submission blockers
+##### Step 6 – pre-submission blockers
 
 **All remaining documented pre-submission blockers**, plus the leftovers in
 Open issues.
 
-**>>> THIS STEP IS DONE — 2026-09-14.** Every checkbox under "Pre-submission
+**>>> THIS STEP IS DONE – 2026-09-14.** Every checkbox under "Pre-submission
 blockers" is now ticked, the final `draft` → `main` merge included: it was
-authorised, performed, and followed the same day by a twenty-second merge
+authorised, performed and followed the same day by a twenty-second merge
 carrying one defect fix (the Security-tab image paths). What follows is that
 instruction block corrected to the finished state; the recipes it points at
 are still the working ones. <<<
 
 The checklist is under "Pre-submission blockers" below. The resilience
-screenshots are greppable as `RS-1` through `RS-16` — **sixteen** states.
+screenshots are greppable as `RS-1` to `RS-16` – **sixteen** states.
 **FIVE recipes are order-dependent and will waste a session if skimmed:**
 RS-2 needs a search run BEFORE the key is broken; RS-6 and RS-14 need the
 page loaded BEFORE the server is stopped; RS-10 needs two views and a strict
 sequence; RS-11/12/13 need the page loaded BEFORE the key is broken, or every
-control renders disabled and nothing can be clicked. Three more — RS-9, RS-15
-and RS-16 — need a temporary one-line edit to a service and a `git checkout`
+control renders disabled and nothing can be clicked. Three more – RS-9, RS-15
+and RS-16 – need a temporary one-line edit to a service and a `git checkout`
 afterwards.
 
 `DOSSIER.md` is the course's own grading rules, it arrived 2026-09-13, and
-**the reconciliation against it is DONE** — the second checkbox below. The
+**the reconciliation against it is DONE** – the second checkbox below. The
 narrow-viewport enforcement rules under step 5 are NOT retired by that step
 closing; they still apply to anything that comes up.
 
-**Note on numbering:** there is a step **4b** between 4 and 5. It was inserted
-rather than renumbered because "step 5" is referenced by name outside this file —
-including the two enforcement rules a memory file points at — and a silent
+**Note on numbering:** There is a step **4b** between 4 and 5. It was inserted
+rather than renumbered because "step 5" is referenced by name outside this file –
+including the two enforcement rules a memory file points at – and a silent
 renumber would send a future session to the wrong list.
 
-### Open issues / TODO — ALL CLOSED as of 2026-09-14
+### Open issues / TODO – ALL CLOSED as of 2026-09-14
 (Submission-readiness gaps are consolidated under **Pre-submission blockers**
-below — this list is the smaller stuff.)
+below – this list is the smaller stuff.)
 * [x] Migration 001 applied.
 * [x] **Migration 002 (`tmdb_rating`) applied 2026-09-08, backfill run.** It was
   a prerequisite rather than a follow-up: until the column existed PostgREST
@@ -4441,43 +4760,43 @@ below — this list is the smaller stuff.)
   film imaginable (D-037). `shapeMovie()` now nulls it at the source so no NEW
   row can get one; 003 fixed the rows already written.
   **Both are applied to the single live Supabase project, which is the same
-  database the deployed app uses — there is no separate prod DB to migrate at
+  database the deployed app uses – there is no separate prod DB to migrate at
   release time.**
 * [x] **Migration 004 (`review_requires_rating`) applied 2026-09-08.** A `check`
-  constraint forbidding a review on an unrated film (#15, D-041) — the rating is
+  constraint forbidding a review on an unrated film (#15, D-041) – the rating is
   the required part, the review the optional one, and until now only the UI knew
   that. A pre-check confirmed **zero** existing rows violated it before it went
   on. Adding it to a live DB is safe in a way 002 was not: it forbids a state
   nothing in the app produces, so no code path on `main` can start failing.
-* [x] Tests: pure helpers, prompt loader, route validation, duplicate handling,
+* [x] Tests: Pure helpers, prompt loader, route validation, duplicate handling,
   TMDB/OpenRouter-down resilience, and the `tmdb_rating` and
   `review_requires_rating` guards all covered by `npm test` (64).
-* [x] `/api/recommendations/history` vs `/api/ai-log` — decided to keep both
+* [x] `/api/recommendations/history` vs `/api/ai-log` – decided to keep both
   (D-017): `/api/ai-log` is the primary audit surface, `/history` stays as the
   narrower per-feature JSON view per SPEC §4.5. **Revisited 2026-09-21 and kept
   permanently (D-077, which carries the measurements and the rejected
-  alternative).** The one real defect underneath it — `/history` was the only
-  route of the eleven with no test — is closed: two tests in
+  alternative).** The one real defect underneath it – `/history` was the only
+  route of the eleven with no test – is closed: two tests in
   `test/routes.test.js`.
-* [x] **Recommendations swallow every message they write — FIXED 2026-09-09 (R1).**
+* [x] **Recommendations swallow every message they write – FIXED 2026-09-09 (R1).**
   This checkbox is the tracker; the description lives in step 2's sub-backlog
   under **R1**, which is the entry being worked from. **Not only the error was
   wiped:** the `finally` reassigned `#recs-hint` unconditionally, so the SUCCESS
   line (`Based on: …`) and the zero-result line were wiped by the same statement
-  — a failed run, a successful run and a never-run page all looked alike. The server side is correct and tested
+  – a failed run, a successful run and a never-run page all looked alike. The server side is correct and tested
   (422 + a `status='failed'` log row); this is purely the UI half of SPEC §7.1,
   and it would show up badly in the resilience screenshots.
-* [x] **Apostrophe consistency across ALL user-facing copy — done 2026-09-08.**
+* [x] **Apostrophe consistency across ALL user-facing copy – done 2026-09-08.**
   The client's three offenders went with #16(c); the four server-side ones (the
   two TMDB 502s, the PATCH 404, the recommendations 422) followed in their own
-  commit, together with the one test assertion that quotes a message verbatim —
+  commit, together with the one test assertion that quotes a message verbatim –
   which is why it was a separate change rather than folded into #16(c). Every
   user-facing contraction in `server/`, `public/app.js` and `public/index.html`
   now uses the curly `’`. Code COMMENTS deliberately still use straight ones;
   they are not UI copy.
-* [x] **`--ink-faint` sits below WCAG AA deliberately — do NOT "fix" it**
+* [x] **`--ink-faint` sits below WCAG AA deliberately – do NOT "fix" it**
   (D-052, 2026-09-10). Settled at #7b766e (from #6b6760), which lifts it to
-  4.36:1 on the page and 3.87:1 on a card — both still short of 4.5. The
+  4.36:1 on the page and 3.87:1 on a card – both still short of 4.5. The
   AA-clearing value was built first (#868178) and sits too close to `--ink-dim`:
   what decides whether two type tiers read as two tiers is their contrast with
   EACH OTHER, and clearing AA cost nearly a third of it (2.09 → 1.44). This
@@ -4489,19 +4808,19 @@ below — this list is the smaller stuff.)
   always sits beside content that carries the meaning. A contrast audit will flag this. It
   is a decision, not an oversight.
 
-  **One process note from the same exchange, in D-052:** the token and one of
+  **One process note from the same exchange, in D-052:** The token and one of
   its consumers (the empty-list line, moved to `--ink-dim`) changed in the SAME
   commit, which destroyed the obvious way to eyeball the token and produced a
   confident false report that the two tiers were identical. When a token and one
   of its consumers move together, say what is left to compare against.
-* [x] User re-adding lost movies (see Incident 1) — MOOT as of 2026-09-13. The
+* [x] User re-adding lost films (see Incident 1) – MOOT as of 2026-09-13. The
   demo seed list exists and is loaded, so the list the submission ships with is
   the seeded one and there is nothing left to re-add.
-* [x] **Rank numerals ≥ 100 ran under the poster — fixed** (D-030). Two-digit
+* [x] **Rank numerals ≥ 100 ran under the poster – fixed** (D-030). Two-digit
   ranks were fine at every width (checked at ~350px with numerals forced to 20+,
   so the narrow `1` couldn't flatter the test). Three were not: the font clamped
   at `3.4rem` and Fraunces Black figures measure **0.66em**, so "250" painted
-  ~110px wide, and the poster — later in DOM order — covered the last digit.
+  ~110px wide, and the poster – later in DOM order – covered the last digit.
 
   **An overflowing numeral is start-aligned, so it spills RIGHT only**, into the
   1.2rem gap: the budget is the track plus that gap, never the padding on the
@@ -4509,23 +4828,23 @@ below — this list is the smaller stuff.)
   **solved** against that measured figure width; a forced "250" clears the
   poster by 10.8px on desktop, 11.6px at 620px and 13.1px in card mode (measured
   2026-09-28, D-079). Two earlier values were *estimated* and both wrong (0.63em
-  too low, then 0.8em over-corrected) — re-measure with
+  too low, then 0.8em over-corrected) – re-measure with
   `Range.getBoundingClientRect()`, never re-tune this by eye.
 
   **The trap, if this is ever revisited: do NOT auto-size the rank track
-  (`minmax(64px, auto)`)** — it would misalign every poster's left edge down the
+  (`minmax(64px, auto)`)** – it would misalign every poster's left edge down the
   list, trading a rare problem for a permanent one. 1000+ is unhandled.
-* [x] **Demo seed list for submission — DONE 2026-09-13.** Ship with 3–4 pre-rated movies
-  (not empty) so the ranked list, both AI features, and the call log all work on
+* [x] **Demo seed list for submission – DONE 2026-09-13.** Ship with 3–4 pre-rated films
+  (not empty) so the ranked list, both AI features and the call log all work on
   first open. Blueprint agreed with user:
-  1. One deliberate taste persona — a specific sensibility (e.g. "bold,
+  1. One deliberate taste persona – a specific sensibility (e.g. "bold,
      stranger-than-fiction swings; bored by safe blockbusters"), not a generic
      spread, so the verdict + recs land.
-  2. Rating spread: a couple high, one mid, one low "guilty pleasure /
-     disappointment" outlier for contrast.
-  3. 2–3 real reviews with actual voice — feeds the prompts as taste signal and
+  2. Rating spread: A couple of high ones, one mid, one low "guilty
+     pleasure / disappointment" outlier for contrast.
+  3. 2–3 real reviews with actual voice – feeds the prompts as taste signal and
      demos the "show more" toggle + injection-safe handling.
-  4. Recommendation headroom: likely AI picks not already in the list, real
+  4. Recommendation headroom: Likely AI picks not already in the list, real
      enough to pass TMDB verification cleanly (no silently-dropped cards).
   5. Dry-run the verdict a few times pre-submission; adjust the seed set if the
      output is flat.
@@ -4536,12 +4855,12 @@ below — this list is the smaller stuff.)
   produces. *(All of it done 2026-09-13: the helper is described next, and each
   AI feature was run three times on the list before it was called settled.)*
 
-  **THE HELPER IS BUILT — `scripts/seed-demo.js`, `npm run seed-demo`
+  **THE HELPER IS BUILT – `scripts/seed-demo.js`, `npm run seed-demo`
   (2026-09-13).** **It REPLACES by default: the wipe is the first thing it
   does**, so the list ends up as exactly the seed set rather than the seed set
   mixed into whatever was already there. That is a DELIBERATE, USER-REQUESTED
   EXCEPTION to the no-delete-all working agreement, and the agreement still
-  binds Claude — **Claude must never run this script with `--write`.** The
+  binds Claude – **Claude must never run this script with `--write`.** The
   safety is that the wipe is never silent: a dry run prints every film it would
   destroy with its rating, and says the ratings and reviews are not recoverable.
 
@@ -4550,28 +4869,28 @@ below — this list is the smaller stuff.)
   `--with-injection` to add the Module 17 demo film whose review IS an injection
   attempt. It goes through the app own HTTP API rather than Supabase, so the
   rows are exactly what the UI produces, and films are declared by TITLE AND
-  YEAR and resolved through `/api/movies/search` rather than by hardcoded ids —
+  YEAR and resolved through `/api/movies/search` rather than by hardcoded ids –
   verified end to end on a throwaway port when the helper was built, all six
   titles AS THE LIST STOOD THEN resolving to an exact title-and-year match with
   no fallback. **The shipped list is SEVEN films** (D-068, below), plus an
   eighth only under `--with-injection`. `--reset` matches ONLY the declared set
-  by title and year, prints every row first, and needs `--write` to act.
+  by title and year, prints every row first and needs `--write` to act.
 
-  **THE CONTENT IS SETTLED — 2026-09-13 (D-068) — AND IT IS LOADED.** It is
+  **THE CONTENT IS SETTLED – 2026-09-13 (D-068) – AND IT IS LOADED.** It is
   still the user's to change and still lives in one editable block at the top of
   the file, but it is no longer a proposal: two candidate lists were built and
   each was run through the real features, and the shipped set merges both. SEVEN
-  films — Mad Max: Fury Road 9.1 (the long review, so the show-more toggle is
+  films – Mad Max: Fury Road 9.1 (the long review, so the show-more toggle is
   drawn), Wicked 8.6, Knives Out 8.2 (no review, so #20's placeholder is drawn),
   The SpongeBob SquarePants Movie 7.6, Shrek 5 (2027) 4.5 (unreleased, so the
-  muted "No TMDB rating" caption is drawn — D-037), Saw 1.5, and Shrek (2001)
+  muted "No TMDB rating" caption is drawn – D-037), Saw 1.5, and Shrek (2001)
   unrated (the "Not rated yet" chip and the faint "?"). FOUR of the seven cards
-  double as UI evidence — the four annotated above — and between them they draw
+  double as UI evidence – the four annotated above – and between them they draw
   FIVE states that otherwise need hand-setup to photograph, since Shrek (2001)
   draws two.
 
   **TWO THINGS A FUTURE REBALANCE WILL SILENTLY UNDO IF D-068 IS NOT READ
-  FIRST.** (1) The persona has TWO AXES on purpose — a one-axis taste starves
+  FIRST.** (1) The persona has TWO AXES on purpose – a one-axis taste starves
   BOTH AI features at once, the verdict falling back to reciting film names (the
   D-014 failure) and the recommender returning a single shelf. (2)
   RECOMMENDATIONS SEE ONLY THE TOP FIVE RATED FILMS
@@ -4581,7 +4900,7 @@ below — this list is the smaller stuff.)
 
   **Measured over three runs of each feature before it was called settled.** The
   verdict names no film in two runs of three; the third lists the two low films,
-  which is the less characteristic output — so re-roll before a screenshot, and
+  which is the less characteristic output – so re-roll before a screenshot, and
   note it is NOT persisted across a page reload. The recommendations are effectively fixed,
   three of four cards identical every run, each mapping to one seed film. That
   one-to-one behaviour is intrinsic to the recommender and is not a seed fault;
@@ -4590,43 +4909,43 @@ below — this list is the smaller stuff.)
   **One hard constraint on that helper, from migration 004 (D-041): rating and
   review must go in the SAME `PATCH`.** A review-only patch on a film that is
   not yet rated now violates `review_requires_rating` and comes back as a 400
-  ("A review needs a rating"). This is deliberate — it fails loudly in the seed
-  run rather than silently storing a review no screen would ever display — but
+  ("A review needs a rating"). This is deliberate – it fails loudly in the seed
+  run rather than silently storing a review no screen would ever display – but
   it will look like a mystery if it is met without knowing why.
 
-### Pre-submission blockers — ALL TICKED as of 2026-09-14
+### Pre-submission blockers – ALL TICKED as of 2026-09-14
 
 **Every item below is done, the final `draft` → `main` merge included.** The entries are kept in full rather than
 collapsed: each records what was found and how, and several carry recipes that are
 still the working instructions.
 
 **The evidence capture was deliberately deferred to a dedicated session right
-before submission** — the user's schedule choice, restated more than once while
-the list was open — so the shots match the finished UI rather than a
+before submission** – the user's schedule choice, restated more than once while
+the list was open – so the shots match the finished UI rather than a
 mid-overhaul one.
 
 **DO keep this list growing as the work happens.** That governed the list while
 it was open and is still the habit for anything new. The user is explicitly
 relying on this file instead of their own memory. Whenever a change creates
-something demo-able or provable — a new failure state, a guardrail worth
-showing, a before/after worth contrasting — append it here the moment it
+something demo-able or provable – a new failure state, a guardrail worth
+showing, a before/after worth contrasting – append it here the moment it
 appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 "the end" happened on 2026-09-13/14, and every item below is ticked.
 
 #### Deployment, reconciliation and seed data
 
-* [x] **Deployed to Render** (2026-09-07) —
+* [x] **Deployed to Render** (2026-09-07) –
   **https://cinerank-g6lx.onrender.com** URL is at the very top of the README.
   Web service created through the Render dashboard rather than from
   `render.yaml`, so the blueprint is documentation only; the live service's
   settings are: branch `main`, build `npm ci`, start `npm start`, health check
   `/api/health`, auto-deploy **on commit** (the repo has no CI, so "after CI
   checks pass" would wait forever). All four secrets are set in Render's
-  Environment tab; `PORT` deliberately is not — Render injects it. Verified
-  live: health probe, ranked list (Supabase), search (TMDB), and
+  Environment tab; `PORT` deliberately is not – Render injects it. Verified
+  live: Health probe, ranked list (Supabase), search (TMDB) and
   recommendations/verdict (OpenRouter). Free tier sleeps after ~15 min idle, so
   the first hit takes anywhere from a few seconds to a minute while the instance
-  wakes — a minute is the observed worst case, not the typical one. Open the
+  wakes – a minute is the observed worst case, not the typical one. Open the
   link shortly before demoing.
 
   Node resolves at each build to the newest version satisfying `engines`
@@ -4634,40 +4953,40 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   ignores `render.yaml`'s `NODE_VERSION` pin. Working fine; pin it in the
   dashboard if a future deploy ever breaks on a new Node.
 
-* [x] **RECONCILED AGAINST `DOSSIER.md` — DONE 2026-09-13. Do not redo this.**
+* [x] **RECONCILED AGAINST `DOSSIER.md` – DONE 2026-09-13. Do not redo this.**
   `DOSSIER.md` is the course's own grading rules, copied from Moodle by the
   user, and it is the authority on what is graded. Everything in this
   Pre-submission section predated it, so it was walked end to end against the
   repo. **Five gaps were found: four are closed, and the fifth was closed by the
   user's decision.**
 
-  * **`docs/FRAMING.md`** — Module 6's framing document, the artefact the DOSSIER
+  * **`docs/FRAMING.md`** – Module 6's framing document, the artefact the DOSSIER
     names as specific to the independent project. Three of its four parts already
     existed (`SPEC.md` § 1 and § 7.1, since `aadaf18`); the **stakeholder list**
     was genuinely missing. Writing it also surfaced a real divergence: `SPEC.md`
     § 1 listed three out-of-scope exclusions and this file listed four. FRAMING is
     now the authority on scope boundaries and `SPEC.md` § 1 is annotated to say so.
-  * **`SPEC.md` unfrozen** — `Status: Draft v1` is gone and the spiral turns are
+  * **`SPEC.md` unfrozen** – `Status: Draft v1` is gone and the spiral turns are
     recorded against real commit ranges, with the merges to `main` named as the
     commit points and the three narratives as the coarser grouping. Verifying it
     found a **live rendering defect** (the Authors/Course/Status header ran
     together into one line on GitHub) and, behind it, a fault in the render-audit
-    method itself — `mode: gfm` fakes line breaks the blob view does not have
+    method itself – `mode: gfm` fakes line breaks the blob view does not have
     (D-066).
-  * **`docs/SECURITY.md`** — the OWASP Top 10 for Agentic Applications, which
+  * **`docs/SECURITY.md`** – the OWASP Top 10 for Agentic Applications, which
     Module 17 names as the working checklist and which nothing here referenced.
     Every risk is mapped twice, once against the product and once against the
     agentic development environment that built it. Incident 1 is ASI02.
-  * **`docs/MERGE-READINESS.md` plus a linter** — Module 16's five criteria. SE
+  * **`docs/MERGE-READINESS.md` plus a linter** – Module 16's five criteria. SE
     hygiene was the one genuine hole, since the project had no static analysis at
     all; `npm run lint` closed it and is now a commit gate. **The pack's verdict ON
     THAT DAY was NOT YET MERGE-READY**, failing criterion 1 (functional
-    completeness shown end to end) — and that criterion was precisely the rest of
+    completeness shown end to end) – and that criterion was precisely the rest of
     this list. It has since closed; the top of this file carries the current
     verdict, and this sentence is the record of where the pack started.
   * **Committing the agent's memory notes was considered and DECLINED by the
     user. Do not re-propose it.** The DOSSIER lists context files "such as
-    `CLAUDE.md` and memory and lessons-learned notes" — `such as` is exemplary,
+    `CLAUDE.md` and memory and lessons-learned notes" – `such as` is exemplary,
     and the graded item is "the context files kept and maintained across
     sessions", which `CLAUDE.md` and `docs/DECISIONS.md` satisfy on their own.
     Their technical content was also already duplicated here.
@@ -4676,13 +4995,13 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   it ticked nothing below, and on 2026-09-13 every remaining item in this list
   was still open and still owed. *(They were closed over the following day.)*
 
-* [x] **Put the live URL on the project sheet — DONE 2026-09-14.**
+* [x] **Put the live URL on the project sheet – DONE 2026-09-14.**
   https://cinerank-g6lx.onrender.com is on the sheet. It is its own checkbox
   because deploying and submitting the address are two different things, and the
   second is what makes the first count; as a line inside the ticked deploy item
   it would not show up as an open checkbox and could be missed on a skim.
 
-* [x] **Demo seed list — DONE 2026-09-13.** Loaded by the user with
+* [x] **Demo seed list – DONE 2026-09-13.** Loaded by the user with
   `npm run seed-demo -- --write`, which goes through the app’s own HTTP API, so
   the rows are exactly what the normal UI flow produces. The content is settled
   in D-068 and described under Open issues above, including the two traps a
@@ -4690,8 +5009,8 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
 #### Resilience screenshots, RS-1 to RS-16
 
-* [x] **Resilience & state screenshots — ALL NINE CAPTURED 2026-09-13, and SEVEN
-  MORE ADDED 2026-09-14 (RS-10 through RS-16), all written up in
+* [x] **Resilience & state screenshots – ALL NINE CAPTURED 2026-09-13, and SEVEN
+  MORE ADDED 2026-09-14 (RS-10 to RS-16), all written up in
   `docs/RESILIENCE.md`.** That document is where they ARGUE something: all
   twenty-four frames embedded, grouped by which dependency failed, each with the
   exact string it must show and the decision it evidences. The recipes below
@@ -4702,7 +5021,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
   Twenty-four files in `docs/screenshots/`: RS-3, RS-4, RS-5, RS-9, RS-10,
   RS-11, RS-14 and RS-15 each need two frames, on FOUR different axes. For five
-  of them - RS-3, RS-4, RS-5, RS-9 and RS-15 - the claim splits across the page
+  of them – RS-3, RS-4, RS-5, RS-9 and RS-15 – the claim splits across the page
   and the audit trail (RS-15 is on that axis too despite being listed last, so
   do not read the five off the order); RS-10's splits across TIME, because it is
   a race; RS-11's is one rule shown on BOTH AI features, because one alone reads
@@ -4710,7 +5029,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   because recovery is what a single error frame cannot show.
 
   Server behaviour is covered by `npm test`; these are the *pictures*.
-  **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** — a
+  **SHOOTING THEM FOUND THREE REAL DEFECTS THAT NOTHING ELSE WOULD HAVE** – a
   failed verdict logged against a model it never called (D-070), a fully enabled
   "Get recommendations" sitting over a list that could not load, and a verdict
   placeholder that never retired. All three were invisible to the tests, the
@@ -4719,30 +5038,30 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   argument for this list existing, and it is worth remembering before the next
   evidence pass is treated as box-ticking.
 
-  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED FOR ITS RS KEY:**
-  `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the first
-  capture. The subdirectory rather than `docs/` itself so nine-plus PNGs do not
-  bury six prose files; the RS key in the filename so a reader's `grep "RS-"`
-  ties every image back to the recipe that produced it, and so the README and
-  SPEC can link them by a path that says what it is. A default
+  **THEY LIVE IN `docs/screenshots/`, ONE FILE PER SHOT, NAMED AFTER ITS RS
+  KEY:** `rs-8-search-no-matches.png`, and so on. Settled 2026-09-13 with the
+  first capture. The subdirectory rather than `docs/` itself so nine-plus PNGs
+  do not bury six prose files; the RS key in the filename so a reader's
+  `grep "RS-"` ties every image back to the recipe that produced it, and so the
+  README and SPEC can link them by a path that says what it is. A default
   `Screenshot 2026-09-13 171841.png` says nothing and would have to be renamed
   before submission anyway.
 
   **Every state has a stable `RS-n` marker, so `grep "RS-" CLAUDE.md` returns
   the whole set and each line is self-contained enough to shoot from without
   reading the history.** Add new ones with the next free number and never
-  renumber. **Tick each `RS-n` as it is captured** — the parent checkbox is done
+  renumber. **Tick each `RS-n` as it is captured** – the parent checkbox is done
   only when every one of them is. (No count here on purpose: a count that grows
   with the set does not belong in a rule about the set.)
 
-  **TMDB, OpenRouter and Supabase are ALL called SERVER-side** — the browser
+  **TMDB, OpenRouter and Supabase are ALL called SERVER-side** – the browser
   talks only to this app, apart from poster images from TMDB's image server and
-  fonts from Google — so DevTools offline mode and request blocking do NOT
+  fonts from Google – so DevTools offline mode and request blocking do NOT
   simulate them. Forcing means editing `.env` and restarting, except where
-  noted. **The ranked list must still be working in every shot except RS-7** —
+  noted. **The ranked list must still be working in every shot except RS-7** –
   that is the point of most of them: one thing broke, the app did not.
 
-  - [x] **RS-1 · CAPTURED 2026-09-13 —
+  - [x] **RS-1 · CAPTURED 2026-09-13 –
     `docs/screenshots/rs-1-tmdb-down-on-search.png`.** Framed to match RS-8
     deliberately: same panel, same position, one crimson and one muted. The pair
     is the visual form of D-033 applied to Search, and is worth more side by
@@ -4755,10 +5074,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     that would have cost.
 
     **TMDB down on search.** Bogus `TMDB_API_KEY`, restart, search anything.
-    Expect the crimson note inside the results panel: "Couldn’t reach the movie
+    Expect the crimson note inside the results panel: "Couldn’t reach the film
     database. Try again in a moment."
 
-  - [x] **RS-2 · CAPTURED 2026-09-13 —
+  - [x] **RS-2 · CAPTURED 2026-09-13 –
     `docs/screenshots/rs-2-tmdb-down-on-add.png`.** The ranked list is below the
     fold in that frame rather than in it, which is a deliberate exception to the
     note above: the toast is the whole substance of this shot and widening the
@@ -4767,18 +5086,18 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     point instead, and RS-1 shows the list.
 
     **TMDB down on add.** **Order matters and is not obvious:** search FIRST
-    with a good key so rows render, THEN swap in a bogus key, restart, and click
+    with a good key so rows render, THEN swap in a bogus key, restart and click
     Add on the rows still on screen. With TMDB down, a fresh search fails and
     there is nothing to click. This works because the results panel is
     persistent rather than a dropdown (D-024). Expect the
-    toast: "Couldn’t add “&lt;Title&gt;” — TMDB is unreachable."
+    toast: "Couldn’t add “&lt;Title&gt;” – TMDB is unreachable."
 
-  - [x] **RS-3 · CAPTURED 2026-09-13 — TWO frames, and the FIRST entry to need
-    two (seven others have since joined it — RS-4, RS-5, RS-9, RS-10, RS-11,
+  - [x] **RS-3 · CAPTURED 2026-09-13 – TWO frames, and the FIRST entry to need
+    two (seven others have since joined it – RS-4, RS-5, RS-9, RS-10, RS-11,
     RS-14 and RS-15): `docs/screenshots/rs-3-tmdb-down-during-recs.png` and
     `docs/screenshots/rs-3-tmdb-down-during-recs-log.png`.** The claim is split
-    across two surfaces — the page says the run produced nothing, and only the
-    log shows it succeeded and was charged anyway — so either frame alone is
+    across two surfaces – the page says the run produced nothing, and only the
+    log shows it succeeded and was charged anyway – so either frame alone is
     half the story.
 
     **The two tie together without annotation and must not be marked up.** The
@@ -4790,10 +5109,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     so it reads "no suggestions" in grey with no caret while every other
     recommendation row is amber with a disclosure triangle.
 
-    **That log frame is where the cost logging is visible end to end** —
+    **That log frame is where the cost logging is visible end to end** –
     per-call tokens split in/out, exact cost, duration, a 60-call total, both
-    log tables named, and D-053’s two-model split visible in one column (haiku
-    for recommendations, sonnet-5 for the verdict alone). The captured frame
+    log tables named and D-053’s two-model split visible in one column (Haiku
+    for recommendations, Sonnet 5 for the verdict alone). The captured frame
     also proves R26’s colour rule in passing: the hint is `--ink-dim`, not the
     fainter `.is-caption`, because it is the only thing on screen rather than a
     caption introducing content.
@@ -4802,13 +5121,13 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     `TMDB_API_KEY`, restart, 3+ rated films, click Get recommendations. Distinct
     from RS-1 and RS-2: **the AI call succeeds and is charged while the run
     still produces nothing.** Expect the hint "Couldn’t check any of the
-    suggestions — the movie database is unreachable. Try again in a moment.",
-    the metadata footer showing the real cost, and — in the AI call log — a
+    suggestions – the film database is unreachable. Try again in a moment.",
+    the metadata footer showing the real cost and – in the AI call log – a
     green `success` row whose `suggested_titles` is empty. Before R28 this state
     claimed the model had only named films already in the list. Costs one real
     OpenRouter call.
 
-  - [x] **RS-4 · CAPTURED 2026-09-13 — two frames:
+  - [x] **RS-4 · CAPTURED 2026-09-13 – two frames:
     `docs/screenshots/rs-4-openrouter-down-recs.png` and
     `docs/screenshots/rs-4-openrouter-down-recs-log.png`.** Two frames for the
     same reason RS-3 needed two: the split between the calm sentence and the
@@ -4823,18 +5142,18 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     `rs-4-…-log.png` has it on top. Both were shot after the D-069 copy fix and
     neither is scrolled; the RS-3 frame is near-certainly a cached `/api/ai-log`
     response (the app fetches fresh on every open and the endpoint sets no
-    `Cache-Control`). **Kept deliberately rather than re-shot:** a fresh RS-3
+    `Cache-Control`). **Kept deliberately rather than re-shot:** A fresh RS-3
     frame would put the failed row on top and push the row its own caption
     points at into second place, making it a near-duplicate of the RS-4 frame.
-    Two visibly different tables — one before the failure, one after — carry
+    Two visibly different tables – one before the failure, one after – carry
     more than two near-identical ones, every figure in both is a real state of
     that table, and neither asserts anything false.
 
-    The captured frame shows the hint at `--ink-dim` rather than crimson (R24 —
+    The captured frame shows the hint at `--ink-dim` rather than crimson (R24 –
     the amber link measured 2.48x brighter than crimson, so the pointer to
     details outshouted the statement of what broke), no metadata footer at all
-    (nothing succeeded, so there is no cost to report — the exact contrast with
-    RS-3, where there is), and the trigger back at rest rather than stuck busy.
+    (nothing succeeded, so there is no cost to report – the exact contrast with
+    RS-3, where there is) and the trigger back at rest rather than stuck busy.
 
     **OpenRouter down on recommendations.** Bogus `OPENROUTER_API_KEY`, restart,
     3+ rated films, click Get recommendations. Expect "Couldn’t generate
@@ -4844,11 +5163,11 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     point: calm sentence to the user, technical cause to the audit trail (R8/R9,
     D-047).
 
-  - [x] **RS-5 · CAPTURED 2026-09-13 — two frames:
+  - [x] **RS-5 · CAPTURED 2026-09-13 – two frames:
     `docs/screenshots/rs-5-openrouter-down-verdict.png` and
     `docs/screenshots/rs-5-openrouter-down-verdict-log.png`.**
 
-    **The log frame holds the two failed rows ADJACENT** —
+    **The log frame holds the two failed rows ADJACENT** –
     `TV`/`TV_v7`/`claude-sonnet-5` above `R`/`R_v3`/`claude-haiku-4.5`, both
     `failed`, both `OpenRouter responded 401`, both with em dashes for tokens
     and cost. One image therefore carries R23 (two features answering a failure
@@ -4858,12 +5177,12 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     **That second claim was false until the day this was shot.** The failed
     verdict row named the app-wide model, not the one it called; the user caught
     it in the first attempt at this frame. Fixed, covered by a test per feature,
-    and the wrong rows deleted by hand — D-070.
+    and the wrong rows deleted by hand – D-070.
 
     The captured frame is full-page rather than cropped to the banner, and is
     kept that way: it is one of only TWO captures in the RS set that show the
-    site header — the wordmark and `.mark__reel`, the tagline, and the GitHub
-    link from step 3 — and it is the only one of the two where everything below
+    site header – the wordmark and `.mark__reel`, the tagline and the GitHub
+    link from step 3 – and it is the only one of the two where everything below
     the failing banner is intact. (The other is `rs-7-database-unreachable.png`,
     which shows the same header above a list that could not load.) What pairs
     with RS-4 is the SENTENCE, which is legible either way. Useful when the
@@ -4871,34 +5190,34 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **OpenRouter down on the verdict.** Same key, 2+ rated films, click New
     verdict. Expect "Couldn’t come up with a verdict right now. See the AI call
-    log for details." Shoot it beside RS-4 if possible — the two features
+    log for details." Shoot it beside RS-4 if possible – the two features
     answering identically is what R23 was for.
 
-  - [x] **RS-6 · CAPTURED 2026-09-13 —
+  - [x] **RS-6 · CAPTURED 2026-09-13 –
     `docs/screenshots/rs-6-cinerank-unreachable.png`.**
 
     Distinct from RS-1 in the way that matters: there TMDB was down and the
     SERVER told the client so; here nothing answers at all and `fetch` itself
-    rejects. The frame is `api()`’s network-level catch working — the engine’s
+    rejects. The frame is `api()`’s network-level catch working – the engine’s
     own wording (“Failed to fetch”, “NetworkError when attempting to fetch
     resource”) never reaches the user.
 
-    Two things had to be true and are: NO log link in the message (R9/D-047 —
+    Two things had to be true and are: NO log link in the message (R9/D-047 –
     nothing reached the server, so no row was committed, so nothing may be
     offered), and all seven films still rendering, because the list loaded
     before the server died and nothing re-fetches it. RS-7 is the only frame IN
     THIS SET where an empty list is correct; this is emphatically not that
     frame. (A genuinely empty list is correct too, and is captured as
-    `ac-3-ranking-empty.png` — it differs by showing the empty-state line, which
+    `ac-3-ranking-empty.png` – it differs by showing the empty-state line, which
     RS-7 deliberately does not.)
 
     **CineRank itself unreachable.** **Load the page first, THEN stop
     `npm start`**, then search. Stopping the server first means the document
-    never loads and there is no UI to photograph — this cost time once already.
+    never loads and there is no UI to photograph – this cost time once already.
     Expect "Couldn’t reach CineRank. Check your connection and try again." The
     ranked list keeps showing whatever it loaded before the server went away.
 
-  - [x] **RS-7 · CAPTURED 2026-09-13 —
+  - [x] **RS-7 · CAPTURED 2026-09-13 –
     `docs/screenshots/rs-7-database-unreachable.png`.**
 
     **Shooting it found two real defects, both fixed before the frame was taken,
@@ -4909,44 +5228,44 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     keeps whatever the markup gave it. `#recs-trigger` shipped without
     `disabled` and so rendered fully live above an empty list (fixed in the
     markup, mirroring `#verdict-refresh`, which the step-4b work had already got
-    right); and `Reading the room…` — a placeholder meant to last a fraction of
-    a second — sat there for the life of the page, still promising a verdict
+    right); and `Reading the room…` – a placeholder meant to last a fraction of
+    a second – sat there for the life of the page, still promising a verdict
     (fixed with two lines inside `init()`’s existing catch, which cannot run
     when the load succeeds).
 
-    **A THIRD ELEMENT IS SKIPPED THE SAME WAY AND IS CORRECT — DO NOT "FIX"
-    IT.** `#ranked-empty` reads "No movies yet — search for one above to get
+    **A THIRD ELEMENT IS SKIPPED THE SAME WAY AND IS CORRECT – DO NOT "FIX"
+    IT.** `#ranked-empty` reads "No films yet – search for one above to get
     started." and stays `hidden`, because `refreshRanked()` is below that
     `await` too. That is the right outcome: the user may have a full list and
     the app simply cannot reach it, so unhiding that sentence would assert
     something false. A sweep for "the same bug" would introduce one here.
 
-    **Search stays live in the frame, and that is not an oversight** — it calls
+    **Search stays live in the frame, and that is not an oversight** – it calls
     TMDB, not Supabase, so one dependency being down while the other works is
     exactly what the UI should show.
 
     **Database unreachable.** Bogus `SUPABASE_URL` / `SUPABASE_ANON_KEY`,
-    restart, reload. Expect the toast "Couldn’t load your movies — Something
+    restart, reload. Expect the toast "Couldn’t load your films – Something
     went wrong."
 
     **This is the ONE shot IN THIS SET where the ranked list is legitimately
-    empty** — it is the thing that broke — so it does not belong in the set
-    above. Scoped on purpose: an empty list is ALSO correct for a user who has
+    empty** – it is the thing that broke – so it does not belong in the set
+    above. Scoped on purpose: An empty list is ALSO correct for a user who has
     added nothing, which `ac-3-ranking-empty.png` captures. The two differ by
     the empty-state line, shown there and deliberately absent here. Worth
     knowing why it earns a slot: finding this state is what caught the central
     500 handler claiming a failure was "on our side" when it was neither a bug
     nor the server's fault.
 
-  - [x] **RS-8 · CAPTURED 2026-09-13 —
+  - [x] **RS-8 · CAPTURED 2026-09-13 –
     `docs/screenshots/rs-8-search-no-matches.png`.** **The non-error empty
     state.** Everything working; search a nonsense string. Expect the MUTED note
     (not crimson): "No matches for “&lt;query&gt;”. Check the spelling, or try a
     different title." One shot, purely to show that an empty result and a
-    failure are visibly different — which is the whole of D-033's argument,
+    failure are visibly different – which is the whole of D-033's argument,
     applied in Search.
 
-  - [x] **RS-9 · CAPTURED 2026-09-13 — two frames:
+  - [x] **RS-9 · CAPTURED 2026-09-13 – two frames:
     `docs/screenshots/rs-9-zero-recommendations.png` and
     `docs/screenshots/rs-9-zero-recommendations-log.png`.** The temporary edit
     was reverted the moment the second frame landed; 56/56 tests green and the
@@ -4954,10 +5273,10 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
     **The log frame packs a lot into one image.** It holds
     FOUR outcomes at once: this run (`success`, charged, no suggestions), the
-    RS-3 run (`success`, charged, no suggestions — but caused by a TMDB outage),
+    RS-3 run (`success`, charged, no suggestions – but caused by a TMDB outage)
     and both failures, `TV`/`claude-sonnet-5` and `R`/`claude-haiku-4.5`. **Its
     top and fourth rows are the whole argument of the RS-3/RS-9 pair:** 1,045
-    tokens / 0.20¢ and 1,043 tokens / 0.20¢ — visually indistinguishable
+    tokens / 0.20¢ and 1,043 tokens / 0.20¢ – visually indistinguishable
     outcomes with completely different causes, which the app tells apart
     correctly on the page (R28). Before R28 it called both the second thing.
 
@@ -4965,22 +5284,22 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     Same layout, same empty grid, same real charge. RS-3 is a genuine outage the
     app reported honestly instead of hiding behind RS-9's message, which the app
     showed for every empty run before R28. RS-9 is that message being TRUE:
-    every key works, TMDB answers, the model performs, and the run simply has
-    nothing new to offer — and the cost is still accounted for. That is why it
+    every key works, TMDB answers, the model performs and the run simply has
+    nothing new to offer – and the cost is still accounted for. That is why it
     is filed under SPEC § 7.2 rather than § 7.1: an app that reports what it
     spent only when things go well is not an audit trail.
 
     **A recommendation run that returns nothing.** Not a failure, and included
     deliberately: it is a single frame proving the app reports an AI
-    call it paid for even when that call yielded no cards — SPEC §7.2 "not a
+    call it paid for even when that call yielded no cards – SPEC §7.2 "not a
     wrapper" evidence rather than §7.1 resilience.
 
-    **The only one of the ORIGINAL NINE that needs a temporary code change** —
+    **The only one of the ORIGINAL NINE that needs a temporary code change** –
     RS-15 and RS-16 were added later and need one too, so this is no longer the
-    only such recipe in the set — because the state cannot be forced from
+    only such recipe in the set – because the state cannot be forced from
     `.env`. In `generateRecommendations()`, make every verified film look owned:
     `if (true || ownedTmdbIds.has(movie.tmdb_id)) { tally.owned += 1; continue;
-    }` Expect "No new suggestions this time — the model only named films already
+    }` Expect "No new suggestions this time – the model only named films already
     in your list.", the metadata footer with its real cost and log link, and a
     `success` row in the log with empty `suggested_titles`.
 
@@ -4988,12 +5307,12 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     moment the shot is taken.** Four route tests fail while it is in place,
     which is expected and is not a reason to debug anything.
 
-  - [x] **RS-10 · CAPTURED 2026-09-14 — two frames:
+  - [x] **RS-10 · CAPTURED 2026-09-14 – two frames:
     `docs/screenshots/rs-10-row-deleted-mid-edit-before.png` and
     `docs/screenshots/rs-10-row-deleted-mid-edit-after.png`.**
 
     **A row deleted while it was being edited.** Every key is valid, the server
-    is up and the database is up — nothing is broken anywhere. **That is not
+    is up and the database is up – nothing is broken anywhere. **That is not
     unique to it:** `docs/RESILIENCE.md` names `RS-15` and `RS-16` in the same
     breath for the same reason, and `RS-8` and `RS-9` beside them as states
     where nothing fails at all. What IS unique to it is the next paragraph. What fails is
@@ -5004,21 +5323,21 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     SAME moment rather than two surfaces.** A single still cannot show an order
     of events; a before and an after can.
 
-    **Recipe.** Everything working. Open the app TWICE side by side — two
+    **Recipe.** Everything working. Open the app TWICE side by side – two
     windows, or one browser in split view, which is what the captured frames
     use. Add a throwaway film that is not in the seed set and rate it **9.5**,
     so it lands at `#1` and its disappearance is unmissable without scrolling.
     Reload the second view. Match the scroll position in both. Then: view 1,
-    click Edit on that film and type a review, DO NOT save — shoot frame one.
-    View 2, Remove that film and confirm. View 1, click Save — shoot frame two.
+    click Edit on that film and type a review, DO NOT save – shoot frame one.
+    View 2, Remove that film and confirm. View 1, click Save – shoot frame two.
 
     **No timing pressure at any point.** `app.js` carries no `visibilitychange`
     handler, no `focus` handler and no polling timer, so view 1 sits untouched
     indefinitely: the dialog stays open and the typed text stays put. The ONE
-    thing on a clock is view 2's `“<Title>” removed.` toast, which lives 3.2s —
+    thing on a clock is view 2's `“<Title>” removed.` toast, which lives 3.2s –
     nice to catch (the captured frame has it) and not worth chasing.
 
-    Expect, inline and crimson in the dialog: "Couldn’t find that film — it may
+    Expect, inline and crimson in the dialog: "Couldn’t find that film – it may
     have been removed. Refresh and try again." The rating and the typed review
     must both still be there.
 
@@ -5027,20 +5346,20 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     **It deletes exactly one row and it is a throwaway**, so the seed set is
     untouched and there is nothing to restore afterwards.
 
-  - [x] **RS-11, RS-12 and RS-13 · CAPTURED 2026-09-14 — FOUR frames from ONE
+  - [x] **RS-11, RS-12 and RS-13 · CAPTURED 2026-09-14 – FOUR frames from ONE
     broken state, so they share a recipe:** `rs-11-no-log-offered-verdict.png`,
     `rs-11-no-log-offered-recs.png`, `rs-12-log-cannot-load.png` and
     `rs-13-write-fails-remove.png`.
 
-    **The database is unreachable while the page is already loaded** — the same
+    **The database is unreachable while the page is already loaded** – the same
     dependency as RS-7, but reached from the opposite direction, so all four
     surfaces are live and clickable instead of locked at boot.
 
     **ORDER IS EVERYTHING AND IT IS NOT THE OBVIOUS ONE.** Load the page with a
     WORKING `.env` first, so the list renders and both AI buttons enable; THEN
-    break the key, restart, and **do not reload**. Reload and `/api/movies`
-    fails, both buttons render disabled, and every click below becomes
-    impossible — that is RS-7, a different frame.
+    break the key, restart and **do not reload**. Reload and `/api/movies`
+    fails, both buttons render disabled and every click below becomes
+    impossible – that is RS-7, a different frame.
 
     **Break `SUPABASE_ANON_KEY`, never `SUPABASE_URL`.** `createClient` runs at
     module load (`server/supabase.js`), so a malformed URL throws before the
@@ -5048,14 +5367,14 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     either: `required()` in `server/config.js` throws on an empty value. Append
     junk to the KEY's value and nothing else.
 
-    Then, in this order — the log dialog covers the page, so it goes last: **New
+    Then, in this order – the log dialog covers the page, so it goes last: **New
     verdict** (RS-11a), **Get recommendations** (RS-11b), **Remove** on any card
     (RS-13), **View the AI call log** (RS-12). Expect "Couldn’t come up with a
     verdict right now. Try again in a moment." and "Couldn’t generate
     recommendations right now. Try again in a moment.", **both with NO log
-    link** — that absence is the whole of RS-11; then "Couldn’t remove “&lt;Title&gt;”
-    — Something went wrong."; then, inside the log dialog, "Couldn’t load the
-    log — Something went wrong."
+    link** – that absence is the whole of RS-11; then "Couldn’t remove “&lt;Title&gt;”
+    – Something went wrong."; then, inside the log dialog, "Couldn’t load the
+    log – Something went wrong."
 
     **THE SESSION CANNOT LOSE DATA**, which is worth knowing given Incident 1:
     every write fails at the database, so nothing can be deleted or altered.
@@ -5066,12 +5385,12 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     log routes fall through to the central 500 handler. None of the four leaks a
     `PGRST` code or a Postgres string.
 
-  - [x] **RS-14 · CAPTURED 2026-09-14 — two frames:
+  - [x] **RS-14 · CAPTURED 2026-09-14 – two frames:
     `docs/screenshots/rs-14-failed-save-input-kept.png` and
     `docs/screenshots/rs-14-failed-save-retry-succeeds.png`.**
 
     **A save that fails while the server is gone, and the retry that works.**
-    Same outage as RS-6 and the opposite direction — that is a failed READ, this
+    Same outage as RS-6 and the opposite direction – that is a failed READ, this
     is a failed WRITE with unsaved work in hand.
 
     **Two frames because the distinguishing claim is RECOVERY, not
@@ -5081,28 +5400,28 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     shown.
 
     **Recipe.** Everything working, page loaded. Use **Knives Out**: it is rated
-    8.2 with NO review, so its card reads "No review yet — edit to add one." and
+    8.2 with NO review, so its card reads "No review yet – edit to add one." and
     the before/after is visible on the card itself. Click Edit, type a review,
-    then **stop `npm start`** and click Save — frame one. Do NOT touch the
-    dialog afterwards: no Cancel, no Esc, and above all **no reload**, since the
+    then **stop `npm start`** and click Save – frame one. Do NOT touch the
+    dialog afterwards: no Cancel, no Esc and above all **no reload**, since the
     typed text lives only in the DOM. Restart `npm start`, click **Save** again
-    — it succeeds, the dialog closes, and the card carries the text. Frame two.
+    – it succeeds, the dialog closes and the card carries the text. Frame two.
 
     Expect inline and crimson: "Couldn’t reach CineRank. Check your connection
-    and try again." — **with no log link**, because nothing reached the server
+    and try again." – **with no log link**, because nothing reached the server
     so no row was committed (R9/D-047).
 
     **RESTORE AFTERWARDS, and it matters:** Edit Knives Out, clear the review
     box completely, Save. An empty string is falsy, so `renderRanked()` falls
-    through to the `no-review` branch and the placeholder returns — which is the
+    through to the `no-review` branch and the placeholder returns – which is the
     seed state D-068 chose deliberately and which other captures depend on.
 
     A detail the second frame happens to prove: the toast reads
-    `“Knives Out” saved.` with NO "— ranking updated." clause, because the
+    `“Knives Out” saved.` with NO "– ranking updated." clause, because the
     rating did not change and that clause is checked against a ranking signature
     rather than assumed (D-034).
 
-  - [x] **RS-15 · CAPTURED 2026-09-14 — two frames:
+  - [x] **RS-15 · CAPTURED 2026-09-14 – two frames:
     `docs/screenshots/rs-15-nothing-usable-page.png` and
     `docs/screenshots/rs-15-nothing-usable-log.png`.**
 
@@ -5112,16 +5431,16 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     reply that arrived fine. **This is the only evidence for SPEC § 2.4's other
     clause, "or returns malformed output", which had none.**
 
-    **Needs a temporary code change, like RS-9 — TWO of them, one per run, and
+    **Needs a temporary code change, like RS-9 – TWO of them, one per run, and
     BOTH make a real, charged OpenRouter call.** In `generateRecommendations()`,
     the line is `picks = parseModelJson(result.text);` and only its ARGUMENT
     changes; the `chat()` call just before it stays untouched, which is the
-    whole point — the call completes and is billed, and only what gets parsed is
+    whole point – the call completes and is billed, and only what gets parsed is
     spoiled.
 
     * **Malformed:** `picks = parseModelJson('Here are some films you might enjoy!');`
-      `JSON.parse` throws, `status` becomes `failed`, and the row carries
-      `Model did not return valid JSON` — **with REAL tokens, cost and duration**,
+      `JSON.parse` throws, `status` becomes `failed` and the row carries
+      `Model did not return valid JSON` – **with REAL tokens, cost and duration**,
       because `result` is assigned outside the try and every figure in the log row
       reads from it after the catch.
     * **Empty:** `picks = parseModelJson('[]');` Valid JSON, valid array,
@@ -5130,50 +5449,50 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
       is the CONTRACT, not usefulness.**
 
     **Shoot the LOG after BOTH runs, not after each.** One frame then holds the
-    success and the failure ADJACENT — same feature, prompt and model, 1,038
-    tokens against 1,057 — which is the argument. Also shoot the PAGE on the
-    empty run, for "No suggestions this time — the model didn’t name any films.
+    success and the failure ADJACENT – same feature, prompt and model, 1,038
+    tokens against 1,057 – which is the argument. Also shoot the PAGE on the
+    empty run, for "No suggestions this time – the model didn’t name any films.
     Try again." and the metadata footer beneath it (R10: a charged run that
     produced nothing still declares its cost).
 
-    **The page on the MALFORMED run is deliberately NOT captured** — it is
+    **The page on the MALFORMED run is deliberately NOT captured** – it is
     byte-identical in shape to RS-4's, since the route throws with
     `logged: true` before `renderRecommendations()` runs. A second log frame
     shot between the two runs was also dropped: its only addition over the final
     one is a second 401 row, which is not a claim.
 
     **Revert with `git checkout -- server/services/recommendations.js` the
-    moment the last shot lands**, and re-run `npm test` to confirm a full pass —
+    moment the last shot lands**, and re-run `npm test` to confirm a full pass –
     several route tests fail while either edit is in place, which is expected.
 
-  - [x] **RS-16 · CAPTURED 2026-09-14 — one frame:
+  - [x] **RS-16 · CAPTURED 2026-09-14 – one frame:
     `docs/screenshots/rs-16-unverifiable-picks.png`.**
 
-    **The model named films that do not exist** — the THIRD way a reply leaves
+    **The model named films that do not exist** – the THIRD way a reply leaves
     you with nothing, after RS-15's malformed and empty. Here the list was well
     formed and every title in it was fictional, so TMDB confirmed none of them.
 
     **This is the state SPEC § 2.2 step 4 and § 6 both build their argument
     on:** the app never trusts the model's output as fact, and a title TMDB
-    returns nothing for is dropped rather than rendered as a broken card. It is
-    also NOT a rare path — D-054 measured seven of twelve realistic invented
-    titles returning zero results.
+    returns nothing for is dropped rather than rendered as a broken card. For
+    an invented title it is also NOT a rare path – D-054 measured seven of
+    twelve realistic invented titles returning zero results.
 
     **Recipe.** Everything working, 3+ rated films, page loaded. In the
     verification loop of `generateRecommendations()`, change
-    `movie = await verifyTitle(pick.title);` to `movie = null;` — that leaves
+    `movie = await verifyTitle(pick.title);` to `movie = null;` – that leaves
     `reached` true, so every pick falls to `tally.unmatched` and
     `emptyReasonFor()` lands on `unverifiable` (the three checks above it all
-    fall through). Restart, click **Get recommendations** — one real, charged
+    fall through). Restart, click **Get recommendations** – one real, charged
     call.
 
-    Expect "No new suggestions this time — none of the films it named could be
+    Expect "No new suggestions this time – none of the films it named could be
     verified.", muted rather than crimson (R24), with the metadata footer
     beneath it declaring the real cost (R10) and an empty grid. Nothing scrolls
     or animates; that is gated on `suggestions.length`.
 
     **Shoot the PAGE only.** The log row would read `success` with real tokens
-    and "no suggestions" — identical in shape to RS-15's and RS-9's, because the
+    and "no suggestions" – identical in shape to RS-15's and RS-9's, because the
     log does not render the CAUSE (the tally lives in `raw_model_output`, which
     nothing displays). All empty-success rows look alike in that table.
 
@@ -5185,17 +5504,17 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 
 #### Remaining evidence and cleanup
 
-* [x] **Prompt-injection evidence — CAPTURED 2026-09-13. Five frames,
+* [x] **Prompt-injection evidence – CAPTURED 2026-09-13. Five frames,
   `docs/screenshots/pi-1`…`pi-5`.** The demo film is The Room, whose review IS
   the injection attempt (instruction override, system-prompt exfiltration and
   output hijack in one). Added with `npm run seed-demo -- --with-injection
   --keep --write`, captured, then removed through the app’s own Remove button.
 
-  * `pi-1` the stored review, rendered as inert plain text on the ranked card —
+  * `pi-1` the stored review, rendered as inert plain text on the ranked card –
     `textContent`, never `innerHTML`.
-  * `pi-2` the verdict: entirely about films, no pirate, no BANANA, no leaked
+  * `pi-2` the verdict: Entirely about films, no pirate, no BANANA, no leaked
     system prompt, with its real cost in the footer.
-  * `pi-3` the recommendations: four real TMDB-verified films with normal
+  * `pi-3` the recommendations: Four real TMDB-verified films with normal
     reasons.
   * `pi-4` the verdict AND the injection card in one frame.
   * `pi-5` the recommendations AND the injection card in one frame.
@@ -5214,11 +5533,11 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   text ever reached the model. The app says so itself.
 
   **That line only exists because of a fix made the same day.** The demo film
-  was rated 2, which sorted it SIXTH — outside `config.recommendations.topN` —
+  was rated 2, which sorted it SIXTH – outside `config.recommendations.topN` –
   so its review reached the verdict prompt and never reached the recommendations
   prompt at all. Half the evidence would have been a screenshot of a feature
   resisting something it was never sent. Rated 8 it sorts fourth, inside the
-  window, and both captures are real. Corroborated independently: the verdict
+  window, and both captures are real. Corroborated independently: The verdict
   call ran **1,577 tokens** against 1,491 / 1,482 / 1,488 for the three previous
   runs, and its prompt ran 1,466 tokens against 1,385 for all three: 81 tokens
   heavier, which is The Room's line in the prompt, its review included.
@@ -5228,26 +5547,26 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   declare the enclosed text data only, both state that instructions come from
   the surrounding section alone, and both name the "ignore previous
   instructions" shape explicitly. It is present in all seven verdict versions,
-  v1 to v7 — six rewrites, the last three chasing register, any of which could
+  v1 to v7 – six rewrites, the last three chasing register, any of which could
   easily have dropped it. Source review and
   runtime evidence are two different claims; this checkbox is the second.
 
-* [x] **README screenshots + architecture diagram — DONE 2026-09-13.** The
+* [x] **README screenshots + architecture diagram – DONE 2026-09-13.** The
   diagram is Mermaid rather than an exported image, so it is text: diffable,
-  greppable, and unable to go stale silently the way a PNG would. Beneath it,
+  greppable and unable to go stale silently the way a PNG would. Beneath it,
   six claims it makes, each checkable against the code. Five screenshots are
-  embedded — the hero, the recommendations, a prompt-injection frame, the AI
-  call log, and a reused resilience frame — each captioned with what it PROVES
+  embedded – the hero, the recommendations, a prompt-injection frame, the AI
+  call log and a reused resilience frame – each captioned with what it PROVES
   rather than what it depicts. The README also gained a `## Documentation` map, because nine of the
   eleven deliverables had been reachable only from inside a code block.
 
-* [x] **Joint-project registration — DONE 2026-09-14.** Emailed with both names,
+* [x] **Joint-project registration – DONE 2026-09-14.** Emailed with both names,
   and both cross-referencing comments are on the project sheet.
 
-* [x] **Unload the recommendations debug harness — DONE 2026-09-13.** Deleted
+* [x] **Unload the recommendations debug harness – DONE 2026-09-13.** Deleted
   TWO lines and nothing else: the `<script src="/debug-recs.js">` tag at the
   bottom of `public/index.html`, and the `app.get('/debug-recs.js', …)` route in
-  `server/index.js`. **`scripts/debug-recs.js` itself STAYS** — it is a real dev
+  `server/index.js`. **`scripts/debug-recs.js` itself STAYS** – it is a real dev
   tool and still works by pasting it into the console, which is how it was
   written. Added 2026-09-09 at the user's request as a temporary but open-ended
   convenience while the recommendations UI was being worked; the user asked for
@@ -5259,7 +5578,7 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   harness now starts every page load DISARMED and intercepts nothing until
   `debugRecs()` is called, and it declines to install at all on the
   `onrender.com` host. So forgetting this ships an idle function rather than a
-  hijacked app — but a debug tool wired into a submitted build is still its own
+  hijacked app – but a debug tool wired into a submitted build is still its own
   kind of wrong.
 
   **Verified live rather than by reading the diff**, on a throwaway port:
@@ -5267,11 +5586,11 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   `debug-recs` in the served HTML, and `app.js` still referenced once. The file
   itself is untouched and still works by pasting into the console.
 
-* [x] **Tick SPEC § 7.1's acceptance checkboxes — ALL EIGHT TICKED 2026-09-14.**
+* [x] **Tick SPEC § 7.1's acceptance checkboxes – ALL EIGHT TICKED 2026-09-14.**
   Raised by the 2026-09-12 sweep and deliberately left for the user: ticking an
   acceptance criterion is a claim that it was *verified for submission*, which
   is the user's call and not Claude's to make on their behalf. That division
-  held to the end — the agent assembled the evidence and stopped there.
+  held to the end – the agent assembled the evidence and stopped there.
 
   **The evidence is `docs/ACCEPTANCE.md`**, written 2026-09-13/14: all eight
   criteria walked one at a time, each with its proof embedded rather than named,
@@ -5279,9 +5598,9 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   hand-verified) so that no criterion claims more support than it has.
 
   **Walking them found three untested happy paths**, and all three now have
-  tests: search returning results, deleting a film — which had no coverage at
+  tests: search returning results, deleting a film – which had no coverage at
   all, while `test/helpers.js` had carried an unused `del()` helper since it was
-  written — and a verdict being logged on success. Every criterion that
+  written – and a verdict being logged on success. Every criterion that
   described a SUCCESS turned out to have failure-path coverage only. The suite
   went 57 to 60, and each new test was probed by breaking the source rather than
   trusted for being green.
@@ -5290,50 +5609,50 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   two of the eight needed the demo list emptied to one film and then to zero,
   which was done deliberately and reversed with the seed script afterwards.
 
-  **The escaped brackets never blocked this** — measured against GitHub's own
+  **The escaped brackets never blocked this** – measured against GitHub's own
   renderer on 2026-09-12, an escaped bracket in a list item produces a working,
   tickable checkbox, byte-identical to an unescaped one. There is no dependency
   on the escaping fix; these eight have been tickable all along.
 
-* [x] **Markdown escaping in `CLAUDE.md` and `SPEC.md` — DONE 2026-09-12
+* [x] **Markdown escaping in `CLAUDE.md` and `SPEC.md` – DONE 2026-09-12
   (D-065), and it turned out to be two real defects out of the four that were
   suspected.** Every class was measured against GitHub's Markdown API rather
   than assumed, which is the only reason the job ended up small and safe:
 
-  * **Section separators — FIXED, by DELETING them, not by unescaping them.** All
+  * **Section separators – FIXED, by DELETING them, not by unescaping them.** All
     17 rendered as a literal `---` paragraph, which is visible debris. But every
     one sits immediately above an `h2`, and GitHub's own stylesheet already draws
-    a rule under every `h1`/`h2` — so converting them would have put two rules a
+    a rule under every `h1`/`h2` – so converting them would have put two rules a
     line apart around every heading. The user spotted that from a screenshot.
     Deleting is also strictly SAFER than converting: an unescaped `---` under a
     text line silently becomes a setext `h2` (confirmed with the renderer), so
     converting would have armed a trap for whoever next edits a blank line.
-  * **Escaped underscores inside code spans — FIXED.** These really did render
+  * **Escaped underscores inside code spans – FIXED.** These really did render
     with the backslash showing, and they covered technical identifiers in
     both documents: all four env var names in § Security & Secrets,
     both log table names, every log column, all three check constraints, and
     every prompt filename and version. The user caught this in a screenshot of
     the Module 17 section.
-  * **Escaped brackets, ampersands, numbered headings, and underscores in plain
-    text — LEFT ALONE ON PURPOSE. All of them already render correctly.** Do not
+  * **Escaped brackets, ampersands, numbered headings and underscores in plain
+    text – LEFT ALONE ON PURPOSE. All of them already render correctly.** Do not
     "finish the job" by removing them; there is nothing to finish, and a blind
     sweep would also strip the examples rule 7 under § Markdown Authoring Rules
     shows on purpose.
 
-  **Verified, not hoped:** both files were rendered through GitHub's Markdown
+  **Verified, not hoped:** Both files were rendered through GitHub's Markdown
   API before and after, and the two HTML outputs diffed. SPEC.md came back an
-  EXACT match for the intended transforms — zero unintended changes. CLAUDE.md
+  EXACT match for the intended transforms – zero unintended changes. CLAUDE.md
   differed in exactly two lines, both of them escapes kept on purpose as
   examples. Nothing else in either rendered file moved.
 
 #### The final planned merge
 
-* [x] **Final planned `draft → main` merge — AUTHORISED 2026-09-14.** Everything
+* [x] **Final planned `draft → main` merge – AUTHORISED 2026-09-14.** Everything
   above it was ticked first, and `docs/MERGE-READINESS.md` reads MET on all five
   of Module 16's criteria.
 
   **It needed explicit user confirmation, exactly as every previous merge did**
-  — being merge-ready is a statement about the work, not permission to act on
+  – being merge-ready is a statement about the work, not permission to act on
   it, and the rule in Version Control Workflow has no exception for the last
   one. That confirmation was given.
 
@@ -5349,25 +5668,25 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
   **A gap turned up the same day, and that is precisely what happened to it.**
   The user found `docs/SECURITY.md` rendering with broken images and dead links
   on GitHub's Security tab (rule 8 under Markdown Authoring Rules). It was fixed
-  and merged under the identical procedure — figures and notes written to
+  and merged under the identical procedure – figures and notes written to
   `draft` first, explicit confirmation asked for and given, then a twenty-second
   merge. The sentence above was written before any of this and needed no
   amendment.
 
 ### Incident log
-* **Incident 1 (2026-09-04) — user movie data deleted.** During AI-path testing
+* **Incident 1 (2026-09-04) – user film data deleted.** During AI-path testing
   Claude ran "delete all movies" as cleanup; the second run also removed the
   Marvel/superhero films the user had added (ratings + reviews lost, not
-  recoverable — free tier has no PITR/backups; logs kept only dead movie ids).
+  recoverable – free tier has no PITR/backups; logs kept only dead film ids).
   Also: Claude's `Get-Process node | Stop-Process` killed the user's running dev
   server. Both are process failures, not code bugs. Mitigations below are now
   binding.
 
-### Working agreements (binding — added after Incident 1)
+### Working agreements (binding – added after Incident 1)
 * **Never run destructive operations against the live Supabase data.** No
   "delete all", no truncate, no bulk delete. If test rows are unavoidable, tag
   them (e.g. `review = "__CLAUDE_TEST__"`) and delete only rows matching that
-  exact tag and created in the same script — never "all ids".
+  exact tag and created in the same script – never "all ids".
 * **Never kill node processes broadly.** No `Get-Process node | Stop-Process`, no
   `pkill node`. Kill only a PID this session started, and run any test server on a
   non-default port so the user's `npm start` is untouched.
@@ -5378,22 +5697,24 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
 ## Tech Stack
 
 * **Backend:** Node.js + Express
-* **Database:** Supabase (Postgres) — see SPEC.md §5 for schema
-* **Frontend:** HTML/CSS/JS (vanilla). No framework required — the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
-* **External API #1 (movie data):** TMDB — requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
+* **Database:** Supabase (Postgres) – see SPEC.md §5 for schema
+* **Frontend:** HTML/CSS/JS (vanilla). No framework required – the UI quality bar is met through actual design decisions (typography, motion, hierarchy), not through pulling in a component library. See the frontend-design conventions below.
+* **External API #1 (film data):** TMDB – requires a free API key from themoviedb.org (instant approval). Store as `TMDB_API_KEY` in `.env`.
 * **External API #2 (AI):** OpenRouter, using the existing account/`.env` key.
-  - **Two models, on purpose (D-053):** recommendations run on the cheaper
+  - **Two models, on purpose (D-053):** Recommendations run on the cheaper
     `anthropic/claude-haiku-4.5`, the taste verdict alone on
-    `anthropic/claude-sonnet-5` — four prompt versions could not get the cheaper
+    `anthropic/claude-sonnet-5` – four prompt versions could not get the cheaper
     tier to write in a plain spoken register, and the model turned out to be the
     constraint rather than the wording.
   - **The split is NOT hard task versus easy task, and do not describe it that
-    way.** Recommendations are the larger job: read the whole list, infer a
-    taste from the top five rated films and the reviews attached to them
+    way.** Neither job is the small one. Recommendations read the whole list,
+    infer a taste from the top five rated films and the reviews attached to them
     (`config.recommendations.topN`), exclude every film already in the list
     whether rated or not, and justify each pick in one second-person sentence of
-    8–16 words tied to a specific rating or a pattern across them. What makes
-    the cheaper tier right there is that the output is **checkable** —
+    8–16 words tied to a specific rating or a pattern across them. The verdict
+    reads every rated film and its review and characterises the viewer, not the
+    ratings, in a plain spoken register. What makes
+    the cheaper tier right there is that the output is **checkable** –
     structured JSON, every title cross-checked against TMDB, so a bad pick is
     dropped rather than shown. The verdict has nothing to check it against, so
     its only measure is whether it sounds like a person, which is the axis the
@@ -5403,41 +5724,41 @@ appears, unprompted. *Noticing* was never deferred; the *capturing* deferred to
     feature via `OPENROUTER_MODEL` and `OPENROUTER_VERDICT_MODEL`. Keep these
     calls isolated in their own modules (e.g. `services/recommendations.js` and
     `services/tasteVerdict.js`) so either can be mocked/stripped without
-    touching core movie CRUD logic.
+    touching core film CRUD logic.
 
 
 ## Coding Conventions
 
-* Keep TMDB calls and OpenRouter calls in separate service modules — never inline `fetch()` calls directly inside route handlers.
-* All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) — never hand-built SQL strings.
-* The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file — each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
-* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation_logs` or `taste_verdict_logs`) — this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) — a failed/degenerate AI call belongs in the audit trail too. If the insert itself fails, the run is discarded and the cause goes to stderr (R5). The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
-* Do not add authentication/multi-user support unless explicitly asked — SPEC.md marks this as v1 out-of-scope.
+* Keep TMDB calls and OpenRouter calls in separate service modules – never inline `fetch()` calls directly inside route handlers.
+* All Supabase reads/writes go through the Supabase JS client's query builder (`.select()`, `.insert()`, `.eq()`, etc.) – never hand-built SQL strings.
+* The recommendation and taste-verdict prompts are never hardcoded inline in a `.js` file – each lives in its own file under `prompts/` (see § Prompt Versioning below) and is loaded at call time.
+* Every OpenRouter call, for **either** feature, must capture and store token usage and estimated cost in its respective log table (`recommendation_logs` or `taste_verdict_logs`) – this is a hard requirement, not a nice-to-have (course grading emphasis on cost logging). A row is written whether the call **succeeds or fails** (`status` column) – a failed/degenerate AI call belongs in the audit trail too. If the insert itself fails, the run is discarded and the cause goes to stderr (R5). The in-app "AI call log" viewer (`GET /api/ai-log`, footer button) surfaces both tables merged; the exact cost comes from OpenRouter's `usage.cost` with a per-model estimate table as fallback.
+* Do not add authentication/multi-user support unless explicitly asked – SPEC.md marks this as v1 out-of-scope.
 
 
 ## Frontend Design Notes
 
-The explicit goal is a genuinely polished, distinctive look — not a generic default-component appearance. Concretely:
+The explicit goal is a genuinely polished, distinctive look – not a generic default-component appearance. Concretely:
 
-* Real typography choices (not default system font stack sizes) for the movie title/ranking numbers.
+* Real typography choices (not default system font stack sizes) for the film title/ranking numbers.
 * Good-looking CSS effects and animations.
-* Poster images treated as the primary visual anchor of each card — layout should be built around the poster, not squeeze it in as an afterthought.
-* Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list."
+* Poster images treated as the primary visual anchor of each card – layout should be built around the poster, not squeeze it in as an afterthought.
+* Consistent card language between the main ranked list and the AI recommendation panel, with a clear but subtle visual marker distinguishing "AI-suggested, not yet rated" from "already in your ranked list".
 
 ### Button labels and line breaks (the user's rule, 2026-09-09)
 
-**A glyph is not a word.** A checkmark, a plus, a spinner and the like must NEVER
-be separated from the word they belong to — a two-line `+ Add` or `✓ Added` is
+**A glyph is not a word.** A tick, a plus, a spinner and the like must NEVER
+be separated from the word they belong to – a two-line `+ Add` or `✓ Added` is
 unacceptable at **any** viewport width, however narrow.
 
 **Real words may wrap on spaces** in exceptionally narrow viewports (roughly
 under 400px) and the user does not mind. `In your list` breaking across two lines
 is fine; `✓` on one line and `Added` on the next is not.
 
-**How it is enforced:** the glyph is glued to its word with a non-breaking space
+**How it is enforced:** The glyph is glued to its word with a non-breaking space
 **in the string itself**, written as a `u00A0` escape (backslash-u), never as a
 literal character. In the string and not in CSS because the same labels are
-rendered on two surfaces — the search row and the recommendation card — and only
+rendered on two surfaces – the search row and the recommendation card – and only
 one of them has `white-space: nowrap`. A guard that travels with the text cannot
 be missed by a stylesheet that was never updated. `busyButton()` does the same for every
 spinner label in one line, since every busy label in the app is built there.
@@ -5445,7 +5766,7 @@ spinner label in one line, since every busy label in the app is built there.
 **No label is exempt.** `Get recommendations` was out of scope at first, by the
 user's instruction, and the user lifted that exemption on 2026-09-30 once it was
 confirmed moot: R11 had given `.recs__trigger` `white-space: nowrap`, so the
-label cannot break at all — the rule's outcome reached by a different mechanism.
+label cannot break at all – the rule's outcome reached by a different mechanism.
 Its BUSY label was always covered, because that comes from the shared
 `busyButton()`.
 
@@ -5453,7 +5774,7 @@ Its BUSY label was always covered, because that comes from the shared
 put a sparkle icon on that same trigger): an ICON is an element, not a character,
 so no string can glue it to the words beside it. `white-space: nowrap` on the
 button is the only mechanism available, which is why that declaration on
-`.recs__trigger` is load-bearing for two independent reasons — R11's label break
+`.recs__trigger` is load-bearing for two independent reasons – R11's label break
 and R15's glyph. The same applies to any future icon button: reach for nowrap,
 not for a non-breaking space, and do not assume an unrelated cleanup can remove
 it.
@@ -5461,30 +5782,30 @@ it.
 
 ## Prompt Versioning \& AI Call Discipline
 
-* Prompt files live under `prompts/`, named `recommend_v1.md`, `taste_verdict_v1.md`, etc. — never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** recommendations use `recommend_v3` (second-person, 8–16-word reason); taste verdict uses `taste_verdict_v7` (2–3 sentences, ~35–60 words, characterising the viewer — not reciting ratings — in plain spoken English). The active version string is a single `PROMPT_VERSION` const at the top of each service module.
+* Prompt files live under `prompts/`, named `recommend_v1.md`, `taste_verdict_v1.md`, etc. – never overwrite an existing version; bump the version number when a prompt's logic changes. The two features are versioned independently of each other. **Current:** Recommendations use `recommend_v3` (second-person, 8–16-word reason); taste verdict uses `taste_verdict_v7` (2–3 sentences, ~35–60 words, characterising the viewer – not reciting ratings – in plain spoken English). The active version string is a single `PROMPT_VERSION` const at the top of each service module.
 * **"Never overwrite" protects what the model receives, not the file's bytes** (the user's ruling, 2026-10-01). A prompt file is also a markdown page GitHub renders, and GitHub drops anything shaped like an HTML tag, so a `<` or `>` in a prompt is written `&lt;` / `&gt;` (and `&` as `&amp;`). `loadPrompt()` decodes those three, once, before substituting placeholders, so the model gets the plain characters and user text substituted in is never decoded. Any such edit must leave `loadPrompt()`'s output byte-identical for every version, proved by snapshotting it before and after (D-084).
 * Schema changes ship as numbered, re-runnable files in `db/migrations/` (and are also folded into `db/schema.sql` for fresh installs). Apply them by hand in the Supabase SQL editor.
-* Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) — this makes every past recommendation or verdict traceable to the exact prompt that produced it.
-* The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) — no free-form prose that needs regex parsing.
-* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap — the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) — this is intentionally the lighter-weight of the two prompts.
-* The app must **never trust the model's output as fact** for recommendations — every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB movie, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** — `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check — it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
+* Every call to OpenRouter, for either feature, must record which prompt version was used, in its respective log table row (SPEC.md §5.2, §5.3) – this makes every past recommendation or verdict traceable to the exact prompt that produced it.
+* The recommendation prompt must instruct the model to return **structured JSON only** (`[{title, reason}, ...]`) – no free-form prose that needs regex parsing.
+* The taste-verdict prompt must instruct the model to return **short plain text only** (a couple of sentences, with an explicit length cap – the SHIPPED prompt has asked for 2–3 sentences at ~35–60 words since `taste_verdict_v4`/D-014, after v3 over-corrected to a single terse line that just paraphrased the ratings; do not shorten it back) – plain text because a verdict has nothing structured in it to extract and nothing to check against TMDB; how it reads is its only measure.
+* The app must **never trust the model's output as fact** for recommendations – every suggested title is cross-checked against TMDB before being shown to the user (SPEC.md §2.2 step 4). If a suggested title doesn't match any real TMDB film, it is silently dropped, not shown as a broken/empty card. **That check confirms every card shows a REAL film** – `verifyTitle()` keeps TMDB's top result when nothing matches title-for-title, which rescues films the model named imprecisely and now and then lands on a neighbouring film rather than dropping the pick. Measured against live TMDB and kept on purpose (D-054); read that entry before tightening it. The taste-verdict output has no factual claim to check – it's opinion/commentary by design, so it's shown as-is (still subject to the length cap and injection mitigations below).
 
 
 ## Security \& Secrets (Module 17)
 
-1. **Never write a secret into source code.** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TMDB_API_KEY`, and `OPENROUTER_API_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
+1. **Never write a secret into source code.** `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TMDB_API_KEY` and `OPENROUTER_API_KEY` live only in `.env`, which must be in `.gitignore` from the very first commit.
 2. **Never build a database query by concatenating strings.** Use the Supabase JS client's query builder for all reads/writes.
-3. **The app uses only the Supabase anon key, never the service role key.** The server holds it, and the browser never receives it: the frontend talks only to this app's own API. This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) — the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
-4. **Escape/encode any user-provided text before rendering it in the DOM** (movie reviews especially — this is free-text user input) to prevent stored XSS.
-5. **Prompt injection awareness:** the user's own review text is included in **both** AI prompts as taste signal (SPEC.md §2.2, §2.3). This is untrusted input flowing into a prompt. Mitigations:
+3. **The app uses only the Supabase anon key, never the service role key.** The server holds it, and the browser never receives it: the frontend talks only to this app's own API. This is the concrete least-privilege demonstration for this project (see § Security \& Scope below) – the anon key respects Row Level Security and limits blast radius even if it were somehow exposed.
+4. **Escape/encode any user-provided text before rendering it in the DOM** (film reviews especially – this is free-text user input) to prevent stored XSS.
+5. **Prompt injection awareness:** The user's own review text is included in **both** AI prompts as taste signal (SPEC.md §2.2, §2.3). This is untrusted input flowing into a prompt. Mitigations:
 
    * The prompt structure clearly delimits "user review text" from "instructions" so a review like "ignore previous instructions and..." is treated as quoted data, not as a new instruction.
-   * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) — even if injection partially succeeds, the blast radius is limited to "a weird movie suggestion," not code execution or data exfiltration, because the output only ever drives a title lookup.
-   * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) — even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
-6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has four siblings among the commit gates: `npm test` for behaviour, `npm run check-markdown` for documentation — see § Markdown Authoring Rules — `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
+   * The recommendation model's output is constrained to structured JSON and cross-checked against TMDB (§ Prompt Versioning above) – even if injection partially succeeds, the blast radius is limited to a weird film suggestion, not code execution or data exfiltration, because the output only ever drives a title lookup.
+   * The taste-verdict output is length-capped and displayed as plain text (never rendered as HTML) – even if injection partially succeeds, the worst case is a nonsensical or off-tone banner message, not an executable payload or a leaked system prompt beyond commentary text.
+6. **Before every commit, scan the diff for anything that looks like a key or credential**, ideally before committing rather than after. (It has four siblings among the commit gates: `npm test` for behaviour, `npm run check-markdown` for documentation – see § Markdown Authoring Rules – `npm run lint` for code, and `npm run check-claims` for claims that point at something resolvable.)
 
 **This whole section is mapped against the OWASP Top 10 for Agentic Applications
-in `docs/SECURITY.md`** — Module 17 names that list as the working checklist for
+in `docs/SECURITY.md`** – Module 17 names that list as the working checklist for
 agentic systems. It assesses all ten risks twice, once against the product and once
 against the agentic development environment that built this repo, and it is honest
 about the ones that do not apply. Incident 1 is ASI02 (Tool Misuse) landing for
@@ -5492,12 +5813,12 @@ real. Read it before changing anything here.
 
 ### Security \& Scope (why no accounts ≠ no security story)
 
-This is a single-user app by design (SPEC.md §1), but Module 17's actual topics — injection, secrets, prompt injection, least privilege — are all fully demonstrable without multi-user auth. Least privilege here means: the app's database key can only do what RLS allows, not "there are multiple people with different permissions." Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
+This is a single-user app by design (SPEC.md §1), but Module 17's actual topics – injection, secrets, prompt injection, least privilege – are all fully demonstrable without multi-user auth. Least privilege here means: the app's database key can only do what RLS allows, not "there are multiple people with different permissions". Don't add accounts to manufacture a least-privilege demo; the anon-vs-service-role key split already is one.
 
 
 ## Decision Logging (non-negotiable)
 
-**Claude records non-obvious decisions in `docs/DECISIONS.md` proactively — the
+**Claude records non-obvious decisions in `docs/DECISIONS.md` proactively – the
 user should never have to ask.** The course grades *process* (Module 8), and a
 reason is only recoverable at the moment it is made. This has had to be asked for
 twice; treat it as a standing obligation, not a task.
@@ -5508,7 +5829,7 @@ twice; treat it as a standing obligation, not a task.
    back, or it took more than one exchange to settle. A single instruction
    carried out and never revisited is not a decision, however deliberate the
    instruction was.
-2. **A real fork was taken** — the obvious or first-tried option was rejected.
+2. **A real fork was taken** – the obvious or first-tried option was rejected.
 3. **The reason is not visible in the code**, so someone later (including a
    future Claude session) could plausibly pick the rejected option again.
 
@@ -5518,24 +5839,24 @@ tuned by eye; a bug with one obviously correct fix. All of these are recoverable
 by reading the file, and logging them buries the entries that matter.
 
 **Decisions**, by contrast, look like: several viable approaches enumerated and
-compared, one of them settled by a finding (D-025 — style the native `×`, hide
-it, or leave it, decided by Firefox drawing none at all); three separate
+compared, one of them settled by a finding (D-025 – style the native `×`, hide
+it or leave it, decided by Firefox drawing none at all); three separate
 questions resolving to one principle (D-024); an obvious approach rejected for a
 non-obvious reason (D-027's `⌕`); a reported symptom whose diagnosis turned
 out backwards (D-026).
 
 **When in doubt, leave it out.** A log padded with tweaks is as useless as an
-empty one — the point is that a reader can find the handful of choices that
+empty one – the point is that a reader can find the handful of choices that
 would otherwise be silently undone.
 
 **What the entry must contain**, beyond the choice itself:
 
-* The alternatives considered and *why each was rejected* — the rejected paths
+* The alternatives considered and *why each was rejected* – the rejected paths
   are the content; "we chose X" alone is worthless a month later.
 * **The user's pushback, and Claude's counter-argument.** Where the user
   overruled Claude, or Claude talked the user out of something, say so plainly.
   That exchange *is* the LLM-augmented workflow the course is assessing.
-* **Where Claude was wrong, say that too** — a reversed diagnosis, a false claim
+* **Where Claude was wrong, say that too** – a reversed diagnosis, a false claim
   the user caught, an approach built and then removed. A log that only records
   wins is not evidence of process.
 * Any trap that follows from the decision ("do not flip this", "these two
@@ -5543,21 +5864,21 @@ would otherwise be silently undone.
 
 **A commit message or a code comment is not a substitute.** A commit explains a
 diff, a comment explains a line; only the decision log explains a *choice between
-alternatives*, and it is the only one of the three anybody reads before
-undoing something.
+alternatives*, and only it records the options already rejected, which is what
+someone about to undo the choice needs to read.
 
-**Timing and placement:** at the moment the decision is made, ideally in the same
-commit as the change it explains. Newest first — a new entry goes at the TOP of
+**Timing and placement:** At the moment the decision is made, ideally in the same
+commit as the change it explains. Newest first – a new entry goes at the TOP of
 `docs/DECISIONS.md`. Numbers are sequential by *when recorded*; a decision written
 up after the fact says so in its own text. `CLAUDE.md`'s living log stays the
 *what / now*; `docs/DECISIONS.md` is the *why*.
 
-**Historical records are not maintained — they are preserved.** A `docs/DECISIONS.md`
+**Historical records are not maintained – they are preserved.** A `docs/DECISIONS.md`
 entry, or a code comment that explicitly narrates a past state of the app or
 code ("this used to be X; changed because Y"), describes what was true *at the
-time*. (A comment narrating its OWN earlier wording is not such a record — rule
+time*. (A comment narrating its OWN earlier wording is not such a record – rule
 10 under § Markdown Authoring Rules.) Do **not** edit it
-to match the present during a staleness sweep — that destroys the only thing it
+to match the present during a staleness sweep – that destroys the only thing it
 exists for. D-010 still says the AI call log is reachable from a "footer link";
 it was, when D-010 was written, and it stays.
 
@@ -5565,26 +5886,26 @@ The line to apply when sweeping: **does the text claim to describe current
 reality, or does it describe a past decision?** Living-log bullets, README prose
 and comments on live code claim the present and get corrected. Decision entries
 and explicitly-past narration do not. When a decision is genuinely superseded,
-write a NEW entry that says so and references the old number — never rewrite the
+write a NEW entry that says so and references the old number – never rewrite the
 old one.
 
 **What "preserved" protects is the DECISION, not the prose** (the user's
 clarification, 2026-09-17, after Claude over-applied this rule and declined a
 wording fix in D-029 on these grounds). A `docs/DECISIONS.md` entry is not
-read-only. A purely cosmetic edit that alters no claim — rewrapping a
+read-only. A purely cosmetic edit that alters no claim – rewrapping a
 paragraph, naming a glyph the entry only showed, fixing something that renders
-badly — is allowed and welcome, because an entry nobody can read comfortably is
+badly – is allowed and welcome, because an entry nobody can read comfortably is
 not much of a record. The test is the same one above, applied to the EDIT rather
 than to the file: does this change what the entry says happened, or only how
 easily it reads? The first is forbidden; the second is maintenance.
 
-**One exception: a claim that was WRONG when written gets corrected**, because it
-was never a valid record — the merge count that had drifted, or the magnifier
+**One exception: A claim that was WRONG when written gets corrected**, because it
+was never a valid record – the merge count that had drifted, or the magnifier
 orientation Claude asserted backwards. Fix the fact and say in the commit message
 that it is a correction, not an update.
 
 
-## Markdown Authoring Rules (binding — every `.md` file in this repo)
+## Markdown Authoring Rules (binding – every `.md` file in this repo)
 
 **Run `npm run check-markdown` before committing any change that touches a `.md`
 file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6,
@@ -5592,7 +5913,7 @@ file.** It exits non-zero on a real rendering defect. It enforces rules 1 to 6,
 enforces rule 10's unambiguous forms and the commit links under § Every
 document reference is a link. Rules 8 and 9, and the rest of that section, are
 enforced by nothing, so those are the ones to remember.
-For the rest, do not rely on memory — the whole point is that the checks do the
+For the rest, do not rely on memory – the whole point is that the checks do the
 remembering.
 
 **Why this is binding rather than advisory.** The markdown files ARE a graded
@@ -5600,7 +5921,7 @@ deliverable here (Module 8 process documentation), so "it only looks wrong" is
 not a cosmetic category in this project. On 2026-09-12 both `CLAUDE.md` and
 `SPEC.md` were found rendering wrong on GitHub and nobody had noticed: 17 section
 separators showing as a literal `---` paragraph, and a backslash printed inside
-the code chip of technical identifiers in both files — all four
+the code chip of technical identifiers in both files – all four
 env var names in § Security & Secrets, both log tables, every log column, all
 three check constraints, every prompt filename. A rule that is merely written
 down could be re-broken within a session. See D-065.
@@ -5612,32 +5933,32 @@ down could be re-broken within a session. See D-065.
    inside a code span is exactly how every identifier in these files came to
    render with a visible backslash. Escaping is never needed inside backticks,
    and always renders wrong. A
-   backslash that is genuinely part of what you are showing — a Windows path, a
-   regex token — is fine, and `scripts/check-markdown.js` carries a small
+   backslash that is genuinely part of what you are showing – a Windows path, a
+   regex token – is fine, and `scripts/check-markdown.js` carries a small
    whole-span allowlist for those.
 2. **Never leave a code span unclosed.** A span is closed by the next run of
-   EXACTLY as many backticks as opened it — a run of a different length in
+   EXACTLY as many backticks as opened it – a run of a different length in
    between is content, not a delimiter. Get this wrong and the renderer swallows
    the rest of the sentence into the code element. **To show a literal backtick,
    use DOUBLE delimiters and pad with spaces** (`` like this ``); escaping it
-   cannot work, by rule 1. This is not visible per line — a span may legally wrap
+   cannot work, by rule 1. This is not visible per line – a span may legally wrap
    across lines, so an odd backtick count on one line proves nothing. The unit is
    the paragraph, and `check-markdown` checks it there.
 3. **Never write an escaped thematic break, in any of its three spellings.** It
    renders as a literal `---` / `***` / `___` paragraph, which reads as debris.
 4. **Never put a bare rule directly under a line of text.** That is setext
-   syntax, and it silently promotes the line above to a heading — `---` makes an
+   syntax, and it silently promotes the line above to a heading – `---` makes an
    `h2`, **`===` makes an `h1`**. Both confirmed against GitHub's renderer, not
    assumed. (`***` and `___` are not setext underlines, so they are safe there.)
-5. **Never put a section separator before a heading, in any spelling** —
+5. **Never put a section separator before a heading, in any spelling** –
    `check-markdown` fails on it. GitHub's own stylesheet already draws a rule
    under every `h1` and `h2`, so a separator there draws two horizontal lines a
    few dozen pixels apart, bracketing a heading that never needed help. **There
    is now not one left anywhere in the repo**, so any appearance is a regression.
-   No file is exempt, `docs/DECISIONS.md` included — the user ruled it out, and
+   No file is exempt, `docs/DECISIONS.md` included – the user ruled it out, and
    D-065's addendum records why.
 6. **Every table needs its `|---|---|` separator row.** Without it GitHub renders
-   the whole block as one paragraph full of pipe characters — not a degraded
+   the whole block as one paragraph full of pipe characters – not a degraded
    table, no table at all. The repo’s markdown carries tables in many of its
    files, so this is not hypothetical. **No count sits here, on purpose:** the
    number drifts every time a document gains a table, and the rule's point does
@@ -5645,17 +5966,17 @@ down could be re-broken within a session. See D-065.
    wanted.
 7. **Escapes in PLAIN text (`\_`, `\&`, `\[`, `1\.`) render correctly and are
    left alone.** They are source noise, not defects. The checker reports them
-   without failing. Do not "tidy" them in bulk — SPEC.md deliberately keeps 48,
+   without failing. Do not "tidy" them in bulk – SPEC.md deliberately keeps 48,
    on 37 lines, half of them before an underscore.
 8. **`docs/SECURITY.md` is rendered at TWO base paths, so its links and images
    are ABSOLUTE and must stay that way.** GitHub renders it both as an ordinary
    blob (relative paths resolve against `docs/`) and as the repository's Security
-   tab, which resolves them against the **repository root** instead — so the three
+   tab, which resolves them against the **repository root** instead – so the three
    prompt-injection captures rendered as broken-image links and all six targets
    404'd on the tab, while looking perfect in the file view. Found by the user on
-   2026-09-14, measured against both live renderings, and fixed by making all six
+   2026-09-14, measured against both live renderings and fixed by making all six
    absolute; no relative path can satisfy both bases. The file carries a comment
-   at the top saying so. **Every OTHER document in `docs/` keeps relative paths** —
+   at the top saying so. **Every OTHER document in `docs/` keeps relative paths** –
    they are only ever rendered as blobs, and this is a one-file exception, not a
    new convention. The checker cannot catch this class: the paths are valid
    markdown and valid for the file they sit in.
@@ -5670,17 +5991,17 @@ down could be re-broken within a session. See D-065.
    not a free place to edit. (No count on purpose; it moves with every link.)
 10. **EDIT HISTORY BELONGS IN THE COMMIT MESSAGE, NOT IN THE FILE** (the user's
     rule, restated four times across `a1eebd2`, `98a2c76`, `375c4cd` and
-    `5b481ff` before it was written down here — which is why it is). A live
+    `5b481ff` before it was written down here – which is why it is). A live
     document says what is true now. It does not say what it used to say, that a
     figure was corrected, or when.
 
-    **The distinction from the annotation conventions this repo DOES have:** a
+    **The distinction from the annotation conventions this repo DOES have:** A
     `docs/DECISIONS.md` entry records a past decision, and a `SPEC.md` italic
-    parenthetical records where the BUILD diverged from the SPEC — both are
+    parenthetical records where the BUILD diverged from the SPEC – both are
     about the product. A note about the DOCUMENT's own editing is not, and
     belongs in the diff. The one carve-out is a correction a reader would
     otherwise re-introduce: state the rule going forward, not the history (rule
-    6 above is the model — it says there is no count on purpose, without
+    6 above is the model – it says there is no count on purpose, without
     narrating the values it once held).
 
     **It applies equally to CODE COMMENTS** (the user's ruling, 2026-09-26), and
@@ -5720,7 +6041,7 @@ down could be re-broken within a session. See D-065.
 **If the prose names another document, that name is a link; if it names a
 SECTION of one, the link goes to the SECTION rather than the file.** It is a
 navigation rule, not a rendering one, so `check-markdown` does not enforce it
-and, apart from the commit links below, nothing fails when it is ignored —
+and, apart from the commit links below, nothing fails when it is ignored –
 which is exactly why it is written here.
 
 **Once per paragraph** (the user's rule, 2026-09-29): a target is linked at its
@@ -5769,24 +6090,24 @@ to twelve files on 2026-09-19; the clearest gain was `docs/DECISIONS.md`, where
 104 entry-to-entry cross-references became clickable in a file that had exactly
 one link in it.
 
-**Three exemptions — one of them a whole directory, so TWELVE files today.
+**Three exemptions – one of them a whole directory, so TWELVE files today.
 Do not "finish the job" on any of them.** (A different twelve from the one
 above, which counts the files the rule was applied TO. Coincidence, not a
-copy-paste: those twelve and these twelve are every tracked `.md` here.)
+copy-paste: Those twelve and these twelve are every tracked `.md` here.)
 
-* **`prompts/*.md`** — the loader sends the body to the model, so a link is
-  tokens the model pays for and prose it may act on. Two harder reasons: a
+* **`prompts/*.md`** – the loader sends the body to the model, so a link is
+  tokens the model pays for and prose it may act on. Two harder reasons: A
   prompt version is never overwritten (§ Prompt Versioning), so editing `v1`
   to `v6` breaks that rule outright, and `test/prompt-loader.test.js` reads the
   real files, so a slip there fails the suite.
-* **`DOSSIER.md`** — the course's own brief, copied from Moodle; links absent
+* **`DOSSIER.md`** – the course's own brief, copied from Moodle; links absent
   from the source are a deviation from it. Moot in practice: it holds three
   project-file references in total, all the bare string `CLAUDE.md`.
 * **THIS FILE.** Measured before deciding rather than asserted: the rule would
   add about 647 links and 44KB, +14%, and 451 of those are `D-0NN`, `R-n` and
   `RS-n` references that an agent resolves by grepping and never by clicking.
-  **The deciding difference from `docs/DECISIONS.md`** — nearly as long and NOT
-  exempt — **is that this file is injected into context every session while that
+  **The deciding difference from `docs/DECISIONS.md`** – nearly as long and NOT
+  exempt – **is that this file is injected into context every session while that
   one is read on demand.** A byte here is a permanent per-session cost; a byte
   there is paid only when someone opens it. The user also holds, reasonably,
   that a very long `CLAUDE.md` is likelier to have instructions skimmed past,
@@ -5794,22 +6115,22 @@ copy-paste: those twelve and these twelve are every tracked `.md` here.)
 
 **How a pass is verified, because the diffs are large and every failure mode
 here is silent.** Render the file through GitHub's API before and after, strip
-every `<a>` tag from both, normalise whitespace, and require the two to be
-byte-identical — that, not reading the diff, is what proves only links changed.
+every `<a>` tag from both, normalise whitespace and require the two to be
+byte-identical – that, not reading the diff, is what proves only links changed.
 In one sitting it caught an `<h3>` absorbed into the paragraph above it by a
 re-wrapper, six silent `§7.2` to `§ 7.2` spacing edits inside preserved
-decision entries, four dropped closing parentheses, and an unterminated link
+decision entries, four dropped closing parentheses and an unterminated link
 that swallowed a whole clause into its own URL. None of those shows in a diff
 and `check-markdown` passes every one.
 
 **One check the checker cannot do, so do it by hand:** no link destination may
 contain whitespace. An unclosed `](` hunts for the next `)` and silently eats
-the prose in between — the second of the two classes named directly below.
+the prose in between – the second of the two classes named directly below.
 
 ### Two things the checker deliberately does NOT catch
 
-Both were found by the 2026-09-13 audit, both render visibly wrong, and both were
-left out **because a rule for them would cry wolf** — and a check that cries wolf
+Both were found by the 2026-09-13 audit, both render visibly wrong and both were
+left out **because a rule for them would cry wolf** – and a check that cries wolf
 buries the ones that matter. The render audit below is the backstop for these.
 
 * **An unclosed `**`**, which renders as literal asterisks. A source-level rule
@@ -5839,39 +6160,39 @@ span contain a backslash".** That is rule 1, and it is the first thing
 
 **The same mistake, one level up, produced rules 3 to 6.** The checker knew the
 HYPHEN spelling of a thematic break and nothing else, so `\***` rendering as
-debris, `***` doubling a heading's rule, and `===` silently creating an `<h1>`
+debris, `***` doubling a heading's rule and `===` silently creating an `<h1>`
 all passed clean. A table with no separator row passed too. The 2026-09-13 audit
 found them by writing nine plausible defects, **rendering them to confirm each
-was genuinely broken**, and only then asking whether the checker caught them — it
+was genuinely broken**, and only then asking whether the checker caught them – it
 caught none of the five that were real. Generalise from the RENDERED OUTPUT, not
 from the rule you happen to have written.
 
 ### When a change is structural, render it and diff the HTML
 
-For anything beyond a word — reflowing a section, editing a table, moving
-headings — the checker is not enough, because it only knows the rules above.
+For anything beyond a word – reflowing a section, editing a table, moving
+headings – the checker is not enough, because it only knows the rules above.
 Render before and after and diff the OUTPUT:
 
 ```
 curl -s -X POST -H "Content-Type: application/json" --data @payload.json https://api.github.com/markdown > after.html
 ```
 
-(`payload.json` is `{"text": <file contents>}` — see the mode note below.)
+(`payload.json` is `{"text": <file contents>}` – see the mode note below.)
 
-**GitHub's API and not a local renderer**, because the two things most at risk —
-task lists and tables — are GitHub extensions, so a CommonMark renderer can pass
+**GitHub's API and not a local renderer**, because the two things most at risk –
+task lists and tables – are GitHub extensions, so a CommonMark renderer can pass
 something that breaks in the repo. **And the HTML diff, not the "Display the
 rich diff" button**: that button shows the whole rendered file, where a
 structural regression is about as findable as by reading the source. In an HTML
-diff a regression is loud — a paragraph promoted to a heading is a literal `<p>`
+diff a regression is loud – a paragraph promoted to a heading is a literal `<p>`
 becoming `<h2>`, and a broken table loses its `<table>` element entirely.
 
 **NEITHER API MODE MATCHES THE REPO'S FILE VIEW EXACTLY, and relying on
 `mode: gfm` alone hid a live defect for the entire life of `SPEC.md`.** Measured 2026-09-13 against the HTML github.com
 actually serves for a blob:
 
-* **Default mode** (omit `mode`) matches the file view on LINE BREAKS — a soft
-  break inside a paragraph renders as a space, with no `<br>` — and it emits the
+* **Default mode** (omit `mode`) matches the file view on LINE BREAKS – a soft
+  break inside a paragraph renders as a space, with no `<br>` – and it emits the
   same `markdown-heading` anchor wrappers the blob view does. It does NOT render
   task lists as checkboxes.
 * **`mode: gfm`** renders task lists, but inserts a `<br>` at every soft break,
@@ -5883,38 +6204,38 @@ repo in fact runs them together into one paragraph. That is precisely how
 one run-on line and survived every render audit: every audit had been run in
 `gfm`. **Use the default mode for anything about paragraphs, layout or line
 breaks, and `gfm` only to confirm a task list.** When it genuinely matters, fetch
-the real blob from github.com and read that — it is the only authority.
+the real blob from github.com and read that – it is the only authority.
 ## Version Control Workflow (non-negotiable)
 
 * **Repo:** https://github.com/guycn1/cinerank-project.git (repo name: `cinerank-project`)
-* **Working branch:** `draft` — all day-to-day work happens here.
+* **Working branch:** `draft` – all day-to-day work happens here.
 * **`main` is the repo's default branch, but treated as protected in practice:** nothing gets pushed to `main` directly, ever.
 * **Every modification inside this project's folder must be followed by a commit + push to `draft`.** Commit at natural checkpoints (a feature working, a bug fixed), not just once at the end of a session.
 * **Merging `draft` → `main` happens on one of THREE grounds and never on any
   other.** (D-073 records the alternatives weighed, and the two things Claude got
   wrong while writing this.) **Claude must ask the user for explicit confirmation before merging,
   on any of the three.** Never merge automatically, even if the case looks obvious.
-  1. **A notable, settled milestone** — a UI milestone or a backend milestone
+  1. **A notable, settled milestone** – a UI milestone or a backend milestone
      believed to be genuinely complete, not a small incremental change. **ALL
      TWENTY-ONE OF THE FIRST TWENTY-ONE MERGES WERE THIS ONE**, and nothing
      weaker was ever merged under it: an app verified end to end, a section
      overhaul, a backlog closed, the deployment, the DOSSIER reconciliation, the
      final planned merge. `git log --merges --oneline main` is the check.
   2. **A defect ALREADY PUBLISHED on `main`.** The test is whether a reader of
-     `main` would be MISINFORMED — a broken render, a claim that misstates the
+     `main` would be MISINFORMED – a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, the note on the twenty-second merge). **Merges 22 to 31, which follow `0cdc4ec`,
-     the final planned one, were all made on this ground — the thirtieth as
-     well, though its reason was ground 3 — and no merge has ever been made on
+     status, the note on the twenty-second merge). **Merges 22 to 32, which follow `0cdc4ec`,
+     the final planned one, were all made on this ground – the thirtieth as
+     well, though its reason was ground 3 – and no merge has ever been made on
      grounds outside this list.** Written as a closed range rather than a COUNT
      on purpose: a count of a set
      that is still open goes stale at the next merge, and `check-claims` resolves
-     tokens that NAME something — a bare numeral in prose names nothing, so
+     tokens that NAME something – a bare numeral in prose names nothing, so
      nothing would catch it. This rule had a drifting "three merges since" in it
      for one commit; the user caught it, not the gate.
-  3. **A close-out sync.** When the work is declared finished — submission,
-     handover, archival — `draft` is merged once so that `main` is the FINISHED
+  3. **A close-out sync.** When the work is declared finished – submission,
+     handover, archival – `draft` is merged once so that `main` is the FINISHED
      state rather than the last state that happened to clear ground 1 or 2. It
      fires ONCE, at a named event, and carries whatever is already settled on
      `draft`. It is never a reason to batch changes up for later, and never a
@@ -5934,87 +6255,87 @@ the real blob from github.com and read that — it is the only authority.
      user named the event themselves.
 
      **"Enough time has passed" was the form first proposed, and it was
-     rejected** — D-073 has the argument. An undefined period puts the rule back
+     rejected** – D-073 has the argument. An undefined period puts the rule back
      in the state ground 2 was written to cure, where every merge re-argues its
      own bar; a quiet fortnight because the work is finished and a quiet
      fortnight because the authors were busy elsewhere are indistinguishable to
      a clock and opposite in meaning; and nothing here runs a timer, so the
      ground would sit satisfied by nobody noticing.
 
-  **What does NOT qualify, under any of the three:** wording that is loose but
+  **What does NOT qualify, under any of the three:** Wording that is loose but
   whose substance is right; a clarification, an improvement or a tidier
   phrasing; and anything whose correction is already legible in `draft`'s
-  history. **A correction sitting unmerged on `draft` is not a loose end** —
+  history. **A correction sitting unmerged on `draft` is not a loose end** –
   `draft` running ahead of `main` is this repo's documented normal state, and a
   correction visible there, with its reasoning in the commit message, is the
   workflow showing rather than untidiness.
 
   **Why this is written out at all, since the practice was already consistent:**
   the rule used to state ground 1 alone while three merges had in fact been made
-  on ground 2 — each argued in its own Build-status note, none of them written
+  on ground 2 – each argued in its own Build-status note, none of them written
   into the rule. So there was no bar to hold a candidate against, and every
   merge after the twenty-first had to re-derive its own justification from
   nothing, which reads as erosion whether or not it is. Written 2026-09-15, when
   a wording correction (`671f74a`) needed judging and there was nothing to judge
-  it with. It fails ground 2 — the sentence it fixes is over-compressed, not
-  misinforming — so it never TRIGGERED a merge. It reached `main` by riding
+  it with. It fails ground 2 – the sentence it fixes is over-compressed, not
+  misinforming – so it never TRIGGERED a merge. It reached `main` by riding
   along with `50d5670`, which did clear ground 2. **That is the rule working as
   intended, not an exception to it:** the grounds decide WHETHER to merge, never
   what the branch may carry.
 * **A `draft` → `main` merge runs all five gates, whatever the diff touched.**
-  Two of them are scoped to what a commit CHANGED — `npm run lint` to `.js`,
-  `npm run check-markdown` to `.md` — which is right for a commit and wrong for
+  Two of them are scoped to what a commit CHANGED – `npm run lint` to `.js`,
+  `npm run check-markdown` to `.md` – which is right for a commit and wrong for
   a merge: this is the one moment the branch a reader lands on and the live
   Render deploy both move, and the whole set runs in a few seconds. **Added
   2026-09-17, after the twenty-seventh merge went through without the suite
   being run.** That merge touched eight files, every one of them `.md`, so
-  nothing could have broken and 60/60 passed when it was finally run — but "it
+  nothing could have broken and 60/60 passed when it was finally run – but "it
   cannot have broken" is reasoning offered after the fact, not a check made
   before it. The user asked; Claude had not run it.
-* **Git authoring:** never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
+* **Git authoring:** Never hardcode a commit author name/email. Always use whatever `user.name`/`user.email` are already configured in the local git installation Claude Code is running on. Do not set or override git config identity values.
 * **Every commit runs `npm test`, and 64/64 is the bar.** The scope is EVERY
   commit rather than every `.js` commit, which is not obvious and is load-bearing:
   `test/prompt-loader.test.js` reads the real files in `prompts/`, so a
-  MARKDOWN-only change can fail the suite. Proved rather than assumed — breaking
+  MARKDOWN-only change can fail the suite. Proved rather than assumed – breaking
   the BEGIN marker in `prompts/taste_verdict_v7.md` fails a test. The whole run
   is under 300ms.
   **Added 2026-09-17, because the twenty-seventh merge went through unrun.**
   `docs/PROCESS.md`, `docs/SECURITY.md` and `docs/ACCEPTANCE.md` all call
   `npm test` one of FIVE gates "wired into the commit rules rather than left to
-  memory", but it was the one gate this list did not name — and Claude, working
+  memory", but it was the one gate this list did not name – and Claude, working
   from the list, told the user the suite was not a documented gate.
 * **Any commit that touches a `.js` file runs `npm run lint` first.** Zero errors is
-  the bar; the five complexity warnings are a deliberate, documented state — see
+  the bar; the five complexity warnings are a deliberate, documented state – see
   `docs/MERGE-READINESS.md` § 3 before "fixing" them or raising the ceiling.
 * **Every commit runs `npm run check-claims`**, whatever it touched. It resolves
-  the claims in the repository that POINT AT SOMETHING, in these forms — a path
+  the claims in the repository that POINT AT SOMETHING, in these forms – a path
   or a link's target file, a script, a `D-0NN` entry, a quoted commit SHA, a
   commit link or a link to a span of commits, a `file.js:123` reference, an
   identifier in backticks in a document, a function
   a JS comment names, a capture and its count, an `RS-n` key, a section (every
   link `#anchor` against the target's real headings, and every prose `§ 4.5` or
   `§ Title`), a short list of retired phrasings, a passage narrating its own
-  earlier wording (rule 10 under § Markdown Authoring Rules), and any invisible
-  character (U+00A0 and friends, which no reviewer can see by eye) — against the
+  earlier wording (rule 10 under § Markdown Authoring Rules) and any invisible
+  character (U+00A0 and friends, which no reviewer can see by eye) – against the
   thing it names.
 
   It exists because a claim can be falsified by an edit to a DIFFERENT file,
   which a per-file staleness sweep structurally cannot see: `README.md` spent
   sixteen hours saying `docs/MERGE-READINESS.md` read "four met, one open" after
   that file went MERGE-READY, and a sweep that edited BOTH files in one commit
-  still missed it. **It cannot check a sentence with no referent** — taste and
+  still missed it. **It cannot check a sentence with no referent** – taste and
   judgement claims are still the reader's job, and a green run says nothing
   about them. See `scripts/check-claims.js`, whose header carries the reasoning.
 * **Any commit that touches a `.md` file runs `npm run check-markdown` first,
   the same way every commit runs `npm run scan-secrets`.** The markdown is a graded
   deliverable, and a rendering fault in a file this long is close to unfindable
-  by eye — see § Markdown Authoring Rules and D-065.
+  by eye – see § Markdown Authoring Rules and D-065.
 * Commit messages should include a summary of what actually changed.
 
 ## Environment & tooling traps (all of these have actually bitten here)
 
 Windows, Git Bash for POSIX commands, `"type": "module"` in `package.json`.
-Each of the following cost real time at least once — they are recorded so the
+Each of the following cost real time at least once – they are recorded so the
 next session does not rediscover them.
 
 * **Never put backticks inside a double-quoted `git commit -m "…"`.** Bash runs
@@ -6036,8 +6357,8 @@ next session does not rediscover them.
   out of the file rather than retyping it.
 * **A `u00A0` escape (backslash-u) can land in a file as the literal
   character**, and a literal non-breaking space looks exactly like a space. It
-  happened twice in `app.js` on a first attempt — the search row's `TMDB 7.0`
-  glue and R7's `+ Add to my list` label — and three literal ones reached this
+  happened twice in `app.js` on a first attempt – the search row's `TMDB 7.0`
+  glue and R7's `+ Add to my list` label – and three literal ones reached this
   file's prose, one inside the code span of the rule forbidding them
   (2026-09-15). Reading cannot catch it: dump the codepoints before committing,
   and where the escape keeps collapsing, build it from its code point in a
@@ -6046,7 +6367,7 @@ next session does not rediscover them.
 * **A comment in an `.svg` file must never contain two consecutive hyphens, and
   the failure is SILENT.** XML forbids that sequence inside a comment, SVG is
   parsed as strict XML, and a parse error means the browser renders nothing at
-  all — with no console error, because the request itself returned 200. This
+  all – with no console error, because the request itself returned 200. This
   cost a round trip on `public/favicon.svg` (2026-09-12): the comment used the
   two-hyphen sequence as an em dash and also quoted the CSS custom property
   names, which begin with it. The favicon was simply absent in Chrome and
@@ -6054,7 +6375,7 @@ next session does not rediscover them.
 
   **The trap inside the trap: a tag-balance or bracket check PASSES on such a
   file**, which is what made the first "validated" claim wrong. Only a real
-  parser catches it — on Windows, `[xml](Get-Content -Raw path)` in PowerShell
+  parser catches it – on Windows, `[xml](Get-Content -Raw path)` in PowerShell
   throws with the line and column. Do that after editing any `.svg`, and prefer
   parsing **what the server actually sends** (`curl` to a file, then parse) over
   the file on disk. Inline SVG inside `index.html` is exempt: that is parsed by
@@ -6064,7 +6385,7 @@ next session does not rediscover them.
 ## Out of Scope (v1)
 
 * User accounts / authentication / multi-user support (see § Security \& Scope above for why this doesn't create a security gap).
-* Social features — sharing rankings, following other users, public lists.
+* Social features – sharing rankings, following other users, public lists.
 * Editing an AI suggestion's reason text or re-ranking suggestions manually before adding.
-* Automatic/background re-generation of recommendations or taste verdicts — both are always explicitly user-triggered, never regenerated silently on page load.
+* Automatic/background re-generation of recommendations or taste verdicts – both are always explicitly user-triggered, never regenerated silently on page load.
 

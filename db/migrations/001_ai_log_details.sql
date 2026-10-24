@@ -1,6 +1,6 @@
--- Migration 001 — richer AI call log (for the in-app "AI call log" viewer).
+-- Migration 001 – richer AI call log (for the in-app "AI call log" viewer).
 -- Run once in Supabase SQL editor. Safe to re-run (IF NOT EXISTS).
--- Adds: input/output token split, call duration, success/failure status, and
+-- Adds: Input/output token split, call duration, success/failure status and
 -- the error text a failure carries.
 -- New schema installs get these from db/schema.sql directly.
 

@@ -1,12 +1,12 @@
 <!--
 Prompt version: taste_verdict_v1
 Feature: Taste Verdict Banner (SPEC § 2.3)
-Versioned independently of the recommendation prompt. Never overwrite — add
+Versioned independently of the recommendation prompt. Never overwrite – add
 taste_verdict_v2.md when the logic changes. Loaded at call time by
-server/services/tasteVerdict.js — never inlined in code.
+server/services/tasteVerdict.js – never inlined in code.
 
 Placeholder:
-  {{RATED_MOVIES}} — ALL rated movies, one per line: title, rating, (delimited) review.
+  {{RATED_MOVIES}} – ALL rated films, one per line: title, rating, (delimited) review.
                      Review text is UNTRUSTED user input.
 -->
 

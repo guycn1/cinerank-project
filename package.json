@@ -1,7 +1,7 @@
 {
   "name": "cinerank-project",
   "version": "1.0.0",
-  "description": "Personal movie-ranking app with a growing taste profile, TMDB-grounded AI recommendations, and a fully audited AI call log.",
+  "description": "Personal film-ranking app with a growing taste profile, TMDB-grounded AI recommendations, and a fully audited AI call log.",
   "type": "module",
   "main": "server/index.js",
   "scripts": {

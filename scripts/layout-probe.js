@@ -4,7 +4,7 @@
  * nothing serves it outside that tool.
  *
  * It resizes its own iframe through the widths it is given, measures the real
- * layout, and POSTs the result back. Classic script, not a module, wrapped in
+ * layout and POSTs the result back. Classic script, not a module, wrapped in
  * one function so it adds no globals to the page it measures.
  *
  * ADAPTING IT to a UI change: the selector lists directly below define what
@@ -66,7 +66,7 @@
     window.frameElement.width = w;
     window.frameElement.style.width = `${w}px`;
     await frames(); await sleep(120); await frames();
-    // A heartbeat: the tool abandons a run that goes quiet (see --stall).
+    // A heartbeat: The tool abandons a run that goes quiet (see --stall).
     fetch(`/__probe/progress?run=${run}&w=${w}`).catch(() => {});
   }
 
@@ -206,7 +206,29 @@
   }
 
   /**
-   * Copied text carries no invisible character, and the verdict copies once.
+   * What the app's dragstart handler leaves in a drag of a selection. Seeded,
+   * the drag starts out holding the selection as plain text and HTML, as
+   * Chromium's and Firefox's do; unseeded, it starts out empty, as WebKit's does.
+   *
+   * @param {Range} range
+   * @param {boolean} seeded
+   * @returns {{selected: string, payload: string}}
+   */
+  function dragOf(range, seeded) {
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    const dt = new DataTransfer();
+    if (seeded) {
+      const box = document.createElement('div'); box.append(range.cloneContents());
+      dt.setData('text/plain', sel.toString()); dt.setData('text/html', box.innerHTML);
+    }
+    const from = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentElement : range.startContainer;
+    from.dispatchEvent(new DragEvent('dragstart', { dataTransfer: dt, bubbles: true, cancelable: true }));
+    return { selected: sel.toString(), payload: [...dt.types].map((t) => dt.getData(t)).join('\n') };
+  }
+
+  /**
+   * Copied or dragged text carries no invisible character, and the verdict
+   * copies once.
    *
    * @returns {void}
    */
@@ -215,6 +237,11 @@
       const r = document.createRange(); r.selectNodeContents(el);
       const c = copyOf(r);
       if (INVISIBLE.test(c.payload)) bump('clip: an invisible character reached the clipboard', c.payload.slice(0, 40));
+      for (const seeded of [true, false]) {
+        const d = dragOf(r, seeded);
+        if (INVISIBLE.test(d.payload)) bump('clip: an invisible character reached a dragged selection', `${seeded ? 'seeded' : 'empty'} drag: ${d.payload.slice(0, 40)}`);
+        if (!seeded && d.selected.includes(SHY) && !d.payload) bump('clip: an invisible character reached a dragged selection', `empty drag left empty: ${d.selected.slice(0, 40)}`);
+      }
     }
     const vt = document.getElementById('verdict-text');
     const heard = vt.querySelector('.sr-only');
@@ -236,7 +263,12 @@
    * @returns {void}
    */
   function hyphenationIn(el, w, rules) {
-    const isSep = (g) => rules.separatorRe.test(g);
+    // A dash ends a word here whatever app.js's separator says, so D-081 is
+    // checked independently of the code under test. The letter rule (D-085)
+    // keeps a soft hyphen off a dash by itself, so a separator that lost its
+    // dashes would otherwise surface only as breaks in short words, counted by
+    // that same separator, and pass.
+    const isSep = (g) => rules.separatorRe.test(g) || /\p{Pd}/u.test(g);
     const items = []; const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) { let off = 0; for (const g of graphemes(n.data)) { items.push({ n, off, g }); off += g.length; } }
     const vis = []; items.forEach((it, idx) => { if (it.g !== SHY) vis.push({ ...it, idx }); });
@@ -269,14 +301,36 @@
     let ts = i - 1; while (ts > 0 && !isWs(vis[ts - 1].g)) ts--;
     let te = i; while (te + 1 < vis.length && !isWs(vis[te + 1].g)) te++;
     const at = `${w}px ${vis.slice(ts, i).map((x) => x.g).join('')}|${vis.slice(i, te + 1).map((x) => x.g).join('')}`;
-    const L = e - s + 1, k = i - s;
-    const dash = /\p{Pd}/u;
     if (w > rules.threshold) return classifyAboveThreshold({ vis, ts, te, shy, before, after, at, el, rules });
-    if (shy && (dash.test(before) || dash.test(after))) return bump('hyph: soft hyphen next to a dash', at);
-    if (shy && (L < rules.minWord || k < rules.minEdge || L - k < rules.minEdge)) return bump('hyph: short word or too near an edge', at);
-    if (shy) return bump('ok: hyphenated inside a long word');
-    if (dash.test(before)) return bump('ok: after a dash (the browser’s own break)');
+    if (shy) {
+      const fault = softHyphenFault(vis, i, s, e, rules);
+      return fault ? bump(fault, at) : bump('ok: hyphenated inside a long word');
+    }
+    if (/\p{Pd}/u.test(before)) return bump('ok: after a dash (the browser’s own break)');
     return bump('note: broken without a hyphen (a break Unicode allows, or overflow-wrap)', at);
+  }
+
+  /**
+   * Which of softHyphenate()'s rules a break at a soft hyphen breaks, if any: a
+   * dash beside it (D-081), anything but a letter beside it, or a word too
+   * short or a break too near its edge, both counted in letters (D-080, D-085).
+   *
+   * @param {object[]} vis  The element's visible graphemes.
+   * @param {number} i      Index of the first grapheme after the break.
+   * @param {number} s      Index of the word's first grapheme.
+   * @param {number} e      Index of the word's last grapheme.
+   * @param {object} rules
+   * @returns {string|null} The failing category, or null when the break is legal.
+   */
+  function softHyphenFault(vis, i, s, e, rules) {
+    const before = vis[i - 1].g, after = vis[i].g;
+    if (/\p{Pd}/u.test(before) || /\p{Pd}/u.test(after)) return 'hyph: soft hyphen next to a dash';
+    const isLetter = (g) => rules.letterRe.test(g);
+    if (!isLetter(before) || !isLetter(after)) return 'hyph: soft hyphen beside a non-letter';
+    let L = 0, k = 0; // the word's letters, and those before the break
+    for (let j = s; j <= e; j++) if (isLetter(vis[j].g)) { L++; if (j < i) k++; }
+    if (L < rules.minWord || k < rules.minEdge || L - k < rules.minEdge) return 'hyph: short word or too near an edge';
+    return null;
   }
 
   /**
@@ -342,7 +396,7 @@
   }
 
   /**
-   * Every line of text inside the viewport, its container, and every box that
+   * Every line of text inside the viewport, its container and every box that
    * clips it.
    *
    * @param {Element} scope
@@ -421,13 +475,13 @@
   }
 
   /**
-   * Health mode: every check at every width, then the log dialog.
+   * Health mode: Every check at every width, then the log dialog.
    *
    * @param {object} cfg
    * @returns {Promise<{allExact: boolean}>} Whether every width came out exact.
    */
   async function health(cfg) {
-    const rules = { ...cfg.rules, separatorRe: new RegExp(cfg.rules.separator, 'u') };
+    const rules = { ...cfg.rules, separatorRe: new RegExp(cfg.rules.separator, 'u'), letterRe: new RegExp(cfg.rules.letter, 'u') };
     await typeVerdict();
     await fillSurfaces();
     clipboard();
@@ -492,7 +546,7 @@
   }
 
   /**
-   * Diff mode: the baseline and candidate stylesheets, swapped in the same
+   * Diff mode: The baseline and candidate stylesheets, swapped in the same
    * page so data, fonts and DOM are identical.
    *
    * @param {object} cfg
@@ -513,7 +567,7 @@
       same.push({ w, ...compare(a, b) });
     }
     if (!cfg.referenceWidth) return { same, reference: null };
-    // The page regions only: a dialog sized in `vw` reaches a given width at a
+    // The page regions only: A dialog sized in `vw` reaches a given width at a
     // different window width, so the page's reference width is not its own.
     const page = REGIONS.filter((r) => r !== '.log-dialog');
     await setWidth(cfg.referenceWidth); await use(cfg.baselineCss);
@@ -527,7 +581,7 @@
   }
 
   /**
-   * Load the configuration, run the mode, and report back to the tool.
+   * Load the configuration, run the mode and report back to the tool.
    *
    * @returns {Promise<void>}
    */

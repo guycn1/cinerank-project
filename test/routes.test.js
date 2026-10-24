@@ -76,7 +76,7 @@ test('PATCH /api/movies/:id with a non-numeric rating → 400', async () => {
 
 // Regression guard. `.single()` reports "no such row" as PGRST116 rather than as
 // an empty result, so this used to fall through to the central error handler and
-// come back as the central error handler's generic 500 — which is both the wrong
+// come back as the central error handler's generic 500 – which is both the wrong
 // status and a message the user could never clear by retrying. Reachable for real:
 // delete a film in one tab, save it from another.
 test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', async () => {
@@ -95,11 +95,11 @@ test('PATCH /api/movies/:id for a row that no longer exists → 404, not 500', a
 
 // Regression guard for migration 004's `review_requires_rating` constraint
 // (backlog #15, D-041). Postgres enforces the rule itself; what this asserts is
-// the ROUTE's half of it — a check_violation must surface as a 400 with a
+// the ROUTE's half of it – a check_violation must surface as a 400 with a
 // message that says what to do, not as the central handler's generic 500, which
 // would blame the server for a request that is simply invalid. Unreachable from
 // the UI (the rate dialog always sends a rating from a range input), but a
-// direct API caller can do it — and the demo seed helper, scripts/seed-demo.js,
+// direct API caller can do it – and the demo seed helper, scripts/seed-demo.js,
 // is one.
 test('PATCH /api/movies/:id writing a review onto an unrated film → 400, not 500', async () => {
   db.results['movies:update'] = {
@@ -123,7 +123,7 @@ test('PATCH /api/movies/:id writing a review onto an unrated film → 400, not 5
 // The handler matches the constraint NAME, not the bare 23514 code, because the
 // movies table carries two range constraints as well. This is that guard: a
 // violation of one of those must not be dressed up as the review rule.
-test('PATCH /api/movies/:id — an unrelated check violation is not reported as the review rule', async () => {
+test('PATCH /api/movies/:id – an unrelated check violation is not reported as the review rule', async () => {
   db.results['movies:update'] = {
     data: null,
     error: {
@@ -156,12 +156,12 @@ test('unknown route → 404', async () => {
 // DELETE had NO coverage at all until 2026-09-13, which the test helper made
 // conspicuous: helpers.js has defined a `del()` client method since it was
 // written, and nothing had ever called it. Found while assembling the evidence
-// for SPEC § 7.1's third criterion -- the one that asks for edge cases rather
+// for SPEC § 7.1's third criterion – the one that asks for edge cases rather
 // than the happy path.
 //
 // WHAT THIS DELIBERATELY DOES NOT ASSERT: that the right ROW was targeted. The
 // fake Supabase builder's `.eq()` is a no-op (see the comment on it), so an
-// assertion about the id would pass whatever the route filtered on -- which is
+// assertion about the id would pass whatever the route filtered on – which is
 // exactly the trap D-046 records, where a test passed against buggy code because
 // the fake ignored the filter that caused the bug. Writing that assertion here
 // would produce false confidence, so it is left out and said so instead.
@@ -176,7 +176,7 @@ test('DELETE /api/movies/:id → 204 with no body', async () => {
 });
 
 // The `if (error) throw` in the route. Without it a failed delete would answer
-// 204 -- telling the user the film is gone while it is still there, which is the
+// 204 – telling the user the film is gone while it is still there, which is the
 // worst shape this particular failure could take.
 test('DELETE /api/movies/:id when the database rejects it → 500, not a false 204', async () => {
   db.results['movies:delete'] = { data: null, error: { message: 'connection refused' } };
@@ -187,7 +187,7 @@ test('DELETE /api/movies/:id when the database rejects it → 500, not a false 2
 
 /* ---------- duplicate handling + happy add ----------------------------- */
 
-test('POST /api/movies for a movie already in the list → 409', async () => {
+test('POST /api/movies for a film already in the list → 409', async () => {
   const restore = stubFetch({ 'themoviedb.org': MATRIX_TMDB });
   db.results['movies:insert'] = { data: null, error: { code: '23505', message: 'duplicate key' } };
   try {
@@ -199,7 +199,7 @@ test('POST /api/movies for a movie already in the list → 409', async () => {
   }
 });
 
-test('POST /api/movies happy path → 201 with the saved movie', async () => {
+test('POST /api/movies happy path → 201 with the saved film', async () => {
   const restore = stubFetch({ 'themoviedb.org': MATRIX_TMDB });
   db.results['movies:insert'] = {
     data: { id: 'uuid-1', tmdb_id: 603, title: 'The Matrix', year: 1999 },
@@ -216,7 +216,7 @@ test('POST /api/movies happy path → 201 with the saved movie', async () => {
 
 // Regression guard for backlog #11. shapeMovie() has always returned
 // tmdb_rating and the search rows have always shown it, but the insert dropped
-// it because no column existed — so the number was fetched, displayed once and
+// it because no column existed – so the number was fetched, displayed once and
 // thrown away. Migration 002 added the column; this asserts the value actually
 // reaches the insert payload, which is the half a schema change cannot enforce
 // on its own. MATRIX_TMDB carries vote_average: 8.2.
@@ -236,7 +236,7 @@ test('POST /api/movies stores TMDB own rating in the insert payload', async () =
   }
 });
 
-// TMDB reports vote_average: 0 for a title nobody has voted on — an ABSENCE,
+// TMDB reports vote_average: 0 for a title nobody has voted on – an ABSENCE,
 // not a score of zero (its vote scale starts at 0.5). Storing the 0 made the
 // ranked card read "TMDB 0.0", i.e. worst film imaginable, while the search row
 // hid it because it used truthiness. Both surfaces now say "no rating" for the
@@ -257,11 +257,11 @@ test('POST /api/movies stores null, not 0, for a title with no TMDB votes', asyn
 
 // THE SEARCH HAPPY PATH, which had no coverage at all until 2026-09-13.
 // The only two search tests were the 400 for a missing query and the 502 below
-// for TMDB being unreachable -- both failure paths. Every fixture carrying a
+// for TMDB being unreachable – both failure paths. Every fixture carrying a
 // poster (MATRIX_TMDB, UNVOTED_TMDB, HEAT_TMDB) reached the suite only through
 // the add and recommendation tests, never through search. So the single
-// behaviour SPEC § 7.1's first acceptance criterion asserts -- "searching a real
-// movie title returns real TMDB results with posters" -- was the one search
+// behaviour SPEC § 7.1's first acceptance criterion asserts – "searching a real
+// film title returns real TMDB results with posters" – was the one search
 // behaviour the suite never checked.
 //
 // Asserts the whole shaped contract rather than a truthy response, because every
@@ -322,7 +322,7 @@ test('GET /api/movies/search when TMDB is unreachable → 502, calm message', as
   try {
     const res = await client.get('/api/movies/search?q=matrix');
     assert.equal(res.status, 502);
-    assert.match((await res.json()).error, /movie database/i);
+    assert.match((await res.json()).error, /film database/i);
   } finally {
     restore();
   }
@@ -341,7 +341,7 @@ test('POST /api/movies when TMDB is unreachable → 502 (no DB write)', async ()
 
 // Guards the server half of #16(c) (D-042). The TMDB 502 carries a `short`
 // companion to `error` so the client can put a context in front of the cause
-// without doubling ('Couldn’t add “Dune” — Couldn’t reach the movie database.
+// without doubling ('Couldn’t add “Dune” – Couldn’t reach the film database.
 // Try again in a moment.'). Both halves are asserted deliberately: `error` must
 // be UNCHANGED, since every other consumer still reads it and the whole point of
 // adding a field rather than editing one was that nothing existing moves.
@@ -349,7 +349,7 @@ test('the TMDB 502 carries a short form alongside its unchanged error text', asy
   const restore = stubFetch({ 'themoviedb.org': 'throw' });
   try {
     const body = await (await client.post('/api/movies', { tmdb_id: 603 })).json();
-    assert.match(body.error, /movie database/i);
+    assert.match(body.error, /film database/i);
     assert.equal(body.short, 'TMDB is unreachable');
   } finally {
     restore();
@@ -358,7 +358,7 @@ test('the TMDB 502 carries a short form alongside its unchanged error text', asy
 
 /* ---------- not-enough-data guards (pre-AI, so NOT logged) ------------- */
 
-test('POST /api/recommendations below the rated-movie threshold → 422, nothing logged', async () => {
+test('POST /api/recommendations below the rated-film threshold → 422, nothing logged', async () => {
   db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/recommendations');
   assert.equal(res.status, 422);
@@ -366,7 +366,7 @@ test('POST /api/recommendations below the rated-movie threshold → 422, nothing
   assert.equal(db.calls.filter((c) => c.table === 'recommendation_logs').length, 0);
 });
 
-test('POST /api/taste-verdict below the rated-movie threshold → 422', async () => {
+test('POST /api/taste-verdict below the rated-film threshold → 422', async () => {
   db.results['movies:select'] = { data: [{ id: '1', title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/taste-verdict');
   assert.equal(res.status, 422);
@@ -392,12 +392,12 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
     assert.equal(res.status, 422);
     const body = await res.json();
     assert.match(body.error, /Couldn’t generate recommendations/);
-    // R8: the technical cause must not reach the user. It used to be appended
+    // R8: The technical cause must not reach the user. It used to be appended
     // straight onto the message, so an outage read "Couldn’t generate
-    // recommendations: OpenRouter unreachable (TimeoutError)" — our vendor's name
+    // recommendations: OpenRouter unreachable (TimeoutError)" – our vendor's name
     // and a JS error class, to someone who wanted a film suggestion.
     assert.doesNotMatch(body.error, /OpenRouter|TimeoutError|fetch/i);
-    // R9: an AI call was made and its row committed, so the UI may point at the
+    // R9: An AI call was made and its row committed, so the UI may point at the
     // AI call log for this one.
     assert.equal(body.logged, true);
     const logged = db.calls.find((c) => c.table === 'recommendation_logs' && c.op === 'insert');
@@ -416,12 +416,12 @@ test('POST /api/recommendations when OpenRouter is unreachable → 422 AND a fai
 // failure paths (the below-threshold 422 and the OpenRouter-down 422), so every
 // rule that decides what a user actually SEES was unproven (backlog R19). Three
 // of them hold when TMDB answers, and one run exercises all three: a pick TMDB
-// cannot confirm is dropped, a pick the user already owns is dropped, and two
+// cannot confirm is dropped, a pick the user already owns is dropped and two
 // picks that resolve to the SAME film collapse to one. The fourth, a lookup that
 // cannot reach TMDB at all, is the tmdb-unreachable empty-run test further down.
 //
 // The stub answers each TMDB lookup by its `query=` fragment, so the four picks
-// are deliberately titles whose first query word is distinct — `url.includes()`
+// are deliberately titles whose first query word is distinct – `url.includes()`
 // would otherwise let one fragment match another film's URL.
 const RECS_LIBRARY = {
   data: [
@@ -519,7 +519,7 @@ test('POST /api/recommendations logs a success row holding exactly the shown tit
     assert.ok(logged, 'a successful run must be logged too, not only a failure');
     assert.equal(logged.payload.status, 'success');
     assert.equal(logged.payload.error_text, null);
-    // The audit row records what the user was SHOWN, not what the model said —
+    // The audit row records what the user was SHOWN, not what the model said –
     // the three dropped titles must not appear here.
     assert.deepEqual(logged.payload.suggested_titles, ['Heat']);
     // Cost logging is a hard requirement (CLAUDE.md § Coding Conventions), and
@@ -532,8 +532,8 @@ test('POST /api/recommendations logs a success row holding exactly the shown tit
   }
 });
 
-// R2: the owned-titles filter used to be built from the SAME query that feeds
-// the taste profile, and that query is filtered to rated films — so a film the
+// R2: The owned-titles filter used to be built from the SAME query that feeds
+// the taste profile, and that query is filtered to rated films – so a film the
 // user had added but not yet rated was invisible to it and could be recommended
 // straight back at them. The card would even have been right that it was "not
 // yet rated"; the Add button under it would have 409'd.
@@ -543,7 +543,7 @@ test('POST /api/recommendations never suggests a film already in the list but UN
       { id: '1', tmdb_id: 1, title: 'Whiplash', year: 2014, rating: 10, review: 'relentless' },
       { id: '2', tmdb_id: 2, title: 'Dune', year: 2021, rating: 9, review: '' },
       { id: '3', tmdb_id: 3, title: 'Arrival', year: 2016, rating: 9, review: '' },
-      // Added, never rated. Absent from the taste profile by design — and it must
+      // Added, never rated. Absent from the taste profile by design – and it must
       // still be absent from the suggestions.
       { id: '5', tmdb_id: 5, title: 'Tenet', year: 2020, rating: null, review: null },
     ],
@@ -591,21 +591,21 @@ test('POST /api/recommendations failing BEFORE the AI call offers no log link', 
   assert.equal(db.calls.filter((c) => c.table === 'recommendation_logs').length, 0);
 });
 
-// The one cause that IS the user's answer survives verbatim — flagged
+// The one cause that IS the user's answer survives verbatim – flagged
 // `userFacing` at the throw site, not pattern-matched in the route.
 test('POST /api/recommendations below the threshold keeps its specific message', async () => {
   db.results['movies:select'] = { data: [{ id: '1', tmdb_id: 1, title: 'A', rating: 9 }], error: null };
   const res = await client.post('/api/recommendations');
   const body = await res.json();
-  assert.match(body.error, /Need at least 3 rated movies/);
+  assert.match(body.error, /Need at least 3 rated films/);
   assert.equal(body.logged, undefined);
 });
 
 /* ---------- WHY a run came back empty ---------------------------------- */
 
 /**
- * The UI used to assert one cause for all of them — "the model only named films
- * already in your list" — which is wrong three times out of four. One test per
+ * The UI used to assert one cause for all of them – "the model only named films
+ * already in your list" – which is wrong three times out of four. One test per
  * reason, so the wrong sentence cannot come back by accident.
  *
  * Sets up a run whose picks all fall away: the recommendation library and a
@@ -646,7 +646,7 @@ test('empty run: the model named nothing → none-named', async () => {
 });
 
 // The one that matters most. TMDB being down produced a run that logs 'success'
-// and told the user the model had named only films they already had — a
+// and told the user the model had named only films they already had – a
 // confident false statement that also hid the outage.
 test('empty run: TMDB unreachable → tmdb-unreachable, not all-owned', async () => {
   const restore = emptyRun([{ title: 'Heat', reason: 'A real pick.' }], {
@@ -700,8 +700,8 @@ test('a run WITH suggestions carries no emptyReason at all', async () => {
 // taste_verdict_logs assertion in this file was on a FAILURE path: a failed row
 // names its model, a failed row is advertised, a failure before the AI call
 // writes no row, and a failed log write loses neither cause. So SPEC § 7.1’s
-// sixth criterion -- "a triggered verdict produces a logged row with real
-// token/cost data" -- was the one verdict behaviour nothing checked.
+// sixth criterion – "a triggered verdict produces a logged row with real
+// token/cost data" – was the one verdict behaviour nothing checked.
 //
 // Mirrors the recommendations success-log test deliberately, so the two
 // features are held to the same standard rather than drifting the way their
@@ -817,7 +817,7 @@ for (const feature of [
   // drifting: tasteVerdict.js carried recommendations.js’s fallback verbatim, so
   // every failed verdict was logged as claude-haiku-4.5 while claude-sonnet-5
   // was the model that actually failed (D-053 put the verdict off the default).
-  // Nothing asserted the contents of this column before — R23 checked that a
+  // Nothing asserted the contents of this column before – R23 checked that a
   // failed row EXISTS and is advertised, never what is in it.
   test(`POST ${feature.path}: a failed row names the model THIS feature calls`, async () => {
     db.results['movies:select'] = RATED_FOUR;
@@ -838,7 +838,7 @@ for (const feature of [
   });
 
   test(`POST ${feature.path}: a failure with NO log row advertises nothing`, async () => {
-    // Dies on the library read, before any AI call — so there is no row, and
+    // Dies on the library read, before any AI call – so there is no row, and
     // offering the log would send the user to an empty page.
     db.results['movies:select'] = { data: null, error: { message: 'connection refused' } };
     const res = await client.post(feature.path);
@@ -853,7 +853,7 @@ for (const feature of [
 /**
  * Capture console.error for the duration of one call. When the log table is
  * unreachable, stderr is the only sink left, so "did it reach stderr" is a real
- * assertion rather than test hygiene — it is the ONLY surviving record of the
+ * assertion rather than test hygiene – it is the ONLY surviving record of the
  * cause (R5). Capturing also keeps the suite's own output clean.
  *
  * @param {() => Promise<unknown>} fn  The call to run, awaited.
@@ -866,10 +866,14 @@ async function captureStderr(fn) {
   try {
     await fn();
   } finally {
-    // FALSE POSITIVE, and it is the point of the helper: save, replace, restore
-    // around an await is exactly what a stderr capture IS. The rule cannot tell a
-    // deliberate restore from an accidental stale write, and these tests run
-    // sequentially in one thread.
+    // Restoring console.error trips ESLint's require-atomic-updates rule, and
+    // the directive below switches it off for this one statement, because here
+    // the warning is a false positive. The rule flags a write after an `await`
+    // that may rest on something read before it, and this one does on purpose:
+    // save, replace, restore around an await is exactly what a stderr capture
+    // IS. The rule cannot tell a deliberate restore from an accidental stale
+    // write, and these tests run sequentially in one thread, so nothing else
+    // can touch console.error while fn() is awaited.
     // eslint-disable-next-line require-atomic-updates
     console.error = original;
   }
@@ -898,8 +902,8 @@ for (const feature of [
       assert.equal(body.logged, undefined, `${feature.name}: no row exists, so nothing may be advertised`);
       assert.doesNotMatch(body.error, /insert refused|log write/i);
 
-      // R5: the AI failure must NOT be destroyed by the log failure. With no row
-      // written, stderr is the only place either cause can still exist — so both
+      // R5: The AI failure must NOT be destroyed by the log failure. With no row
+      // written, stderr is the only place either cause can still exist – so both
       // have to be in it, or the run is genuinely unexplainable afterwards.
       assert.match(stderr, /insert refused/, `${feature.name}: the log-write cause was lost`);
       assert.match(
@@ -958,7 +962,7 @@ test('a review cut never ends in half an emoji: both prompts and the stored revi
 
 // The narrower per-feature JSON view kept by D-017 and confirmed by D-077. It
 // was the one route no test touched, which is the whole reason the endpoint kept
-// coming back up as a deletion candidate -- so the gap is closed here rather
+// coming back up as a deletion candidate – so the gap is closed here rather
 // than by deleting a route SPEC 4.5 lists. Deliberately asserts the SHAPE and
 // the recommendation-only scope, not the column list: the point is that the
 // route answers and is narrower than /api/ai-log, and pinning all seven columns
@@ -1041,7 +1045,7 @@ test('GET /api/ai-log returns structured result data per row', async () => {
   // Totals sum only the calls that recorded a split / duration, and report that
   // coverage as `detailed` / `timed`. NOTE what those two are actually for: the
   // viewer does NOT print them (D-019 settled that), it only uses them as
-  // truthiness tests — draw the in/out sub-line at all, draw a duration or an
+  // truthiness tests – draw the in/out sub-line at all, draw a duration or an
   // em dash.
   assert.equal(totals.tokens, 2300);            // 1000 + 900 + 400 (r2 is null)
   assert.equal(totals.promptTokens, 1500);      // r1 700 + v1 800

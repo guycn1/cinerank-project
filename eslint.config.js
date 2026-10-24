@@ -1,31 +1,30 @@
 /**
- * @file ESLint flat config — the static-analysis half of the Merge-Readiness Pack's
+ * @file ESLint flat config – the static-analysis half of the Merge-Readiness Pack's
  * "SE hygiene" criterion (docs/MERGE-READINESS.md, course Module 16).
  *
  * Deliberately NOT a style linter. Prettier-style formatting rules are left out
  * entirely: this codebase was mostly written by one agent under one set of
  * conventions, so reformatting it would produce a large diff that proves
  * nothing and buries the real history. What is enabled is the set of rules that can catch a DEFECT
- * — an unused binding, a shadowed variable, a stale write across an `await`, a
- * `case` that falls through — plus a complexity ceiling, because Module 16 names
+ * – an unused binding, a shadowed variable, a stale write across an `await`, a
+ * `case` that falls through – plus a complexity ceiling, because Module 16 names
  * complexity checks explicitly alongside linting.
  *
- * Four environments, because this repo ships code to two runtimes and keeps two
- * browser files in scripts/ that the browser parses as CLASSIC scripts but that
- * the app never serves:
- *   - Node ES modules: server/, test/, this file, and every Node tool in scripts/ (the
- *     glob is `scripts/*.js` minus the two browser files below, so a new tool
+ * Four environments, because this repo ships code to two runtimes and keeps three
+ * browser files in scripts/ that the browser parses as CLASSIC scripts and that
+ * the deployed app never runs:
+ *   - Node ES modules: server/, test/, this file and every Node tool in scripts/ (the
+ *     glob is `scripts/*.js` minus the three browser files below, so a new tool
  *     is covered without this list naming it; check-claims.js keeps the same
- *     two files in CLASSIC_SCRIPTS and parses them the same way)
+ *     three files in CLASSIC_SCRIPTS and parses them the same way)
  *   - Browser ES module: public/app.js (index.html loads it as type="module")
  *   - Browser CLASSIC script, no globals: scripts/layout-probe.js, which only
  *     `npm run layout-check`'s own fixture server injects into the page.
- *   - Browser CLASSIC script: scripts/debug-recs.js. It is pasted into the
- *     browser console, so it is parsed as a script and not as a module. Getting
- *     this wrong makes ESLint report phantom parse errors. (It was briefly
- *     loaded by a bare <script> tag in index.html; that tag and the route that
- *     served it were removed on 2026-09-13, and the parser setting still applies
- *     because a console paste is a classic script too.)
+ *   - Browser CLASSIC scripts: scripts/debug-recs.js and scripts/debug-verdict.js,
+ *     the console harnesses for the recommendations and the verdict. Each is
+ *     parsed as a script and not as a module, because a console paste and a
+ *     bare <script> tag are both classic scripts. Getting this wrong makes
+ *     ESLint report phantom parse errors.
  */
 
 import globals from 'globals';
@@ -44,7 +43,7 @@ const defectRules = {
   'no-self-compare': 'error',
   'no-unmodified-loop-condition': 'error',
   'require-atomic-updates': 'error',
-  // Off deliberately: every loop that awaits here is sequential on purpose —
+  // Off deliberately: Every loop that awaits here is sequential on purpose –
   // TMDB lookups one at a time (recommendation verification, the backfill),
   // ordered writes in the seed script, polling and retries, and the layout
   // tools driving one browser and one width at a time.
@@ -54,7 +53,7 @@ const defectRules = {
   'prefer-const': 'error',
 
   // Module 16 names complexity checks alongside linting. These are ceilings, not
-  // targets — they exist to flag a function that has quietly grown past the point
+  // targets – they exist to flag a function that has quietly grown past the point
   // where a reviewer can hold it in their head.
   complexity: ['warn', 20],
   'max-depth': ['warn', 5],
@@ -70,10 +69,10 @@ export default [
     ignores: ['node_modules/**', 'package-lock.json'],
   },
 
-  // Node ES modules — the server, the tests, and the real tooling scripts.
+  // Node ES modules – the server, the tests and the real tooling scripts.
   {
     files: ['server/**/*.js', 'test/**/*.js', 'eslint.config.js', 'scripts/*.js'],
-    ignores: ['scripts/debug-recs.js', 'scripts/layout-probe.js'],
+    ignores: ['scripts/debug-recs.js', 'scripts/debug-verdict.js', 'scripts/layout-probe.js'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',
@@ -93,7 +92,7 @@ export default [
     rules: defectRules,
   },
 
-  // The layout probe: a classic script injected by `npm run layout-check`, and
+  // The layout probe: A classic script injected by `npm run layout-check`, and
   // wrapped in one function so it adds nothing to the page it measures, which
   // is why no-implicit-globals stays on.
   {
@@ -106,14 +105,13 @@ export default [
     rules: defectRules,
   },
 
-  // The browser CLASSIC script. Pasted into the browser console, so it must be
-  // parsed as a script; parsing it as a module hides nothing but reports
-  // nonsense. (index.html loaded it with a bare <script> tag until 2026-09-13;
-  // that tag and the route serving it are gone, and this setting is unchanged
-  // because a console paste is a classic script too.) It also deliberately defines one global, which is the whole
-  // point of a console harness — hence no-implicit-globals is off here only.
+  // The two console harnesses, browser CLASSIC scripts. A console paste and a
+  // bare <script> tag are both classic scripts, so they must be parsed as
+  // scripts; parsing them as modules hides nothing but reports nonsense. Each
+  // deliberately defines one global, which is the whole point of a console
+  // harness – hence no-implicit-globals is off here only.
   {
-    files: ['scripts/debug-recs.js'],
+    files: ['scripts/debug-recs.js', 'scripts/debug-verdict.js'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'script',

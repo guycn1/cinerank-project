@@ -1,5 +1,5 @@
 /**
- * Shared test fixtures: a real HTTP client for the app, an in-memory stand-in
+ * Shared test fixtures: A real HTTP client for the app, an in-memory stand-in
  * for the Supabase client, a fetch stub for TMDB and OpenRouter, and two TMDB
  * payloads.
  *
@@ -99,7 +99,7 @@ export function makeFakeSupabase(state) {
         // EVERY filter here is a NO-OP: eq/not/order/limit just return the
         // builder, so an awaited chain resolves to whatever `state.results` holds
         // for the table, unfiltered and unsorted. That is fine for what these
-        // tests assert, but it is a trap worth knowing about — a test whose
+        // tests assert, but it is a trap worth knowing about – a test whose
         // expectation depends on the DB doing the filtering will PASS for the
         // wrong reason and prove nothing.
         // It has already bitten once: the first attempt at the R2 test (an
@@ -107,7 +107,7 @@ export function makeFakeSupabase(state) {
         // then-buggy code, because the fake ignored the
         // `.not('rating','is',null)` that caused the bug. The fix was to move
         // the filtering out of the query and into JS, where the tests can see
-        // it — so if you are tempted to push a filter back down into a query,
+        // it – so if you are tempted to push a filter back down into a query,
         // check what its test is actually proving first.
         select: () => b,
         eq: () => b,

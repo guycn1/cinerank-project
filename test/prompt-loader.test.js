@@ -1,5 +1,5 @@
 /**
- * @file promptLoader reads the real files in prompts/ — this is the guard that the
+ * @file promptLoader reads the real files in prompts/ – this is the guard that the
  * versioned prompt files stay well-formed and that {{PLACEHOLDER}} substitution
  * and the # System / # User split keep working (CLAUDE.md § Prompt Versioning).
  *
@@ -56,7 +56,7 @@ test('loadPrompt: splits system/user and strips the leading dev comment', async 
 
   // Exact equality, not "contains no <!--": an unstripped comment that names
   // "# System" makes the regex split INSIDE the comment, leaving a system prompt
-  // that holds no comment marker at all — just the wrong text.
+  // that holds no comment marker at all – just the wrong text.
   // The entities decode to the characters, once: `&amp;lt;` is `&lt;`, not `<`.
   const fixture = await loadPrompt(FIXTURE_VERSION, { X: 'MARK' });
   assert.equal(fixture.system, 'Sys MARK <end> &lt;');

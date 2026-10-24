@@ -44,7 +44,7 @@ export { OpenRouterError };
 
 /**
  * One OpenRouter call. `model` defaults to the app-wide model and is overridden
- * per FEATURE, not per call site whim — see config.tasteVerdict.model and D-053.
+ * per FEATURE, not per call site whim – see config.tasteVerdict.model and D-053.
  *
  * @param {object} request
  * @param {string} request.system  The system prompt.
@@ -54,7 +54,7 @@ export { OpenRouterError };
  * @param {string} [request.model]  Defaults to `config.openrouter.model`.
  * @returns {Promise<ChatResult>}
  * @throws {OpenRouterError} When OpenRouter is unreachable or the 20s timeout
- *   fires, when it answers with a non-2xx status, or when the reply has no content.
+ *   fires, when it answers with a non-2xx status or when the reply has no content.
  *   A 2xx body that is not JSON rejects with the parser's own SyntaxError
  *   instead, which the feature services let propagate unchanged.
  */
@@ -85,14 +85,14 @@ export async function chat({ system, user, maxTokens = 500, temperature = 0.7, m
   } catch (err) {
     // `err.cause.code` first, because `err.name` is almost always the useless
     // answer here: every connection-level failure in Node's fetch surfaces as
-    // TypeError("fetch failed") and puts the real reason — ECONNREFUSED,
-    // ENOTFOUND, UND_ERR_CONNECT_TIMEOUT — on `cause`. The user hit exactly this
+    // TypeError("fetch failed") and puts the real reason – ECONNREFUSED,
+    // ENOTFOUND, UND_ERR_CONNECT_TIMEOUT – on `cause`. The user hit exactly this
     // while testing a bogus key: a 401 and an "unreachable (TypeError)" appeared
     // in the same log, and only the 401 had anything to do with the key.
     // Falls back to `name`, which is what the 20s cap above produces: an
     // AbortSignal.timeout aborts with a TimeoutError and no `cause` (both
     // verified on Node's built-in fetch).
-    // Log-only either way — the route replaces all of this with a calm sentence
+    // Log-only either way – the route replaces all of this with a calm sentence
     // before the user sees it (R8, D-047).
     throw new OpenRouterError(`OpenRouter unreachable (${err.cause?.code ?? err.name})`);
   }

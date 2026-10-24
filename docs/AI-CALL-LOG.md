@@ -1,6 +1,6 @@
-# The AI call log — how it works, and what will break if you change it
+# The AI call log – how it works, and what will break if you change it
 
-**Audience:** someone who did not build this component and now has to change it.
+**Audience:** Someone who did not build this component and now has to change it.
 You can read the code. What you cannot read is which of its apparently arbitrary
 choices are load-bearing.
 
@@ -17,7 +17,7 @@ Commissioned by [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-
 ## 1. What it is and why it exists
 
 A modal dialog, opened from the footer, listing the 60 most recent calls this
-application has made to OpenRouter — both AI features, successes and failures
+application has made to OpenRouter – both AI features, successes and failures
 together, with prompt version, model, token split, duration, status and
 estimated cost per row. Every row is kept in the database; the dialog shows
 the newest 60 ([§ 2](#2-where-the-data-comes-from)).
@@ -26,10 +26,10 @@ It is two claims made visible:
 
 * **[`SPEC.md` § 7.2](../SPEC.md#72-manual-demo-script)'s "not a wrapper"
   proof.** Anyone can assert their app logs its AI usage. This is the assertion
-  rendered, in the product, for the person being asked to trust the output — not
+  rendered, in the product, for the person being asked to trust the output – not
   for someone with database access.
 * **The answer to OWASP `ASI09`, Human-Agent Trust Exploitation**, in
-  [`SECURITY.md`](SECURITY.md#asi09--human-agent-trust-exploitation). A user
+  [its entry in `SECURITY.md`](SECURITY.md#asi09--human-agent-trust-exploitation). A user
   cannot calibrate trust in a system that will not say what it did. This is what
   saying looks like.
 
@@ -43,12 +43,12 @@ token split, cost, duration, status and result, above a pinned totals
 row](screenshots/readme-3-ai-call-log.png)
 
 **This is what the rest of the document is talking about. It is not how any of it
-works — and the gap between those two things is the reason this file exists.**
+works – and the gap between those two things is the reason this file exists.**
 
 Nothing visible above tells you that:
 
 * the totals row is pinned by a **second element** underneath it, because a
-  sticky `<tfoot>` cannot reach the dialog's edge on its own;
+  sticky `<tfoot>` cannot reach the scroller's edge on its own;
 * the rule above that row is **two background gradients**, not the border it
   plainly resembles, because a border is left behind when the row pins;
 * the Result cells are collapsed `<details>` whose revealed panels are positioned
@@ -57,14 +57,14 @@ Nothing visible above tells you that:
   the element wrapping it.
 
 **Use the figure to know which element each section means. Do not use it to infer
-how any of them is built** — that inference is wrong in at least those four
+how any of them is built** – that inference is wrong in at least those four
 places, and the sections below say why in each case.
 
 ## 2. Where the data comes from
 
 `GET /api/ai-log` ([`server/routes/aiLog.js`](../server/routes/aiLog.js)) reads
-**two tables** — [`recommendation_logs`](../SPEC.md#52-recommendation_logs) and [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) — normalises
-them into one row shape, merges, sorts by `created_at` descending, and returns
+**two tables** – [`recommendation_logs`](../SPEC.md#52-recommendation_logs) and [`taste_verdict_logs`](../SPEC.md#53-taste_verdict_logs) – normalises
+them into one row shape, merges, sorts by `created_at` descending and returns
 the newest 60 with a totals object.
 
 **It shows the 60 most recent calls, not all of them.** Each table is queried with
@@ -76,9 +76,9 @@ That cap is deliberate and is documented at the query. **If you change it,
 change the blurb inside the dialog in
 [`public/index.html`](../public/index.html) with it**, since that sentence
 states the figure. The blurb and the footer panel that opens the dialog both
-claimed every call [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/26b33829bf1c225d67d90cf97a2cf3333060b132) — the blurb "every OpenRouter call CineRank
+claimed every call [until 2026-09-13](https://github.com/guycn1/cinerank-project/commit/26b33829bf1c225d67d90cf97a2cf3333060b132) – the blurb "every OpenRouter call CineRank
 has made" (from [`b3e3446`](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)), the panel "Every OpenRouter call" (from
-[`38ca76d`](https://github.com/guycn1/cinerank-project/commit/38ca76d49bd2d7f7c8979b7dd018a7e2f6841f64)) — which stopped being true the day the cap first bit. The panel now
+[`38ca76d`](https://github.com/guycn1/cinerank-project/commit/38ca76d49bd2d7f7c8979b7dd018a7e2f6841f64)) – which stopped being true the day the cap first bit. The panel now
 says every call is *logged*, a claim about persistence that no cap touches (a
 run whose log write fails is discarded rather than shown, with its cause sent
 to the server's stderr); see
@@ -86,8 +86,8 @@ to the server's stderr); see
 
 ### What the route sends structured, and why it matters
 
-The Result column has exactly three shapes — a recommendation's verified title
-list, a verdict's text, or either feature's error message. [An earlier version](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)
+The Result column has exactly three shapes – a recommendation's verified title
+list, a verdict's text or either feature's error message. [An earlier version](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345)
 flattened all three into one `summary` string server-side.
 
 **The route [now sends](https://github.com/guycn1/cinerank-project/commit/20cce5a05b6bcbad16cfde95ef8cd23253b08508) `suggested_titles`, `verdict_text` and `error_text`
@@ -96,7 +96,7 @@ Result column collapsible at all: you cannot put a pre-flattened sentence behind
 a `<details>` and reveal a list.
 
 **`suggested_titles` holds what the user was SHOWN, not what the model named.**
-Titles the model invented that TMDB could not confirm, films already owned, and
+Titles the model invented that TMDB could not confirm, films already owned and
 duplicates within one run are all dropped before this column is written. An audit
 row recording what was *asked for* rather than what was *delivered* would be worse
 than none, and [a test](../test/routes.test.js) asserts exactly this.
@@ -105,9 +105,13 @@ than none, and [a test](../test/routes.test.js) asserts exactly this.
 
 **State this as one mechanism, because the pieces are meaningless apart.**
 
-**[The dialog is the single scroller.](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** `.log-dialog` carries
-`overflow: auto; max-height: 88vh`. `.log-scroll` — despite the name — is
-`overflow: visible; flex: 0 0 auto` and scrolls nothing.
+**[One box is the single scroller](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce): `.log-pane`, the dialog's only
+child.** It carries `overflow: auto` and fills the dialog, which caps it at
+`max-height: 88vh` and only clips it to its rounded corners. The rounding and
+the scrolling live on two boxes because a rounded box that scrolls itself
+loses its corners to its scrollbar ([D-086](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)).
+`.log-scroll` – despite the name – is `overflow: visible; flex: 0 0 auto` and
+scrolls nothing.
 
 > **[What failed first.](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303)** The table scrolled inside a flex-sized `.log-scroll`. On
 > a short viewport that box collapsed to nothing and the table vanished.
@@ -116,28 +120,28 @@ Consequences, all of which look like free choices and are not:
 
 * **[Only `thead th` pins at the top.](https://github.com/guycn1/cinerank-project/commit/15959f94a649dd6f2b06b90eaab466f23b75b815)** The "AI call log" heading and the Close
   button scroll away with everything else. Scroll back up, or press Escape.
-* **`.log-dialog` has no vertical padding** (`padding: 0 1.5rem`; its `header`
-  carries the top space) so the pinned `thead` sits flush against the dialog's
+* **`.log-pane` has no vertical padding** (`padding: 0 1.5rem`; its `header`
+  carries the top space) so the pinned `thead` sits flush against the pane's
   top edge instead of floating below a gap.
 * **`.log-scroll` must stay `overflow: visible`.** It is not the scroller, and
   clipping would round the sticky header and footer cell *fills* against their
-  square backgrounds — a curved border with square cell backgrounds inside it,
+  square backgrounds – a curved border with square cell backgrounds inside it,
   which reads as broken. Its corners are square for the same reason; the
   dialog around it keeps its own rounded corners, and in card view each card
   has rounded corners of its own.
 
-### `.log-curtain` — why a sticky `<tfoot>` is not enough
+### `.log-curtain` – why a sticky `<tfoot>` is not enough
 
-The totals row pins to the bottom. A sticky `<tfoot>` **cannot reach the dialog's
+The totals row pins to the bottom. A sticky `<tfoot>` **cannot reach the pane's
 bottom edge**: it is clamped by its own containing block, the table. Table rows
 therefore peeked underneath it mid-scroll.
 
 [`.log-curtain`](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) is an opaque `--bg-raised` band that is a **direct child of the
-dialog**, so its containing block is the dialog and it is never clamped. It pins
+pane**, the scroller, so its containing block is the pane and it is never clamped. It pins
 at `bottom: 0` with `z-index: 2`. The totals row pins at
-`bottom: var(--log-curtain-h)` with `z-index: 3` — exactly on top of it.
+`bottom: var(--log-curtain-h)` with `z-index: 3` – exactly on top of it.
 
-Together they form one solid block from the row down to the dialog's edge.
+Together they form one solid block from the row down to the pane's edge.
 Scrolled to the end, both un-pin and the curtain is simply the empty gap below
 the table.
 
@@ -164,15 +168,15 @@ background-image:
 ```
 
 > **Two failures preceded this.** [A real `border-top`](https://github.com/guycn1/cinerank-project/commit/af83cec8ddfb2b22a51f6f13e4fbdf429fa881a8) is painted by the
-> collapsed-border layer, which **leaves it behind when the row pins** — the rule
+> collapsed-border layer, which **leaves it behind when the row pins** – the rule
 > stayed put while the row travelled. [A box-shadow does not work either](https://github.com/guycn1/cinerank-project/commit/25e73c79595d25b71b9a651f5a0c29e308d6c8f9): WebKit
 > does not paint outer shadows on table cells at all, and an inset one stops at
 > the collapsed column border, which segmented the rule into pieces.
 
 Because the gradients are painted *by the cell*, they also stop at any collapsed
-border — so the collapsed borders are removed from this row entirely
+border – so the collapsed borders are removed from this row entirely
 (`border-top: none; border-bottom: none`, and `td:not(:last-child)
-{ border-right: none }`). The cells then sit flush, the divider runs unbroken, and
+{ border-right: none }`). The cells then sit flush, the divider runs unbroken and
 both rules travel with the cell when it pins.
 
 The colour is `--line-total`, which is [**warm** on purpose](https://github.com/guycn1/cinerank-project/commit/0c71fcda2b437e42fbe5e69720c33fb748603eb9): a cool grey line at
@@ -180,11 +184,11 @@ the bottom of a scrolling area reads as a scrollbar.
 
 ## 4. The two view modes
 
-**Above ~850px: the full table.** All nine columns, with a mid-range
+**Above ~850px: The full table.** All nine columns, with a mid-range
 `@media (max-width: 1040px)` that tightens cell padding and narrows the Result
 column before the card breakpoint is reached.
 
-**At 850px and below: [one card per call](https://github.com/guycn1/cinerank-project/commit/0cc0581c748efb79fc962b769009ceef44107f18).** `thead` is hidden; each `td` grows a
+**At 850px and below: [One card per call](https://github.com/guycn1/cinerank-project/commit/0cc0581c748efb79fc962b769009ceef44107f18).** `thead` is hidden; each `td` grows a
 label via `td::before { content: attr(data-label) }`; the `<abbr>` shorthands
 expand back to full words with `abbr::after { content: attr(title) }`; reveal
 panels flow inline instead of floating. The totals become the last card, which
@@ -214,14 +218,16 @@ Each of these looks like it could be simplified. Each cannot.
 | Rule | What breaks if you undo it |
 |---|---|
 | **[`.log-scroll` stays `overflow: visible`](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce)** | It becomes a second scroller, and clips the sticky cell fills to a radius against square backgrounds |
-| **[`.log-curtain` is a child of the *dialog*, not the table](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)** | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
+| **[`.log-curtain` is a child of the *scroller*, not the table](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad)** (`.log-pane` since [D-086](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)) | It gets clamped by the table and rows show under the pinned totals row mid-scroll |
+| **[The dialog clips and `.log-pane` scrolls](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)** | A rounded box that scrolls itself loses its right-hand corners to its scrollbar: Chromium draws the scrollbar as a square strip over the curve, and Firefox with always-shown scrollbars draws the corners square |
 | **`--log-curtain-h` is read twice** | Curtain height and totals-row pin offset diverge; a curtain shorter than the offset leaves a strip under the pinned totals row where rows show through |
 | **[The totals divider is a background, not a border or shadow](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)** | A border is left behind when the row pins; a shadow is either not painted (WebKit, outer) or segmented at the collapsed border (inset) |
-| **[The reveal panel's opacity animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467) (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it — that is a table cell, itself a stacking context |
+| **[The reveal panel's opacity animates on the panel](https://github.com/guycn1/cinerank-project/commit/14764467744db144e5fe6e6d244fdbf3e1310467) (`.log-reveal ul/p`), never on `::details-content`** | Animating the pseudo makes it a stacking context *only while* `0 < opacity < 1`, trapping the panel behind later rows mid-fade. A `z-index` on `.log-reveal` does not rescue it – that is a table cell, itself a stacking context |
 | **[`--reveal-fade` is one property read by two elements](https://github.com/guycn1/cinerank-project/commit/de244d7972e7be0bf8596cc6b2f04677426e3f70)** | The panel's opacity transition and `::details-content`'s `content-visibility` duration must match, or the panel is yanked away mid-fade-out |
+| **[The reveal panel's flip measures the pinned header and Total *cells*](DECISIONS.md#d-087--an-open-ai-log-reveal-panel-re-flips-on-scroll-within-the-room-the-pinned-rows-leave), never the `<thead>` or `<tfoot>` box** | Sticky positioning is on the cells, so the row-group boxes scroll away: measured against them, the room falls back to the pane's edges and an open panel is painted across a pinned row (its `z-index` 5 is above their 3) |
 | **[The Result column is a fixed width](https://github.com/guycn1/cinerank-project/commit/9b6fd4072b3587f7b93e62c2b31f299665311f7f) (`8rem` of the unscaled root) with an absolutely positioned panel** | Opening a row reflows the table and steals width from its neighbours |
 | **[`display: flex` sits only on `.log-dialog[open]`](https://github.com/guycn1/cinerank-project/commit/50d95c03389b5c3666ab2f2b18945a7e4c525ae4), never on the bare `.log-dialog` rule** | On the bare rule it would override the UA's `dialog:not([open]) { display: none }`, since any author rule beats the UA stylesheet, and the dialog would never close |
-| **[Failed rows render an em dash (`—`)](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) — the red row's Tokens and Cost cells, beside successful rows carrying real figures |
+| **[Failed rows render an em dash (`—`)](https://github.com/guycn1/cinerank-project/commit/b3e3446c13622f825f682b62b9465d172529d345) for tokens and cost, only when null** | A call that never completed reports `0`, which is a lie the totals then sum. [Visible here](screenshots/rs-4-openrouter-down-recs-log.png) – the red row's Tokens and Cost cells, beside successful rows carrying real figures |
 | **Six pre-migration-001 rows were deleted by hand ([`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever))** | Re-adding rows with no token split or duration re-opens the partial-coverage problem the footer was simplified to avoid. `totals.detailed` / `totals.timed` still exist in the response to handle it, but nothing surfaces them |
 
 ## 6. What is safe to change
@@ -237,17 +243,17 @@ This document should not read as *touch nothing*.
   its base and every `rem` inside it that sizes text or a width that text
   wraps in are written `calc(Nrem / var(--type-scale))`. A plain `rem` added
   there would shrink with the rest of the app while the table's text did not.
-* **`--reveal-fade`** — one number, both durations.
+* **`--reveal-fade`** – one number, both durations.
 * **Column widths**, except the Result column's fixed width, which is
   structural.
-* **The breakpoints** (850px, 1040px) — they were chosen by narrowing the window
+* **The breakpoints** (850px, 1040px) – they were chosen by narrowing the window
   until the table stopped fitting, not derived.
 * **Adding a column.** It flows through each table's `select()` and `norm()` in
   the route, a `<th>` in [`public/index.html`](../public/index.html), and in
   [`public/app.js`](../public/app.js) the row builder, a `data-label` for card
   view, and the `colSpan` of the single-line rows (`9` today) and of the Total
   row's trailing note. Nothing about the pinning model needs to know.
-* **The 60-row cap** — but change the dialog's blurb with it
+* **The 60-row cap** – but change the dialog's blurb with it
   ([§ 2](#2-where-the-data-comes-from)).
 
 ## 7. How to tell this document worked
@@ -263,9 +269,9 @@ The brief that commissioned it set the test, and it is a good one:
 
 ## Related
 
-* [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) — the
+* [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) – the
   brief this answers
-* [`DECISIONS.md`](DECISIONS.md) — the twelve entries that carry the reasoning
+* [`DECISIONS.md`](DECISIONS.md) – the fourteen entries that carry the reasoning
   in the form it was recorded:
   [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative),
   [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001),
@@ -277,10 +283,12 @@ The brief that commissioned it set the test, and it is a good one:
   [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9),
   [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along),
   [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
-  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it),
+  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is),
+  [`D-086`](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)
   and
-  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is)
-* [`SECURITY.md` — `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
+  [`D-087`](DECISIONS.md#d-087--an-open-ai-log-reveal-panel-re-flips-on-scroll-within-the-room-the-pinned-rows-leave)
+* [`SECURITY.md` – `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
   which this component answers
 * [`SPEC.md` § 5.2](../SPEC.md#52-recommendation_logs) and
-  [§ 5.3](../SPEC.md#53-taste_verdict_logs) — the two log table schemas
+  [§ 5.3](../SPEC.md#53-taste_verdict_logs) – the two log table schemas
