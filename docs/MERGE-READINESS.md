@@ -284,8 +284,8 @@ fires is the thing this document exists to rule out.
   overwritten: what each sends the model is fixed, byte for byte, even where a
   file was edited so GitHub could display it ([D-084](DECISIONS.md#d-084--prompt-files-write--and--as-entities-for-github-and-the-loader-decodes-them-so-the-models-input-is-unchanged)). A past recommendation or verdict is traceable to the exact prompt
   text that produced it, because the version string is stored on every log row.
-* **Trajectory** – an unbroken commit history from [the very first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), 31
-  merges to `main` as of 2026-10-01 – [the twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the last *planned* one,
+* **Trajectory** – an unbroken commit history from [the very first commit](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), 32
+  merges to `main` as of 2026-10-25 – [the twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the last *planned* one,
   [the twenty-second](https://github.com/guycn1/cinerank-project/commit/94f5325e8b603b990e9355618449b1bc73aacccd) carried a fix for a rendering defect found afterwards on the
   repository's Security tab, [the twenty-third](https://github.com/guycn1/cinerank-project/commit/9050046d63a887bd7689ddd27d56caef77a2f74e) carried the claim-checking gate
   that defect argued for, [the twenty-fourth](https://github.com/guycn1/cinerank-project/commit/bda1898474e0f7868ff8e91ecb10c56385389080) carried a sweep of the claim classes
@@ -300,7 +300,9 @@ fires is the thing this document exists to rule out.
   figures, and [the thirtieth](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync at the course's final
   assessment deadline, carrying defect fixes too, and [the thirty-first](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later
   the same day, carried the defects found on `main` after it, two of them in
-  the text the model receives – and, as of 2026-10-01,
+  the text the model receives, and the thirty-second, on 2026-10-25, carried
+  defects on the deployed site itself, from a hyphen two letters from a word's
+  end to a phone browser leaving a tapped card lit – and, as of 2026-10-25,
   **four** revert commits plus [one reapply](https://github.com/guycn1/cinerank-project/commit/71cc08dabd6f7eda8acbaf59fc9453ac23652476), which is the safety layer
   visibly firing rather than merely existing. *(Counted as commits whose
   subject BEGINS with a revert – `Revert "…"` or `revert(…)`. A subject that

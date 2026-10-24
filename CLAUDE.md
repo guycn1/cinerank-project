@@ -72,6 +72,24 @@ the linking rule's commit and range links. As with the merges before it, the
 figures and notes describing it were written to `draft` first, in one commit,
 and all five gates ran on it before the user confirmed the merge.
 
+The thirty-second merge, on 2026-10-25, is a defect merge (ground 2); the
+Build status note on the thirty-second merge has it. Since the thirty-first,
+`draft` has carried fixes for defects on the deployed site: a six-letter word
+before punctuation hyphenating two letters from its end (D-085), the rate
+dialog opening where the previous film's had been left, a rounded box that
+scrolls losing its corners to its scrollbar (D-086), an AI-log reveal panel
+scrolling out of view or across the pinned rows (D-087), a footer credit
+short of what TMDB's terms require (D-088), a dragged selection carrying its
+soft hyphens (D-089) and, in Samsung Internet, a tapped card left lit and the
+keypad left over the results (D-090); and for claims false on `main` about
+the verdict's job and its prompt, and in D-057. Riding along: the rule beside
+the real verdict, the verdict console harness, the layout-check additions,
+the three passes that brought the copy and the docs into one consistent
+dialect of English, and the sweeps of 2026-10-08, 2026-10-24 and 2026-10-25.
+As with the merges before it, the figures and notes describing it were
+written to `draft` first, in one commit, and all five gates ran on it before
+the user confirmed the merge.
+
 Neither debug harness is loaded by the page: both are pasted into the console
 when wanted (2026-10-24 entry below).
 
@@ -1059,12 +1077,13 @@ carries the current state.
 * Supabase project is live; `db/schema.sql` + migrations `001` to `004`
   all applied.
 * AI call log viewer confirmed working in-browser.
-* As of 2026-10-01, `main` is at the thirty-first merge, a defect fix
-  (ground 2 of the merge rule under Version Control Workflow) made later on
-  the day of the close-out sync (ground 3), which itself came after the latest
-  settled milestone and the defect merges made since it. A close-out sync
-  happens only once, so any later merge is a milestone or a defect fix – no
-  count of those here on purpose, since that set is still open.
+* As of 2026-10-25, `main` is at the thirty-second merge, a defect fix
+  (ground 2 of the merge rule under Version Control Workflow), the second
+  since the close-out sync of 2026-10-01 (ground 3), which itself came after
+  the latest settled milestone and the defect merges made since it. A
+  close-out sync happens only once, so any later merge is a milestone or a
+  defect fix – no count of those here on purpose, since that set is still
+  open.
   - The final PLANNED merge closed the evidence and documentation work
     (2026-09-14); a **twenty-second followed the same day** with one defect fix,
     a **twenty-third on 2026-09-15** carrying the documentation-accuracy work, a
@@ -1076,14 +1095,16 @@ carries the current state.
     the largest accuracy sweep the project had run at that point, a
     **twenty-ninth on 2026-09-21** carrying nineteen claims that were false on
     `main`, a **thirtieth on 2026-10-01**, the close-out sync at the
-    course's final assessment deadline, carrying defect fixes too, and a
+    course's final assessment deadline, carrying defect fixes too, a
     **thirty-first later the same day** carrying the defects found on `main`
-    after it – all ten described at the end of this bullet. Before those, the
+    after it, and a **thirty-second on 2026-10-25** carrying defects on the
+    deployed site itself – all eleven described at the end of this bullet.
+    Before those, the
     milestone was the DOSSIER reconciliation (2026-09-13, `ba702c2`), and before
     that the front-end overhaul completing (2026-09-12, `d47c960`), which is
     where the UI steps closed.
 
-  - **Thirty-one** merges as of 2026-10-01; `git log --merges --oneline main` is the source of
+  - **Thirty-two** merges as of 2026-10-25; `git log --merges --oneline main` is the source of
     truth, do NOT increment a number in a doc without checking it (that is
     exactly how PROCESS.md drifted to a wrong count once already). The same
     number appears in `docs/PROCESS.md` §1 and in `docs/MERGE-READINESS.md` § 5
@@ -1305,6 +1326,38 @@ carries the current state.
     the swallowed placeholders – and each was found by looking at that
     rather than at the text that produced it. The count was again written
     to `draft` first, on the user's instruction.
+
+  - **AND A THIRTY-SECOND ON 2026-10-25 (ground 2).** Its ground is the set
+    of defects live on `main` after the thirty-first, most of them on the
+    deployed site rather than in its documents: "second." hyphenating as
+    "seco-nd." at 320px, and with it any six-letter word before punctuation
+    (D-085), where `main`'s own docs promised no break within three letters
+    of a word's end; the rate dialog opening where the previous film's had
+    been left; a rounded box that scrolls drawing its corners square, in
+    Chromium and in Firefox with always-shown scrollbars (D-086); an open
+    AI-log reveal panel scrolling out of view, or across the pinned rows
+    (D-087); the footer credit short of the notice and logo TMDB's terms
+    require (D-088); a dragged selection carrying every soft hyphen into
+    another app (D-089); and, in Samsung Internet, a tapped card left lit and
+    the keypad left over the results, because that browser reports
+    `hover: hover` on a touchscreen (D-090). Plus the claims false on `main`:
+    the README calling the verdict "teasing" and selling its job short,
+    § Prompt Versioning calling its prompt the lighter of the two, and D-057
+    crediting `SPEC.md` with accessibility work it does not hold. Riding
+    along: the rule beside the real verdict, growing as it types;
+    `scripts/debug-verdict.js`, a console harness for the verdict, never
+    loaded on `main`; `npm run layout-check` checking both shapes of drag and
+    counting letters as `softHyphenate()` does; the wording, punctuation and
+    grammar brought into one consistent dialect of English across the copy
+    and the docs; and the staleness sweeps of 2026-10-08, 2026-10-24 and
+    2026-10-25.
+
+    **The sentence for this one:** the defects that mattered were found by
+    looking at the running app in a real browser on a real device – a
+    screenshot, a phone, a Firefox with its scrollbars always shown – where
+    no gate and no headless run could have seen them, and each fix was
+    settled the same way, by the user's own check in real browsers. The count
+    was again written to `draft` first, on the user's instruction.
 
 ### Implemented
 * Film CRUD: Search (TMDB) → add → rate (0–10, review) → auto-ranked list. Dupe
@@ -6172,7 +6225,7 @@ the real blob from github.com and read that – it is the only authority.
      `main` would be MISINFORMED – a broken render, a claim that misstates the
      state of the work, a wrong figure. Added at the twenty-second merge and
      stated in its own note at the time rather than invented afterwards (Build
-     status, the note on the twenty-second merge). **Merges 22 to 31, which follow `0cdc4ec`,
+     status, the note on the twenty-second merge). **Merges 22 to 32, which follow `0cdc4ec`,
      the final planned one, were all made on this ground – the thirtieth as
      well, though its reason was ground 3 – and no merge has ever been made on
      grounds outside this list.** Written as a closed range rather than a COUNT

@@ -25,8 +25,8 @@ the reasoning. Rules that keep this honest live in
   `main`. [The 30th](https://github.com/guycn1/cinerank-project/commit/c330a2cdb88d8a9731566b783cda51ee0be73e53) was the close-out sync, made at the course's final assessment
   deadline on 2026-10-01, and it carried such fixes too; a close-out sync
   happens only once, so any later merge is a milestone or a defect fix, and
-  [the 31st](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later that day, was a defect fix.
-  Thirty-one merges to `main` as of 2026-10-01 (verify with
+  [the 31st](https://github.com/guycn1/cinerank-project/commit/65a9a47bdee194dfcd547eb15028d2d6e9387905), later that day, and the 32nd, on 2026-10-25, were defect fixes.
+  Thirty-two merges to `main` as of 2026-10-25 (verify with
   `git log --merges --oneline main`), each a deliberate decision. [The
   twenty-first](https://github.com/guycn1/cinerank-project/commit/0cdc4eca14207a889af0fe1f7a10d6c099344b2e) was the final *planned* one rather than a guarantee that no more
   would follow – and [the twenty-second](https://github.com/guycn1/cinerank-project/commit/94f5325e8b603b990e9355618449b1bc73aacccd), later the same day, is that distinction
@@ -72,7 +72,14 @@ the reasoning. Rules that keep this honest live in
   a list item, a seed script re-rating a film it promised to leave alone, and
   two defects in the text the model receives – a review containing `$&`
   reaching it as a placeholder's name, and a review cut through an emoji
-  reaching it as half of one.
+  reaching it as half of one. The thirty-second, on 2026-10-25, stands on the
+  same ground, and its defects were on the deployed site rather than in its
+  documents: a six-letter word before punctuation hyphenated two letters from
+  its end, a rounded box that scrolls drew its corners square, a touchscreen
+  browser that reports a hovering pointer left a tapped card lit and the
+  keypad over the results, a dragged selection carried its soft hyphens into
+  the drop target, and the footer credit fell short of the notice and logo
+  TMDB's terms require.
 - **Secrets never enter code.** `.env` did not exist in [commit 1](https://github.com/guycn1/cinerank-project/commit/a93326c78b06b538b0dc91751862fdebbbfebaf3), a one-line
   README that the user checked by hand and that holds no secret, and it is
   gitignored from [commit 2](https://github.com/guycn1/cinerank-project/commit/103c4be276638e608aa8d4f67ae1cf091b371bf9), the first with project content; a pre-commit
