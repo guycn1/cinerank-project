@@ -583,7 +583,7 @@ file: merges, tests, gates, captures, prompt versions, models, dependencies,
 reverts. **Attention had been going where verification was already cheap.**
 
 So: **a count is safest when it names its members.** Several now do – the gate
-list, the twelve decision entries behind the AI call log, the five RS states whose
+list, the fourteen decision entries behind the AI call log, the five RS states whose
 second frame is an audit-trail shot. A named list is falsified by reading it; a
 bare numeral is falsified only by someone independently recounting, which nobody
 does.

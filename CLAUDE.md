@@ -3961,6 +3961,10 @@ resting opacity, the transition and the hover glow, while
 `.site-head .gh-link` holds the grid placement and `--gh-drop`, and
 `.site-foot__credit .gh-link` holds a `font-size` and the `--gh-halo` dial
 described below. Those two are the only differences between the two marks.
+*(Since 2026-10-21 (D-088) the footer mark is a fixed 20px rather than
+`1.5rem`, and `.site-foot__credit .gh-link` holds a placement of its own as
+well: a `margin-top` that sets its glyph level with the top of the credit, the
+same correction the header's `--gh-drop` margin makes against its title.)*
 
 **The hover halo moved from px to `em` as part of that**, and the conversion
 is arithmetic rather than a retune: `22px`/`46px` divided by the header's

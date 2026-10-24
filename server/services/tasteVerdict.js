@@ -84,7 +84,7 @@ export { TasteVerdictError };
  * prompt declares to be untrusted data.
  *
  * @param {{ title: string, rating: number, review: string | null }} movie
- * @returns {string} e.g. `- "Heat" – 9/10; review: <<...>>`, the review cut at
+ * @returns {string} e.g. `- "Heat" — 9/10; review: <<...>>`, the review cut at
  *   200 characters.
  */
 function line(movie) {

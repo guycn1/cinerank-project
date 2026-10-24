@@ -409,7 +409,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
        .verdict__refresh:hover rather than inventing a third set.
 
        In `em`, NOT px, so one rule serves both instances: the footer mark is
-       22px against the header's 36–63px, up to nearly three times smaller, and
+       20px against the header's 36–63px, up to more than three times smaller, and
        a fixed 46px halo tuned for the header would have swallowed it whole.
        These are the user's own hand-tuned 22px and 46px
        divided by the header's 63px font-size, so the header is unchanged to
@@ -823,8 +823,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 /* The real verdict only – a half-step off white plus a touch of tracking.
    `is-muted` marks every placeholder and the error fallback; those share the
-   base font-size above but are `--ink-dim`, italic and untracked (the rule
-   below). */
+   base font-size above but are `--ink-dim`, italic and untracked
+   (`.verdict__text.is-muted`, below). */
 .verdict__text:not(.is-muted) {
   color: var(--ink-soft);
   letter-spacing: 0.1px;
@@ -1952,8 +1952,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 
 /* Ranked list, narrow viewports. Lives HERE, beside the rules it modifies, as
    the file's other section-specific width queries do (the header's 400px, the
-   verdict's 680px, the search section's 500px and 300px, the footer CTA's
-   620px, the log table's 1040px and 850px, the toast's 700px and 500px). The
+   verdict's 680px, the search section's 500px and 300px, the footer credit's
+   850px and its CTA's 620px, the log table's 1040px and 850px, the toast's
+   700px and 500px). The
    file-wide reduced-motion block at the end and the 400px hyphenation toggle,
    placed after all four rules it overrides, sit elsewhere on purpose.
    While this block sat far from here, under "utilities", the poster overflow
@@ -3243,8 +3244,9 @@ body:has(dialog[open]) { overflow: hidden; }
     0 2px 32px 0 rgba(255, 255, 255, 0.21),
     0 18px 44px -8px rgba(0, 0, 0, 0.95);
 }
-/* Flipped above the trigger when there is no room below (class set on toggle
-   by revealDetails() in app.js, which has to measure the panel's height). */
+/* Flipped above the trigger when there is no room below (class set by the
+   measurement in revealDetails() in app.js – on open, on resize and as the
+   log scrolls – which has to measure the panel's height). */
 .log-reveal--above ul,
 .log-reveal--above p {
   top: auto;

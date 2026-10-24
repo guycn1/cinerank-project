@@ -70,9 +70,10 @@ What they cannot read is which of its apparently arbitrary choices are load-bear
 To stop the next change from silently undoing a fix. This component packs a lot
 of non-obvious decision into little code: one short route file, five cell
 builders in [`public/app.js`](../public/app.js) (`cell`, `abbrCell`,
-`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet and **twelve decision-log entries** behind them –
+`modelCell`, `timeCell`, `resultCell`), one section of the stylesheet and **fourteen decision-log entries** behind them –
 [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative), [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001), [`D-018`](DECISIONS.md#d-018--route--resilience-tests-without-touching-the-live-db), [`D-019`](DECISIONS.md#d-019--six-pre-migration-log-rows-deleted-rather-than-annotated-forever), [`D-020`](DECISIONS.md#d-020--the-ai-log-table-view-is-frozen-card-view-work-must-prove-it-cant-touch-it),
-[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history), [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it), [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is). *(The twelve are named rather than counted so the figure can be checked, and
+[`D-022`](DECISIONS.md#d-022--the-ai-log-total-row-rides-on-a-curtain-not-on-a-sticky-tfoot), [`D-023`](DECISIONS.md#d-023--the-reveal-panel-fade-animates-the-panel-never-details-content), [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9), [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along), [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history), [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it), [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is),
+[`D-086`](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls), [`D-087`](DECISIONS.md#d-087--an-open-ai-log-reveal-panel-re-flips-on-scroll-within-the-room-the-pinned-rows-leave). *(The fourteen are named rather than counted so the figure can be checked, and
 so [`check-claims`](../scripts/check-claims.js) resolves each one.)*
 
 Several of its rules look like they could be simplified and cannot.
@@ -113,11 +114,14 @@ could be a border. The reveal panel's fade looks like it could live on
 Not merely mention. For each, the alternative that was tried first and why it
 failed:
 
-* **[The dialog is the single scroller](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce), not the table.**
+* **[One box is the single scroller](https://github.com/guycn1/cinerank-project/commit/32fb5059d98d39aec4cec3689a4dc68ee179c3ce), not the table** – the dialog at
+  first, and since
+  [D-086](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)
+  `.log-pane` inside it, while the rounded dialog only clips.
   [An earlier version](https://github.com/guycn1/cinerank-project/commit/5d3ee8b10c3f3c894b0212955a589cfe1cfb3303) scrolled a flex-sized inner box, which collapsed to nothing on a short
   viewport.
 * **[`.log-curtain` exists](https://github.com/guycn1/cinerank-project/commit/58f787b37280acc80ca9018826e9ee6d201058ad) because a sticky `<tfoot>` alone cannot reach the
-  dialog's bottom edge** – it is clamped by its own containing block, so rows
+  scroller's bottom edge** – it is clamped by its own containing block, so rows
   peeked under it mid-scroll.
 * **The totals divider is [painted as background gradients](https://github.com/guycn1/cinerank-project/commit/f811a5d14ee18c95ae175a2634c405abd63bdd48)**, not a border (the
   collapsed-border layer leaves it behind on pin) and not a shadow (webkit does

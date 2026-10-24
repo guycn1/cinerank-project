@@ -133,13 +133,17 @@ All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com
 exactly as valid as evidence today as it was then.
 
 The front end has had minor changes since, nearly all of them cosmetic. The
-three that changed behaviour fixed states no capture shows: the rate dialog's
+five that changed behaviour fixed states no capture shows: the rate dialog's
 review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
-one film's size and scroll position into the next, the verdict banner
+one film's size and scroll position into the next, and the dialog itself
+[opens at its top](https://github.com/guycn1/cinerank-project/commit/59c87f48d62dd432e9e9a824b392f36881325226)
+for every film; the verdict banner
 [keeps a run's message](https://github.com/guycn1/cinerank-project/commit/9f096dcc16733a1f4838c652fcfeb867bc3aedb7)
-when a film is added or rated mid-request, and the no-matches note
+when a film is added or rated mid-request; the no-matches note
 [never echoes half an emoji](https://github.com/guycn1/cinerank-project/commit/ee569cbd7f8138f90392fb486fa9732b2783da6c)
-when it cuts a long query short. None changes a state, a message or a figure that a capture exists
+when it cuts a long query short; and an open reveal panel in the AI call log
+[re-flips as the log scrolls](https://github.com/guycn1/cinerank-project/commit/cdd0a3267eab55d458dc4d17fe3c9f7c49ba93e4),
+clear of the pinned rows. None changes a state, a message or a figure that a capture exists
 to show, so none undermines the evidence any frame provides, and no frame
 differs from the current interface in any way that matters for what it
 demonstrates. Cosmetic examples, not a complete list: the type was

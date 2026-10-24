@@ -106,7 +106,7 @@ export { RecommendationError };
  * then verified against TMDB before the user ever sees it.
  *
  * @param {{ title: string, year: number | null, rating: number, review: string | null }} movie
- * @returns {string} e.g. `- "Heat" (1995) – rated 9/10; review: <<...>>`, the
+ * @returns {string} e.g. `- "Heat" (1995) — rated 9/10; review: <<...>>`, the
  *   review collapsed to one line and cut at 300 characters.
  */
 function line(movie) {

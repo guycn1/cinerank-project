@@ -271,7 +271,7 @@ The brief that commissioned it set the test, and it is a good one:
 
 * [`BRIEFS.md` § 2](BRIEFS.md#2-documentation-brief--the-ai-call-log) – the
   brief this answers
-* [`DECISIONS.md`](DECISIONS.md) – the twelve entries that carry the reasoning
+* [`DECISIONS.md`](DECISIONS.md) – the fourteen entries that carry the reasoning
   in the form it was recorded:
   [`D-003`](DECISIONS.md#d-003--cost-logging-is-structural-not-decorative),
   [`D-010`](DECISIONS.md#d-010--in-app-ai-call-log--failure-logging-migration-001),
@@ -283,9 +283,11 @@ The brief that commissioned it set the test, and it is a good one:
   [`D-047`](DECISIONS.md#d-047--a-failure-may-only-offer-the-ai-call-log-when-a-row-was-actually-written-r8-r9),
   [`D-069`](DECISIONS.md#d-069--the-ai-call-log-overclaimed-its-own-coverage-for-the-whole-life-of-the-feature-and-the-spec-had-it-right-all-along),
   [`D-070`](DECISIONS.md#d-070--log-rows-that-misnamed-their-model-were-deleted-by-hand-not-preserved-as-history),
-  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)
+  [`D-079`](DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it),
+  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is),
+  [`D-086`](DECISIONS.md#d-086--a-rounded-box-never-scrolls-itself-it-clips-and-a-square-box-inside-it-scrolls)
   and
-  [`D-082`](DECISIONS.md#d-082--the-card-views-total-card-is-not-pinned-only-the-table-views-total-row-is)
+  [`D-087`](DECISIONS.md#d-087--an-open-ai-log-reveal-panel-re-flips-on-scroll-within-the-room-the-pinned-rows-leave)
 * [`SECURITY.md` – `ASI09`](SECURITY.md#asi09--human-agent-trust-exploitation),
   which this component answers
 * [`SPEC.md` § 5.2](../SPEC.md#52-recommendation_logs) and

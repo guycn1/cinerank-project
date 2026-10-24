@@ -268,7 +268,7 @@ for (const file of markdownFiles(root)) {
   // GitHub's renderer treats anything shaped like an HTML tag as HTML. One it
   // does not allow is either escaped or DROPPED, and nothing in the source says
   // which: the RS-8 recipe's “<query>” displayed as an empty pair of quotes,
-  // while “<Title>” two recipes away happened to survive, and the recommendation
+  // while “<Title>” in the RS-2 and RS-11 recipes happened to survive, and the recommendation
   // prompts' "<movie title>" displayed as "". Found only by reading GitHub's own
   // rendering (2026-10-01). So no raw tag at all, allowed or not: write a literal
   // angle bracket as &lt; / &gt;, or put the text in a code span. No file is
