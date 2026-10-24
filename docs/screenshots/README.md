@@ -132,25 +132,15 @@ without leaving the frame.
 All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com/guycn1/cinerank-project/compare/3ccf020884e83f3b565a028b333bcce1ec8d85ab...233d1df368674127589bf559048445ae8b0010c7), and every one is
 exactly as valid as evidence today as it was then.
 
-The front end has had minor changes since, nearly all of them cosmetic. The
-ones that changed behaviour fixed states no capture shows: the rate dialog's
-review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
-one film's size and scroll position into the next, and the dialog itself
-[opens at its top](https://github.com/guycn1/cinerank-project/commit/59c87f48d62dd432e9e9a824b392f36881325226)
-for every film; the verdict banner
-[keeps a run's message](https://github.com/guycn1/cinerank-project/commit/9f096dcc16733a1f4838c652fcfeb867bc3aedb7)
-when a film is added or rated mid-request; the no-matches note
-[never echoes half an emoji](https://github.com/guycn1/cinerank-project/commit/ee569cbd7f8138f90392fb486fa9732b2783da6c)
-when it cuts a long query short; and an open reveal panel in the AI call log
-[re-flips as the log scrolls](https://github.com/guycn1/cinerank-project/commit/cdd0a3267eab55d458dc4d17fe3c9f7c49ba93e4),
-clear of the pinned rows. None changes a state, a message or a figure that a capture exists
-to show, so none undermines the evidence any frame provides, and no frame
-differs from the current interface in any way that matters for what it
-demonstrates. Cosmetic examples, not a complete list: the type was
-[scaled to 92%](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954) ([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)),
-the content column [narrowed from 1080px to 1040px](https://github.com/guycn1/cinerank-project/commit/39387c4b2428d89718e8ae719ea3c374de6cbf88), and the AI call
-log's single-line state – the sentence in [`rs-12`](rs-12-log-cannot-load.png) –
-[moved one colour tier brighter](https://github.com/guycn1/cinerank-project/commit/7b210629b198659e0cfe6247b80fb7a3824b8532), from `--ink-faint` to `--ink-dim`.
+The front end has had minor changes since, nearly all of them cosmetic, such
+as the type being [scaled to 92%](https://github.com/guycn1/cinerank-project/commit/142eadc88dab8f4717f8b94ca0fada42dc464954)
+([`D-079`](../DECISIONS.md#d-079--the-type-scale-is-one-root-percentage-and-the-ai-call-log-table-and-the-tie-caption-are-exempt-from-it)).
+The few that changed behaviour fixed states no capture shows, such as the rate
+dialog now [opening at its top](https://github.com/guycn1/cinerank-project/commit/59c87f48d62dd432e9e9a824b392f36881325226)
+for every film. These are examples, not a list, and this section does not
+try to keep one: `git log -- public/` is the record. Whether named here or
+not, no change alters a state, a message or a figure that a capture exists to
+show, so none undermines the evidence any frame provides.
 
 The interface's copy has also been brought into one consistent dialect of
 English ([on 2026-10-18](https://github.com/guycn1/cinerank-project/commit/b0f8abd71614acf756da9afe82d974f9e6570a14)), so a frame may show a word the app no longer uses, such as "movie"
