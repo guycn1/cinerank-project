@@ -186,7 +186,10 @@ a:hover { text-decoration: underline; }
    NOTE the one control this does NOT reach: `.search input:focus` sets
    `outline: none` at (0,2,0) and outranks this (0,1,0). That is intentional –
    a focused text field with a caret and an amber border is already unambiguous,
-   and a ring around a full-width input is heavy. */
+   and a ring around a full-width input is heavy.
+   The rate dialog's review box draws this same ring on its `.review-box`
+   wrapper rather than on the textarea, which the wrapper would clip (D-086).
+   It restates both values, so a change here is made there too. */
 :focus-visible {
   outline: 2px solid var(--amber);
   outline-offset: 3px;
@@ -822,7 +825,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   overflow-wrap: anywhere;
   hyphens: none;
 }
-/* The real verdict only – a half-step off white plus a touch of tracking.
+/* The real verdict only – a half-step off white plus a touch of tracking, and
+   room on its left for the rule below.
    `is-muted` marks every placeholder and the error fallback; those share the
    base font-size above but are `--ink-dim`, italic and untracked
    (`.verdict__text.is-muted`, below). */
@@ -983,8 +987,8 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    longer in the box. `type="search"` stays for the semantics and the mobile
    keyboard's Search key – this drops only the chrome. */
 .search input::-webkit-search-cancel-button { appearance: none; -webkit-appearance: none; }
-/* The magnifier only exists below the narrow breakpoint (see the
-   `@media (max-width: 500px)` block below). */
+/* The magnifier shows only at 500px and below (the
+   `@media (max-width: 500px)` block further down). */
 .search-btn__icon { display: none; width: 1.15em; height: 1.15em; vertical-align: -0.22em; }
 .search button {
   /* Never squeezed by the input beside it: a flex item's automatic minimum size
@@ -3392,7 +3396,7 @@ body:has(dialog[open]) { overflow: hidden; }
    whether the log is loading, empty or failed to load (D-052's rule). */
 .log-empty { padding: 2rem; text-align: center; color: var(--ink-dim); }
 
-/* ---- mid range: claw back horizontal space (cell + dialog padding, Result
+/* ---- mid range: claw back horizontal space (cell + pane padding, Result
         width) so the full table survives further down before cards kick in. ---- */
 @media (max-width: 1040px) {
   .log-dialog { --log-curtain-h: 1.25rem; }

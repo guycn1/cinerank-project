@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-24
+**Last updated:** 2026-10-25
 
 ### Current state
 
@@ -76,6 +76,22 @@ Neither debug harness is loaded by the page: both are pasted into the console
 when wanted (2026-10-24 entry below).
 
 ### What landed, newest first
+
+#### 2026-10-25
+
+**WHAT LANDED ON 2026-10-25: A staleness and consistency sweep of every
+markdown file and every code comment against what landed after the
+thirty-first merge.** Every count, figure, section and line reference checked
+against the tree, the tools' output and `git log`, and every change since the
+merge followed to everything that describes it. Corrected:
+- **Left short by D-086:** The focus-ring note in the stylesheet now says the
+  review box draws the same ring on its wrapper and restates its values; the
+  1040px log block's padding is the pane's, not the dialog's, there and under
+  Responsive below.
+- **Left short by the verdict's rule (2026-10-14):** the comment on
+  `.verdict__text:not(.is-muted)` now names the room it leaves for the rule.
+- **Inexact:** the magnifier "only exists below" 500px, where the query
+  includes 500px.
 
 #### 2026-10-24
 
@@ -1657,7 +1673,8 @@ and stay as written.
     `9.5rem` → `8rem`.
   - **Responsive**: Full table down to **~850px** (card `@media` breakpoint),
     helped by a mid-range `@media (max-width: 1040px)` that tightens cell padding
-    `0.45→0.28rem`, dialog padding `1.5→0.85rem` and the Result column
+    `0.45→0.28rem`, the side padding `1.5→0.85rem` (the dialog's until D-086,
+    `.log-pane`'s since) and the Result column
     `8→7rem`. No horizontal scrollbar at any width ≥ ~300px. ≤ 850px → one card
     per call (label/value rows via `td::before { content: attr(data-label) }`;
     `thead` hidden; abbreviations swapped back to full text via
