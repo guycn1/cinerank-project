@@ -133,7 +133,7 @@ All thirty-seven were [captured on 2026-09-13 and 2026-09-14](https://github.com
 exactly as valid as evidence today as it was then.
 
 The front end has had minor changes since, nearly all of them cosmetic. The
-five that changed behaviour fixed states no capture shows: the rate dialog's
+ones that changed behaviour fixed states no capture shows: the rate dialog's
 review box [no longer carries](https://github.com/guycn1/cinerank-project/commit/f5737f9f975e05656c98186417feaa6af7029b65)
 one film's size and scroll position into the next, and the dialog itself
 [opens at its top](https://github.com/guycn1/cinerank-project/commit/59c87f48d62dd432e9e9a824b392f36881325226)

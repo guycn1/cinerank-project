@@ -1,14 +1,17 @@
 /**
  * @file CineRank – taste-verdict UI debug harness. DEV ONLY.
  *
- * LOADED BY THE PAGE ON draft, for now: a <script> tag at the bottom of
- * public/index.html and a route in server/index.js that serves this file
- * (scripts/ is outside the static root). Both are marked TEMPORARY and come out
- * in the last commit before the next draft -> main merge; this file stays, and
- * can then be pasted into the console instead, as scripts/debug-recs.js is.
- * On the deployed host it refuses to install at all.
+ * NOT LOADED BY THE PAGE. Paste this whole file into the browser console to use
+ * it, as with scripts/debug-recs.js. On the deployed host it refuses to install
+ * at all.
  *
- * Use it from the browser console:
+ * It WAS loaded automatically while the verdict's layout was worked on, by two
+ * lines removed on 2026-10-24: a `<script>` tag at the bottom of
+ * public/index.html and a route in server/index.js serving this file (scripts/
+ * is not inside the static root, so it needed an explicit one). Verified after
+ * removal: That path answers 404 and the served HTML no longer mentions it.
+ *
+ * Once pasted, use it like this:
  *
  *     debugVerdict(10)   // "New verdict" now yields the first 10 words of lorem ipsum
  *     debugVerdict(60)   // ...or 60. Any whole number from 1 up.

@@ -380,6 +380,17 @@ The first two mitigations are now redundant and are kept regardless. They cost
 nothing, and a control that only works while someone remembers to remove a line is
 exactly the shape this risk describes.
 
+**The verdict's own harness,
+[`scripts/debug-verdict.js`](https://github.com/guycn1/cinerank-project/blob/main/scripts/debug-verdict.js),
+was [built with both safeguards from the start](https://github.com/guycn1/cinerank-project/commit/a2327fc09392be3a8e653a9d87ec07827d1d992a)
+(2026-10-08).** It starts every page load disarmed and intercepts nothing until
+`debugVerdict()` is called, and it refuses to install when the hostname ends in
+`onrender.com`. `draft` loaded it on every page while the verdict's layout was
+worked on, through the same two kinds of line, and both were removed on
+2026-10-24 and verified the same way: `/debug-verdict.js` answers 404 and the
+served HTML contains no reference to it. Like `debug-recs.js`, the file stays
+in `scripts/` and is used only by pasting it into a console.
+
 **Build.** Nothing reaches `main` without explicit human confirmation, and `main`
 is never pushed to directly.
 

@@ -26,7 +26,7 @@ Refer to SPEC.md §7 for the full acceptance checklist. In short: a user can sea
 "where are we, what's broken, what's next". The detailed *why* behind each choice
 lives in `docs/DECISIONS.md`; this is the *what / now*.
 
-**Last updated:** 2026-10-21
+**Last updated:** 2026-10-24
 
 ### Current state
 
@@ -72,21 +72,24 @@ the linking rule's commit and range links. As with the merges before it, the
 figures and notes describing it were written to `draft` first, in one commit,
 and all five gates ran on it before the user confirmed the merge.
 
-**BEFORE THE NEXT `draft` → `main` MERGE, UNLOAD THE VERDICT DEBUG HARNESS**
-(the user's ruling, 2026-10-08). `draft` loads `scripts/debug-verdict.js` on
-every page through two lines, both marked TEMPORARY: the `<script>` tag at the
-bottom of `public/index.html` and the route serving the file in
-`server/index.js`. They stay on `draft` so the verdict's layout can be tested
-locally without paid calls, and come out in the last commit before that merge.
-The harness file stays, as `scripts/debug-recs.js` did when its own loading
-lines were removed. In the same commit, the harness's entry under Implemented
-and the file's own header stop saying the page loads it, the TEMPORARY sentence
-in `server/index.js`'s module header goes with the route, and
-`docs/SECURITY.md`'s ASI10 section, which covers `debug-recs.js` alone, gains
-the verdict harness and its two safeguards (disarmed on every load, never
-installed on the live host).
+Neither debug harness is loaded by the page: both are pasted into the console
+when wanted (2026-10-24 entry below).
 
 ### What landed, newest first
+
+#### 2026-10-24
+
+**WHAT LANDED ON 2026-10-24: The verdict debug harness is unloaded** (the
+user's call, brought forward from the 2026-10-08 ruling that it would stay
+loaded on `draft` until just before the next merge). The two lines that loaded
+`scripts/debug-verdict.js` on every page are gone: the `<script>` tag at the
+bottom of `public/index.html` and the route serving the file in
+`server/index.js`, whose module header again counts two inline routes. The
+file stays, as `scripts/debug-recs.js` did, and is pasted into the console to
+use; its header and the entry under Implemented now say so, and
+`docs/SECURITY.md`'s ASI10 section covers it beside `debug-recs.js`. Verified
+live on a throwaway port: `/debug-verdict.js` answers 404, the page answers
+200, and the served HTML no longer mentions it.
 
 #### 2026-10-21
 
@@ -217,7 +220,8 @@ cuts: over 24,168 texts they produce, it only ever removed soft hyphens.
 **Same day: `scripts/debug-verdict.js`, a console harness for the verdict**
 (user-asked), so the banner's layout can be tested without paid calls; the
 entry under Implemented describes it. The page loads it on `draft` until the
-last commit before the next merge (Current state).
+last commit before the next merge. *(Unloaded earlier than that, on
+2026-10-24, on the user's call; see that day's entry.)*
 
 **And the silver rule was retracted by the user**, pending their own further
 testing. The stylesheet no longer carries it.
@@ -1467,11 +1471,11 @@ carries the current state.
   - **Two differences from a real verdict, on purpose:** The text skips
     `tidyVerdict()`'s 450-character ceiling, so N can go past anything the model
     produces, and it ends at the Nth word with no full stop.
-  - **Unlike `debug-recs.js`, the page loads it, on `draft` only:** a
-    `<script>` tag at the bottom of `public/index.html` and a route in
-    `server/index.js`, both marked TEMPORARY, which come out before the next
-    merge (Current state). After that it is pasted into the console like
-    `debug-recs.js`.
+  - **It is not loaded by the page:** Paste the file into the console, like
+    `debug-recs.js`. From 2026-10-08 to 2026-10-24 `draft` loaded it on every
+    page through a `<script>` tag at the bottom of `public/index.html` and a
+    route in `server/index.js`; both are gone, verified live (`/debug-verdict.js`
+    answers 404 and the served HTML no longer mentions it).
 * **`npm run layout-check` – the real UI in real headless browsers, for any
   layout change** (2026-09-28, generalised from the harness that verified D-079
   to D-081 and the 1040px width). It serves `public/` itself and answers every
