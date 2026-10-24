@@ -104,6 +104,18 @@ WebKit, against a blocked-handler control; links and images drag unchanged.
 `npm run layout-check` now checks both shapes of drag, and breaking either
 branch alone fails it. The user confirmed it in real Chrome and Firefox.
 
+**Same day: The hover effects and the keypad fix ask for a fine pointer too
+(D-090)** (user-found, in Samsung Internet on an Android phone). Tapping a
+card left its spotlight on, and the keyboard's own Search key left the keypad
+over the results; Chrome and Brave on the same phone did neither. One cause:
+Samsung Internet reports `hover: hover` on a touchscreen, and both features
+asked only that. A probe page the user ran there read `pointer: coarse`
+correctly, so the four hover gates in the stylesheet are now
+`(hover: hover) and (pointer: fine)` and `dismissSoftKeyboard()` blurs unless
+that matches. The same probe showed the keypad closing on a blur there. Chrome,
+Edge and Firefox on the desktop match both, so they are unchanged; the user
+confirmed it in real Chrome and Firefox.
+
 #### 2026-10-21
 
 **WHAT LANDED ON 2026-10-21: TMDB's attribution is the footer's credit
@@ -2051,7 +2063,10 @@ further is scheduled for this section.
   order (focus lands on `<body>`, so the next Tab restarts from the top of the
   document), so desktop is provably unchanged. The case it fixes is the
   keyboard's own Go/Search key, which submits without moving focus – tapping
-  the Search button already blurred the input by itself.
+  the Search button already blurred the input by itself. *(Since 2026-10-24
+  (D-090) it blurs unless `(hover: hover) and (pointer: fine)` matches:
+  Samsung Internet reports `hover: hover` on a touchscreen, so the old gate
+  never blurred there and the keypad stayed up.)*
 
 #### Ranked list
 
@@ -2569,7 +2584,10 @@ status is further down this section. What landed:
   solid. Hover rules are gated on `@media (hover: hover)` (NOT a width query)
   so a tap on a phone cannot park a card in the grown state, and
   `prefers-reduced-motion` now drops the transform while keeping the colour
-  response.
+  response. *(Since 2026-10-24 (D-090) every hover gate is
+  `(hover: hover) and (pointer: fine)`: Samsung Internet reports
+  `hover: hover` on a touchscreen, so a tap there parked the card grown and
+  the spotlight on.)*
 
 - **A rated film with no review says so** (#20, the last item, user-added).
   `No review yet – edit to add one.`, italic and a step fainter than a real
@@ -2715,6 +2733,14 @@ which is right for the pointer it calls primary.
 The case that actually needed it is the keyboard's own **Go/Search** key,
 which submits without moving focus; tapping the Search BUTTON already blurred
 the input by itself.
+
+*(A gap found and fixed on 2026-10-24 (D-090): Samsung Internet reports
+`hover: hover` on a touchscreen, so `(hover: none)` never matched there, the
+blur never ran and the keypad stayed over the results, while Chrome and Brave
+on the same phone closed it. The blur itself works there, so the gate changed
+rather than the mechanism: `dismissSoftKeyboard()` now blurs unless
+`(hover: hover) and (pointer: fine)` matches, the same query the hover rules
+now use. Desktop is unchanged, since a mouse or trackpad matches both.)*
 
 ##### Step 2 – the recommendations sub-backlog (R1–R30)
 
@@ -3961,7 +3987,8 @@ name outright, so the title is never announced. Do not merge them.
 `border-radius: 50%` on the link so the halo is round like the mark itself; a
 rectangular glow around a circular glyph reads as a stray box. Hover is gated
 on `@media (hover: hover)`, the capability query the card hovers settled, so
-a tap cannot park the icon lit.
+a tap cannot park the icon lit. *(`(hover: hover) and (pointer: fine)` since
+2026-10-24, D-090.)*
 
 **One dial considered and left unset:** The user raised
 `filter: brightness(1.x)` as a possible "more than fully opaque" step, then

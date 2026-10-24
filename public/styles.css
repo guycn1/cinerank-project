@@ -394,8 +394,9 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
 }
 
 /* Gated on the CAPABILITY, never a width (the rule the card hovers settled), so
-   a tap on a phone cannot park the icon in its lit state. */
-@media (hover: hover) {
+   a tap on a phone cannot park the icon in its lit state. `pointer: fine` as
+   well as `hover: hover` – see the ranked card's hover for why (D-090). */
+@media (hover: hover) and (pointer: fine) {
   .gh-link:hover {
     opacity: 1;
     /* Built out of LIGHT, not black. On --bg #0b0b0f a black shadow has nothing
@@ -1401,10 +1402,14 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    be bright. What must NOT happen is this turning into a hard-edged, opaque
    amber line at the same offset – then the two genuinely converge.
 
-   `@media (hover: hover)`, not a width query: on a touch screen `:hover` sticks
-   after a tap until you tap elsewhere, which would leave a card parked in the
-   grown state after pressing Edit. This gates on the INPUT having real hover, so
-   a narrow desktop window keeps the effect and card mode's LAYOUT is untouched.
+   `@media (hover: hover) and (pointer: fine)`, not a width query: on a touch
+   screen `:hover` sticks after a tap until you tap elsewhere, which would leave
+   a card parked in the grown state after pressing Edit. This gates on the INPUT
+   having real hover, so a narrow desktop window keeps the effect and card
+   mode's LAYOUT is untouched. `hover: hover` alone is not enough: Samsung
+   Internet reports it on a touchscreen, while reporting `pointer: coarse`
+   correctly, so the pair is what tells a mouse from a finger there (D-090).
+   A mouse or trackpad matches both, so desktop is unchanged.
 
    The overlap is safe and not by luck: a transform makes the hovered card a
    stacking context, so it paints ABOVE its non-transformed siblings and the
@@ -1414,7 +1419,7 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
    widest card (about 966px inside the 1040px `--page-max`) adds under 10px per
    side against a 36.8px gutter there. Re-check this arithmetic if the scale is
    ever raised much beyond 1.02, or the gutter narrowed. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .movie-card:hover {
     transform: scale(1.02);
     border-color: rgba(245, 193, 91, 0.5);
@@ -1471,8 +1476,10 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
      exactly as the hover transform did. Same bug, different property.
 
      0.55 is the dial. Contrast is not a concern at rest: this state exists only
-     while a pointer is over the list, and `:hover` never fires for keyboard
-     users, so nothing a screen reader or a tabbing user encounters is dimmed. */
+     while a pointer is over the list – a mouse or trackpad, under this block's
+     gate, never a finger that has lifted (D-090) – and `:hover` never fires for
+     keyboard users, so nothing a screen reader or a tabbing user encounters is
+     dimmed. */
   .ranked__list:has(.movie-card:hover) .movie-card:not(:hover) { opacity: 0.55; }
 }
 
@@ -1603,12 +1610,12 @@ main { max-width: var(--page-max); margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2
   box-shadow: 0 10px 24px -12px rgba(0,0,0,0.8);
   transition: transform 0.3s var(--ease);
 }
-/* Same `hover: hover` gate as the card's own hover, for the same reason: on a
+/* Same capability gate as the card's own hover, for the same reason: on a
    touch screen this would otherwise stay applied after a tap. Kept at 1.04 even
    though the card now scales too – the two compound to ~1.06 on the poster,
    which is the point. The poster is the design's primary visual anchor, so it
    should still lead the effect rather than move in lockstep with its card. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .movie-card:hover .movie-card__poster { transform: scale(1.04) rotate(-0.6deg); }
 }
 
@@ -2440,10 +2447,10 @@ button:disabled .sparkle-major { animation: none; }
    The glow's own size is not part of that arithmetic however far it is pushed –
    a box-shadow is ink overflow, which never contributes scrollable overflow.
 
-   `@media (hover: hover)`, never a width query: on a touch screen `:hover`
-   sticks after a tap until you tap elsewhere, which would park a card in the
-   grown state after pressing its Add button. */
-@media (hover: hover) {
+   `@media (hover: hover) and (pointer: fine)` (D-090), never a width query: on
+   a touch screen `:hover` sticks after a tap until you tap elsewhere, which
+   would park a card in the grown state after pressing its Add button. */
+@media (hover: hover) and (pointer: fine) {
   .rec-card:hover {
     transform: scale(1.018);
     border-color: rgba(245, 193, 91, 0.5);

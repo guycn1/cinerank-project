@@ -1160,19 +1160,21 @@ function closeSearchResults() {
  * whole mechanism. Pressing the keyboard's own Go/Search key is the case that
  * needs it: tapping the Search BUTTON moves focus off the input by itself.
  *
- * Gated on `(hover: none)` – a capability query, exactly as the hover rules in
- * styles.css are, never a width. On a pointer device there is no soft keyboard
- * to close, so a blur would only cost the user their caret and reset the tab
- * order to the top of the document; desktop is provably unchanged. A device
- * with a real pointer AND a touch screen keeps focus, which is the right call
- * for the pointer it reports as primary.
+ * Skipped on a device whose primary pointer is precise and can hover – the same
+ * capability query as the hover rules in styles.css, never a width. On such a
+ * device there is no soft keyboard to close, so a blur would only cost the user
+ * their caret and reset the tab order to the top of the document; desktop is
+ * provably unchanged. A device with a real pointer AND a touch screen keeps
+ * focus, which is the right call for the pointer it reports as primary. Not
+ * `(hover: none)` alone: Samsung Internet reports hover on a touchscreen, so
+ * that gate never blurred there and the keyboard stayed up (D-090).
  *
  * The submit handler calls this only AFTER its empty-query early return. That
  * path focuses the input on purpose: nothing was searched, so the caret belongs
  * where the fix goes, and the keyboard is what the user still needs.
  */
 function dismissSoftKeyboard() {
-  if (matchMedia('(hover: none)').matches) el.searchInput.blur();
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) el.searchInput.blur();
 }
 
 el.searchForm.addEventListener('submit', async (e) => {

@@ -11,6 +11,77 @@ to date as the project moves on.** A later entry that changes an earlier one nam
 before relying on an older entry, search this file for its number: a newer
 entry that cites it may have moved the figure or the rule.
 
+## D-090 · Hover effects and the keypad fix ask for a fine pointer as well as hover, because Samsung Internet reports hover on a touchscreen
+
+*2026-10-24. User-found in Samsung Internet on an Android phone; the fix was
+settled on readings the user took there with a probe page Claude wrote.*
+
+**The defect.** Two symptoms, in Samsung Internet only. Tapping a ranked or
+rec card left it grown and lit with every other card dimmed, the sticky hover
+the gate in [D-043](#d-043--the-card-hover-was-not-subtle-it-was-being-cancelled-by-the-entrance-animation)
+exists to prevent. And pressing the keyboard's own Search key left the keypad
+over the results, which
+[step 1 of the agreed order](../CLAUDE.md#step-1--the-mobile-keypad) had fixed.
+Chrome and Brave on the same phone showed neither. One cause behind both: the
+hover rules applied under `(hover: hover)`, and `dismissSoftKeyboard()` blurred
+only under `(hover: none)`, and Samsung Internet answers `hover: hover` on a
+touchscreen. Samsung touchscreens are reported to the system as a touchscreen
+and a touchpad at once, a fault documented outside this project.
+
+**The readings, from Samsung Internet 30 on the user's phone:**
+`(hover: hover)` and `(any-hover: hover)` match; `(pointer: coarse)` matches
+and `(pointer: fine)` does not; `(any-pointer: fine)` and
+`(any-pointer: coarse)` both match. A tap's `pointerType` is `touch`, and
+`:hover` stayed applied after it. Blurring the field on submit closed the
+keypad every time. So the browser's `pointer` answer is right where its
+`hover` answer is wrong, and a blur is all the keypad needs. Desktop Chrome
+matches both `(hover: hover)` and `(pointer: fine)`.
+
+**The fix.** The four hover gates in the stylesheet are
+`(hover: hover) and (pointer: fine)`, and `dismissSoftKeyboard()` blurs unless
+that query matches. One query for both, so the CSS and the JS cannot disagree
+about what counts as a mouse.
+* **Rejected: `(pointer: fine)` in place of `(hover: hover)`.** It answers a
+  different question: how precise the pointer is, not whether it can hover.
+  Adding it as a second condition can only switch an effect off, never on, so
+  every device that had the effects for the right reason keeps them.
+* **Kept in reserve: each tap's own `pointerType`**, recorded on `<html>` as
+  a class the hover rules test and remembered for the field's focus. It
+  reported correctly in the readings above, and it would survive a browser
+  that misreports `pointer` as well. It costs a listener and a rewrite of
+  every hover selector, the `:has()` spotlights included, for no gain on any
+  device seen so far.
+* **Rejected: detecting Samsung Internet by its user-agent string.** Brittle
+  across versions, and the touchscreen fault is reported on some non-Samsung
+  Android phones built with Samsung touchscreens.
+
+**Where Claude was wrong.** Before the readings, Claude expected Samsung
+Internet to report `pointer: fine` as well, on the reasoning that a touchscreen
+claiming to be a touchpad would claim its precision too, and so expected the
+combined query not to help. The readings showed the opposite, which is what
+made the one-line fix possible. Claude's probe also labelled a submit from the
+keyboard's Search key as one from the page's button: pressing Enter in a form
+is a click on its submit button by the HTML spec, so `submitter` cannot tell
+the two apart.
+
+**What it costs.** A device whose primary pointer can hover but is coarse, a
+TV remote for example, loses the hover effects and gets the blur. Such devices
+are rare, and the effects are decoration on a page that works without them.
+
+**Verified** on the desktop: the combined query matches in Chrome, Edge and
+Firefox, so the hover effects and the field's focus behave as before there,
+which the user confirmed in real Chrome and Firefox; and
+[`npm run layout-check`](../scripts/layout-check.js) diffed against the previous stylesheet moved none of 1,799 elements at any of
+its ten widths, in Chrome or Firefox.
+
+### Traps
+* **Do not return to `(hover: hover)` alone**, here or in a new hover rule:
+  Samsung Internet passes it on a touchscreen. Every new hover gate takes the
+  pair.
+* **The JS gate is the negation of the CSS gate, not `(hover: none)`.** The two
+  are not complements in a browser that misreports hover, which is this whole
+  entry.
+
 ## D-089 · A dragged selection leaves soft hyphens behind too, cleaned in place where the browser fills the drag and written out where WebKit leaves it empty
 
 *[2026-10-24](https://github.com/guycn1/cinerank-project/commit/7dceb5f2e8ee4023752907950f81b3e80d16a5e9). The user asked whether any hyphenated text could still carry soft
@@ -3759,6 +3830,12 @@ the app's amber. **The user chose C.**
   `:hover` sticks on a touch screen after a tap – a card would stay parked in the
   grown state after pressing Edit. Gating on input capability keeps the effect on
   a narrow desktop window, which a `min-width` query would wrongly remove.
+
+  > **2026-10-24:** the gate is `(hover: hover) and (pointer: fine)` since
+  > [D-090](#d-090--hover-effects-and-the-keypad-fix-ask-for-a-fine-pointer-as-well-as-hover-because-samsung-internet-reports-hover-on-a-touchscreen).
+  > Samsung Internet reports `hover: hover` on a touchscreen, so a tap there
+  > parked the card grown with the spotlight on, the state this trap exists to
+  > prevent.
 * **`prefers-reduced-motion` suppresses the transform but keeps the colour.**
   Killing the transition alone was not enough: the lift and scale still applied,
   just instantly, which is precisely what a motion-sensitive user is asking to
